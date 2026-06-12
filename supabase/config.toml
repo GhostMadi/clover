@@ -1,0 +1,23 @@
+[api]
+enabled = true
+
+[db]
+shadow_port = 54320
+
+# Шлюз по умолчанию проверяет JWT до Deno; при рассинхроне ключей подписи даёт 401 без тела.
+# Проверка пользователя выполняется в коде: [requireSupabaseUser].
+[functions.create_post]
+verify_jwt = false
+
+[functions.upload_post_media_poster]
+verify_jwt = false
+
+[functions.register_post_view]
+verify_jwt = false
+
+[functions.register_post_send]
+verify_jwt = false
+
+[functions.send_chat_attachments]
+verify_jwt = false
+

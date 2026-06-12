@@ -1,0 +1,16 @@
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/storage/storage.dart';
+final storage = sl<IAppStorage>(); // init() уже в configureDependencies()
+await storage.write(key: 'theme', value: 'dark');
+final theme = await storage.read<String>(key: 'theme');
+await storage.writeObject(
+  key: 'user_profile',
+  value: profile,
+  toJson: (p) => p.toJson(),
+);
+final profile = await storage.readObject(
+  key: 'user_profile',
+  fromJson: UserProfile.fromJson,
+);
+await storage.writeFilePath(key: 'avatar', path: '/path/to/file.jpg');
+final path = await storage.readFilePath(key: 'avatar');

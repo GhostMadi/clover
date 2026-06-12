@@ -1,0 +1,103 @@
+import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/style.dart';
+import 'package:flutter/material.dart';
+
+class AppMiniMenuItem<T> {
+  const AppMiniMenuItem({
+    required this.value,
+    required this.title,
+    this.icon,
+    this.titleColor,
+    this.iconColor,
+    this.enabled = true,
+  });
+
+  final T value;
+  final String title;
+  final IconData? icon;
+  final Color? titleColor;
+  final Color? iconColor;
+  final bool enabled;
+}
+
+/// Универсальное меню опций.
+///
+/// - Если передан [child], меню откроется при нажатии на него.
+/// - Если [child] равен null, отобразится стандартная иконка "⋯".
+/// - Если список [items] пуст, виджет ничего не рендерит.
+class AppMiniMenu<T> extends StatelessWidget {
+  const AppMiniMenu({
+    super.key,
+    required this.items,
+    required this.onSelected,
+    this.child,
+    this.menuTooltip = 'Опции',
+    this.iconColor,
+    this.iconPadding,
+  });
+
+  final List<AppMiniMenuItem<T>> items;
+  final ValueChanged<T> onSelected;
+
+  /// Любой виджет, который станет триггером для открытия меню (кнопка, аватар, текст и т.д.)
+  final Widget? child;
+
+  final String menuTooltip;
+  final Color? iconColor;
+  final EdgeInsets? iconPadding;
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return PopupMenuButton<T>(
+      tooltip: menuTooltip,
+      color: AppColors.surface,
+      // ХАК: Обнуляем скрытые вертикальные отступы самого контейнера меню
+      menuPadding: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias, // Обрезаем углы сплеша по форме borderRadius
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: AppColors.border.withValues(alpha: 0.8)),
+      ),
+      onSelected: onSelected,
+      itemBuilder: (context) {
+        return items.map((it) {
+          return PopupMenuItem<T>(
+            value: it.value,
+            enabled: it.enabled,
+            // Выставляем нужные отступы внутри самого элемента
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            height: 0, // Убираем дефолтное ограничение по высоте (48)
+            child: Row(
+              children: [
+                if (it.icon != null) ...[
+                  Icon(it.icon, size: 20, color: it.iconColor ?? AppColors.textColor),
+                  const SizedBox(width: 10),
+                ],
+                Text(
+                  it.title,
+                  style: AppTextStyle.base(
+                    14,
+                    fontWeight: FontWeight.w700,
+                    color: it.titleColor ?? AppColors.textColor,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList();
+      },
+      child:
+          child ??
+          Padding(
+            padding: iconPadding ?? EdgeInsets.zero,
+            child: Icon(
+              Icons.more_vert_rounded,
+              size: 20,
+              color: iconColor ?? AppColors.subTextColor.withValues(alpha: 0.75),
+            ),
+          ),
+    );
+  }
+}

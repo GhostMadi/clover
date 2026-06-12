@@ -1,0 +1,79 @@
+import 'package:clover/feature/cities/data/models/city_code.dart';
+import 'package:clover/feature/countries/data/models/country_code.dart';
+import 'package:clover/feature/profile_categories/data/models/profile_category_code.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'profile_new_model.freezed.dart';
+part 'profile_new_model.g.dart';
+
+/// Строка `public.profiles` (ответ PostgREST / Supabase).
+@freezed
+abstract class ProfileNewModel with _$ProfileNewModel {
+  const ProfileNewModel._();
+
+  const factory ProfileNewModel({
+    required String id,
+    String? email,
+    @JsonKey(name: 'full_name') String? fullName,
+    String? username,
+    @JsonKey(name: 'category_code') String? categoryCodeRaw,
+    @JsonKey(name: 'city_code') String? cityCodeRaw,
+    @JsonKey(name: 'country_code') String? countryCodeRaw,
+    @JsonKey(name: 'avatar_url') String? avatarUrl,
+    @JsonKey(name: 'background_url') String? backgroundUrl,
+    String? bio,
+    String? phone,
+    @JsonKey(name: 'followers_count') @Default(0) int followersCount,
+    @JsonKey(name: 'following_count') @Default(0) int followingCount,
+    @JsonKey(name: 'cluster_count') @Default(0) int clusterCount,
+    @JsonKey(name: 'post_count') @Default(0) int postCount,
+    @JsonKey(name: 'username_change_count') @Default(0) int usernameChangeCount,
+    @JsonKey(name: 'username_next_change_allowed_at') DateTime? usernameNextChangeAllowedAt,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'updated_at') DateTime? updatedAt,
+    @JsonKey(name: 'hiring_enabled') @Default(false) bool hiringEnabled,
+    @JsonKey(name: 'open_for_memberships') @Default(false) bool openForMemberships,
+  }) = _ProfileNewModel;
+
+  factory ProfileNewModel.fromJson(Map<String, dynamic> json) => _$ProfileNewModelFromJson(json);
+
+  /// Категория из справочника.
+  ProfileCategoryCode? get categoryCode => ProfileCategoryCode.tryParse(categoryCodeRaw);
+
+  /// Страна как в `public.countries.code`.
+  CountryCode? get countryCode => CountryCode.tryParse(countryCodeRaw);
+
+  /// Город, если slug известен enum'у [CityCode].
+  CityCode? get cityCode {
+    final slug = cityCodeRaw?.trim();
+    final country = countryCode;
+    if (slug == null || slug.isEmpty || country == null) return null;
+    return CityCode.tryParse(countryCode: country.code, cityCode: slug);
+  }
+
+  /// Сырой `city_code`, если enum не распознал slug.
+  String? get citySlug {
+    final slug = cityCodeRaw?.trim();
+    if (slug == null || slug.isEmpty || cityCode != null) return null;
+    return slug;
+  }
+
+  /// Подпись города для UI.
+  String? get cityLabel => cityCode?.labelRu ?? citySlug;
+
+  /// Подпись категории для UI.
+  String? get categoryLabelRu => categoryCode?.labelRu;
+
+  /// «Страна,город» или одно из полей — для строки локации в хедере.
+  String get locationLine {
+    final city = cityLabel?.trim();
+    final country = countryCode?.labelRu.trim();
+    final hasCity = city != null && city.isNotEmpty;
+    final hasCountry = country != null && country.isNotEmpty;
+
+    if (hasCity && hasCountry) return '$country,$city';
+    if (hasCity) return city;
+    if (hasCountry) return country;
+    return '';
+  }
+}
