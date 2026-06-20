@@ -13,7 +13,7 @@ abstract final class AuthErrorMessages {
       AuthErrorCode.googleSignInFailed =>
         'Не удалось войти через Google. Попробуйте ещё раз.',
       AuthErrorCode.googleClientMisconfigured =>
-        'Вход через Google настроен некорректно.',
+        'Google Sign-In не настроен: проверьте Web Client ID в Google Cloud и Supabase.',
       AuthErrorCode.supabaseSignInFailed =>
         'Не удалось выполнить вход. Попробуйте позже.',
       AuthErrorCode.supabaseUserMissing =>

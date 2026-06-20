@@ -15,6 +15,7 @@ class PostGrid extends StatelessWidget {
     required this.posts,
     this.savedByPostId,
     this.onPostTap,
+    this.emptyMessage = 'нет публикаций',
     this.spacing = 3,
     this.crossAxisCount = PostMediaLayout.gridCrossAxisCount,
   });
@@ -22,6 +23,7 @@ class PostGrid extends StatelessWidget {
   final List<PostModel> posts;
   final Map<String, bool>? savedByPostId;
   final ValueChanged<PostModel>? onPostTap;
+  final String emptyMessage;
   final double spacing;
   final int crossAxisCount;
 
@@ -38,7 +40,7 @@ class PostGrid extends StatelessWidget {
           context.heightByContext(32),
         ),
         child: Text(
-          'нет публикаций',
+          emptyMessage,
           textAlign: TextAlign.center,
           style: AppTextStyle.base(context.heightByContext(14), color: AppColors.subTextColor, height: 1.35),
         ),

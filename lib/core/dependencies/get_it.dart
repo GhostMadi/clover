@@ -1,3 +1,4 @@
+import 'package:clover/core/config/google_auth_config.dart';
 import 'package:clover/core/dependencies/get_it.config.dart';
 import 'package:clover/core/storage/domain/repositories/i_app_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -14,5 +15,7 @@ final sl = GetIt.instance;
 Future<void> configureDependencies() async {
   sl.init();
   await sl<IAppStorage>().init();
-  await GoogleSignIn.instance.initialize();
+  await GoogleSignIn.instance.initialize(
+    clientId: GoogleAuthConfig.iosClientId,
+  );
 }

@@ -2,6 +2,8 @@ import 'package:clover/core/auth/cubit/auth_cubit.dart';
 import 'package:clover/core/config/supabase.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/network/supabase_logging_http_client.dart';
+import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,6 +15,7 @@ void main() async {
   await Supabase.initialize(
     url: SupabaseConfig.url,
     anonKey: SupabaseConfig.anonKey,
+    authOptions: const FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
     debug: supabaseHttpLoggingEnabled,
     httpClient: supabaseHttpLoggingEnabled ? SupabaseLoggingHttpClient() : null,
   );
@@ -47,11 +50,18 @@ class _MyAppViewState extends State<_MyAppView> {
       routerConfig: _appRouter.config(),
       title: 'Clover',
       debugShowCheckedModeBanner: false,
-      // theme: ThemeData(
-      //   brightness: Brightness.dark,
-      //   scaffoldBackgroundColor: const Color(0xFF0D0D0D),
-      //   useMaterial3: true,
-      // ),
+      theme: ThemeData(
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: AppColors.pageBackground,
+        progressIndicatorTheme: ProgressIndicatorThemeData(color: AppColors.primary),
+        appBarTheme: AppBarTheme(
+          backgroundColor: AppColors.pageBackground,
+          elevation: 0,
+          centerTitle: true,
+          titleTextStyle: AppTextStyle.base(20, color: AppColors.textColor, fontWeight: FontWeight.w500),
+        ),
+        useMaterial3: true,
+      ),
     );
   }
 }

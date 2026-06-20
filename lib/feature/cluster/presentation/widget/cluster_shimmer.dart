@@ -45,72 +45,18 @@ class ClusterShimmer extends StatelessWidget {
 class _ClusterCardShim extends StatelessWidget {
   const _ClusterCardShim();
 
-  static const double _figmaCardRadius = 18;
-  static const double _figmaPadding = 10;
-  static const double _figmaThumb = 52;
-  static const double _figmaThumbRadius = 11;
-  static const double _figmaGapThumb = 10;
-  static const double _figmaLine1Height = 14;
-  static const double _figmaLine1Radius = 6;
-  static const double _figmaLineGap = 8;
-  static const double _figmaLine2Width = 90;
-  static const double _figmaLine2Height = 10;
-  static const double _figmaLine2Radius = 6;
+  static const double _figmaCardRadius = 20;
 
   @override
   Widget build(BuildContext context) {
+    final size = clusterCardWidth(context);
     return Container(
-      width: clusterCardWidth(context),
-      padding: EdgeInsets.all(context.widthByContext(_figmaPadding)),
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(context.widthByContext(_figmaCardRadius)),
         color: AppColors.white,
       ),
-      child: Row(
-        children: [
-          _Box(
-            width: context.heightByContext(_figmaThumb),
-            height: context.heightByContext(_figmaThumb),
-            radius: context.widthByContext(_figmaThumbRadius),
-          ),
-          SizedBox(width: context.widthByContext(_figmaGapThumb)),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _Box(
-                  width: double.infinity,
-                  height: context.heightByContext(_figmaLine1Height),
-                  radius: context.widthByContext(_figmaLine1Radius),
-                ),
-                SizedBox(height: context.heightByContext(_figmaLineGap)),
-                _Box(
-                  width: context.widthByContext(_figmaLine2Width),
-                  height: context.heightByContext(_figmaLine2Height),
-                  radius: context.widthByContext(_figmaLine2Radius),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Box extends StatelessWidget {
-  const _Box({required this.width, required this.height, required this.radius});
-
-  final double width;
-  final double height;
-  final double radius;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width.isFinite ? width : null,
-      height: height,
-      decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(radius)),
     );
   }
 }

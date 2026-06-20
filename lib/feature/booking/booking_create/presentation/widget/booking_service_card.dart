@@ -1,0 +1,101 @@
+import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/style.dart';
+import 'package:clover/feature/booking/booking_create/data/mock/booking_services_mock_data.dart';
+import 'package:clover/feature/booking/booking_create/data/models/booking_service.dart';
+import 'package:flutter/material.dart';
+
+class BookingServiceCard extends StatelessWidget {
+  const BookingServiceCard({
+    super.key,
+    required this.service,
+    this.onTap,
+  });
+
+  final BookingService service;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final executor = BookingServicesMockData.executorById(service.executorId);
+
+    return Material(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+          ),
+          child: Row(
+            children: [
+              _EmojiBadge(emoji: service.emojiText),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      service.title,
+                      style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      service.displaySubtitle,
+                      style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w500),
+                    ),
+                    if (executor != null) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        'Исполнитель: ${executor.displayName}',
+                        style: AppTextStyle.base(12, color: AppColors.primary, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                    if (service.description != null && service.description!.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        service.description!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyle.base(13, color: AppColors.subTextColor, height: 1.3),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                service.priceLabel,
+                style: AppTextStyle.base(15, color: AppColors.primary, fontWeight: FontWeight.w800),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmojiBadge extends StatelessWidget {
+  const _EmojiBadge({required this.emoji});
+
+  final String emoji;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 52,
+      height: 52,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceSoftGreen.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.borderCardGreen.withValues(alpha: 0.7)),
+      ),
+      child: Text(emoji, style: const TextStyle(fontSize: 26, height: 1)),
+    );
+  }
+}

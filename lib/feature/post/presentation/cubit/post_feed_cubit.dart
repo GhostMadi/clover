@@ -1,5 +1,4 @@
-import 'dart:developer';
-
+import 'package:clover/feature/post/data/models/post_feed_item.dart';
 import 'package:clover/feature/post/data/models/post_model.dart';
 import 'package:clover/feature/post/data/repository/post_local_cache.dart';
 import 'package:clover/feature/post/data/repository/post_repository.dart';
@@ -19,8 +18,18 @@ class PostFeedCubit extends Cubit<PostFeedState> {
   String? _userId;
   String? _clusterId;
   bool _onlyWithoutCluster = false;
+  bool _onlyWithMarker = false;
+  Set<String> _filterSelectionKeys = const {};
 
-  Future<void> load(String userId, {String? clusterId, bool onlyWithoutCluster = false}) async {
+  bool get _hasActiveFilters => _filterSelectionKeys.isNotEmpty;
+
+  Future<void> load(
+    String userId, {
+    String? clusterId,
+    bool onlyWithoutCluster = false,
+    bool onlyWithMarker = false,
+    Set<String>? filterSelectionKeys,
+  }) async {
     if (isClosed) return;
     final id = userId.trim();
     if (id.isEmpty) return;
@@ -28,19 +37,27 @@ class PostFeedCubit extends Cubit<PostFeedState> {
     _userId = id;
     _clusterId = clusterId?.trim();
     _onlyWithoutCluster = onlyWithoutCluster;
+    _onlyWithMarker = onlyWithMarker;
+    if (filterSelectionKeys != null) {
+      _filterSelectionKeys = Set<String>.from(filterSelectionKeys);
+    }
 
-    final cached = await _localCache.readFeed(id);
-    log(cached!.map((m) => m.toJson()).toString());
-    if (cached.isNotEmpty) {
-      emit(
-        PostFeedState.loaded(
-          posts: cached,
-          savedByPostId: const {},
-          hasMore: true,
-          isLoadingMore: false,
-          isFromCache: true,
-        ),
-      );
+    if (!_hasActiveFilters) {
+      final cached = await _localCache.readFeed(id, onlyWithMarker: onlyWithMarker);
+      if (cached != null && cached.isNotEmpty) {
+        emit(
+          PostFeedState.loaded(
+            posts: cached,
+            savedByPostId: const {},
+            reactionsByPostId: const {},
+            hasMore: true,
+            isLoadingMore: false,
+            isFromCache: true,
+          ),
+        );
+      } else {
+        emit(const PostFeedState.loading());
+      }
     } else {
       emit(const PostFeedState.loading());
     }
@@ -51,7 +68,12 @@ class PostFeedCubit extends Cubit<PostFeedState> {
   Future<void> reload() async {
     final id = _userId;
     if (id == null || id.isEmpty) return;
-    await load(id, clusterId: _clusterId, onlyWithoutCluster: _onlyWithoutCluster);
+    await load(
+      id,
+      clusterId: _clusterId,
+      onlyWithoutCluster: _onlyWithoutCluster,
+      onlyWithMarker: _onlyWithMarker,
+    );
   }
 
   Future<void> refresh() async {
@@ -62,6 +84,94 @@ class PostFeedCubit extends Cubit<PostFeedState> {
       emit(cur.copyWith(isRefreshing: true));
     }
     await _fetchRemote(reset: true);
+  }
+
+  /// Синхронизация реакции после экрана поста (оптимистичный лайк и т.д.).
+  void patchPostReaction({required String postId, required String? reaction, PostModel? post}) {
+    if (isClosed) return;
+    final id = postId.trim();
+    if (id.isEmpty) return;
+
+    _repository.cacheMyReaction(id, reaction);
+
+    final cur = state;
+    if (cur is! PostFeedLoaded) return;
+
+    final reactions = Map<String, String?>.from(cur.reactionsByPostId);
+    reactions[id] = reaction;
+
+    final posts = post == null
+        ? cur.posts
+        : cur.posts.map((p) => p.id == id ? post : p).toList(growable: false);
+
+    emit(cur.copyWith(reactionsByPostId: reactions, posts: posts));
+  }
+
+  /// Синхронизация cluster_id после экрана поста.
+  void patchPostCluster({required String postId, required PostModel post}) {
+    if (isClosed) return;
+    final id = postId.trim();
+    if (id.isEmpty) return;
+
+    final cur = state;
+    if (cur is! PostFeedLoaded) return;
+
+    final posts = cur.posts.map((p) => p.id == id ? post : p).toList(growable: false);
+    emit(cur.copyWith(posts: posts));
+  }
+
+  /// Убрать пост из ленты после архивации на экране деталки.
+  void removePost(String postId) {
+    if (isClosed) return;
+    final id = postId.trim();
+    if (id.isEmpty) return;
+
+    final cur = state;
+    if (cur is! PostFeedLoaded) return;
+
+    final posts = cur.posts.where((p) => p.id != id).toList(growable: false);
+    final reactions = Map<String, String?>.from(cur.reactionsByPostId)..remove(id);
+    final saved = Map<String, bool>.from(cur.savedByPostId)..remove(id);
+    emit(cur.copyWith(posts: posts, reactionsByPostId: reactions, savedByPostId: saved));
+  }
+
+  String? myReactionFor(String postId) {
+    final id = postId.trim();
+    if (id.isEmpty) return null;
+
+    // После лайка на экране поста лента может быть ещё без обновления — кэш приоритетнее.
+    if (_repository.hasCachedMyReaction(id)) {
+      return _repository.getCachedMyReaction(id);
+    }
+
+    final cur = state;
+    if (cur is PostFeedLoaded && cur.reactionsByPostId.containsKey(id)) {
+      return cur.reactionsByPostId[id];
+    }
+    return null;
+  }
+
+  PostFeedItem feedItemFor(PostModel post) {
+    final id = post.id.trim();
+    final cachedItem = _repository.getCachedFeedItem(id);
+    final reaction = myReactionFor(id);
+    final saved = (state is PostFeedLoaded)
+        ? ((state as PostFeedLoaded).savedByPostId[id] ?? false)
+        : false;
+
+    if (cachedItem != null) {
+      return cachedItem.copyWith(
+        post: _repository.getCachedPostById(id) ?? cachedItem.post,
+        myReaction: reaction ?? cachedItem.myReaction,
+        mySaved: saved,
+      );
+    }
+
+    return PostFeedItem(
+      post: _repository.getCachedPostById(id) ?? post,
+      myReaction: reaction,
+      mySaved: saved,
+    );
   }
 
   Future<void> loadMore() async {
@@ -80,26 +190,33 @@ class PostFeedCubit extends Cubit<PostFeedState> {
         cursorPostId: last.id,
         clusterId: _clusterId,
         onlyWithoutCluster: _onlyWithoutCluster,
+        onlyWithMarker: _onlyWithMarker,
+        filterSelectionKeys: _filterSelectionKeys,
       );
       if (isClosed) return;
 
       final merged = [...cur.posts, ...more.map((e) => e.post)];
       final saved = Map<String, bool>.from(cur.savedByPostId);
+      final reactions = Map<String, String?>.from(cur.reactionsByPostId);
       for (final e in more) {
         saved[e.post.id] = e.mySaved;
+        reactions[e.post.id] = e.myReaction;
       }
 
       emit(
         cur.copyWith(
           posts: merged,
           savedByPostId: saved,
+          reactionsByPostId: reactions,
           hasMore: more.length == _pageSize,
           isLoadingMore: false,
           isFromCache: false,
           isRefreshing: false,
         ),
       );
-      await _localCache.writeFeed(id, merged);
+      if (!_hasActiveFilters) {
+        await _localCache.writeFeed(id, merged, onlyWithMarker: _onlyWithMarker);
+      }
     } catch (_) {
       if (isClosed) return;
       emit(cur.copyWith(isLoadingMore: false, isRefreshing: false));
@@ -116,22 +233,28 @@ class PostFeedCubit extends Cubit<PostFeedState> {
         limit: _pageSize,
         clusterId: _clusterId,
         onlyWithoutCluster: _onlyWithoutCluster,
+        onlyWithMarker: _onlyWithMarker,
+        filterSelectionKeys: _filterSelectionKeys,
       );
       if (isClosed) return;
 
       final posts = enriched.map((e) => e.post).toList(growable: false);
       final saved = {for (final e in enriched) e.post.id: e.mySaved};
+      final reactions = {for (final e in enriched) e.post.id: e.myReaction};
 
       emit(
         PostFeedState.loaded(
           posts: posts,
           savedByPostId: saved,
+          reactionsByPostId: reactions,
           hasMore: posts.length == _pageSize,
           isLoadingMore: false,
           isFromCache: false,
         ),
       );
-      await _localCache.writeFeed(id, posts);
+      if (!_hasActiveFilters) {
+        await _localCache.writeFeed(id, posts, onlyWithMarker: _onlyWithMarker);
+      }
     } catch (e) {
       if (isClosed) return;
       final cur = state;
@@ -152,6 +275,7 @@ sealed class PostFeedState {
   const factory PostFeedState.loaded({
     required List<PostModel> posts,
     required Map<String, bool> savedByPostId,
+    required Map<String, String?> reactionsByPostId,
     required bool hasMore,
     required bool isLoadingMore,
     bool isFromCache,
@@ -172,6 +296,7 @@ final class PostFeedLoaded extends PostFeedState {
   const PostFeedLoaded({
     required this.posts,
     required this.savedByPostId,
+    required this.reactionsByPostId,
     required this.hasMore,
     required this.isLoadingMore,
     this.isFromCache = false,
@@ -180,6 +305,7 @@ final class PostFeedLoaded extends PostFeedState {
 
   final List<PostModel> posts;
   final Map<String, bool> savedByPostId;
+  final Map<String, String?> reactionsByPostId;
   final bool hasMore;
   final bool isLoadingMore;
   final bool isFromCache;
@@ -188,6 +314,7 @@ final class PostFeedLoaded extends PostFeedState {
   PostFeedLoaded copyWith({
     List<PostModel>? posts,
     Map<String, bool>? savedByPostId,
+    Map<String, String?>? reactionsByPostId,
     bool? hasMore,
     bool? isLoadingMore,
     bool? isFromCache,
@@ -196,6 +323,7 @@ final class PostFeedLoaded extends PostFeedState {
     return PostFeedLoaded(
       posts: posts ?? this.posts,
       savedByPostId: savedByPostId ?? this.savedByPostId,
+      reactionsByPostId: reactionsByPostId ?? this.reactionsByPostId,
       hasMore: hasMore ?? this.hasMore,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       isFromCache: isFromCache ?? this.isFromCache,

@@ -24,6 +24,7 @@ class AppImageEditorPage extends StatefulWidget {
     required this.assets,
     this.title = 'Редактирование',
     this.confirmLabel = 'Далее',
+    this.lockedAspectRatio,
     this.onClose,
     this.onDone,
   });
@@ -31,6 +32,9 @@ class AppImageEditorPage extends StatefulWidget {
   final List<AssetEntity> assets;
   final String title;
   final String confirmLabel;
+
+  /// Если задан — формат фиксирован (например 1:1 для обложки кластера).
+  final PostAspectRatio? lockedAspectRatio;
   final VoidCallback? onClose;
   final ValueChanged<List<AppImageEditorResult>>? onDone;
 
@@ -66,7 +70,10 @@ class _AppImageEditorPageState extends State<AppImageEditorPage> {
   @override
   void initState() {
     super.initState();
-    _settingsList = List.filled(widget.assets.length, AppImageEditSettings.none);
+    final initial = widget.lockedAspectRatio != null
+        ? AppImageEditSettings(aspectRatio: widget.lockedAspectRatio!)
+        : AppImageEditSettings.none;
+    _settingsList = List.filled(widget.assets.length, initial);
     _filesList = List.filled(widget.assets.length, null);
     _loadAssets();
   }
@@ -158,6 +165,7 @@ class _AppImageEditorPageState extends State<AppImageEditorPage> {
   }
 
   void _selectAspectRatio(PostAspectRatio aspectRatio) {
+    if (widget.lockedAspectRatio != null) return;
     if (aspectRatio == _settings.aspectRatio) return;
 
     HapticFeedback.selectionClick();
@@ -284,7 +292,7 @@ class _AppImageEditorPageState extends State<AppImageEditorPage> {
                               ),
                             ),
                           ),
-                        if (_panelIndex == 2)
+                        if (_panelIndex == 2 && widget.lockedAspectRatio == null)
                           Positioned(
                             left: context.widthByContext(16),
                             right: context.widthByContext(16),
@@ -322,6 +330,7 @@ class _AppImageEditorPageState extends State<AppImageEditorPage> {
                   activeTool: _activeTool,
                   toolValue: _toolValue(_activeTool),
                   imageFile: _imageFile!,
+                  showAspectPanel: widget.lockedAspectRatio == null,
                   onPanelChanged: (index) => setState(() => _panelIndex = index),
                   onToolSelected: (tool) => setState(() => _activeTool = tool),
                   onToolChanged: _updateTool,
@@ -341,6 +350,7 @@ class _EditorPanel extends StatelessWidget {
     required this.activeTool,
     required this.toolValue,
     required this.imageFile,
+    required this.showAspectPanel,
     required this.onPanelChanged,
     required this.onToolSelected,
     required this.onToolChanged,
@@ -353,6 +363,7 @@ class _EditorPanel extends StatelessWidget {
   final AppImageEditTool activeTool;
   final double toolValue;
   final File imageFile;
+  final bool showAspectPanel;
   final ValueChanged<int> onPanelChanged;
   final ValueChanged<AppImageEditTool> onToolSelected;
   final void Function(AppImageEditTool tool, double value) onToolChanged;
@@ -457,7 +468,9 @@ class _EditorPanel extends StatelessWidget {
               ),
               SizedBox(height: context.heightByContext(12)),
               AppTab(
-                tabs: const ['Настройка', 'Эффекты', 'Формат'],
+                tabs: showAspectPanel
+                    ? const ['Настройка', 'Эффекты', 'Формат']
+                    : const ['Настройка', 'Эффекты'],
                 currentIndex: panelIndex,
                 onTabChanged: onPanelChanged,
               ),

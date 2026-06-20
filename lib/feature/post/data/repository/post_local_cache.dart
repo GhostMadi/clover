@@ -12,14 +12,15 @@ class PostLocalCache {
 
   final IAppStorage _storage;
 
-  String _feedKey(String userId) => 'post_new_feed_$userId';
+  String _feedKey(String userId, {bool onlyWithMarker = false}) =>
+      onlyWithMarker ? 'post_marker_feed_$userId' : 'post_new_feed_$userId';
 
-  Future<List<PostModel>?> readFeed(String userId) async {
+  Future<List<PostModel>?> readFeed(String userId, {bool onlyWithMarker = false}) async {
     final id = userId.trim();
     if (id.isEmpty) return null;
 
     final list = await _storage.readList<PostModel>(
-      key: _feedKey(id),
+      key: _feedKey(id, onlyWithMarker: onlyWithMarker),
       fromJson: (json) {
         if (json is! Map) {
           throw FormatException('Expected map');
@@ -30,15 +31,19 @@ class PostLocalCache {
     return list;
   }
 
-  Future<void> writeFeed(String userId, List<PostModel> posts) async {
+  Future<void> writeFeed(String userId, List<PostModel> posts, {bool onlyWithMarker = false}) async {
     final id = userId.trim();
     if (id.isEmpty) return;
-    await _storage.writeList(key: _feedKey(id), value: posts, toJson: (p) => p.toJson());
+    await _storage.writeList(
+      key: _feedKey(id, onlyWithMarker: onlyWithMarker),
+      value: posts,
+      toJson: (p) => p.toJson(),
+    );
   }
 
-  Future<void> clearFeed(String userId) async {
+  Future<void> clearFeed(String userId, {bool onlyWithMarker = false}) async {
     final id = userId.trim();
     if (id.isEmpty) return;
-    await _storage.delete(key: _feedKey(id));
+    await _storage.delete(key: _feedKey(id, onlyWithMarker: onlyWithMarker));
   }
 }

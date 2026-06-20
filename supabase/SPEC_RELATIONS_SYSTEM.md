@@ -14,12 +14,12 @@ Professional relations between two accounts live in **`public.relations`**. One 
 
 ## Intent rules (`request_relation`)
 
-| `p_action` | Who is checked | Rule |
-|------------|----------------|------|
-| **`hire`** | Caller (`auth.uid()`) | Caller must have **`profiles.hiring_enabled = true`**. |
-| **`join`** | Target (`p_target_id`) | Target must have **`profiles.open_for_memberships = true`**. |
+| `p_action` | Meaning |
+|------------|---------|
+| **`hire`** | Initiator invites the peer as an employee. |
+| **`join`** | Initiator asks to join the peer’s team. |
 
-Self-requests are forbidden. Unknown profile rows surface as `user_not_found` where applicable.
+Self-requests are forbidden. Target profile must exist (`user_not_found` otherwise). No profile flag gates.
 
 ## Upsert / reopen
 
@@ -41,6 +41,12 @@ Any other transition raises an exception (e.g. `can_only_accept_pending`, `can_o
 
 There is **no** transition from `rejected` or `terminated` except a **new** `request_relation`, which reopens to `pending`.
 
+## Withdraw (`withdraw_relation`)
+
+- **Who:** `initiator_id` only.
+- **When:** `status = pending`.
+- **Effect:** row is **deleted** (pair can request again via `request_relation`).
+
 ## Client access
 
 | Operation | Mechanism |
@@ -48,11 +54,13 @@ There is **no** transition from `rejected` or `terminated` except a **new** `req
 | Read edges for the current user | **`SELECT`** on `relations` under RLS (row visible if `auth.uid()` is one of the two accounts). |
 | Create / reopen request | RPC **`request_relation(p_target_id, p_action)`**. |
 | Accept / reject / terminate | RPC **`update_relation_status(p_relation_id, p_new_status)`**. |
+| Cancel own pending request | RPC **`withdraw_relation(p_relation_id)`** — initiator only; **DELETE** row. |
+| List all relations with peer profile | RPC **`list_my_relations_enriched()`**. |
 | One row with a given peer | RPC **`get_my_relation_with(p_other)`** (canonical pair resolved server-side). |
 
 Direct **`INSERT` / `UPDATE` / `DELETE`** on `relations` by `authenticated` is revoked; mutating paths are RPC-only (`security definer`).
 
 ## Flutter naming
 
-- **`hire`** on profile UI: “I hire this person” (requires my `hiring_enabled`).
-- **`join`**: “I want to join this person’s team” (requires their `open_for_memberships`).
+- **`hire`**: “I hire this person”.
+- **`join`**: “I want to join this person’s team”.

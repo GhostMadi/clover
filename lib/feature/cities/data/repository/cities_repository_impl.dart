@@ -1,4 +1,4 @@
-import 'package:clover/feature/cities/data/models/city_model.dart';
+import 'package:clover/feature/city/data/models/city_model.dart';
 import 'package:clover/feature/cities/data/repository/cities_repository.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

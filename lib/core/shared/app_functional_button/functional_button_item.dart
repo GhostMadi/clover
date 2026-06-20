@@ -12,6 +12,9 @@ class FunctionalButtonItem {
   /// Если `true`, кнопка остаётся видимой при [AppFunctionalScreen.collapsed].
   final bool keepWhenCollapsed;
 
+  /// Если `true`, вместо иконки показывается индикатор загрузки; нажатие отключено.
+  final bool isLoading;
+
   const FunctionalButtonItem({
     required this.icon,
     required this.onTap,
@@ -20,5 +23,6 @@ class FunctionalButtonItem {
     this.iconColor,
     this.textColor,
     this.keepWhenCollapsed = false,
+    this.isLoading = false,
   });
 }

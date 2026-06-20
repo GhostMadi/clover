@@ -24,12 +24,14 @@ class ClusterList extends StatefulWidget {
     this.selectedClusterId,
     this.onClusterTap,
     this.leading,
+    this.readOnly = false,
   });
 
   final String ownerId;
   final String? selectedClusterId;
   final ValueChanged<ClusterModel>? onClusterTap;
   final Widget? leading;
+  final bool readOnly;
 
   @override
   State<ClusterList> createState() => _ClusterListState();
@@ -84,7 +86,7 @@ class _ClusterListState extends State<ClusterList> {
           ),
           loaded: (items) {
             if (widget.leading == null && items.isEmpty) {
-              return SizedBox(height: clusterStripHeight(context));
+              return const SizedBox.shrink();
             }
             final itemGap = context.widthByContext(_figmaItemGap);
             return Padding(
@@ -108,6 +110,7 @@ class _ClusterListState extends State<ClusterList> {
                         cluster: items[i],
                         isSelected: widget.selectedClusterId == items[i].id,
                         onTap: () => widget.onClusterTap?.call(items[i]),
+                        readOnly: widget.readOnly,
                       ),
                     ],
                   ],
@@ -123,14 +126,19 @@ class _ClusterListState extends State<ClusterList> {
 }
 
 class _ClusterListCard extends StatelessWidget {
-  const _ClusterListCard({required this.cluster, required this.isSelected, this.onTap});
+  const _ClusterListCard({
+    required this.cluster,
+    required this.isSelected,
+    this.onTap,
+    this.readOnly = false,
+  });
 
   final ClusterModel cluster;
   final bool isSelected;
   final VoidCallback? onTap;
+  final bool readOnly;
 
   static const _menuItems = [
-    AppMiniMenuItem(value: 'edit', title: 'Редактировать', icon: Icons.edit_outlined),
     AppMiniMenuItem(value: 'archive', title: 'Архивировать', icon: Icons.archive_outlined),
     AppMiniMenuItem(
       value: 'delete',
@@ -191,12 +199,6 @@ class _ClusterListCard extends StatelessWidget {
         unawaited(_delete(context));
       case 'archive':
         unawaited(_archive(context));
-      case 'edit':
-        AppSnackBar.show(
-          context,
-          message: 'Редактирование подключим следующим шагом',
-          kind: AppSnackBarKind.info,
-        );
     }
   }
 
@@ -209,8 +211,8 @@ class _ClusterListCard extends StatelessWidget {
       countLabel: cluster.postsCountLabel,
       isSelected: isSelected,
       onTap: onTap,
-      menuItems: _menuItems,
-      onMenuSelected: (v) => _onMenu(context, v),
+      menuItems: readOnly ? null : _menuItems,
+      onMenuSelected: readOnly ? null : (v) => _onMenu(context, v),
     );
   }
 }

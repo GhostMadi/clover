@@ -8,6 +8,7 @@
 - Контент живёт в **`posts`**. Связь «у этого маркера есть эти посты» — через **`public.marker_posts`** (M2M-таблица: `marker_id`, `post_id`, `sort_order`, `is_primary`).
 - **`posts.marker_id`** — удобная колонка на посте: «этот пост относится к маркеру X». У **многих** постов может быть **один и тот же** `marker_id` (один маркер — много постов).
 - **`markers.post_id`** — **денормализация**: «главный» пост для превью карты / обложки (обычно `is_primary = true` в `marker_posts`). Обновляется триггерами, клиенту карты по-прежнему достаточно лёгкого поля `post_id` в выдаче RPC.
+- **`markers.location_id`** — опциональная связь с **`public.locations`** (выбор из настроек). **`markers.location`** (PostGIS) остаётся для карты; при insert/update `location_id` координаты, адрес и **country_code/city_code** копируются триггером из `locations`.
 
 Маркер считаем **видимым на карте**, если есть **хотя бы одна** строка в `marker_posts` (и выполняются фильтры `is_archived`, время, гео и т.д.).
 
@@ -39,6 +40,9 @@
 | `../20260427100000_posts_marker_id_bidirectional.sql` | Колонка `posts.marker_id` для запросов с поста. |
 | `../20260628120000_marker_posts_many_per_marker.sql` | Таблица **`marker_posts`**: один маркер — много постов; снятие unique на `posts.marker_id`; триггеры синхронизации `markers.post_id`; обновление `list_markers_map`; RPC **`list_marker_posts`**. |
 | `../20260628121500_list_markers_map_multi_post_preview.sql` | **`list_markers_map`**: поля **`post_count`**, **`preview_image_urls`** (до 4), карта показывает и **пустые** маркеры (без `marker_posts`). |
+| `../20260701120000_markers_add_location_id.sql` | **`markers.location_id`** → `public.locations`; **`markers.location`** сохраняется; триггер копирования lat/lng; RLS ownership. |
+| `../20260701130000_markers_address_primary_cyrillic.sql` | **`address_text`** → **`address_primary`** + **`address_cyrillic`**; обновление `list_markers_map` и `get_post_enriched`; триггер копирует адрес из `locations`. |
+| `../20260701140000_markers_add_country_city.sql` | **`country_code`** + **`city_code`** (как `locations`); FK + триггер; RPC. |
 
 ### Гео и сортировка
 

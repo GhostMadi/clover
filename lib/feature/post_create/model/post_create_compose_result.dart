@@ -6,9 +6,13 @@ class PostCreateComposeResult {
     required this.media,
     required this.title,
     required this.description,
+    this.filterValues = const {},
   });
 
   final List<AppImageEditorResult> media;
   final String title;
   final String description;
+
+  /// Ключи `category_id:label` из настроек фильтров профиля.
+  final Set<String> filterValues;
 }

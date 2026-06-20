@@ -36,6 +36,11 @@ _ProfileNewModel _$ProfileNewModelFromJson(
       : DateTime.parse(json['updated_at'] as String),
   hiringEnabled: json['hiring_enabled'] as bool? ?? false,
   openForMemberships: json['open_for_memberships'] as bool? ?? false,
+  hasFilters: json['has_filters'] as bool? ?? false,
+  tagLinkId: json['tag_link_id'] as String?,
+  tagIds:
+      (json['tag_ids'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$ProfileNewModelToJson(_ProfileNewModel instance) =>
@@ -62,4 +67,7 @@ Map<String, dynamic> _$ProfileNewModelToJson(_ProfileNewModel instance) =>
       'updated_at': instance.updatedAt?.toIso8601String(),
       'hiring_enabled': instance.hiringEnabled,
       'open_for_memberships': instance.openForMemberships,
+      'has_filters': instance.hasFilters,
+      'tag_link_id': instance.tagLinkId,
+      'tag_ids': instance.tagIds,
     };

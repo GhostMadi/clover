@@ -1,7 +1,9 @@
 import 'package:clover/core/extension/context.dart';
+import 'package:clover/feature/marker_tags/data/models/marker_tag_model.dart';
 import 'package:clover/feature/profile_page/presentation/widget/header_part/parts/profile_header_avatar.dart';
 import 'package:clover/feature/profile_page/presentation/widget/header_part/parts/profile_header_banner.dart';
 import 'package:clover/feature/profile_page/presentation/widget/header_part/parts/profile_header_info.dart';
+import 'package:clover/feature/profile_page/presentation/widget/header_part/parts/profile_header_account_tags.dart';
 import 'package:clover/feature/profile_page/presentation/widget/header_part/parts/profile_header_shimmer.dart';
 import 'package:clover/feature/profile_page/presentation/widget/header_part/profile_header_stat.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +26,7 @@ class ProfileHeaderSection extends StatelessWidget {
     this.category,
     this.bio,
     this.location,
+    this.tags = const [],
     this.onFollowersTap,
     this.onFollowingTap,
   });
@@ -40,6 +43,7 @@ class ProfileHeaderSection extends StatelessWidget {
   final String? category;
   final String? bio;
   final String? location;
+  final List<MarkerTagModel> tags;
   final VoidCallback? onFollowersTap;
   final VoidCallback? onFollowingTap;
 
@@ -62,6 +66,7 @@ class ProfileHeaderSection extends StatelessWidget {
       category = null,
       bio = null,
       location = null,
+      tags = const [],
       onFollowersTap = null,
       onFollowingTap = null;
 
@@ -121,6 +126,10 @@ class ProfileHeaderSection extends StatelessWidget {
               ),
               SizedBox(height: context.heightByContext(_figmaGapAfterStats)),
               ProfileHeaderIdentity(fullName: fullName, username: username, category: category),
+              if (tags.isNotEmpty) ...[
+                SizedBox(height: context.heightByContext(_figmaGapBlock)),
+                ProfileHeaderAccountTags(tags: tags),
+              ],
               if (hasBio) ...[
                 SizedBox(height: context.heightByContext(_figmaGapBlock)),
                 ProfileHeaderBio(text: bioText),

@@ -1,3 +1,5 @@
+import 'package:clover/feature/countries/data/models/country_code.dart';
+
 /// Строка `public.countries`.
 class CountryModel {
   const CountryModel({
@@ -9,6 +11,8 @@ class CountryModel {
   final String code;
   final bool isActive;
   final int sortOrder;
+
+  CountryCode? get asEnum => CountryCode.tryParse(code);
 
   factory CountryModel.fromJson(Map<String, dynamic> json) {
     return CountryModel(

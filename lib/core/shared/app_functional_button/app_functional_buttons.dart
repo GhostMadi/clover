@@ -192,6 +192,8 @@ class _FunctionalButtonTabState extends State<_FunctionalButtonTab> with SingleT
   }
 
   void _handleTap() {
+    if (widget.button.isLoading) return;
+
     HapticFeedback.lightImpact();
 
     _jellyController.trigger(haptic: false);
@@ -217,7 +219,7 @@ class _FunctionalButtonTabState extends State<_FunctionalButtonTab> with SingleT
           borderRadius: BorderRadius.circular(widget.indicatorRadius),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
-            onTap: _handleTap,
+            onTap: widget.button.isLoading ? null : _handleTap,
             borderRadius: BorderRadius.circular(widget.indicatorRadius),
             splashColor: (widget.button.customColor ?? AppColors.primary).withValues(alpha: 0.12),
             highlightColor: (widget.button.customColor ?? AppColors.primary).withValues(alpha: 0.06),
@@ -228,13 +230,25 @@ class _FunctionalButtonTabState extends State<_FunctionalButtonTab> with SingleT
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      widget.button.icon,
-                      size: widget.iconSize.clamp(18.0, 32.0),
-                      color: widget.button.iconColor ?? contentColor,
-                    ),
+                    if (widget.button.isLoading)
+                      SizedBox(
+                        height: widget.iconSize.clamp(18.0, 32.0),
+                        width: widget.iconSize.clamp(18.0, 32.0),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.2,
+                          valueColor: AlwaysStoppedAnimation(
+                            widget.button.iconColor ?? contentColor,
+                          ),
+                        ),
+                      )
+                    else
+                      Icon(
+                        widget.button.icon,
+                        size: widget.iconSize.clamp(18.0, 32.0),
+                        color: widget.button.iconColor ?? contentColor,
+                      ),
 
-                    if (widget.button.label != null) ...[
+                    if (widget.button.label != null && !widget.button.isLoading) ...[
                       SizedBox(height: widget.labelGap),
 
                       Text(

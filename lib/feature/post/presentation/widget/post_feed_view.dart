@@ -1,7 +1,7 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_button.dart';
-import 'package:clover/feature/post/data/models/post_model.dart';
+import 'package:clover/feature/post/data/models/post_feed_item.dart';
 import 'package:clover/feature/post/presentation/cubit/post_feed_cubit.dart';
 import 'package:clover/feature/post/presentation/widget/post_feed_shimmer.dart';
 import 'package:clover/feature/post/presentation/widget/post_grid.dart';
@@ -10,9 +10,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Сетка постов из [PostFeedCubit] (local → remote).
 class PostFeedView extends StatelessWidget {
-  const PostFeedView({super.key, this.onPostTap});
+  const PostFeedView({super.key, this.onPostTap, this.emptyMessage = 'нет публикаций'});
 
-  final ValueChanged<PostModel>? onPostTap;
+  final ValueChanged<PostFeedItem>? onPostTap;
+  final String emptyMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +48,10 @@ class PostFeedView extends StatelessWidget {
                 PostGrid(
                   posts: posts,
                   savedByPostId: savedByPostId,
-                  onPostTap: onPostTap,
+                  emptyMessage: emptyMessage,
+                  onPostTap: onPostTap == null
+                      ? null
+                      : (post) => onPostTap!(context.read<PostFeedCubit>().feedItemFor(post)),
                 ),
                 if (isLoadingMore)
                   const Padding(

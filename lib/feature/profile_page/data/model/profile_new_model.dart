@@ -1,5 +1,7 @@
-import 'package:clover/feature/cities/data/models/city_code.dart';
+import 'package:clover/feature/city/data/models/city_code.dart';
 import 'package:clover/feature/countries/data/models/country_code.dart';
+import 'package:clover/feature/marker_tags/data/models/marker_tag_key.dart';
+import 'package:clover/feature/marker_tags/data/models/marker_tag_model.dart';
 import 'package:clover/feature/profile_categories/data/models/profile_category_code.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -33,6 +35,10 @@ abstract class ProfileNewModel with _$ProfileNewModel {
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
     @JsonKey(name: 'hiring_enabled') @Default(false) bool hiringEnabled,
     @JsonKey(name: 'open_for_memberships') @Default(false) bool openForMemberships,
+    @JsonKey(name: 'has_filters') @Default(false) bool hasFilters,
+    @JsonKey(name: 'tag_link_id') String? tagLinkId,
+    @JsonKey(name: 'tag_ids') @Default([]) List<String> tagIds,
+    @JsonKey(includeFromJson: false, includeToJson: false) @Default([]) List<MarkerTagModel> tags,
   }) = _ProfileNewModel;
 
   factory ProfileNewModel.fromJson(Map<String, dynamic> json) => _$ProfileNewModelFromJson(json);
@@ -71,9 +77,19 @@ abstract class ProfileNewModel with _$ProfileNewModel {
     final hasCity = city != null && city.isNotEmpty;
     final hasCountry = country != null && country.isNotEmpty;
 
-    if (hasCity && hasCountry) return '$country,$city';
+    if (hasCity && hasCountry) return '$country, $city';
     if (hasCity) return city;
     if (hasCountry) return country;
     return '';
   }
+
+  /// Есть привязанный набор тегов (`profiles.tag_link_id`).
+  bool get hasAccountTags => tagLinkId != null && tagLinkId!.trim().isNotEmpty;
+
+  Set<String> get tagIdSet => tagIds.map((e) => e.trim()).where((e) => e.isNotEmpty).toSet();
+
+  bool hasAccountTag(MarkerTagKey key) => tags.any((tag) => tag.keyEnum == key);
+
+  /// Включена запись на приём (`booking` в тегах аккаунта).
+  bool get hasBookingTag => hasAccountTag(MarkerTagKey.booking);
 }

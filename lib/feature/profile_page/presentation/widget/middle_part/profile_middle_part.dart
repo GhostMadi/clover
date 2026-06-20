@@ -1,13 +1,23 @@
+import 'package:clover/feature/cluster/data/models/cluster_model.dart';
 import 'package:clover/feature/cluster/presentation/widget/cluster_card.dart' show clusterStripHeight;
 import 'package:clover/feature/cluster/presentation/widget/cluster_list.dart';
 import 'package:flutter/material.dart';
 
 /// Средняя часть профиля: полоса коллекций.
 class ProfileMiddlePart extends StatelessWidget {
-  const ProfileMiddlePart({super.key, this.ownerId});
+  const ProfileMiddlePart({
+    super.key,
+    this.ownerId,
+    this.selectedClusterId,
+    this.onClusterTap,
+    this.readOnly = false,
+  });
 
   /// `null` — скелетон.
   final String? ownerId;
+  final String? selectedClusterId;
+  final ValueChanged<ClusterModel>? onClusterTap;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +25,11 @@ class ProfileMiddlePart extends StatelessWidget {
     if (id == null || id.isEmpty) {
       return SizedBox(height: clusterStripHeight(context));
     }
-    return ClusterList(ownerId: id);
+    return ClusterList(
+      ownerId: id,
+      selectedClusterId: selectedClusterId,
+      onClusterTap: onClusterTap,
+      readOnly: readOnly,
+    );
   }
 }

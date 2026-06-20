@@ -40,7 +40,7 @@ class AppNavBar extends StatelessWidget {
   static const double _figmaLabelFont = 11;
   static const double _figmaLabelGap = 4;
   static const double _figmaFloatingBottom = 16;
-  static const double _figmaFloatingHorizontal = 24;
+  static const double _figmaFloatingHorizontal = 80;
 
   /// Отступы для плавающего навбара на [AppDashboardPage].
   static EdgeInsets dashboardFloatingInsets(BuildContext context) {

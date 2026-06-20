@@ -58,6 +58,14 @@
   - **comments**: частичный индекс `comments_post_root_created_desc_idx` под список корневых комментариев поста (как в приложении)
   - **comment on**: контракт колонок и embed `profiles!comments_user_id_fkey` для PostgREST
 
+### Profile feed filters
+- `20260718120000_profile_filters.sql`
+  - **column**: `profiles.has_filters` (denormalized gate for filter button)
+  - **tables**: `profile_filter_categories`, `profile_filter_values`
+  - **trigger**: sync `has_filters` on category insert/delete
+  - **RPC**: `list_profile_filter_categories`, `upsert_profile_filter_category`, `delete_profile_filter_category`
+  - Навигатор: `migrations/_filters/README.md`
+
 ### Profiles / reference data
 - `20260329120000_reference_countries_cities_categories.sql` (справочники)
 - `20260329140000_profiles_username_change_limit.sql`

@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>GIDClientID</key>
-	<string>467582409286-7vqrohhhsutlam2pv8un2a6fmtadlf9s.apps.googleusercontent.com</string>
+	<string>1041927738445-mvr2koskarj7c1rg82avsbmgsk8ih91h.apps.googleusercontent.com</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -11,7 +11,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.467582409286-7vqrohhhsutlam2pv8un2a6fmtadlf9s</string>
+				<string>com.googleusercontent.apps.1041927738445-mvr2koskarj7c1rg82avsbmgsk8ih91h</string>
 			</array>
 		</dict>
 	</array>
@@ -41,8 +41,12 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Нужен доступ к фото, чтобы выбрать изображение для публикации.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Нужен доступ к геолокации, чтобы показать ваше местоположение на карте.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Нужен доступ к фото, чтобы сохранять изображения в галерею.</string>
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

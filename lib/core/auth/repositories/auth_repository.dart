@@ -17,6 +17,8 @@ class AuthRepository {
   final GoogleSignIn _googleSignIn;
 
   Future<bool> isAuthenticated() async {
+    if (_supabase.auth.currentSession != null) return true;
+
     final cachedUserId = await _storage.read<String>(key: _userIdKey);
     return cachedUserId != null && cachedUserId.isNotEmpty;
   }
@@ -27,7 +29,14 @@ class AuthRepository {
     return UserModel.fromSupabaseUser(user);
   }
 
+  /// Native Google Sign-In → idToken → Supabase (без Client Secret и без браузера).
   Future<UserModel> signInWithGoogle() async {
+    try {
+      await _googleSignIn.signOut();
+    } catch (_) {
+      // ignore
+    }
+
     final account = await _googleSignIn.authenticate(scopeHint: const ['email', 'profile']);
 
     final idToken = account.authentication.idToken;
@@ -55,6 +64,11 @@ class AuthRepository {
   Future<void> signOut() async {
     await _supabase.auth.signOut();
     await _storage.delete(key: _userIdKey);
-    await _googleSignIn.signOut();
+
+    try {
+      await _googleSignIn.signOut();
+    } catch (_) {
+      // ignore
+    }
   }
 }

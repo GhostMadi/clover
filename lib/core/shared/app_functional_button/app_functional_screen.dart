@@ -63,6 +63,7 @@ class _AppFunctionalScreenState extends State<AppFunctionalScreen> {
 
     return Scaffold(
       backgroundColor: widget.backgroundColor ?? AppColors.pageBackground,
+      extendBody: true,
       body: Stack(
         children: [
           Positioned.fill(child: widget.body),

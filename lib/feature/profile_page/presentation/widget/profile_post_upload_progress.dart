@@ -17,6 +17,8 @@ class ProfilePostUploadProgress extends StatelessWidget {
     this.statusMessage,
     this.localImagePath,
     this.imageUrl,
+    this.successLabel = 'Успешно опубликовано',
+    this.failureLabel = 'Не удалось опубликовать',
   });
 
   final String title;
@@ -25,6 +27,8 @@ class ProfilePostUploadProgress extends StatelessWidget {
   final String? statusMessage;
   final String? localImagePath;
   final String? imageUrl;
+  final String successLabel;
+  final String failureLabel;
 
   static const double _figmaPaddingH = 16;
   static const double _figmaPaddingV = 12;
@@ -85,12 +89,12 @@ class ProfilePostUploadProgress extends StatelessWidget {
               switch (status) {
                 ProfilePostUploadStatus.uploading => _UploadingFooter(progress: clampedProgress),
                 ProfilePostUploadStatus.success => _StatusFooter(
-                  label: 'Успешно опубликовано',
+                  label: successLabel,
                   color: AppColors.primary,
                   icon: Icons.check_circle_rounded,
                 ),
                 ProfilePostUploadStatus.failure => _StatusFooter(
-                  label: statusMessage ?? 'Не удалось опубликовать',
+                  label: statusMessage ?? failureLabel,
                   color: AppColors.error,
                   icon: Icons.error_outline_rounded,
                 ),

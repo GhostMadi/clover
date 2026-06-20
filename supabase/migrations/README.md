@@ -10,5 +10,6 @@
 | Посты | [_posts/README.md](_posts/README.md) |
 | Комментарии | [_comments/README.md](_comments/README.md) |
 | Кластеры | [_clusters/README.md](_clusters/README.md) |
+| Фильтры ленты профиля | [_filters/README.md](_filters/README.md) |
 
 Общий индекс имён миграций: [../MIGRATIONS_INDEX.md](../MIGRATIONS_INDEX.md).

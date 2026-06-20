@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 
 /// Галерея медиа поста: свайп между фото, высота кадра по формату каждого снимка.
 class PostMediaGallery extends StatefulWidget {
-  const PostMediaGallery({
-    super.key,
-    required this.media,
-  });
+  const PostMediaGallery({super.key, required this.media});
 
   final List<PostMediaModel> media;
 
@@ -57,11 +54,7 @@ class _PostMediaGalleryState extends State<PostMediaGallery> {
         final media = widget.media;
         if (media.isEmpty) {
           final height = PostAspectRatio.square1x1.detailHeightForWidth(width, screenHeight);
-          return SizedBox(
-            width: width,
-            height: height,
-            child: const PostImagePlaceholder(borderRadius: 0),
-          );
+          return SizedBox(width: width, height: height, child: const PostImagePlaceholder(borderRadius: 0));
         }
 
         final safeIndex = _pageIndex.clamp(0, media.length - 1);
@@ -101,10 +94,7 @@ class _PostMediaGalleryState extends State<PostMediaGallery> {
 }
 
 class _PageDots extends StatelessWidget {
-  const _PageDots({
-    required this.count,
-    required this.activeIndex,
-  });
+  const _PageDots({required this.count, required this.activeIndex});
 
   final int count;
   final int activeIndex;
@@ -128,13 +118,7 @@ class _PageDots extends StatelessWidget {
             decoration: BoxDecoration(
               color: isActive ? Colors.white : Colors.white.withValues(alpha: 0.45),
               shape: BoxShape.circle,
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x33000000),
-                  blurRadius: 4,
-                  offset: Offset(0, 1),
-                ),
-              ],
+              boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 4, offset: Offset(0, 1))],
             ),
           );
         }),

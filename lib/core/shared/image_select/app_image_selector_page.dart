@@ -22,6 +22,7 @@ class AppImageSelectorPage extends StatefulWidget {
     this.confirmLabel = 'Далее',
     this.maxGalleryItems = 100,
     this.maxSelectionCount = 15,
+    this.autoConfirmWhenFull = false,
     this.onClose,
     this.onConfirmed,
   });
@@ -30,6 +31,9 @@ class AppImageSelectorPage extends StatefulWidget {
   final String confirmLabel;
   final int maxGalleryItems;
   final int maxSelectionCount;
+
+  /// После выбора [maxSelectionCount] фото сразу вызывает [onConfirmed].
+  final bool autoConfirmWhenFull;
   final VoidCallback? onClose;
   final ValueChanged<AppImageSelectorResult>? onConfirmed;
 
@@ -144,6 +148,22 @@ class _AppImageSelectorPageState extends State<AppImageSelectorPage> {
       return;
     }
 
+    if (widget.maxSelectionCount == 1) {
+      HapticFeedback.selectionClick();
+      setState(() {
+        _selectedAssets
+          ..clear()
+          ..add(asset);
+        _previewAsset = asset;
+      });
+      if (widget.autoConfirmWhenFull) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _handleConfirm();
+        });
+      }
+      return;
+    }
+
     if (_selectedAssets.length >= widget.maxSelectionCount) {
       HapticFeedback.lightImpact();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -160,6 +180,12 @@ class _AppImageSelectorPageState extends State<AppImageSelectorPage> {
       _selectedAssets.add(asset);
       _previewAsset = asset;
     });
+
+    if (widget.autoConfirmWhenFull && _selectedAssets.length >= widget.maxSelectionCount) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _handleConfirm();
+      });
+    }
   }
 
   String _albumDisplayName(AssetPathEntity album) {

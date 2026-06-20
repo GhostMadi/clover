@@ -26,9 +26,11 @@ class PostCreateRequest {
     required this.title,
     required this.description,
     required this.media,
+    this.filterValues = const {},
   });
 
   final String title;
   final String description;
   final List<PostCreateMediaInput> media;
+  final Set<String> filterValues;
 }

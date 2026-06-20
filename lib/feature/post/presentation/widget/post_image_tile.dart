@@ -26,9 +26,7 @@ class PostImageTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         child: const ColoredBox(
           color: AppColors.surfaceSoft,
-          child: Center(
-            child: Icon(Icons.image_outlined, color: AppColors.iconMuted, size: 28),
-          ),
+          child: Center(child: Icon(Icons.image_outlined, color: AppColors.iconMuted, size: 28)),
         ),
       );
     }
@@ -56,9 +54,7 @@ class PostImagePlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
-      child: AppShimmer(
-        child: const ColoredBox(color: AppColors.white),
-      ),
+      child: AppShimmer(child: const ColoredBox(color: AppColors.white)),
     );
   }
 }

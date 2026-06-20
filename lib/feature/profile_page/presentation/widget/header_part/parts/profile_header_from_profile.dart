@@ -1,3 +1,5 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/feature/profile_page/data/model/profile_new_model.dart';
 import 'package:clover/feature/profile_page/presentation/form/profile_page_formatting.dart';
 import 'package:clover/feature/profile_page/presentation/widget/header_part/profile_header_section.dart';
@@ -17,7 +19,7 @@ class ProfileHeaderFromProfile extends StatelessWidget {
     final rawName = profile.fullName?.trim();
     final fullName = rawName != null && rawName.isNotEmpty ? rawName : null;
 
-    final location = profile.locationLine.trim();
+    final location = ProfilePageFormatting.locationLine(profile).trim();
     final locationDisplay = location.isEmpty ? null : location;
 
     final rawBio = profile.bio?.trim();
@@ -35,15 +37,24 @@ class ProfileHeaderFromProfile extends StatelessWidget {
       category: profile.categoryLabelRu,
       bio: bio,
       location: locationDisplay,
+      tags: profile.tags,
       onFollowersTap: () {
-        //   => context.router.root.push(
-        //   FollowListsRoute(profileId: profile.id, username: username, initialTabIndex: 0),
-        // )
+        context.router.root.push(
+          FollowersAndFollowingsRoute(
+            profileId: profile.id,
+            username: username,
+            initialTabIndex: 1,
+          ),
+        );
       },
       onFollowingTap: () {
-        //    context.router.root.push(
-        //   FollowListsRoute(profileId: profile.id, username: username, initialTabIndex: 1),
-        // )
+        context.router.root.push(
+          FollowersAndFollowingsRoute(
+            profileId: profile.id,
+            username: username,
+            initialTabIndex: 0,
+          ),
+        );
       },
     );
   }

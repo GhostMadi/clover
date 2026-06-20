@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:clover/core/shared/image_select/app_image_edit_exporter.dart';
 import 'package:clover/feature/post_create/data/model/post_create_request.dart';
+import 'package:clover/feature/settings_filter/data/repository/filter_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:injectable/injectable.dart';
@@ -16,9 +17,10 @@ abstract class PostCreateRepository {
 
 @LazySingleton(as: PostCreateRepository)
 class PostCreateRepositoryImpl implements PostCreateRepository {
-  PostCreateRepositoryImpl(this._client);
+  PostCreateRepositoryImpl(this._client, this._filterRepository);
 
   final SupabaseClient _client;
+  final FilterRepository _filterRepository;
 
   static const _bucketPostMedia = 'post_media';
 
@@ -98,6 +100,10 @@ class PostCreateRepositoryImpl implements PostCreateRepository {
       }
 
       await _client.from('post_media').insert(mediaRows);
+
+      if (request.filterValues.isNotEmpty) {
+        await _filterRepository.setPostFilters(postId: postId, selectionKeys: request.filterValues);
+      }
     } catch (error) {
       await _rollbackCreate(postId: postId, storagePaths: uploadedPaths);
       rethrow;

@@ -12,6 +12,7 @@ class AppOutlinedButton extends StatefulWidget {
     this.borderRadius = 18.0,
     this.isLoading = false,
     this.isExpanded = false,
+    this.child,
   });
 
   final String text;
@@ -20,6 +21,7 @@ class AppOutlinedButton extends StatefulWidget {
   final double borderRadius;
   final bool isLoading;
   final bool isExpanded;
+  final Widget? child;
 
   @override
   State<AppOutlinedButton> createState() => _AppOutlinedButtonState();
@@ -92,15 +94,16 @@ class _AppOutlinedButtonState extends State<AppOutlinedButton> with SingleTicker
                       valueColor: AlwaysStoppedAnimation(AppColors.primary),
                     ),
                   )
-                : Text(
-                    widget.text,
-                    style: AppTextStyle.base(
-                      16,
-                      fontWeight: FontWeight.w700,
-                      color: textColor,
-                      letterSpacing: 0.3,
+                : widget.child ??
+                    Text(
+                      widget.text,
+                      style: AppTextStyle.base(
+                        16,
+                        fontWeight: FontWeight.w700,
+                        color: textColor,
+                        letterSpacing: 0.3,
+                      ),
                     ),
-                  ),
           ),
         ),
       ),

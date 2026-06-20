@@ -1,5 +1,7 @@
 platform :ios, '13.0'
 
+ENV['YANDEX_MAPKIT_VARIANT'] = 'lite'
+
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 

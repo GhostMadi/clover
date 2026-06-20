@@ -26,6 +26,18 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
+  /// Обновить профиль в памяти (например после редактирования).
+  void applyProfile(ProfileNewModel profile) {
+    emit(ProfileState.loaded(profile));
+  }
+
+  /// Локально обновить флаг фильтров (после CRUD в настройках).
+  void patchHasFilters(bool hasFilters) {
+    final loaded = state.mapOrNull(loaded: (s) => s);
+    if (loaded == null) return;
+    emit(ProfileState.loaded(loaded.profile.copyWith(hasFilters: hasFilters)));
+  }
+
   /// Обновление по pull-to-refresh без полного скелетона, если уже есть данные.
   Future<void> refresh() async {
     final hadData = state.mapOrNull(loaded: (_) => true) ?? false;

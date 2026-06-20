@@ -31,7 +31,7 @@ abstract final class ProfilePageFormatting {
     final countryLine = country?.labelRu.trim();
 
     if (hasCity && countryLine != null && countryLine.isNotEmpty) {
-      return '$countryLine,$cityLine';
+      return '$countryLine, $cityLine';
     }
     if (hasCity) return cityLine;
     if (countryLine != null && countryLine.isNotEmpty) return countryLine;

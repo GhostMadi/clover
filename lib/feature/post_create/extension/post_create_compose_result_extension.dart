@@ -19,6 +19,7 @@ extension PostCreateComposeResultExtension on PostCreateComposeResult {
     return PostCreateRequest(
       title: title.trim(),
       description: description.trim(),
+      filterValues: filterValues,
       media: [
         for (var i = 0; i < media.length; i++)
           PostCreateMediaInput(

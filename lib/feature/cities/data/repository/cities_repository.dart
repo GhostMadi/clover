@@ -1,6 +1,6 @@
 
 
-import 'package:clover/feature/cities/data/models/city_model.dart';
+import 'package:clover/feature/city/data/models/city_model.dart';
 
 abstract class CitiesRepository {
   Future<List<CityModel>> fetchActiveByCountryOrdered(String countryCode);

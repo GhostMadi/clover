@@ -79,6 +79,39 @@ class PostModel {
     );
   }
 
+  PostModel copyWith({
+    String? id,
+    String? userId,
+    String? clusterId,
+    bool clearClusterId = false,
+    String? markerId,
+    String? title,
+    String? description,
+    int? likesCount,
+    int? dislikesCount,
+    int? commentsCount,
+    int? savesCount,
+    int? sendsCount,
+    DateTime? createdAt,
+    List<PostMediaModel>? media,
+  }) {
+    return PostModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      clusterId: clearClusterId ? null : (clusterId ?? this.clusterId),
+      markerId: markerId ?? this.markerId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      likesCount: likesCount ?? this.likesCount,
+      dislikesCount: dislikesCount ?? this.dislikesCount,
+      commentsCount: commentsCount ?? this.commentsCount,
+      savesCount: savesCount ?? this.savesCount,
+      sendsCount: sendsCount ?? this.sendsCount,
+      createdAt: createdAt ?? this.createdAt,
+      media: media ?? this.media,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'user_id': userId,

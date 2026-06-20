@@ -67,6 +67,10 @@ abstract class AppColors {
   static const Color successSoft = Color(0xFFEFF8E7);
   static const Color infoSoft = Color(0xFFF0F7FF);
 
+  /// Мягкий голубой для вторичных action-кнопок (фильтр и т.п.).
+  static const Color functionalSoftBlue = Color(0xFFE3F0FC);
+  static const Color functionalSoftBlueIcon = Color(0xFF5B9BD5);
+
   // ==========================================================================
   // SHADOWS
   // ==========================================================================

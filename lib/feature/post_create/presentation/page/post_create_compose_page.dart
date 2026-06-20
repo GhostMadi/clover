@@ -15,6 +15,7 @@ import 'package:clover/feature/post_create/model/post_create_compose_result.dart
 import 'package:clover/feature/post_create/post_create_flow.dart';
 import 'package:clover/feature/post_create/presentation/cubit/post_create_upload_cubit.dart';
 import 'package:clover/feature/post_create/presentation/widget/post_create_step_guard.dart';
+import 'package:clover/feature/settings_filter/presentation/create/widget/post_create_filter_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -42,6 +43,7 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
   final _previewController = PageController();
   int _previewIndex = 0;
   bool _isPublishing = false;
+  Set<String> _selectedFilterValues = const {};
 
   late final List<AppImageEditorResult> _media = List.unmodifiable(PostCreateFlow.instance.draft.editedMedia);
 
@@ -70,6 +72,7 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
       media: _media,
       title: _titleController.text.trim(),
       description: _descriptionController.text.trim(),
+      filterValues: _selectedFilterValues,
     );
 
     sl<PostCreateUploadCubit>().publish(result);
@@ -177,6 +180,12 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
                           focusNode: _descriptionFocus,
                           maxLength: PostCreateComposePage._descriptionMaxLength,
                           onChanged: (_) => setState(() {}),
+                        ),
+                        SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
+                        PostCreateFilterField(
+                          values: _selectedFilterValues,
+                          enabled: !_isPublishing,
+                          onChanged: (values) => setState(() => _selectedFilterValues = values),
                         ),
                       ],
                     ),

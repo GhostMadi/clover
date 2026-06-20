@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui' as ui;
 
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -9,7 +8,7 @@ import 'package:flutter/services.dart';
 /// Скругление карточки шторки (сверху и снизу одинаково): снизу видно из-за [sheetOuterPadding].
 const BorderRadius _kAppBottomSheetRadius = BorderRadius.all(Radius.circular(20));
 
-/// Общая нижняя шторка: блюр, «желейное» появление, тап по фону закрывает.
+/// Общая нижняя шторка: белый фон, «желейное» появление, тап по фону закрывает.
 ///
 /// Возвращает результат [Navigator.pop], если его передали (например выбор в списке).
 abstract final class AppBottomSheet {
@@ -41,6 +40,9 @@ abstract final class AppBottomSheet {
 
     /// Фон как у ленты/деталки постов ([AppColors.pageBackground]), без блюра — для длинных списков постов в шторке.
     bool postFeedSurface = false,
+
+    /// Растянуть [content] на всю доступную высоту (только для длинных списков, напр. теги маркера).
+    bool expandBody = false,
   }) {
     return showModalBottomSheet<T>(
       context: context,
@@ -71,6 +73,8 @@ abstract final class AppBottomSheet {
                   ? constraints.maxHeight
                   : MediaQuery.sizeOf(layoutContext).height - MediaQuery.viewInsetsOf(layoutContext).bottom;
 
+              final availableH = max(0.0, maxH - outer.top - outer.bottom);
+
               /// Резерв под ручку, опционально заголовок/кнопки и отступы — без области [content].
               /// Без заголовка 200 давало искусственный «потолок» ~200 и сильно жалело списки.
               var chromeReserve = 12.0 + 4.0 + 16.0 + contentBottomSpacing;
@@ -81,16 +85,14 @@ abstract final class AppBottomSheet {
                 chromeReserve += 20.0 + 52.0;
               }
 
+              final resolvedContentPadding = contentPadding.resolve(dir);
+              chromeReserve += resolvedContentPadding.vertical;
+
               Widget body = content;
+              final scrollContent = !expandBody && contentHeight == null;
               if (contentHeight != null) {
-                final cap = max(0.0, maxH - chromeReserve);
+                final cap = max(0.0, availableH - chromeReserve);
                 body = SizedBox(height: min(contentHeight, cap), child: content);
-              } else {
-                final maxContent = max(0.0, maxH - chromeReserve);
-                body = ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: maxContent),
-                  child: content,
-                );
               }
 
               return Stack(
@@ -114,6 +116,8 @@ abstract final class AppBottomSheet {
                               child: _DecoratedSheetBody(
                                 postFeedSurface: postFeedSurface,
                                 sheetWidth: sheetW,
+                                maxSheetHeight: availableH,
+                                expandBody: expandBody,
                                 title: title,
                                 upperCaseTitle: upperCaseTitle,
                                 showCloseButton: showCloseButton,
@@ -121,6 +125,7 @@ abstract final class AppBottomSheet {
                                 contentPadding: contentPadding,
                                 contentBottomSpacing: contentBottomSpacing,
                                 actions: actions,
+                                scrollContent: scrollContent,
                                 body: body,
                               ),
                             ),
@@ -143,6 +148,9 @@ class _DecoratedSheetBody extends StatelessWidget {
   const _DecoratedSheetBody({
     required this.postFeedSurface,
     required this.sheetWidth,
+    required this.maxSheetHeight,
+    required this.expandBody,
+    required this.scrollContent,
     required this.title,
     required this.upperCaseTitle,
     required this.showCloseButton,
@@ -155,6 +163,9 @@ class _DecoratedSheetBody extends StatelessWidget {
 
   final bool postFeedSurface;
   final double sheetWidth;
+  final double maxSheetHeight;
+  final bool expandBody;
+  final bool scrollContent;
   final String? title;
   final bool upperCaseTitle;
   final bool showCloseButton;
@@ -181,73 +192,84 @@ class _DecoratedSheetBody extends StatelessWidget {
             ],
           )
         : BoxDecoration(
-            color: AppColors.bottomBarColor.withValues(alpha: 0.95),
+            color: AppColors.white,
             borderRadius: _kAppBottomSheetRadius,
-            border: Border.all(color: AppColors.bottomBarActiveIcon.withValues(alpha: 0.2), width: 1.5),
+            border: Border.all(color: AppColors.borderSoft, width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 30,
+                color: AppColors.shadowDark.withValues(alpha: 0.07),
+                blurRadius: 24,
                 offset: const Offset(0, 10),
               ),
             ],
           );
 
-    Widget column = Container(
-      width: sheetWidth,
-      decoration: decoration,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 12),
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: postFeedSurface
-                  ? AppColors.subTextColor.withValues(alpha: 0.26)
-                  : AppColors.bottomBarInactiveIcon.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          const SizedBox(height: 16),
-          if (title != null) ...[
-            _BottomSheetHeader(
-              title: title!,
-              upperCaseTitle: upperCaseTitle,
-              showCloseButton: showCloseButton,
-              onClose: onClose,
-            ),
-            Divider(height: 1, thickness: 1, color: AppColors.border.withValues(alpha: 0.65)),
-            const SizedBox(height: 8),
-          ],
-          Padding(
-            padding: contentPadding,
-            child: DefaultTextStyle(
-              style: AppTextStyle.base(15, color: AppColors.textColor, height: 1.5),
-              child: body,
-            ),
-          ),
-          SizedBox(height: contentBottomSpacing),
-          if (actionRow != null && actionRow.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: Row(
-                children: [
-                  for (var i = 0; i < actionRow.length; i++) ...[
-                    Expanded(child: actionRow[i]),
-                    if (i < actionRow.length - 1) const SizedBox(width: 12),
-                  ],
-                ],
+    final content = DefaultTextStyle(
+      style: AppTextStyle.base(15, color: AppColors.textColor, height: 1.5),
+      child: body,
+    );
+
+    final paddedContent = Padding(padding: contentPadding, child: content);
+
+    final bodySection = switch ((expandBody, scrollContent)) {
+      (true, _) => Expanded(child: paddedContent),
+      (false, true) => Flexible(
+        fit: FlexFit.loose,
+        child: SingleChildScrollView(physics: const ClampingScrollPhysics(), child: paddedContent),
+      ),
+      (false, false) => Flexible(
+        fit: FlexFit.loose,
+        child: paddedContent,
+      ),
+    };
+
+    Widget column = ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: maxSheetHeight),
+      child: Container(
+        width: sheetWidth,
+        decoration: decoration,
+        child: Column(
+          mainAxisSize: expandBody ? MainAxisSize.max : MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.subTextColor.withValues(alpha: 0.26),
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
-        ],
+            const SizedBox(height: 16),
+            if (title != null) ...[
+              _BottomSheetHeader(
+                title: title!,
+                upperCaseTitle: upperCaseTitle,
+                showCloseButton: showCloseButton,
+                onClose: onClose,
+              ),
+              Divider(height: 1, thickness: 1, color: AppColors.border.withValues(alpha: 0.65)),
+              const SizedBox(height: 8),
+            ],
+            bodySection,
+            SizedBox(height: contentBottomSpacing),
+            if (actionRow != null && actionRow.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                child: Row(
+                  children: [
+                    for (var i = 0; i < actionRow.length; i++) ...[
+                      Expanded(child: actionRow[i]),
+                      if (i < actionRow.length - 1) const SizedBox(width: 12),
+                    ],
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
 
-    if (!postFeedSurface) {
-      column = BackdropFilter(filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12), child: column);
-    }
     return column;
   }
 }
