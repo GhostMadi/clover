@@ -22,6 +22,34 @@ import '../../feature/archive/post_archive/data/repository/post_archive_reposito
     as _i464;
 import '../../feature/archive/post_archive/presentation/cubit/post_archive_cubit.dart'
     as _i771;
+import '../../feature/booking/booking_analytics/data/repository/booking_analytics_repository.dart'
+    as _i217;
+import '../../feature/booking/booking_analytics/presentation/cubit/booking_analytics_cubit.dart'
+    as _i171;
+import '../../feature/booking/booking_client/data/repository/booking_client_repository.dart'
+    as _i868;
+import '../../feature/booking/booking_client/presentation/cubit/booking_client_cubit.dart'
+    as _i114;
+import '../../feature/booking/booking_create/data/repository/booking_services_repository.dart'
+    as _i327;
+import '../../feature/booking/booking_create/data/repository/booking_staff_repository.dart'
+    as _i533;
+import '../../feature/booking/booking_create/presentation/cubit/booking_service_editor_cubit.dart'
+    as _i202;
+import '../../feature/booking/booking_create/presentation/cubit/booking_services_cubit.dart'
+    as _i393;
+import '../../feature/booking/booking_list/data/repository/booking_host_list_repository.dart'
+    as _i74;
+import '../../feature/booking/booking_list/presentation/cubit/booking_list_cubit.dart'
+    as _i562;
+import '../../feature/booking/booking_settings/data/repository/booking_schedule_repository.dart'
+    as _i893;
+import '../../feature/booking/booking_settings/presentation/cubit/booking_schedule_settings_cubit.dart'
+    as _i715;
+import '../../feature/booking/my_bookings/data/repository/my_bookings_repository.dart'
+    as _i494;
+import '../../feature/booking/my_bookings/presentation/cubit/my_bookings_cubit.dart'
+    as _i834;
 import '../../feature/chat/data/repository/chat_repository.dart' as _i425;
 import '../../feature/chat_page/presentation/cubit/chat_thread_cubit.dart'
     as _i360;
@@ -97,6 +125,7 @@ import '../../feature/work/presentation/cubit/worker_work_cubit.dart' as _i877;
 import '../auth/cubit/auth_cubit.dart' as _i575;
 import '../auth/repositories/auth_repository.dart' as _i964;
 import '../network/supabase_edge_functions_invoker.dart' as _i460;
+import '../session/account_session_cleanup.dart' as _i191;
 import '../storage/data/repositories/isar_app_storage_impl.dart' as _i814;
 import '../storage/domain/repositories/i_app_storage.dart' as _i1029;
 import 'module.dart' as _i946;
@@ -115,18 +144,23 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i202.MarkerTagsRepository>(
       () => _i202.MarkerTagsRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
-    gh.lazySingleton<_i964.AuthRepository>(
-      () => _i964.AuthRepository(
-        gh<_i454.SupabaseClient>(),
-        gh<_i1029.IAppStorage>(),
-        gh<_i116.GoogleSignIn>(),
-      ),
+    gh.lazySingleton<_i494.MyBookingsRepository>(
+      () => _i494.MyBookingsRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
     gh.lazySingleton<_i467.PostRepository>(
       () => _i467.PostRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
     gh.lazySingleton<_i460.SupabaseEdgeFunctionsInvoker>(
       () => _i460.SupabaseEdgeFunctionsInvoker(gh<_i454.SupabaseClient>()),
+    );
+    gh.factory<_i834.MyBookingsCubit>(
+      () => _i834.MyBookingsCubit(gh<_i494.MyBookingsRepository>()),
+    );
+    gh.lazySingleton<_i893.BookingScheduleRepository>(
+      () => _i893.BookingScheduleRepositoryImpl(gh<_i454.SupabaseClient>()),
+    );
+    gh.lazySingleton<_i74.BookingHostListRepository>(
+      () => _i74.BookingHostListRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
     gh.factory<_i950.ProfileNewRepository>(
       () => _i950.ProfileNewRepositoryImpl(gh<_i454.SupabaseClient>()),
@@ -161,6 +195,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i468.EventArchiveRepository>(
       () => _i468.EventArchiveRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
+    gh.lazySingleton<_i533.BookingStaffRepository>(
+      () => _i533.BookingStaffRepositoryImpl(gh<_i454.SupabaseClient>()),
+    );
+    gh.lazySingleton<_i327.BookingServicesRepository>(
+      () => _i327.BookingServicesRepositoryImpl(gh<_i454.SupabaseClient>()),
+    );
     gh.lazySingleton<_i391.LocationRepository>(
       () => _i391.LocationRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
@@ -170,14 +210,20 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i576.SocialGraphRepository>(),
       ),
     );
+    gh.lazySingleton<_i217.BookingAnalyticsRepository>(
+      () => _i217.BookingAnalyticsRepositoryImpl(gh<_i454.SupabaseClient>()),
+    );
+    gh.factory<_i171.BookingAnalyticsCubit>(
+      () => _i171.BookingAnalyticsCubit(
+        gh<_i217.BookingAnalyticsRepository>(),
+        gh<_i533.BookingStaffRepository>(),
+      ),
+    );
     gh.lazySingleton<_i603.PostCreateRepository>(
       () => _i603.PostCreateRepositoryImpl(
         gh<_i454.SupabaseClient>(),
         gh<_i920.FilterRepository>(),
       ),
-    );
-    gh.factory<_i575.AuthCubit>(
-      () => _i575.AuthCubit(gh<_i964.AuthRepository>()),
     );
     gh.factory<_i17.FollowersAndFollowingsCubit>(
       () => _i17.FollowersAndFollowingsCubit(
@@ -189,8 +235,26 @@ extension GetItInjectableX on _i174.GetIt {
       () =>
           _i122.ProfileCategoriesCubit(gh<_i775.ProfileCategoriesRepository>()),
     );
+    gh.factory<_i715.BookingScheduleSettingsCubit>(
+      () => _i715.BookingScheduleSettingsCubit(
+        gh<_i893.BookingScheduleRepository>(),
+        gh<_i533.BookingStaffRepository>(),
+      ),
+    );
     gh.lazySingleton<_i744.CitiesCubit>(
       () => _i744.CitiesCubit(gh<_i969.CitiesRepository>()),
+    );
+    gh.factory<_i202.BookingServiceEditorCubit>(
+      () => _i202.BookingServiceEditorCubit(
+        gh<_i327.BookingServicesRepository>(),
+        gh<_i533.BookingStaffRepository>(),
+      ),
+    );
+    gh.factory<_i393.BookingServicesCubit>(
+      () => _i393.BookingServicesCubit(
+        gh<_i327.BookingServicesRepository>(),
+        gh<_i533.BookingStaffRepository>(),
+      ),
     );
     gh.factory<_i465.ProfileFilterCubit>(
       () => _i465.ProfileFilterCubit(gh<_i920.FilterRepository>()),
@@ -231,6 +295,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i454.SupabaseClient>(),
       ),
     );
+    gh.factory<_i562.BookingListCubit>(
+      () => _i562.BookingListCubit(gh<_i74.BookingHostListRepository>()),
+    );
     gh.singleton<_i961.ProfileCubit>(
       () => _i961.ProfileCubit(gh<_i950.ProfileNewRepository>()),
     );
@@ -242,6 +309,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i454.SupabaseClient>(),
         gh<_i202.MarkerTagsRepository>(),
         gh<_i920.FilterRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i868.BookingClientRepository>(
+      () => _i868.BookingClientRepositoryImpl(
+        gh<_i454.SupabaseClient>(),
+        gh<_i327.BookingServicesRepository>(),
+        gh<_i893.BookingScheduleRepository>(),
       ),
     );
     gh.factory<_i771.PostArchiveCubit>(
@@ -266,10 +340,25 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i202.MarkerTagsRepository>(),
       ),
     );
+    gh.lazySingleton<_i191.AccountSessionCleanup>(
+      () => _i191.AccountSessionCleanup(
+        gh<_i1029.IAppStorage>(),
+        gh<_i467.PostRepository>(),
+        gh<_i961.ProfileCubit>(),
+      ),
+    );
     gh.factory<_i211.PostFeedCubit>(
       () => _i211.PostFeedCubit(
         gh<_i467.PostRepository>(),
         gh<_i1045.PostLocalCache>(),
+      ),
+    );
+    gh.lazySingleton<_i964.AuthRepository>(
+      () => _i964.AuthRepository(
+        gh<_i454.SupabaseClient>(),
+        gh<_i1029.IAppStorage>(),
+        gh<_i116.GoogleSignIn>(),
+        gh<_i191.AccountSessionCleanup>(),
       ),
     );
     gh.lazySingleton<_i763.MarkerCreateUploadCubit>(
@@ -284,6 +373,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i454.SupabaseClient>(),
         gh<_i961.ProfileCubit>(),
       ),
+    );
+    gh.factory<_i114.BookingClientCubit>(
+      () => _i114.BookingClientCubit(gh<_i868.BookingClientRepository>()),
+    );
+    gh.factory<_i575.AuthCubit>(
+      () => _i575.AuthCubit(gh<_i964.AuthRepository>()),
     );
     return this;
   }

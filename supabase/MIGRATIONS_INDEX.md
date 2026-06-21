@@ -133,7 +133,25 @@
 |------|------------|
 | **`20260504054611_add_relations_system.sql`** | Таблица `public.relations` (каноническая пара `from_account_id < to_account_id`), флаги `hiring_enabled` / `open_for_memberships` в `profiles`. **Intent:** `request_relation(..., 'hire' \| 'join')`. **State machine:** `update_relation_status`. **Чтение:** RLS `SELECT` по участию в паре; DML только через `security definer` RPC. Доп. RPC: `get_my_relation_with(p_other)` — одна строка между `auth.uid()` и `p_other`. |
 
-#### Ключевые особенности реализации:
+### Booking (онлайн-запись)
+
+**Спека:** `supabase/SPEC_BOOKING_SYSTEM.md` | **Навигатор:** `migrations/_booking/README.md`
+
+| Файл | Назначение |
+|------|------------|
+| `20260725120000_marker_tag_booking.sql` | Тег аккаунта `booking` в `marker_tags` (кнопка «Записаться»). |
+| **`20260726120000_booking_schema.sql`** | Таблицы booking, EXCLUDE constraints, helpers (`booking_resolve_staff_day_window`, …), `pg_trgm` indexes. |
+| **`20260726120100_booking_rls_grants.sql`** | RLS + GRANT для authenticated. |
+| **`20260726120200_booking_rpc.sql`** | `create_booking`, `get_booking_availability`, enriched lists, status, analytics. |
+
+#### Ключевые особенности:
+*   **Per-staff schedule** — `booking_staff_schedule` + fallback на account settings.
+*   **Blocked slots** — `booking_blocked_slots` без fake bookings.
+*   **History** — `booking_history` на create/status change.
+*   **Reviews** — schema `booking_reviews`; RPC/UI позже.
+*   **Notifications** — backlog (не v1).
+
+#### Ключевые особенности реализации (Relations):
 *   **Canonical pair** — уникальность `(from_account_id, to_account_id)` без дублей направления.
 *   **Strict state machine** — `active` / `rejected` только получатель при `pending`; `terminated` только из `active` (оба участника).
 *   **RPC для изменений** — `request_relation`, `update_relation_status`; повторный `pending` только если строка была `rejected` или `terminated` (`ON CONFLICT DO UPDATE … WHERE`).

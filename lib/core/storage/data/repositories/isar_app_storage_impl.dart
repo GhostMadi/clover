@@ -1,3 +1,4 @@
+import 'package:clover/core/storage/account_storage_keys.dart';
 import 'package:clover/core/storage/data/mappers/storage_value_codec.dart';
 import 'package:clover/core/storage/data/models/storage_item.dart';
 import 'package:clover/core/storage/domain/repositories/i_app_storage.dart';
@@ -51,6 +52,19 @@ class IsarAppStorageImpl implements IAppStorage {
     await _db.writeTxn(
       () => _db.storageItems.filter().keyEqualTo(key).deleteAll(),
     );
+  }
+
+  @override
+  Future<void> clearAccountData() async {
+    await _db.writeTxn(() async {
+      final items = await _db.storageItems.where().findAll();
+      final ids = [
+        for (final item in items)
+          if (AccountStorageKeys.isAccountKey(item.key)) item.id,
+      ];
+      if (ids.isEmpty) return;
+      await _db.storageItems.deleteAll(ids);
+    });
   }
 
   @override

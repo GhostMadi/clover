@@ -1,6 +1,6 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/feature/booking/booking_create/data/mock/booking_services_mock_data.dart';
+import 'package:clover/feature/booking/booking_create/data/models/booking_service_executor.dart';
 import 'package:clover/feature/booking/booking_create/data/models/booking_service.dart';
 import 'package:flutter/material.dart';
 
@@ -8,15 +8,28 @@ class BookingServiceCard extends StatelessWidget {
   const BookingServiceCard({
     super.key,
     required this.service,
+    this.executors = const [],
     this.onTap,
   });
 
   final BookingService service;
+  final List<BookingServiceExecutor> executors;
   final VoidCallback? onTap;
+
+  String? get _executorsLabel {
+    if (executors.isNotEmpty) {
+      if (executors.length == 1) return executors.first.displayName;
+      final names = executors.take(2).map((e) => e.displayName).join(', ');
+      if (executors.length > 2) return '$names и ещё ${executors.length - 2}';
+      return names;
+    }
+    if (service.executorIds.isEmpty) return null;
+    return '${service.executorIds.length} мастер(ов)';
+  }
 
   @override
   Widget build(BuildContext context) {
-    final executor = BookingServicesMockData.executorById(service.executorId);
+    final executorsLabel = _executorsLabel;
 
     return Material(
       color: AppColors.surface,
@@ -47,10 +60,10 @@ class BookingServiceCard extends StatelessWidget {
                       service.displaySubtitle,
                       style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w500),
                     ),
-                    if (executor != null) ...[
+                    if (executorsLabel != null) ...[
                       const SizedBox(height: 6),
                       Text(
-                        'Исполнитель: ${executor.displayName}',
+                        'Исполнители: $executorsLabel',
                         style: AppTextStyle.base(12, color: AppColors.primary, fontWeight: FontWeight.w600),
                       ),
                     ],

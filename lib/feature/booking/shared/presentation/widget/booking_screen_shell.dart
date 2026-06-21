@@ -21,8 +21,11 @@ class BookingScreenShell extends StatelessWidget {
     this.showFilter = false,
     this.showSettings = false,
     this.showSave = false,
+    this.showCancel = false,
     this.canSave = false,
     this.saveLabel = 'Сохранить',
+    this.cancelLabel = 'Отменить',
+    this.cancelIcon = Icons.block_rounded,
     this.onAnalyticsTap,
     this.onCreateTap,
     this.onAddTap,
@@ -30,6 +33,8 @@ class BookingScreenShell extends StatelessWidget {
     this.onFilterTap,
     this.onSettingsTap,
     this.onSaveTap,
+    this.onCancelTap,
+    this.onBackTap,
   });
 
   final String title;
@@ -43,8 +48,11 @@ class BookingScreenShell extends StatelessWidget {
   final bool showFilter;
   final bool showSettings;
   final bool showSave;
+  final bool showCancel;
   final bool canSave;
   final String saveLabel;
+  final String cancelLabel;
+  final IconData cancelIcon;
   final VoidCallback? onAnalyticsTap;
   final VoidCallback? onCreateTap;
   final VoidCallback? onAddTap;
@@ -52,6 +60,8 @@ class BookingScreenShell extends StatelessWidget {
   final VoidCallback? onFilterTap;
   final VoidCallback? onSettingsTap;
   final VoidCallback? onSaveTap;
+  final VoidCallback? onCancelTap;
+  final VoidCallback? onBackTap;
 
   static double scrollBottomGap(BuildContext context) => AppFunctionalScreen.scrollBottomClearance(context);
 
@@ -66,8 +76,19 @@ class BookingScreenShell extends StatelessWidget {
           keepWhenCollapsed: true,
           customColor: AppColors.primary,
           isLoading: isLoading,
-          onTap: () => context.router.maybePop(),
+          onTap: onBackTap ?? () => context.router.maybePop(),
         ),
+        if (showCancel)
+          FunctionalButtonItem(
+            icon: cancelIcon,
+            label: cancelLabel.isEmpty ? null : cancelLabel,
+            keepWhenCollapsed: true,
+            customColor: AppColors.functionalSoftRed,
+            iconColor: AppColors.functionalSoftRedIcon,
+            textColor: AppColors.destructive,
+            isLoading: isLoading,
+            onTap: onCancelTap ?? () {},
+          ),
         if (showFilter)
           FunctionalButtonItem(
             icon: Icons.filter_list_rounded,

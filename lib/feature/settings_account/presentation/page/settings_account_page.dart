@@ -115,17 +115,11 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
             return Row(
               children: [
                 Expanded(
-                  child: AppButton(
-                    text: 'Отмена',
-                    onTap: () => Navigator.of(sheetContext).pop(false),
-                  ),
+                  child: AppButton(text: 'Отмена', onTap: () => Navigator.of(sheetContext).pop(false)),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: AppButton(
-                    text: 'Выйти',
-                    onTap: () => Navigator.of(sheetContext).pop(true),
-                  ),
+                  child: AppButton(text: 'Выйти', onTap: () => Navigator.of(sheetContext).pop(true)),
                 ),
               ],
             );

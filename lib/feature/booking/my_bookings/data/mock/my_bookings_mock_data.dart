@@ -1,8 +1,13 @@
-import 'package:clover/feature/booking/booking_list/data/models/booking_list_item.dart';
+import 'package:clover/feature/booking/booking_client/data/mock/client_booking_submissions_store.dart';
+import 'package:clover/feature/booking/shared/data/models/booking_status.dart';
 import 'package:clover/feature/booking/my_bookings/data/models/my_booking_item.dart';
 
 abstract final class MyBookingsMockData {
   static List<MyBookingItem> get items {
+    return [...ClientBookingSubmissionsStore.items, ..._seedItems];
+  }
+
+  static List<MyBookingItem> get _seedItems {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final tomorrow = today.add(const Duration(days: 1));
@@ -22,7 +27,7 @@ abstract final class MyBookingsMockData {
         executorName: 'Марат Т.',
         startsAt: _format(tomorrow, 11, 0),
         createdAt: _format(today, 9, 30),
-        status: BookingListStatus.confirmed,
+        status: BookingStatus.confirmed,
         notes: 'Коротко сбоку',
       ),
       MyBookingItem(
@@ -37,7 +42,7 @@ abstract final class MyBookingsMockData {
         executorName: 'Diana S.',
         startsAt: _format(today, 16, 0),
         createdAt: _format(yesterday, 14, 10),
-        status: BookingListStatus.confirmed,
+        status: BookingStatus.confirmed,
       ),
       MyBookingItem(
         id: 'mb-3',
@@ -51,7 +56,7 @@ abstract final class MyBookingsMockData {
         executorName: 'Алия К.',
         startsAt: _format(yesterday, 12, 0),
         createdAt: _format(lastWeek, 10, 0),
-        status: BookingListStatus.completed,
+        status: BookingStatus.completed,
       ),
       MyBookingItem(
         id: 'mb-4',
@@ -65,7 +70,7 @@ abstract final class MyBookingsMockData {
         executorName: 'Алия К.',
         startsAt: _format(lastWeek, 15, 30),
         createdAt: _format(lastWeek.subtract(const Duration(days: 3)), 18, 0),
-        status: BookingListStatus.completed,
+        status: BookingStatus.completed,
       ),
       MyBookingItem(
         id: 'mb-5',
@@ -78,7 +83,7 @@ abstract final class MyBookingsMockData {
         price: 8000,
         startsAt: _format(today.subtract(const Duration(days: 14)), 18, 0),
         createdAt: _format(today.subtract(const Duration(days: 20)), 11, 0),
-        status: BookingListStatus.cancelled,
+        status: BookingStatus.cancelled,
         notes: 'Перенесли на другой день',
       ),
     ];

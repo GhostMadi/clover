@@ -1,8 +1,7 @@
 import 'package:clover/core/shared/app_date_picker.dart';
 import 'package:clover/feature/booking/booking_settings/data/models/booking_executor_absence.dart';
 import 'package:clover/feature/booking/booking_settings/data/models/booking_weekday.dart';
-
-enum BookingHorizonKind { daysAhead, untilDate }
+import 'package:clover/feature/booking/shared/data/models/booking_horizon_kind.dart';
 
 /// Общие настройки расписания записи для аккаунта.
 class BookingScheduleSettings {

@@ -1,14 +1,16 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/feature/booking/booking_list/data/models/booking_list_date_range.dart';
 import 'package:clover/feature/booking/booking_list/presentation/widget/booking_list_empty_state.dart';
 import 'package:clover/feature/booking/booking_list/presentation/widget/booking_list_period_banner.dart';
 import 'package:clover/feature/booking/booking_list/presentation/widget/booking_list_period_filter_sheet.dart';
-import 'package:clover/feature/booking/my_bookings/data/mock/my_bookings_mock_data.dart';
 import 'package:clover/feature/booking/my_bookings/data/models/my_booking_item.dart';
+import 'package:clover/feature/booking/my_bookings/presentation/cubit/my_bookings_cubit.dart';
 import 'package:clover/feature/booking/my_bookings/presentation/widget/my_booking_card.dart';
 import 'package:clover/feature/booking/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
 class MyBookingsPage extends StatefulWidget {
@@ -19,73 +21,94 @@ class MyBookingsPage extends StatefulWidget {
 }
 
 class _MyBookingsPageState extends State<MyBookingsPage> {
-  final _allItems = MyBookingsMockData.items;
-  late BookingListDateRange _period = BookingListDateRange.recentAndUpcoming();
+  late final MyBookingsCubit _cubit;
 
-  List<MyBookingItem> get _filteredItems {
-    final items = [
-      for (final item in _allItems)
-        if (_period.contains(item.startsAtDate ?? DateTime.fromMillisecondsSinceEpoch(0))) item,
-    ];
-    items.sort((a, b) {
-      final ad = a.startsAtDate ?? DateTime.fromMillisecondsSinceEpoch(0);
-      final bd = b.startsAtDate ?? DateTime.fromMillisecondsSinceEpoch(0);
-      return ad.compareTo(bd);
-    });
-    return items;
+  @override
+  void initState() {
+    super.initState();
+    _cubit = sl<MyBookingsCubit>()..load();
   }
 
-  Future<void> _openFilter() async {
-    final picked = await BookingListPeriodFilterSheet.show(context, initial: _period);
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  Future<void> _openFilter(BookingListDateRange current) async {
+    final picked = await BookingListPeriodFilterSheet.show(context, initial: current);
     if (picked != null && mounted) {
-      setState(() => _period = picked);
+      await _cubit.setPeriod(picked);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final items = _filteredItems;
-    final periodLabel = 'Период: ${_period.label}';
+    return BlocBuilder<MyBookingsCubit, MyBookingsState>(
+      bloc: _cubit,
+      builder: (context, state) {
+        final period = state.maybeMap(
+          loaded: (s) => s.period,
+          loading: (s) => s.period,
+          error: (s) => s.period,
+          orElse: () => BookingListDateRange.recentAndUpcoming(),
+        );
+        final items = state.maybeMap(loaded: (s) => s.items, orElse: () => const <MyBookingItem>[]);
+        final isLoading = state.maybeMap(loading: (_) => true, orElse: () => false);
+        final periodLabel = 'Период: ${period.label}';
 
-    return BookingScreenShell(
-      title: 'Мои записи',
-      compactBar: true,
-      showFilter: true,
-      onFilterTap: _openFilter,
-      body: items.isEmpty
-          ? Column(
-              children: [
-                BookingListPeriodBanner(label: periodLabel),
-                Expanded(
-                  child: BookingListEmptyState(
-                    title: 'Записей за период нет',
-                    subtitle: 'Измените фильтр по дате — можно посмотреть прошлые записи',
-                    showCreateButton: false,
+        return BookingScreenShell(
+          title: 'Мои записи',
+          compactBar: true,
+          showFilter: true,
+          onFilterTap: () => _openFilter(period),
+          isLoading: isLoading,
+          body: state.maybeMap(
+            error: (s) => Center(child: Text(s.message)),
+            orElse: () => items.isEmpty
+                ? Column(
+                    children: [
+                      BookingListPeriodBanner(label: periodLabel),
+                      Expanded(
+                        child: BookingListEmptyState(
+                          title: 'Записей за период нет',
+                          subtitle: 'Измените фильтр по дате — можно посмотреть прошлые записи',
+                          showCreateButton: false,
+                        ),
+                      ),
+                    ],
+                  )
+                : ListView.separated(
+                    padding: EdgeInsets.fromLTRB(0, 8, 0, BookingScreenShell.scrollBottomGap(context)),
+                    itemCount: items.length + 1,
+                    separatorBuilder: (context, index) {
+                      if (index == 0) return const SizedBox.shrink();
+                      return const SizedBox(height: 10);
+                    },
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return BookingListPeriodBanner(label: periodLabel);
+                      }
+                      final item = items[index - 1];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: MyBookingCard(
+                          item: item,
+                          onTap: () async {
+                            final cancelled = await context.router.push<bool>(
+                              MyBookingDetailRoute(item: item),
+                            );
+                            if (cancelled == true && mounted) {
+                              await _cubit.refresh();
+                            }
+                          },
+                        ),
+                      );
+                    },
                   ),
-                ),
-              ],
-            )
-          : ListView.separated(
-              padding: EdgeInsets.fromLTRB(0, 8, 0, BookingScreenShell.scrollBottomGap(context)),
-              itemCount: items.length + 1,
-              separatorBuilder: (context, index) {
-                if (index == 0) return const SizedBox.shrink();
-                return const SizedBox(height: 10);
-              },
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return BookingListPeriodBanner(label: periodLabel);
-                }
-                final item = items[index - 1];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: MyBookingCard(
-                    item: item,
-                    onTap: () => context.router.push(MyBookingDetailRoute(item: item)),
-                  ),
-                );
-              },
-            ),
+          ),
+        );
+      },
     );
   }
 }

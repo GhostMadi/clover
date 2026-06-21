@@ -9,7 +9,7 @@ class BookingService {
     required this.maxParticipants,
     required this.bufferAfterMinutes,
     this.description,
-    this.executorId,
+    this.executorIds = const [],
     this.isActive = true,
   });
 
@@ -21,8 +21,10 @@ class BookingService {
   final int maxParticipants;
   final int bufferAfterMinutes;
   final String? description;
-  final String? executorId;
+  final List<String> executorIds;
   final bool isActive;
+
+  String? get executorId => executorIds.isEmpty ? null : executorIds.first;
 
   String get displaySubtitle {
     final parts = <String>[
@@ -50,8 +52,7 @@ class BookingService {
     int? bufferAfterMinutes,
     String? description,
     bool clearDescription = false,
-    String? executorId,
-    bool clearExecutorId = false,
+    List<String>? executorIds,
     bool? isActive,
   }) {
     return BookingService(
@@ -63,7 +64,7 @@ class BookingService {
       maxParticipants: maxParticipants ?? this.maxParticipants,
       bufferAfterMinutes: bufferAfterMinutes ?? this.bufferAfterMinutes,
       description: clearDescription ? null : (description ?? this.description),
-      executorId: clearExecutorId ? null : (executorId ?? this.executorId),
+      executorIds: executorIds ?? this.executorIds,
       isActive: isActive ?? this.isActive,
     );
   }

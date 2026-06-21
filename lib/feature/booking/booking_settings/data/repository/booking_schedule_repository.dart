@@ -1,0 +1,143 @@
+import 'package:clover/feature/booking/booking_settings/data/models/booking_executor_absence.dart';
+import 'package:clover/feature/booking/booking_settings/data/models/booking_schedule_settings.dart';
+import 'package:clover/feature/booking/shared/data/booking_error.dart';
+import 'package:clover/feature/booking/shared/data/booking_json.dart';
+import 'package:clover/feature/booking/shared/data/models/booking_horizon_kind.dart';
+import 'package:injectable/injectable.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+abstract class BookingScheduleRepository {
+  Future<BookingScheduleSettings> getSettings({String? hostId});
+
+  Future<BookingScheduleSettings> saveMySettings(BookingScheduleSettings settings);
+}
+
+@LazySingleton(as: BookingScheduleRepository)
+class BookingScheduleRepositoryImpl implements BookingScheduleRepository {
+  BookingScheduleRepositoryImpl(this._client);
+
+  final SupabaseClient _client;
+
+  String? get _uid => _client.auth.currentUser?.id.trim();
+
+  Future<T> _guard<T>(Future<T> Function() run) async {
+    try {
+      return await run();
+    } catch (e) {
+      throw BookingException.from(e);
+    }
+  }
+
+  @override
+  Future<BookingScheduleSettings> getSettings({String? hostId}) async {
+    final id = (hostId ?? _uid)?.trim();
+    if (id == null || id.isEmpty) return BookingScheduleSettings.defaults();
+
+    return _guard(() async {
+      final settingsRow = await _client
+          .from('booking_schedule_settings')
+          .select()
+          .eq('host_id', id)
+          .maybeSingle();
+
+      final absencesRes = await _client
+          .from('booking_staff_absences')
+          .select()
+          .eq('host_id', id)
+          .order('start_date');
+
+      final absences = [
+        for (final row in absencesRes) _mapAbsence(Map<String, dynamic>.from(row)),
+      ];
+
+      if (settingsRow == null) {
+        return BookingScheduleSettings.defaults().copyWith(executorAbsences: absences);
+      }
+
+      return _mapSettings(Map<String, dynamic>.from(settingsRow), absences: absences);
+    });
+  }
+
+  @override
+  Future<BookingScheduleSettings> saveMySettings(BookingScheduleSettings settings) async {
+    final uid = _uid;
+    if (uid == null || uid.isEmpty) {
+      throw const BookingException(BookingErrorCode.notAuthenticated);
+    }
+
+    return _guard(() async {
+      final start = (settings.workStartHour, settings.workStartMinute);
+      final end = (settings.workEndHour, settings.workEndMinute);
+
+      await _client.from('booking_schedule_settings').upsert({
+        'host_id': uid,
+        'rest_weekdays': settings.restWeekdays.toList(),
+        'horizon_kind': settings.horizonKind.dbValue,
+        'max_booking_days_ahead': settings.maxBookingDaysAhead,
+        'max_booking_until_date': settings.horizonKind == BookingHorizonKind.untilDate
+            ? settings.maxBookingUntilDate?.toIso8601String().substring(0, 10)
+            : null,
+        'default_work_start_time':
+            '${start.$1.toString().padLeft(2, '0')}:${start.$2.toString().padLeft(2, '0')}:00',
+        'default_work_end_time':
+            '${end.$1.toString().padLeft(2, '0')}:${end.$2.toString().padLeft(2, '0')}:00',
+      });
+
+      await _client.from('booking_staff_absences').delete().eq('host_id', uid);
+
+      if (settings.executorAbsences.isNotEmpty) {
+        await _client.from('booking_staff_absences').insert([
+          for (final absence in settings.executorAbsences)
+            {
+              'host_id': uid,
+              'staff_id': absence.executorId,
+              'start_date': _dateKey(absence.startDay),
+              'end_date': _dateKey(absence.endDay),
+              if (absence.note != null && absence.note!.trim().isNotEmpty) 'note': absence.note!.trim(),
+            },
+        ]);
+      }
+
+      return getSettings(hostId: uid);
+    });
+  }
+
+  BookingScheduleSettings _mapSettings(
+    Map<String, dynamic> row, {
+    required List<BookingExecutorAbsence> absences,
+  }) {
+    final start = BookingJson.parseTime(row['default_work_start_time']);
+    final end = BookingJson.parseTime(row['default_work_end_time']);
+    final horizon = BookingHorizonKind.fromDbOrDefault(row['horizon_kind']?.toString());
+    final untilRaw = BookingJson.asString(row['max_booking_until_date']);
+
+    return BookingScheduleSettings(
+      restWeekdays: BookingJson.asIntList(row['rest_weekdays']).toSet(),
+      horizonKind: horizon == BookingHorizonKind.untilDate
+          ? BookingHorizonKind.untilDate
+          : BookingHorizonKind.daysAhead,
+      maxBookingDaysAhead: BookingJson.asInt(row['max_booking_days_ahead'], fallback: 14),
+      maxBookingUntilDate: untilRaw == null ? null : DateTime.tryParse(untilRaw),
+      workStartHour: start.$1,
+      workStartMinute: start.$2,
+      workEndHour: end.$1,
+      workEndMinute: end.$2,
+      executorAbsences: absences,
+    );
+  }
+
+  BookingExecutorAbsence _mapAbsence(Map<String, dynamic> row) {
+    final startRaw = BookingJson.asString(row['start_date']);
+    final endRaw = BookingJson.asString(row['end_date']);
+    return BookingExecutorAbsence(
+      id: row['id']?.toString() ?? '',
+      executorId: row['staff_id']?.toString() ?? '',
+      startDay: DateTime.tryParse(startRaw ?? '') ?? DateTime.now(),
+      endDay: DateTime.tryParse(endRaw ?? '') ?? DateTime.now(),
+      note: BookingJson.asString(row['note']),
+    );
+  }
+
+  String _dateKey(DateTime date) =>
+      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+}

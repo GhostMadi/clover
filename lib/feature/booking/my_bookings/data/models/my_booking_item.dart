@@ -1,4 +1,5 @@
-import 'package:clover/feature/booking/booking_list/data/models/booking_list_item.dart';
+import 'package:clover/feature/booking/shared/data/booking_status_display.dart';
+import 'package:clover/feature/booking/shared/data/models/booking_status.dart';
 
 class MyBookingItem {
   const MyBookingItem({
@@ -27,11 +28,14 @@ class MyBookingItem {
   final double price;
   final String? executorName;
   final String startsAt;
-  final BookingListStatus status;
+  final BookingStatus status;
   final String? notes;
   final String? createdAt;
 
-  DateTime? get startsAtDate => DateTime.tryParse(startsAt);
+  DateTime? get startsAtDate {
+    final parsed = DateTime.tryParse(startsAt);
+    return parsed?.toLocal();
+  }
 
   DateTime? get createdAtDate => createdAt == null ? null : DateTime.tryParse(createdAt!);
 
@@ -41,12 +45,9 @@ class MyBookingItem {
     return start.add(Duration(minutes: durationMinutes));
   }
 
-  String get statusLabel => switch (status) {
-        BookingListStatus.pending => 'Ожидает',
-        BookingListStatus.confirmed => 'Подтверждена',
-        BookingListStatus.completed => 'Завершена',
-        BookingListStatus.cancelled => 'Отменена',
-      };
+  String get statusLabel => BookingStatusDisplay.label(status, endsAt: endsAtDate);
+
+  bool get isVisitUnmarked => BookingStatusDisplay.isUnmarked(status, endsAtDate);
 
   String get priceLabel {
     if (price == price.roundToDouble()) {
@@ -65,5 +66,15 @@ class MyBookingItem {
     final end = endsAtDate;
     if (end == null) return false;
     return end.isBefore(DateTime.now());
+  }
+
+  bool get showCancelAction =>
+      status == BookingStatus.pending || status == BookingStatus.confirmed;
+
+  bool get canClientCancel {
+    if (!showCancelAction) return false;
+    final start = startsAtDate;
+    if (start == null) return true;
+    return start.isAfter(DateTime.now());
   }
 }

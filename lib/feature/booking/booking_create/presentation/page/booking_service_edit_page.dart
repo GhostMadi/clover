@@ -1,12 +1,20 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/feature/booking/booking_create/data/mock/booking_services_mock_data.dart';
+import 'package:clover/feature/booking/booking_create/data/models/booking_executor_pick.dart';
+import 'package:clover/feature/booking/booking_create/data/models/booking_service_executor.dart';
 import 'package:clover/feature/booking/booking_create/data/models/booking_service.dart';
 import 'package:clover/feature/booking/booking_create/data/models/booking_service_draft.dart';
+import 'package:clover/feature/booking/booking_create/data/repository/booking_staff_repository.dart';
+import 'package:clover/feature/booking/booking_create/presentation/cubit/booking_service_editor_cubit.dart';
+import 'package:clover/feature/booking/booking_create/presentation/widget/booking_service_cancel_sheet.dart';
 import 'package:clover/feature/booking/booking_create/presentation/widget/booking_service_form.dart';
+import 'package:clover/feature/booking/booking_create/presentation/widget/booking_staff_profile_search_sheet.dart';
+import 'package:clover/feature/booking/shared/data/booking_error.dart';
 import 'package:clover/feature/booking/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
 class BookingServiceEditPage extends StatefulWidget {
@@ -19,6 +27,8 @@ class BookingServiceEditPage extends StatefulWidget {
 }
 
 class _BookingServiceEditPageState extends State<BookingServiceEditPage> {
+  late final BookingServiceEditorCubit _cubit;
+  late final BookingStaffRepository _staffRepository;
   late final TextEditingController _titleController;
   late final TextEditingController _durationController;
   late final TextEditingController _emojiController;
@@ -28,11 +38,13 @@ class _BookingServiceEditPageState extends State<BookingServiceEditPage> {
   late final TextEditingController _descriptionController;
 
   late BookingServiceDraft _draft;
-  bool _submitting = false;
+  bool _hydratedExecutors = false;
 
   @override
   void initState() {
     super.initState();
+    _cubit = sl<BookingServiceEditorCubit>()..loadStaff();
+    _staffRepository = sl<BookingStaffRepository>();
     _draft = BookingServiceDraft.fromService(widget.service);
     _titleController = TextEditingController(text: _draft.title);
     _durationController = TextEditingController(text: '${_draft.durationMinutes}');
@@ -45,6 +57,7 @@ class _BookingServiceEditPageState extends State<BookingServiceEditPage> {
 
   @override
   void dispose() {
+    _cubit.close();
     _titleController.dispose();
     _durationController.dispose();
     _emojiController.dispose();
@@ -60,13 +73,9 @@ class _BookingServiceEditPageState extends State<BookingServiceEditPage> {
     return price.toString();
   }
 
-  int _parseInt(String raw, {required int fallback}) {
-    return int.tryParse(raw.trim()) ?? fallback;
-  }
+  int _parseInt(String raw, {required int fallback}) => int.tryParse(raw.trim()) ?? fallback;
 
-  double _parsePrice(String raw) {
-    return double.tryParse(raw.trim().replaceAll(',', '.')) ?? 0;
-  }
+  double _parsePrice(String raw) => double.tryParse(raw.trim().replaceAll(',', '.')) ?? 0;
 
   void _syncDraftFromControllers() {
     setState(() {
@@ -82,14 +91,68 @@ class _BookingServiceEditPageState extends State<BookingServiceEditPage> {
     });
   }
 
-  Future<void> _submit() async {
-    if (!_draft.isValid || _submitting) return;
+  void _hydrateExecutors(List<BookingServiceExecutor> staff) {
+    if (_hydratedExecutors) return;
+    _hydratedExecutors = true;
 
-    setState(() => _submitting = true);
-    await Future<void>.delayed(const Duration(milliseconds: 400));
+    final byId = {for (final person in staff) person.id: person};
+    final hydrated = [
+      for (final pick in _draft.executors)
+        if (pick.staffId != null && byId[pick.staffId] != null)
+          BookingExecutorPick.fromStaff(byId[pick.staffId]!)
+        else
+          pick,
+    ];
+
     if (!mounted) return;
+    setState(() => _draft = _draft.copyWith(executors: hydrated));
+  }
 
-    final updated = _draft.toService(id: widget.service.id);
+  Set<String> _excludeProfileIds() {
+    return {
+      for (final pick in _draft.executors)
+        if (pick.profileId != null && pick.profileId!.trim().isNotEmpty) pick.profileId!.trim(),
+    };
+  }
+
+  Future<void> _addExecutor() async {
+    final profile = await BookingStaffProfileSearchSheet.show(
+      context,
+      repository: _staffRepository,
+      excludeProfileIds: _excludeProfileIds(),
+    );
+    if (profile == null || !mounted) return;
+
+    if (_draft.executors.any((pick) => pick.profileId == profile.id)) {
+      AppSnackBar.show(context, message: 'Этот мастер уже добавлен', kind: AppSnackBarKind.error);
+      return;
+    }
+
+    setState(() {
+      _draft = _draft.copyWith(
+        executors: [..._draft.executors, BookingExecutorPick.fromProfile(profile)],
+      );
+    });
+  }
+
+  void _removeExecutor(String key) {
+    setState(() {
+      _draft = _draft.copyWith(
+        executors: _draft.executors.where((pick) => pick.key != key).toList(),
+      );
+    });
+  }
+
+  Future<void> _submit() async {
+    if (!_draft.isValid) return;
+    final updated = await _cubit.update(widget.service.id, _draft);
+    if (!mounted || updated == null) {
+      final message = _cubit.state.maybeMap(error: (s) => s.message, orElse: () => null);
+      if (message != null && mounted) {
+        AppSnackBar.show(context, message: BookingException.from(message).userMessage, kind: AppSnackBarKind.error);
+      }
+      return;
+    }
     AppSnackBar.show(context, message: 'Услуга сохранена', kind: AppSnackBarKind.success);
     context.router.maybePop(updated);
   }
@@ -98,39 +161,81 @@ class _BookingServiceEditPageState extends State<BookingServiceEditPage> {
     await context.router.push<bool>(const BookingScheduleSettingsRoute());
   }
 
+  Future<void> _cancelService() async {
+    final reason = await showBookingServiceCancelSheet(
+      context,
+      serviceTitle: widget.service.title,
+    );
+    if (reason == null || !mounted) return;
+
+    final ok = await _cubit.deactivate(widget.service.id);
+    if (!mounted) return;
+
+    if (ok) {
+      AppSnackBar.show(context, message: 'Услуга отменена', kind: AppSnackBarKind.success);
+      context.router.maybePop(widget.service.copyWith(isActive: false));
+      return;
+    }
+
+    final message = _cubit.state.maybeMap(error: (s) => s.message, orElse: () => null);
+    if (message != null && mounted) {
+      AppSnackBar.show(
+        context,
+        message: BookingException.from(message).userMessage,
+        kind: AppSnackBarKind.error,
+      );
+      await _cubit.loadStaff();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BookingScreenShell(
-      title: 'Редактирование',
-      compactBar: true,
-      isLoading: _submitting,
-      showSettings: true,
-      onSettingsTap: _openSettings,
-      showSave: true,
-      canSave: _draft.isValid,
-      onSaveTap: _submit,
-      body: BookingServiceForm(
-        draft: _draft,
-        titleController: _titleController,
-        durationController: _durationController,
-        emojiController: _emojiController,
-        priceController: _priceController,
-        maxParticipantsController: _maxParticipantsController,
-        bufferAfterController: _bufferAfterController,
-        descriptionController: _descriptionController,
-        executors: BookingServicesMockData.executors,
-        enabled: !_submitting,
-        bufferAfterLocked: true,
-        onDraftChanged: _syncDraftFromControllers,
-        onExecutorChanged: (value) {
-          setState(() {
-            _draft = value == null
-                ? _draft.copyWith(clearExecutorId: true)
-                : _draft.copyWith(executorId: value);
-          });
-        },
-        onActiveChanged: (value) {
-          setState(() => _draft = _draft.copyWith(isActive: value));
+    return BlocListener<BookingServiceEditorCubit, BookingServiceEditorState>(
+      bloc: _cubit,
+      listenWhen: (prev, next) => next.maybeMap(ready: (_) => true, orElse: () => false),
+      listener: (context, state) {
+        state.mapOrNull(ready: (s) => _hydrateExecutors(s.staff));
+      },
+      child: BlocBuilder<BookingServiceEditorCubit, BookingServiceEditorState>(
+        bloc: _cubit,
+        builder: (context, state) {
+          final isSubmitting = state.maybeMap(submitting: (_) => true, orElse: () => false);
+          final selected = [for (final pick in _draft.executors) pick.toDisplayExecutor()];
+
+          return BookingScreenShell(
+            title: 'Редактирование',
+            compactBar: true,
+            isLoading: isSubmitting || state.maybeMap(loading: (_) => true, orElse: () => false),
+            showCancel: widget.service.isActive,
+            onCancelTap: _cancelService,
+            showSettings: true,
+            onSettingsTap: _openSettings,
+            showSave: true,
+            canSave: _draft.isValid && !isSubmitting,
+            onSaveTap: _submit,
+            body: state.maybeMap(
+              error: (s) => Center(child: Text(s.message)),
+              orElse: () => BookingServiceForm(
+                draft: _draft,
+                titleController: _titleController,
+                durationController: _durationController,
+                emojiController: _emojiController,
+                priceController: _priceController,
+                maxParticipantsController: _maxParticipantsController,
+                bufferAfterController: _bufferAfterController,
+                descriptionController: _descriptionController,
+                selectedExecutors: selected,
+                enabled: !isSubmitting,
+                bufferAfterLocked: true,
+                onDraftChanged: _syncDraftFromControllers,
+                onAddExecutor: _addExecutor,
+                onRemoveExecutor: _removeExecutor,
+                onActiveChanged: (value) {
+                  setState(() => _draft = _draft.copyWith(isActive: value));
+                },
+              ),
+            ),
+          );
         },
       ),
     );

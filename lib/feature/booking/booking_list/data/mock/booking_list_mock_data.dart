@@ -1,4 +1,5 @@
 import 'package:clover/feature/booking/booking_list/data/models/booking_list_item.dart';
+import 'package:clover/feature/booking/shared/data/models/booking_status.dart';
 
 /// Временные данные для вёрстки списка записей.
 abstract final class BookingListMockData {
@@ -21,7 +22,7 @@ abstract final class BookingListMockData {
         executorName: 'Марат Т.',
         startsAt: _format(today, 10, 30),
         createdAt: _format(yesterday, 18, 20),
-        status: BookingListStatus.confirmed,
+        status: BookingStatus.confirmed,
         notes: 'Хочу коротко сбоку, без фейда',
       ),
       BookingListItem(
@@ -36,7 +37,7 @@ abstract final class BookingListMockData {
         executorName: 'Алия К.',
         startsAt: _format(today, 14, 0),
         createdAt: _format(today, 9, 15),
-        status: BookingListStatus.pending,
+        status: BookingStatus.pending,
       ),
       BookingListItem(
         id: '3',
@@ -50,7 +51,7 @@ abstract final class BookingListMockData {
         executorName: 'Diana S.',
         startsAt: _format(today, 17, 30),
         createdAt: _format(today, 11, 40),
-        status: BookingListStatus.completed,
+        status: BookingStatus.completed,
         notes: 'Покрытие nude, без дизайна',
       ),
       BookingListItem(
@@ -65,7 +66,7 @@ abstract final class BookingListMockData {
         executorName: 'Марат Т.',
         startsAt: _format(tomorrow, 11, 0),
         createdAt: _format(today, 16, 5),
-        status: BookingListStatus.confirmed,
+        status: BookingStatus.confirmed,
       ),
       BookingListItem(
         id: '5',
@@ -80,7 +81,7 @@ abstract final class BookingListMockData {
         participantsCount: 1,
         startsAt: _format(yesterday, 15, 0),
         createdAt: _format(yesterday.subtract(const Duration(days: 2)), 12, 0),
-        status: BookingListStatus.completed,
+        status: BookingStatus.completed,
       ),
     ];
   }

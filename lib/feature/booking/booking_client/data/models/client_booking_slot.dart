@@ -1,9 +1,4 @@
-enum ClientBookingSlotStatus {
-  available,
-  selected,
-  myConflict,
-  hostBusy,
-}
+import 'package:clover/feature/booking/shared/data/models/client_booking_slot_status.dart';
 
 class ClientBookingSlot {
   const ClientBookingSlot({
@@ -20,5 +15,17 @@ class ClientBookingSlot {
     return '${startsAt.hour.toString().padLeft(2, '0')}:${startsAt.minute.toString().padLeft(2, '0')}';
   }
 
-  bool get isSelectable => status == ClientBookingSlotStatus.available || status == ClientBookingSlotStatus.selected;
+  bool get isSelectable => status.isSelectable;
+
+  ClientBookingSlot copyWith({
+    DateTime? startsAt,
+    ClientBookingSlotStatus? status,
+    String? conflictLabel,
+  }) {
+    return ClientBookingSlot(
+      startsAt: startsAt ?? this.startsAt,
+      status: status ?? this.status,
+      conflictLabel: conflictLabel ?? this.conflictLabel,
+    );
+  }
 }

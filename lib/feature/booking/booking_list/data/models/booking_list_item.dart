@@ -1,9 +1,5 @@
-enum BookingListStatus {
-  pending,
-  confirmed,
-  completed,
-  cancelled,
-}
+import 'package:clover/feature/booking/shared/data/booking_status_display.dart';
+import 'package:clover/feature/booking/shared/data/models/booking_status.dart';
 
 class BookingListItem {
   const BookingListItem({
@@ -27,7 +23,7 @@ class BookingListItem {
   final String clientName;
   final String serviceTitle;
   final String startsAt;
-  final BookingListStatus status;
+  final BookingStatus status;
   final String? clientPhone;
   final String? clientUsername;
   final String serviceEmoji;
@@ -38,7 +34,10 @@ class BookingListItem {
   final int participantsCount;
   final String? createdAt;
 
-  DateTime? get startsAtDate => DateTime.tryParse(startsAt);
+  DateTime? get startsAtDate {
+    final parsed = DateTime.tryParse(startsAt);
+    return parsed?.toLocal();
+  }
 
   DateTime? get createdAtDate => createdAt == null ? null : DateTime.tryParse(createdAt!);
 
@@ -48,12 +47,28 @@ class BookingListItem {
     return start.add(Duration(minutes: durationMinutes));
   }
 
-  String get statusLabel => switch (status) {
-        BookingListStatus.pending => 'Ожидает',
-        BookingListStatus.confirmed => 'Подтверждена',
-        BookingListStatus.completed => 'Завершена',
-        BookingListStatus.cancelled => 'Отменена',
-      };
+  String get statusLabel => BookingStatusDisplay.label(status, endsAt: endsAtDate);
+
+  bool get isVisitUnmarked => BookingStatusDisplay.isUnmarked(status, endsAtDate);
+
+  BookingListItem copyWith({BookingStatus? status}) {
+    return BookingListItem(
+      id: id,
+      clientName: clientName,
+      serviceTitle: serviceTitle,
+      startsAt: startsAt,
+      status: status ?? this.status,
+      clientPhone: clientPhone,
+      clientUsername: clientUsername,
+      serviceEmoji: serviceEmoji,
+      durationMinutes: durationMinutes,
+      price: price,
+      executorName: executorName,
+      notes: notes,
+      participantsCount: participantsCount,
+      createdAt: createdAt,
+    );
+  }
 
   String get priceLabel {
     if (price == price.roundToDouble()) {

@@ -9,4 +9,8 @@ abstract final class BookingScheduleSettingsStore {
   static void save(BookingScheduleSettings settings) {
     _current = settings;
   }
+
+  static void reset() {
+    _current = BookingScheduleSettings.defaults();
+  }
 }

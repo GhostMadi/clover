@@ -10,6 +10,7 @@ import 'package:clover/feature/booking/booking_create/data/models/booking_servic
 import 'package:clover/feature/booking/booking_settings/data/models/booking_executor_absence.dart';
 import 'package:clover/feature/booking/booking_settings/data/models/booking_schedule_settings.dart';
 import 'package:clover/feature/booking/booking_settings/data/models/booking_weekday.dart';
+import 'package:clover/feature/booking/shared/data/models/booking_horizon_kind.dart';
 import 'package:clover/feature/booking/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:flutter/material.dart';
 

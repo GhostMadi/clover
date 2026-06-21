@@ -12,12 +12,14 @@ class ClientBookingSummary extends StatelessWidget {
     required this.executor,
     required this.service,
     required this.startsAt,
+    this.clientComment,
   });
 
   final String hostDisplayName;
   final BookingServiceExecutor executor;
   final BookingService service;
   final DateTime startsAt;
+  final String? clientComment;
 
   static const _months = [
     'января',
@@ -84,6 +86,18 @@ class ClientBookingSummary extends StatelessWidget {
             service.priceLabel,
             style: AppTextStyle.base(15, color: AppColors.primary, fontWeight: FontWeight.w800),
           ),
+          if (clientComment != null && clientComment!.trim().isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              'Комментарий',
+              style: AppTextStyle.base(12, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              clientComment!.trim(),
+              style: AppTextStyle.base(13, color: AppColors.textColor, fontWeight: FontWeight.w600, height: 1.35),
+            ),
+          ],
         ],
       ),
     );

@@ -75,7 +75,11 @@ class MyBookingCard extends StatelessWidget {
                   ],
                 ),
               ),
-              BookingListStatusChip(status: item.status, label: item.statusLabel),
+              BookingListStatusChip(
+                status: item.status,
+                label: item.statusLabel,
+                isUnmarked: item.isVisitUnmarked,
+              ),
             ],
           ),
         ),

@@ -1,3 +1,4 @@
+import 'package:clover/feature/booking/shared/data/models/client_booking_slot_status.dart';
 import 'package:clover/feature/booking/booking_client/data/models/client_booking_slot.dart';
 import 'package:clover/feature/booking/booking_client/data/models/client_existing_booking.dart';
 import 'package:clover/feature/booking/booking_create/data/models/booking_service.dart';

@@ -31,7 +31,7 @@ abstract final class BookingServicesMockData {
       maxParticipants: 1,
       bufferAfterMinutes: 15,
       description: 'Модельная стрижка, укладка',
-      executorId: 'exec-1',
+      executorIds: ['exec-1'],
       isActive: true,
     ),
     BookingService(
@@ -53,7 +53,7 @@ abstract final class BookingServicesMockData {
       maxParticipants: 2,
       bufferAfterMinutes: 10,
       description: 'Покрытие гель-лаком',
-      executorId: 'exec-3',
+      executorIds: ['exec-3'],
       isActive: false,
     ),
   ];

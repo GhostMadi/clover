@@ -9,5 +9,8 @@ abstract interface class IAppStorage {
 
   Future<void> delete({required String key});
 
+  /// Удаляет только данные сессии/аккаунта; справочники (`resource_`, `catalog_`) сохраняются.
+  Future<void> clearAccountData();
+
   Future<void> clearAll();
 }

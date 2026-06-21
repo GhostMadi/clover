@@ -148,7 +148,11 @@ class _HeaderCard extends StatelessWidget {
                   style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 6),
-                BookingListStatusChip(status: item.status, label: item.statusLabel),
+                BookingListStatusChip(
+                  status: item.status,
+                  label: item.statusLabel,
+                  isUnmarked: item.isVisitUnmarked,
+                ),
               ],
             ),
           ),

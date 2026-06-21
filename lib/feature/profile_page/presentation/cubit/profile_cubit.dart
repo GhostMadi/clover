@@ -12,6 +12,11 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   final ProfileNewRepository _repository;
 
+  /// Сброс после выхода из аккаунта (singleton не закрывается).
+  void reset() {
+    emit(const ProfileState.initial());
+  }
+
   Future<void> load() async {
     emit(const ProfileState.loading());
     try {

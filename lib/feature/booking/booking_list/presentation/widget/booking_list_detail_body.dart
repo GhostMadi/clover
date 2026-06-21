@@ -1,12 +1,21 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/booking/booking_list/data/models/booking_list_item.dart';
+import 'package:clover/feature/booking/booking_list/presentation/widget/booking_visit_progress_section.dart';
+import 'package:clover/feature/booking/shared/data/models/booking_status.dart';
 import 'package:flutter/material.dart';
 
 class BookingListDetailBody extends StatelessWidget {
-  const BookingListDetailBody({super.key, required this.item});
+  const BookingListDetailBody({
+    super.key,
+    required this.item,
+    this.isUpdatingVisit = false,
+    this.onMarkVisitStatus,
+  });
 
   final BookingListItem item;
+  final bool isUpdatingVisit;
+  final ValueChanged<BookingStatus>? onMarkVisitStatus;
 
   static const _monthLabels = [
     'января',
@@ -103,6 +112,14 @@ class BookingListDetailBody extends StatelessWidget {
               ],
             ),
           ],
+          if (onMarkVisitStatus != null) ...[
+            const SizedBox(height: 16),
+            BookingVisitProgressSection(
+              item: item,
+              isLoading: isUpdatingVisit,
+              onMarkStatus: onMarkVisitStatus!,
+            ),
+          ],
         ],
       );
   }
@@ -146,7 +163,11 @@ class _HeaderCard extends StatelessWidget {
                   style: AppTextStyle.base(18, color: AppColors.textColor, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 6),
-                BookingListStatusChip(status: item.status, label: item.statusLabel),
+                BookingListStatusChip(
+                  status: item.status,
+                  label: item.statusLabel,
+                  isUnmarked: item.isVisitUnmarked,
+                ),
               ],
             ),
           ),
@@ -233,19 +254,25 @@ class BookingListStatusChip extends StatelessWidget {
     super.key,
     required this.status,
     required this.label,
+    this.isUnmarked = false,
   });
 
-  final BookingListStatus status;
+  final BookingStatus status;
   final String label;
+  final bool isUnmarked;
 
   @override
   Widget build(BuildContext context) {
-    final (bg, fg) = switch (status) {
-      BookingListStatus.pending => (AppColors.surfaceSoft, AppColors.subTextColor),
-      BookingListStatus.confirmed => (AppColors.successSoft.withValues(alpha: 0.7), AppColors.primary),
-      BookingListStatus.completed => (AppColors.surfaceSoft, AppColors.textColor),
-      BookingListStatus.cancelled => (const Color(0xFFFFEBEE), const Color(0xFFC62828)),
-    };
+    final (bg, fg) = isUnmarked
+        ? (const Color(0xFFFFF3E0), const Color(0xFFE65100))
+        : switch (status) {
+            BookingStatus.pending => (AppColors.surfaceSoft, AppColors.subTextColor),
+            BookingStatus.confirmed => (AppColors.successSoft.withValues(alpha: 0.7), AppColors.primary),
+            BookingStatus.clientArrived => (AppColors.infoSoft, AppColors.functionalSoftBlueIcon),
+            BookingStatus.inProgress => (AppColors.functionalSoftBlue, AppColors.functionalSoftBlueIcon),
+            BookingStatus.completed => (AppColors.surfaceSoft, AppColors.textColor),
+            BookingStatus.cancelled => (const Color(0xFFFFEBEE), const Color(0xFFC62828)),
+          };
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),

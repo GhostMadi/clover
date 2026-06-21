@@ -1,5 +1,6 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/feature/booking/shared/data/models/client_booking_slot_status.dart';
 import 'package:clover/feature/booking/booking_client/data/models/client_booking_slot.dart';
 import 'package:flutter/material.dart';
 

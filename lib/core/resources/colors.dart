@@ -71,6 +71,11 @@ abstract class AppColors {
   static const Color functionalSoftBlue = Color(0xFFE3F0FC);
   static const Color functionalSoftBlueIcon = Color(0xFF5B9BD5);
 
+  /// Мягкий красный для деструктивных, но не alarm action-кнопок.
+  static const Color functionalSoftRed = Color(0xFFFFEBEE);
+  static const Color functionalSoftRedIcon = Color(0xFFE57373);
+  static const Color borderCardRed = Color(0xFFF5C6CB);
+
   // ==========================================================================
   // SHADOWS
   // ==========================================================================

@@ -48,8 +48,9 @@ class _ProfilePageState extends State<ProfilePage> {
   late final PostCreateUploadCubit _postCreateUploadCubit;
   late final MarkerCreateUploadCubit _markerCreateUploadCubit;
   late final ClusterCreateUploadCubit _clusterCreateUploadCubit;
-  final String? _uid = Supabase.instance.client.auth.currentUser?.id;
   String? _selectedClusterId;
+
+  String? get _uid => Supabase.instance.client.auth.currentUser?.id;
 
   @override
   void initState() {
@@ -70,8 +71,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   void dispose() {
-    _cubit.close();
-    // _clustersCubit.close();
+    // ProfileCubit — singleton в GetIt, не закрываем.
+    _clustersCubit.close();
     _postFeedCubit.close();
     _markerFeedCubit.close();
     super.dispose();
@@ -193,7 +194,7 @@ class _ProfileNewActions extends StatelessWidget {
             children: [
               Expanded(
                 child: AppOutlinedButton(
-                  text: 'Редактировать профиль',
+                  text: 'Редактировать',
                   onTap: () async {
                     await context.router.push(const EditProfileRoute());
                     await sl<ProfileCubit>().refresh();
@@ -201,7 +202,7 @@ class _ProfileNewActions extends StatelessWidget {
                   isExpanded: true,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: context.widthByContext(5)),
               AppButton(
                 text: '',
                 onTap: () {
@@ -241,7 +242,33 @@ class _ProfileNewActions extends StatelessWidget {
                   child: Icon(Icons.add, color: Colors.white, size: 22),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: context.widthByContext(5)),
+
+              AppButton(
+                text: '',
+                onTap: () {
+                  AppBottomSheet.show(
+                    context: context,
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AppTile(
+                          icon: Icons.calendar_month_outlined,
+                          title: 'Мои бронирования',
+                          onTap: () {
+                            context.router.push(const MyBookingsRoute());
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 14),
+                  child: Icon(Icons.more_horiz, color: Colors.white, size: 22),
+                ),
+              ),
+              SizedBox(width: context.widthByContext(5)),
               AppButton(
                 text: '',
                 onTap: () {
@@ -255,13 +282,6 @@ class _ProfileNewActions extends StatelessWidget {
             ],
           ),
           SizedBox(height: context.heightByContext(10)),
-          AppOutlinedButton(
-            text: 'Мои записи',
-            isExpanded: true,
-            onTap: () {
-              context.router.push(const MyBookingsRoute());
-            },
-          ),
         ],
       ),
     );

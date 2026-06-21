@@ -41,6 +41,9 @@ abstract class PostRepository {
 
   void cacheMyReaction(String postId, String? reaction);
 
+  /// Сброс in-memory кэша (logout / смена аккаунта).
+  void clearMemoryCache();
+
   /// `like` | `dislike` | null — снять реакцию.
   Future<String?> setPostReaction(String postId, String? kind);
 
@@ -150,6 +153,13 @@ class PostRepositoryImpl implements PostRepository {
         _memory.remove(k);
       }
     }
+  }
+
+  @override
+  void clearMemoryCache() {
+    _memory.clear();
+    _feedMemory.clear();
+    _reactionMemory.clear();
   }
 
   @override
