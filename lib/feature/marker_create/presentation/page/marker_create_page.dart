@@ -1,29 +1,26 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clover/core/shared/image_select/app_image_selector_page.dart';
-import 'package:clover/feature/marker_create/extension/marker_create_router_extension.dart';
-import 'package:clover/feature/marker_create/marker_create_flow.dart';
+import 'package:clover/core/router/app_router.gr.dart';
 import 'package:flutter/material.dart';
 
+/// Устаревший маршрут: перенаправляет в единый флоу создания публикации.
 @RoutePage()
-class MarkerCreatePage extends StatelessWidget {
+class MarkerCreatePage extends StatefulWidget {
   const MarkerCreatePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final flow = MarkerCreateFlow.instance;
+  State<MarkerCreatePage> createState() => _MarkerCreatePageState();
+}
 
-    return AppImageSelectorPage(
-      title: 'Новый маркер',
-      confirmLabel: 'Далее',
-      maxSelectionCount: MarkerCreateFlow.maxPhotos,
-      onClose: () {
-        flow.reset();
-        context.router.maybePop();
-      },
-      onConfirmed: (result) {
-        flow.saveSelection(result.assets);
-        context.router.pushMarkerCreateEditor();
-      },
-    );
+class _MarkerCreatePageState extends State<MarkerCreatePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.router.replace(const PostCreateRoute());
+    });
   }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.shrink();
 }

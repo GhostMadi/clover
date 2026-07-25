@@ -1,3 +1,4 @@
+import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/extension/context.dart';
@@ -5,10 +6,16 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_field.dart';
+import 'package:clover/core/shared/app_smile_picker.dart';
 import 'package:clover/core/shared/app_text_button.dart';
+import 'package:clover/core/shared/app_time_picker.dart';
 import 'package:clover/core/shared/image_select/app_image_edit_preview.dart';
 import 'package:clover/core/shared/image_select/extension/app_image_editor_result_list_extension.dart';
 import 'package:clover/core/shared/image_select/models/app_image_editor_result.dart';
+import 'package:clover/feature/location/data/models/location_model.dart';
+import 'package:clover/feature/location/presentation/widget/location_single_select_field.dart';
+import 'package:clover/feature/marker_tags/presentation/widget/multi_marker_tags.dart';
+import 'package:clover/feature/post_create/extension/post_create_compose_validation.dart';
 import 'package:clover/feature/post_create/extension/post_create_draft_extension.dart';
 import 'package:clover/feature/post_create/extension/post_create_router_extension.dart';
 import 'package:clover/feature/post_create/model/post_create_compose_result.dart';
@@ -19,7 +26,7 @@ import 'package:clover/feature/settings_filter/presentation/create/widget/post_c
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// Финальный шаг создания поста: превью + заголовок + описание.
+/// Финальный шаг: превью + поля публикации и маркера на карте.
 @RoutePage()
 class PostCreateComposePage extends StatefulWidget {
   const PostCreateComposePage({super.key});
@@ -31,6 +38,7 @@ class PostCreateComposePage extends StatefulWidget {
   static const double _figmaCloseIconSize = 24;
   static const int _titleMaxLength = 120;
   static const int _descriptionMaxLength = 2000;
+  static const int _textEmojiMaxLength = 1;
 
   @override
   State<PostCreateComposePage> createState() => _PostCreateComposePageState();
@@ -40,10 +48,14 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _descriptionFocus = FocusNode();
+  final _textEmojiController = TextEditingController();
   final _previewController = PageController();
   int _previewIndex = 0;
   bool _isPublishing = false;
+  LocationModel? _selectedLocation;
+  Set<String> _selectedTagIds = const {};
   Set<String> _selectedFilterValues = const {};
+  AppDateTimeRange? _eventPeriod;
 
   late final List<AppImageEditorResult> _media = List.unmodifiable(PostCreateFlow.instance.draft.editedMedia);
 
@@ -52,9 +64,23 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
     _titleController.dispose();
     _descriptionController.dispose();
     _descriptionFocus.dispose();
+    _textEmojiController.dispose();
     _previewController.dispose();
     super.dispose();
   }
+
+  PostCreateComposeResult get _composeResult => PostCreateComposeResult(
+        media: _media,
+        title: _titleController.text.trim(),
+        description: _descriptionController.text.trim(),
+        textEmoji: _textEmojiController.text.trim(),
+        tagIds: _selectedTagIds,
+        filterValues: _selectedFilterValues,
+        location: _selectedLocation,
+        eventPeriod: _eventPeriod,
+      );
+
+  bool get _isEventMode => _eventPeriod != null;
 
   bool get _canPublish => PostCreateFlow.instance.draft.canPublish && !_isPublishing;
 
@@ -63,19 +89,18 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
   }
 
   Future<void> _handlePublish() async {
-    if (!_canPublish) return;
+    if (_isPublishing) return;
+
+    final blockReason = _composeResult.publishBlockReason;
+    if (blockReason != null) {
+      AppSnackBar.show(context, message: blockReason, kind: AppSnackBarKind.error);
+      return;
+    }
 
     FocusScope.of(context).unfocus();
     setState(() => _isPublishing = true);
 
-    final result = PostCreateComposeResult(
-      media: _media,
-      title: _titleController.text.trim(),
-      description: _descriptionController.text.trim(),
-      filterValues: _selectedFilterValues,
-    );
-
-    sl<PostCreateUploadCubit>().publish(result);
+    sl<PostCreateUploadCubit>().publish(_composeResult);
     PostCreateFlow.instance.reset();
 
     if (!mounted) return;
@@ -158,10 +183,7 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
                         ),
                         if (_media.length > 1) ...[
                           SizedBox(height: context.heightByContext(10)),
-                          _PreviewDots(
-                            count: _media.length,
-                            activeIndex: _previewIndex,
-                          ),
+                          _PreviewDots(count: _media.length, activeIndex: _previewIndex),
                         ],
                         SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
                         AppField(
@@ -169,6 +191,7 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
                           labelText: 'Заголовок',
                           hintText: 'Добавьте заголовок',
                           textInputAction: TextInputAction.next,
+                          isEnabled: !_isPublishing,
                           onChanged: (_) => setState(() {}),
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(PostCreateComposePage._titleMaxLength),
@@ -179,6 +202,7 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
                           controller: _descriptionController,
                           focusNode: _descriptionFocus,
                           maxLength: PostCreateComposePage._descriptionMaxLength,
+                          enabled: !_isPublishing,
                           onChanged: (_) => setState(() {}),
                         ),
                         SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
@@ -186,6 +210,41 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
                           values: _selectedFilterValues,
                           enabled: !_isPublishing,
                           onChanged: (values) => setState(() => _selectedFilterValues = values),
+                        ),
+                        SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
+                        AppSmilePicker(
+                          controller: _textEmojiController,
+                          label: 'Эмодзи',
+                          hintText: 'Добавьте эмодзи',
+                          maxLength: PostCreateComposePage._textEmojiMaxLength,
+                          enabled: !_isPublishing,
+                          onChanged: (_) => setState(() {}),
+                        ),
+                        SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
+                        MultiMarkerTags(
+                          label: 'Теги',
+                          hint: 'Выберите теги',
+                          values: _selectedTagIds,
+                          enabled: !_isPublishing,
+                          onChanged: (ids) => setState(() => _selectedTagIds = ids),
+                        ),
+                        SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
+                        LocationSingleSelectField(
+                          label: 'Местоположение',
+                          hint: 'Выберите местоположение',
+                          value: _selectedLocation?.id,
+                          enabled: !_isPublishing,
+                          onChanged: (location) => setState(() => _selectedLocation = location),
+                        ),
+                        SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
+                        AppTimePicker(
+                          label: 'Период события',
+                          hint: _isEventMode
+                              ? 'Ивент на карте — укажите начало и конец'
+                              : 'Необязательно — без периода обычная публикация',
+                          value: _eventPeriod,
+                          enabled: !_isPublishing,
+                          onChanged: (range) => setState(() => _eventPeriod = range),
                         ),
                       ],
                     ),
@@ -251,12 +310,14 @@ class _DescriptionField extends StatefulWidget {
     required this.focusNode,
     required this.maxLength,
     required this.onChanged,
+    this.enabled = true,
   });
 
   final TextEditingController controller;
   final FocusNode focusNode;
   final int maxLength;
   final ValueChanged<String> onChanged;
+  final bool enabled;
 
   @override
   State<_DescriptionField> createState() => _DescriptionFieldState();
@@ -294,7 +355,7 @@ class _DescriptionFieldState extends State<_DescriptionField> {
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: AppColors.fieldBackground,
+            color: widget.enabled ? AppColors.fieldBackground : AppColors.fieldBackgroundDisabled,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: borderColor, width: _isFocused ? 1.6 : 1),
             boxShadow: _isFocused
@@ -316,6 +377,7 @@ class _DescriptionFieldState extends State<_DescriptionField> {
           child: TextFormField(
             controller: widget.controller,
             focusNode: widget.focusNode,
+            enabled: widget.enabled,
             onChanged: widget.onChanged,
             maxLines: 6,
             minLines: 4,

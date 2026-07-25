@@ -1,5 +1,3 @@
-import 'dart:async'; // Не забудь добавить импорт для Timer
-
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
@@ -25,11 +23,14 @@ import 'package:clover/feature/post/presentation/widget/post_cover_hero.dart';
 import 'package:clover/feature/post/presentation/widget/post_detail_shimmer.dart';
 import 'package:clover/feature/post/presentation/widget/post_marker_info_section.dart';
 import 'package:clover/feature/post/presentation/widget/post_media_gallery.dart';
+import 'package:clover/feature/post/presentation/widget/post_media_reaction_gestures.dart';
+import 'package:clover/feature/post_comment/presentation/widget/post_comments_sheet.dart';
+import 'package:clover/feature/post_share/presentation/widget/post_share_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-enum _PostMenuAction { attach, detach, archive, unarchive }
+enum _PostMenuAction { attach, detach, archive, unarchive, delete }
 
 @RoutePage()
 class PostPage extends StatefulWidget {
@@ -62,22 +63,10 @@ class PostPage extends StatefulWidget {
   State<PostPage> createState() => _PostPageState();
 }
 
-// Добавляем SingleTickerProviderStateMixin для работы анимаций
-class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin {
+class _PostPageState extends State<PostPage> {
   late final PostDetailCubit _cubit;
   final ScrollController _scrollController = ScrollController();
   bool _collapsed = false;
-
-  // --- Переменные для кастомной обработки тапов ---
-  int _tapCount = 0;
-  Timer? _tapTimer;
-
-  // --- Переменные для визуального эффекта ---
-  late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _opacityAnimation;
-  IconData? _overlayIcon; // Какую иконку анимировать (сердце или дизлайк)
-  Color _overlayIconColor = Colors.white;
 
   @override
   void initState() {
@@ -92,31 +81,6 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
         initialAuthorAvatarUrl: widget.initialAuthorAvatarUrl,
       );
     _scrollController.addListener(_onScroll);
-
-    // Инициализация анимации всплывающего эффекта
-    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
-
-    _scaleAnimation = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 0.0, end: 1.2).chain(CurveTween(curve: Curves.easeOut)),
-        weight: 40,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 1.2, end: 1.0).chain(CurveTween(curve: Curves.easeIn)),
-        weight: 20,
-      ),
-      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.0), weight: 20),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)),
-        weight: 20,
-      ),
-    ]).animate(_animationController);
-
-    _opacityAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 0.9), weight: 30),
-      TweenSequenceItem(tween: Tween<double>(begin: 0.9, end: 0.9), weight: 50),
-      TweenSequenceItem(tween: Tween<double>(begin: 0.9, end: 0.0), weight: 20),
-    ]).animate(_animationController);
   }
 
   void _onScroll() {
@@ -152,29 +116,28 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
     }
   }
 
+  void _syncSavedToProfileFeed() {
+    final item = _cubit.currentItem;
+    if (item == null) return;
+    try {
+      context.read<PostFeedCubit>().patchPostSaved(
+        postId: item.post.id,
+        saved: item.mySaved,
+        post: item.post,
+      );
+    } catch (_) {
+      // PostPage открыт вне профиля — сохранение уже в PostRepository.
+    }
+  }
+
   @override
   void dispose() {
     _syncReactionToProfileFeed();
+    _syncSavedToProfileFeed();
     _syncClusterToProfileFeed();
     _scrollController.dispose();
     _cubit.close();
-    _tapTimer?.cancel();
-    _animationController.dispose();
     super.dispose();
-  }
-
-  void _handleTap(PostFeedItem item) {
-    _tapCount++;
-    _tapTimer?.cancel();
-
-    _tapTimer = Timer(const Duration(milliseconds: 300), () {
-      if (_tapCount == 2) {
-        _triggerLikeVisual(item);
-      } else if (_tapCount >= 3) {
-        _triggerDislikeVisual(item);
-      }
-      _tapCount = 0;
-    });
   }
 
   PostFeedItem? _itemFromState(PostDetailState state) {
@@ -188,28 +151,6 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
       authorAvatarUrl: widget.initialAuthorAvatarUrl,
       marker: widget.initialMarker,
     );
-  }
-
-  void _triggerLikeVisual(PostFeedItem item) {
-    if (!item.isLiked) {
-      _cubit.toggleLike();
-    }
-    setState(() {
-      _overlayIcon = AppIcons.likeFilled.icon;
-      _overlayIconColor = Colors.red.withValues(alpha: 0.95);
-    });
-    _animationController.forward(from: 0.0);
-  }
-
-  void _triggerDislikeVisual(PostFeedItem item) {
-    if (!item.isDisliked) {
-      _cubit.toggleDislike();
-    }
-    setState(() {
-      _overlayIcon = AppIcons.dislikeFilled.icon;
-      _overlayIconColor = Colors.black.withValues(alpha: 0.8);
-    });
-    _animationController.forward(from: 0.0);
   }
 
   static String? _countLabel(int count) => count > 0 ? '$count' : null;
@@ -282,9 +223,9 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
     }
   }
 
-  void _removeFromProfileFeed(String postId) {
+  Future<void> _removeFromProfileFeed(String postId) async {
     try {
-      context.read<PostFeedCubit>().removePost(postId);
+      await context.read<PostFeedCubit>().removePost(postId);
     } catch (_) {}
   }
 
@@ -345,6 +286,38 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
     }
   }
 
+  Future<void> _deletePost(PostFeedItem item) async {
+    final isEvent = item.marker != null || item.post.hasMarker;
+    final ok = await AppDialog.showConfirm(
+      context: context,
+      title: isEvent ? 'Удалить ивент?' : 'Удалить публикацию?',
+      message: isEvent
+          ? 'Событие, пост и медиа будут удалены безвозвратно.'
+          : 'Публикация и медиа будут удалены безвозвратно.',
+      confirmLabel: 'Удалить',
+      confirmIsDestructive: true,
+      upperCaseTitle: false,
+    );
+    if (ok != true || !mounted) return;
+
+    try {
+      await _cubit.deletePost();
+      if (!mounted) return;
+
+      await _removeFromProfileFeed(item.post.id);
+      if (!mounted) return;
+      AppSnackBar.show(
+        context,
+        message: isEvent ? 'Ивент удалён' : 'Публикация удалена',
+        kind: AppSnackBarKind.success,
+      );
+      context.router.maybePop();
+    } catch (_) {
+      if (!mounted) return;
+      AppSnackBar.show(context, message: 'Не удалось удалить', kind: AppSnackBarKind.error);
+    }
+  }
+
   List<FunctionalButtonItem> _reactionButtons(PostFeedItem item) {
     final post = item.post;
     return [
@@ -367,15 +340,32 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
       FunctionalButtonItem(
         icon: AppIcons.comment.icon,
         label: _countLabel(post.commentsCount),
-        onTap: () {
-          AppBottomSheet.show(
-            context: context,
-            content: Container(child: Text('Comment')),
+        onTap: () async {
+          final count = await PostCommentsSheet.show(
+            context,
+            postId: post.id,
+            initialCommentsCount: post.commentsCount,
           );
+          if (count != null && count != post.commentsCount) {
+            _cubit.patchCommentsCount(count);
+          }
         },
       ),
-      FunctionalButtonItem(icon: AppIcons.send.icon, label: _countLabel(post.sendsCount), onTap: () {}),
-      FunctionalButtonItem(icon: AppIcons.bookmark.icon, label: _countLabel(post.savesCount), onTap: () {}),
+      FunctionalButtonItem(
+        icon: AppIcons.send.icon,
+        label: _countLabel(post.sendsCount),
+        onTap: () async {
+          final sendsCount = await PostShareSheet.show(context, postId: post.id);
+          if (sendsCount != null && sendsCount != post.sendsCount) {
+            _cubit.patchSendsCount(sendsCount);
+          }
+        },
+      ),
+      FunctionalButtonItem(
+        icon: item.mySaved ? AppIcons.bookmarkFilled.icon : AppIcons.bookmark.icon,
+        iconColor: item.mySaved ? AppColors.textColor : null,
+        onTap: _cubit.toggleSave,
+      ),
     ];
   }
 
@@ -467,39 +457,21 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
 
   Widget _buildCover(String postId, PostFeedItem item) {
     final post = item.post;
-    return GestureDetector(
-      onTap: () {
-        _handleTap(item);
-      },
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          PostCoverHero(
-            postId: postId,
-            borderRadius: const BorderRadius.all(Radius.circular(0)),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(0)),
-              child: SizedBox(
-                width: double.infinity,
-                child: PostMediaGallery(media: post.sortedMedia),
-              ),
-            ),
+    return PostMediaReactionGestures(
+      isLiked: item.isLiked,
+      isDisliked: item.isDisliked,
+      onLike: _cubit.toggleLike,
+      onDislike: _cubit.toggleDislike,
+      child: PostCoverHero(
+        postId: postId,
+        borderRadius: const BorderRadius.all(Radius.circular(0)),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(0)),
+          child: SizedBox(
+            width: double.infinity,
+            child: PostMediaGallery(media: post.sortedMedia),
           ),
-          // Анимированная иконка, которая взлетает при дабл/трипл тапе
-          if (_overlayIcon != null)
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _opacityAnimation.value,
-                  child: Transform.scale(
-                    scale: _scaleAnimation.value,
-                    child: Icon(_overlayIcon, size: 110, color: _overlayIconColor),
-                  ),
-                );
-              },
-            ),
-        ],
+        ),
       ),
     );
   }
@@ -544,6 +516,12 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
               dislikesCount: post.dislikesCount,
               isMarkerLoading: markerLoading,
               profileFilters: item.profileFilters,
+              postTextEmoji: post.textEmoji,
+              postTags: post.tags,
+              postAddressPrimary: post.addressPrimary,
+              postAddressCyrillic: post.addressCyrillic,
+              postCountryCode: post.countryCode,
+              postCityCode: post.cityCode,
             ),
           ),
           SliverToBoxAdapter(child: SizedBox(height: AppFunctionalScreen.scrollBottomClearance(context))),
@@ -646,6 +624,13 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
                       title: 'Архивировать',
                       icon: Icons.archive_outlined,
                     ),
+                    const AppMiniMenuItem(
+                      value: _PostMenuAction.delete,
+                      title: 'Удалить',
+                      icon: Icons.delete_outline_rounded,
+                      titleColor: AppColors.error,
+                      iconColor: AppColors.error,
+                    ),
                   ],
             onSelected: (action) {
               switch (action) {
@@ -657,6 +642,8 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
                   _archivePost(item);
                 case _PostMenuAction.unarchive:
                   _unarchivePost(item);
+                case _PostMenuAction.delete:
+                  _deletePost(item);
               }
             },
           ),

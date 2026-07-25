@@ -20,24 +20,21 @@ class ProfileBodyPart extends StatefulWidget {
     this.ownerId,
     this.authorProfile,
     required this.publicationsFeedCubit,
-    required this.markerFeedCubit,
   });
 
   /// `null` — шиммер-заглушка.
   final String? ownerId;
   final ProfileNewModel? authorProfile;
   final PostFeedCubit publicationsFeedCubit;
-  final PostFeedCubit markerFeedCubit;
 
   @override
   State<ProfileBodyPart> createState() => _ProfileBodyPartState();
 }
 
 class _ProfileBodyPartState extends State<ProfileBodyPart> {
-  int _tabIndex = 0;
   Set<String> _selectedFilterValues = const {};
 
-  static const _tabs = ['Публикации', 'Ивенты'];
+  static const _tabs = ['Публикации'];
 
   void _openPost(BuildContext context, PostFeedItem item) {
     String? authorUsername = item.authorUsername?.trim();
@@ -83,11 +80,10 @@ class _ProfileBodyPartState extends State<ProfileBodyPart> {
     final ownerId = widget.ownerId?.trim();
     if (ownerId == null || ownerId.isEmpty) return;
 
-    widget.publicationsFeedCubit.load(ownerId, filterSelectionKeys: values);
-    widget.markerFeedCubit.load(
+    widget.publicationsFeedCubit.load(
       ownerId,
-      onlyWithMarker: true,
       filterSelectionKeys: values,
+      excludeWithMarker: false,
     );
   }
 
@@ -108,34 +104,19 @@ class _ProfileBodyPartState extends State<ProfileBodyPart> {
         children: [
           ProfileFeedFilterSection(
             tabs: _tabs,
-            currentTabIndex: _tabIndex,
-            onTabChanged: (i) => setState(() => _tabIndex = i),
+            currentTabIndex: 0,
+            onTabChanged: (_) {},
             hasFilters: hasFilters,
             profileId: widget.ownerId,
             selectedValues: _selectedFilterValues,
             onSelectedValuesChanged: _onFilterSelectionChanged,
           ),
           SizedBox(height: context.heightByContext(16)),
-          Offstage(
-            offstage: _tabIndex != 0,
-            child: BlocProvider.value(
-              value: widget.publicationsFeedCubit,
-              child: _ProfilePublicationsTab(
-                key: const ValueKey('profile_tab_publications'),
-                hasOwner: hasOwner,
-                onPostTap: (item) => _openPost(context, item),
-              ),
-            ),
-          ),
-          Offstage(
-            offstage: _tabIndex != 1,
-            child: BlocProvider.value(
-              value: widget.markerFeedCubit,
-              child: _ProfileMarkersTab(
-                key: const ValueKey('profile_tab_markers'),
-                hasOwner: hasOwner,
-                onPostTap: (item) => _openPost(context, item),
-              ),
+          BlocProvider.value(
+            value: widget.publicationsFeedCubit,
+            child: _ProfilePublicationsTab(
+              hasOwner: hasOwner,
+              onPostTap: (item) => _openPost(context, item),
             ),
           ),
         ],
@@ -157,9 +138,9 @@ class _ProfileBodyPartState extends State<ProfileBodyPart> {
   }
 }
 
-/// Вкладка «Публикации» — посты без маркера.
+/// Вкладка «Публикации».
 class _ProfilePublicationsTab extends StatelessWidget {
-  const _ProfilePublicationsTab({super.key, required this.hasOwner, required this.onPostTap});
+  const _ProfilePublicationsTab({required this.hasOwner, required this.onPostTap});
 
   final bool hasOwner;
   final ValueChanged<PostFeedItem> onPostTap;
@@ -167,21 +148,6 @@ class _ProfilePublicationsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return hasOwner ? PostFeedView(onPostTap: onPostTap) : const PostFeedShimmer(tileCount: 6);
-  }
-}
-
-/// Вкладка «Маркеры» — посты с привязанным маркером.
-class _ProfileMarkersTab extends StatelessWidget {
-  const _ProfileMarkersTab({super.key, required this.hasOwner, required this.onPostTap});
-
-  final bool hasOwner;
-  final ValueChanged<PostFeedItem> onPostTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return hasOwner
-        ? PostFeedView(onPostTap: onPostTap, emptyMessage: 'Пусто — маркеров нет')
-        : const PostFeedShimmer(tileCount: 6);
   }
 }
 

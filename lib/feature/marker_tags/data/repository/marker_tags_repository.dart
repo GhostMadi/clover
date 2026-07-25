@@ -1,3 +1,4 @@
+import 'package:clover/core/catalog_sync/domain/catalog_sync_manager.dart';
 import 'package:clover/feature/marker_tags/data/models/marker_tag_group_key.dart';
 import 'package:clover/feature/marker_tags/data/models/marker_tag_model.dart';
 import 'package:injectable/injectable.dart';
@@ -12,13 +13,17 @@ abstract class MarkerTagsRepository {
 
   /// Заменить набор тегов маркера (только владелец маркера по RLS).
   Future<void> setForMarker({required String markerId, required Set<String> tagIds});
+
+  /// Заменить набор тегов поста (`post_tag_links`).
+  Future<void> setForPost({required String postId, required Set<String> tagIds});
 }
 
 @LazySingleton(as: MarkerTagsRepository)
 class MarkerTagsRepositoryImpl implements MarkerTagsRepository {
-  MarkerTagsRepositoryImpl(this._client);
+  MarkerTagsRepositoryImpl(this._client, this._catalogSync);
 
   final SupabaseClient _client;
+  final CatalogSyncManager _catalogSync;
 
   static const _tagColumns = '''
 id,
@@ -40,13 +45,8 @@ created_at
   }
 
   @override
-  Future<List<MarkerTagModel>> listAll() async {
-    final data = await _client.from('marker_tags').select(_tagColumns).order('group_key').order('key');
-
-    final list = data as List<dynamic>;
-    return list
-        .map((e) => _parseTagRow(Map<String, dynamic>.from(e as Map)))
-        .toList(growable: false);
+  Future<List<MarkerTagModel>> listAll() {
+    return _catalogSync.markerTags();
   }
 
   @override
@@ -96,6 +96,27 @@ created_at
     await _client.from('marker_tag_links').insert(
       normalizedIds
           .map((tagId) => {'marker_id': trimmedMarkerId, 'tag_id': tagId})
+          .toList(growable: false),
+    );
+  }
+
+  @override
+  Future<void> setForPost({required String postId, required Set<String> tagIds}) async {
+    _requireSession();
+    final trimmedPostId = postId.trim();
+    if (trimmedPostId.isEmpty) {
+      throw ArgumentError('Пустой postId');
+    }
+
+    final normalizedIds = tagIds.map((e) => e.trim()).where((e) => e.isNotEmpty).toSet();
+
+    await _client.from('post_tag_links').delete().eq('post_id', trimmedPostId);
+
+    if (normalizedIds.isEmpty) return;
+
+    await _client.from('post_tag_links').insert(
+      normalizedIds
+          .map((tagId) => {'post_id': trimmedPostId, 'tag_id': tagId})
           .toList(growable: false),
     );
   }

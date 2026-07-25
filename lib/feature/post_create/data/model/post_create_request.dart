@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:clover/core/post_media/post_media.dart';
 import 'package:clover/core/shared/image_select/app_image_edit_settings.dart';
+import 'package:clover/feature/location/data/models/location_model.dart';
 
 class PostCreateMediaInput {
   const PostCreateMediaInput({
@@ -25,12 +26,18 @@ class PostCreateRequest {
   const PostCreateRequest({
     required this.title,
     required this.description,
+    required this.textEmoji,
     required this.media,
+    this.location,
+    this.tagIds = const {},
     this.filterValues = const {},
   });
 
   final String title;
   final String description;
+  final String textEmoji;
+  final LocationModel? location;
   final List<PostCreateMediaInput> media;
+  final Set<String> tagIds;
   final Set<String> filterValues;
 }

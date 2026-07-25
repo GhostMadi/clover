@@ -35,7 +35,6 @@ class _GuestProfilePageState extends State<GuestProfilePage> {
   late final GuestProfileCubit _cubit;
   late final ClustersListCubit _clustersCubit;
   late final PostFeedCubit _postFeedCubit;
-  late final PostFeedCubit _markerFeedCubit;
   String? _selectedClusterId;
 
   String get _userId => widget.userId.trim();
@@ -45,8 +44,7 @@ class _GuestProfilePageState extends State<GuestProfilePage> {
     super.initState();
     _cubit = sl<GuestProfileCubit>()..load(_userId);
     _clustersCubit = sl<ClustersListCubit>()..load(_userId);
-    _postFeedCubit = sl<PostFeedCubit>()..load(_userId);
-    _markerFeedCubit = sl<PostFeedCubit>()..load(_userId, onlyWithMarker: true);
+    _postFeedCubit = sl<PostFeedCubit>()..load(_userId, excludeWithMarker: false);
   }
 
   @override
@@ -54,7 +52,6 @@ class _GuestProfilePageState extends State<GuestProfilePage> {
     _cubit.close();
     _clustersCubit.close();
     _postFeedCubit.close();
-    _markerFeedCubit.close();
     super.dispose();
   }
 
@@ -63,15 +60,13 @@ class _GuestProfilePageState extends State<GuestProfilePage> {
       _cubit.refresh(),
       _clustersCubit.load(_userId, silent: true),
       _postFeedCubit.refresh(),
-      _markerFeedCubit.refresh(),
     ]);
   }
 
   void _onClusterTap(ClusterModel cluster) {
     final next = _selectedClusterId == cluster.id ? null : cluster.id;
     setState(() => _selectedClusterId = next);
-    _postFeedCubit.load(_userId, clusterId: next);
-    _markerFeedCubit.load(_userId, clusterId: next, onlyWithMarker: true);
+    _postFeedCubit.load(_userId, clusterId: next, excludeWithMarker: false);
   }
 
   @override
@@ -122,7 +117,6 @@ class _GuestProfilePageState extends State<GuestProfilePage> {
                           ownerId: _userId,
                           authorProfile: profile,
                           publicationsFeedCubit: _postFeedCubit,
-                          markerFeedCubit: _markerFeedCubit,
                         );
                       },
                     ),

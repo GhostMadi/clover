@@ -19,6 +19,7 @@ class PostFeedCubit extends Cubit<PostFeedState> {
   String? _clusterId;
   bool _onlyWithoutCluster = false;
   bool _onlyWithMarker = false;
+  bool _excludeWithMarker = true;
   Set<String> _filterSelectionKeys = const {};
 
   bool get _hasActiveFilters => _filterSelectionKeys.isNotEmpty;
@@ -28,6 +29,7 @@ class PostFeedCubit extends Cubit<PostFeedState> {
     String? clusterId,
     bool onlyWithoutCluster = false,
     bool onlyWithMarker = false,
+    bool excludeWithMarker = true,
     Set<String>? filterSelectionKeys,
   }) async {
     if (isClosed) return;
@@ -38,12 +40,17 @@ class PostFeedCubit extends Cubit<PostFeedState> {
     _clusterId = clusterId?.trim();
     _onlyWithoutCluster = onlyWithoutCluster;
     _onlyWithMarker = onlyWithMarker;
+    _excludeWithMarker = excludeWithMarker;
     if (filterSelectionKeys != null) {
       _filterSelectionKeys = Set<String>.from(filterSelectionKeys);
     }
 
     if (!_hasActiveFilters) {
-      final cached = await _localCache.readFeed(id, onlyWithMarker: onlyWithMarker);
+      final cached = await _localCache.readFeed(
+        id,
+        onlyWithMarker: onlyWithMarker,
+        excludeWithMarker: excludeWithMarker,
+      );
       if (cached != null && cached.isNotEmpty) {
         emit(
           PostFeedState.loaded(
@@ -73,6 +80,7 @@ class PostFeedCubit extends Cubit<PostFeedState> {
       clusterId: _clusterId,
       onlyWithoutCluster: _onlyWithoutCluster,
       onlyWithMarker: _onlyWithMarker,
+      excludeWithMarker: _excludeWithMarker,
     );
   }
 
@@ -107,6 +115,27 @@ class PostFeedCubit extends Cubit<PostFeedState> {
     emit(cur.copyWith(reactionsByPostId: reactions, posts: posts));
   }
 
+  /// Синхронизация «сохранено» после экрана поста или ленты событий.
+  void patchPostSaved({required String postId, required bool saved, PostModel? post}) {
+    if (isClosed) return;
+    final id = postId.trim();
+    if (id.isEmpty) return;
+
+    _repository.cacheMySaved(id, saved);
+
+    final cur = state;
+    if (cur is! PostFeedLoaded) return;
+
+    final savedMap = Map<String, bool>.from(cur.savedByPostId);
+    savedMap[id] = saved;
+
+    final posts = post == null
+        ? cur.posts
+        : cur.posts.map((p) => p.id == id ? post : p).toList(growable: false);
+
+    emit(cur.copyWith(savedByPostId: savedMap, posts: posts));
+  }
+
   /// Синхронизация cluster_id после экрана поста.
   void patchPostCluster({required String postId, required PostModel post}) {
     if (isClosed) return;
@@ -120,8 +149,8 @@ class PostFeedCubit extends Cubit<PostFeedState> {
     emit(cur.copyWith(posts: posts));
   }
 
-  /// Убрать пост из ленты после архивации на экране деталки.
-  void removePost(String postId) {
+  /// Убрать пост из ленты после архивации или удаления на экране деталки.
+  Future<void> removePost(String postId) async {
     if (isClosed) return;
     final id = postId.trim();
     if (id.isEmpty) return;
@@ -133,6 +162,11 @@ class PostFeedCubit extends Cubit<PostFeedState> {
     final reactions = Map<String, String?>.from(cur.reactionsByPostId)..remove(id);
     final saved = Map<String, bool>.from(cur.savedByPostId)..remove(id);
     emit(cur.copyWith(posts: posts, reactionsByPostId: reactions, savedByPostId: saved));
+
+    final uid = _userId?.trim();
+    if (uid != null && uid.isNotEmpty) {
+      await _localCache.removePostFromUserFeeds(uid, id);
+    }
   }
 
   String? myReactionFor(String postId) {
@@ -155,9 +189,9 @@ class PostFeedCubit extends Cubit<PostFeedState> {
     final id = post.id.trim();
     final cachedItem = _repository.getCachedFeedItem(id);
     final reaction = myReactionFor(id);
-    final saved = (state is PostFeedLoaded)
-        ? ((state as PostFeedLoaded).savedByPostId[id] ?? false)
-        : false;
+    final saved = _repository.hasCachedMySaved(id)
+        ? _repository.getCachedMySaved(id)
+        : (state is PostFeedLoaded ? ((state as PostFeedLoaded).savedByPostId[id] ?? false) : false);
 
     if (cachedItem != null) {
       return cachedItem.copyWith(
@@ -191,6 +225,7 @@ class PostFeedCubit extends Cubit<PostFeedState> {
         clusterId: _clusterId,
         onlyWithoutCluster: _onlyWithoutCluster,
         onlyWithMarker: _onlyWithMarker,
+        excludeWithMarker: _excludeWithMarker,
         filterSelectionKeys: _filterSelectionKeys,
       );
       if (isClosed) return;
@@ -215,7 +250,12 @@ class PostFeedCubit extends Cubit<PostFeedState> {
         ),
       );
       if (!_hasActiveFilters) {
-        await _localCache.writeFeed(id, merged, onlyWithMarker: _onlyWithMarker);
+        await _localCache.writeFeed(
+          id,
+          merged,
+          onlyWithMarker: _onlyWithMarker,
+          excludeWithMarker: _excludeWithMarker,
+        );
       }
     } catch (_) {
       if (isClosed) return;
@@ -234,6 +274,7 @@ class PostFeedCubit extends Cubit<PostFeedState> {
         clusterId: _clusterId,
         onlyWithoutCluster: _onlyWithoutCluster,
         onlyWithMarker: _onlyWithMarker,
+        excludeWithMarker: _excludeWithMarker,
         filterSelectionKeys: _filterSelectionKeys,
       );
       if (isClosed) return;
@@ -253,7 +294,12 @@ class PostFeedCubit extends Cubit<PostFeedState> {
         ),
       );
       if (!_hasActiveFilters) {
-        await _localCache.writeFeed(id, posts, onlyWithMarker: _onlyWithMarker);
+        await _localCache.writeFeed(
+          id,
+          posts,
+          onlyWithMarker: _onlyWithMarker,
+          excludeWithMarker: _excludeWithMarker,
+        );
       }
     } catch (e) {
       if (isClosed) return;

@@ -25,6 +25,10 @@
 | `../20260726120000_booking_schema.sql` | Extensions `btree_gist`, `pg_trgm`; enums; таблицы; EXCLUDE constraints; helpers (`booking_resolve_staff_day_window`, …). |
 | `../20260726120100_booking_rls_grants.sql` | RLS policies + GRANT для authenticated. |
 | `../20260726120200_booking_rpc.sql` | RPC: create, availability, lists, status, deactivate service, analytics. |
+| `../20260726120300_booking_visit_status.sql` | Enum: `client_arrived`, `in_progress`. |
+| `../20260726120301_booking_visit_status_functions.sql` | `booking_status_blocks_slot()`; visit-flow в `update_booking_status`. |
+| `../20260730200000_booking_no_show_enum.sql` | Enum `no_show`, `auto_closed`, колонка `no_show_at`. |
+| `../20260730200001_booking_host_freedom.sql` | Свобода Host (cancel/complete/no_show), auto-close cron, `reschedule_booking`. |
 
 ### Таблицы
 
@@ -44,12 +48,18 @@
 ### Защита от double-booking
 
 ```sql
-EXCLUDE USING gist (
-  staff_id WITH =,
-  tstzrange(starts_at, ends_at, '[)') WITH &&
-)
-WHERE (status IN ('pending', 'confirmed'));
+WHERE (public.booking_status_blocks_slot(status));
 ```
+
+Статусы, блокирующие слот: `pending`, `confirmed`, `client_arrived`, `in_progress` — см. `booking_status_blocks_slot()`.
+
+Терминальные (слот свободен): `completed`, `cancelled`, `no_show`.
+
+**Host:** может отменить из любого активного статуса; `completed` — bulk-complete с автозаполнением timestamps; `no_show` — из `pending`/`confirmed` после `starts_at`.
+
+**Client:** отмена только `pending`/`confirmed` до `starts_at - client_cancel_hours_before` (настройка host-а).
+
+**Auto-close:** cron `booking_auto_close_stale_visits` — `pending`/`confirmed` через N часов после `ends_at` → `completed` или `no_show` (настройка host-а).
 
 Тот же паттерн на `booking_blocked_slots`.
 
@@ -73,11 +83,11 @@ WHERE (status IN ('pending', 'confirmed'));
 
 #### `update_booking_status(booking_id, status) → void`
 
-Переходы pending→confirmed→completed; cancel — host или client (до начала).
+Переходы: pending→confirmed→client_arrived→in_progress→completed; cancel — host или client (ограничения по статусу в RPC).
 
 #### `deactivate_booking_service(service_id) → void`
 
-`is_active = false` только если нет future pending/confirmed.
+`is_active = false` только если нет future записей со статусом из `booking_status_blocks_slot`.
 
 #### `get_booking_analytics(from, to, staff_id?) → jsonb`
 

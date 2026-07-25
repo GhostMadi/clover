@@ -1,3 +1,4 @@
+import 'package:clover/feature/_bonus_/shared/data/models/bonus_program_status.dart';
 import 'package:clover/feature/profile_page/data/model/profile_new_model.dart';
 import 'package:clover/feature/profile_page/data/repository/profile_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,6 +42,13 @@ class ProfileCubit extends Cubit<ProfileState> {
     final loaded = state.mapOrNull(loaded: (s) => s);
     if (loaded == null) return;
     emit(ProfileState.loaded(loaded.profile.copyWith(hasFilters: hasFilters)));
+  }
+
+  /// Локально обновить статус бонусной программы (после настроек).
+  void patchBonusProgramStatus(BonusProgramStatus status) {
+    final loaded = state.mapOrNull(loaded: (s) => s);
+    if (loaded == null) return;
+    emit(ProfileState.loaded(loaded.profile.copyWith(bonusProgramStatus: status)));
   }
 
   /// Обновление по pull-to-refresh без полного скелетона, если уже есть данные.

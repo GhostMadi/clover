@@ -25,16 +25,10 @@ extension AppStorageJsonExtensions on IAppStorage {
     required List<T> value,
     required Object? Function(T item) toJson,
   }) {
-    return write<List<dynamic>>(
-      key: key,
-      value: value.map(toJson).toList(),
-    );
+    return write<List<dynamic>>(key: key, value: value.map(toJson).toList());
   }
 
-  Future<List<T>?> readList<T>({
-    required String key,
-    required T Function(Object? json) fromJson,
-  }) async {
+  Future<List<T>?> readList<T>({required String key, required T Function(Object? json) fromJson}) async {
     final raw = await read<List<dynamic>>(key: key);
     if (raw == null) return null;
     return raw.map((item) => fromJson(item)).toList();
@@ -43,14 +37,8 @@ extension AppStorageJsonExtensions on IAppStorage {
 
 /// Offline-first file references: store absolute paths, not bytes in Isar.
 extension AppStorageFileExtensions on IAppStorage {
-  Future<void> writeFilePath({
-    required String key,
-    required String path,
-  }) {
-    return write(
-      key: key,
-      value: FilePathStorageValue(path),
-    );
+  Future<void> writeFilePath({required String key, required String path}) {
+    return write(key: key, value: FilePathStorageValue(path));
   }
 
   Future<String?> readFilePath({required String key}) async {

@@ -31,19 +31,6 @@ class SettingsPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            const SettingsTileSectionTitle('Работа'),
-            AppTileGroup(
-              children: [
-                AppTile(
-                  title: 'Работа',
-                  subtitle: 'Работодатель, работник и заявки',
-                  icon: Icons.work_outline_rounded,
-                  showChevron: true,
-                  onTap: () => context.router.push(const SettingsWorkRoute()),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
             const SettingsTileSectionTitle('Сервисы'),
             AppTileGroup(
               children: [
@@ -52,6 +39,13 @@ class SettingsPage extends StatelessWidget {
                   icon: Icons.calendar_month_outlined,
                   showChevron: true,
                   onTap: () => context.router.push(const BookingListRoute()),
+                ),
+                AppTile(
+                  title: 'Бонусы',
+                  subtitle: 'Программа лояльности для клиентов',
+                  icon: Icons.card_giftcard_outlined,
+                  showChevron: true,
+                  onTap: () => context.router.push(const BonusProgramSettingsRoute()),
                 ),
               ],
             ),
@@ -65,6 +59,13 @@ class SettingsPage extends StatelessWidget {
                   icon: Icons.archive_outlined,
                   showChevron: true,
                   onTap: () => context.router.push(const SettingsArchiveRoute()),
+                ),
+                AppTile(
+                  title: 'Сохраненные посты',
+                  subtitle: 'Посты, которые вы сохранили',
+                  icon: Icons.bookmark_outline_rounded,
+                  showChevron: true,
+                  onTap: () => context.router.push(const SavedPostsRoute()),
                 ),
               ],
             ),

@@ -16,6 +16,7 @@ class AppSmilePicker extends StatefulWidget {
     this.onChanged,
     this.enabled = true,
     this.emojis,
+    this.shuffleStrip = true,
   });
 
   final TextEditingController? controller;
@@ -25,6 +26,7 @@ class AppSmilePicker extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final bool enabled;
   final List<String>? emojis;
+  final bool shuffleStrip;
 
   static const defaultEmojis = <String>[
     '😀',
@@ -113,7 +115,9 @@ class _AppSmilePickerState extends State<AppSmilePicker> {
     _ownsController = widget.controller == null;
     _controller = widget.controller ?? TextEditingController();
     _emojis = List<String>.from(widget.emojis ?? AppSmilePicker.defaultEmojis);
-    _emojis.shuffle();
+    if (widget.shuffleStrip) {
+      _emojis.shuffle();
+    }
   }
 
   @override

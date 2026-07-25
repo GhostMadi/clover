@@ -60,4 +60,9 @@ class ClusterCreateUploadCubit extends Cubit<ClusterCreateUploadState> {
       );
     }
   }
+
+  void reset() {
+    if (state is ClusterCreateUploadUploading) return;
+    emit(const ClusterCreateUploadIdle());
+  }
 }

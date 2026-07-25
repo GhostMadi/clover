@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:clover/core/shared/image_select/app_image_edit_exporter.dart';
+import 'package:clover/feature/marker_tags/data/repository/marker_tags_repository.dart';
 import 'package:clover/feature/post_create/data/model/post_create_request.dart';
 import 'package:clover/feature/settings_filter/data/repository/filter_repository.dart';
 import 'package:flutter/foundation.dart';
@@ -17,10 +18,11 @@ abstract class PostCreateRepository {
 
 @LazySingleton(as: PostCreateRepository)
 class PostCreateRepositoryImpl implements PostCreateRepository {
-  PostCreateRepositoryImpl(this._client, this._filterRepository);
+  PostCreateRepositoryImpl(this._client, this._filterRepository, this._markerTagsRepository);
 
   final SupabaseClient _client;
   final FilterRepository _filterRepository;
+  final MarkerTagsRepository _markerTagsRepository;
 
   static const _bucketPostMedia = 'post_media';
 
@@ -43,11 +45,7 @@ class PostCreateRepositoryImpl implements PostCreateRepository {
 
     final postRow = await _client
         .from('posts')
-        .insert({
-          'user_id': uid,
-          'title': request.title.isEmpty ? null : request.title,
-          'description': request.description.isEmpty ? null : request.description,
-        })
+        .insert(_postInsertRow(uid: uid, request: request))
         .select('id')
         .single();
 
@@ -101,6 +99,10 @@ class PostCreateRepositoryImpl implements PostCreateRepository {
 
       await _client.from('post_media').insert(mediaRows);
 
+      if (request.tagIds.isNotEmpty) {
+        await _markerTagsRepository.setForPost(postId: postId, tagIds: request.tagIds);
+      }
+
       if (request.filterValues.isNotEmpty) {
         await _filterRepository.setPostFilters(postId: postId, selectionKeys: request.filterValues);
       }
@@ -111,6 +113,24 @@ class PostCreateRepositoryImpl implements PostCreateRepository {
 
     report(100);
     return postId;
+  }
+
+  Map<String, dynamic> _postInsertRow({
+    required String uid,
+    required PostCreateRequest request,
+    String? markerId,
+  }) {
+    final emoji = request.textEmoji.trim();
+    final location = request.location;
+
+    return {
+      'user_id': uid,
+      if (markerId != null) 'marker_id': markerId,
+      'title': request.title.isEmpty ? null : request.title,
+      'description': request.description.isEmpty ? null : request.description,
+      if (emoji.isNotEmpty) 'text_emoji': emoji,
+      if (location != null) 'location_id': location.id,
+    };
   }
 
   String _publicUrl(String path) {

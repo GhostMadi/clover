@@ -1,9 +1,13 @@
+import 'dart:async';
+
+import 'package:clover/core/catalog_sync/domain/catalog_sync_manager.dart';
+import 'package:clover/core/catalog_sync/models/sync_meta.dart';
 import 'package:clover/feature/marker_tags/data/models/marker_tag_model.dart';
 import 'package:clover/feature/profile_page/data/model/profile_new_model.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Чтение профиля из `public.profiles`.
+/// Чтение профиля из `public.profiles_with_sync_meta`.
 abstract class ProfileNewRepository {
   /// Профиль по id (совпадает с id пользователя в auth).
   Future<ProfileNewModel?> getById(String id);
@@ -14,9 +18,12 @@ abstract class ProfileNewRepository {
 
 @Injectable(as: ProfileNewRepository)
 class ProfileNewRepositoryImpl implements ProfileNewRepository {
-  ProfileNewRepositoryImpl(this._client);
+  ProfileNewRepositoryImpl(this._client, this._catalogSync);
 
   final SupabaseClient _client;
+  final CatalogSyncManager _catalogSync;
+
+  static const _profileTable = 'profiles_with_sync_meta';
 
   static const _baseColumns = '''
 id,
@@ -38,12 +45,12 @@ username_change_count,
 username_next_change_allowed_at,
 created_at,
 updated_at,
-hiring_enabled,
-open_for_memberships,
-has_filters
+has_filters,
+bonus_program_status,
+sync_meta
 ''';
 
-  /// Один запрос: профиль + tag_ids + готовые теги из profile_tag_links.tags.
+  /// Профиль + tag_ids + теги + встроенный sync_meta.
   static const _columnsWithTags = '''
 $_baseColumns,
 tag_link_id,
@@ -58,10 +65,10 @@ profile_tag_links!tag_link_id(tag_ids, tags)
     Map<String, dynamic>? data;
 
     try {
-      data = await _client.from('profiles').select(_columnsWithTags).eq('id', trimmed).maybeSingle();
+      data = await _client.from(_profileTable).select(_columnsWithTags).eq('id', trimmed).maybeSingle();
     } on PostgrestException catch (error) {
       if (!_isMissingTagsSchema(error)) rethrow;
-      data = await _client.from('profiles').select(_baseColumns).eq('id', trimmed).maybeSingle();
+      data = await _client.from(_profileTable).select(_baseColumns).eq('id', trimmed).maybeSingle();
     }
 
     if (data == null) return null;
@@ -76,11 +83,25 @@ profile_tag_links!tag_link_id(tag_ids, tags)
     return getById(uid);
   }
 
-  static ProfileNewModel _mapProfile(Object row) {
+  ProfileNewModel _mapProfile(Object row) {
     final normalized = _normalizeRow(row);
+    final syncMeta = _parseEmbeddedSyncMeta(normalized);
     final tags = _parseTags(normalized.remove('account_tags'));
     final profile = ProfileNewModel.fromJson(normalized);
-    return profile.copyWith(tags: tags);
+
+    final result = profile.copyWith(tags: tags, syncMeta: syncMeta);
+    if (syncMeta != null) {
+      unawaited(_catalogSync.validateAndSync(syncMeta));
+    }
+    return result;
+  }
+
+  static SyncMeta? _parseEmbeddedSyncMeta(Map<String, dynamic> map) {
+    final nested = map.remove('sync_meta');
+    if (nested is! Map) return null;
+
+    final meta = SyncMeta.fromJson(Map<String, dynamic>.from(nested));
+    return meta.isValid ? meta : null;
   }
 
   static bool _isMissingTagsSchema(PostgrestException error) {
@@ -91,7 +112,8 @@ profile_tag_links!tag_link_id(tag_ids, tags)
         message.contains('tag_link_id') ||
         message.contains('profile_tag_links') ||
         message.contains('relationship') ||
-        message.contains('schema cache');
+        message.contains('schema cache') ||
+        message.contains('profiles_with_sync_meta');
   }
 
   static Map<String, dynamic> _normalizeRow(Object row) {

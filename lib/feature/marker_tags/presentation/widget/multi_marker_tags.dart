@@ -3,6 +3,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_multi_selector.dart';
+import 'package:clover/feature/marker_tags/data/models/marker_tag_group_key.dart';
 import 'package:clover/feature/marker_tags/data/models/marker_tag_model.dart';
 import 'package:clover/feature/marker_tags/data/repository/marker_tags_repository.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ class MultiMarkerTags extends StatefulWidget {
     this.searchHint = 'Поиск тега',
     this.sheetTitle,
     this.enabled = true,
+    this.excludeGroupKeys = const {},
   });
 
   final String? label;
@@ -30,6 +32,7 @@ class MultiMarkerTags extends StatefulWidget {
   final String searchHint;
   final String? sheetTitle;
   final bool enabled;
+  final Set<MarkerTagGroupKey> excludeGroupKeys;
 
   static const double _fieldRadius = 12;
 
@@ -60,8 +63,17 @@ class _MultiMarkerTagsState extends State<MultiMarkerTags> {
       final items = await _repository.listAll();
       if (!mounted) return;
 
+      final filtered = widget.excludeGroupKeys.isEmpty
+          ? items
+          : items
+                .where((tag) {
+                  final group = tag.groupKeyEnum;
+                  return group == null || !widget.excludeGroupKeys.contains(group);
+                })
+                .toList(growable: false);
+
       setState(() {
-        _tags = items;
+        _tags = filtered;
         _loading = false;
       });
     } catch (_) {

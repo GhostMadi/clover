@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_tile.dart';
@@ -30,9 +30,11 @@ class FollowProfileTile extends StatelessWidget {
 
     return AppTile(
       title: row.displayUsername,
-      onTap: onTap ?? () {
-        context.router.root.push(GuestProfileRoute(userId: row.profileId));
-      },
+      onTap:
+          onTap ??
+          () {
+            context.router.root.push(GuestProfileRoute(userId: row.profileId));
+          },
       leading: CircleAvatar(
         radius: 20,
         backgroundColor: AppColors.surfaceSoft,

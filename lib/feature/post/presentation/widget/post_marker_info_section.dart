@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_time_picker.dart';
+import 'package:clover/feature/city/data/models/city_code.dart';
+import 'package:clover/feature/countries/data/models/country_code.dart';
 import 'package:clover/feature/marker_tags/data/models/marker_tag_model.dart';
 import 'package:clover/feature/post/presentation/widget/post_marker_details_shimmer.dart';
 import 'package:clover/feature/post/data/models/post_marker_summary.dart';
@@ -50,6 +52,12 @@ class PostMarkerInfoSection extends StatelessWidget {
     this.dislikesCount = 0,
     this.isMarkerLoading = false,
     this.profileFilters = const [],
+    this.postTextEmoji,
+    this.postTags = const [],
+    this.postAddressPrimary,
+    this.postAddressCyrillic,
+    this.postCountryCode,
+    this.postCityCode,
   });
 
   final PostMarkerSummary? marker;
@@ -60,6 +68,12 @@ class PostMarkerInfoSection extends StatelessWidget {
   final int dislikesCount;
   final bool isMarkerLoading;
   final List<PostProfileFilterValue> profileFilters;
+  final String? postTextEmoji;
+  final List<MarkerTagModel> postTags;
+  final String? postAddressPrimary;
+  final String? postAddressCyrillic;
+  final String? postCountryCode;
+  final String? postCityCode;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +83,7 @@ class PostMarkerInfoSection extends StatelessWidget {
     final likesLabel = _likesLabel(likesCount);
     final dislikesLabel = _dislikesLabel(dislikesCount);
     final markerData = marker;
+    final hasPostDetails = markerData == null && _hasPostPublicationDetails;
     final hasCaption = authorName.isNotEmpty ||
         likesLabel != null ||
         dislikesLabel != null ||
@@ -96,6 +111,16 @@ class PostMarkerInfoSection extends StatelessWidget {
           ] else if (markerData != null) ...[
             if (hasCaption) const SizedBox(height: 24),
             _MarkerDetailsBlock(marker: markerData),
+          ] else if (hasPostDetails) ...[
+            if (hasCaption) const SizedBox(height: 24),
+            _PostPublicationDetailsBlock(
+              textEmoji: postTextEmoji,
+              tags: postTags,
+              addressPrimary: postAddressPrimary,
+              addressCyrillic: postAddressCyrillic,
+              countryCode: postCountryCode,
+              cityCode: postCityCode,
+            ),
           ],
         ],
       ),
@@ -116,6 +141,15 @@ class PostMarkerInfoSection extends StatelessWidget {
   static String? _dislikesLabel(int count) {
     if (count <= 0) return null;
     return 'не нравится $count';
+  }
+
+  bool get _hasPostPublicationDetails {
+    final emoji = postTextEmoji?.trim() ?? '';
+    if (emoji.isNotEmpty) return true;
+    if (postTags.isNotEmpty) return true;
+    final address = postAddressPrimary?.trim();
+    if (address != null && address.isNotEmpty) return true;
+    return false;
   }
 }
 
@@ -204,6 +238,130 @@ class _PostCaptionBlock extends StatelessWidget {
             ),
           ),
         ],
+      ],
+    );
+  }
+}
+
+class _PostPublicationDetailsBlock extends StatelessWidget {
+  const _PostPublicationDetailsBlock({
+    required this.textEmoji,
+    required this.tags,
+    this.addressPrimary,
+    this.addressCyrillic,
+    this.countryCode,
+    this.cityCode,
+  });
+
+  final String? textEmoji;
+  final List<MarkerTagModel> tags;
+  final String? addressPrimary;
+  final String? addressCyrillic;
+  final String? countryCode;
+  final String? cityCode;
+
+  String? get _countryLabel => CountryCode.tryParse(countryCode)?.labelRu;
+
+  String? get _cityLabel {
+    final country = countryCode?.trim();
+    final city = cityCode?.trim();
+    if (country == null || country.isEmpty || city == null || city.isEmpty) return null;
+    return CityCode.tryParse(countryCode: country, cityCode: city)?.labelRu ?? city;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final emoji = textEmoji?.trim() ?? '';
+    final country = _countryLabel;
+    final city = _cityLabel;
+    final primary = addressPrimary?.trim();
+    final secondaryRaw = addressCyrillic?.trim();
+    final secondary = (secondaryRaw != null &&
+            secondaryRaw.isNotEmpty &&
+            secondaryRaw != primary)
+        ? secondaryRaw
+        : null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (emoji.isNotEmpty || city != null || country != null) ...[
+          Row(
+            children: [
+              if (emoji.isNotEmpty) ...[
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(emoji, style: const TextStyle(fontSize: 16, height: 1)),
+                ),
+                const SizedBox(width: 10),
+              ],
+              if (city != null || country != null)
+                Expanded(
+                  child: Text(
+                    [city, country].where((e) => e != null).join(' · '),
+                    style: AppTextStyle.base(
+                      12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.subTextColor,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 20),
+        ],
+        if (primary != null && primary.isNotEmpty) ...[
+          AppLeftBorderBlock(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'АДРЕС И ОРИЕНТИР',
+                  style: AppTextStyle.base(
+                    10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.subTextColor,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  primary,
+                  style: AppTextStyle.base(
+                    16,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textColor,
+                    height: 1.3,
+                  ),
+                ),
+                if (secondary != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    secondary,
+                    style: AppTextStyle.base(
+                      13,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.subTextColor,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+        if (tags.isNotEmpty) _MarkerTagChips(tags: tags),
       ],
     );
   }

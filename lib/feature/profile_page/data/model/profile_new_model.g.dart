@@ -34,9 +34,13 @@ _ProfileNewModel _$ProfileNewModelFromJson(
   updatedAt: json['updated_at'] == null
       ? null
       : DateTime.parse(json['updated_at'] as String),
-  hiringEnabled: json['hiring_enabled'] as bool? ?? false,
-  openForMemberships: json['open_for_memberships'] as bool? ?? false,
   hasFilters: json['has_filters'] as bool? ?? false,
+  bonusProgramStatus:
+      $enumDecodeNullable(
+        _$BonusProgramStatusEnumMap,
+        json['bonus_program_status'],
+      ) ??
+      BonusProgramStatus.inactive,
   tagLinkId: json['tag_link_id'] as String?,
   tagIds:
       (json['tag_ids'] as List<dynamic>?)?.map((e) => e as String).toList() ??
@@ -65,9 +69,14 @@ Map<String, dynamic> _$ProfileNewModelToJson(_ProfileNewModel instance) =>
           ?.toIso8601String(),
       'created_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),
-      'hiring_enabled': instance.hiringEnabled,
-      'open_for_memberships': instance.openForMemberships,
       'has_filters': instance.hasFilters,
+      'bonus_program_status':
+          _$BonusProgramStatusEnumMap[instance.bonusProgramStatus]!,
       'tag_link_id': instance.tagLinkId,
       'tag_ids': instance.tagIds,
     };
+
+const _$BonusProgramStatusEnumMap = {
+  BonusProgramStatus.active: 'active',
+  BonusProgramStatus.inactive: 'inactive',
+};

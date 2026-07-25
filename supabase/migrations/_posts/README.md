@@ -55,3 +55,12 @@
 ### Чаты и шаринг поста
 
 Ссылка поста в сообщении — **`chat_message_post_refs`** и RPC чата: **`../_chat/README.md`**.
+
+### 202607* — метаданные поста, удаление, DRY enriched JSON
+
+| Файл | Назначение |
+|------|------------|
+| `../20260730140000_delete_owned_post_rpc.sql` | RPC `delete_owned_post` (storage + marker + post). |
+| `../20260730150000_fix_delete_owned_post_storage.sql` | Права storage при удалении. |
+| `../20260730160000_posts_metadata_tags_location.sql` | `text_emoji`, `location_id`, адрес, `post_tag_links`; теги в enriched. |
+| `../20260730180000_post_enriched_json_helpers.sql` | **`marker_enriched_json`**, **`post_enriched_root_json`**; тонкие обёртки `get_post_enriched`, `list_user_feed_enriched_cursor`, `list_events_feed_enriched_cursor`. |

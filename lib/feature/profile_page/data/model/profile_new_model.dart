@@ -1,3 +1,5 @@
+import 'package:clover/feature/_bonus_/shared/data/models/bonus_program_status.dart';
+import 'package:clover/core/catalog_sync/models/sync_meta.dart';
 import 'package:clover/feature/city/data/models/city_code.dart';
 import 'package:clover/feature/countries/data/models/country_code.dart';
 import 'package:clover/feature/marker_tags/data/models/marker_tag_key.dart';
@@ -33,12 +35,14 @@ abstract class ProfileNewModel with _$ProfileNewModel {
     @JsonKey(name: 'username_next_change_allowed_at') DateTime? usernameNextChangeAllowedAt,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
-    @JsonKey(name: 'hiring_enabled') @Default(false) bool hiringEnabled,
-    @JsonKey(name: 'open_for_memberships') @Default(false) bool openForMemberships,
     @JsonKey(name: 'has_filters') @Default(false) bool hasFilters,
+    @JsonKey(name: 'bonus_program_status')
+    @Default(BonusProgramStatus.inactive)
+    BonusProgramStatus bonusProgramStatus,
     @JsonKey(name: 'tag_link_id') String? tagLinkId,
     @JsonKey(name: 'tag_ids') @Default([]) List<String> tagIds,
     @JsonKey(includeFromJson: false, includeToJson: false) @Default([]) List<MarkerTagModel> tags,
+    @JsonKey(includeFromJson: false, includeToJson: false) SyncMeta? syncMeta,
   }) = _ProfileNewModel;
 
   factory ProfileNewModel.fromJson(Map<String, dynamic> json) => _$ProfileNewModelFromJson(json);
@@ -69,6 +73,8 @@ abstract class ProfileNewModel with _$ProfileNewModel {
 
   /// Подпись категории для UI.
   String? get categoryLabelRu => categoryCode?.labelRu;
+
+  bool get isBonusProgramActive => bonusProgramStatus.isActive;
 
   /// «Страна,город» или одно из полей — для строки локации в хедере.
   String get locationLine {

@@ -27,6 +27,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
   PostMarkerSummary? _initialMarker;
   bool _reactionRequestInFlight = false;
   bool _followRequestInFlight = false;
+  bool _saveRequestInFlight = false;
   bool _clusterRequestInFlight = false;
 
   /// [initialPost] — данные от родителя (лента); [initialMyReaction] — лайк/дизлайк без второго запроса.
@@ -61,16 +62,14 @@ class PostDetailCubit extends Cubit<PostDetailState> {
         authorUsername: _initialAuthorUsername,
         authorAvatarUrl: _initialAuthorAvatarUrl,
         marker: _initialMarker,
-        mySaved: cachedItem?.mySaved ?? false,
+        mySaved: _resolveInitialSaved(cachedItem?.mySaved, id),
         myFollowingAuthor: cachedItem?.myFollowingAuthor,
         profileFilters: cachedItem?.profileFilters ?? const [],
       );
       _repository.cacheFeedItem(item);
       emit(PostDetailState.loaded(item, isFromCache: true));
 
-      if (_initialAuthorUsername == null || item.profileFilters.isEmpty) {
-        await _fetchRemote();
-      }
+      await _fetchRemote();
       return;
     }
 
@@ -130,6 +129,46 @@ class PostDetailCubit extends Cubit<PostDetailState> {
     if (cur is! PostDetailLoaded) return;
     final next = cur.item.isDisliked ? null : 'dislike';
     await _setReaction(next);
+  }
+
+  Future<void> toggleSave() async {
+    final cur = state;
+    if (cur is! PostDetailLoaded) return;
+
+    final id = _postId;
+    if (id == null || id.isEmpty) return;
+
+    final snapshot = cur.item;
+    final wasSaved = snapshot.mySaved;
+    final nextSaved = !wasSaved;
+    final optimistic = snapshot.copyWith(mySaved: nextSaved);
+
+    _repository.cacheMySaved(id, nextSaved);
+    emit(cur.copyWith(item: optimistic));
+
+    _saveRequestInFlight = true;
+    try {
+      await _repository.setPostSaved(id, nextSaved);
+      if (isClosed) return;
+
+      final latest = state;
+      if (latest is! PostDetailLoaded) return;
+      if (latest.item.mySaved != nextSaved) return;
+
+      _repository.cacheFeedItem(latest.item);
+    } catch (_) {
+      if (isClosed) return;
+
+      final latest = state;
+      if (latest is! PostDetailLoaded) return;
+      if (latest.item.mySaved != nextSaved) return;
+
+      _repository.cacheMySaved(id, wasSaved);
+      _repository.cachePost(snapshot.post);
+      emit(latest.copyWith(item: snapshot));
+    } finally {
+      _saveRequestInFlight = false;
+    }
   }
 
   Future<void> toggleFollow() async {
@@ -250,10 +289,42 @@ class PostDetailCubit extends Cubit<PostDetailState> {
     clusterListRefreshTick.value++;
   }
 
+  /// Безвозвратно удалить текущий пост или ивент.
+  Future<void> deletePost() async {
+    final cur = state;
+    if (cur is! PostDetailLoaded) return;
+
+    final id = _postId;
+    if (id == null || id.isEmpty) return;
+
+    await _repository.deletePost(id, cachedPost: cur.item.post);
+    clusterListRefreshTick.value++;
+  }
+
   /// Текущая реакция для синхронизации с лентой профиля при выходе.
   PostFeedItem? get currentItem {
     final cur = state;
     return cur is PostDetailLoaded ? cur.item : null;
+  }
+
+  void patchCommentsCount(int count) {
+    final cur = state;
+    if (cur is! PostDetailLoaded) return;
+    if (cur.item.post.commentsCount == count) return;
+    final next = cur.item.copyWith(post: cur.item.post.copyWith(commentsCount: count));
+    _repository.cachePost(next.post);
+    _repository.cacheFeedItem(next);
+    emit(cur.copyWith(item: next));
+  }
+
+  void patchSendsCount(int count) {
+    final cur = state;
+    if (cur is! PostDetailLoaded) return;
+    if (cur.item.post.sendsCount == count) return;
+    final next = cur.item.copyWith(post: cur.item.post.copyWith(sendsCount: count));
+    _repository.cachePost(next.post);
+    _repository.cacheFeedItem(next);
+    emit(cur.copyWith(item: next));
   }
 
   Future<void> _setReaction(String? next) async {
@@ -349,6 +420,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
       if (isClosed) return;
 
       _repository.cacheMyReaction(id, item.myReaction);
+      _repository.cacheMySaved(id, item.mySaved);
 
       final cur = state;
       if (cur is PostDetailLoaded) {
@@ -371,6 +443,14 @@ class PostDetailCubit extends Cubit<PostDetailState> {
 
         if (_clusterRequestInFlight && cur.item.post.clusterId != item.post.clusterId) {
           merged = merged.copyWith(post: cur.item.post);
+          keepLocal = true;
+        }
+
+        if (_saveRequestInFlight && cur.item.mySaved != item.mySaved) {
+          merged = merged.copyWith(
+            post: cur.item.post,
+            mySaved: cur.item.mySaved,
+          );
           keepLocal = true;
         }
 
@@ -450,6 +530,13 @@ class PostDetailCubit extends Cubit<PostDetailState> {
       return _repository.getCachedMyReaction(postId);
     }
     return _normalizeReaction(fromNav);
+  }
+
+  bool _resolveInitialSaved(bool? fromNav, String postId) {
+    if (_repository.hasCachedMySaved(postId)) {
+      return _repository.getCachedMySaved(postId);
+    }
+    return fromNav ?? false;
   }
 
   static String? _trimOrNull(String? raw) {

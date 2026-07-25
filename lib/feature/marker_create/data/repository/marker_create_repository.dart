@@ -73,12 +73,7 @@ class MarkerCreateRepositoryImpl implements MarkerCreateRepository {
     try {
       final postRow = await _client
           .from('posts')
-          .insert({
-            'user_id': uid,
-            'marker_id': markerId,
-            'title': request.title.isEmpty ? null : request.title,
-            'description': request.description.isEmpty ? null : request.description,
-          })
+          .insert(_postInsertRow(uid: uid, request: request, markerId: markerId))
           .select('id')
           .single();
 
@@ -141,6 +136,7 @@ class MarkerCreateRepositoryImpl implements MarkerCreateRepository {
 
       if (request.tagIds.isNotEmpty) {
         await _markerTagsRepository.setForMarker(markerId: markerId, tagIds: request.tagIds);
+        await _markerTagsRepository.setForPost(postId: postId, tagIds: request.tagIds);
       }
 
       if (request.filterValues.isNotEmpty) {
@@ -171,7 +167,6 @@ class MarkerCreateRepositoryImpl implements MarkerCreateRepository {
     final cyrillic = location.addressCyrillic?.trim();
     final country = location.countryCode?.trim().toLowerCase();
     final city = location.cityCode?.trim();
-    final description = _markerDescription(request.description);
 
     return {
       'owner_id': uid,
@@ -186,15 +181,24 @@ class MarkerCreateRepositoryImpl implements MarkerCreateRepository {
         'country_code': country,
         'city_code': city,
       },
-      if (description != null) 'description': description,
     };
   }
 
-  String? _markerDescription(String postDescription) {
-    final trimmed = postDescription.trim();
-    if (trimmed.isEmpty) return null;
-    if (trimmed.length <= 200) return trimmed;
-    return trimmed.substring(0, 200);
+  Map<String, dynamic> _postInsertRow({
+    required String uid,
+    required MarkerCreateRequest request,
+    required String markerId,
+  }) {
+    final emoji = request.textEmoji.trim();
+
+    return {
+      'user_id': uid,
+      'marker_id': markerId,
+      'title': request.title.isEmpty ? null : request.title,
+      'description': request.description.isEmpty ? null : request.description,
+      if (emoji.isNotEmpty) 'text_emoji': emoji,
+      'location_id': request.location.id,
+    };
   }
 
   String _formatPgInterval(Duration duration) {

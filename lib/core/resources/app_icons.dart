@@ -37,6 +37,7 @@ enum AppIcons {
   comment(iconAndroid: CupertinoIcons.chat_bubble_2, iconIos: CupertinoIcons.chat_bubble_2),
   send(iconAndroid: Icons.send_rounded, iconIos: CupertinoIcons.paperplane),
   bookmark(iconAndroid: Icons.bookmark_border_rounded, iconIos: CupertinoIcons.bookmark),
+  bookmarkFilled(iconAndroid: Icons.bookmark_rounded, iconIos: CupertinoIcons.bookmark_fill),
   visibility(iconAndroid: Icons.visibility_outlined, iconIos: CupertinoIcons.eye),
   visibilityOff(iconAndroid: Icons.visibility_off_outlined, iconIos: CupertinoIcons.eye_slash),
   arrowDown(iconAndroid: Icons.keyboard_arrow_down_rounded, iconIos: Icons.keyboard_arrow_down_rounded),

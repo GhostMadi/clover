@@ -30,3 +30,69 @@ final class JellyPressController {
     _controller.dispose();
   }
 }
+
+/// Jelly squash при смене [trigger] (первый кадр не анимирует).
+class JellyBounce extends StatefulWidget {
+  const JellyBounce({
+    super.key,
+    required this.trigger,
+    required this.child,
+    this.haptic = false,
+    this.alignment = Alignment.center,
+  });
+
+  final Object trigger;
+  final Widget child;
+  final bool haptic;
+  final Alignment alignment;
+
+  @override
+  State<JellyBounce> createState() => _JellyBounceState();
+}
+
+class _JellyBounceState extends State<JellyBounce> with SingleTickerProviderStateMixin {
+  late final JellyPressController _jelly;
+  late final ValueNotifier<int> _generation;
+
+  @override
+  void initState() {
+    super.initState();
+    _generation = ValueNotifier(0);
+    _jelly = JellyPressController(vsync: this, onAnimationSwap: () => _generation.value++);
+  }
+
+  @override
+  void didUpdateWidget(JellyBounce oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.trigger != widget.trigger) {
+      _jelly.trigger(haptic: widget.haptic);
+    }
+  }
+
+  @override
+  void dispose() {
+    _jelly.dispose();
+    _generation.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: _generation,
+      builder: (context, _, __) {
+        return AnimatedBuilder(
+          animation: _jelly.scaleAnimation,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: _jelly.scaleAnimation.value,
+              alignment: widget.alignment,
+              child: child,
+            );
+          },
+          child: widget.child,
+        );
+      },
+    );
+  }
+}

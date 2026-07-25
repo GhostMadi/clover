@@ -48,6 +48,13 @@ class MarkerTagModel {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'key': key,
+    if (groupKey != null) 'group_key': groupKey,
+    if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
+  };
+
   /// Группы для [AppMultiSelect] в порядке [MarkerTagGroupKey.sortOrder].
   static List<AppMultiSelectGroup<String>> toMultiSelectGroups(List<MarkerTagModel> tags) {
     if (tags.isEmpty) return const [];

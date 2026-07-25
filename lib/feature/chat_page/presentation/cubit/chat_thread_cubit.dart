@@ -1,4 +1,5 @@
 import 'package:clover/feature/chat/data/chat_enriched_mapper.dart';
+import 'package:clover/feature/chat/data/repository/chat_local_cache.dart';
 import 'package:clover/feature/chat/data/repository/chat_repository.dart';
 import 'package:clover/feature/chat_page/data/models/chat_message.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,9 +8,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 @injectable
 class ChatThreadCubit extends Cubit<ChatThreadState> {
-  ChatThreadCubit(this._repository, this._client) : super(const ChatThreadState.initial());
+  ChatThreadCubit(this._repository, this._localCache, this._client)
+      : super(const ChatThreadState.initial());
 
   final ChatRepository _repository;
+  final ChatLocalCache _localCache;
   final SupabaseClient _client;
 
   RealtimeChannel? _channel;
@@ -26,20 +29,27 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
       return;
     }
 
-    _conversationId = id;
-    emit(const ChatThreadState.loading());
-
-    try {
-      final messages = await _repository.listMessages(id);
-      if (isClosed) return;
-
-      emit(ChatThreadState.loaded(messages: messages));
-      await _markRead(messages);
-      _subscribe(id);
-    } catch (error) {
-      if (isClosed) return;
-      emit(ChatThreadState.error(_messageFor(error)));
+    final uid = _currentUserId;
+    if (uid == null || uid.isEmpty) {
+      emit(const ChatThreadState.error('Войдите в аккаунт'));
+      return;
     }
+
+    _conversationId = id;
+
+    final cached = await _localCache.readMessages(uid, id);
+    if (isClosed) return;
+
+    if (cached != null && cached.isNotEmpty) {
+      final repairedCache = await _repairPostShareMessages(cached);
+      if (isClosed) return;
+      emit(ChatThreadState.loaded(messages: repairedCache, isFromCache: true));
+      _subscribe(id);
+    } else {
+      emit(const ChatThreadState.loading());
+    }
+
+    await _fetchRemote(resetSubscription: cached == null || cached.isEmpty);
   }
 
   Future<void> sendMessage(String text) async {
@@ -63,13 +73,15 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
       isPending: true,
     );
 
+    final nextMessages = [...cur.messages, optimistic];
     emit(
       cur.copyWith(
-        messages: [...cur.messages, optimistic],
+        messages: nextMessages,
         isSending: true,
         clearSendError: true,
       ),
     );
+    await _persistMessages(uid, id, nextMessages);
 
     try {
       final serverId = await _repository.sendTextMessage(
@@ -84,7 +96,7 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
       if (latest is! ChatThreadLoaded) return;
 
       final confirmed = await _repository.getMessageEnriched(serverId);
-      final nextMessages = [
+      final patched = [
         for (final message in latest.messages)
           if (_sameOptimistic(message, clientMessageId))
             confirmed ?? message.copyWith(id: serverId, isPending: false)
@@ -92,24 +104,28 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
             message,
       ];
 
-      emit(latest.copyWith(messages: nextMessages, isSending: false));
-      await _markRead(nextMessages);
+      emit(latest.copyWith(messages: patched, isSending: false));
+      await _persistMessages(uid, id, patched);
+      await _markRead(patched);
     } catch (error) {
       if (isClosed) return;
 
       final latest = state;
       if (latest is! ChatThreadLoaded) return;
 
+      final rolledBack = [
+        for (final message in latest.messages)
+          if (!_sameOptimistic(message, clientMessageId)) message,
+      ];
+
       emit(
         latest.copyWith(
-          messages: [
-            for (final message in latest.messages)
-              if (!_sameOptimistic(message, clientMessageId)) message,
-          ],
+          messages: rolledBack,
           isSending: false,
           sendError: _messageFor(error),
         ),
       );
+      await _persistMessages(uid, id, rolledBack);
     }
   }
 
@@ -122,15 +138,91 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
       emit(cur.copyWith(isRefreshing: true, clearSendError: true));
     }
 
+    await _fetchRemote(resetSubscription: false);
+  }
+
+  Future<void> _fetchRemote({required bool resetSubscription}) async {
+    final id = _conversationId;
+    final uid = _currentUserId;
+    if (id == null || uid == null) return;
+
     try {
-      final messages = await _repository.listMessages(id);
+      final remote = await _repository.listMessages(id);
       if (isClosed) return;
-      emit(ChatThreadState.loaded(messages: messages));
+
+      final repairedRemote = await _repairPostShareMessages(remote);
+      if (isClosed) return;
+
+      final current = state;
+      final pending = current is ChatThreadLoaded
+          ? current.messages.where((message) => message.isPending).toList(growable: false)
+          : const <ChatMessage>[];
+
+      final messages = _mergeWithPending(repairedRemote, pending);
+      emit(
+        ChatThreadState.loaded(
+          messages: messages,
+          isFromCache: false,
+          isRefreshing: false,
+        ),
+      );
+      await _persistMessages(uid, id, messages);
       await _markRead(messages);
+
+      if (resetSubscription) {
+        _subscribe(id);
+      }
     } catch (error) {
       if (isClosed) return;
+
+      final cur = state;
+      if (cur is ChatThreadLoaded && cur.messages.isNotEmpty) {
+        emit(cur.copyWith(isRefreshing: false));
+        return;
+      }
       emit(ChatThreadState.error(_messageFor(error)));
     }
+  }
+
+  Future<List<ChatMessage>> _repairPostShareMessages(List<ChatMessage> messages) async {
+    final repaired = <ChatMessage>[];
+    for (final message in messages) {
+      if (message.isPostShare && !message.hasPostPreview && !message.isPending) {
+        final enriched = await _repository.getMessageEnriched(message.id);
+        repaired.add(enriched ?? message);
+      } else {
+        repaired.add(message);
+      }
+    }
+    return repaired;
+  }
+
+  List<ChatMessage> _mergeWithPending(List<ChatMessage> remote, List<ChatMessage> pending) {
+    if (pending.isEmpty) return remote;
+
+    final remoteClientIds = remote.map((m) => m.clientMessageId).whereType<String>().toSet();
+    final remoteIds = remote.map((m) => m.id).toSet();
+
+    final extras = pending.where((message) {
+      final clientId = message.clientMessageId ?? message.id;
+      return !remoteClientIds.contains(clientId) && !remoteIds.contains(message.id);
+    });
+
+    final merged = [...remote, ...extras];
+    merged.sort(_compareMessages);
+    return merged;
+  }
+
+  int _compareMessages(ChatMessage a, ChatMessage b) {
+    final byTime = a.sentAt.compareTo(b.sentAt);
+    if (byTime != 0) return byTime;
+    return a.id.compareTo(b.id);
+  }
+
+  Future<void> _persistMessages(String userId, String conversationId, List<ChatMessage> messages) async {
+    final persisted = messages.where((message) => !message.isPending).toList(growable: false);
+    if (persisted.isEmpty) return;
+    await _localCache.writeMessages(userId, conversationId, persisted);
   }
 
   Future<void> _markRead(List<ChatMessage> messages) async {
@@ -160,9 +252,10 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
       ..subscribe();
   }
 
-  void _onMessageEnriched(Map<String, dynamic> payload) {
+  void _onMessageEnriched(Map<String, dynamic> payload) async {
     final uid = _currentUserId;
-    if (uid == null) return;
+    final conversationId = _conversationId;
+    if (uid == null || conversationId == null) return;
 
     final data = payload['payload'] ?? payload;
     if (data is! Map) return;
@@ -189,20 +282,17 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
       nextMessages.add(message);
     }
 
-    nextMessages.sort((a, b) {
-      final byTime = a.sentAt.compareTo(b.sentAt);
-      if (byTime != 0) return byTime;
-      return a.id.compareTo(b.id);
-    });
+    nextMessages.sort(_compareMessages);
 
     emit(cur.copyWith(messages: nextMessages));
+    await _persistMessages(uid, conversationId, nextMessages);
 
     if (!message.isMine) {
       _markRead(nextMessages);
     }
   }
 
-  void _onPeerRead(Map<String, dynamic> payload) {
+  void _onPeerRead(Map<String, dynamic> payload) async {
     final uid = _currentUserId;
     final conversationId = _conversationId;
     if (uid == null || conversationId == null) return;
@@ -231,6 +321,7 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
     ];
 
     emit(cur.copyWith(messages: nextMessages));
+    await _persistMessages(uid, conversationId, nextMessages);
   }
 
   bool _sameOptimistic(ChatMessage message, String clientMessageId) {
@@ -262,6 +353,7 @@ sealed class ChatThreadState {
     required List<ChatMessage> messages,
     bool isSending,
     bool isRefreshing,
+    bool isFromCache,
     String? sendError,
   }) = ChatThreadLoaded;
   const factory ChatThreadState.error(String message) = ChatThreadError;
@@ -280,18 +372,21 @@ final class ChatThreadLoaded extends ChatThreadState {
     required this.messages,
     this.isSending = false,
     this.isRefreshing = false,
+    this.isFromCache = false,
     this.sendError,
   });
 
   final List<ChatMessage> messages;
   final bool isSending;
   final bool isRefreshing;
+  final bool isFromCache;
   final String? sendError;
 
   ChatThreadLoaded copyWith({
     List<ChatMessage>? messages,
     bool? isSending,
     bool? isRefreshing,
+    bool? isFromCache,
     String? sendError,
     bool clearSendError = false,
   }) {
@@ -299,6 +394,7 @@ final class ChatThreadLoaded extends ChatThreadState {
       messages: messages ?? this.messages,
       isSending: isSending ?? this.isSending,
       isRefreshing: isRefreshing ?? this.isRefreshing,
+      isFromCache: isFromCache ?? this.isFromCache,
       sendError: clearSendError ? null : (sendError ?? this.sendError),
     );
   }

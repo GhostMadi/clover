@@ -21,4 +21,10 @@ class CountryModel {
       sortOrder: (json['sort_order'] as num?)?.toInt() ?? 0,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'code': code,
+    'is_active': isActive,
+    'sort_order': sortOrder,
+  };
 }

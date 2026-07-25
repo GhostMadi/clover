@@ -95,15 +95,15 @@ class _AppOutlinedButtonState extends State<AppOutlinedButton> with SingleTicker
                     ),
                   )
                 : widget.child ??
-                    Text(
-                      widget.text,
-                      style: AppTextStyle.base(
-                        16,
-                        fontWeight: FontWeight.w700,
-                        color: textColor,
-                        letterSpacing: 0.3,
+                      Text(
+                        widget.text,
+                        style: AppTextStyle.base(
+                          16,
+                          fontWeight: FontWeight.w700,
+                          color: textColor,
+                          letterSpacing: 0.3,
+                        ),
                       ),
-                    ),
           ),
         ),
       ),

@@ -15,8 +15,6 @@ import 'package:clover/feature/cluster/presentation/cluster_list_refresh.dart';
 import 'package:clover/feature/cluster/presentation/cubit/clusters_list_cubit.dart';
 import 'package:clover/feature/cluster_create/presentation/cubit/cluster_create_upload_cubit.dart';
 import 'package:clover/feature/cluster_create/presentation/cubit/cluster_create_upload_state.dart';
-import 'package:clover/feature/marker_create/presentation/cubit/marker_create_upload_cubit.dart';
-import 'package:clover/feature/marker_create/presentation/cubit/marker_create_upload_state.dart';
 import 'package:clover/feature/post/presentation/cubit/post_feed_cubit.dart';
 import 'package:clover/feature/post_create/presentation/cubit/post_create_upload_cubit.dart';
 import 'package:clover/feature/post_create/presentation/cubit/post_create_upload_state.dart';
@@ -26,7 +24,6 @@ import 'package:clover/feature/profile_page/presentation/widget/header_part/part
 import 'package:clover/feature/profile_page/presentation/widget/header_part/profile_header_section.dart';
 import 'package:clover/feature/profile_page/presentation/widget/middle_part/profile_middle_part.dart';
 import 'package:clover/feature/profile_page/presentation/widget/profile_cluster_upload_banner.dart';
-import 'package:clover/feature/profile_page/presentation/widget/profile_marker_upload_banner.dart';
 import 'package:clover/feature/profile_page/presentation/widget/profile_post_upload_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -44,9 +41,7 @@ class _ProfilePageState extends State<ProfilePage> {
   late final ProfileCubit _cubit;
   late final ClustersListCubit _clustersCubit;
   late final PostFeedCubit _postFeedCubit;
-  late final PostFeedCubit _markerFeedCubit;
   late final PostCreateUploadCubit _postCreateUploadCubit;
-  late final MarkerCreateUploadCubit _markerCreateUploadCubit;
   late final ClusterCreateUploadCubit _clusterCreateUploadCubit;
   String? _selectedClusterId;
 
@@ -58,14 +53,11 @@ class _ProfilePageState extends State<ProfilePage> {
     _cubit = sl<ProfileCubit>()..load();
     _clustersCubit = sl<ClustersListCubit>()..load(_uid ?? '');
     _postFeedCubit = sl<PostFeedCubit>();
-    _markerFeedCubit = sl<PostFeedCubit>();
     _postCreateUploadCubit = sl<PostCreateUploadCubit>();
-    _markerCreateUploadCubit = sl<MarkerCreateUploadCubit>();
     _clusterCreateUploadCubit = sl<ClusterCreateUploadCubit>();
     final uid = _uid?.trim();
     if (uid != null && uid.isNotEmpty) {
-      _postFeedCubit.load(uid);
-      _markerFeedCubit.load(uid, onlyWithMarker: true);
+      _postFeedCubit.load(uid, excludeWithMarker: false);
     }
   }
 
@@ -74,7 +66,6 @@ class _ProfilePageState extends State<ProfilePage> {
     // ProfileCubit — singleton в GetIt, не закрываем.
     _clustersCubit.close();
     _postFeedCubit.close();
-    _markerFeedCubit.close();
     super.dispose();
   }
 
@@ -85,9 +76,21 @@ class _ProfilePageState extends State<ProfilePage> {
       if (uid != null && uid.isNotEmpty) ...[
         _clustersCubit.load(uid, silent: true),
         _postFeedCubit.refresh(),
-        _markerFeedCubit.refresh(),
       ],
     ]);
+    _dismissUploadBannersIfFinished();
+  }
+
+  void _dismissUploadBannersIfFinished() {
+    final postState = _postCreateUploadCubit.state;
+    if (postState is PostCreateUploadSuccess || postState is PostCreateUploadFailure) {
+      _postCreateUploadCubit.reset();
+    }
+
+    final clusterState = _clusterCreateUploadCubit.state;
+    if (clusterState is ClusterCreateUploadSuccess || clusterState is ClusterCreateUploadFailure) {
+      _clusterCreateUploadCubit.reset();
+    }
   }
 
   void _onClusterTap(ClusterModel cluster) {
@@ -96,8 +99,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     final uid = _uid?.trim();
     if (uid == null || uid.isEmpty) return;
-    _postFeedCubit.load(uid, clusterId: next);
-    _markerFeedCubit.load(uid, clusterId: next, onlyWithMarker: true);
+    _postFeedCubit.load(uid, clusterId: next, excludeWithMarker: false);
   }
 
   @override
@@ -107,7 +109,6 @@ class _ProfilePageState extends State<ProfilePage> {
         BlocProvider.value(value: _cubit),
         BlocProvider.value(value: _clustersCubit),
         BlocProvider.value(value: _postCreateUploadCubit),
-        BlocProvider.value(value: _markerCreateUploadCubit),
         BlocProvider.value(value: _clusterCreateUploadCubit),
       ],
       child: MultiBlocListener(
@@ -118,16 +119,6 @@ class _ProfilePageState extends State<ProfilePage> {
               final uid = _uid?.trim();
               if (uid != null && uid.isNotEmpty) {
                 _postFeedCubit.refresh();
-              }
-            },
-          ),
-          BlocListener<MarkerCreateUploadCubit, MarkerCreateUploadState>(
-            listenWhen: (previous, current) => current is MarkerCreateUploadSuccess,
-            listener: (context, state) {
-              final uid = _uid?.trim();
-              if (uid != null && uid.isNotEmpty) {
-                _postFeedCubit.refresh();
-                _markerFeedCubit.refresh();
               }
             },
           ),
@@ -153,7 +144,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const ProfilePostUploadBanner(),
-                    const ProfileMarkerUploadBanner(),
                     const ProfileClusterUploadBanner(),
                     const _ProfileHeaderBlock(),
                     const _ProfileNewActions(),
@@ -164,11 +154,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       onClusterTap: _onClusterTap,
                     ),
 
-                    ProfileBodyPart(
-                      ownerId: _uid,
-                      publicationsFeedCubit: _postFeedCubit,
-                      markerFeedCubit: _markerFeedCubit,
-                    ),
+                    ProfileBodyPart(ownerId: _uid, publicationsFeedCubit: _postFeedCubit),
                     SizedBox(height: AppNavBar.scrollBottomClearance(context)),
                   ],
                 ),
@@ -219,13 +205,6 @@ class _ProfileNewActions extends StatelessWidget {
                           },
                         ),
                         AppTile(
-                          icon: AppIcons.map.icon,
-                          title: 'Добавить маркер',
-                          onTap: () {
-                            context.router.push(const MarkerCreateRoute());
-                          },
-                        ),
-                        AppTile(
                           icon: Icons.collections,
                           title: 'Добавить кластер',
                           onTap: () {
@@ -240,32 +219,6 @@ class _ProfileNewActions extends StatelessWidget {
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 14),
                   child: Icon(Icons.add, color: Colors.white, size: 22),
-                ),
-              ),
-              SizedBox(width: context.widthByContext(5)),
-
-              AppButton(
-                text: '',
-                onTap: () {
-                  AppBottomSheet.show(
-                    context: context,
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        AppTile(
-                          icon: Icons.calendar_month_outlined,
-                          title: 'Мои бронирования',
-                          onTap: () {
-                            context.router.push(const MyBookingsRoute());
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 14),
-                  child: Icon(Icons.more_horiz, color: Colors.white, size: 22),
                 ),
               ),
               SizedBox(width: context.widthByContext(5)),

@@ -1,7 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:clover/feature/post/data/models/post_feed_item.dart';
-import 'package:clover/feature/post/data/models/post_marker_summary.dart';
 import 'package:clover/feature/post/data/models/post_model.dart';
-import 'package:clover/feature/post/data/models/post_profile_filter_value.dart';
+import 'package:clover/feature/post/data/repository/post_feed_enriched_parser.dart';
+import 'package:clover/feature/post/data/repository/post_local_cache.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -15,6 +16,7 @@ abstract class PostRepository {
     String? clusterId,
     bool onlyWithoutCluster = false,
     bool onlyWithMarker = false,
+    bool excludeWithMarker = true,
     Set<String> filterSelectionKeys = const {},
   });
 
@@ -41,11 +43,21 @@ abstract class PostRepository {
 
   void cacheMyReaction(String postId, String? reaction);
 
+  /// In-memory кэш «сохранено мной».
+  bool hasCachedMySaved(String postId);
+
+  bool getCachedMySaved(String postId);
+
+  void cacheMySaved(String postId, bool saved);
+
   /// Сброс in-memory кэша (logout / смена аккаунта).
   void clearMemoryCache();
 
   /// `like` | `dislike` | null — снять реакцию.
   Future<String?> setPostReaction(String postId, String? kind);
+
+  /// Сохранить или убрать пост из сохранённых.
+  Future<void> setPostSaved(String postId, bool saved);
 
   /// Привязка поста к кластеру; [clusterId] = null — отвязать.
   Future<void> setPostCluster(String postId, {String? clusterId});
@@ -55,18 +67,23 @@ abstract class PostRepository {
 
   /// Разархивировать публикацию или ивент.
   Future<void> unarchivePost(String postId, {String? markerId});
+
+  /// Безвозвратно удалить публикацию, все файлы в Storage и связанные кэши.
+  Future<void> deletePost(String postId, {PostModel? cachedPost});
 }
 
 @LazySingleton(as: PostRepository)
 class PostRepositoryImpl implements PostRepository {
-  PostRepositoryImpl(this._client);
+  PostRepositoryImpl(this._client, this._localCache);
 
   final SupabaseClient _client;
+  final PostLocalCache _localCache;
 
   static const Duration _memoryTtl = Duration(minutes: 10);
   final Map<String, ({PostModel post, DateTime storedAt})> _memory = {};
   final Map<String, ({PostFeedItem item, DateTime storedAt})> _feedMemory = {};
   final Map<String, ({String? reaction, DateTime storedAt})> _reactionMemory = {};
+  final Map<String, ({bool saved, DateTime storedAt})> _savedMemory = {};
 
   @override
   PostModel? getCachedPostById(String postId) {
@@ -115,6 +132,37 @@ class PostRepositoryImpl implements PostRepository {
   }
 
   @override
+  bool hasCachedMySaved(String postId) {
+    final id = postId.trim();
+    if (id.isEmpty) return false;
+    final e = _savedMemory[id];
+    if (e == null) return false;
+    if (DateTime.now().difference(e.storedAt) > _memoryTtl) {
+      _savedMemory.remove(id);
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  bool getCachedMySaved(String postId) {
+    if (!hasCachedMySaved(postId)) return false;
+    return _savedMemory[postId.trim()]!.saved;
+  }
+
+  @override
+  void cacheMySaved(String postId, bool saved) {
+    final id = postId.trim();
+    if (id.isEmpty) return;
+    _savedMemory[id] = (saved: saved, storedAt: DateTime.now());
+    if (_savedMemory.length > 200) {
+      for (final k in _savedMemory.keys.take(40)) {
+        _savedMemory.remove(k);
+      }
+    }
+  }
+
+  @override
   PostFeedItem? getCachedFeedItem(String postId) {
     final id = postId.trim();
     if (id.isEmpty) return null;
@@ -133,9 +181,8 @@ class PostRepositoryImpl implements PostRepository {
     if (id.isEmpty) return;
     _feedMemory[id] = (item: item, storedAt: DateTime.now());
     cachePost(item.post);
-    if (item.myReaction != null) {
-      cacheMyReaction(id, item.myReaction);
-    }
+    cacheMyReaction(id, item.myReaction);
+    cacheMySaved(id, item.mySaved);
     if (_feedMemory.length > 80) {
       for (final k in _feedMemory.keys.take(20)) {
         _feedMemory.remove(k);
@@ -160,6 +207,7 @@ class PostRepositoryImpl implements PostRepository {
     _memory.clear();
     _feedMemory.clear();
     _reactionMemory.clear();
+    _savedMemory.clear();
   }
 
   @override
@@ -171,6 +219,7 @@ class PostRepositoryImpl implements PostRepository {
     String? clusterId,
     bool onlyWithoutCluster = false,
     bool onlyWithMarker = false,
+    bool excludeWithMarker = true,
     Set<String> filterSelectionKeys = const {},
   }) async {
     final uid = userId.trim();
@@ -185,6 +234,7 @@ class PostRepositoryImpl implements PostRepository {
         clusterId: clusterId,
         onlyWithoutCluster: onlyWithoutCluster,
         onlyWithMarker: onlyWithMarker,
+        excludeWithMarker: excludeWithMarker,
         filterSelectionKeys: filterSelectionKeys,
       );
 
@@ -202,6 +252,7 @@ class PostRepositoryImpl implements PostRepository {
       clusterId: clusterId,
       onlyWithoutCluster: onlyWithoutCluster,
       onlyWithMarker: onlyWithMarker,
+      excludeWithMarker: excludeWithMarker,
     );
   }
 
@@ -213,6 +264,7 @@ class PostRepositoryImpl implements PostRepository {
     String? clusterId,
     bool onlyWithoutCluster = false,
     bool onlyWithMarker = false,
+    bool excludeWithMarker = true,
     Set<String> filterSelectionKeys = const {},
   }) async {
     final cid = clusterId?.trim();
@@ -229,7 +281,7 @@ class PostRepositoryImpl implements PostRepository {
       'p_cursor_id': hasCursor ? cursorPostId : null,
       'p_cluster_id': (!onlyWithoutCluster && cid != null && cid.isNotEmpty) ? cid : null,
       'p_only_without_cluster': onlyWithoutCluster,
-      'p_exclude_with_marker': !onlyWithMarker,
+      'p_exclude_with_marker': excludeWithMarker && !onlyWithMarker,
       'p_only_with_marker': onlyWithMarker,
       if (filterKeys.isNotEmpty) 'p_filter_selection_keys': filterKeys,
     };
@@ -239,7 +291,11 @@ class PostRepositoryImpl implements PostRepository {
       params: <String, dynamic>{'p_args': pArgs},
     );
 
-    return _consumeEnrichedRpc(res, onlyWithMarker: onlyWithMarker);
+    return _consumeEnrichedRpc(
+      res,
+      onlyWithMarker: onlyWithMarker,
+      excludeWithMarker: excludeWithMarker,
+    );
   }
 
   Future<List<PostFeedItem>> _listFallback({
@@ -249,6 +305,7 @@ class PostRepositoryImpl implements PostRepository {
     String? clusterId,
     bool onlyWithoutCluster = false,
     bool onlyWithMarker = false,
+    bool excludeWithMarker = true,
   }) async {
     var q = _client
         .from('posts')
@@ -276,7 +333,11 @@ class PostRepositoryImpl implements PostRepository {
     for (final raw in list) {
       if (raw is! Map) continue;
       final post = PostModel.fromJson(Map<String, dynamic>.from(raw));
-      if (onlyWithMarker ? !post.hasMarker : post.hasMarker) continue;
+      if (onlyWithMarker) {
+        if (!post.hasMarker) continue;
+      } else if (excludeWithMarker) {
+        if (post.hasMarker) continue;
+      }
       cachePost(post);
       items.add(PostFeedItem(post: post));
     }
@@ -285,73 +346,23 @@ class PostRepositoryImpl implements PostRepository {
 
   Future<List<PostFeedItem>> _consumeEnrichedRpc(
     dynamic res, {
-    bool? onlyWithMarker,
+    bool onlyWithMarker = false,
+    bool excludeWithMarker = true,
   }) async {
-    if (res is! List) return const [];
-
-    final items = <PostFeedItem>[];
-    for (final row in res) {
-      if (row is! Map) continue;
-      final m = Map<String, dynamic>.from(row);
-      final postRaw = m['post'];
-      if (postRaw is! Map) continue;
-
-      final postMap = Map<String, dynamic>.from(postRaw);
-      final profileFilters = PostProfileFilterValue.listFromJson(postMap.remove('profile_filters'));
-      final marker = PostMarkerSummary.tryFromJson(postMap['marker']);
-      final post = PostModel.fromJson(postMap);
-      if (onlyWithMarker != null) {
-        if (onlyWithMarker ? !post.hasMarker : post.hasMarker) continue;
-      }
-      cachePost(post);
-
-      String? authorUsername;
-      String? authorAvatarUrl;
-      final authorRaw = m['author'];
-      if (authorRaw is Map) {
-        final am = Map<String, dynamic>.from(authorRaw);
-        final u = (am['username'] as String?)?.trim();
-        final a = (am['avatar_url'] as String?)?.trim();
-        authorUsername = (u != null && u.isNotEmpty) ? u : null;
-        authorAvatarUrl = (a != null && a.isNotEmpty) ? a : null;
-      }
-
-      final mySavedRaw = m['my_saved'];
-      final mySaved = mySavedRaw is bool
-          ? mySavedRaw
-          : (mySavedRaw is String && (mySavedRaw == 'true' || mySavedRaw == 't'));
-
-      String? myReaction;
-      final reactionRaw = m['my_reaction'];
-      if (reactionRaw is String) {
-        final kind = reactionRaw.trim();
-        if (kind == 'like' || kind == 'dislike') myReaction = kind;
-      }
-
-      bool? myFollowingAuthor;
-      final followingRaw = m['my_following_author'];
-      if (followingRaw is bool) {
-        myFollowingAuthor = followingRaw;
-      } else if (followingRaw is String) {
-        myFollowingAuthor = followingRaw == 'true' || followingRaw == 't';
-      }
-
-      cacheMyReaction(post.id, myReaction);
-
-      final feedItem = PostFeedItem(
-        post: post,
-        authorUsername: authorUsername,
-        authorAvatarUrl: authorAvatarUrl,
-        myReaction: myReaction,
-        mySaved: mySaved,
-        myFollowingAuthor: myFollowingAuthor,
-        marker: marker,
-        profileFilters: profileFilters,
-      );
-      cacheFeedItem(feedItem);
-      items.add(feedItem);
-    }
-    return items;
+    final bool? markerFilter = onlyWithMarker
+        ? true
+        : excludeWithMarker
+        ? false
+        : null;
+    return PostFeedEnrichedParser.parse(
+      res,
+      onlyWithMarker: markerFilter,
+      onItemParsed: (item) {
+        cacheMyReaction(item.post.id, item.myReaction);
+        cacheMySaved(item.post.id, item.mySaved);
+        cacheFeedItem(item);
+      },
+    );
   }
 
   @override
@@ -376,7 +387,11 @@ class PostRepositoryImpl implements PostRepository {
 
     try {
       final res = await _client.rpc('get_post_enriched', params: {'p_post_id': id});
-      final list = await _consumeEnrichedRpc(res);
+      final list = await _consumeEnrichedRpc(
+        res,
+        onlyWithMarker: false,
+        excludeWithMarker: false,
+      );
       if (list.isNotEmpty) {
         final item = await _enrichFollowingIfNeeded(list.first);
         cacheFeedItem(item);
@@ -442,6 +457,17 @@ class PostRepositoryImpl implements PostRepository {
   }
 
   @override
+  Future<void> setPostSaved(String postId, bool saved) async {
+    final id = postId.trim();
+    if (id.isEmpty) throw ArgumentError('postId');
+
+    await _client.rpc(
+      saved ? 'save_post' : 'unsave_post',
+      params: {'p_post_id': id},
+    );
+  }
+
+  @override
   Future<void> setPostCluster(String postId, {String? clusterId}) async {
     final id = postId.trim();
     if (id.isEmpty) throw ArgumentError('postId');
@@ -467,6 +493,7 @@ class PostRepositoryImpl implements PostRepository {
     _memory.remove(id);
     _feedMemory.remove(id);
     _reactionMemory.remove(id);
+    _savedMemory.remove(id);
   }
 
   @override
@@ -479,6 +506,90 @@ class PostRepositoryImpl implements PostRepository {
       await _client.from('markers').update({'is_archived': false}).eq('id', mid);
     } else {
       await _client.from('posts').update({'is_archived': false}).eq('id', id);
+    }
+  }
+
+  @override
+  Future<void> deletePost(String postId, {PostModel? cachedPost}) async {
+    final id = postId.trim();
+    if (id.isEmpty) throw ArgumentError('postId');
+
+    final post = cachedPost ?? getCachedPostById(id);
+    final mediaUrls = post?.sortedMedia.map((m) => m.url).where((u) => u.trim().isNotEmpty) ?? const [];
+
+    await _deletePostStorageViaApi(id, mediaUrls);
+    await _client.rpc('delete_owned_post', params: {'p_post_id': id});
+
+    final uid = _client.auth.currentUser?.id.trim();
+    if (uid != null && uid.isNotEmpty) {
+      await _localCache.removePostFromUserFeeds(uid, id);
+    }
+
+    await _evictPostMediaFromCache(mediaUrls);
+
+    _memory.remove(id);
+    _feedMemory.remove(id);
+    _reactionMemory.remove(id);
+    _savedMemory.remove(id);
+  }
+
+  /// Пока пост ещё в БД — RLS `post_media_delete_own` разрешает удаление своих файлов.
+  Future<void> _deletePostStorageViaApi(String postId, Iterable<String> mediaUrls) async {
+    final paths = <String>{};
+
+    for (final raw in mediaUrls) {
+      final path = _storagePathFromPublicUrl(raw);
+      if (path != null) paths.add(path);
+    }
+
+    try {
+      final prefix = 'posts/$postId';
+      final listing = await _client.storage.from('post_media').list(path: prefix);
+      for (final entry in listing) {
+        final name = entry.name.trim();
+        if (name.isEmpty || entry.id == null) continue;
+        paths.add('$prefix/$name');
+      }
+    } catch (_) {
+      // list может не сработать — удаляем по URL из кэша
+    }
+
+    if (paths.isEmpty) return;
+
+    try {
+      await _client.storage.from('post_media').remove(paths.toList(growable: false));
+    } catch (_) {
+      // RPC дочистит storage best-effort
+    }
+  }
+
+  String? _storagePathFromPublicUrl(String url) {
+    final path = Uri.tryParse(url.split('?').first)?.path ?? '';
+    const publicMarker = '/storage/v1/object/public/post_media/';
+    final idx = path.indexOf(publicMarker);
+    if (idx >= 0) {
+      final objectPath = path.substring(idx + publicMarker.length).trim();
+      return objectPath.isEmpty ? null : objectPath;
+    }
+    const shortMarker = '/object/public/post_media/';
+    final shortIdx = path.indexOf(shortMarker);
+    if (shortIdx >= 0) {
+      final objectPath = path.substring(shortIdx + shortMarker.length).trim();
+      return objectPath.isEmpty ? null : objectPath;
+    }
+    return null;
+  }
+
+  Future<void> _evictPostMediaFromCache(Iterable<String> urls) async {
+    final seen = <String>{};
+    for (final raw in urls) {
+      final base = raw.split('?').first.trim();
+      if (base.isEmpty || !seen.add(base)) continue;
+      try {
+        await CachedNetworkImage.evictFromCache(base);
+      } catch (_) {
+        // best effort
+      }
     }
   }
 }

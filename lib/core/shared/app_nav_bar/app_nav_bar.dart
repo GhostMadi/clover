@@ -27,6 +27,10 @@ class AppNavBar extends StatelessWidget {
   static const _animationDuration = Duration(milliseconds: 320);
   static const _animationCurve = Curves.easeOutCubic;
 
+  /// Длительность/кривая анимации layout дашборда (accessory + сдвиг навбара).
+  static const dashboardLayoutDuration = _animationDuration;
+  static const dashboardLayoutCurve = _animationCurve;
+
   static const double _figmaIndicatorInset = 4;
   static const double _figmaBarRadius = 36;
   static const double _figmaIndicatorRadius = 28;
@@ -56,6 +60,12 @@ class AppNavBar extends StatelessWidget {
   static double scrollBottomClearance(BuildContext context) {
     final insets = dashboardFloatingInsets(context);
     return insets.bottom + context.heightByContext(_figmaBarHeight);
+  }
+
+  /// Ширина навбара на дашборде без боковых accessory-кнопок.
+  static double dashboardPreferredWidth(BuildContext context) {
+    final screenW = MediaQuery.sizeOf(context).width;
+    return screenW - context.widthByContext(_figmaFloatingHorizontal) * 2;
   }
 
   @override
@@ -134,8 +144,8 @@ class AppNavBar extends StatelessWidget {
                               onTap: () {
                                 if (index != currentIndex) {
                                   HapticFeedback.selectionClick();
-                                  onTap(index);
                                 }
+                                onTap(index);
                               },
                             ),
                           );
@@ -220,14 +230,10 @@ class _AppNavBarTabState extends State<_AppNavBarTab> with SingleTickerProviderS
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              AnimatedSwitcher(
-                duration: AppNavBar._animationDuration,
-                child: Icon(
-                  widget.item.icon,
-                  key: ValueKey(widget.isSelected),
-                  size: widget.iconSize.clamp(18.0, 32.0),
-                  color: iconColor,
-                ),
+              Icon(
+                widget.item.icon,
+                size: widget.iconSize.clamp(18.0, 32.0),
+                color: iconColor,
               ),
 
               if (widget.item.label != null) ...[

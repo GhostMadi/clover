@@ -71,6 +71,10 @@ abstract class AppColors {
   static const Color functionalSoftBlue = Color(0xFFE3F0FC);
   static const Color functionalSoftBlueIcon = Color(0xFF5B9BD5);
 
+  /// Мягкий оранжевый для вторичных action-кнопок (уведомления и т.п.).
+  static const Color functionalSoftOrange = Color(0xFFFFF3E0);
+  static const Color functionalSoftOrangeIcon = Color(0xFFE65100);
+
   /// Мягкий красный для деструктивных, но не alarm action-кнопок.
   static const Color functionalSoftRed = Color(0xFFFFEBEE);
   static const Color functionalSoftRedIcon = Color(0xFFE57373);

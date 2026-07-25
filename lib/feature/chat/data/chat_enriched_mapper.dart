@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:clover/feature/chat_page/data/models/chat_message.dart';
+import 'package:clover/feature/chat_page/data/models/chat_message_post_ref.dart';
 import 'package:clover/feature/message_page/data/models/message_chat_preview.dart';
 
 abstract final class ChatEnrichedMapper {
@@ -56,7 +59,8 @@ abstract final class ChatEnrichedMapper {
     final isMine = senderId == currentUserId;
     final sentAt = _parseDate(message['created_at']) ?? DateTime.now();
     final kind = message['kind']?.toString() ?? 'text';
-    final text = displayText(message, attachments: row['attachments']);
+    final postRef = _parsePostRef(row['post_ref']);
+    final text = _messageText(message, attachments: row['attachments'], postRef: postRef, kind: kind);
 
     return ChatMessage(
       id: id,
@@ -67,7 +71,41 @@ abstract final class ChatEnrichedMapper {
       kind: kind,
       clientMessageId: message['client_message_id']?.toString(),
       isPending: isPending,
+      postRef: postRef,
     );
+  }
+
+  static ChatMessagePostRef? _parsePostRef(dynamic value) {
+    final map = _asMap(value);
+    if (map == null) return null;
+
+    final postId = map['post_id']?.toString().trim();
+    if (postId == null || postId.isEmpty) return null;
+
+    final caption = map['caption']?.toString().trim();
+    final title = map['title']?.toString().trim();
+    final coverUrl = map['cover_url']?.toString().trim();
+
+    return ChatMessagePostRef(
+      postId: postId,
+      caption: caption?.isNotEmpty == true ? caption : null,
+      title: title?.isNotEmpty == true ? title : null,
+      coverUrl: coverUrl?.isNotEmpty == true ? coverUrl : null,
+    );
+  }
+
+  static String _messageText(
+    Map<String, dynamic> message, {
+    dynamic attachments,
+    ChatMessagePostRef? postRef,
+    required String kind,
+  }) {
+    if (kind == 'post_ref' || postRef != null) {
+      final caption = postRef?.caption ?? message['text']?.toString().trim();
+      return caption ?? '';
+    }
+
+    return displayText(message, attachments: attachments);
   }
 
   static String previewText(Map<String, dynamic>? message) {
@@ -117,6 +155,12 @@ abstract final class ChatEnrichedMapper {
   static Map<String, dynamic>? _asMap(dynamic value) {
     if (value is Map<String, dynamic>) return value;
     if (value is Map) return Map<String, dynamic>.from(value);
+    if (value is String && value.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(value);
+        if (decoded is Map) return Map<String, dynamic>.from(decoded);
+      } catch (_) {}
+    }
     return null;
   }
 

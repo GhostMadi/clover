@@ -1,8 +1,7 @@
 /// POST /functions/v1/delete_post
 /// Body: { post_id: string }
 ///
-/// Deletes storage objects under `posts/{post_id}/`, then deletes `public.posts` row.
-/// DB has ON DELETE CASCADE to `public.post_media`.
+/// Delegates to `public.delete_owned_post` (storage + DB cascade).
 /// <reference path="../deno.d.ts" />
 import { corsHeaders, handleCors } from "./_shared/cors.ts";
 import { requireSupabaseUser } from "./_shared/supabase.ts";
@@ -37,38 +36,15 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const { supabase, user } = authCtx;
+    const { supabase } = authCtx;
 
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== "object") return badRequest("Invalid JSON body");
     const post_id = typeof (body as any).post_id === "string" ? String((body as any).post_id).trim() : "";
     if (!post_id) return badRequest("post_id is required");
 
-    // Validate ownership (RLS on posts also enforces this, but we need it before touching storage).
-    const { data: postRow, error: postErr } = await supabase
-      .from("posts")
-      .select("id,user_id")
-      .eq("id", post_id)
-      .maybeSingle();
-    if (postErr) return badRequest(postErr.message);
-    if (!postRow) return badRequest("Post not found", 404);
-    if (postRow.user_id !== user.id) return badRequest("Forbidden", 403);
-
-    // Remove storage objects under posts/{post_id}/
-    const prefix = `posts/${post_id}/`;
-    const { data: list, error: listErr } = await supabase.storage
-      .from("post_media")
-      .list(prefix, { limit: 1000 });
-    if (listErr) return badRequest(`storage list failed: ${listErr.message}`);
-    const paths = (list ?? []).map((o) => `${prefix}${o.name}`).filter((p) => !p.endsWith("/"));
-    if (paths.length > 0) {
-      const { error: rmErr } = await supabase.storage.from("post_media").remove(paths);
-      if (rmErr) return badRequest(`storage remove failed: ${rmErr.message}`);
-    }
-
-    // Delete post row (CASCADE deletes post_media rows).
-    const { error: delErr } = await supabase.from("posts").delete().eq("id", post_id);
-    if (delErr) return badRequest(delErr.message);
+    const { error } = await supabase.rpc("delete_owned_post", { p_post_id: post_id });
+    if (error) return badRequest(error.message);
 
     return jsonOk({ ok: true });
   } catch (e) {
@@ -78,4 +54,3 @@ Deno.serve(async (req) => {
     });
   }
 });
-

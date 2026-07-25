@@ -1,0 +1,171 @@
+import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/shared/app_nav_bar/app_nav_bar.dart';
+import 'package:clover/core/shared/jelly.dart';
+import 'package:clover/feature/dashboard_page/data/models/dashboard_home_mode.dart';
+import 'package:clover/core/shared/app_nav_bar/app_nav_bar_item.dart';
+import 'package:clover/core/shared/app_functional_button/app_functional_pill_button.dart';
+import 'package:clover/feature/dashboard_page/presentation/config/dashboard_tab_config.dart';
+import 'package:clover/feature/dashboard_page/presentation/layout/dashboard_bottom_bar_layout.dart';
+import 'package:clover/feature/profile_page/presentation/widget/profile_dashboard_accessories.dart';
+import 'package:flutter/material.dart';
+
+/// Нижняя панель дашборда: accessory-кнопки + табы.
+class DashboardBottomBar extends StatelessWidget {
+  const DashboardBottomBar({
+    super.key,
+    required this.currentIndex,
+    required this.homeMode,
+    required this.items,
+    required this.onTabTap,
+    required this.onHomeTab,
+    required this.showHomeTabFilter,
+    required this.showHomeTabNotifications,
+    required this.showProfileAccessories,
+    required this.showFilterBadge,
+    required this.onFilterTap,
+    required this.onNotificationsTap,
+    required this.onProfileMoreTap,
+  });
+
+  final int currentIndex;
+  final DashboardHomeMode homeMode;
+  final List<AppNavBarItem> items;
+  final ValueChanged<int> onTabTap;
+  final bool onHomeTab;
+  final bool showHomeTabFilter;
+  final bool showHomeTabNotifications;
+  final bool showProfileAccessories;
+  final bool showFilterBadge;
+  final VoidCallback onFilterTap;
+  final VoidCallback onNotificationsTap;
+  final VoidCallback onProfileMoreTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final navInsets = AppNavBar.dashboardFloatingInsets(context);
+    final layout = DashboardBottomBarLayout.compute(
+      context,
+      onHomeTab: onHomeTab,
+      showHomeTabFilter: showHomeTabFilter,
+      showHomeTabNotifications: showHomeTabNotifications,
+      showProfileAccessories: showProfileAccessories,
+    );
+
+    return Positioned(
+      left: DashboardTabConfig.sideInset,
+      right: DashboardTabConfig.sideInset,
+      bottom: navInsets.bottom,
+      height: layout.barHeight,
+      child: Stack(
+        clipBehavior: Clip.hardEdge,
+        children: [
+          _AnimatedAccessoryPill(
+            left: layout.filterLeft,
+            opacity: layout.filterOpacity,
+            interactive: onHomeTab && showHomeTabFilter,
+            child: AppFunctionalPillButton(
+              icon: Icons.filter_list_rounded,
+              customColor: AppColors.functionalSoftBlue,
+              iconColor: AppColors.functionalSoftBlueIcon,
+              showBadge: showFilterBadge,
+              onTap: onFilterTap,
+            ),
+          ),
+          _AnimatedAccessoryPill(
+            left: layout.notificationsLeft,
+            opacity: layout.notificationsOpacity,
+            interactive: onHomeTab && showHomeTabNotifications,
+            child: AppFunctionalPillButton(
+              icon: Icons.notifications_outlined,
+              customColor: AppColors.functionalSoftOrange,
+              iconColor: AppColors.functionalSoftOrangeIcon,
+              showBadge: true,
+              onTap: onNotificationsTap,
+            ),
+          ),
+          _AnimatedRightAccessories(
+            layout: layout,
+            showProfileAccessories: showProfileAccessories,
+            onProfileMoreTap: onProfileMoreTap,
+          ),
+          AnimatedPositioned(
+            duration: AppNavBar.dashboardLayoutDuration,
+            curve: AppNavBar.dashboardLayoutCurve,
+            left: layout.navLeft,
+            bottom: 0,
+            width: layout.navWidth,
+            child: JellyBounce(
+              trigger: homeMode,
+              alignment: Alignment.bottomCenter,
+              child: AppNavBar(currentIndex: currentIndex, items: items, onTap: onTabTap),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AnimatedAccessoryPill extends StatelessWidget {
+  const _AnimatedAccessoryPill({
+    required this.left,
+    required this.opacity,
+    required this.interactive,
+    required this.child,
+  });
+
+  final double left;
+  final double opacity;
+  final bool interactive;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedPositioned(
+      duration: AppNavBar.dashboardLayoutDuration,
+      curve: AppNavBar.dashboardLayoutCurve,
+      left: left,
+      bottom: 0,
+      child: IgnorePointer(
+        ignoring: !interactive,
+        child: AnimatedOpacity(
+          duration: AppNavBar.dashboardLayoutDuration,
+          curve: AppNavBar.dashboardLayoutCurve,
+          opacity: opacity,
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedRightAccessories extends StatelessWidget {
+  const _AnimatedRightAccessories({
+    required this.layout,
+    required this.showProfileAccessories,
+    required this.onProfileMoreTap,
+  });
+
+  final DashboardBottomBarLayout layout;
+  final bool showProfileAccessories;
+  final VoidCallback onProfileMoreTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedPositioned(
+      duration: AppNavBar.dashboardLayoutDuration,
+      curve: AppNavBar.dashboardLayoutCurve,
+      left: layout.rightAccessoriesLeft,
+      bottom: 0,
+      child: IgnorePointer(
+        ignoring: !showProfileAccessories,
+        child: AnimatedOpacity(
+          duration: AppNavBar.dashboardLayoutDuration,
+          curve: AppNavBar.dashboardLayoutCurve,
+          opacity: layout.rightAccessoriesOpacity,
+          child: ProfileDashboardAccessories(onMoreTap: onProfileMoreTap),
+        ),
+      ),
+    );
+  }
+}

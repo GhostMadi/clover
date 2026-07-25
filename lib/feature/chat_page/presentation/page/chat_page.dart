@@ -48,21 +48,28 @@ class _ChatPageState extends State<ChatPage> {
     return raw.startsWith('@') ? raw : '@$raw';
   }
 
-  void _scrollToBottom() {
-    if (!_scrollController.hasClients) return;
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOut,
-    );
-  }
-
   void _sendMessage() {
     final text = _composerController.text.trim();
     if (text.isEmpty) return;
     _composerController.clear();
     _cubit.sendMessage(text);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+    _scrollToBottom(animated: true);
+  }
+
+  void _scrollToBottom({bool animated = false}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      final max = _scrollController.position.maxScrollExtent;
+      if (animated) {
+        _scrollController.animateTo(
+          max,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+        );
+      } else {
+        _scrollController.jumpTo(max);
+      }
+    });
   }
 
   void _onAttachmentSelected(ChatAttachmentAction action) {
@@ -104,20 +111,18 @@ class _ChatPageState extends State<ChatPage> {
       value: _cubit,
       child: BlocListener<ChatThreadCubit, ChatThreadState>(
         listenWhen: (prev, next) {
-          if (next is ChatThreadLoaded && next.sendError != null) {
-            return true;
-          }
-          if (prev is ChatThreadLoaded && next is ChatThreadLoaded) {
-            return next.messages.length != prev.messages.length;
-          }
-          return next is ChatThreadLoaded && prev is! ChatThreadLoaded;
+          if (next is ChatThreadLoaded && next.sendError != null) return true;
+          if (next is! ChatThreadLoaded || next.messages.isEmpty) return false;
+          if (prev is! ChatThreadLoaded) return true;
+          return next.messages.length != prev.messages.length;
         },
         listener: (context, state) {
-          if (state is ChatThreadLoaded) {
-            if (state.sendError != null) {
-              AppSnackBar.show(context, message: state.sendError!, kind: AppSnackBarKind.error);
-            }
-            WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+          if (state is ChatThreadLoaded && state.sendError != null) {
+            AppSnackBar.show(context, message: state.sendError!, kind: AppSnackBarKind.error);
+            return;
+          }
+          if (state is ChatThreadLoaded && state.messages.isNotEmpty) {
+            _scrollToBottom(animated: state.isFromCache == false);
           }
         },
         child: Scaffold(
@@ -149,8 +154,21 @@ class _ChatPageState extends State<ChatPage> {
                   message: message,
                   onRetry: () => _cubit.load(widget.chatId),
                 ),
-                ChatThreadLoaded(:final messages, :final isSending) => Stack(
+                ChatThreadLoaded(:final messages, :final isSending, :final isRefreshing) => Stack(
                   children: [
+                    if (isRefreshing)
+                      const Positioned(
+                        top: 8,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                          ),
+                        ),
+                      ),
                     if (messages.isEmpty)
                       Center(
                         child: Text(
