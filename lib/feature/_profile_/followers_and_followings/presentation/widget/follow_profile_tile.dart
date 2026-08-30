@@ -4,7 +4,7 @@ import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_tile.dart';
-import 'package:clover/feature/followers_and_followings/data/models/follow_profile_row.dart';
+import 'package:clover/feature/_profile_/followers_and_followings/data/models/follow_profile_row.dart';
 import 'package:flutter/material.dart';
 
 class FollowProfileTile extends StatelessWidget {
@@ -40,7 +40,7 @@ class FollowProfileTile extends StatelessWidget {
         backgroundColor: AppColors.surfaceSoft,
         backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
         child: avatarUrl == null || avatarUrl.isEmpty
-            ? const Icon(Icons.person, color: AppColors.iconMuted, size: 20)
+            ? Icon(Icons.person, color: AppColors.iconMuted, size: 20)
             : null,
       ),
       trailing: showFollowButton ? _buildFollowButton() : null,

@@ -1,6 +1,6 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/feature/marker_tags/data/models/marker_tag_model.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_model.dart';
 import 'package:flutter/material.dart';
 
 /// Теги аккаунта под блоком идентичности в шапке профиля.

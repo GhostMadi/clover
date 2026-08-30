@@ -1,4 +1,4 @@
-import 'package:clover/feature/chat_page/data/models/chat_message_post_ref.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_post_ref.dart';
 
 class ChatMessage {
   const ChatMessage({

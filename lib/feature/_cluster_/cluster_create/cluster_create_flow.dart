@@ -1,5 +1,5 @@
 import 'package:clover/core/shared/image_select/models/app_image_editor_result.dart';
-import 'package:clover/feature/cluster_create/model/cluster_create_draft.dart';
+import 'package:clover/feature/_cluster_/cluster_create/model/cluster_create_draft.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 /// Данные между шагами: выбор → редактор → название/описание.

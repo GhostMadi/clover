@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:clover/core/post_media/post_media.dart';
 import 'package:clover/core/shared/app_time_picker.dart';
 import 'package:clover/core/shared/image_select/app_image_edit_settings.dart';
-import 'package:clover/feature/location/data/models/location_model.dart';
+import 'package:clover/feature/_catalog_/location/data/models/location_model.dart';
 
 class MarkerCreateMediaInput {
   const MarkerCreateMediaInput({

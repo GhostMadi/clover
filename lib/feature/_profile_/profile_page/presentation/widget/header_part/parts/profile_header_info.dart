@@ -3,22 +3,19 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:flutter/material.dart';
 
-/// Имя, никнейм и категория под блоком статистики.
+/// Имя и никнейм под блоком статистики.
 class ProfileHeaderIdentity extends StatelessWidget {
   const ProfileHeaderIdentity({
     super.key,
     required this.fullName,
     required this.username,
-    required this.category,
   });
 
   final String? fullName;
   final String? username;
-  final String? category;
 
   static const double _figmaNameFont = 18;
   static const double _figmaNickFont = 14;
-  static const double _figmaCategoryFont = 13;
   static const double _figmaGap = 2;
 
   @override
@@ -27,12 +24,9 @@ class ProfileHeaderIdentity extends StatelessWidget {
     final hasName = name != null && name.isNotEmpty;
     final nick = username?.trim();
     final hasNick = nick != null && nick.isNotEmpty;
-    final cat = category?.trim();
-    final hasCategory = cat != null && cat.isNotEmpty;
 
     final nameFont = context.heightByContext(_figmaNameFont);
     final nickFont = context.heightByContext(_figmaNickFont);
-    final categoryFont = context.heightByContext(_figmaCategoryFont);
     final gap = context.heightByContext(_figmaGap);
 
     return Column(
@@ -55,13 +49,6 @@ class ProfileHeaderIdentity extends StatelessWidget {
             '@$nick',
             style: AppTextStyle.base(nickFont, color: AppColors.primary, fontWeight: FontWeight.w700),
           ),
-        if (hasCategory) ...[
-          SizedBox(height: gap),
-          Text(
-            cat,
-            style: AppTextStyle.base(categoryFont, color: AppColors.subTextColor, fontWeight: FontWeight.w500),
-          ),
-        ],
       ],
     );
   }

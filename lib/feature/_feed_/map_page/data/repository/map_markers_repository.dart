@@ -1,10 +1,10 @@
 import 'package:clover/core/shared/app_map/app_map_point.dart';
-import 'package:clover/feature/events_page/data/events_filter_tags.dart';
-import 'package:clover/feature/events_page/data/models/events_filter.dart';
-import 'package:clover/feature/map_page/data/map_viewport_query.dart';
-import 'package:clover/feature/map_page/data/models/map_marker_item.dart';
-import 'package:clover/feature/map_page/data/models/map_markers_page_result.dart';
-import 'package:clover/feature/marker_tags/data/repository/marker_tags_repository.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/catalog/marker_tags_catalog.dart';
+import 'package:clover/feature/_feed_/events_page/data/events_filter_tags.dart';
+import 'package:clover/feature/_feed_/events_page/data/models/events_filter.dart';
+import 'package:clover/feature/_feed_/map_page/data/map_viewport_query.dart';
+import 'package:clover/feature/_feed_/map_page/data/models/map_marker_item.dart';
+import 'package:clover/feature/_feed_/map_page/data/models/map_markers_page_result.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -22,10 +22,9 @@ abstract class MapMarkersRepository {
 
 @LazySingleton(as: MapMarkersRepository)
 class MapMarkersRepositoryImpl implements MapMarkersRepository {
-  MapMarkersRepositoryImpl(this._client, this._markerTagsRepository);
+  MapMarkersRepositoryImpl(this._client);
 
   final SupabaseClient _client;
-  final MarkerTagsRepository _markerTagsRepository;
 
   @override
   Future<MapMarkersPageResult> fetchPage({
@@ -35,7 +34,7 @@ class MapMarkersRepositoryImpl implements MapMarkersRepository {
     required int offset,
     required int limit,
   }) async {
-    final params = await _rpcParams(center: center, zoom: zoom, filter: filter)
+    final params = _rpcParams(center: center, zoom: zoom, filter: filter)
       ..addAll({'p_limit': limit, 'p_offset': offset});
 
     final res = await _client.rpc('list_markers_map', params: params);
@@ -51,23 +50,23 @@ class MapMarkersRepositoryImpl implements MapMarkersRepository {
     required double zoom,
     required EventsFilter filter,
   }) async {
-    final params = await _rpcParams(center: center, zoom: zoom, filter: filter);
+    final params = _rpcParams(center: center, zoom: zoom, filter: filter);
     final res = await _client.rpc('count_markers_map', params: params);
     final total = (res as num?)?.toInt() ?? 0;
     return _adjustTotalForDateFilter(total, filter);
   }
 
-  Future<Map<String, dynamic>> _rpcParams({
+  Map<String, dynamic> _rpcParams({
     required AppMapPoint center,
     required double zoom,
     required EventsFilter filter,
-  }) async {
+  }) {
     final emoji = filter.emoji?.trim();
     final country = filter.countryCode?.trim();
     final city = filter.cityCode?.trim();
     final tagKeys = filter.tagIds.isEmpty
         ? const <String>[]
-        : EventsFilterTags.keysFor(filter.tagIds, await _markerTagsRepository.listAll());
+        : EventsFilterTags.keysFor(filter.tagIds, MarkerTagsCatalog.all);
 
     return <String, dynamic>{
       'p_lat': center.latitude,
@@ -91,9 +90,8 @@ class MapMarkersRepositoryImpl implements MapMarkersRepository {
     }
 
     if (filter.dateTo != null) {
-      result = result
-          .where((marker) => marker.eventTime != null && !marker.eventTime!.isAfter(filter.dateTo!))
-          .toList();
+      final end = DateTime(filter.dateTo!.year, filter.dateTo!.month, filter.dateTo!.day, 23, 59, 59);
+      result = result.where((marker) => marker.eventTime != null && !marker.eventTime!.isAfter(end)).toList();
     }
 
     return result;

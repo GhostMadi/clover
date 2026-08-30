@@ -4,9 +4,18 @@ import 'package:clover/core/shared/app_nav_bar/app_nav_bar.dart';
 import 'package:clover/feature/dashboard_page/presentation/config/dashboard_tab_config.dart';
 import 'package:flutter/material.dart';
 
+/// Выравнивание плавающего навбара в нижней полосе.
+/// Сейчас всегда [center] — бар не уезжает влево/вправо.
+enum DashboardNavAlign {
+  center,
+}
+
 /// Геометрия нижней панели дашборда для [DashboardBottomBar].
+///
+/// На Home: фильтр слева, уведомления справа от центрированного бара.
 class DashboardBottomBarLayout {
   const DashboardBottomBarLayout({
+    required this.navAlign,
     required this.navWidth,
     required this.navLeft,
     required this.filterLeft,
@@ -19,6 +28,7 @@ class DashboardBottomBarLayout {
     required this.pillSize,
   });
 
+  final DashboardNavAlign navAlign;
   final double navWidth;
   final double navLeft;
   final double filterLeft;
@@ -37,53 +47,56 @@ class DashboardBottomBarLayout {
     required bool showHomeTabNotifications,
     required bool showProfileAccessories,
   }) {
-    final bandWidth = MediaQuery.sizeOf(context).width - DashboardTabConfig.sideInset * 2;
+    final bandWidth =
+        MediaQuery.sizeOf(context).width - DashboardTabConfig.sideInset * 2;
     final pill = _pillSize(context);
     final gap = DashboardTabConfig.accessoryGap;
     final offscreenLeft = -(pill + gap);
+    final offscreenRight = bandWidth + gap;
 
     final showFilter = onHomeTab && showHomeTabFilter;
     final showNotifications = onHomeTab && showHomeTabNotifications;
 
+    // Home: фильтр слева, уведомления справа.
     final filterLeft = showFilter ? 0.0 : offscreenLeft;
     final filterOpacity = showFilter ? 1.0 : 0.0;
 
-    final notificationsLeft = showNotifications ? (showFilter ? pill + gap : 0.0) : offscreenLeft;
+    final notificationsLeft =
+        showNotifications ? bandWidth - pill : offscreenRight;
     final notificationsOpacity = showNotifications ? 1.0 : 0.0;
 
-    final leftAccessoryWidth = (showFilter ? pill : 0.0) + (showNotifications ? (showFilter ? gap : 0.0) + pill : 0.0);
-    final rightAccessoryWidth = showProfileAccessories ? pill : 0.0;
-    final leftGap = leftAccessoryWidth > 0 ? gap : 0.0;
-    final rightGap = showProfileAccessories ? gap : 0.0;
+    // Profile «⋯» — тоже справа (на другой вкладке, не пересекается с уведомлениями).
+    final rightAccessoriesLeft =
+        showProfileAccessories ? bandWidth - pill : offscreenRight;
+    final rightAccessoriesOpacity = showProfileAccessories ? 1.0 : 0.0;
 
+    // По одной пилюле слева и справа — бар по центру без наезда.
+    final sideReserve = pill;
     final preferredNavWidth = AppNavBar.dashboardPreferredWidth(context);
-    final navWidth = preferredNavWidth.clamp(
-      0.0,
-      bandWidth - leftAccessoryWidth - rightAccessoryWidth - leftGap - rightGap,
-    );
-
-    final centeredNavLeft = (bandWidth - navWidth) / 2;
-    final navLeft = leftAccessoryWidth > 0
-        ? bandWidth - navWidth
-        : showProfileAccessories
-        ? bandWidth - rightAccessoryWidth - rightGap - navWidth
-        : centeredNavLeft;
+    final maxCenteredNavWidth = bandWidth - sideReserve * 2 - gap * 2;
+    final navWidth = preferredNavWidth.clamp(0.0, maxCenteredNavWidth);
+    final navLeft = (bandWidth - navWidth) / 2;
 
     return DashboardBottomBarLayout(
+      navAlign: DashboardNavAlign.center,
       navWidth: navWidth,
       navLeft: navLeft,
       filterLeft: filterLeft,
       filterOpacity: filterOpacity,
       notificationsLeft: notificationsLeft,
       notificationsOpacity: notificationsOpacity,
-      rightAccessoriesLeft: showProfileAccessories ? bandWidth - pill : bandWidth + gap,
-      rightAccessoriesOpacity: showProfileAccessories ? 1.0 : 0.0,
-      barHeight: context.heightByContext(DashboardTabConfig.navBarHeightFigma).clamp(48.0, 80.0),
+      rightAccessoriesLeft: rightAccessoriesLeft,
+      rightAccessoriesOpacity: rightAccessoriesOpacity,
+      barHeight: context
+          .heightByContext(DashboardTabConfig.navBarHeightFigma)
+          .clamp(48.0, 80.0),
       pillSize: pill,
     );
   }
 
   static double _pillSize(BuildContext context) {
-    return context.heightByContext(AppFunctionalPillButton.figmaSize).clamp(48.0, 80.0);
+    return context
+        .heightByContext(AppFunctionalPillButton.figmaSize)
+        .clamp(48.0, 80.0);
   }
 }

@@ -1,0 +1,64 @@
+---
+description: Как правильно создавать виджеты (adaptive + тема + shared)
+globs: lib/core/shared/**/*.dart,lib/feature/**/*.dart
+alwaysApply: false
+---
+
+# Создание виджетов
+
+Цель: **переиспользуемые** UI-кирпичи в `core/shared`, которые легко менять в одном месте.  
+При создании — **сразу** тема + нативный вид iOS/Android. Документ: [`docs/code/ui/adaptive-widgets.md`](docs/code/ui/adaptive-widgets.md).
+
+## Порядок при создании любого UI
+
+0. **Документация** — новый сценарий → `docs/business/`; новый shared-паттерн → `docs/code/ui/`
+1. **Дизайн-язык** — Clover brand — правило `clover-design`
+2. **Платформа** — iOS / Android (`AppPlatform` / `context.isIOS`)
+3. **Тема** — цвета только из `context.colors` / `AppColors.of(context)` (`AppPalette`)
+4. **Типографика / иконки** — `AppTextStyle.base`, `AppIcons` (пара android/ios)
+5. **Тексты** — без хардкода UI-строк; справочники — enum + перевод
+
+## Общие виджеты → `core/shared`
+
+Новый shared с нативным split — наследовать `AdaptiveStatelessWidget`:
+
+```dart
+class AppFoo extends AdaptiveStatelessWidget {
+  const AppFoo({super.key});
+
+  @override
+  Widget buildMaterial(BuildContext context, AppPalette colors) {
+    // Android / Material — цвета из colors.*
+  }
+
+  @override
+  Widget buildCupertino(BuildContext context, AppPalette colors) {
+    // iOS / Cupertino — цвета из colors.*
+  }
+}
+```
+
+- База: `lib/core/shared/platform/adaptive_widget.dart`
+- Платформа: `lib/core/shared/platform/app_platform.dart`
+- Sheet: только `AppBottomSheet.show` — правило `clover-bottom-sheet`
+- Nav: `AppNavBar` — продукт в `navigation-bars.md`
+
+Не дублировать кнопку / field / switch / dialog внутри фичи — править shared.
+
+## Виджеты фичи → `feature/<name>/presentation/widget(s)`
+
+- Композит поверх shared; обычный `StatelessWidget`, если нет своего нативного split
+- Если фича-виджет сам «кирпич» с Material/Cupertino — тоже `AdaptiveStatelessWidget`
+- Цвета: `context.colors.*` / `AppColors.of(context)`
+- Не тянуть repository / Supabase
+
+## Ресурсы
+
+Цвета / стили / иконки / строки — **сначала в resources (и theme)**, потом в UI.  
+Правило `clover-resources`.
+
+```dart
+final c = context.colors;
+Text('…', style: AppTextStyle.base(16, color: c.textColor));
+Icon(AppIcons.search.icon);
+```

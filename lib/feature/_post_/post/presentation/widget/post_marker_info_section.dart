@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_time_picker.dart';
-import 'package:clover/feature/city/data/models/city_code.dart';
-import 'package:clover/feature/countries/data/models/country_code.dart';
-import 'package:clover/feature/marker_tags/data/models/marker_tag_model.dart';
-import 'package:clover/feature/post/presentation/widget/post_marker_details_shimmer.dart';
-import 'package:clover/feature/post/data/models/post_marker_summary.dart';
-import 'package:clover/feature/post/data/models/post_profile_filter_value.dart';
-import 'package:clover/feature/post/presentation/widget/post_profile_filter_chips.dart';
+import 'package:clover/feature/_catalog_/city/data/models/city_code.dart';
+import 'package:clover/feature/_catalog_/countries/data/models/country_code.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_model.dart';
+import 'package:clover/feature/_post_/post/data/models/post_marker_summary.dart';
+import 'package:clover/feature/_post_/post/data/models/post_profile_filter_value.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_marker_details_shimmer.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_profile_filter_chips.dart';
 import 'package:flutter/material.dart';
 
 /// Компонент-обертка, добавляющий фирменную вертикальную линию слева от контента.
@@ -84,7 +84,8 @@ class PostMarkerInfoSection extends StatelessWidget {
     final dislikesLabel = _dislikesLabel(dislikesCount);
     final markerData = marker;
     final hasPostDetails = markerData == null && _hasPostPublicationDetails;
-    final hasCaption = authorName.isNotEmpty ||
+    final hasCaption =
+        authorName.isNotEmpty ||
         likesLabel != null ||
         dislikesLabel != null ||
         titleText.isNotEmpty ||
@@ -197,15 +198,13 @@ class _PostCaptionBlock extends StatelessWidget {
                       letterSpacing: -0.2,
                     ),
                   ),
-                if (likesLabel != null)
-                  TextSpan(text: likesLabel, style: reactionsStyle),
+                if (likesLabel != null) TextSpan(text: likesLabel, style: reactionsStyle),
                 if (likesLabel != null && dislikesLabel != null)
                   TextSpan(
                     text: ' · ',
                     style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w400),
                   ),
-                if (dislikesLabel != null)
-                  TextSpan(text: dislikesLabel, style: reactionsStyle),
+                if (dislikesLabel != null) TextSpan(text: dislikesLabel, style: reactionsStyle),
               ],
             ),
           ),
@@ -271,14 +270,13 @@ class _PostPublicationDetailsBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final emoji = textEmoji?.trim() ?? '';
     final country = _countryLabel;
     final city = _cityLabel;
     final primary = addressPrimary?.trim();
     final secondaryRaw = addressCyrillic?.trim();
-    final secondary = (secondaryRaw != null &&
-            secondaryRaw.isNotEmpty &&
-            secondaryRaw != primary)
+    final secondary = (secondaryRaw != null && secondaryRaw.isNotEmpty && secondaryRaw != primary)
         ? secondaryRaw
         : null;
 
@@ -292,11 +290,11 @@ class _PostPublicationDetailsBlock extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colors.surface,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
+                        color: colors.shadowDark.withValues(alpha: 0.08),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -310,11 +308,7 @@ class _PostPublicationDetailsBlock extends StatelessWidget {
                 Expanded(
                   child: Text(
                     [city, country].where((e) => e != null).join(' · '),
-                    style: AppTextStyle.base(
-                      12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.subTextColor,
-                    ),
+                    style: AppTextStyle.base(12, fontWeight: FontWeight.w600, color: colors.subTextColor),
                   ),
                 ),
             ],
@@ -349,11 +343,7 @@ class _PostPublicationDetailsBlock extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     secondary,
-                    style: AppTextStyle.base(
-                      13,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.subTextColor,
-                    ),
+                    style: AppTextStyle.base(13, fontWeight: FontWeight.w400, color: AppColors.subTextColor),
                   ),
                 ],
               ],
@@ -374,6 +364,7 @@ class _MarkerDetailsBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final emoji = marker.textEmoji.trim();
     final country = marker.countryLabel;
     final city = marker.cityLabel;
@@ -391,11 +382,11 @@ class _MarkerDetailsBlock extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colors.surface,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
+                        color: colors.shadowDark.withValues(alpha: 0.08),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -409,11 +400,7 @@ class _MarkerDetailsBlock extends StatelessWidget {
                 Expanded(
                   child: Text(
                     [city, country].where((e) => e != null).join(' · '),
-                    style: AppTextStyle.base(
-                      12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.subTextColor,
-                    ),
+                    style: AppTextStyle.base(12, fontWeight: FontWeight.w600, color: colors.subTextColor),
                   ),
                 ),
             ],
@@ -448,11 +435,7 @@ class _MarkerDetailsBlock extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     secondaryAddress,
-                    style: AppTextStyle.base(
-                      13,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.subTextColor,
-                    ),
+                    style: AppTextStyle.base(13, fontWeight: FontWeight.w400, color: AppColors.subTextColor),
                   ),
                 ],
               ],
@@ -480,11 +463,7 @@ class _MarkerDetailsBlock extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         AppTimePicker.formatEventStart(start),
-                        style: AppTextStyle.base(
-                          14,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textColor,
-                        ),
+                        style: AppTextStyle.base(14, fontWeight: FontWeight.w700, color: AppColors.textColor),
                       ),
                     ],
                   ),
@@ -593,7 +572,7 @@ class _PostMarkerCountdownState extends State<_PostMarkerCountdown> {
         style: AppTextStyle.base(
           10,
           fontWeight: FontWeight.w800,
-          color: isLive ? Colors.white : AppColors.subTextColor,
+          color: isLive ? AppColors.white : AppColors.subTextColor,
           letterSpacing: 0.3,
         ),
       ),

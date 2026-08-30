@@ -53,7 +53,7 @@ class ProfileHeaderShimmer extends StatelessWidget {
                     Container(
                       width: context.heightByContext(_figmaAvatar),
                       height: context.heightByContext(_figmaAvatar),
-                      decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.white),
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.white),
                     ),
                     SizedBox(width: context.widthByContext(_figmaGapAvatarStats)),
                     Expanded(

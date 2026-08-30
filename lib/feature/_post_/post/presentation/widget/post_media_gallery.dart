@@ -1,6 +1,6 @@
 import 'package:clover/core/post_media/post_media.dart';
-import 'package:clover/feature/post/data/models/post_media_model.dart';
-import 'package:clover/feature/post/presentation/widget/post_image_tile.dart';
+import 'package:clover/feature/_post_/post/data/models/post_media_model.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_image_tile.dart';
 import 'package:flutter/material.dart';
 
 /// Галерея медиа поста: свайп между фото, высота кадра по формату каждого снимка.

@@ -1,6 +1,6 @@
-import 'package:clover/feature/cluster/data/models/cluster_model.dart';
-import 'package:clover/feature/cluster/presentation/widget/cluster_card.dart' show clusterStripHeight;
-import 'package:clover/feature/cluster/presentation/widget/cluster_list.dart';
+import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/widget/cluster_card.dart' show clusterStripHeight;
+import 'package:clover/feature/_cluster_/cluster/presentation/widget/cluster_list.dart';
 import 'package:flutter/material.dart';
 
 /// Средняя часть профиля: полоса коллекций.

@@ -6,12 +6,12 @@ import 'package:clover/core/shared/app_date_picker.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_smile_picker.dart';
 import 'package:clover/core/shared/app_tab.dart';
-import 'package:clover/feature/city/presentation/widget/city_single_select_field.dart';
-import 'package:clover/feature/countries/presentation/widget/country_single_select_field.dart';
-import 'package:clover/feature/events_page/data/models/events_content_kind.dart';
-import 'package:clover/feature/events_page/data/models/events_filter.dart';
-import 'package:clover/feature/marker_tags/data/models/marker_tag_group_key.dart';
-import 'package:clover/feature/marker_tags/presentation/widget/multi_marker_tags.dart';
+import 'package:clover/feature/_catalog_/city/presentation/widget/city_single_select_field.dart';
+import 'package:clover/feature/_catalog_/countries/presentation/widget/country_single_select_field.dart';
+import 'package:clover/feature/_feed_/events_page/data/models/events_content_kind.dart';
+import 'package:clover/feature/_feed_/events_page/data/models/events_filter.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_group_key.dart';
+import 'package:clover/feature/_catalog_/marker_tags/presentation/widget/multi_marker_tags.dart';
 import 'package:flutter/material.dart';
 
 abstract final class EventsFilterSheet {

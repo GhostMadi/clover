@@ -21,10 +21,13 @@ abstract final class DashboardTabConfig {
   ];
 
   static List<AppNavBarItem> navItemsFor(DashboardHomeMode mode) {
+    final onEvents = mode == DashboardHomeMode.events;
     return [
       AppNavBarItem(
-        icon: AppIcons.map.icon,
-        label: mode == DashboardHomeMode.events ? 'Event' : 'Map',
+        // Спереди — текущий экран; сзади — второй (двойной тап переключает).
+        icon: onEvents ? AppIcons.ticket.icon : AppIcons.map.icon,
+        behindIcon: onEvents ? AppIcons.map.icon : AppIcons.ticket.icon,
+        label: onEvents ? 'Event' : 'Map',
       ),
       AppNavBarItem(icon: AppIcons.chat.icon, label: 'Chat'),
       AppNavBarItem(icon: AppIcons.user.icon, label: 'Profile'),

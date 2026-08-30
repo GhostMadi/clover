@@ -1,0 +1,34 @@
+---
+description: Бизнес-процессы Clover — только продукт, не код. Писать в docs/business
+globs: docs/business/**
+alwaysApply: true
+---
+
+# Бизнес-процесс (не код)
+
+Продуктовые сценарии живут в `docs/business/`. Не в фичах, не в комментариях моделей, не в snapshot.  
+UI-фундамент (тема / adaptive / shared) — в `docs/code/ui/`, не смешивать с продуктовым процессом.
+
+## Когда писать сюда
+
+Пользователь говорит про «как работает», роли, шаги, вход, онбординг, профиль, посты, каталоги — обновить или добавить файл процесса.
+
+## Как писать
+
+1. Скопировать `docs/business/_template.md` (или ближайший по смыслу файл в папке)
+2. Имя файла: `kebab-case.md` (пример: `authentication.md`)
+3. Добавить строку в оглавление `docs/README.md` и/или `docs/business/` index
+4. Связи: ссылки на другие `.md` в `docs/business/`, не на `lib/`
+5. Статус реализации по фичам — в `docs/business/features-catalog.md` (🟢🟡🔴)
+
+## Уже есть (ориентиры)
+
+- `authentication.md`, `onboarding.md`, `navigation-bars.md`
+- `profile.md`, `profile-data.md`
+- `localization-dictionaries.md`, `catalog-sync.md`
+- `publications.md`, `features-catalog.md`
+
+## Запрещено
+
+- Dart, виджеты, cubit, SQL/таблицы БД (таблицы — в `supabase/`)
+- Дублировать процесс в `.cursor/rules/clover-project-snapshot.mdc`

@@ -8,7 +8,7 @@ import 'package:clover/core/shared/app_switch.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_draft.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
-import 'package:clover/feature/profile_page/presentation/cubit/profile_cubit.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -361,7 +361,7 @@ class _ExecutorChip extends StatelessWidget {
               backgroundColor: AppColors.surfaceSoft,
               backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
               child: avatarUrl == null || avatarUrl.isEmpty
-                  ? const Icon(Icons.person, color: AppColors.iconMuted, size: 14)
+                  ? Icon(Icons.person, color: AppColors.iconMuted, size: 14)
                   : null,
             ),
             const SizedBox(width: 8),

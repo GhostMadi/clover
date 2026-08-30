@@ -1,6 +1,6 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/feature/settings_filter/data/models/filter_category.dart';
+import 'package:clover/feature/_settings_/settings_filter/data/models/filter_category.dart';
 import 'package:flutter/material.dart';
 
 class FilterCategoryCard extends StatelessWidget {

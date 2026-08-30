@@ -1,6 +1,6 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
-import 'package:clover/feature/map_page/data/models/map_marker_item.dart';
+import 'package:clover/feature/_feed_/map_page/data/models/map_marker_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

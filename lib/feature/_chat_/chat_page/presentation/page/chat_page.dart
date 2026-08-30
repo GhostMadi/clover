@@ -4,9 +4,9 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/image_select/app_image_selector_page.dart';
-import 'package:clover/feature/chat_page/presentation/cubit/chat_thread_cubit.dart';
-import 'package:clover/feature/chat_page/presentation/widget/chat_composer.dart';
-import 'package:clover/feature/chat_page/presentation/widget/chat_message_bubble.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/cubit/chat_thread_cubit.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_composer.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -133,7 +133,7 @@ class _ChatPageState extends State<ChatPage> {
             elevation: 0,
             scrolledUnderElevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded),
+              icon: Icon(Icons.arrow_back_rounded),
               color: AppColors.textColor,
               onPressed: () => context.router.maybePop(),
             ),
@@ -147,7 +147,7 @@ class _ChatPageState extends State<ChatPage> {
           body: BlocBuilder<ChatThreadCubit, ChatThreadState>(
             builder: (context, state) {
               return switch (state) {
-                ChatThreadInitial() || ChatThreadLoading() => const Center(
+                ChatThreadInitial() || ChatThreadLoading() => Center(
                   child: CircularProgressIndicator(color: AppColors.primary),
                 ),
                 ChatThreadError(:final message) => _ChatThreadErrorView(
@@ -157,7 +157,7 @@ class _ChatPageState extends State<ChatPage> {
                 ChatThreadLoaded(:final messages, :final isSending, :final isRefreshing) => Stack(
                   children: [
                     if (isRefreshing)
-                      const Positioned(
+                      Positioned(
                         top: 8,
                         left: 0,
                         right: 0,
@@ -217,18 +217,18 @@ class _ChatThreadErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.error_outline_rounded, size: 48, color: AppColors.iconMuted),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
               message,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             FilledButton(
               onPressed: onRetry,
               style: FilledButton.styleFrom(backgroundColor: AppColors.primary),

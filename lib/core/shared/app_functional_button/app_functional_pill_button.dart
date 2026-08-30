@@ -31,9 +31,9 @@ class AppFunctionalPillButton extends StatefulWidget {
 
   static const double _figmaSize = 64;
   static const double figmaSize = _figmaSize;
-  static const double _figmaBarRadius = 36;
-  static const double _figmaBlurSigma = 24;
-  static const double _figmaShadowBlur = 24;
+  static const double _figmaBarRadius = 100; // капсула — как у AppNavBar
+  static const double _figmaBlurSigma = 20;
+  static const double _figmaShadowBlur = 20;
   static const double _figmaShadowOffsetY = 8;
   static const double _figmaIconSize = 24;
 
@@ -96,14 +96,19 @@ class _AppFunctionalPillButtonState extends State<AppFunctionalPillButton> with 
                 filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: backgroundColor.withValues(alpha: 0.92),
+                    color: backgroundColor.withValues(alpha: hasCustomColor ? 0.88 : 0.72),
                     borderRadius: BorderRadius.circular(barRadius),
-                    border: Border.all(color: borderColor.withValues(alpha: 0.85)),
+                    border: Border.all(color: borderColor.withValues(alpha: 0.45)),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.shadowDark.withValues(alpha: 0.10),
+                        color: AppColors.shadowDark.withValues(alpha: 0.06),
                         blurRadius: context.heightByContext(AppFunctionalPillButton._figmaShadowBlur),
                         offset: Offset(0, context.heightByContext(AppFunctionalPillButton._figmaShadowOffsetY)),
+                      ),
+                      BoxShadow(
+                        color: AppColors.shadowDark.withValues(alpha: 0.03),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),

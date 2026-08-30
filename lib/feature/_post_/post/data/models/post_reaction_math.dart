@@ -1,4 +1,4 @@
-import 'package:clover/feature/post/data/models/post_model.dart';
+import 'package:clover/feature/_post_/post/data/models/post_model.dart';
 
 /// Пересчёт счётчиков при смене реакции (`like` | `dislike` | null).
 abstract final class PostReactionMath {

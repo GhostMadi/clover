@@ -1,7 +1,7 @@
-import 'package:clover/feature/post/data/models/post_feed_item.dart';
-import 'package:clover/feature/post/data/models/post_model.dart';
-import 'package:clover/feature/post/data/repository/post_local_cache.dart';
-import 'package:clover/feature/post/data/repository/post_repository.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
+import 'package:clover/feature/_post_/post/data/models/post_model.dart';
+import 'package:clover/feature/_post_/post/data/repository/post_local_cache.dart';
+import 'package:clover/feature/_post_/post/data/repository/post_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 

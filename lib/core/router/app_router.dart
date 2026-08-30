@@ -10,6 +10,7 @@ class AppRouter extends RootStackRouter {
       initial: true,
       children: [
         AutoRoute(page: LoginRoute.page, initial: true),
+        AutoRoute(page: OnboardingRoute.page),
         AutoRoute(page: PostCreateRoute.page),
         AutoRoute(page: PostCreateEditorRoute.page),
         AutoRoute(page: PostCreateComposeRoute.page),
@@ -39,6 +40,7 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: SettingsArchiveRoute.page),
         AutoRoute(page: SavedPostsRoute.page),
         AutoRoute(page: SettingsAccountRoute.page),
+        AutoRoute(page: AboutRoute.page),
         AutoRoute(page: PostArchiveRoute.page),
         AutoRoute(page: EventArchiveRoute.page),
         AutoRoute(page: ClusterArchiveRoute.page),

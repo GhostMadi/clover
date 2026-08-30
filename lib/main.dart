@@ -2,10 +2,14 @@ import 'package:clover/core/auth/cubit/auth_cubit.dart';
 import 'package:clover/core/config/supabase.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/network/supabase_logging_http_client.dart';
-import 'package:clover/core/resources/colors.dart';
-import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.dart';
+import 'package:clover/core/theme/app_color_binding.dart';
+import 'package:clover/core/theme/app_colors_scope.dart';
+import 'package:clover/core/theme/app_palette.dart';
+import 'package:clover/core/theme/app_theme.dart';
+import 'package:clover/core/theme/app_theme_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -16,10 +20,11 @@ void main() async {
     url: SupabaseConfig.url,
     anonKey: SupabaseConfig.anonKey,
     authOptions: const FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
-    debug: supabaseHttpLoggingEnabled,
+    debug: false,
     httpClient: supabaseHttpLoggingEnabled ? SupabaseLoggingHttpClient() : null,
   );
   await configureDependencies();
+  await sl<AppThemeCubit>().load();
   runApp(const MyApp());
 }
 
@@ -28,7 +33,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (_) => sl<AuthCubit>()..checkAuth(), child: const _MyAppView());
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => sl<AuthCubit>()..checkAuth()),
+        BlocProvider.value(value: sl<AppThemeCubit>()),
+      ],
+      child: const _MyAppView(),
+    );
   }
 }
 
@@ -44,22 +55,33 @@ class _MyAppViewState extends State<_MyAppView> {
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = context.watch<AppThemeCubit>().state;
+
     return MaterialApp.router(
       routerConfig: _appRouter.config(),
       title: 'Clover',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: AppColors.pageBackground,
-        progressIndicatorTheme: ProgressIndicatorThemeData(color: AppColors.primary),
-        appBarTheme: AppBarTheme(
-          backgroundColor: AppColors.pageBackground,
-          elevation: 0,
-          centerTitle: true,
-          titleTextStyle: AppTextStyle.base(20, color: AppColors.textColor, fontWeight: FontWeight.w500),
-        ),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: themeMode.material,
+      themeAnimationDuration: AppTheme.animationDuration,
+      themeAnimationCurve: AppTheme.animationCurve,
+      builder: (context, child) {
+        final palette = Theme.of(context).extension<AppPalette>() ?? AppPalette.light;
+        AppColorBinding.palette = palette;
+
+        final overlay = palette.brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark;
+
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: overlay,
+          child: AppColorsScope(
+            palette: palette,
+            child: AppThemeTreeRebuilder(palette: palette, child: child ?? const SizedBox.shrink()),
+          ),
+        );
+      },
     );
   }
 }

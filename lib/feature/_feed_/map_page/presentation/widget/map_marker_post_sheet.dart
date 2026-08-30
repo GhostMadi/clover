@@ -3,15 +3,15 @@ import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
-import 'package:clover/feature/post/data/models/post_feed_item.dart';
-import 'package:clover/feature/post/data/models/post_reaction_math.dart';
-import 'package:clover/feature/post/data/repository/post_repository.dart';
-import 'package:clover/feature/post/presentation/widget/post_detail_shimmer.dart';
-import 'package:clover/feature/post/presentation/widget/post_marker_info_section.dart';
-import 'package:clover/feature/post/presentation/widget/post_media_gallery.dart';
-import 'package:clover/feature/post/presentation/widget/post_media_reaction_gestures.dart';
-import 'package:clover/feature/post_comment/presentation/widget/post_comments_sheet.dart';
-import 'package:clover/feature/post_share/presentation/widget/post_share_sheet.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
+import 'package:clover/feature/_post_/post/data/models/post_reaction_math.dart';
+import 'package:clover/feature/_post_/post/data/repository/post_repository.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_detail_shimmer.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_marker_info_section.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_media_gallery.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_media_reaction_gestures.dart';
+import 'package:clover/feature/_post_/post_comment/presentation/widget/post_comments_sheet.dart';
+import 'package:clover/feature/_post_/post_share/presentation/widget/post_share_sheet.dart';
 import 'package:flutter/material.dart';
 
 /// Шторка с постом маркера (как карточка в ленте ивентов).
@@ -160,7 +160,7 @@ class _MapMarkerPostSheetBodyState extends State<_MapMarkerPostSheetBody> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const ColoredBox(
+      return ColoredBox(
         color: AppColors.pageBackground,
         child: PostDetailShimmer(showMarkerBlock: true),
       );
@@ -169,7 +169,7 @@ class _MapMarkerPostSheetBodyState extends State<_MapMarkerPostSheetBody> {
     if (_item == null) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24),
           child: Text(
             _error ?? 'Пост недоступен',
             textAlign: TextAlign.center,
@@ -240,7 +240,7 @@ class _MapMarkerPostSheetBodyState extends State<_MapMarkerPostSheetBody> {
                     }
                   },
                 ),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 _ReactionIcon(
                   icon: item.mySaved ? AppIcons.bookmarkFilled.icon : AppIcons.bookmark.icon,
                   active: item.mySaved,
@@ -277,7 +277,7 @@ class _AuthorRow extends StatelessWidget {
     final avatarUrl = item.authorAvatarUrl?.trim();
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+      padding: EdgeInsets.fromLTRB(20, 12, 20, 12),
       child: Row(
         children: [
           Container(
@@ -294,7 +294,7 @@ class _AuthorRow extends StatelessWidget {
                   : null,
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Expanded(
             child: Text(
               username != null && username.isNotEmpty ? '@$username' : 'Автор',

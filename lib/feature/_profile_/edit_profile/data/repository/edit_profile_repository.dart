@@ -2,10 +2,11 @@ import 'dart:typed_data';
 
 import 'package:clover/core/shared/image_select/app_image_edit_exporter.dart';
 import 'package:clover/core/shared/image_select/models/app_image_editor_result.dart';
-import 'package:clover/feature/edit_profile/data/models/edit_profile_error.dart';
-import 'package:clover/feature/edit_profile/data/models/edit_profile_save_input.dart';
-import 'package:clover/feature/profile_page/data/model/profile_new_model.dart';
-import 'package:clover/feature/profile_page/data/repository/profile_repository.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/repository/marker_tags_repository.dart';
+import 'package:clover/feature/_profile_/edit_profile/data/models/edit_profile_error.dart';
+import 'package:clover/feature/_profile_/edit_profile/data/models/edit_profile_save_input.dart';
+import 'package:clover/feature/_profile_/profile_page/data/model/profile_new_model.dart';
+import 'package:clover/feature/_profile_/profile_page/data/repository/profile_repository.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -18,10 +19,11 @@ abstract class EditProfileRepository {
 
 @LazySingleton(as: EditProfileRepository)
 class EditProfileRepositoryImpl implements EditProfileRepository {
-  EditProfileRepositoryImpl(this._client, this._profileRepository);
+  EditProfileRepositoryImpl(this._client, this._profileRepository, this._markerTagsRepository);
 
   final SupabaseClient _client;
   final ProfileNewRepository _profileRepository;
+  final MarkerTagsRepository _markerTagsRepository;
 
   static const _bucketAvatars = 'avatars';
   static const _bucketBackgrounds = 'profile_backgrounds';
@@ -46,7 +48,7 @@ class EditProfileRepositoryImpl implements EditProfileRepository {
 
     try {
       await _client.from('profiles').update(payload).eq('id', uid);
-      await _syncProfileTagLink(uid: uid, tagIds: input.tagIds);
+      await _syncProfileTagLink(uid: uid, tagKeys: input.tagIds);
     } on PostgrestException catch (error) {
       throw EditProfileError.from(error);
     }
@@ -73,13 +75,20 @@ class EditProfileRepositoryImpl implements EditProfileRepository {
 
   Future<void> _syncProfileTagLink({
     required String uid,
-    required Set<String> tagIds,
+    required Set<String> tagKeys,
   }) async {
-    final normalized = tagIds.map((id) => id.trim()).where((id) => id.isNotEmpty).toSet().toList()..sort();
+    final normalized = tagKeys.map((key) => key.trim()).where((key) => key.isNotEmpty).toSet();
     if (normalized.isEmpty) {
       await _clearProfileTagLink(uid);
       return;
     }
+
+    final ids = await _markerTagsRepository.resolveTagIds(normalized);
+    if (ids.isEmpty) {
+      throw EditProfileError('Не удалось сохранить теги');
+    }
+
+    final sortedIds = ids..sort();
 
     final row = await _client.from('profiles').select('tag_link_id').eq('id', uid).maybeSingle();
     if (row == null) {
@@ -90,7 +99,7 @@ class EditProfileRepositoryImpl implements EditProfileRepository {
     if (linkId == null || linkId.trim().isEmpty) {
       final inserted = await _client
           .from('profile_tag_links')
-          .insert({'tag_ids': normalized})
+          .insert({'tag_ids': sortedIds})
           .select('id')
           .single();
       final newLinkId = inserted['id']?.toString().trim();
@@ -101,7 +110,7 @@ class EditProfileRepositoryImpl implements EditProfileRepository {
       return;
     }
 
-    await _client.from('profile_tag_links').update({'tag_ids': normalized}).eq('id', linkId);
+    await _client.from('profile_tag_links').update({'tag_ids': sortedIds}).eq('id', linkId);
   }
 
   Future<void> _clearProfileTagLink(String uid) async {

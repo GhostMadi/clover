@@ -3,12 +3,12 @@ import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
-import 'package:clover/feature/chat/data/repository/chat_repository.dart';
-import 'package:clover/feature/chat_page/data/models/chat_message.dart';
-import 'package:clover/feature/chat_page/data/models/chat_message_post_ref.dart';
-import 'package:clover/feature/post/data/models/post_model.dart';
-import 'package:clover/feature/post/data/repository/post_repository.dart';
-import 'package:clover/feature/post/presentation/widget/post_image_tile.dart';
+import 'package:clover/feature/_chat_/chat/data/repository/chat_repository.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_post_ref.dart';
+import 'package:clover/feature/_post_/post/data/models/post_model.dart';
+import 'package:clover/feature/_post_/post/data/repository/post_repository.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_image_tile.dart';
 import 'package:flutter/material.dart';
 
 /// Компактное превью поста внутри пузыря чата; по тапу открывает [PostRoute].
@@ -113,7 +113,7 @@ class _ChatPostRefPreviewState extends State<ChatPostRefPreview> {
 
     if (coverUrl == null && title == null && post == null) {
       return Padding(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(14),
         child: Text(
           'Пост недоступен',
           style: AppTextStyle.base(13, color: AppColors.subTextColor),
@@ -135,13 +135,13 @@ class _ChatPostRefPreviewState extends State<ChatPostRefPreview> {
                 ),
         ),
         if (_loadingRemote)
-          const LinearProgressIndicator(
+          LinearProgressIndicator(
             minHeight: 2,
             backgroundColor: AppColors.surfaceSoft,
             color: AppColors.primary,
           ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+          padding: EdgeInsets.fromLTRB(10, 8, 10, 10),
           child: Text(
             title?.isNotEmpty == true ? title! : 'Пост',
             maxLines: 2,

@@ -14,6 +14,14 @@ import 'package:google_sign_in/google_sign_in.dart' as _i116;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:supabase_flutter/supabase_flutter.dart' as _i454;
 
+import '../../feature/_archive_/event_archive/data/repository/event_archive_repository.dart'
+    as _i74;
+import '../../feature/_archive_/event_archive/presentation/cubit/event_archive_cubit.dart'
+    as _i68;
+import '../../feature/_archive_/post_archive/data/repository/post_archive_repository.dart'
+    as _i381;
+import '../../feature/_archive_/post_archive/presentation/cubit/post_archive_cubit.dart'
+    as _i643;
 import '../../feature/_bonus_/bonus_history/data/repository/bonus_history_repository.dart'
     as _i1054;
 import '../../feature/_bonus_/bonus_history/presentation/cubit/bonus_history_cubit.dart'
@@ -53,130 +61,121 @@ import '../../feature/_booking_/my_bookings/data/repository/my_bookings_reposito
 import '../../feature/_booking_/my_bookings/presentation/cubit/my_bookings_cubit.dart'
     as _i536;
 import '../../feature/_booking_/shared/data/booking_local_cache.dart' as _i984;
-import '../../feature/archive/event_archive/data/repository/event_archive_repository.dart'
-    as _i468;
-import '../../feature/archive/event_archive/presentation/cubit/event_archive_cubit.dart'
-    as _i897;
-import '../../feature/archive/post_archive/data/repository/post_archive_repository.dart'
-    as _i464;
-import '../../feature/archive/post_archive/presentation/cubit/post_archive_cubit.dart'
-    as _i771;
-import '../../feature/chat/data/repository/chat_local_cache.dart' as _i369;
-import '../../feature/chat/data/repository/chat_repository.dart' as _i425;
-import '../../feature/chat_page/presentation/cubit/chat_thread_cubit.dart'
-    as _i360;
-import '../../feature/cities/data/repository/cities_repository.dart' as _i969;
-import '../../feature/cities/data/repository/cities_repository_impl.dart'
+import '../../feature/_catalog_/cities/data/repository/cities_repository.dart'
+    as _i396;
+import '../../feature/_catalog_/cities/data/repository/cities_repository_impl.dart'
+    as _i315;
+import '../../feature/_catalog_/cities/presentation/cubit/cities_cubit.dart'
+    as _i841;
+import '../../feature/_catalog_/countries/data/repository/countries_repository.dart'
+    as _i874;
+import '../../feature/_catalog_/countries/data/repository/countries_repository_impl.dart'
+    as _i276;
+import '../../feature/_catalog_/countries/presentation/cubit/countries_cubit.dart'
+    as _i104;
+import '../../feature/_catalog_/location/data/repository/location_repository.dart'
+    as _i634;
+import '../../feature/_catalog_/marker_tags/data/repository/marker_tags_repository.dart'
+    as _i34;
+import '../../feature/_catalog_/social_graph/data/repository/social_graph_repository.dart'
+    as _i469;
+import '../../feature/_chat_/chat/data/repository/chat_local_cache.dart'
+    as _i325;
+import '../../feature/_chat_/chat/data/repository/chat_repository.dart'
+    as _i233;
+import '../../feature/_chat_/chat_page/presentation/cubit/chat_thread_cubit.dart'
+    as _i719;
+import '../../feature/_chat_/message_page/presentation/cubit/message_list_cubit.dart'
+    as _i122;
+import '../../feature/_cluster_/cluster/data/repository/cluster_repository.dart'
+    as _i347;
+import '../../feature/_cluster_/cluster/presentation/cubit/archived_clusters_cubit.dart'
+    as _i350;
+import '../../feature/_cluster_/cluster/presentation/cubit/clusters_list_cubit.dart'
+    as _i1006;
+import '../../feature/_cluster_/cluster_create/data/repository/cluster_create_repository.dart'
+    as _i220;
+import '../../feature/_cluster_/cluster_create/presentation/cubit/cluster_create_upload_cubit.dart'
+    as _i16;
+import '../../feature/_feed_/events_page/data/events_filter_location_store.dart'
+    as _i566;
+import '../../feature/_feed_/events_page/data/repository/events_feed_repository.dart'
+    as _i885;
+import '../../feature/_feed_/events_page/presentation/cubit/events_feed_cubit.dart'
+    as _i359;
+import '../../feature/_feed_/map_page/data/repository/map_markers_repository.dart'
+    as _i232;
+import '../../feature/_feed_/map_page/presentation/cubit/map_markers_cubit.dart'
+    as _i1010;
+import '../../feature/_post_/marker_create/data/repository/marker_create_repository.dart'
+    as _i31;
+import '../../feature/_post_/marker_create/presentation/cubit/marker_create_upload_cubit.dart'
+    as _i553;
+import '../../feature/_post_/post/data/repository/post_local_cache.dart'
+    as _i737;
+import '../../feature/_post_/post/data/repository/post_repository.dart'
+    as _i984;
+import '../../feature/_post_/post/presentation/cubit/post_detail_cubit.dart'
+    as _i213;
+import '../../feature/_post_/post/presentation/cubit/post_feed_cubit.dart'
     as _i656;
-import '../../feature/cities/presentation/cubit/cities_cubit.dart' as _i744;
-import '../../feature/cluster/data/repository/cluster_repository.dart' as _i312;
-import '../../feature/cluster/presentation/cubit/archived_clusters_cubit.dart'
-    as _i684;
-import '../../feature/cluster/presentation/cubit/clusters_list_cubit.dart'
-    as _i402;
-import '../../feature/cluster_create/data/repository/cluster_create_repository.dart'
-    as _i342;
-import '../../feature/cluster_create/presentation/cubit/cluster_create_upload_cubit.dart'
-    as _i91;
-import '../../feature/countries/data/repository/countries_repository.dart'
-    as _i641;
-import '../../feature/countries/data/repository/countries_repository_impl.dart'
-    as _i646;
-import '../../feature/countries/presentation/cubit/countries_cubit.dart'
-    as _i1024;
-import '../../feature/currencies/data/repository/currencies_repository.dart'
-    as _i425;
-import '../../feature/currencies/data/repository/currencies_repository_impl.dart'
-    as _i268;
+import '../../feature/_post_/post_comment/data/repository/post_comment_local_cache.dart'
+    as _i753;
+import '../../feature/_post_/post_comment/data/repository/post_comment_repository.dart'
+    as _i454;
+import '../../feature/_post_/post_comment/presentation/cubit/post_comments_cubit.dart'
+    as _i685;
+import '../../feature/_post_/post_create/data/repository/post_create_repository.dart'
+    as _i317;
+import '../../feature/_post_/post_create/presentation/cubit/post_create_upload_cubit.dart'
+    as _i614;
+import '../../feature/_post_/post_share/data/repository/post_share_local_cache.dart'
+    as _i824;
+import '../../feature/_post_/post_share/data/repository/post_share_repository.dart'
+    as _i350;
+import '../../feature/_post_/post_share/presentation/cubit/post_share_recipients_cubit.dart'
+    as _i671;
+import '../../feature/_profile_/edit_profile/data/repository/edit_profile_repository.dart'
+    as _i252;
+import '../../feature/_profile_/edit_profile/presentation/cubit/edit_profile_cubit.dart'
+    as _i19;
+import '../../feature/_profile_/followers_and_followings/data/repository/followers_and_followings_repository.dart'
+    as _i986;
+import '../../feature/_profile_/followers_and_followings/presentation/cubit/followers_and_followings_cubit.dart'
+    as _i776;
+import '../../feature/_profile_/profile_page/data/repository/profile_repository.dart'
+    as _i57;
+import '../../feature/_profile_/profile_page/presentation/cubit/guest_profile_cubit.dart'
+    as _i554;
+import '../../feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart'
+    as _i95;
+import '../../feature/_settings_/settings_filter/data/repository/filter_repository.dart'
+    as _i858;
+import '../../feature/_settings_/settings_filter/presentation/profile/cubit/profile_filter_cubit.dart'
+    as _i121;
+import '../../feature/_settings_/settings_filter/presentation/settings/cubit/settings_filters_cubit.dart'
+    as _i1052;
+import '../../feature/_settings_/settings_saved_post/data/repository/saved_posts_repository.dart'
+    as _i15;
+import '../../feature/_settings_/settings_saved_post/presentation/cubit/saved_posts_cubit.dart'
+    as _i1053;
 import '../../feature/dashboard_page/data/dashboard_home_mode_store.dart'
     as _i501;
 import '../../feature/dashboard_page/presentation/cubit/dashboard_home_mode_cubit.dart'
     as _i4;
-import '../../feature/edit_profile/data/repository/edit_profile_repository.dart'
-    as _i1059;
-import '../../feature/edit_profile/presentation/cubit/edit_profile_cubit.dart'
-    as _i764;
-import '../../feature/events_page/data/events_filter_location_store.dart'
-    as _i956;
-import '../../feature/events_page/data/repository/events_feed_repository.dart'
-    as _i840;
-import '../../feature/events_page/presentation/cubit/events_feed_cubit.dart'
-    as _i53;
-import '../../feature/followers_and_followings/data/repository/followers_and_followings_repository.dart'
-    as _i389;
-import '../../feature/followers_and_followings/presentation/cubit/followers_and_followings_cubit.dart'
-    as _i17;
-import '../../feature/location/data/repository/location_repository.dart'
-    as _i391;
-import '../../feature/map_page/data/repository/map_markers_repository.dart'
-    as _i1033;
-import '../../feature/map_page/presentation/cubit/map_markers_cubit.dart'
-    as _i669;
-import '../../feature/marker_create/data/repository/marker_create_repository.dart'
-    as _i492;
-import '../../feature/marker_create/presentation/cubit/marker_create_upload_cubit.dart'
-    as _i763;
-import '../../feature/marker_tags/data/repository/marker_tags_repository.dart'
-    as _i202;
-import '../../feature/message_page/presentation/cubit/message_list_cubit.dart'
-    as _i260;
 import '../../feature/notification_page/data/repository/notifications_repository.dart'
     as _i932;
 import '../../feature/notification_page/presentation/cubit/notifications_cubit.dart'
     as _i492;
-import '../../feature/post/data/repository/post_local_cache.dart' as _i1045;
-import '../../feature/post/data/repository/post_repository.dart' as _i467;
-import '../../feature/post/presentation/cubit/post_detail_cubit.dart' as _i430;
-import '../../feature/post/presentation/cubit/post_feed_cubit.dart' as _i211;
-import '../../feature/post_comment/data/repository/post_comment_local_cache.dart'
-    as _i356;
-import '../../feature/post_comment/data/repository/post_comment_repository.dart'
-    as _i741;
-import '../../feature/post_comment/presentation/cubit/post_comments_cubit.dart'
-    as _i184;
-import '../../feature/post_create/data/repository/post_create_repository.dart'
-    as _i603;
-import '../../feature/post_create/presentation/cubit/post_create_upload_cubit.dart'
-    as _i346;
-import '../../feature/post_share/data/repository/post_share_local_cache.dart'
-    as _i416;
-import '../../feature/post_share/data/repository/post_share_repository.dart'
-    as _i608;
-import '../../feature/post_share/presentation/cubit/post_share_recipients_cubit.dart'
-    as _i659;
-import '../../feature/profile_categories/data/repository/profile_categories_repository.dart'
-    as _i775;
-import '../../feature/profile_categories/data/repository/profile_categories_repository_impl.dart'
-    as _i394;
-import '../../feature/profile_categories/presentation/cubit/profile_categories_cubit.dart'
-    as _i122;
-import '../../feature/profile_page/data/repository/profile_repository.dart'
-    as _i950;
-import '../../feature/profile_page/presentation/cubit/guest_profile_cubit.dart'
-    as _i911;
-import '../../feature/profile_page/presentation/cubit/profile_cubit.dart'
-    as _i961;
-import '../../feature/settings_filter/data/repository/filter_repository.dart'
-    as _i920;
-import '../../feature/settings_filter/presentation/profile/cubit/profile_filter_cubit.dart'
-    as _i465;
-import '../../feature/settings_filter/presentation/settings/cubit/settings_filters_cubit.dart'
-    as _i954;
-import '../../feature/settings_saved_post/data/repository/saved_posts_repository.dart'
-    as _i969;
-import '../../feature/settings_saved_post/presentation/cubit/saved_posts_cubit.dart'
-    as _i679;
-import '../../feature/social_graph/data/repository/social_graph_repository.dart'
-    as _i576;
+import '../../feature/onboarding/data/onboarding_store.dart' as _i643;
 import '../auth/cubit/auth_cubit.dart' as _i575;
 import '../auth/repositories/auth_repository.dart' as _i964;
-import '../catalog_sync/data/dictionary_local_cache.dart' as _i253;
-import '../catalog_sync/data/dictionary_network_source.dart' as _i392;
-import '../catalog_sync/domain/catalog_sync_manager.dart' as _i301;
 import '../network/supabase_edge_functions_invoker.dart' as _i460;
 import '../session/account_session_cleanup.dart' as _i191;
 import '../storage/data/repositories/isar_app_storage_impl.dart' as _i814;
 import '../storage/domain/repositories/i_app_storage.dart' as _i1029;
+import '../theme/app_theme_cubit.dart' as _i678;
+import '../theme/app_theme_store.dart' as _i980;
 import 'module.dart' as _i946;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -189,9 +188,18 @@ extension GetItInjectableX on _i174.GetIt {
     final appModule = _$AppModule();
     gh.lazySingleton<_i454.SupabaseClient>(() => appModule.supabaseClient);
     gh.lazySingleton<_i116.GoogleSignIn>(() => appModule.googleSignIn);
+    gh.lazySingleton<_i874.CountriesRepository>(
+      () => _i276.CountriesRepositoryImpl(),
+    );
+    gh.lazySingleton<_i396.CitiesRepository>(
+      () => _i315.CitiesRepositoryImpl(),
+    );
     gh.lazySingleton<_i1029.IAppStorage>(() => _i814.IsarAppStorageImpl());
-    gh.lazySingleton<_i392.DictionaryNetworkSource>(
-      () => _i392.DictionaryNetworkSource(gh<_i454.SupabaseClient>()),
+    gh.lazySingleton<_i347.ClusterRepository>(
+      () => _i347.ClusterRepositoryImpl(gh<_i454.SupabaseClient>()),
+    );
+    gh.lazySingleton<_i233.ChatRepository>(
+      () => _i233.ChatRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
     gh.lazySingleton<_i460.SupabaseEdgeFunctionsInvoker>(
       () => _i460.SupabaseEdgeFunctionsInvoker(gh<_i454.SupabaseClient>()),
@@ -205,29 +213,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i202.BookingServicesRepository>(
       () => _i202.BookingServicesRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
-    gh.lazySingleton<_i464.PostArchiveRepository>(
-      () => _i464.PostArchiveRepositoryImpl(gh<_i454.SupabaseClient>()),
+    gh.lazySingleton<_i15.SavedPostsRepository>(
+      () => _i15.SavedPostsRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
-    gh.lazySingleton<_i425.ChatRepository>(
-      () => _i425.ChatRepositoryImpl(gh<_i454.SupabaseClient>()),
+    gh.lazySingleton<_i34.MarkerTagsRepository>(
+      () => _i34.MarkerTagsRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
-    gh.lazySingleton<_i312.ClusterRepository>(
-      () => _i312.ClusterRepositoryImpl(gh<_i454.SupabaseClient>()),
-    );
-    gh.lazySingleton<_i608.PostShareRepository>(
-      () => _i608.PostShareRepositoryImpl(gh<_i454.SupabaseClient>()),
-    );
-    gh.lazySingleton<_i741.PostCommentRepository>(
-      () => _i741.PostCommentRepositoryImpl(gh<_i454.SupabaseClient>()),
-    );
-    gh.lazySingleton<_i920.FilterRepository>(
-      () => _i920.FilterRepositoryImpl(gh<_i454.SupabaseClient>()),
-    );
-    gh.lazySingleton<_i576.SocialGraphRepository>(
-      () => _i576.SocialGraphRepositoryImpl(gh<_i454.SupabaseClient>()),
-    );
-    gh.lazySingleton<_i969.SavedPostsRepository>(
-      () => _i969.SavedPostsRepositoryImpl(gh<_i454.SupabaseClient>()),
+    gh.lazySingleton<_i634.LocationRepository>(
+      () => _i634.LocationRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
     gh.lazySingleton<_i350.BookingClientRepository>(
       () => _i350.BookingClientRepositoryImpl(
@@ -236,17 +229,29 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i361.BookingScheduleRepository>(),
       ),
     );
+    gh.lazySingleton<_i858.FilterRepository>(
+      () => _i858.FilterRepositoryImpl(gh<_i454.SupabaseClient>()),
+    );
     gh.lazySingleton<_i1054.BonusHistoryRepository>(
       () => _i1054.BonusHistoryRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
-    gh.lazySingleton<_i468.EventArchiveRepository>(
-      () => _i468.EventArchiveRepositoryImpl(gh<_i454.SupabaseClient>()),
+    gh.lazySingleton<_i454.PostCommentRepository>(
+      () => _i454.PostCommentRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
     gh.lazySingleton<_i462.BookingStaffRepository>(
       () => _i462.BookingStaffRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
+    gh.factory<_i57.ProfileNewRepository>(
+      () => _i57.ProfileNewRepositoryImpl(gh<_i454.SupabaseClient>()),
+    );
     gh.lazySingleton<_i152.BookingHostListRepository>(
       () => _i152.BookingHostListRepositoryImpl(gh<_i454.SupabaseClient>()),
+    );
+    gh.lazySingleton<_i381.PostArchiveRepository>(
+      () => _i381.PostArchiveRepositoryImpl(gh<_i454.SupabaseClient>()),
+    );
+    gh.lazySingleton<_i74.EventArchiveRepository>(
+      () => _i74.EventArchiveRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
     gh.lazySingleton<_i528.MyBookingsRepository>(
       () => _i528.MyBookingsRepositoryImpl(gh<_i454.SupabaseClient>()),
@@ -257,17 +262,29 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i1031.MyBonusesRepository>(
       () => _i1031.MyBonusesRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
-    gh.lazySingleton<_i391.LocationRepository>(
-      () => _i391.LocationRepositoryImpl(gh<_i454.SupabaseClient>()),
+    gh.lazySingleton<_i232.MapMarkersRepository>(
+      () => _i232.MapMarkersRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
-    gh.lazySingleton<_i389.FollowersAndFollowingsRepository>(
-      () => _i389.FollowersAndFollowingsRepositoryImpl(
-        gh<_i454.SupabaseClient>(),
-        gh<_i576.SocialGraphRepository>(),
-      ),
+    gh.lazySingleton<_i350.PostShareRepository>(
+      () => _i350.PostShareRepositoryImpl(gh<_i454.SupabaseClient>()),
+    );
+    gh.lazySingleton<_i469.SocialGraphRepository>(
+      () => _i469.SocialGraphRepositoryImpl(gh<_i454.SupabaseClient>()),
+    );
+    gh.factory<_i1053.SavedPostsCubit>(
+      () => _i1053.SavedPostsCubit(gh<_i15.SavedPostsRepository>()),
     );
     gh.lazySingleton<_i932.NotificationsRepository>(
       () => _i932.NotificationsRepositoryImpl(gh<_i454.SupabaseClient>()),
+    );
+    gh.lazySingleton<_i104.CountriesCubit>(
+      () => _i104.CountriesCubit(gh<_i874.CountriesRepository>()),
+    );
+    gh.factory<_i643.PostArchiveCubit>(
+      () => _i643.PostArchiveCubit(gh<_i381.PostArchiveRepository>()),
+    );
+    gh.lazySingleton<_i841.CitiesCubit>(
+      () => _i841.CitiesCubit(gh<_i396.CitiesRepository>()),
     );
     gh.factory<_i633.BookingScheduleSettingsCubit>(
       () => _i633.BookingScheduleSettingsCubit(
@@ -275,50 +292,65 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i462.BookingStaffRepository>(),
       ),
     );
-    gh.factory<_i17.FollowersAndFollowingsCubit>(
-      () => _i17.FollowersAndFollowingsCubit(
-        gh<_i389.FollowersAndFollowingsRepository>(),
-        gh<_i576.SocialGraphRepository>(),
-      ),
+    gh.factory<_i350.ArchivedClustersCubit>(
+      () => _i350.ArchivedClustersCubit(gh<_i347.ClusterRepository>()),
     );
-    gh.factory<_i679.SavedPostsCubit>(
-      () => _i679.SavedPostsCubit(gh<_i969.SavedPostsRepository>()),
+    gh.factory<_i1006.ClustersListCubit>(
+      () => _i1006.ClustersListCubit(gh<_i347.ClusterRepository>()),
     );
-    gh.factory<_i465.ProfileFilterCubit>(
-      () => _i465.ProfileFilterCubit(gh<_i920.FilterRepository>()),
-    );
-    gh.lazySingleton<_i253.DictionaryLocalCache>(
-      () => _i253.DictionaryLocalCache(gh<_i1029.IAppStorage>()),
+    gh.lazySingleton<_i980.AppThemeStore>(
+      () => _i980.AppThemeStore(gh<_i1029.IAppStorage>()),
     );
     gh.lazySingleton<_i984.BookingLocalCache>(
       () => _i984.BookingLocalCache(gh<_i1029.IAppStorage>()),
     );
-    gh.lazySingleton<_i369.ChatLocalCache>(
-      () => _i369.ChatLocalCache(gh<_i1029.IAppStorage>()),
+    gh.lazySingleton<_i325.ChatLocalCache>(
+      () => _i325.ChatLocalCache(gh<_i1029.IAppStorage>()),
+    );
+    gh.lazySingleton<_i566.EventsFilterLocationStore>(
+      () => _i566.EventsFilterLocationStore(gh<_i1029.IAppStorage>()),
+    );
+    gh.lazySingleton<_i737.PostLocalCache>(
+      () => _i737.PostLocalCache(gh<_i1029.IAppStorage>()),
+    );
+    gh.lazySingleton<_i753.PostCommentLocalCache>(
+      () => _i753.PostCommentLocalCache(gh<_i1029.IAppStorage>()),
+    );
+    gh.lazySingleton<_i824.PostShareLocalCache>(
+      () => _i824.PostShareLocalCache(gh<_i1029.IAppStorage>()),
     );
     gh.lazySingleton<_i501.DashboardHomeModeStore>(
       () => _i501.DashboardHomeModeStore(gh<_i1029.IAppStorage>()),
     );
-    gh.lazySingleton<_i956.EventsFilterLocationStore>(
-      () => _i956.EventsFilterLocationStore(gh<_i1029.IAppStorage>()),
+    gh.lazySingleton<_i643.OnboardingStore>(
+      () => _i643.OnboardingStore(gh<_i1029.IAppStorage>()),
     );
-    gh.lazySingleton<_i1045.PostLocalCache>(
-      () => _i1045.PostLocalCache(gh<_i1029.IAppStorage>()),
+    gh.lazySingleton<_i317.PostCreateRepository>(
+      () => _i317.PostCreateRepositoryImpl(
+        gh<_i454.SupabaseClient>(),
+        gh<_i858.FilterRepository>(),
+        gh<_i34.MarkerTagsRepository>(),
+      ),
     );
-    gh.lazySingleton<_i356.PostCommentLocalCache>(
-      () => _i356.PostCommentLocalCache(gh<_i1029.IAppStorage>()),
+    gh.lazySingleton<_i220.ClusterCreateRepository>(
+      () => _i220.ClusterCreateRepositoryImpl(gh<_i347.ClusterRepository>()),
     );
-    gh.lazySingleton<_i416.PostShareLocalCache>(
-      () => _i416.PostShareLocalCache(gh<_i1029.IAppStorage>()),
+    gh.lazySingleton<_i678.AppThemeCubit>(
+      () => _i678.AppThemeCubit(gh<_i980.AppThemeStore>()),
     );
-    gh.factory<_i684.ArchivedClustersCubit>(
-      () => _i684.ArchivedClustersCubit(gh<_i312.ClusterRepository>()),
+    gh.factory<_i719.ChatThreadCubit>(
+      () => _i719.ChatThreadCubit(
+        gh<_i233.ChatRepository>(),
+        gh<_i325.ChatLocalCache>(),
+        gh<_i454.SupabaseClient>(),
+      ),
     );
-    gh.factory<_i402.ClustersListCubit>(
-      () => _i402.ClustersListCubit(gh<_i312.ClusterRepository>()),
-    );
-    gh.lazySingleton<_i342.ClusterCreateRepository>(
-      () => _i342.ClusterCreateRepositoryImpl(gh<_i312.ClusterRepository>()),
+    gh.factory<_i122.MessageListCubit>(
+      () => _i122.MessageListCubit(
+        gh<_i233.ChatRepository>(),
+        gh<_i325.ChatLocalCache>(),
+        gh<_i454.SupabaseClient>(),
+      ),
     );
     gh.factory<_i1049.BookingServicesCubit>(
       () => _i1049.BookingServicesCubit(
@@ -328,12 +360,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i454.SupabaseClient>(),
       ),
     );
-    gh.factory<_i659.PostShareRecipientsCubit>(
-      () => _i659.PostShareRecipientsCubit(
-        gh<_i608.PostShareRepository>(),
-        gh<_i416.PostShareLocalCache>(),
+    gh.lazySingleton<_i31.MarkerCreateRepository>(
+      () => _i31.MarkerCreateRepositoryImpl(
         gh<_i454.SupabaseClient>(),
+        gh<_i34.MarkerTagsRepository>(),
+        gh<_i858.FilterRepository>(),
       ),
+    );
+    gh.singleton<_i95.ProfileCubit>(
+      () => _i95.ProfileCubit(gh<_i57.ProfileNewRepository>()),
     );
     gh.factory<_i74.BookingAnalyticsCubit>(
       () => _i74.BookingAnalyticsCubit(
@@ -348,22 +383,20 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i454.SupabaseClient>(),
       ),
     );
-    gh.factory<_i360.ChatThreadCubit>(
-      () => _i360.ChatThreadCubit(
-        gh<_i425.ChatRepository>(),
-        gh<_i369.ChatLocalCache>(),
-        gh<_i454.SupabaseClient>(),
-      ),
-    );
-    gh.factory<_i260.MessageListCubit>(
-      () => _i260.MessageListCubit(
-        gh<_i425.ChatRepository>(),
-        gh<_i369.ChatLocalCache>(),
-        gh<_i454.SupabaseClient>(),
+    gh.factory<_i554.GuestProfileCubit>(
+      () => _i554.GuestProfileCubit(
+        gh<_i57.ProfileNewRepository>(),
+        gh<_i469.SocialGraphRepository>(),
       ),
     );
     gh.factory<_i981.MyBonusesCubit>(
       () => _i981.MyBonusesCubit(gh<_i1031.MyBonusesRepository>()),
+    );
+    gh.lazySingleton<_i986.FollowersAndFollowingsRepository>(
+      () => _i986.FollowersAndFollowingsRepositoryImpl(
+        gh<_i454.SupabaseClient>(),
+        gh<_i469.SocialGraphRepository>(),
+      ),
     );
     gh.factory<_i536.MyBookingsCubit>(
       () => _i536.MyBookingsCubit(
@@ -375,33 +408,34 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i492.NotificationsCubit>(
       () => _i492.NotificationsCubit(gh<_i932.NotificationsRepository>()),
     );
-    gh.factory<_i897.EventArchiveCubit>(
-      () => _i897.EventArchiveCubit(gh<_i468.EventArchiveRepository>()),
+    gh.factory<_i121.ProfileFilterCubit>(
+      () => _i121.ProfileFilterCubit(gh<_i858.FilterRepository>()),
     );
-    gh.factory<_i771.PostArchiveCubit>(
-      () => _i771.PostArchiveCubit(gh<_i464.PostArchiveRepository>()),
+    gh.factory<_i68.EventArchiveCubit>(
+      () => _i68.EventArchiveCubit(gh<_i74.EventArchiveRepository>()),
+    );
+    gh.factory<_i1010.MapMarkersCubit>(
+      () => _i1010.MapMarkersCubit(gh<_i232.MapMarkersRepository>()),
     );
     gh.factory<_i978.BookingClientCubit>(
       () => _i978.BookingClientCubit(gh<_i350.BookingClientRepository>()),
     );
-    gh.lazySingleton<_i467.PostRepository>(
-      () => _i467.PostRepositoryImpl(
+    gh.factory<_i671.PostShareRecipientsCubit>(
+      () => _i671.PostShareRecipientsCubit(
+        gh<_i350.PostShareRepository>(),
+        gh<_i824.PostShareLocalCache>(),
         gh<_i454.SupabaseClient>(),
-        gh<_i1045.PostLocalCache>(),
       ),
     );
     gh.factory<_i654.BonusHistoryCubit>(
       () => _i654.BonusHistoryCubit(gh<_i1054.BonusHistoryRepository>()),
     );
-    gh.lazySingleton<_i301.CatalogSyncManager>(
-      () => _i301.CatalogSyncManager(
-        gh<_i253.DictionaryLocalCache>(),
-        gh<_i392.DictionaryNetworkSource>(),
+    gh.lazySingleton<_i252.EditProfileRepository>(
+      () => _i252.EditProfileRepositoryImpl(
+        gh<_i454.SupabaseClient>(),
+        gh<_i57.ProfileNewRepository>(),
+        gh<_i34.MarkerTagsRepository>(),
       ),
-    );
-    gh.lazySingleton<_i775.ProfileCategoriesRepository>(
-      () =>
-          _i394.ProfileCategoriesRepositoryImpl(gh<_i301.CatalogSyncManager>()),
     );
     gh.factory<_i1020.BookingServiceEditorCubit>(
       () => _i1020.BookingServiceEditorCubit(
@@ -409,117 +443,83 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i462.BookingStaffRepository>(),
       ),
     );
-    gh.lazySingleton<_i641.CountriesRepository>(
-      () => _i646.CountriesRepositoryImpl(gh<_i301.CatalogSyncManager>()),
+    gh.factory<_i685.PostCommentsCubit>(
+      () => _i685.PostCommentsCubit(
+        gh<_i454.PostCommentRepository>(),
+        gh<_i753.PostCommentLocalCache>(),
+        gh<_i454.SupabaseClient>(),
+      ),
     );
-    gh.lazySingleton<_i425.CurrenciesRepository>(
-      () => _i268.CurrenciesRepositoryImpl(gh<_i301.CatalogSyncManager>()),
+    gh.lazySingleton<_i16.ClusterCreateUploadCubit>(
+      () => _i16.ClusterCreateUploadCubit(gh<_i220.ClusterCreateRepository>()),
+    );
+    gh.factory<_i776.FollowersAndFollowingsCubit>(
+      () => _i776.FollowersAndFollowingsCubit(
+        gh<_i986.FollowersAndFollowingsRepository>(),
+        gh<_i469.SocialGraphRepository>(),
+      ),
     );
     gh.factory<_i4.DashboardHomeModeCubit>(
       () => _i4.DashboardHomeModeCubit(gh<_i501.DashboardHomeModeStore>()),
     );
-    gh.factory<_i184.PostCommentsCubit>(
-      () => _i184.PostCommentsCubit(
-        gh<_i741.PostCommentRepository>(),
-        gh<_i356.PostCommentLocalCache>(),
+    gh.lazySingleton<_i984.PostRepository>(
+      () => _i984.PostRepositoryImpl(
         gh<_i454.SupabaseClient>(),
+        gh<_i737.PostLocalCache>(),
       ),
     );
-    gh.factory<_i211.PostFeedCubit>(
-      () => _i211.PostFeedCubit(
-        gh<_i467.PostRepository>(),
-        gh<_i1045.PostLocalCache>(),
-      ),
+    gh.lazySingleton<_i553.MarkerCreateUploadCubit>(
+      () => _i553.MarkerCreateUploadCubit(gh<_i31.MarkerCreateRepository>()),
     );
-    gh.lazySingleton<_i202.MarkerTagsRepository>(
-      () => _i202.MarkerTagsRepositoryImpl(
+    gh.factory<_i19.EditProfileCubit>(
+      () => _i19.EditProfileCubit(gh<_i252.EditProfileRepository>()),
+    );
+    gh.factory<_i1052.SettingsFiltersCubit>(
+      () => _i1052.SettingsFiltersCubit(
+        gh<_i858.FilterRepository>(),
         gh<_i454.SupabaseClient>(),
-        gh<_i301.CatalogSyncManager>(),
+        gh<_i95.ProfileCubit>(),
       ),
     );
-    gh.lazySingleton<_i122.ProfileCategoriesCubit>(
-      () =>
-          _i122.ProfileCategoriesCubit(gh<_i775.ProfileCategoriesRepository>()),
+    gh.lazySingleton<_i614.PostCreateUploadCubit>(
+      () => _i614.PostCreateUploadCubit(
+        gh<_i31.MarkerCreateRepository>(),
+        gh<_i317.PostCreateRepository>(),
+      ),
     );
-    gh.lazySingleton<_i1033.MapMarkersRepository>(
-      () => _i1033.MapMarkersRepositoryImpl(
+    gh.lazySingleton<_i885.EventsFeedRepository>(
+      () => _i885.EventsFeedRepositoryImpl(
         gh<_i454.SupabaseClient>(),
-        gh<_i202.MarkerTagsRepository>(),
+        gh<_i984.PostRepository>(),
       ),
-    );
-    gh.factory<_i950.ProfileNewRepository>(
-      () => _i950.ProfileNewRepositoryImpl(
-        gh<_i454.SupabaseClient>(),
-        gh<_i301.CatalogSyncManager>(),
-      ),
-    );
-    gh.lazySingleton<_i1059.EditProfileRepository>(
-      () => _i1059.EditProfileRepositoryImpl(
-        gh<_i454.SupabaseClient>(),
-        gh<_i950.ProfileNewRepository>(),
-      ),
-    );
-    gh.lazySingleton<_i91.ClusterCreateUploadCubit>(
-      () => _i91.ClusterCreateUploadCubit(gh<_i342.ClusterCreateRepository>()),
-    );
-    gh.lazySingleton<_i1024.CountriesCubit>(
-      () => _i1024.CountriesCubit(gh<_i641.CountriesRepository>()),
-    );
-    gh.lazySingleton<_i840.EventsFeedRepository>(
-      () => _i840.EventsFeedRepositoryImpl(
-        gh<_i454.SupabaseClient>(),
-        gh<_i467.PostRepository>(),
-        gh<_i202.MarkerTagsRepository>(),
-      ),
-    );
-    gh.factory<_i764.EditProfileCubit>(
-      () => _i764.EditProfileCubit(gh<_i1059.EditProfileRepository>()),
-    );
-    gh.singleton<_i961.ProfileCubit>(
-      () => _i961.ProfileCubit(gh<_i950.ProfileNewRepository>()),
-    );
-    gh.lazySingleton<_i492.MarkerCreateRepository>(
-      () => _i492.MarkerCreateRepositoryImpl(
-        gh<_i454.SupabaseClient>(),
-        gh<_i202.MarkerTagsRepository>(),
-        gh<_i920.FilterRepository>(),
-      ),
-    );
-    gh.lazySingleton<_i969.CitiesRepository>(
-      () => _i656.CitiesRepositoryImpl(gh<_i301.CatalogSyncManager>()),
-    );
-    gh.factory<_i911.GuestProfileCubit>(
-      () => _i911.GuestProfileCubit(
-        gh<_i950.ProfileNewRepository>(),
-        gh<_i576.SocialGraphRepository>(),
-      ),
-    );
-    gh.factory<_i430.PostDetailCubit>(
-      () => _i430.PostDetailCubit(
-        gh<_i467.PostRepository>(),
-        gh<_i576.SocialGraphRepository>(),
-        gh<_i202.MarkerTagsRepository>(),
-      ),
-    );
-    gh.factory<_i669.MapMarkersCubit>(
-      () => _i669.MapMarkersCubit(gh<_i1033.MapMarkersRepository>()),
     );
     gh.lazySingleton<_i191.AccountSessionCleanup>(
       () => _i191.AccountSessionCleanup(
         gh<_i1029.IAppStorage>(),
-        gh<_i467.PostRepository>(),
-        gh<_i961.ProfileCubit>(),
+        gh<_i984.PostRepository>(),
+        gh<_i95.ProfileCubit>(),
       ),
     );
-    gh.lazySingleton<_i603.PostCreateRepository>(
-      () => _i603.PostCreateRepositoryImpl(
+    gh.factory<_i213.PostDetailCubit>(
+      () => _i213.PostDetailCubit(
+        gh<_i984.PostRepository>(),
+        gh<_i469.SocialGraphRepository>(),
+        gh<_i34.MarkerTagsRepository>(),
+      ),
+    );
+    gh.factory<_i656.PostFeedCubit>(
+      () => _i656.PostFeedCubit(
+        gh<_i984.PostRepository>(),
+        gh<_i737.PostLocalCache>(),
+      ),
+    );
+    gh.factory<_i359.EventsFeedCubit>(
+      () => _i359.EventsFeedCubit(
+        gh<_i885.EventsFeedRepository>(),
+        gh<_i984.PostRepository>(),
+        gh<_i469.SocialGraphRepository>(),
         gh<_i454.SupabaseClient>(),
-        gh<_i920.FilterRepository>(),
-        gh<_i202.MarkerTagsRepository>(),
       ),
-    );
-    gh.lazySingleton<_i744.CitiesCubit>(
-      () => _i744.CitiesCubit(gh<_i969.CitiesRepository>()),
     );
     gh.lazySingleton<_i964.AuthRepository>(
       () => _i964.AuthRepository(
@@ -527,30 +527,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1029.IAppStorage>(),
         gh<_i116.GoogleSignIn>(),
         gh<_i191.AccountSessionCleanup>(),
-      ),
-    );
-    gh.lazySingleton<_i763.MarkerCreateUploadCubit>(
-      () => _i763.MarkerCreateUploadCubit(gh<_i492.MarkerCreateRepository>()),
-    );
-    gh.factory<_i53.EventsFeedCubit>(
-      () => _i53.EventsFeedCubit(
-        gh<_i840.EventsFeedRepository>(),
-        gh<_i467.PostRepository>(),
-        gh<_i576.SocialGraphRepository>(),
-        gh<_i454.SupabaseClient>(),
-      ),
-    );
-    gh.factory<_i954.SettingsFiltersCubit>(
-      () => _i954.SettingsFiltersCubit(
-        gh<_i920.FilterRepository>(),
-        gh<_i454.SupabaseClient>(),
-        gh<_i961.ProfileCubit>(),
-      ),
-    );
-    gh.lazySingleton<_i346.PostCreateUploadCubit>(
-      () => _i346.PostCreateUploadCubit(
-        gh<_i492.MarkerCreateRepository>(),
-        gh<_i603.PostCreateRepository>(),
       ),
     );
     gh.factory<_i575.AuthCubit>(

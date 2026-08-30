@@ -1,5 +1,5 @@
-import 'package:clover/feature/city/data/models/city_code.dart';
-import 'package:clover/feature/city/data/models/city_model.dart';
+import 'package:clover/feature/_catalog_/city/data/models/city_code.dart';
+import 'package:clover/feature/_catalog_/city/data/models/city_model.dart';
 
 /// Город: enum + поля справочника (`is_active`, `sort_order`).
 class CityRef {

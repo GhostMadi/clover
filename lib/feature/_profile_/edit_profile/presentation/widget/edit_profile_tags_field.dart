@@ -1,4 +1,4 @@
-import 'package:clover/feature/marker_tags/presentation/widget/multi_marker_tags.dart';
+import 'package:clover/feature/_catalog_/marker_tags/presentation/widget/multi_marker_tags.dart';
 import 'package:flutter/material.dart';
 
 /// Множественный выбор тегов аккаунта из справочника `marker_tags`.

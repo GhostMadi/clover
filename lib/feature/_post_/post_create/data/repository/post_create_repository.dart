@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:clover/core/shared/image_select/app_image_edit_exporter.dart';
-import 'package:clover/feature/marker_tags/data/repository/marker_tags_repository.dart';
-import 'package:clover/feature/post_create/data/model/post_create_request.dart';
-import 'package:clover/feature/settings_filter/data/repository/filter_repository.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/repository/marker_tags_repository.dart';
+import 'package:clover/feature/_post_/post_create/data/model/post_create_request.dart';
+import 'package:clover/feature/_settings_/settings_filter/data/repository/filter_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:injectable/injectable.dart';
@@ -100,7 +100,7 @@ class PostCreateRepositoryImpl implements PostCreateRepository {
       await _client.from('post_media').insert(mediaRows);
 
       if (request.tagIds.isNotEmpty) {
-        await _markerTagsRepository.setForPost(postId: postId, tagIds: request.tagIds);
+        await _markerTagsRepository.setForPost(postId: postId, tagKeys: request.tagIds);
       }
 
       if (request.filterValues.isNotEmpty) {

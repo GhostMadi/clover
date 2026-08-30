@@ -7,8 +7,8 @@ import 'package:clover/feature/_bonus_/bonus_settings/data/models/bonus_program_
 import 'package:clover/feature/_bonus_/bonus_settings/data/repository/bonus_program_repository.dart';
 import 'package:clover/feature/_bonus_/bonus_settings/presentation/widget/bonus_program_settings_form.dart';
 import 'package:clover/feature/_bonus_/shared/data/models/bonus_program_status.dart';
-import 'package:clover/feature/profile_page/presentation/cubit/profile_cubit.dart';
-import 'package:clover/feature/settings/presentation/widget/settings_screen_shell.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
+import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:flutter/material.dart';
 
 @RoutePage()

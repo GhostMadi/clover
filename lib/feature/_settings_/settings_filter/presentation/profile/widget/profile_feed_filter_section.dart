@@ -2,12 +2,12 @@ import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/app_tab.dart';
-import 'package:clover/feature/settings_filter/data/catalog/filter_catalog.dart';
-import 'package:clover/feature/settings_filter/data/repository/filter_repository.dart';
-import 'package:clover/feature/settings_filter/presentation/profile/cubit/profile_filter_cubit.dart';
-import 'package:clover/feature/settings_filter/presentation/profile/filter_selection_sheet.dart';
-import 'package:clover/feature/settings_filter/presentation/profile/widget/profile_active_filters_row.dart';
-import 'package:clover/feature/settings_filter/presentation/profile/widget/profile_filter_button.dart';
+import 'package:clover/feature/_settings_/settings_filter/data/catalog/filter_catalog.dart';
+import 'package:clover/feature/_settings_/settings_filter/data/repository/filter_repository.dart';
+import 'package:clover/feature/_settings_/settings_filter/presentation/profile/cubit/profile_filter_cubit.dart';
+import 'package:clover/feature/_settings_/settings_filter/presentation/profile/filter_selection_sheet.dart';
+import 'package:clover/feature/_settings_/settings_filter/presentation/profile/widget/profile_active_filters_row.dart';
+import 'package:clover/feature/_settings_/settings_filter/presentation/profile/widget/profile_filter_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

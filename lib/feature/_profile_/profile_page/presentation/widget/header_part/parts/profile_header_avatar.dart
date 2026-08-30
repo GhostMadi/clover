@@ -22,10 +22,10 @@ class ProfileHeaderAvatar extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.all(context.widthByContext(_figmaOuterPadding)),
-      decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.activeColor),
+      decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.activeColor),
       child: Container(
         padding: EdgeInsets.all(context.widthByContext(_figmaInnerPadding)),
-        decoration: const BoxDecoration(color: AppColors.white, shape: BoxShape.circle),
+        decoration: BoxDecoration(color: AppColors.white, shape: BoxShape.circle),
         child: CircleAvatar(
           radius: radius,
           backgroundColor: AppColors.surface,

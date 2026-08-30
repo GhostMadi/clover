@@ -268,7 +268,7 @@ class _AppImageSelectorPageState extends State<AppImageSelectorPage> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
           : _albums.isEmpty
           ? Center(
               child: Text(
@@ -324,7 +324,7 @@ class _AppImageSelectorPageState extends State<AppImageSelectorPage> {
                 ),
                 Expanded(
                   child: _isAlbumLoading
-                      ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                      ? Center(child: CircularProgressIndicator(color: AppColors.primary))
                       : _mediaList.isEmpty
                       ? Center(
                           child: Text(
@@ -392,7 +392,7 @@ class _SelectionBadge extends StatelessWidget {
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+      decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
       child: Text(
         '$order',
         style: AppTextStyle.base(12, fontWeight: FontWeight.w800, color: AppColors.textInverse),

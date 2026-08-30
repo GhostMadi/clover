@@ -1,6 +1,6 @@
 import 'package:clover/core/shared/app_time_picker.dart';
 import 'package:clover/core/shared/image_select/models/app_image_editor_result.dart';
-import 'package:clover/feature/location/data/models/location_model.dart';
+import 'package:clover/feature/_catalog_/location/data/models/location_model.dart';
 
 /// Итоговые данные перед созданием маркера на сервере.
 class MarkerCreateComposeResult {

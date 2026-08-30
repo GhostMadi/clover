@@ -1,0 +1,88 @@
+---
+description: Как держать архитектуру Clover (core + feature)
+alwaysApply: true
+---
+
+# Архитектура Clover
+
+Только **core + feature**. Не плодить лишние слои (нет domain/use-cases).
+
+## Дерево
+
+```
+lib/
+  main.dart                 # binding → Supabase → DI → runApp
+  core/
+    auth/                   # сессия / guards вокруг Auth
+    # справочники: enum + catalog в feature/_catalog_/
+    config/                 # env / Supabase config
+    dependencies/           # getIt, configureDependencies, RegisterModule
+    extension/              # ContextExtension и прочие
+    network/                # клиент / ошибки сети
+    post_media/             # общее медиа постов
+    resources/              # AppColors, AppTextStyle, AppIcons, AppAssets
+    router/                 # AppRouter (AutoRoute)
+    session/                # текущая сессия / user id
+    shared/                 # AppNavBar, AppBottomSheet, общие виджеты
+    storage/                # LocalStorage, ключи prefs
+    theme/                  # AppPalette, ThemeCubit, AppColorsScope
+  feature/<feature_name>/
+    data/models/
+    data/repositories/      # или data/repository/
+    presentation/cubit/     # cubit (+ state рядом или в том же файле)
+    presentation/pages/     # или presentation/page/
+    presentation/widgets/
+  feature/_<group>_/<feature_name>/   # группа связанных фич
+  feature/auth/                         # вход (без группы)
+  feature/dashboard_page/               # shell
+  feature/onboarding/
+  feature/notification_page/
+```
+
+## Группы фич (`_group_`)
+
+```
+feature/_cluster_/     cluster, cluster_create, cluster_archive, shared
+feature/_post_/        post, post_create, post_comment, post_share, marker_create
+feature/_archive_/     post_archive, event_archive, settings_archive, shared
+feature/_feed_/        events_page, map_page
+feature/_profile_/     profile_page, edit_profile, followers_and_followings
+feature/_settings_/    settings, settings_account, settings_about, settings_filter, …
+feature/_chat_/        chat, chat_page, message_page
+feature/_catalog_/     countries, city, cities, marker_tags, location, social_graph
+feature/_booking_/     …
+feature/_bonus_/       …
+```
+
+Не складывать все страницы группы в одну `presentation/pages/`.
+
+## Куда класть код
+
+| Что | Куда |
+|-----|------|
+| Общая инфраструктура | `core/` |
+| Переиспользуемый UI | `core/shared/` (+ `platform/` — `AppPlatform`, `AdaptiveStatelessWidget`) |
+| Фича / экран / flow | `feature/<name>/` или `feature/_group_/<name>/` |
+| Цвета, стили, иконки | `core/resources/` (+ тема в `core/theme/`) |
+| Ключи prefs | storage / `StorageKeys` |
+| Продуктовые сценарии | `docs/business/` |
+| Правила / UI | `docs/code/` |
+| Доки бэка | `docs/supabase/` |
+| SQL / functions | `supabase/migrations/`, `supabase/functions/` |
+
+## Запреты
+
+- Нет абстракций репозиториев (только concrete)
+- Нет сырых `Color(0x…)` / `Colors.*` в UI фич — только `AppColors` / `context.colors`
+- Не класть бизнес-фичи в `core/`
+- Не ходить в Supabase из виджета — только через repository → cubit
+
+## Codegen
+
+После `@injectable` / `@RoutePage` / `@freezed`:
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+L10n / ARB — по принятому в проекте пайплайну (`generate: true` / `flutter gen-l10n`).

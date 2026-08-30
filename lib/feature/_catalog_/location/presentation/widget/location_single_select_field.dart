@@ -2,8 +2,8 @@ import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_single_selctor.dart';
-import 'package:clover/feature/location/data/models/location_model.dart';
-import 'package:clover/feature/location/data/repository/location_repository.dart';
+import 'package:clover/feature/_catalog_/location/data/models/location_model.dart';
+import 'package:clover/feature/_catalog_/location/data/repository/location_repository.dart';
 import 'package:flutter/material.dart';
 
 /// Одиночный выбор активного местоположения пользователя.

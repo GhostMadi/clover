@@ -5,8 +5,8 @@ import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/feature/edit_profile/data/edit_profile_username_policy.dart';
-import 'package:clover/feature/profile_page/data/model/profile_new_model.dart';
+import 'package:clover/feature/_profile_/edit_profile/data/edit_profile_username_policy.dart';
+import 'package:clover/feature/_profile_/profile_page/data/model/profile_new_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

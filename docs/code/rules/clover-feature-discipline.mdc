@@ -1,0 +1,33 @@
+---
+description: Одна схема фичи, без кастома. KISS / SOLID / DRY на фронте и бэке
+alwaysApply: true
+---
+
+# Дисциплина фичи
+
+Каждая фича — **тот же каркас**, что рабочие фичи вроде `profile_page` / `post` / `post_create`. Нет «особого случая» (свой слой, прямой Supabase из виджета).
+
+## Фронт — всегда так
+
+1. Процесс / UI-док: `docs/business/` и при необходимости `docs/code/ui/` — **сначала документация, потом код**
+2. Бэк + док: `docs/supabase/` + миграции в `supabase/migrations/`
+3. Фича: `data/models` + `data/repository(ies)` (concrete) → cubit → page + widgets
+4. Ресурсы + shared: `context.colors` / `AppTextStyle` / `AppIcons`; переиспользуемые контролы в `core/shared` (adaptive)
+5. Route + `@injectable` (где принято) + codegen
+6. Учёт в `docs/business/features-catalog.md`
+
+Виджет не ходит в сеть. Cubit не рисует UI. Репозиторий не знает про BuildContext.
+
+## KISS / SOLID / DRY
+
+- **KISS:** один репозиторий на фичу (или явный маленький набор), один cubit на экран/flow
+- **S:** UI / состояние / данные / RLS — разные места
+- **O/D:** общее — в `core/shared`, `core/catalog_sync`, каталогах стран/городов — не копипаста в соседнюю фичу
+- **DRY:** селектор = enum/catalog + перевод на фронте; бэк только английский ключ
+
+## Запрещено
+
+- кастомный пайплайн «только для этой фичи»
+- use-cases / abstract repo
+- бизнес-правило только на клиенте (обход через REST вместо RLS/constraints)
+- дублировать процесс в коде вместо `docs/business/`

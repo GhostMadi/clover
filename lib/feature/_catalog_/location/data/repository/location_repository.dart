@@ -1,4 +1,4 @@
-import 'package:clover/feature/location/data/models/location_model.dart';
+import 'package:clover/feature/_catalog_/location/data/models/location_model.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

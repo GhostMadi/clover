@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/auth/cubit/auth_cubit.dart';
 import 'package:clover/core/auth/cubit/auth_state.dart';
@@ -10,6 +12,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class RootPage extends StatelessWidget {
   const RootPage({super.key});
 
+  Future<void> _routeAuthenticated(BuildContext context, String userId) async {
+    // TODO: вернуть hasSeen(userId, OnboardingCatalog.appV1Id), когда онбординг стабилизируем.
+    if (!context.mounted) return;
+    await AutoRouter.of(context).replaceAll([OnboardingRoute()]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
@@ -18,8 +26,8 @@ class RootPage extends StatelessWidget {
         final router = AutoRouter.of(context);
 
         switch (state) {
-          case Authenticated():
-            router.replaceAll([const AppDashboardRoute()]);
+          case Authenticated(:final user):
+            unawaited(_routeAuthenticated(context, user.id));
           case Unauthenticated() || AuthError():
             router.replaceAll([const LoginRoute()]);
           default:
@@ -43,7 +51,7 @@ class _AuthSplash extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: AppColors.pageBackground,
       body: Center(
         child: SizedBox(

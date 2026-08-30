@@ -33,7 +33,7 @@ abstract final class AppBottomSheet {
     EdgeInsetsGeometry contentPadding = const EdgeInsets.symmetric(horizontal: 16),
 
     /// Поля между краем экрана и карточкой; к нижнему значению прибавляется [SafeArea.bottom] внутри [show].
-    EdgeInsetsGeometry sheetOuterPadding = const EdgeInsets.fromLTRB(16, 0, 16, 12),
+    EdgeInsetsGeometry sheetOuterPadding = const EdgeInsets.fromLTRB(16, 12, 16, 12),
 
     /// Явная ширина карточки; если `null` — как раньше: `min(screenW - горизонтальные sheetOuter, 500)`.
     double? sheetWidth,
@@ -192,7 +192,7 @@ class _DecoratedSheetBody extends StatelessWidget {
             ],
           )
         : BoxDecoration(
-            color: AppColors.white,
+            color: AppColors.pageBackground,
             borderRadius: _kAppBottomSheetRadius,
             border: Border.all(color: AppColors.borderSoft, width: 1),
             boxShadow: [

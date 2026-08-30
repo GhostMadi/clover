@@ -1,4 +1,4 @@
-import 'package:clover/feature/countries/data/models/country_code.dart';
+import 'package:clover/feature/_catalog_/countries/data/models/country_code.dart';
 
 /// Строка `public.countries`.
 class CountryModel {

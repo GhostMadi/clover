@@ -1,6 +1,6 @@
 import 'package:clover/core/shared/app_multi_selector.dart';
-import 'package:clover/feature/settings_filter/data/catalog/filter_catalog.dart';
-import 'package:clover/feature/settings_filter/data/models/filter_category.dart';
+import 'package:clover/feature/_settings_/settings_filter/data/catalog/filter_catalog.dart';
+import 'package:clover/feature/_settings_/settings_filter/data/models/filter_category.dart';
 import 'package:flutter/material.dart';
 
 abstract final class FilterSelectionSheet {

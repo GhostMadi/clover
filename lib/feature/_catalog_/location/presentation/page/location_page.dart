@@ -5,11 +5,11 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_refresh.dart';
 import 'package:clover/core/shared/app_tile.dart';
-import 'package:clover/feature/location/data/models/location_model.dart';
-import 'package:clover/feature/location/data/repository/location_repository.dart';
-import 'package:clover/feature/location/presentation/widget/location_detail_sheet.dart';
-import 'package:clover/feature/settings/presentation/widget/settings_screen_shell.dart';
-import 'package:clover/feature/settings/presentation/widget/settings_tile_section.dart';
+import 'package:clover/feature/_catalog_/location/data/models/location_model.dart';
+import 'package:clover/feature/_catalog_/location/data/repository/location_repository.dart';
+import 'package:clover/feature/_catalog_/location/presentation/widget/location_detail_sheet.dart';
+import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
+import 'package:clover/feature/_settings_/settings/presentation/widget/settings_tile_section.dart';
 import 'package:flutter/material.dart';
 
 @RoutePage()

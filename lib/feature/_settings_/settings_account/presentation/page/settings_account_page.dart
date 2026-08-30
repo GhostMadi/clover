@@ -5,8 +5,10 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_tile.dart';
-import 'package:clover/feature/settings/presentation/widget/settings_screen_shell.dart';
-import 'package:clover/feature/settings/presentation/widget/settings_tile_section.dart';
+import 'package:clover/core/theme/app_theme_cubit.dart';
+import 'package:clover/core/theme/app_theme_mode.dart';
+import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
+import 'package:clover/feature/_settings_/settings/presentation/widget/settings_tile_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,17 +18,6 @@ enum _SettingsAccountLanguage {
   kk('kk', 'Қазақша');
 
   const _SettingsAccountLanguage(this.code, this.label);
-
-  final String code;
-  final String label;
-}
-
-enum _SettingsAccountTheme {
-  system('system', 'Системная'),
-  light('light', 'Светлая'),
-  dark('dark', 'Тёмная');
-
-  const _SettingsAccountTheme(this.code, this.label);
 
   final String code;
   final String label;
@@ -42,7 +33,6 @@ class SettingsAccountPage extends StatefulWidget {
 
 class _SettingsAccountPageState extends State<SettingsAccountPage> {
   _SettingsAccountLanguage _language = _SettingsAccountLanguage.ru;
-  _SettingsAccountTheme _theme = _SettingsAccountTheme.system;
   bool _isLoggingOut = false;
 
   Future<void> _pickLanguage() async {
@@ -57,14 +47,15 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
   }
 
   Future<void> _pickTheme() async {
-    final picked = await _showOptionSheet<_SettingsAccountTheme>(
+    final cubit = context.read<AppThemeCubit>();
+    final picked = await _showOptionSheet<AppThemeMode>(
       title: 'Тема',
-      options: _SettingsAccountTheme.values,
-      selected: _theme,
-      label: (option) => option.label,
+      options: AppThemeMode.values,
+      selected: cubit.state,
+      label: (option) => option.labelRu,
     );
     if (picked == null || !mounted) return;
-    setState(() => _theme = picked);
+    await cubit.setMode(picked);
   }
 
   Future<T?> _showOptionSheet<T>({
@@ -105,7 +96,7 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
     final confirmed = await AppBottomSheet.show<bool>(
       context: context,
       title: 'Выход',
-      content: const Text(
+      content: Text(
         'Выйти из аккаунта на этом устройстве?',
         style: TextStyle(color: AppColors.subTextColor, fontSize: 14, height: 1.4),
       ),
@@ -140,6 +131,8 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = context.watch<AppThemeCubit>().state;
+
     return SettingsScreenShell(
       title: 'Аккаунт',
       body: SingleChildScrollView(
@@ -159,7 +152,7 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
                 ),
                 AppTile(
                   title: 'Тема',
-                  subtitle: _theme.label,
+                  subtitle: themeMode.labelRu,
                   icon: AppIcons.theme.icon,
                   showChevron: true,
                   onTap: _pickTheme,
@@ -178,9 +171,9 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
                   enabled: !_isLoggingOut,
                   trailing: _isLoggingOut
                       ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.destructive),
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : null,
                   onTap: _confirmLogout,

@@ -2,9 +2,9 @@ import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_multi_selector.dart';
-import 'package:clover/feature/settings_filter/data/catalog/filter_catalog.dart';
-import 'package:clover/feature/settings_filter/data/models/filter_category.dart';
-import 'package:clover/feature/settings_filter/data/repository/filter_repository.dart';
+import 'package:clover/feature/_settings_/settings_filter/data/catalog/filter_catalog.dart';
+import 'package:clover/feature/_settings_/settings_filter/data/models/filter_category.dart';
+import 'package:clover/feature/_settings_/settings_filter/data/repository/filter_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

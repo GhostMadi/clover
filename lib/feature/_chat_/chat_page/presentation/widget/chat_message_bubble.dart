@@ -1,8 +1,8 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/feature/chat_page/data/models/chat_message.dart';
-import 'package:clover/feature/chat_page/presentation/form/chat_time_formatting.dart';
-import 'package:clover/feature/chat_page/presentation/widget/chat_post_ref_preview.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/form/chat_time_formatting.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_post_ref_preview.dart';
 import 'package:flutter/material.dart';
 
 class ChatMessageBubble extends StatelessWidget {

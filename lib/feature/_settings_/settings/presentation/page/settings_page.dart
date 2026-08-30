@@ -1,8 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_tile.dart';
-import 'package:clover/feature/settings/presentation/widget/settings_screen_shell.dart';
-import 'package:clover/feature/settings/presentation/widget/settings_tile_section.dart';
+import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
+import 'package:clover/feature/_settings_/settings/presentation/widget/settings_tile_section.dart';
 import 'package:flutter/material.dart';
 
 @RoutePage()
@@ -82,32 +82,18 @@ class SettingsPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            // const SettingsTileSectionTitle('Общее'),
-            // AppTileGroup(
-            //   children: [
-            //     AppTile(
-            //       title: 'Язык',
-            //       subtitle: 'Русский',
-            //       icon: AppIcons.language.icon,
-            //       showChevron: true,
-            //       onTap: () {},
-            //     ),
-            //     AppTile(
-            //       title: 'Тема',
-            //       subtitle: 'Системная',
-            //       icon: AppIcons.theme.icon,
-            //       showChevron: true,
-            //       onTap: () {},
-            //     ),
-            //     AppTile(
-            //       title: 'О приложении',
-            //       subtitle: 'Версия 1.0.0',
-            //       icon: Icons.info_outline_rounded,
-            //       showChevron: true,
-            //       onTap: () {},
-            //     ),
-            //   ],
-            // ),
+            const SettingsTileSectionTitle('О приложении'),
+            AppTileGroup(
+              children: [
+                AppTile(
+                  title: 'О приложении',
+                  subtitle: 'Версия и онбординг',
+                  icon: Icons.info_outline_rounded,
+                  showChevron: true,
+                  onTap: () => context.router.push(const AboutRoute()),
+                ),
+              ],
+            ),
             SizedBox(height: SettingsScreenShell.scrollBottomGap(context)),
           ],
         ),

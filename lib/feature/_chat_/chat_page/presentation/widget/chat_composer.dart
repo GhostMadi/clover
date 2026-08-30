@@ -89,7 +89,7 @@ class _ChatComposerState extends State<ChatComposer> {
                 BoxShadow(
                   color: AppColors.shadowDark.withValues(alpha: 0.08),
                   blurRadius: 20,
-                  offset: const Offset(0, 6),
+                  offset: Offset(0, 6),
                 ),
                 BoxShadow(
                   color: AppColors.shadowPrimary.withValues(alpha: 0.06),
@@ -106,7 +106,7 @@ class _ChatComposerState extends State<ChatComposer> {
                   if (widget.onAttachmentSelected != null) ...[
                     AppMiniMenu<ChatAttachmentAction>(
                       menuTooltip: 'Вложение',
-                      items: const [
+                      items: [
                         AppMiniMenuItem(
                           value: ChatAttachmentAction.photo,
                           title: 'Фото',
@@ -122,7 +122,7 @@ class _ChatComposerState extends State<ChatComposer> {
                       child: Container(
                         width: 40,
                         height: 40,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: AppColors.surfaceSoft,
                           shape: BoxShape.circle,
                         ),
@@ -168,9 +168,9 @@ class _ChatComposerState extends State<ChatComposer> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
                   AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
+                    duration: Duration(milliseconds: 180),
                     curve: Curves.easeOut,
                     decoration: BoxDecoration(
                       color: canSend ? AppColors.primary : AppColors.surfaceSoft,
@@ -195,7 +195,7 @@ class _ChatComposerState extends State<ChatComposer> {
                           width: 44,
                           height: 44,
                           child: widget.isSending
-                              ? const Padding(
+                              ? Padding(
                                   padding: EdgeInsets.all(12),
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,

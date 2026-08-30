@@ -9,149 +9,170 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i54;
+import 'package:auto_route/auto_route.dart' as _i56;
+import 'package:clover/feature/_archive_/event_archive/presentation/page/event_archive_page.dart'
+    as _i26;
+import 'package:clover/feature/_archive_/post_archive/presentation/page/post_archive_page.dart'
+    as _i43;
+import 'package:clover/feature/_archive_/settings_archive/presentation/page/settings_archive_page.dart'
+    as _i52;
 import 'package:clover/feature/_bonus_/bonus_history/presentation/page/bonus_history_page.dart'
-    as _i2;
-import 'package:clover/feature/_bonus_/bonus_settings/presentation/page/bonus_program_settings_page.dart'
     as _i3;
-import 'package:clover/feature/_bonus_/my_bonuses/data/models/bonus_account_item.dart'
-    as _i56;
-import 'package:clover/feature/_bonus_/my_bonuses/presentation/page/my_bonuses_page.dart'
-    as _i37;
-import 'package:clover/feature/_booking_/booking_analytics/presentation/page/booking_analytics_page.dart'
+import 'package:clover/feature/_bonus_/bonus_settings/presentation/page/bonus_program_settings_page.dart'
     as _i4;
-import 'package:clover/feature/_booking_/booking_client/presentation/page/booking_client_page.dart'
-    as _i5;
-import 'package:clover/feature/_booking_/booking_create/data/models/booking_service.dart'
+import 'package:clover/feature/_bonus_/my_bonuses/data/models/bonus_account_item.dart'
     as _i58;
-import 'package:clover/feature/_booking_/booking_create/presentation/page/booking_create_page.dart'
-    as _i6;
-import 'package:clover/feature/_booking_/booking_create/presentation/page/booking_service_create_page.dart'
-    as _i10;
-import 'package:clover/feature/_booking_/booking_create/presentation/page/booking_service_edit_page.dart'
-    as _i11;
-import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_item.dart'
-    as _i57;
-import 'package:clover/feature/_booking_/booking_list/presentation/page/booking_list_detail_page.dart'
-    as _i7;
-import 'package:clover/feature/_booking_/booking_list/presentation/page/booking_list_page.dart'
-    as _i8;
-import 'package:clover/feature/_booking_/booking_settings/presentation/page/booking_schedule_settings_page.dart'
-    as _i9;
-import 'package:clover/feature/_booking_/my_bookings/data/models/my_booking_item.dart'
-    as _i59;
-import 'package:clover/feature/_booking_/my_bookings/presentation/page/my_booking_detail_page.dart'
+import 'package:clover/feature/_bonus_/my_bonuses/presentation/page/my_bonuses_page.dart'
     as _i38;
-import 'package:clover/feature/_booking_/my_bookings/presentation/page/my_bookings_page.dart'
+import 'package:clover/feature/_booking_/booking_analytics/presentation/page/booking_analytics_page.dart'
+    as _i5;
+import 'package:clover/feature/_booking_/booking_client/presentation/page/booking_client_page.dart'
+    as _i6;
+import 'package:clover/feature/_booking_/booking_create/data/models/booking_service.dart'
+    as _i60;
+import 'package:clover/feature/_booking_/booking_create/presentation/page/booking_create_page.dart'
+    as _i7;
+import 'package:clover/feature/_booking_/booking_create/presentation/page/booking_service_create_page.dart'
+    as _i11;
+import 'package:clover/feature/_booking_/booking_create/presentation/page/booking_service_edit_page.dart'
+    as _i12;
+import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_item.dart'
+    as _i59;
+import 'package:clover/feature/_booking_/booking_list/presentation/page/booking_list_detail_page.dart'
+    as _i8;
+import 'package:clover/feature/_booking_/booking_list/presentation/page/booking_list_page.dart'
+    as _i9;
+import 'package:clover/feature/_booking_/booking_settings/presentation/page/booking_schedule_settings_page.dart'
+    as _i10;
+import 'package:clover/feature/_booking_/my_bookings/data/models/my_booking_item.dart'
+    as _i61;
+import 'package:clover/feature/_booking_/my_bookings/presentation/page/my_booking_detail_page.dart'
     as _i39;
-import 'package:clover/feature/archive/cluster_archive/presentation/page/cluster_archive_page.dart'
+import 'package:clover/feature/_booking_/my_bookings/presentation/page/my_bookings_page.dart'
+    as _i40;
+import 'package:clover/feature/_catalog_/location/presentation/page/location_create_page.dart'
+    as _i30;
+import 'package:clover/feature/_catalog_/location/presentation/page/location_page.dart'
+    as _i31;
+import 'package:clover/feature/_chat_/chat_page/presentation/page/chat_page.dart'
     as _i13;
-import 'package:clover/feature/archive/event_archive/presentation/page/event_archive_page.dart'
+import 'package:clover/feature/_chat_/message_page/presentation/page/message_page.dart'
+    as _i37;
+import 'package:clover/feature/_cluster_/cluster_archive/presentation/page/cluster_archive_page.dart'
+    as _i14;
+import 'package:clover/feature/_cluster_/cluster_create/presentation/page/cluster_create_compose_page.dart'
+    as _i15;
+import 'package:clover/feature/_cluster_/cluster_create/presentation/page/cluster_create_editor_page.dart'
+    as _i16;
+import 'package:clover/feature/_cluster_/cluster_create/presentation/page/cluster_create_page.dart'
+    as _i17;
+import 'package:clover/feature/_feed_/events_page/presentation/page/events_page.dart'
+    as _i27;
+import 'package:clover/feature/_feed_/map_page/presentation/page/map_page.dart'
+    as _i33;
+import 'package:clover/feature/_post_/marker_create/presentation/page/marker_create_compose_page.dart'
+    as _i34;
+import 'package:clover/feature/_post_/marker_create/presentation/page/marker_create_editor_page.dart'
+    as _i35;
+import 'package:clover/feature/_post_/marker_create/presentation/page/marker_create_page.dart'
+    as _i36;
+import 'package:clover/feature/_post_/post/data/models/post_archive_context.dart'
+    as _i64;
+import 'package:clover/feature/_post_/post/data/models/post_marker_summary.dart'
+    as _i63;
+import 'package:clover/feature/_post_/post/data/models/post_model.dart' as _i62;
+import 'package:clover/feature/_post_/post/presentation/page/post_page.dart'
+    as _i47;
+import 'package:clover/feature/_post_/post_create/presentation/page/create_post.dart'
+    as _i46;
+import 'package:clover/feature/_post_/post_create/presentation/page/post_create_compose_page.dart'
+    as _i44;
+import 'package:clover/feature/_post_/post_create/presentation/page/post_create_editor_page.dart'
+    as _i45;
+import 'package:clover/feature/_profile_/edit_profile/presentation/page/edit_profile_avatar_confirm_page.dart'
+    as _i19;
+import 'package:clover/feature/_profile_/edit_profile/presentation/page/edit_profile_avatar_editor_page.dart'
+    as _i20;
+import 'package:clover/feature/_profile_/edit_profile/presentation/page/edit_profile_avatar_pick_page.dart'
+    as _i21;
+import 'package:clover/feature/_profile_/edit_profile/presentation/page/edit_profile_banner_confirm_page.dart'
+    as _i22;
+import 'package:clover/feature/_profile_/edit_profile/presentation/page/edit_profile_banner_editor_page.dart'
+    as _i23;
+import 'package:clover/feature/_profile_/edit_profile/presentation/page/edit_profile_banner_pick_page.dart'
+    as _i24;
+import 'package:clover/feature/_profile_/edit_profile/presentation/page/edit_profile_page.dart'
     as _i25;
-import 'package:clover/feature/archive/post_archive/presentation/page/post_archive_page.dart'
-    as _i41;
-import 'package:clover/feature/archive/settings_archive/presentation/page/settings_archive_page.dart'
+import 'package:clover/feature/_profile_/followers_and_followings/presentation/page/followers_and_followings_page.dart'
+    as _i28;
+import 'package:clover/feature/_profile_/profile_page/presentation/page/guest_profile_page.dart'
+    as _i29;
+import 'package:clover/feature/_profile_/profile_page/presentation/page/profile_page.dart'
+    as _i48;
+import 'package:clover/feature/_settings_/settings/presentation/page/settings_page.dart'
+    as _i54;
+import 'package:clover/feature/_settings_/settings_about/presentation/page/about_page.dart'
+    as _i1;
+import 'package:clover/feature/_settings_/settings_account/presentation/page/settings_account_page.dart'
+    as _i51;
+import 'package:clover/feature/_settings_/settings_filter/presentation/settings/page/settings_filters_page.dart'
+    as _i53;
+import 'package:clover/feature/_settings_/settings_resources/presentation/page/settings_resources_page.dart'
+    as _i55;
+import 'package:clover/feature/_settings_/settings_saved_post/presentation/page/saved_posts_page.dart'
     as _i50;
 import 'package:clover/feature/auth/login/presentation/page/login_page.dart'
-    as _i31;
-import 'package:clover/feature/auth/presentation/page/root_page.dart' as _i47;
-import 'package:clover/feature/chat_page/presentation/page/chat_page.dart'
-    as _i12;
-import 'package:clover/feature/cluster_create/presentation/page/cluster_create_compose_page.dart'
-    as _i14;
-import 'package:clover/feature/cluster_create/presentation/page/cluster_create_editor_page.dart'
-    as _i15;
-import 'package:clover/feature/cluster_create/presentation/page/cluster_create_page.dart'
-    as _i16;
-import 'package:clover/feature/dashboard_page/presentation/page/app_dashboard.dart'
-    as _i1;
-import 'package:clover/feature/dashboard_page/presentation/page/dashboard_home_page.dart'
-    as _i17;
-import 'package:clover/feature/edit_profile/presentation/page/edit_profile_avatar_confirm_page.dart'
-    as _i18;
-import 'package:clover/feature/edit_profile/presentation/page/edit_profile_avatar_editor_page.dart'
-    as _i19;
-import 'package:clover/feature/edit_profile/presentation/page/edit_profile_avatar_pick_page.dart'
-    as _i20;
-import 'package:clover/feature/edit_profile/presentation/page/edit_profile_banner_confirm_page.dart'
-    as _i21;
-import 'package:clover/feature/edit_profile/presentation/page/edit_profile_banner_editor_page.dart'
-    as _i22;
-import 'package:clover/feature/edit_profile/presentation/page/edit_profile_banner_pick_page.dart'
-    as _i23;
-import 'package:clover/feature/edit_profile/presentation/page/edit_profile_page.dart'
-    as _i24;
-import 'package:clover/feature/events_page/presentation/page/events_page.dart'
-    as _i26;
-import 'package:clover/feature/followers_and_followings/presentation/page/followers_and_followings_page.dart'
-    as _i27;
-import 'package:clover/feature/location/presentation/page/location_create_page.dart'
-    as _i29;
-import 'package:clover/feature/location/presentation/page/location_page.dart'
-    as _i30;
-import 'package:clover/feature/map_page/presentation/page/map_page.dart'
     as _i32;
-import 'package:clover/feature/marker_create/presentation/page/marker_create_compose_page.dart'
-    as _i33;
-import 'package:clover/feature/marker_create/presentation/page/marker_create_editor_page.dart'
-    as _i34;
-import 'package:clover/feature/marker_create/presentation/page/marker_create_page.dart'
-    as _i35;
-import 'package:clover/feature/message_page/presentation/page/message_page.dart'
-    as _i36;
+import 'package:clover/feature/auth/presentation/page/root_page.dart' as _i49;
+import 'package:clover/feature/dashboard_page/presentation/page/app_dashboard.dart'
+    as _i2;
+import 'package:clover/feature/dashboard_page/presentation/page/dashboard_home_page.dart'
+    as _i18;
 import 'package:clover/feature/notification_page/presentation/page/notifications_page.dart'
-    as _i40;
-import 'package:clover/feature/post/data/models/post_archive_context.dart'
-    as _i62;
-import 'package:clover/feature/post/data/models/post_marker_summary.dart'
-    as _i61;
-import 'package:clover/feature/post/data/models/post_model.dart' as _i60;
-import 'package:clover/feature/post/presentation/page/post_page.dart' as _i45;
-import 'package:clover/feature/post_create/presentation/page/create_post.dart'
-    as _i44;
-import 'package:clover/feature/post_create/presentation/page/post_create_compose_page.dart'
+    as _i41;
+import 'package:clover/feature/onboarding/presentation/page/onboarding_page.dart'
     as _i42;
-import 'package:clover/feature/post_create/presentation/page/post_create_editor_page.dart'
-    as _i43;
-import 'package:clover/feature/profile_page/presentation/page/guest_profile_page.dart'
-    as _i28;
-import 'package:clover/feature/profile_page/presentation/page/profile_page.dart'
-    as _i46;
-import 'package:clover/feature/settings/presentation/page/settings_page.dart'
-    as _i52;
-import 'package:clover/feature/settings_account/presentation/page/settings_account_page.dart'
-    as _i49;
-import 'package:clover/feature/settings_filter/presentation/settings/page/settings_filters_page.dart'
-    as _i51;
-import 'package:clover/feature/settings_resources/presentation/page/settings_resources_page.dart'
-    as _i53;
-import 'package:clover/feature/settings_saved_post/presentation/page/saved_posts_page.dart'
-    as _i48;
-import 'package:flutter/material.dart' as _i55;
+import 'package:flutter/material.dart' as _i57;
 
 /// generated route for
-/// [_i1.AppDashboardPage]
-class AppDashboardRoute extends _i54.PageRouteInfo<void> {
-  const AppDashboardRoute({List<_i54.PageRouteInfo>? children})
-    : super(AppDashboardRoute.name, initialChildren: children);
+/// [_i1.AboutPage]
+class AboutRoute extends _i56.PageRouteInfo<void> {
+  const AboutRoute({List<_i56.PageRouteInfo>? children})
+    : super(AboutRoute.name, initialChildren: children);
 
-  static const String name = 'AppDashboardRoute';
+  static const String name = 'AboutRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i1.AppDashboardPage();
+      return const _i1.AboutPage();
     },
   );
 }
 
 /// generated route for
-/// [_i2.BonusHistoryPage]
-class BonusHistoryRoute extends _i54.PageRouteInfo<BonusHistoryRouteArgs> {
+/// [_i2.AppDashboardPage]
+class AppDashboardRoute extends _i56.PageRouteInfo<void> {
+  const AppDashboardRoute({List<_i56.PageRouteInfo>? children})
+    : super(AppDashboardRoute.name, initialChildren: children);
+
+  static const String name = 'AppDashboardRoute';
+
+  static _i56.PageInfo page = _i56.PageInfo(
+    name,
+    builder: (data) {
+      return const _i2.AppDashboardPage();
+    },
+  );
+}
+
+/// generated route for
+/// [_i3.BonusHistoryPage]
+class BonusHistoryRoute extends _i56.PageRouteInfo<BonusHistoryRouteArgs> {
   BonusHistoryRoute({
-    _i55.Key? key,
-    required _i56.BonusAccountItem account,
-    List<_i54.PageRouteInfo>? children,
+    _i57.Key? key,
+    required _i58.BonusAccountItem account,
+    List<_i56.PageRouteInfo>? children,
   }) : super(
          BonusHistoryRoute.name,
          args: BonusHistoryRouteArgs(key: key, account: account),
@@ -160,11 +181,11 @@ class BonusHistoryRoute extends _i54.PageRouteInfo<BonusHistoryRouteArgs> {
 
   static const String name = 'BonusHistoryRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<BonusHistoryRouteArgs>();
-      return _i2.BonusHistoryPage(key: args.key, account: args.account);
+      return _i3.BonusHistoryPage(key: args.key, account: args.account);
     },
   );
 }
@@ -172,9 +193,9 @@ class BonusHistoryRoute extends _i54.PageRouteInfo<BonusHistoryRouteArgs> {
 class BonusHistoryRouteArgs {
   const BonusHistoryRouteArgs({this.key, required this.account});
 
-  final _i55.Key? key;
+  final _i57.Key? key;
 
-  final _i56.BonusAccountItem account;
+  final _i58.BonusAccountItem account;
 
   @override
   String toString() {
@@ -193,45 +214,45 @@ class BonusHistoryRouteArgs {
 }
 
 /// generated route for
-/// [_i3.BonusProgramSettingsPage]
-class BonusProgramSettingsRoute extends _i54.PageRouteInfo<void> {
-  const BonusProgramSettingsRoute({List<_i54.PageRouteInfo>? children})
+/// [_i4.BonusProgramSettingsPage]
+class BonusProgramSettingsRoute extends _i56.PageRouteInfo<void> {
+  const BonusProgramSettingsRoute({List<_i56.PageRouteInfo>? children})
     : super(BonusProgramSettingsRoute.name, initialChildren: children);
 
   static const String name = 'BonusProgramSettingsRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i3.BonusProgramSettingsPage();
+      return const _i4.BonusProgramSettingsPage();
     },
   );
 }
 
 /// generated route for
-/// [_i4.BookingAnalyticsPage]
-class BookingAnalyticsRoute extends _i54.PageRouteInfo<void> {
-  const BookingAnalyticsRoute({List<_i54.PageRouteInfo>? children})
+/// [_i5.BookingAnalyticsPage]
+class BookingAnalyticsRoute extends _i56.PageRouteInfo<void> {
+  const BookingAnalyticsRoute({List<_i56.PageRouteInfo>? children})
     : super(BookingAnalyticsRoute.name, initialChildren: children);
 
   static const String name = 'BookingAnalyticsRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i4.BookingAnalyticsPage();
+      return const _i5.BookingAnalyticsPage();
     },
   );
 }
 
 /// generated route for
-/// [_i5.BookingClientPage]
-class BookingClientRoute extends _i54.PageRouteInfo<BookingClientRouteArgs> {
+/// [_i6.BookingClientPage]
+class BookingClientRoute extends _i56.PageRouteInfo<BookingClientRouteArgs> {
   BookingClientRoute({
-    _i55.Key? key,
+    _i57.Key? key,
     required String hostId,
     required String hostDisplayName,
-    List<_i54.PageRouteInfo>? children,
+    List<_i56.PageRouteInfo>? children,
   }) : super(
          BookingClientRoute.name,
          args: BookingClientRouteArgs(
@@ -244,11 +265,11 @@ class BookingClientRoute extends _i54.PageRouteInfo<BookingClientRouteArgs> {
 
   static const String name = 'BookingClientRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<BookingClientRouteArgs>();
-      return _i5.BookingClientPage(
+      return _i6.BookingClientPage(
         key: args.key,
         hostId: args.hostId,
         hostDisplayName: args.hostDisplayName,
@@ -264,7 +285,7 @@ class BookingClientRouteArgs {
     required this.hostDisplayName,
   });
 
-  final _i55.Key? key;
+  final _i57.Key? key;
 
   final String hostId;
 
@@ -289,29 +310,29 @@ class BookingClientRouteArgs {
 }
 
 /// generated route for
-/// [_i6.BookingCreatePage]
-class BookingCreateRoute extends _i54.PageRouteInfo<void> {
-  const BookingCreateRoute({List<_i54.PageRouteInfo>? children})
+/// [_i7.BookingCreatePage]
+class BookingCreateRoute extends _i56.PageRouteInfo<void> {
+  const BookingCreateRoute({List<_i56.PageRouteInfo>? children})
     : super(BookingCreateRoute.name, initialChildren: children);
 
   static const String name = 'BookingCreateRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i6.BookingCreatePage();
+      return const _i7.BookingCreatePage();
     },
   );
 }
 
 /// generated route for
-/// [_i7.BookingListDetailPage]
+/// [_i8.BookingListDetailPage]
 class BookingListDetailRoute
-    extends _i54.PageRouteInfo<BookingListDetailRouteArgs> {
+    extends _i56.PageRouteInfo<BookingListDetailRouteArgs> {
   BookingListDetailRoute({
-    _i55.Key? key,
-    required _i57.BookingListItem item,
-    List<_i54.PageRouteInfo>? children,
+    _i57.Key? key,
+    required _i59.BookingListItem item,
+    List<_i56.PageRouteInfo>? children,
   }) : super(
          BookingListDetailRoute.name,
          args: BookingListDetailRouteArgs(key: key, item: item),
@@ -320,11 +341,11 @@ class BookingListDetailRoute
 
   static const String name = 'BookingListDetailRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<BookingListDetailRouteArgs>();
-      return _i7.BookingListDetailPage(key: args.key, item: args.item);
+      return _i8.BookingListDetailPage(key: args.key, item: args.item);
     },
   );
 }
@@ -332,9 +353,9 @@ class BookingListDetailRoute
 class BookingListDetailRouteArgs {
   const BookingListDetailRouteArgs({this.key, required this.item});
 
-  final _i55.Key? key;
+  final _i57.Key? key;
 
-  final _i57.BookingListItem item;
+  final _i59.BookingListItem item;
 
   @override
   String toString() {
@@ -353,61 +374,61 @@ class BookingListDetailRouteArgs {
 }
 
 /// generated route for
-/// [_i8.BookingListPage]
-class BookingListRoute extends _i54.PageRouteInfo<void> {
-  const BookingListRoute({List<_i54.PageRouteInfo>? children})
+/// [_i9.BookingListPage]
+class BookingListRoute extends _i56.PageRouteInfo<void> {
+  const BookingListRoute({List<_i56.PageRouteInfo>? children})
     : super(BookingListRoute.name, initialChildren: children);
 
   static const String name = 'BookingListRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i8.BookingListPage();
+      return const _i9.BookingListPage();
     },
   );
 }
 
 /// generated route for
-/// [_i9.BookingScheduleSettingsPage]
-class BookingScheduleSettingsRoute extends _i54.PageRouteInfo<void> {
-  const BookingScheduleSettingsRoute({List<_i54.PageRouteInfo>? children})
+/// [_i10.BookingScheduleSettingsPage]
+class BookingScheduleSettingsRoute extends _i56.PageRouteInfo<void> {
+  const BookingScheduleSettingsRoute({List<_i56.PageRouteInfo>? children})
     : super(BookingScheduleSettingsRoute.name, initialChildren: children);
 
   static const String name = 'BookingScheduleSettingsRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i9.BookingScheduleSettingsPage();
+      return const _i10.BookingScheduleSettingsPage();
     },
   );
 }
 
 /// generated route for
-/// [_i10.BookingServiceCreatePage]
-class BookingServiceCreateRoute extends _i54.PageRouteInfo<void> {
-  const BookingServiceCreateRoute({List<_i54.PageRouteInfo>? children})
+/// [_i11.BookingServiceCreatePage]
+class BookingServiceCreateRoute extends _i56.PageRouteInfo<void> {
+  const BookingServiceCreateRoute({List<_i56.PageRouteInfo>? children})
     : super(BookingServiceCreateRoute.name, initialChildren: children);
 
   static const String name = 'BookingServiceCreateRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i10.BookingServiceCreatePage();
+      return const _i11.BookingServiceCreatePage();
     },
   );
 }
 
 /// generated route for
-/// [_i11.BookingServiceEditPage]
+/// [_i12.BookingServiceEditPage]
 class BookingServiceEditRoute
-    extends _i54.PageRouteInfo<BookingServiceEditRouteArgs> {
+    extends _i56.PageRouteInfo<BookingServiceEditRouteArgs> {
   BookingServiceEditRoute({
-    _i55.Key? key,
-    required _i58.BookingService service,
-    List<_i54.PageRouteInfo>? children,
+    _i57.Key? key,
+    required _i60.BookingService service,
+    List<_i56.PageRouteInfo>? children,
   }) : super(
          BookingServiceEditRoute.name,
          args: BookingServiceEditRouteArgs(key: key, service: service),
@@ -416,11 +437,11 @@ class BookingServiceEditRoute
 
   static const String name = 'BookingServiceEditRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<BookingServiceEditRouteArgs>();
-      return _i11.BookingServiceEditPage(key: args.key, service: args.service);
+      return _i12.BookingServiceEditPage(key: args.key, service: args.service);
     },
   );
 }
@@ -428,9 +449,9 @@ class BookingServiceEditRoute
 class BookingServiceEditRouteArgs {
   const BookingServiceEditRouteArgs({this.key, required this.service});
 
-  final _i55.Key? key;
+  final _i57.Key? key;
 
-  final _i58.BookingService service;
+  final _i60.BookingService service;
 
   @override
   String toString() {
@@ -449,13 +470,13 @@ class BookingServiceEditRouteArgs {
 }
 
 /// generated route for
-/// [_i12.ChatPage]
-class ChatRoute extends _i54.PageRouteInfo<ChatRouteArgs> {
+/// [_i13.ChatPage]
+class ChatRoute extends _i56.PageRouteInfo<ChatRouteArgs> {
   ChatRoute({
-    _i55.Key? key,
+    _i57.Key? key,
     required String chatId,
     required String username,
-    List<_i54.PageRouteInfo>? children,
+    List<_i56.PageRouteInfo>? children,
   }) : super(
          ChatRoute.name,
          args: ChatRouteArgs(key: key, chatId: chatId, username: username),
@@ -464,11 +485,11 @@ class ChatRoute extends _i54.PageRouteInfo<ChatRouteArgs> {
 
   static const String name = 'ChatRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<ChatRouteArgs>();
-      return _i12.ChatPage(
+      return _i13.ChatPage(
         key: args.key,
         chatId: args.chatId,
         username: args.username,
@@ -480,7 +501,7 @@ class ChatRoute extends _i54.PageRouteInfo<ChatRouteArgs> {
 class ChatRouteArgs {
   const ChatRouteArgs({this.key, required this.chatId, required this.username});
 
-  final _i55.Key? key;
+  final _i57.Key? key;
 
   final String chatId;
 
@@ -505,239 +526,239 @@ class ChatRouteArgs {
 }
 
 /// generated route for
-/// [_i13.ClusterArchivePage]
-class ClusterArchiveRoute extends _i54.PageRouteInfo<void> {
-  const ClusterArchiveRoute({List<_i54.PageRouteInfo>? children})
+/// [_i14.ClusterArchivePage]
+class ClusterArchiveRoute extends _i56.PageRouteInfo<void> {
+  const ClusterArchiveRoute({List<_i56.PageRouteInfo>? children})
     : super(ClusterArchiveRoute.name, initialChildren: children);
 
   static const String name = 'ClusterArchiveRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i13.ClusterArchivePage();
+      return const _i14.ClusterArchivePage();
     },
   );
 }
 
 /// generated route for
-/// [_i14.ClusterCreateComposePage]
-class ClusterCreateComposeRoute extends _i54.PageRouteInfo<void> {
-  const ClusterCreateComposeRoute({List<_i54.PageRouteInfo>? children})
+/// [_i15.ClusterCreateComposePage]
+class ClusterCreateComposeRoute extends _i56.PageRouteInfo<void> {
+  const ClusterCreateComposeRoute({List<_i56.PageRouteInfo>? children})
     : super(ClusterCreateComposeRoute.name, initialChildren: children);
 
   static const String name = 'ClusterCreateComposeRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i14.ClusterCreateComposePage();
+      return const _i15.ClusterCreateComposePage();
     },
   );
 }
 
 /// generated route for
-/// [_i15.ClusterCreateEditorPage]
-class ClusterCreateEditorRoute extends _i54.PageRouteInfo<void> {
-  const ClusterCreateEditorRoute({List<_i54.PageRouteInfo>? children})
+/// [_i16.ClusterCreateEditorPage]
+class ClusterCreateEditorRoute extends _i56.PageRouteInfo<void> {
+  const ClusterCreateEditorRoute({List<_i56.PageRouteInfo>? children})
     : super(ClusterCreateEditorRoute.name, initialChildren: children);
 
   static const String name = 'ClusterCreateEditorRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i15.ClusterCreateEditorPage();
+      return const _i16.ClusterCreateEditorPage();
     },
   );
 }
 
 /// generated route for
-/// [_i16.ClusterCreatePage]
-class ClusterCreateRoute extends _i54.PageRouteInfo<void> {
-  const ClusterCreateRoute({List<_i54.PageRouteInfo>? children})
+/// [_i17.ClusterCreatePage]
+class ClusterCreateRoute extends _i56.PageRouteInfo<void> {
+  const ClusterCreateRoute({List<_i56.PageRouteInfo>? children})
     : super(ClusterCreateRoute.name, initialChildren: children);
 
   static const String name = 'ClusterCreateRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i16.ClusterCreatePage();
+      return const _i17.ClusterCreatePage();
     },
   );
 }
 
 /// generated route for
-/// [_i17.DashboardHomePage]
-class DashboardHomeRoute extends _i54.PageRouteInfo<void> {
-  const DashboardHomeRoute({List<_i54.PageRouteInfo>? children})
+/// [_i18.DashboardHomePage]
+class DashboardHomeRoute extends _i56.PageRouteInfo<void> {
+  const DashboardHomeRoute({List<_i56.PageRouteInfo>? children})
     : super(DashboardHomeRoute.name, initialChildren: children);
 
   static const String name = 'DashboardHomeRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i17.DashboardHomePage();
+      return const _i18.DashboardHomePage();
     },
   );
 }
 
 /// generated route for
-/// [_i18.EditProfileAvatarConfirmPage]
-class EditProfileAvatarConfirmRoute extends _i54.PageRouteInfo<void> {
-  const EditProfileAvatarConfirmRoute({List<_i54.PageRouteInfo>? children})
+/// [_i19.EditProfileAvatarConfirmPage]
+class EditProfileAvatarConfirmRoute extends _i56.PageRouteInfo<void> {
+  const EditProfileAvatarConfirmRoute({List<_i56.PageRouteInfo>? children})
     : super(EditProfileAvatarConfirmRoute.name, initialChildren: children);
 
   static const String name = 'EditProfileAvatarConfirmRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i18.EditProfileAvatarConfirmPage();
+      return const _i19.EditProfileAvatarConfirmPage();
     },
   );
 }
 
 /// generated route for
-/// [_i19.EditProfileAvatarEditorPage]
-class EditProfileAvatarEditorRoute extends _i54.PageRouteInfo<void> {
-  const EditProfileAvatarEditorRoute({List<_i54.PageRouteInfo>? children})
+/// [_i20.EditProfileAvatarEditorPage]
+class EditProfileAvatarEditorRoute extends _i56.PageRouteInfo<void> {
+  const EditProfileAvatarEditorRoute({List<_i56.PageRouteInfo>? children})
     : super(EditProfileAvatarEditorRoute.name, initialChildren: children);
 
   static const String name = 'EditProfileAvatarEditorRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i19.EditProfileAvatarEditorPage();
+      return const _i20.EditProfileAvatarEditorPage();
     },
   );
 }
 
 /// generated route for
-/// [_i20.EditProfileAvatarPickPage]
-class EditProfileAvatarPickRoute extends _i54.PageRouteInfo<void> {
-  const EditProfileAvatarPickRoute({List<_i54.PageRouteInfo>? children})
+/// [_i21.EditProfileAvatarPickPage]
+class EditProfileAvatarPickRoute extends _i56.PageRouteInfo<void> {
+  const EditProfileAvatarPickRoute({List<_i56.PageRouteInfo>? children})
     : super(EditProfileAvatarPickRoute.name, initialChildren: children);
 
   static const String name = 'EditProfileAvatarPickRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i20.EditProfileAvatarPickPage();
+      return const _i21.EditProfileAvatarPickPage();
     },
   );
 }
 
 /// generated route for
-/// [_i21.EditProfileBannerConfirmPage]
-class EditProfileBannerConfirmRoute extends _i54.PageRouteInfo<void> {
-  const EditProfileBannerConfirmRoute({List<_i54.PageRouteInfo>? children})
+/// [_i22.EditProfileBannerConfirmPage]
+class EditProfileBannerConfirmRoute extends _i56.PageRouteInfo<void> {
+  const EditProfileBannerConfirmRoute({List<_i56.PageRouteInfo>? children})
     : super(EditProfileBannerConfirmRoute.name, initialChildren: children);
 
   static const String name = 'EditProfileBannerConfirmRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i21.EditProfileBannerConfirmPage();
+      return const _i22.EditProfileBannerConfirmPage();
     },
   );
 }
 
 /// generated route for
-/// [_i22.EditProfileBannerEditorPage]
-class EditProfileBannerEditorRoute extends _i54.PageRouteInfo<void> {
-  const EditProfileBannerEditorRoute({List<_i54.PageRouteInfo>? children})
+/// [_i23.EditProfileBannerEditorPage]
+class EditProfileBannerEditorRoute extends _i56.PageRouteInfo<void> {
+  const EditProfileBannerEditorRoute({List<_i56.PageRouteInfo>? children})
     : super(EditProfileBannerEditorRoute.name, initialChildren: children);
 
   static const String name = 'EditProfileBannerEditorRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i22.EditProfileBannerEditorPage();
+      return const _i23.EditProfileBannerEditorPage();
     },
   );
 }
 
 /// generated route for
-/// [_i23.EditProfileBannerPickPage]
-class EditProfileBannerPickRoute extends _i54.PageRouteInfo<void> {
-  const EditProfileBannerPickRoute({List<_i54.PageRouteInfo>? children})
+/// [_i24.EditProfileBannerPickPage]
+class EditProfileBannerPickRoute extends _i56.PageRouteInfo<void> {
+  const EditProfileBannerPickRoute({List<_i56.PageRouteInfo>? children})
     : super(EditProfileBannerPickRoute.name, initialChildren: children);
 
   static const String name = 'EditProfileBannerPickRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i23.EditProfileBannerPickPage();
+      return const _i24.EditProfileBannerPickPage();
     },
   );
 }
 
 /// generated route for
-/// [_i24.EditProfilePage]
-class EditProfileRoute extends _i54.PageRouteInfo<void> {
-  const EditProfileRoute({List<_i54.PageRouteInfo>? children})
+/// [_i25.EditProfilePage]
+class EditProfileRoute extends _i56.PageRouteInfo<void> {
+  const EditProfileRoute({List<_i56.PageRouteInfo>? children})
     : super(EditProfileRoute.name, initialChildren: children);
 
   static const String name = 'EditProfileRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i24.EditProfilePage();
+      return const _i25.EditProfilePage();
     },
   );
 }
 
 /// generated route for
-/// [_i25.EventArchivePage]
-class EventArchiveRoute extends _i54.PageRouteInfo<void> {
-  const EventArchiveRoute({List<_i54.PageRouteInfo>? children})
+/// [_i26.EventArchivePage]
+class EventArchiveRoute extends _i56.PageRouteInfo<void> {
+  const EventArchiveRoute({List<_i56.PageRouteInfo>? children})
     : super(EventArchiveRoute.name, initialChildren: children);
 
   static const String name = 'EventArchiveRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i25.EventArchivePage();
+      return const _i26.EventArchivePage();
     },
   );
 }
 
 /// generated route for
-/// [_i26.EventsPage]
-class EventsRoute extends _i54.PageRouteInfo<void> {
-  const EventsRoute({List<_i54.PageRouteInfo>? children})
+/// [_i27.EventsPage]
+class EventsRoute extends _i56.PageRouteInfo<void> {
+  const EventsRoute({List<_i56.PageRouteInfo>? children})
     : super(EventsRoute.name, initialChildren: children);
 
   static const String name = 'EventsRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i26.EventsPage();
+      return const _i27.EventsPage();
     },
   );
 }
 
 /// generated route for
-/// [_i27.FollowersAndFollowingsPage]
+/// [_i28.FollowersAndFollowingsPage]
 class FollowersAndFollowingsRoute
-    extends _i54.PageRouteInfo<FollowersAndFollowingsRouteArgs> {
+    extends _i56.PageRouteInfo<FollowersAndFollowingsRouteArgs> {
   FollowersAndFollowingsRoute({
-    _i55.Key? key,
+    _i57.Key? key,
     required String profileId,
     String? username,
     int initialTabIndex = 0,
-    List<_i54.PageRouteInfo>? children,
+    List<_i56.PageRouteInfo>? children,
   }) : super(
          FollowersAndFollowingsRoute.name,
          args: FollowersAndFollowingsRouteArgs(
@@ -751,11 +772,11 @@ class FollowersAndFollowingsRoute
 
   static const String name = 'FollowersAndFollowingsRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<FollowersAndFollowingsRouteArgs>();
-      return _i27.FollowersAndFollowingsPage(
+      return _i28.FollowersAndFollowingsPage(
         key: args.key,
         profileId: args.profileId,
         username: args.username,
@@ -773,7 +794,7 @@ class FollowersAndFollowingsRouteArgs {
     this.initialTabIndex = 0,
   });
 
-  final _i55.Key? key;
+  final _i57.Key? key;
 
   final String profileId;
 
@@ -805,12 +826,12 @@ class FollowersAndFollowingsRouteArgs {
 }
 
 /// generated route for
-/// [_i28.GuestProfilePage]
-class GuestProfileRoute extends _i54.PageRouteInfo<GuestProfileRouteArgs> {
+/// [_i29.GuestProfilePage]
+class GuestProfileRoute extends _i56.PageRouteInfo<GuestProfileRouteArgs> {
   GuestProfileRoute({
-    _i55.Key? key,
+    _i57.Key? key,
     required String userId,
-    List<_i54.PageRouteInfo>? children,
+    List<_i56.PageRouteInfo>? children,
   }) : super(
          GuestProfileRoute.name,
          args: GuestProfileRouteArgs(key: key, userId: userId),
@@ -819,11 +840,11 @@ class GuestProfileRoute extends _i54.PageRouteInfo<GuestProfileRouteArgs> {
 
   static const String name = 'GuestProfileRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<GuestProfileRouteArgs>();
-      return _i28.GuestProfilePage(key: args.key, userId: args.userId);
+      return _i29.GuestProfilePage(key: args.key, userId: args.userId);
     },
   );
 }
@@ -831,7 +852,7 @@ class GuestProfileRoute extends _i54.PageRouteInfo<GuestProfileRouteArgs> {
 class GuestProfileRouteArgs {
   const GuestProfileRouteArgs({this.key, required this.userId});
 
-  final _i55.Key? key;
+  final _i57.Key? key;
 
   final String userId;
 
@@ -852,157 +873,157 @@ class GuestProfileRouteArgs {
 }
 
 /// generated route for
-/// [_i29.LocationCreatePage]
-class LocationCreateRoute extends _i54.PageRouteInfo<void> {
-  const LocationCreateRoute({List<_i54.PageRouteInfo>? children})
+/// [_i30.LocationCreatePage]
+class LocationCreateRoute extends _i56.PageRouteInfo<void> {
+  const LocationCreateRoute({List<_i56.PageRouteInfo>? children})
     : super(LocationCreateRoute.name, initialChildren: children);
 
   static const String name = 'LocationCreateRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i29.LocationCreatePage();
+      return const _i30.LocationCreatePage();
     },
   );
 }
 
 /// generated route for
-/// [_i30.LocationPage]
-class LocationRoute extends _i54.PageRouteInfo<void> {
-  const LocationRoute({List<_i54.PageRouteInfo>? children})
+/// [_i31.LocationPage]
+class LocationRoute extends _i56.PageRouteInfo<void> {
+  const LocationRoute({List<_i56.PageRouteInfo>? children})
     : super(LocationRoute.name, initialChildren: children);
 
   static const String name = 'LocationRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i30.LocationPage();
+      return const _i31.LocationPage();
     },
   );
 }
 
 /// generated route for
-/// [_i31.LoginPage]
-class LoginRoute extends _i54.PageRouteInfo<void> {
-  const LoginRoute({List<_i54.PageRouteInfo>? children})
+/// [_i32.LoginPage]
+class LoginRoute extends _i56.PageRouteInfo<void> {
+  const LoginRoute({List<_i56.PageRouteInfo>? children})
     : super(LoginRoute.name, initialChildren: children);
 
   static const String name = 'LoginRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i31.LoginPage();
+      return const _i32.LoginPage();
     },
   );
 }
 
 /// generated route for
-/// [_i32.MapPage]
-class MapRoute extends _i54.PageRouteInfo<void> {
-  const MapRoute({List<_i54.PageRouteInfo>? children})
+/// [_i33.MapPage]
+class MapRoute extends _i56.PageRouteInfo<void> {
+  const MapRoute({List<_i56.PageRouteInfo>? children})
     : super(MapRoute.name, initialChildren: children);
 
   static const String name = 'MapRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i32.MapPage();
+      return const _i33.MapPage();
     },
   );
 }
 
 /// generated route for
-/// [_i33.MarkerCreateComposePage]
-class MarkerCreateComposeRoute extends _i54.PageRouteInfo<void> {
-  const MarkerCreateComposeRoute({List<_i54.PageRouteInfo>? children})
+/// [_i34.MarkerCreateComposePage]
+class MarkerCreateComposeRoute extends _i56.PageRouteInfo<void> {
+  const MarkerCreateComposeRoute({List<_i56.PageRouteInfo>? children})
     : super(MarkerCreateComposeRoute.name, initialChildren: children);
 
   static const String name = 'MarkerCreateComposeRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i33.MarkerCreateComposePage();
+      return const _i34.MarkerCreateComposePage();
     },
   );
 }
 
 /// generated route for
-/// [_i34.MarkerCreateEditorPage]
-class MarkerCreateEditorRoute extends _i54.PageRouteInfo<void> {
-  const MarkerCreateEditorRoute({List<_i54.PageRouteInfo>? children})
+/// [_i35.MarkerCreateEditorPage]
+class MarkerCreateEditorRoute extends _i56.PageRouteInfo<void> {
+  const MarkerCreateEditorRoute({List<_i56.PageRouteInfo>? children})
     : super(MarkerCreateEditorRoute.name, initialChildren: children);
 
   static const String name = 'MarkerCreateEditorRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i34.MarkerCreateEditorPage();
+      return const _i35.MarkerCreateEditorPage();
     },
   );
 }
 
 /// generated route for
-/// [_i35.MarkerCreatePage]
-class MarkerCreateRoute extends _i54.PageRouteInfo<void> {
-  const MarkerCreateRoute({List<_i54.PageRouteInfo>? children})
+/// [_i36.MarkerCreatePage]
+class MarkerCreateRoute extends _i56.PageRouteInfo<void> {
+  const MarkerCreateRoute({List<_i56.PageRouteInfo>? children})
     : super(MarkerCreateRoute.name, initialChildren: children);
 
   static const String name = 'MarkerCreateRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i35.MarkerCreatePage();
+      return const _i36.MarkerCreatePage();
     },
   );
 }
 
 /// generated route for
-/// [_i36.MessagePage]
-class MessageRoute extends _i54.PageRouteInfo<void> {
-  const MessageRoute({List<_i54.PageRouteInfo>? children})
+/// [_i37.MessagePage]
+class MessageRoute extends _i56.PageRouteInfo<void> {
+  const MessageRoute({List<_i56.PageRouteInfo>? children})
     : super(MessageRoute.name, initialChildren: children);
 
   static const String name = 'MessageRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i36.MessagePage();
+      return const _i37.MessagePage();
     },
   );
 }
 
 /// generated route for
-/// [_i37.MyBonusesPage]
-class MyBonusesRoute extends _i54.PageRouteInfo<void> {
-  const MyBonusesRoute({List<_i54.PageRouteInfo>? children})
+/// [_i38.MyBonusesPage]
+class MyBonusesRoute extends _i56.PageRouteInfo<void> {
+  const MyBonusesRoute({List<_i56.PageRouteInfo>? children})
     : super(MyBonusesRoute.name, initialChildren: children);
 
   static const String name = 'MyBonusesRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i37.MyBonusesPage();
+      return const _i38.MyBonusesPage();
     },
   );
 }
 
 /// generated route for
-/// [_i38.MyBookingDetailPage]
+/// [_i39.MyBookingDetailPage]
 class MyBookingDetailRoute
-    extends _i54.PageRouteInfo<MyBookingDetailRouteArgs> {
+    extends _i56.PageRouteInfo<MyBookingDetailRouteArgs> {
   MyBookingDetailRoute({
-    _i55.Key? key,
-    required _i59.MyBookingItem item,
-    List<_i54.PageRouteInfo>? children,
+    _i57.Key? key,
+    required _i61.MyBookingItem item,
+    List<_i56.PageRouteInfo>? children,
   }) : super(
          MyBookingDetailRoute.name,
          args: MyBookingDetailRouteArgs(key: key, item: item),
@@ -1011,11 +1032,11 @@ class MyBookingDetailRoute
 
   static const String name = 'MyBookingDetailRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<MyBookingDetailRouteArgs>();
-      return _i38.MyBookingDetailPage(key: args.key, item: args.item);
+      return _i39.MyBookingDetailPage(key: args.key, item: args.item);
     },
   );
 }
@@ -1023,9 +1044,9 @@ class MyBookingDetailRoute
 class MyBookingDetailRouteArgs {
   const MyBookingDetailRouteArgs({this.key, required this.item});
 
-  final _i55.Key? key;
+  final _i57.Key? key;
 
-  final _i59.MyBookingItem item;
+  final _i61.MyBookingItem item;
 
   @override
   String toString() {
@@ -1044,114 +1065,163 @@ class MyBookingDetailRouteArgs {
 }
 
 /// generated route for
-/// [_i39.MyBookingsPage]
-class MyBookingsRoute extends _i54.PageRouteInfo<void> {
-  const MyBookingsRoute({List<_i54.PageRouteInfo>? children})
+/// [_i40.MyBookingsPage]
+class MyBookingsRoute extends _i56.PageRouteInfo<void> {
+  const MyBookingsRoute({List<_i56.PageRouteInfo>? children})
     : super(MyBookingsRoute.name, initialChildren: children);
 
   static const String name = 'MyBookingsRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i39.MyBookingsPage();
+      return const _i40.MyBookingsPage();
     },
   );
 }
 
 /// generated route for
-/// [_i40.NotificationsPage]
-class NotificationsRoute extends _i54.PageRouteInfo<void> {
-  const NotificationsRoute({List<_i54.PageRouteInfo>? children})
+/// [_i41.NotificationsPage]
+class NotificationsRoute extends _i56.PageRouteInfo<void> {
+  const NotificationsRoute({List<_i56.PageRouteInfo>? children})
     : super(NotificationsRoute.name, initialChildren: children);
 
   static const String name = 'NotificationsRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i40.NotificationsPage();
+      return const _i41.NotificationsPage();
     },
   );
 }
 
 /// generated route for
-/// [_i41.PostArchivePage]
-class PostArchiveRoute extends _i54.PageRouteInfo<void> {
-  const PostArchiveRoute({List<_i54.PageRouteInfo>? children})
+/// [_i42.OnboardingPage]
+class OnboardingRoute extends _i56.PageRouteInfo<OnboardingRouteArgs> {
+  OnboardingRoute({
+    _i57.Key? key,
+    bool replay = false,
+    List<_i56.PageRouteInfo>? children,
+  }) : super(
+         OnboardingRoute.name,
+         args: OnboardingRouteArgs(key: key, replay: replay),
+         initialChildren: children,
+       );
+
+  static const String name = 'OnboardingRoute';
+
+  static _i56.PageInfo page = _i56.PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<OnboardingRouteArgs>(
+        orElse: () => const OnboardingRouteArgs(),
+      );
+      return _i42.OnboardingPage(key: args.key, replay: args.replay);
+    },
+  );
+}
+
+class OnboardingRouteArgs {
+  const OnboardingRouteArgs({this.key, this.replay = false});
+
+  final _i57.Key? key;
+
+  final bool replay;
+
+  @override
+  String toString() {
+    return 'OnboardingRouteArgs{key: $key, replay: $replay}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! OnboardingRouteArgs) return false;
+    return key == other.key && replay == other.replay;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ replay.hashCode;
+}
+
+/// generated route for
+/// [_i43.PostArchivePage]
+class PostArchiveRoute extends _i56.PageRouteInfo<void> {
+  const PostArchiveRoute({List<_i56.PageRouteInfo>? children})
     : super(PostArchiveRoute.name, initialChildren: children);
 
   static const String name = 'PostArchiveRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i41.PostArchivePage();
+      return const _i43.PostArchivePage();
     },
   );
 }
 
 /// generated route for
-/// [_i42.PostCreateComposePage]
-class PostCreateComposeRoute extends _i54.PageRouteInfo<void> {
-  const PostCreateComposeRoute({List<_i54.PageRouteInfo>? children})
+/// [_i44.PostCreateComposePage]
+class PostCreateComposeRoute extends _i56.PageRouteInfo<void> {
+  const PostCreateComposeRoute({List<_i56.PageRouteInfo>? children})
     : super(PostCreateComposeRoute.name, initialChildren: children);
 
   static const String name = 'PostCreateComposeRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i42.PostCreateComposePage();
+      return const _i44.PostCreateComposePage();
     },
   );
 }
 
 /// generated route for
-/// [_i43.PostCreateEditorPage]
-class PostCreateEditorRoute extends _i54.PageRouteInfo<void> {
-  const PostCreateEditorRoute({List<_i54.PageRouteInfo>? children})
+/// [_i45.PostCreateEditorPage]
+class PostCreateEditorRoute extends _i56.PageRouteInfo<void> {
+  const PostCreateEditorRoute({List<_i56.PageRouteInfo>? children})
     : super(PostCreateEditorRoute.name, initialChildren: children);
 
   static const String name = 'PostCreateEditorRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i43.PostCreateEditorPage();
+      return const _i45.PostCreateEditorPage();
     },
   );
 }
 
 /// generated route for
-/// [_i44.PostCreatePage]
-class PostCreateRoute extends _i54.PageRouteInfo<void> {
-  const PostCreateRoute({List<_i54.PageRouteInfo>? children})
+/// [_i46.PostCreatePage]
+class PostCreateRoute extends _i56.PageRouteInfo<void> {
+  const PostCreateRoute({List<_i56.PageRouteInfo>? children})
     : super(PostCreateRoute.name, initialChildren: children);
 
   static const String name = 'PostCreateRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i44.PostCreatePage();
+      return const _i46.PostCreatePage();
     },
   );
 }
 
 /// generated route for
-/// [_i45.PostPage]
-class PostRoute extends _i54.PageRouteInfo<PostRouteArgs> {
+/// [_i47.PostPage]
+class PostRoute extends _i56.PageRouteInfo<PostRouteArgs> {
   PostRoute({
-    _i55.Key? key,
+    _i57.Key? key,
     required String postId,
-    _i60.PostModel? initialPost,
-    _i61.PostMarkerSummary? initialMarker,
+    _i62.PostModel? initialPost,
+    _i63.PostMarkerSummary? initialMarker,
     String? initialMyReaction,
     String? initialAuthorUsername,
     String? initialAuthorAvatarUrl,
-    _i62.PostArchiveContext archiveContext = _i62.PostArchiveContext.none,
-    List<_i54.PageRouteInfo>? children,
+    _i64.PostArchiveContext archiveContext = _i64.PostArchiveContext.none,
+    List<_i56.PageRouteInfo>? children,
   }) : super(
          PostRoute.name,
          args: PostRouteArgs(
@@ -1169,11 +1239,11 @@ class PostRoute extends _i54.PageRouteInfo<PostRouteArgs> {
 
   static const String name = 'PostRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<PostRouteArgs>();
-      return _i45.PostPage(
+      return _i47.PostPage(
         key: args.key,
         postId: args.postId,
         initialPost: args.initialPost,
@@ -1196,16 +1266,16 @@ class PostRouteArgs {
     this.initialMyReaction,
     this.initialAuthorUsername,
     this.initialAuthorAvatarUrl,
-    this.archiveContext = _i62.PostArchiveContext.none,
+    this.archiveContext = _i64.PostArchiveContext.none,
   });
 
-  final _i55.Key? key;
+  final _i57.Key? key;
 
   final String postId;
 
-  final _i60.PostModel? initialPost;
+  final _i62.PostModel? initialPost;
 
-  final _i61.PostMarkerSummary? initialMarker;
+  final _i63.PostMarkerSummary? initialMarker;
 
   final String? initialMyReaction;
 
@@ -1213,7 +1283,7 @@ class PostRouteArgs {
 
   final String? initialAuthorAvatarUrl;
 
-  final _i62.PostArchiveContext archiveContext;
+  final _i64.PostArchiveContext archiveContext;
 
   @override
   String toString() {
@@ -1247,129 +1317,129 @@ class PostRouteArgs {
 }
 
 /// generated route for
-/// [_i46.ProfilePage]
-class ProfileRoute extends _i54.PageRouteInfo<void> {
-  const ProfileRoute({List<_i54.PageRouteInfo>? children})
+/// [_i48.ProfilePage]
+class ProfileRoute extends _i56.PageRouteInfo<void> {
+  const ProfileRoute({List<_i56.PageRouteInfo>? children})
     : super(ProfileRoute.name, initialChildren: children);
 
   static const String name = 'ProfileRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i46.ProfilePage();
+      return const _i48.ProfilePage();
     },
   );
 }
 
 /// generated route for
-/// [_i47.RootPage]
-class RootRoute extends _i54.PageRouteInfo<void> {
-  const RootRoute({List<_i54.PageRouteInfo>? children})
+/// [_i49.RootPage]
+class RootRoute extends _i56.PageRouteInfo<void> {
+  const RootRoute({List<_i56.PageRouteInfo>? children})
     : super(RootRoute.name, initialChildren: children);
 
   static const String name = 'RootRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i47.RootPage();
+      return const _i49.RootPage();
     },
   );
 }
 
 /// generated route for
-/// [_i48.SavedPostsPage]
-class SavedPostsRoute extends _i54.PageRouteInfo<void> {
-  const SavedPostsRoute({List<_i54.PageRouteInfo>? children})
+/// [_i50.SavedPostsPage]
+class SavedPostsRoute extends _i56.PageRouteInfo<void> {
+  const SavedPostsRoute({List<_i56.PageRouteInfo>? children})
     : super(SavedPostsRoute.name, initialChildren: children);
 
   static const String name = 'SavedPostsRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i48.SavedPostsPage();
+      return const _i50.SavedPostsPage();
     },
   );
 }
 
 /// generated route for
-/// [_i49.SettingsAccountPage]
-class SettingsAccountRoute extends _i54.PageRouteInfo<void> {
-  const SettingsAccountRoute({List<_i54.PageRouteInfo>? children})
+/// [_i51.SettingsAccountPage]
+class SettingsAccountRoute extends _i56.PageRouteInfo<void> {
+  const SettingsAccountRoute({List<_i56.PageRouteInfo>? children})
     : super(SettingsAccountRoute.name, initialChildren: children);
 
   static const String name = 'SettingsAccountRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i49.SettingsAccountPage();
+      return const _i51.SettingsAccountPage();
     },
   );
 }
 
 /// generated route for
-/// [_i50.SettingsArchivePage]
-class SettingsArchiveRoute extends _i54.PageRouteInfo<void> {
-  const SettingsArchiveRoute({List<_i54.PageRouteInfo>? children})
+/// [_i52.SettingsArchivePage]
+class SettingsArchiveRoute extends _i56.PageRouteInfo<void> {
+  const SettingsArchiveRoute({List<_i56.PageRouteInfo>? children})
     : super(SettingsArchiveRoute.name, initialChildren: children);
 
   static const String name = 'SettingsArchiveRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i50.SettingsArchivePage();
+      return const _i52.SettingsArchivePage();
     },
   );
 }
 
 /// generated route for
-/// [_i51.SettingsFiltersPage]
-class SettingsFiltersRoute extends _i54.PageRouteInfo<void> {
-  const SettingsFiltersRoute({List<_i54.PageRouteInfo>? children})
+/// [_i53.SettingsFiltersPage]
+class SettingsFiltersRoute extends _i56.PageRouteInfo<void> {
+  const SettingsFiltersRoute({List<_i56.PageRouteInfo>? children})
     : super(SettingsFiltersRoute.name, initialChildren: children);
 
   static const String name = 'SettingsFiltersRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i51.SettingsFiltersPage();
+      return const _i53.SettingsFiltersPage();
     },
   );
 }
 
 /// generated route for
-/// [_i52.SettingsPage]
-class SettingsRoute extends _i54.PageRouteInfo<void> {
-  const SettingsRoute({List<_i54.PageRouteInfo>? children})
+/// [_i54.SettingsPage]
+class SettingsRoute extends _i56.PageRouteInfo<void> {
+  const SettingsRoute({List<_i56.PageRouteInfo>? children})
     : super(SettingsRoute.name, initialChildren: children);
 
   static const String name = 'SettingsRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i52.SettingsPage();
+      return const _i54.SettingsPage();
     },
   );
 }
 
 /// generated route for
-/// [_i53.SettingsResourcesPage]
-class SettingsResourcesRoute extends _i54.PageRouteInfo<void> {
-  const SettingsResourcesRoute({List<_i54.PageRouteInfo>? children})
+/// [_i55.SettingsResourcesPage]
+class SettingsResourcesRoute extends _i56.PageRouteInfo<void> {
+  const SettingsResourcesRoute({List<_i56.PageRouteInfo>? children})
     : super(SettingsResourcesRoute.name, initialChildren: children);
 
   static const String name = 'SettingsResourcesRoute';
 
-  static _i54.PageInfo page = _i54.PageInfo(
+  static _i56.PageInfo page = _i56.PageInfo(
     name,
     builder: (data) {
-      return const _i53.SettingsResourcesPage();
+      return const _i55.SettingsResourcesPage();
     },
   );
 }

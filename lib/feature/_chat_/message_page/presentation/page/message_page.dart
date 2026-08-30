@@ -6,9 +6,9 @@ import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_nav_bar/app_nav_bar.dart';
 import 'package:clover/core/shared/app_refresh.dart';
-import 'package:clover/feature/message_page/data/models/message_chat_preview.dart';
-import 'package:clover/feature/message_page/presentation/cubit/message_list_cubit.dart';
-import 'package:clover/feature/message_page/presentation/widget/message_chat_tile.dart';
+import 'package:clover/feature/_chat_/message_page/data/models/message_chat_preview.dart';
+import 'package:clover/feature/_chat_/message_page/presentation/cubit/message_list_cubit.dart';
+import 'package:clover/feature/_chat_/message_page/presentation/widget/message_chat_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -63,7 +63,7 @@ class _MessagePageState extends State<MessagePage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
                 child: Text(
                   'Сообщения',
                   style: AppTextStyle.base(24, color: AppColors.textColor, fontWeight: FontWeight.w800),
@@ -83,7 +83,7 @@ class _MessagePageState extends State<MessagePage> {
                 child: BlocBuilder<MessageListCubit, MessageListState>(
                   builder: (context, state) {
                     return switch (state) {
-                      MessageListInitial() || MessageListLoading() => const Center(
+                      MessageListInitial() || MessageListLoading() => Center(
                         child: CircularProgressIndicator(color: AppColors.primary),
                       ),
                       MessageListError(:final message) => _MessageErrorState(
@@ -150,7 +150,7 @@ class _MessagePageState extends State<MessagePage> {
       child: Stack(
         children: [
           ListView.separated(
-            physics: const AlwaysScrollableScrollPhysics(),
+            physics: AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.only(bottom: AppNavBar.scrollBottomClearance(context)),
             itemCount: chats.length,
             separatorBuilder: (_, __) => Divider(
@@ -170,7 +170,7 @@ class _MessagePageState extends State<MessagePage> {
             },
           ),
           if (isRefreshing)
-            const Positioned(
+            Positioned(
               top: 8,
               left: 0,
               right: 0,
@@ -198,18 +198,18 @@ class _MessageErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.error_outline_rounded, size: 48, color: AppColors.iconMuted),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
               message,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             FilledButton(
               onPressed: onRetry,
               style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
@@ -232,18 +232,18 @@ class _MessageEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.chat_bubble_outline_rounded, size: 48, color: AppColors.iconMuted),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
               title,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Text(
               subtitle,
               textAlign: TextAlign.center,

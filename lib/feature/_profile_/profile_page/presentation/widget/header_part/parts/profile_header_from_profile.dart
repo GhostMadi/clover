@@ -1,8 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/router/app_router.gr.dart';
-import 'package:clover/feature/profile_page/data/model/profile_new_model.dart';
-import 'package:clover/feature/profile_page/presentation/form/profile_page_formatting.dart';
-import 'package:clover/feature/profile_page/presentation/widget/header_part/profile_header_section.dart';
+import 'package:clover/feature/_profile_/profile_page/data/model/profile_new_model.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/form/profile_page_formatting.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/widget/header_part/profile_header_section.dart';
 import 'package:flutter/material.dart';
 
 /// [ProfileHeaderSection] из [ProfileNewModel] — одна точка маппинга полей.
@@ -34,7 +34,6 @@ class ProfileHeaderFromProfile extends StatelessWidget {
       statCollections: ProfilePageFormatting.statString(profile.clusterCount),
       fullName: fullName,
       username: username,
-      category: profile.categoryLabelRu,
       bio: bio,
       location: locationDisplay,
       tags: profile.tags,

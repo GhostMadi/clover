@@ -1,3 +1,4 @@
+import 'package:clover/core/shared/platform/app_platform.dart';
 import 'package:flutter/material.dart';
 
 /// Масштабирование размеров из макета под текущий экран.
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 /// Формула: `screenSize * (value / designSize)`.
 ///
 /// Цвета и шрифты — см. `lib/core/resources/README.md` ([AppColors], [AppTextStyle]).
+/// Платформа / нативность — см. `docs/code/ui/adaptive-widgets.md`.
 extension ContextExtension on BuildContext {
   /// Высота артборда в макете (px).
   static const double designHeight = 1000;
@@ -21,4 +23,8 @@ extension ContextExtension on BuildContext {
   double widthByContext(double value) => screenWidth * (value / designWidth);
 
   double get bottomInset => MediaQuery.of(this).viewInsets.bottom;
+
+  bool get isIOS => AppPlatform.isIOS;
+
+  bool get isAndroid => AppPlatform.isAndroid;
 }

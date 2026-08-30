@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:clover/core/shared/image_select/app_image_edit_exporter.dart';
-import 'package:clover/feature/marker_create/data/model/marker_create_request.dart';
-import 'package:clover/feature/marker_tags/data/repository/marker_tags_repository.dart';
-import 'package:clover/feature/settings_filter/data/repository/filter_repository.dart';
+import 'package:clover/feature/_post_/marker_create/data/model/marker_create_request.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/repository/marker_tags_repository.dart';
+import 'package:clover/feature/_settings_/settings_filter/data/repository/filter_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:injectable/injectable.dart';
@@ -135,8 +135,8 @@ class MarkerCreateRepositoryImpl implements MarkerCreateRepository {
       report(90);
 
       if (request.tagIds.isNotEmpty) {
-        await _markerTagsRepository.setForMarker(markerId: markerId, tagIds: request.tagIds);
-        await _markerTagsRepository.setForPost(postId: postId, tagIds: request.tagIds);
+        await _markerTagsRepository.setForMarker(markerId: markerId, tagKeys: request.tagIds);
+        await _markerTagsRepository.setForPost(postId: postId, tagKeys: request.tagIds);
       }
 
       if (request.filterValues.isNotEmpty) {

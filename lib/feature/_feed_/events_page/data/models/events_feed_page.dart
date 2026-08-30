@@ -1,4 +1,4 @@
-import 'package:clover/feature/post/data/models/post_feed_item.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 
 class EventsFeedPage {
   const EventsFeedPage({

@@ -1,6 +1,6 @@
-import 'package:clover/feature/followers_and_followings/data/models/follow_profile_row.dart';
-import 'package:clover/feature/followers_and_followings/data/repository/followers_and_followings_repository.dart';
-import 'package:clover/feature/social_graph/data/repository/social_graph_repository.dart';
+import 'package:clover/feature/_profile_/followers_and_followings/data/models/follow_profile_row.dart';
+import 'package:clover/feature/_profile_/followers_and_followings/data/repository/followers_and_followings_repository.dart';
+import 'package:clover/feature/_catalog_/social_graph/data/repository/social_graph_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

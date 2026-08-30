@@ -1,4 +1,4 @@
-import 'package:clover/feature/settings_filter/data/models/filter_category.dart';
+import 'package:clover/feature/_settings_/settings_filter/data/models/filter_category.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

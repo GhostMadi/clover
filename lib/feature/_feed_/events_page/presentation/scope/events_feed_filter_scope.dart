@@ -1,4 +1,4 @@
-import 'package:clover/feature/events_page/data/models/events_filter.dart';
+import 'package:clover/feature/_feed_/events_page/data/models/events_filter.dart';
 import 'package:flutter/material.dart';
 
 class EventsFeedFilterScope extends InheritedWidget {

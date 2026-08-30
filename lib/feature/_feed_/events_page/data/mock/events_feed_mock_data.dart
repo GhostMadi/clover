@@ -1,8 +1,8 @@
-import 'package:clover/feature/marker_tags/data/models/marker_tag_model.dart';
-import 'package:clover/feature/post/data/models/post_feed_item.dart';
-import 'package:clover/feature/post/data/models/post_marker_summary.dart';
-import 'package:clover/feature/post/data/models/post_media_model.dart';
-import 'package:clover/feature/post/data/models/post_model.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_model.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
+import 'package:clover/feature/_post_/post/data/models/post_marker_summary.dart';
+import 'package:clover/feature/_post_/post/data/models/post_media_model.dart';
+import 'package:clover/feature/_post_/post/data/models/post_model.dart';
 
 /// Муляжи ивентов для ленты на вкладке «Карта».
 abstract final class EventsFeedMockData {

@@ -1,0 +1,43 @@
+---
+description: Справочники — английский ключ на бэке, enum + перевод на фронте
+alwaysApply: true
+---
+
+# Справочники и перевод
+
+Бэк хранит **только английский ключ** (`code` / `key` / `slug`). Подписи — не в Postgres.
+
+Фронт принимает ключ как **enum** (или каталог-ref) и переводит на клиенте.
+
+Подробный продуктовый текст: [`docs/business/localization-dictionaries.md`](docs/business/localization-dictionaries.md).  
+Синхронизация справочников: [`docs/business/catalog-sync.md`](docs/business/catalog-sync.md).
+
+## Бэк
+
+- колонка `code` / `*_code` / `key` = английский ключ (`almaty`, `kz`, `beauty`)
+- нет `name_ru` / `name_kk` / любой локали в каталогах
+- FK / check на ключ — чтобы нельзя было записать свободный текст
+
+## Фронт
+
+- один enum (или `*Catalog`) на справочник; ключ совпадает с бэком
+- селектор: `Enum.values` / `CitiesCatalog.forCountry(…)`, не строки с API
+- подпись: `code.labelRu` (пока) → при полной l10n — через ARB / `context.l10n`
+- в модель и в Supabase уходит **ключ**, не локализованная строка
+
+```dart
+// ❌
+city.nameRu
+row['name_kk']
+Text(item['title']) // если title — перевод с бэка
+
+// ✅
+CityCode.almaty
+city.code.labelRu
+.update({'city_code': city.code.cityCode})
+```
+
+Новый пункт справочника: ключ в миграции → значение enum / catalog → подпись на фронте.  
+Не копировать enum в соседнюю фичу — общий каталог (`feature/city`, `feature/countries`, …) или `core/catalog_sync`.
+
+Свободный пользовательский текст (имя, био, ник) — **не** справочник: хранится как есть.

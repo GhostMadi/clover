@@ -4,8 +4,8 @@ import 'dart:ui' as ui;
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_map/app_map_cluster_icon_factory.dart';
 import 'package:clover/core/shared/app_map/app_map_marker.dart';
-import 'package:clover/core/shared/app_map/app_map_marker_tap.dart';
 import 'package:clover/core/shared/app_map/app_map_marker_icon_factory.dart';
+import 'package:clover/core/shared/app_map/app_map_marker_tap.dart';
 import 'package:clover/core/shared/app_map/app_map_point.dart';
 import 'package:clover/core/shared/app_map/app_map_viewport.dart';
 import 'package:flutter/foundation.dart';
@@ -303,7 +303,11 @@ class _AppMapState extends State<AppMap> {
     );
   }
 
-  PlacemarkMapObject _placemarkForStack(String locationKey, List<AppMapMarker> markers, BitmapDescriptor icon) {
+  PlacemarkMapObject _placemarkForStack(
+    String locationKey,
+    List<AppMapMarker> markers,
+    BitmapDescriptor icon,
+  ) {
     final point = markers.first.point;
     final primary = markers.first;
 
@@ -338,14 +342,18 @@ class _AppMapState extends State<AppMap> {
 
   Future<void> _onMapCreated(YandexMapController controller) async {
     _controller = controller;
+    await controller.setMapStyle('');
     await _moveTo(widget.initialCenter);
     await _syncMapObjects();
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AppColors.of(context).brightness == Brightness.dark;
+
     return YandexMap(
       mapType: MapType.map,
+      nightModeEnabled: isDark,
       rotateGesturesEnabled: true,
       tiltGesturesEnabled: false,
       scrollGesturesEnabled: true,

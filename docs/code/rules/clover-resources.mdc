@@ -1,0 +1,78 @@
+---
+description: Ресурсы сначала — цвета, тексты/стили, иконки. Не хардкодить в фичах
+alwaysApply: true
+---
+
+# Resources First
+
+Любой цвет, текстовый стиль или иконка **сначала** попадает в `lib/core/resources/` (тема — в `lib/core/theme/`), и только потом используется в проекте.
+
+Ориентир: [`lib/core/resources/README.md`](lib/core/resources/README.md).
+
+## Порядок работы
+
+1. Нужен новый цвет / стиль / иконка по логике UI
+2. Добавить в ресурс:
+   - цвет → `AppPalette` (+ прокинуть в `AppColors` при необходимости)
+   - текст/типографика → `AppTextStyle` (`style.dart`)
+   - иконка → `AppIcons`
+   - SVG / asset → `AppAssets`
+   - строка UI → принятый l10n / константы проекта (не хардкод в виджете)
+3. Использовать в фиче / shared через ресурс
+
+**Запрещено** сразу писать в фиче `Colors.*`, `Color(0xFF...)`, сырой `TextStyle(...)`, `Icons.*` / `CupertinoIcons.*` вне `AppIcons`, захардкоженные UI-строки.
+
+## Где что лежит
+
+| Ресурс | Где | Использование |
+|--------|-----|----------------|
+| Цвета | `resources/colors.dart` + `theme/app_palette.dart` | `context.colors.primary`, `AppColors.of(context)` |
+| Стили | `resources/style.dart` | `AppTextStyle.…` |
+| Иконки | `AppIcons` | `AppIcons.search.icon` (пара android/ios) |
+| Тема | `core/theme/` | MaterialApp + ThemeExtension |
+| Sheet / Nav | `core/shared/` | `AppBottomSheet`, `AppNavBar` |
+| Нативность | `core/shared/platform/` | `AdaptiveStatelessWidget`, `AppPlatform` |
+
+## Цвета
+
+```dart
+// ❌ в фиче
+color: Colors.grey
+color: Color(0xFF22C55E)
+
+// ✅
+color: context.colors.subTextColor
+color: context.colors.primary
+```
+
+Нет токена → добавь в `AppPalette` / `AppColors`, затем используй.
+
+## Текст / стили
+
+```dart
+// ❌
+TextStyle(fontSize: 18, fontWeight: FontWeight.w600)
+
+// ✅
+AppTextStyle.base(16, fontWeight: FontWeight.w600, color: colors.textColor)
+```
+
+Справочник → enum/catalog + подпись на фронте, не `name_ru` с API.
+
+## Иконки
+
+```dart
+// ❌
+Icon(Icons.home_outlined)
+
+// ✅
+Icon(AppIcons.home /* или актуальный токен */)
+```
+
+## Чеклист перед коммитом UI
+
+- [ ] Нет сырых `Colors` / hex в feature и shared widgets
+- [ ] Нет сырых `Icons` / `CupertinoIcons` вне `AppIcons`
+- [ ] Нет произвольных `TextStyle` вне `AppTextStyle`
+- [ ] Нет захардкоженных UI-строк
+- [ ] Селекторы — ключи enum/catalog, не перевод с бэка

@@ -90,10 +90,10 @@ class EditProfileMediaSection extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(3),
-                    decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.activeColor),
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.activeColor),
                     child: Container(
                       padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(color: AppColors.white, shape: BoxShape.circle),
+                      decoration: BoxDecoration(color: AppColors.white, shape: BoxShape.circle),
                       child: _AvatarImage(
                         avatarUrl: avatarUrl,
                         avatarPreview: avatarPreview,
@@ -112,7 +112,7 @@ class EditProfileMediaSection extends StatelessWidget {
                         shape: BoxShape.circle,
                         border: Border.all(color: AppColors.white, width: 2),
                       ),
-                      child: const Icon(Icons.camera_alt_rounded, size: 16, color: AppColors.textInverse),
+                      child: Icon(Icons.camera_alt_rounded, size: 16, color: AppColors.textInverse),
                     ),
                   ),
                 ],

@@ -1,5 +1,5 @@
-import 'package:clover/feature/countries/data/models/country_model.dart';
-import 'package:clover/feature/countries/data/repository/countries_repository.dart';
+import 'package:clover/feature/_catalog_/countries/data/models/country_model.dart';
+import 'package:clover/feature/_catalog_/countries/data/repository/countries_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';

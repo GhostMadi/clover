@@ -1,6 +1,6 @@
 import 'package:clover/core/shared/app_multi_selector.dart';
-import 'package:clover/feature/marker_tags/data/models/marker_tag_group_key.dart';
-import 'package:clover/feature/marker_tags/data/models/marker_tag_key.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_group_key.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_key.dart';
 
 /// Строка справочника `public.marker_tags`.
 class MarkerTagModel {
@@ -87,7 +87,7 @@ class MarkerTagModel {
       return AppMultiSelectGroup<String>(
         title: title,
         options: items
-            .map((tag) => AppMultiSelectOption<String>(value: tag.id, label: tag.labelRu))
+            .map((tag) => AppMultiSelectOption<String>(value: tag.key, label: tag.labelRu))
             .toList(growable: false),
       );
     }).toList(growable: false);

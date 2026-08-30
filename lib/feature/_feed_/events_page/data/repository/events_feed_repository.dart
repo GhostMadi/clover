@@ -1,11 +1,11 @@
-import 'package:clover/feature/events_page/data/events_filter_tags.dart';
-import 'package:clover/feature/events_page/data/models/events_content_kind.dart';
-import 'package:clover/feature/events_page/data/models/events_feed_page.dart';
-import 'package:clover/feature/events_page/data/models/events_filter.dart';
-import 'package:clover/feature/marker_tags/data/repository/marker_tags_repository.dart';
-import 'package:clover/feature/post/data/models/post_feed_item.dart';
-import 'package:clover/feature/post/data/repository/post_feed_enriched_parser.dart';
-import 'package:clover/feature/post/data/repository/post_repository.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/catalog/marker_tags_catalog.dart';
+import 'package:clover/feature/_feed_/events_page/data/events_filter_tags.dart';
+import 'package:clover/feature/_feed_/events_page/data/models/events_content_kind.dart';
+import 'package:clover/feature/_feed_/events_page/data/models/events_feed_page.dart';
+import 'package:clover/feature/_feed_/events_page/data/models/events_filter.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
+import 'package:clover/feature/_post_/post/data/repository/post_feed_enriched_parser.dart';
+import 'package:clover/feature/_post_/post/data/repository/post_repository.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -19,11 +19,10 @@ abstract class EventsFeedRepository {
 
 @LazySingleton(as: EventsFeedRepository)
 class EventsFeedRepositoryImpl implements EventsFeedRepository {
-  EventsFeedRepositoryImpl(this._client, this._postRepository, this._markerTagsRepository);
+  EventsFeedRepositoryImpl(this._client, this._postRepository);
 
   final SupabaseClient _client;
   final PostRepository _postRepository;
-  final MarkerTagsRepository _markerTagsRepository;
 
   static const _pageSizeCap = 100;
 
@@ -34,7 +33,7 @@ class EventsFeedRepositoryImpl implements EventsFeedRepository {
     PostFeedItem? cursorItem,
   }) async {
     final safeLimit = limit.clamp(1, _pageSizeCap);
-    final pArgs = await _buildArgs(filter: filter, limit: safeLimit, cursorItem: cursorItem);
+    final pArgs = _buildArgs(filter: filter, limit: safeLimit, cursorItem: cursorItem);
 
     final res = await _client.rpc(
       'list_events_feed_enriched_cursor',
@@ -54,11 +53,11 @@ class EventsFeedRepositoryImpl implements EventsFeedRepository {
     );
   }
 
-  Future<Map<String, dynamic>> _buildArgs({
+  Map<String, dynamic> _buildArgs({
     required EventsFilter filter,
     required int limit,
     PostFeedItem? cursorItem,
-  }) async {
+  }) {
     final args = <String, dynamic>{
       'p_limit': limit,
       'p_content_kind': filter.contentKind == EventsContentKind.all ? 'all' : 'events_only',
@@ -88,7 +87,7 @@ class EventsFeedRepositoryImpl implements EventsFeedRepository {
     }
 
     if (filter.tagIds.isNotEmpty) {
-      final tagKeys = EventsFilterTags.keysFor(filter.tagIds, await _markerTagsRepository.listAll());
+      final tagKeys = EventsFilterTags.keysFor(filter.tagIds, MarkerTagsCatalog.all);
       if (tagKeys.isNotEmpty) {
         args['p_tag_keys'] = tagKeys;
       }

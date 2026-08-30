@@ -1,0 +1,61 @@
+---
+description: Снимок текущего Clover — стек и core, чтобы восстановить фундамент за раз
+alwaysApply: true
+---
+
+# Project Snapshot (текущий шаг)
+
+Цель: в новом чате можно **восстановить фундамент Clover** без раскопок истории.
+
+## Packages (ориентир)
+
+**deps (ключевые):** `flutter_bloc`, `get_it`, `injectable`, `auto_route`, `freezed_annotation`, `shared_preferences`, `intl`, `flutter_localizations`, `google_fonts`, `cupertino_icons`, `supabase_flutter`, `google_sign_in`, карты / медиа — по `pubspec.yaml`
+
+**dev:** `build_runner`, `injectable_generator`, `auto_route_generator`, `freezed`, `json_serializable`, `flutter_lints`
+
+Сверять актуальный список с корневым `pubspec.yaml` — snapshot не заменяет lockfile.
+
+## Core — что уже должно быть
+
+- **DI:** `getIt` + `configureDependencies()`; модули и feature repos/cubits
+- **Storage:** prefs / `LocalStorage`; ключи централизованно
+- **Routing:** `AppRouter` (AutoRoute); dashboard shell + auth flow
+- **Supabase:** init в `main`; URL + publishable key в config; клиент в DI
+- **Auth:** Google Sign-In + сессия Supabase; Phone/WhatsApp OTP — hook `send_sms_hook` + mirror phone в `profiles` (см. business + supabase)
+- **Catalogs:** enum + local catalogs (`feature/_catalog_/`: city, countries, marker_tags)
+- **Theme:** `AppPalette` ThemeExtension + `AppColors` / `context.colors`; ThemeCubit
+- **Resources:** `AppColors`, `AppTextStyle` (Manrope), `AppIcons`, `AppAssets`
+- **Shared:** `AppNavBar`, `AppBottomSheet`, селекторы, общие поля; база нативности — `AppPlatform` + `AdaptiveStatelessWidget` (`docs/code/ui/adaptive-widgets.md`)
+- **Tabs shell:** `dashboard_page` — Event / Map / Chat / Profile (+ accessories по доке)
+- **Дисциплина:** документация → supabase → feature; UI — shared + тема + iOS/Android (`clover-feature-discipline`, `clover-widgets`, `clover-harmony`)
+
+## App bootstrap (смысл)
+
+```dart
+// main.dart
+WidgetsFlutterBinding.ensureInitialized();
+// → initialize Supabase
+// → configureDependencies()
+// → runApp(…)
+
+// App: Theme + locale + routerConfig AppRouter
+```
+
+## Референс-фичи
+
+- `feature/_profile_/profile_page` — профиль / guest
+- `feature/_post_/post` + `_post_/post_create` — публикации
+- `feature/auth` / `onboarding` — вход и онбординг
+- Группы: `feature/_booking_/…`, `feature/_bonus_/…`
+
+Продукт: [`docs/business/`](docs/business/).  
+Бэк: [`docs/supabase/`](docs/supabase/). Код: [`supabase/`](supabase/README.md).  
+Инвентарь фич: [`docs/business/features-catalog.md`](docs/business/features-catalog.md).
+
+## Восстановление порядка мысли
+
+1. Дерево `core/` + `feature/`
+2. Packages из `pubspec.yaml`
+3. resources → theme → storage → DI → router → shared
+4. Auth + dashboard shell
+5. Новые фичи только по правилам (process → supabase → feature)

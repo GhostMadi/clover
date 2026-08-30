@@ -49,7 +49,7 @@ class _SlotChip extends StatelessWidget {
     final (bg, fg, border) = switch (slot.status) {
       ClientBookingSlotStatus.selected => (AppColors.primary, AppColors.textInverse, AppColors.primary),
       ClientBookingSlotStatus.available => (AppColors.surface, AppColors.textColor, AppColors.borderCardGreen),
-      ClientBookingSlotStatus.myConflict => (const Color(0xFFFFEBEE), const Color(0xFFC62828), const Color(0xFFEF9A9A)),
+      ClientBookingSlotStatus.myConflict => (Color(0xFFFFEBEE), const Color(0xFFC62828), const Color(0xFFEF9A9A)),
       ClientBookingSlotStatus.hostBusy => (AppColors.surfaceSoft, AppColors.subTextColor, AppColors.borderSoft),
     };
 
@@ -81,7 +81,7 @@ class _Legend extends StatelessWidget {
     return Wrap(
       spacing: 12,
       runSpacing: 6,
-      children: const [
+      children: [
         _LegendItem(color: AppColors.primary, label: 'Выбрано'),
         _LegendItem(color: AppColors.borderCardGreen, label: 'Свободно'),
         _LegendItem(color: Color(0xFFEF9A9A), label: 'Ваш конфликт'),
@@ -107,7 +107,7 @@ class _LegendItem extends StatelessWidget {
           height: 10,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: 6),
+        SizedBox(width: 6),
         Text(label, style: AppTextStyle.base(11, color: AppColors.subTextColor, fontWeight: FontWeight.w600)),
       ],
     );

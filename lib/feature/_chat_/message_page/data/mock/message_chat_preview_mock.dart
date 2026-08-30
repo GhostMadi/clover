@@ -1,4 +1,4 @@
-import 'package:clover/feature/message_page/data/models/message_chat_preview.dart';
+import 'package:clover/feature/_chat_/message_page/data/models/message_chat_preview.dart';
 
 abstract final class MessageChatPreviewMock {
   static List<MessageChatPreview> chats() {

@@ -1,6 +1,6 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/feature/post/data/models/post_profile_filter_value.dart';
+import 'package:clover/feature/_post_/post/data/models/post_profile_filter_value.dart';
 import 'package:flutter/material.dart';
 
 /// Мини-чипы фильтров профиля на карточке поста.

@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/shared/image_select/app_image_selector_page.dart';
-import 'package:clover/feature/edit_profile/edit_profile_banner_flow.dart';
-import 'package:clover/feature/edit_profile/extension/edit_profile_banner_router_extension.dart';
+import 'package:clover/feature/_profile_/edit_profile/edit_profile_banner_flow.dart';
+import 'package:clover/feature/_profile_/edit_profile/extension/edit_profile_banner_router_extension.dart';
 import 'package:flutter/material.dart';
 
 @RoutePage()

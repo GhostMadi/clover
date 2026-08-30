@@ -1,6 +1,6 @@
-import 'package:clover/feature/profile_page/data/model/profile_new_model.dart';
-import 'package:clover/feature/profile_page/data/repository/profile_repository.dart';
-import 'package:clover/feature/social_graph/data/repository/social_graph_repository.dart';
+import 'package:clover/feature/_profile_/profile_page/data/model/profile_new_model.dart';
+import 'package:clover/feature/_profile_/profile_page/data/repository/profile_repository.dart';
+import 'package:clover/feature/_catalog_/social_graph/data/repository/social_graph_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';

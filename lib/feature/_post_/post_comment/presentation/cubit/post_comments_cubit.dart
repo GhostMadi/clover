@@ -1,9 +1,9 @@
-import 'package:clover/feature/post_comment/data/models/comment_item.dart';
-import 'package:clover/feature/post_comment/data/models/comment_model.dart';
-import 'package:clover/feature/post_comment/data/models/comment_thread_entry.dart';
-import 'package:clover/feature/post_comment/data/models/post_comments_cache_snapshot.dart';
-import 'package:clover/feature/post_comment/data/repository/post_comment_local_cache.dart';
-import 'package:clover/feature/post_comment/data/repository/post_comment_repository.dart';
+import 'package:clover/feature/_post_/post_comment/data/models/comment_item.dart';
+import 'package:clover/feature/_post_/post_comment/data/models/comment_model.dart';
+import 'package:clover/feature/_post_/post_comment/data/models/comment_thread_entry.dart';
+import 'package:clover/feature/_post_/post_comment/data/models/post_comments_cache_snapshot.dart';
+import 'package:clover/feature/_post_/post_comment/data/repository/post_comment_local_cache.dart';
+import 'package:clover/feature/_post_/post_comment/data/repository/post_comment_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

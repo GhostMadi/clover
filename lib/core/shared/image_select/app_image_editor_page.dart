@@ -219,7 +219,7 @@ class _AppImageEditorPageState extends State<AppImageEditorPage> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.postEditorCta))
+          ? Center(child: CircularProgressIndicator(color: AppColors.postEditorCta))
           : !_allFilesReady
           ? Center(
               child: Text(
@@ -376,7 +376,7 @@ class _EditorPanel extends StatelessWidget {
     final vertical = context.heightByContext(AppImageEditorPage._figmaPanelVPadding);
 
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.postEditorPanel,
         border: Border(top: BorderSide(color: AppColors.border)),
       ),
@@ -577,7 +577,7 @@ class _EffectChip extends StatelessWidget {
           children: [
             Expanded(
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
+                duration: Duration(milliseconds: 180),
                 width: width,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
@@ -880,7 +880,7 @@ class _AspectRatioFrame extends StatelessWidget {
       height: boxHeight,
       child: Center(
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
+          duration: Duration(milliseconds: 180),
           width: frameWidth,
           height: frameHeight,
           decoration: BoxDecoration(

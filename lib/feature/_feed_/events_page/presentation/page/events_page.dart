@@ -4,11 +4,11 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_nav_bar/app_nav_bar.dart';
 import 'package:clover/core/shared/app_refresh.dart';
-import 'package:clover/feature/events_page/data/models/events_filter.dart';
-import 'package:clover/feature/events_page/presentation/cubit/events_feed_cubit.dart';
-import 'package:clover/feature/events_page/presentation/scope/events_feed_filter_scope.dart';
-import 'package:clover/feature/events_page/presentation/widget/event_feed_post_item.dart';
-import 'package:clover/feature/post/data/models/post_feed_item.dart';
+import 'package:clover/feature/_feed_/events_page/data/models/events_filter.dart';
+import 'package:clover/feature/_feed_/events_page/presentation/cubit/events_feed_cubit.dart';
+import 'package:clover/feature/_feed_/events_page/presentation/scope/events_feed_filter_scope.dart';
+import 'package:clover/feature/_feed_/events_page/presentation/widget/event_feed_post_item.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -108,7 +108,7 @@ class _EventsPageState extends State<EventsPage> {
                 onRefresh: _cubit.refresh,
                 child: CustomScrollView(
                   controller: _scrollController,
-                  physics: const AlwaysScrollableScrollPhysics(),
+                  physics: AlwaysScrollableScrollPhysics(),
                   slivers: [
                     SliverAppBar(
                       title: Text(
@@ -125,7 +125,7 @@ class _EventsPageState extends State<EventsPage> {
                       scrolledUnderElevation: 0,
                     ),
                     if (isLoading)
-                      const SliverFillRemaining(
+                      SliverFillRemaining(
                         child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
                       )
                     else if (errorMessage != null)
@@ -137,7 +137,7 @@ class _EventsPageState extends State<EventsPage> {
                         ),
                       )
                     else if (items.isEmpty)
-                      const SliverFillRemaining(
+                      SliverFillRemaining(
                         hasScrollBody: false,
                         child: Center(
                           child: Padding(
@@ -152,7 +152,7 @@ class _EventsPageState extends State<EventsPage> {
                       )
                     else ...[
                       if (isRefreshing)
-                        const SliverToBoxAdapter(
+                        SliverToBoxAdapter(
                           child: LinearProgressIndicator(minHeight: 2, color: AppColors.primary),
                         ),
                       SliverPadding(
@@ -160,7 +160,7 @@ class _EventsPageState extends State<EventsPage> {
                         sliver: SliverList.separated(
                           itemCount: items.length + (isLoadingMore ? 1 : 0),
                           separatorBuilder: (context, index) =>
-                              const ColoredBox(color: AppColors.pageBackground, child: SizedBox(height: 10)),
+                              ColoredBox(color: AppColors.pageBackground, child: SizedBox(height: 10)),
                           itemBuilder: (context, index) {
                             if (index >= items.length) {
                               return const Padding(
@@ -181,7 +181,7 @@ class _EventsPageState extends State<EventsPage> {
                       if (!hasMore && !isLoadingMore)
                         SliverToBoxAdapter(
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                            padding: EdgeInsets.fromLTRB(24, 8, 24, 24),
                             child: Text(
                               'Больше публикаций нет',
                               textAlign: TextAlign.center,
@@ -211,18 +211,18 @@ class _EventsFeedError extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.iconMuted),
-            const SizedBox(height: 12),
+            Icon(Icons.error_outline_rounded, size: 48, color: AppColors.iconMuted),
+            SizedBox(height: 12),
             Text(
               message,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             FilledButton(
               onPressed: onRetry,
               style: FilledButton.styleFrom(backgroundColor: AppColors.primary),

@@ -1,5 +1,5 @@
-import 'package:clover/feature/city/data/models/city_model.dart';
-import 'package:clover/feature/cities/data/repository/cities_repository.dart';
+import 'package:clover/feature/_catalog_/city/data/models/city_model.dart';
+import 'package:clover/feature/_catalog_/cities/data/repository/cities_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';

@@ -8,21 +8,21 @@ import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_functional_button/functional_button_item.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/image_select/models/app_image_editor_result.dart';
-import 'package:clover/feature/city/presentation/widget/city_single_select_field.dart';
-import 'package:clover/feature/countries/presentation/widget/country_single_select_field.dart';
-import 'package:clover/feature/edit_profile/data/models/edit_profile_save_input.dart';
-import 'package:clover/feature/edit_profile/edit_profile_avatar_flow.dart';
-import 'package:clover/feature/edit_profile/edit_profile_banner_flow.dart';
-import 'package:clover/feature/edit_profile/presentation/cubit/edit_profile_cubit.dart';
-import 'package:clover/feature/edit_profile/presentation/widget/edit_profile_bio_field.dart';
-import 'package:clover/feature/edit_profile/presentation/widget/edit_profile_media_section.dart';
-import 'package:clover/feature/edit_profile/presentation/widget/edit_profile_tags_field.dart';
-import 'package:clover/feature/edit_profile/presentation/widget/edit_profile_username_row.dart';
-import 'package:clover/feature/edit_profile/presentation/widget/edit_profile_username_sheet.dart';
-import 'package:clover/feature/profile_page/data/model/profile_new_model.dart';
-import 'package:clover/feature/profile_page/presentation/cubit/profile_cubit.dart';
-import 'package:clover/feature/settings/presentation/widget/settings_screen_shell.dart';
-import 'package:clover/feature/settings/presentation/widget/settings_tile_section.dart';
+import 'package:clover/feature/_catalog_/city/presentation/widget/city_single_select_field.dart';
+import 'package:clover/feature/_catalog_/countries/presentation/widget/country_single_select_field.dart';
+import 'package:clover/feature/_profile_/edit_profile/data/models/edit_profile_save_input.dart';
+import 'package:clover/feature/_profile_/edit_profile/edit_profile_avatar_flow.dart';
+import 'package:clover/feature/_profile_/edit_profile/edit_profile_banner_flow.dart';
+import 'package:clover/feature/_profile_/edit_profile/presentation/cubit/edit_profile_cubit.dart';
+import 'package:clover/feature/_profile_/edit_profile/presentation/widget/edit_profile_bio_field.dart';
+import 'package:clover/feature/_profile_/edit_profile/presentation/widget/edit_profile_media_section.dart';
+import 'package:clover/feature/_profile_/edit_profile/presentation/widget/edit_profile_tags_field.dart';
+import 'package:clover/feature/_profile_/edit_profile/presentation/widget/edit_profile_username_row.dart';
+import 'package:clover/feature/_profile_/edit_profile/presentation/widget/edit_profile_username_sheet.dart';
+import 'package:clover/feature/_profile_/profile_page/data/model/profile_new_model.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
+import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
+import 'package:clover/feature/_settings_/settings/presentation/widget/settings_tile_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -84,7 +84,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _bioController.text = profile.bio?.trim() ?? '';
     _countryCode = profile.countryCodeRaw?.trim();
     _cityCode = profile.cityCodeRaw?.trim();
-    _tagIds = profile.tagIdSet;
+    _tagIds = profile.tagKeySet;
     _avatarUrl = profile.avatarUrl?.trim();
     _backgroundUrl = profile.backgroundUrl?.trim();
   }
@@ -97,7 +97,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _backgroundPreview = null;
     _avatarUrl = profile.avatarUrl?.trim();
     _backgroundUrl = profile.backgroundUrl?.trim();
-    _tagIds = profile.tagIdSet;
+    _tagIds = profile.tagKeySet;
   }
 
   void _onCountryChanged(String code) {

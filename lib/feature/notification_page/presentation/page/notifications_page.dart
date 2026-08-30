@@ -9,7 +9,7 @@ import 'package:clover/feature/notification_page/presentation/cubit/notification
 import 'package:clover/feature/notification_page/presentation/utils/notification_date_grouping.dart';
 import 'package:clover/feature/notification_page/presentation/widget/notification_section_header.dart';
 import 'package:clover/feature/notification_page/presentation/widget/notification_tile.dart';
-import 'package:clover/feature/settings/presentation/widget/settings_screen_shell.dart';
+import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -86,7 +86,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           body: BlocBuilder<NotificationsCubit, NotificationsState>(
             builder: (context, state) {
               return switch (state) {
-                NotificationsInitial() || NotificationsLoading() => const Center(
+                NotificationsInitial() || NotificationsLoading() => Center(
                   child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
                 ),
                 NotificationsError(:final message) => _NotificationsError(
@@ -134,13 +134,13 @@ class _LoadedBody extends StatelessWidget {
         onRefresh: onRefresh,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          children: const [
+          children: [
             SizedBox(height: 120),
             Center(
               child: Padding(
                 padding: EdgeInsets.all(24),
                 child: Text(
-                  'Уведомлений пока нет',
+                  'Уведомлений нет',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 15, color: AppColors.subTextColor),
                 ),
@@ -178,9 +178,9 @@ class _LoadedBody extends StatelessWidget {
           }
 
           return Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+            padding: EdgeInsets.fromLTRB(24, 8, 24, 24),
             child: Text(
-              'Больше уведомлений нет',
+              'Показаны уведомления за последние 30 дней',
               textAlign: TextAlign.center,
               style: AppTextStyle.base(13, color: AppColors.subTextColor),
             ),
@@ -219,7 +219,7 @@ class _LoadedBody extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               NotificationTile(item: item, onTap: item.postId != null ? () => onOpen(item) : null),
-              if (showDivider) const Divider(height: 1, thickness: 1, color: AppColors.divider),
+              if (showDivider) Divider(height: 1, thickness: 1, color: AppColors.divider),
             ],
           );
         }
@@ -241,18 +241,18 @@ class _NotificationsError extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.iconMuted),
-            const SizedBox(height: 12),
+            Icon(Icons.error_outline_rounded, size: 48, color: AppColors.iconMuted),
+            SizedBox(height: 12),
             Text(
               message,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             FilledButton(
               onPressed: onRetry,
               style: FilledButton.styleFrom(backgroundColor: AppColors.primary),

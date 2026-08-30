@@ -1,10 +1,8 @@
 import 'package:clover/feature/_bonus_/shared/data/models/bonus_program_status.dart';
-import 'package:clover/core/catalog_sync/models/sync_meta.dart';
-import 'package:clover/feature/city/data/models/city_code.dart';
-import 'package:clover/feature/countries/data/models/country_code.dart';
-import 'package:clover/feature/marker_tags/data/models/marker_tag_key.dart';
-import 'package:clover/feature/marker_tags/data/models/marker_tag_model.dart';
-import 'package:clover/feature/profile_categories/data/models/profile_category_code.dart';
+import 'package:clover/feature/_catalog_/city/data/models/city_code.dart';
+import 'package:clover/feature/_catalog_/countries/data/models/country_code.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_key.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_model.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'profile_new_model.freezed.dart';
@@ -20,7 +18,6 @@ abstract class ProfileNewModel with _$ProfileNewModel {
     String? email,
     @JsonKey(name: 'full_name') String? fullName,
     String? username,
-    @JsonKey(name: 'category_code') String? categoryCodeRaw,
     @JsonKey(name: 'city_code') String? cityCodeRaw,
     @JsonKey(name: 'country_code') String? countryCodeRaw,
     @JsonKey(name: 'avatar_url') String? avatarUrl,
@@ -42,13 +39,9 @@ abstract class ProfileNewModel with _$ProfileNewModel {
     @JsonKey(name: 'tag_link_id') String? tagLinkId,
     @JsonKey(name: 'tag_ids') @Default([]) List<String> tagIds,
     @JsonKey(includeFromJson: false, includeToJson: false) @Default([]) List<MarkerTagModel> tags,
-    @JsonKey(includeFromJson: false, includeToJson: false) SyncMeta? syncMeta,
   }) = _ProfileNewModel;
 
   factory ProfileNewModel.fromJson(Map<String, dynamic> json) => _$ProfileNewModelFromJson(json);
-
-  /// Категория из справочника.
-  ProfileCategoryCode? get categoryCode => ProfileCategoryCode.tryParse(categoryCodeRaw);
 
   /// Страна как в `public.countries.code`.
   CountryCode? get countryCode => CountryCode.tryParse(countryCodeRaw);
@@ -71,9 +64,6 @@ abstract class ProfileNewModel with _$ProfileNewModel {
   /// Подпись города для UI.
   String? get cityLabel => cityCode?.labelRu ?? citySlug;
 
-  /// Подпись категории для UI.
-  String? get categoryLabelRu => categoryCode?.labelRu;
-
   bool get isBonusProgramActive => bonusProgramStatus.isActive;
 
   /// «Страна,город» или одно из полей — для строки локации в хедере.
@@ -93,6 +83,9 @@ abstract class ProfileNewModel with _$ProfileNewModel {
   bool get hasAccountTags => tagLinkId != null && tagLinkId!.trim().isNotEmpty;
 
   Set<String> get tagIdSet => tagIds.map((e) => e.trim()).where((e) => e.isNotEmpty).toSet();
+
+  /// Ключи тегов для селектора (`marker_tags.key` = enum).
+  Set<String> get tagKeySet => tags.map((tag) => tag.key.trim()).where((key) => key.isNotEmpty).toSet();
 
   bool hasAccountTag(MarkerTagKey key) => tags.any((tag) => tag.keyEnum == key);
 

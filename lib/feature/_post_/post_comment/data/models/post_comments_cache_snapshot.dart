@@ -1,4 +1,4 @@
-import 'package:clover/feature/post_comment/data/models/comment_thread_entry.dart';
+import 'package:clover/feature/_post_/post_comment/data/models/comment_thread_entry.dart';
 
 class PostCommentsCacheSnapshot {
   const PostCommentsCacheSnapshot({

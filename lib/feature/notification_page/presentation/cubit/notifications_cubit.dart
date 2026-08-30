@@ -1,5 +1,6 @@
 import 'package:clover/feature/notification_page/data/models/notification_item.dart';
 import 'package:clover/feature/notification_page/data/repository/notifications_repository.dart';
+import 'package:clover/feature/notification_page/presentation/utils/notification_date_grouping.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -35,18 +36,19 @@ class NotificationsCubit extends Cubit<NotificationsState> {
       final page = await _repository.listNotifications(limit: _pageSize, cursorItem: cur.items.last);
       if (isClosed) return;
 
-      if (page.items.isEmpty) {
+      final filtered = _withinRetention(page.items);
+      if (filtered.isEmpty) {
         emit(cur.copyWith(isLoadingMore: false, isRefreshing: false, hasMore: false));
         return;
       }
 
       final existingIds = cur.items.map((e) => e.id).toSet();
-      final newItems = page.items.where((item) => existingIds.add(item.id)).toList(growable: false);
+      final newItems = filtered.where((item) => existingIds.add(item.id)).toList(growable: false);
 
       emit(
         cur.copyWith(
           items: [...cur.items, ...newItems],
-          hasMore: page.hasMore && newItems.isNotEmpty,
+          hasMore: page.hasMore && newItems.isNotEmpty && filtered.length >= page.items.length,
           isLoadingMore: false,
           isRefreshing: false,
         ),
@@ -62,16 +64,18 @@ class NotificationsCubit extends Cubit<NotificationsState> {
       final page = await _repository.listNotifications(limit: _pageSize);
       if (isClosed) return;
 
+      final items = _withinRetention(page.items);
+
       emit(
         NotificationsState.loaded(
-          items: page.items,
-          hasMore: page.hasMore,
+          items: items,
+          hasMore: page.hasMore && items.length >= page.items.length,
           isLoadingMore: false,
           isRefreshing: false,
         ),
       );
 
-      if (page.items.any((e) => e.isUnread)) {
+      if (items.any((e) => e.isUnread)) {
         await _repository.markRead();
         if (isClosed) return;
         final cur = state;
@@ -94,6 +98,13 @@ class NotificationsCubit extends Cubit<NotificationsState> {
       }
       emit(NotificationsState.error('$e'));
     }
+  }
+
+  static List<NotificationItem> _withinRetention(List<NotificationItem> items) {
+    return [
+      for (final item in items)
+        if (NotificationDateGrouping.isWithinRetention(item.createdAt)) item,
+    ];
   }
 }
 

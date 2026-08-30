@@ -1,5 +1,5 @@
-import 'package:clover/feature/settings_filter/data/models/filter_category.dart';
-import 'package:clover/feature/settings_filter/data/repository/filter_repository.dart';
+import 'package:clover/feature/_settings_/settings_filter/data/models/filter_category.dart';
+import 'package:clover/feature/_settings_/settings_filter/data/repository/filter_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 

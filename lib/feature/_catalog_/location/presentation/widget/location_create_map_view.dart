@@ -1,5 +1,5 @@
 import 'package:clover/core/shared/app_map/app_map.dart';
-import 'package:clover/feature/location/presentation/widget/location_create_address_bar.dart';
+import 'package:clover/feature/_catalog_/location/presentation/widget/location_create_address_bar.dart';
 import 'package:flutter/material.dart';
 
 /// Карта создания местоположения: [AppMap] + панель адреса сверху.

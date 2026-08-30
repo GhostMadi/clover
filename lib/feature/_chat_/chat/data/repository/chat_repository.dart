@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:clover/feature/chat/data/chat_enriched_mapper.dart';
-import 'package:clover/feature/chat_page/data/models/chat_message.dart';
-import 'package:clover/feature/message_page/data/models/message_chat_preview.dart';
+import 'package:clover/feature/_chat_/chat/data/chat_enriched_mapper.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
+import 'package:clover/feature/_chat_/message_page/data/models/message_chat_preview.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

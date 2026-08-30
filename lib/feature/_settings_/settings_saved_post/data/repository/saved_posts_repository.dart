@@ -1,4 +1,4 @@
-import 'package:clover/feature/post/data/models/post_model.dart';
+import 'package:clover/feature/_post_/post/data/models/post_model.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

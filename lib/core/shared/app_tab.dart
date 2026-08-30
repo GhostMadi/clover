@@ -30,6 +30,7 @@ class AppTab extends StatelessWidget {
     if (tabs.isEmpty) return const SizedBox.shrink();
 
     final index = currentIndex.clamp(0, tabs.length - 1);
+    final colors = AppColors.of(context);
 
     if (scrollable) {
       return _ScrollableAppTab(
@@ -48,7 +49,7 @@ class AppTab extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(_outerPadding),
           decoration: ShapeDecoration(
-            color: AppColors.surface,
+            color: colors.surfaceMuted,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
           child: Stack(
@@ -92,14 +93,18 @@ class _TabIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    final isDark = colors.brightness == Brightness.dark;
+
     return DecoratedBox(
       decoration: ShapeDecoration(
-        color: AppColors.white,
+        // Light: белая «таблетка». Dark: чуть светлее трека, не pure white.
+        color: isDark ? colors.surfaceSoft : colors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
         shadows: [
           BoxShadow(
-            color: AppColors.shadowDark.withValues(alpha: 0.1),
-            blurRadius: 4,
+            color: colors.shadowDark.withValues(alpha: isDark ? 0.45 : 0.1),
+            blurRadius: isDark ? 6 : 4,
             offset: const Offset(0, 2),
           ),
         ],
@@ -143,8 +148,7 @@ class _ScrollableAppTabState extends State<_ScrollableAppTab> {
   void didUpdateWidget(covariant _ScrollableAppTab oldWidget) {
     super.didUpdateWidget(oldWidget);
     _syncKeys();
-    final tabsChanged = oldWidget.tabs.length != widget.tabs.length ||
-        !_sameTabs(oldWidget.tabs, widget.tabs);
+    final tabsChanged = oldWidget.tabs.length != widget.tabs.length || !_sameTabs(oldWidget.tabs, widget.tabs);
     if (oldWidget.currentIndex != widget.currentIndex || tabsChanged) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _measureAndScroll());
     }
@@ -207,11 +211,13 @@ class _ScrollableAppTabState extends State<_ScrollableAppTab> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppTab._outerPadding),
       decoration: ShapeDecoration(
-        color: AppColors.surface,
+        color: colors.surfaceMuted,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       child: SingleChildScrollView(
@@ -300,6 +306,8 @@ class _AppTabItemState extends State<_AppTabItem> with SingleTickerProviderState
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
     return AnimatedBuilder(
       animation: _jellyController.scaleAnimation,
       builder: (context, child) {
@@ -319,7 +327,7 @@ class _AppTabItemState extends State<_AppTabItem> with SingleTickerProviderState
             style: AppTextStyle.base(
               14,
               fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: widget.isSelected ? AppColors.textColor : AppColors.subTextColor,
+              color: widget.isSelected ? colors.textColor : colors.subTextColor,
             ),
             child: Text(
               widget.label,

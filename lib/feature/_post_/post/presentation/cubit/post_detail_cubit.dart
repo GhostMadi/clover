@@ -1,11 +1,11 @@
-import 'package:clover/feature/cluster/presentation/cluster_list_refresh.dart';
-import 'package:clover/feature/marker_tags/data/repository/marker_tags_repository.dart';
-import 'package:clover/feature/post/data/models/post_marker_summary.dart';
-import 'package:clover/feature/post/data/models/post_feed_item.dart';
-import 'package:clover/feature/post/data/models/post_model.dart';
-import 'package:clover/feature/post/data/models/post_reaction_math.dart';
-import 'package:clover/feature/post/data/repository/post_repository.dart';
-import 'package:clover/feature/social_graph/data/repository/social_graph_repository.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/cluster_list_refresh.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/repository/marker_tags_repository.dart';
+import 'package:clover/feature/_post_/post/data/models/post_marker_summary.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
+import 'package:clover/feature/_post_/post/data/models/post_model.dart';
+import 'package:clover/feature/_post_/post/data/models/post_reaction_math.dart';
+import 'package:clover/feature/_post_/post/data/repository/post_repository.dart';
+import 'package:clover/feature/_catalog_/social_graph/data/repository/social_graph_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 

@@ -1,7 +1,7 @@
 import 'package:clover/core/storage/domain/repositories/i_app_storage.dart';
 import 'package:clover/core/storage/extensions/app_storage_extensions.dart';
-import 'package:clover/feature/chat_page/data/models/chat_message.dart';
-import 'package:clover/feature/message_page/data/models/message_chat_preview.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
+import 'package:clover/feature/_chat_/message_page/data/models/message_chat_preview.dart';
 import 'package:injectable/injectable.dart';
 
 /// Дисковый кэш списка чатов и сообщений (local-first UI).

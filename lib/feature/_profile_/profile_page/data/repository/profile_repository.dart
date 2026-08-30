@@ -1,13 +1,9 @@
-import 'dart:async';
-
-import 'package:clover/core/catalog_sync/domain/catalog_sync_manager.dart';
-import 'package:clover/core/catalog_sync/models/sync_meta.dart';
-import 'package:clover/feature/marker_tags/data/models/marker_tag_model.dart';
-import 'package:clover/feature/profile_page/data/model/profile_new_model.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_model.dart';
+import 'package:clover/feature/_profile_/profile_page/data/model/profile_new_model.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Чтение профиля из `public.profiles_with_sync_meta`.
+/// Чтение профиля из `public.profiles` (+ вложенные теги через join).
 abstract class ProfileNewRepository {
   /// Профиль по id (совпадает с id пользователя в auth).
   Future<ProfileNewModel?> getById(String id);
@@ -18,19 +14,17 @@ abstract class ProfileNewRepository {
 
 @Injectable(as: ProfileNewRepository)
 class ProfileNewRepositoryImpl implements ProfileNewRepository {
-  ProfileNewRepositoryImpl(this._client, this._catalogSync);
+  ProfileNewRepositoryImpl(this._client);
 
   final SupabaseClient _client;
-  final CatalogSyncManager _catalogSync;
 
-  static const _profileTable = 'profiles_with_sync_meta';
+  static const _profileTable = 'profiles';
 
   static const _baseColumns = '''
 id,
 email,
 full_name,
 username,
-category_code,
 city_code,
 country_code,
 avatar_url,
@@ -46,11 +40,10 @@ username_next_change_allowed_at,
 created_at,
 updated_at,
 has_filters,
-bonus_program_status,
-sync_meta
+bonus_program_status
 ''';
 
-  /// Профиль + tag_ids + теги + встроенный sync_meta.
+  /// Профиль + tag_ids + теги.
   static const _columnsWithTags = '''
 $_baseColumns,
 tag_link_id,
@@ -85,23 +78,9 @@ profile_tag_links!tag_link_id(tag_ids, tags)
 
   ProfileNewModel _mapProfile(Object row) {
     final normalized = _normalizeRow(row);
-    final syncMeta = _parseEmbeddedSyncMeta(normalized);
     final tags = _parseTags(normalized.remove('account_tags'));
     final profile = ProfileNewModel.fromJson(normalized);
-
-    final result = profile.copyWith(tags: tags, syncMeta: syncMeta);
-    if (syncMeta != null) {
-      unawaited(_catalogSync.validateAndSync(syncMeta));
-    }
-    return result;
-  }
-
-  static SyncMeta? _parseEmbeddedSyncMeta(Map<String, dynamic> map) {
-    final nested = map.remove('sync_meta');
-    if (nested is! Map) return null;
-
-    final meta = SyncMeta.fromJson(Map<String, dynamic>.from(nested));
-    return meta.isValid ? meta : null;
+    return profile.copyWith(tags: tags);
   }
 
   static bool _isMissingTagsSchema(PostgrestException error) {
@@ -110,10 +89,7 @@ profile_tag_links!tag_link_id(tag_ids, tags)
         error.code == 'PGRST200' ||
         error.code == 'PGRST204' ||
         message.contains('tag_link_id') ||
-        message.contains('profile_tag_links') ||
-        message.contains('relationship') ||
-        message.contains('schema cache') ||
-        message.contains('profiles_with_sync_meta');
+        message.contains('profile_tag_links');
   }
 
   static Map<String, dynamic> _normalizeRow(Object row) {

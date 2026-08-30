@@ -1,7 +1,7 @@
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_shimmer.dart';
-import 'package:clover/feature/cluster/presentation/widget/cluster_card.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/widget/cluster_card.dart';
 import 'package:flutter/material.dart';
 
 /// Шиммер горизонтального списка кластеров.
@@ -50,12 +50,13 @@ class _ClusterCardShim extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = clusterCardWidth(context);
+    final colors = AppColors.of(context);
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(context.widthByContext(_figmaCardRadius)),
-        color: AppColors.white,
+        color: colors.surfaceSoft,
       ),
     );
   }

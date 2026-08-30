@@ -10,21 +10,21 @@ import 'package:clover/core/shared/app_nav_bar/app_nav_bar.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_refresh.dart';
 import 'package:clover/core/shared/app_tile.dart';
-import 'package:clover/feature/cluster/data/models/cluster_model.dart';
-import 'package:clover/feature/cluster/presentation/cluster_list_refresh.dart';
-import 'package:clover/feature/cluster/presentation/cubit/clusters_list_cubit.dart';
-import 'package:clover/feature/cluster_create/presentation/cubit/cluster_create_upload_cubit.dart';
-import 'package:clover/feature/cluster_create/presentation/cubit/cluster_create_upload_state.dart';
-import 'package:clover/feature/post/presentation/cubit/post_feed_cubit.dart';
-import 'package:clover/feature/post_create/presentation/cubit/post_create_upload_cubit.dart';
-import 'package:clover/feature/post_create/presentation/cubit/post_create_upload_state.dart';
-import 'package:clover/feature/profile_page/presentation/cubit/profile_cubit.dart';
-import 'package:clover/feature/profile_page/presentation/widget/body_part/profile_body_part.dart';
-import 'package:clover/feature/profile_page/presentation/widget/header_part/parts/profile_header_from_profile.dart';
-import 'package:clover/feature/profile_page/presentation/widget/header_part/profile_header_section.dart';
-import 'package:clover/feature/profile_page/presentation/widget/middle_part/profile_middle_part.dart';
-import 'package:clover/feature/profile_page/presentation/widget/profile_cluster_upload_banner.dart';
-import 'package:clover/feature/profile_page/presentation/widget/profile_post_upload_banner.dart';
+import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/cluster_list_refresh.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/cubit/clusters_list_cubit.dart';
+import 'package:clover/feature/_cluster_/cluster_create/presentation/cubit/cluster_create_upload_cubit.dart';
+import 'package:clover/feature/_cluster_/cluster_create/presentation/cubit/cluster_create_upload_state.dart';
+import 'package:clover/feature/_post_/post/presentation/cubit/post_feed_cubit.dart';
+import 'package:clover/feature/_post_/post_create/presentation/cubit/post_create_upload_cubit.dart';
+import 'package:clover/feature/_post_/post_create/presentation/cubit/post_create_upload_state.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/widget/body_part/profile_body_part.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/widget/header_part/parts/profile_header_from_profile.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/widget/header_part/profile_header_section.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/widget/middle_part/profile_middle_part.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/widget/profile_cluster_upload_banner.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/widget/profile_post_upload_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -282,7 +282,7 @@ class _ProfileNewErrorTop extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.subTextColor, fontSize: 13),
+            style: TextStyle(color: AppColors.subTextColor, fontSize: 13),
           ),
           const SizedBox(height: 8),
           AppButton(text: 'Повторить', onTap: onRetry),

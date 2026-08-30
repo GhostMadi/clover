@@ -1,4 +1,4 @@
-import 'package:clover/feature/post_create/model/post_create_compose_result.dart';
+import 'package:clover/feature/_post_/post_create/model/post_create_compose_result.dart';
 
 extension PostCreateComposeResultValidation on PostCreateComposeResult {
   /// Период выбран — публикация + ивент на карте.

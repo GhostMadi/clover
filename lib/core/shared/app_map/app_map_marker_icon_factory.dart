@@ -20,7 +20,7 @@ abstract final class AppMapMarkerIconFactory {
 
   static final Map<String, Future<Uint8List>> _cache = {};
 
-  static Future<Uint8List> bytesFor({required String emoji, Color borderColor = AppColors.primary}) {
+  static Future<Uint8List> bytesFor({required String emoji, Color borderColor = const Color(0xFF8BC34A)}) {
     final key = '$_cacheVersion|${emoji.trim()}|${borderColor.toARGB32()}';
     return _cache.putIfAbsent(key, () => _render(emoji: emoji, borderColor: borderColor));
   }

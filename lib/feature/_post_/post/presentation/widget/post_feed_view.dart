@@ -1,10 +1,10 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_button.dart';
-import 'package:clover/feature/post/data/models/post_feed_item.dart';
-import 'package:clover/feature/post/presentation/cubit/post_feed_cubit.dart';
-import 'package:clover/feature/post/presentation/widget/post_feed_shimmer.dart';
-import 'package:clover/feature/post/presentation/widget/post_grid.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
+import 'package:clover/feature/_post_/post/presentation/cubit/post_feed_cubit.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_feed_shimmer.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -44,7 +44,7 @@ class PostFeedView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (isRefreshing)
-                  const LinearProgressIndicator(minHeight: 2, color: AppColors.primary),
+                  LinearProgressIndicator(minHeight: 2, color: AppColors.primary),
                 PostGrid(
                   posts: posts,
                   savedByPostId: savedByPostId,

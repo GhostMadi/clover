@@ -1,152 +1,108 @@
+import 'package:clover/core/theme/app_color_binding.dart';
+import 'package:clover/core/theme/app_colors_scope.dart';
+import 'package:clover/core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 
-abstract class AppColors {
-  // ==========================================================================
-  // BRAND (identity layer)
-  // ==========================================================================
+export 'package:clover/core/theme/app_colors_scope.dart' show AppColorsContext, AppColorsScope;
+export 'package:clover/core/theme/app_palette.dart' show AppPalette;
 
-  static const Color brand = Color(0xffB7F5FE); // aqua-mint
-  static const Color primary = Color(0xFF8BC34A); // fresh green
+/// Semantic colors. Values follow the active theme via [AppColorBinding]
+/// (updated each MaterialApp theme animation frame).
+///
+/// New widgets: prefer `context.colors` / [AppColors.of] so they rebuild during lerp.
+abstract final class AppColors {
+  static AppPalette of(BuildContext context) => AppColorsScope.of(context);
 
-  // ==========================================================================
-  // SURFACES (background system)
-  // ==========================================================================
+  static AppPalette get _p => AppColorBinding.palette;
 
-  static const Color white = Color(0xFFFFFFFF);
-  static const Color black = Color(0xFF000000);
+  // Brand
+  static Color get brand => _p.brand;
+  static Color get primary => _p.primary;
 
-  static const Color pageBackground = Color(0xFFFFFFFF);
-  static const Color surface = Color(0xFFFFFFFF);
+  // Surfaces
+  static Color get white => _p.white;
+  static Color get black => _p.black;
+  static Color get pageBackground => _p.pageBackground;
+  static Color get surface => _p.surface;
+  static Color get surfaceMuted => _p.surfaceMuted;
+  static Color get surfaceSoft => _p.surfaceSoft;
+  static Color get surfaceSoftBlue => _p.surfaceSoftBlue;
+  static Color get surfaceSoftGreen => _p.surfaceSoftGreen;
 
-  static const Color surfaceMuted = Color(0xFFFAFAFA);
-  static const Color surfaceSoft = Color(0xFFF7F7F8);
-  static const Color surfaceSoftBlue = Color(0xFFF8FAFC);
-  static const Color surfaceSoftGreen = Color(0xFFF8FAF5);
+  // Background accents
+  static Color get bgSoftMint => _p.bgSoftMint;
+  static Color get bgSoftWhite => _p.bgSoftWhite;
+  static Color get bgColor => _p.bgColor;
 
-  // ==========================================================================
-  // BACKGROUND ACCENTS (flat decorative layers)
-  // ==========================================================================
+  // Borders
+  static Color get border => _p.border;
+  static Color get borderSoft => _p.borderSoft;
+  static Color get borderInput => _p.borderInput;
+  static Color get borderCardGreen => _p.borderCardGreen;
+  static Color get borderCardBlue => _p.borderCardBlue;
+  static Color get divider => _p.divider;
 
-  static const Color bgSoftMint = Color(0xFFF2F8ED);
-  static const Color bgSoftWhite = Color(0xFFFFFFFF);
-  static const Color bgColor = Color(0xFF0D140A); // optional dark base
+  // Text
+  static Color get textColor => _p.textColor;
+  static Color get subTextColor => _p.subTextColor;
+  static Color get iconMuted => _p.iconMuted;
+  static Color get textInverse => _p.textInverse;
 
-  // ==========================================================================
-  // BORDERS & DIVIDERS
-  // ==========================================================================
+  // States
+  static Color get activeColor => _p.activeColor;
+  static Color get inactiveColor => _p.inactiveColor;
+  static Color get error => _p.error;
+  static Color get destructive => _p.destructive;
+  static Color get successSoft => _p.successSoft;
+  static Color get infoSoft => _p.infoSoft;
+  static Color get functionalSoftBlue => _p.functionalSoftBlue;
+  static Color get functionalSoftBlueIcon => _p.functionalSoftBlueIcon;
+  static Color get functionalSoftOrange => _p.functionalSoftOrange;
+  static Color get functionalSoftOrangeIcon => _p.functionalSoftOrangeIcon;
+  static Color get functionalSoftRed => _p.functionalSoftRed;
+  static Color get functionalSoftRedIcon => _p.functionalSoftRedIcon;
+  static Color get borderCardRed => _p.borderCardRed;
 
-  static const Color border = Color(0xFFEEEEEE);
-  static const Color borderSoft = Color(0xFFE8E8E8);
-  static const Color borderInput = Color(0xFFE0E0E0);
+  // Shadows
+  static Color get shadowDark => _p.shadowDark;
+  static Color get shadowPrimary => _p.shadowPrimary;
 
-  static const Color borderCardGreen = Color(0xFFE0EBD2);
-  static const Color borderCardBlue = Color(0xFFC8DDF5);
+  // Buttons / nav
+  static Color get btnBackground => _p.btnBackground;
+  static Color get btnText => _p.btnText;
+  static Color get btnDisabled => _p.btnDisabled;
+  static Color get btnDisabledText => _p.btnDisabledText;
+  static Color get bottomBarColor => _p.bottomBarColor;
+  static Color get bottomBarActiveIcon => _p.bottomBarActiveIcon;
+  static Color get bottomBarInactiveIcon => _p.bottomBarInactiveIcon;
+  static Color get bottomBarSegment => _p.bottomBarSegment;
+  static Color get bottomBarShadow => _p.bottomBarShadow;
 
-  static const Color divider = Color(0xFFEEEEEE);
+  // Fields
+  static Color get fieldBackground => _p.fieldBackground;
+  static Color get fieldBackgroundDisabled => _p.fieldBackgroundDisabled;
+  static Color get fieldBorder => _p.fieldBorder;
+  static Color get fieldBorderFocused => _p.fieldBorderFocused;
+  static Color get fieldText => _p.fieldText;
+  static Color get fieldTextDisabled => _p.fieldTextDisabled;
+  static Color get fieldHint => _p.fieldHint;
+  static Color get fieldLabel => _p.fieldLabel;
+  static Color get fieldLabelFocused => _p.fieldLabelFocused;
+  static Color get fieldIcon => _p.fieldIcon;
+  static Color get fieldIconFocused => _p.fieldIconFocused;
+  static Color get fieldCursor => _p.fieldCursor;
+  static Color get fieldShadowFocused => _p.fieldShadowFocused;
 
-  // ==========================================================================
-  // TEXT SYSTEM
-  // ==========================================================================
+  // Post editor
+  static Color get postEditorBackground => _p.postEditorBackground;
+  static Color get postEditorPanel => _p.postEditorPanel;
+  static Color get postEditorCta => _p.postEditorCta;
+  static Color get postEditorOnSurface => _p.postEditorOnSurface;
+  static Color get postEditorOnSurfaceMuted => _p.postEditorOnSurfaceMuted;
+  static Color get postEditorOnSurfaceDim => _p.postEditorOnSurfaceDim;
+  static Color get postEditorOnSurfaceHint => _p.postEditorOnSurfaceHint;
+  static Color get postEditorSliderOverlay => _p.postEditorSliderOverlay;
 
-  static const Color textColor = Color(0xFF1A1D1E);
-  static const Color subTextColor = Color(0xFF6A6A6A);
-  static const Color iconMuted = Color(0xFF9E9E9E);
-
-  static const Color textInverse = Color(0xFFFFFFFF);
-
-  // ==========================================================================
-  // STATES
-  // ==========================================================================
-
-  static const Color activeColor = Color(0xFFC5FEB7);
-  static const Color inactiveColor = Color(0xFF43573D);
-
-  static const Color error = Color(0xFFE57373);
-  static const Color destructive = Color(0xFFC62828);
-
-  static const Color successSoft = Color(0xFFEFF8E7);
-  static const Color infoSoft = Color(0xFFF0F7FF);
-
-  /// Мягкий голубой для вторичных action-кнопок (фильтр и т.п.).
-  static const Color functionalSoftBlue = Color(0xFFE3F0FC);
-  static const Color functionalSoftBlueIcon = Color(0xFF5B9BD5);
-
-  /// Мягкий оранжевый для вторичных action-кнопок (уведомления и т.п.).
-  static const Color functionalSoftOrange = Color(0xFFFFF3E0);
-  static const Color functionalSoftOrangeIcon = Color(0xFFE65100);
-
-  /// Мягкий красный для деструктивных, но не alarm action-кнопок.
-  static const Color functionalSoftRed = Color(0xFFFFEBEE);
-  static const Color functionalSoftRedIcon = Color(0xFFE57373);
-  static const Color borderCardRed = Color(0xFFF5C6CB);
-
-  // ==========================================================================
-  // SHADOWS
-  // ==========================================================================
-
-  static const Color shadowDark = Color(0xFF000000);
-  static const Color shadowPrimary = Color(0xFF8BC34A);
-
-  // ==========================================================================
-  // INTERACTIVE ELEMENTS (buttons, inputs, nav)
-  // ==========================================================================
-
-  // Buttons
-  static const Color btnBackground = primary;
-  static const Color btnText = textInverse;
-
-  static const Color btnDisabled = Color(0xFF1A2418);
-  static const Color btnDisabledText = subTextColor;
-
-  // Bottom bar
-  static const Color bottomBarColor = white;
-  static const Color bottomBarActiveIcon = primary;
-  static const Color bottomBarInactiveIcon = Color(0xFFA1AAB3);
-
-  static Color bottomBarSegment = primary.withValues(alpha: 0.12);
-
-  static Color bottomBarShadow = primary.withValues(alpha: 0.2);
-
-  // Inputs (field system)
-  static const Color fieldBackground = surface;
-  static const Color fieldBackgroundDisabled = surfaceSoft;
-
-  static const Color fieldBorder = borderInput;
-  static const Color fieldBorderFocused = primary;
-
-  static const Color fieldText = textColor;
-  static const Color fieldTextDisabled = subTextColor;
-
-  static const Color fieldHint = subTextColor;
-  static const Color fieldLabel = subTextColor;
-  static const Color fieldLabelFocused = textColor;
-
-  static const Color fieldIcon = iconMuted;
-  static const Color fieldIconFocused = primary;
-
-  static const Color fieldCursor = primary;
-
-  static Color fieldShadowFocused = primary.withValues(alpha: 0.14);
-
-  // ==========================================================================
-  // POST EDITOR (feature-specific tokens)
-  // ==========================================================================
-
-  static const Color postEditorBackground = pageBackground;
-  static const Color postEditorPanel = surface;
-
-  static const Color postEditorCta = primary;
-
-  static const Color postEditorOnSurface = textColor;
-  static const Color postEditorOnSurfaceMuted = subTextColor;
-  static const Color postEditorOnSurfaceDim = iconMuted;
-  static const Color postEditorOnSurfaceHint = borderSoft;
-
-  static Color postEditorSliderOverlay = primary.withValues(alpha: 0.14);
-
-  // ==========================================================================
-  // MISC
-  // ==========================================================================
-
-  static const Color postShareIcon = Color(0xFF039BE5);
+  // Misc
+  static Color get postShareIcon => _p.postShareIcon;
 }

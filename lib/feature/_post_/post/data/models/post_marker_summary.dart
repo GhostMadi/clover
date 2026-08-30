@@ -1,6 +1,6 @@
-import 'package:clover/feature/city/data/models/city_code.dart';
-import 'package:clover/feature/countries/data/models/country_code.dart';
-import 'package:clover/feature/marker_tags/data/models/marker_tag_model.dart';
+import 'package:clover/feature/_catalog_/city/data/models/city_code.dart';
+import 'package:clover/feature/_catalog_/countries/data/models/country_code.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_model.dart';
 
 /// Краткие данные маркера из `get_post_enriched` → `post.marker`.
 class PostMarkerSummary {

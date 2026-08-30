@@ -4,9 +4,9 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/feature/post_share/data/models/post_share_recipient.dart';
-import 'package:clover/feature/post_share/data/repository/post_share_repository.dart';
-import 'package:clover/feature/post_share/presentation/cubit/post_share_recipients_cubit.dart';
+import 'package:clover/feature/_post_/post_share/data/models/post_share_recipient.dart';
+import 'package:clover/feature/_post_/post_share/data/repository/post_share_repository.dart';
+import 'package:clover/feature/_post_/post_share/presentation/cubit/post_share_recipients_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -166,7 +166,7 @@ class _PostShareSheetBodyState extends State<_PostShareSheetBody> {
               ),
             ),
             Expanded(child: _buildBody(state)),
-            const Divider(height: 1, color: AppColors.border),
+            Divider(height: 1, color: AppColors.border),
             _ShareMessageInputBar(
               controller: _messageController,
               canSend: _selectedIds.isNotEmpty && !_submitting,
@@ -276,7 +276,7 @@ class _ShareRecipientGridCell extends StatelessWidget {
                         ? NetworkImage(avatarUrl)
                         : null,
                     child: avatarUrl == null || avatarUrl.isEmpty
-                        ? const Icon(Icons.person, color: AppColors.iconMuted, size: 28)
+                        ? Icon(Icons.person, color: AppColors.iconMuted, size: 28)
                         : null,
                   ),
                 ),
@@ -287,7 +287,7 @@ class _ShareRecipientGridCell extends StatelessWidget {
                     child: Container(
                       width: 22,
                       height: 22,
-                      decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                      decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
                       child: const Icon(Icons.check_rounded, size: 14, color: Colors.white),
                     ),
                   ),

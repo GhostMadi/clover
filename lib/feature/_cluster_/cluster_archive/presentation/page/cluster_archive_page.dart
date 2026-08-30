@@ -9,13 +9,13 @@ import 'package:clover/core/shared/app_dialog.dart';
 import 'package:clover/core/shared/app_mini_menu.dart';
 import 'package:clover/core/shared/app_refresh.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/feature/archive/presentation/widget/archive_cluster_grid_shimmer.dart';
-import 'package:clover/feature/cluster/data/models/cluster_model.dart';
-import 'package:clover/feature/cluster/data/repository/cluster_repository.dart';
-import 'package:clover/feature/cluster/presentation/cluster_list_refresh.dart';
-import 'package:clover/feature/cluster/presentation/cubit/archived_clusters_cubit.dart';
-import 'package:clover/feature/cluster/presentation/widget/cluster_card.dart';
-import 'package:clover/feature/settings/presentation/widget/settings_screen_shell.dart';
+import 'package:clover/feature/_cluster_/shared/presentation/widget/archive_cluster_grid_shimmer.dart';
+import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
+import 'package:clover/feature/_cluster_/cluster/data/repository/cluster_repository.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/cluster_list_refresh.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/cubit/archived_clusters_cubit.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/widget/cluster_card.dart';
+import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -72,7 +72,7 @@ class _ClusterArchivePageState extends State<ClusterArchivePage> {
                 loaded: (items) {
                   if (items.isEmpty) {
                     return SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
+                      physics: AlwaysScrollableScrollPhysics(),
                       padding: EdgeInsets.only(bottom: SettingsScreenShell.scrollBottomGap(context)),
                       child: SizedBox(
                         height: context.heightByContext(240),
@@ -119,7 +119,7 @@ class _ArchivedClusterCard extends StatelessWidget {
   final ClusterModel cluster;
   final Future<void> Function() onChanged;
 
-  static const _menuItems = [
+  static final _menuItems = [
     AppMiniMenuItem(value: 'unarchive', title: 'Разархивировать', icon: Icons.unarchive_outlined),
     AppMiniMenuItem(
       value: 'delete',
@@ -206,10 +206,10 @@ class _ArchiveError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       child: Column(
         children: [
-          Text(message, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.subTextColor)),
+          Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.subTextColor)),
           const SizedBox(height: 12),
           AppButton(text: 'Повторить', onTap: onRetry),
         ],

@@ -53,5 +53,5 @@
 
 ### См. также
 
-- Общий индекс: `supabase/MIGRATIONS_INDEX.md` (раздел про чат).
+- Общий индекс: `docs/supabase/MIGRATIONS_INDEX.md` (раздел про чат).
 - Посты и репосты в чат: `chat_message_post_refs` → таблица `posts` из домена **`_posts/README.md`**.

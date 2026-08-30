@@ -3,13 +3,13 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
-import 'package:clover/feature/events_page/presentation/cubit/events_feed_cubit.dart';
-import 'package:clover/feature/post/data/models/post_feed_item.dart';
-import 'package:clover/feature/post_comment/presentation/widget/post_comments_sheet.dart';
-import 'package:clover/feature/post_share/presentation/widget/post_share_sheet.dart';
-import 'package:clover/feature/post/presentation/widget/post_marker_info_section.dart';
-import 'package:clover/feature/post/presentation/widget/post_media_gallery.dart';
-import 'package:clover/feature/post/presentation/widget/post_media_reaction_gestures.dart';
+import 'package:clover/feature/_feed_/events_page/presentation/cubit/events_feed_cubit.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
+import 'package:clover/feature/_post_/post_comment/presentation/widget/post_comments_sheet.dart';
+import 'package:clover/feature/_post_/post_share/presentation/widget/post_share_sheet.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_marker_info_section.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_media_gallery.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_media_reaction_gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -126,7 +126,7 @@ class _AuthorRow extends StatelessWidget {
                 backgroundColor: AppColors.surfaceSoft,
                 backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
                 child: avatarUrl == null || avatarUrl.isEmpty
-                    ? const Icon(Icons.person, color: AppColors.iconMuted, size: 22)
+                    ? Icon(Icons.person, color: AppColors.iconMuted, size: 22)
                     : null,
               ),
             ),

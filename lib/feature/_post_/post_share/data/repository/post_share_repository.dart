@@ -1,5 +1,5 @@
-import 'package:clover/feature/post_share/data/models/post_share_recipient.dart';
-import 'package:clover/feature/post_share/data/models/post_share_result.dart';
+import 'package:clover/feature/_post_/post_share/data/models/post_share_recipient.dart';
+import 'package:clover/feature/_post_/post_share/data/models/post_share_result.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

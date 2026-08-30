@@ -1,0 +1,31 @@
+---
+description: Документация бэка Clover — docs/supabase/. Писать при любом изменении Auth/DB/Storage/Functions
+globs: docs/supabase/**,supabase/**
+alwaysApply: true
+---
+
+# Документация Supabase (бэк)
+
+Всё про **описание** бэкенда — в `docs/supabase/`.  
+SQL / functions / config — в корневом `supabase/`. Не в `docs/business/` и не в snapshot.
+
+## Когда писать
+
+Пользователь просит создать таблицу, RLS, storage, Edge Function, Auth provider/hook — сначала/сразу обновить док.
+
+## Как писать
+
+1. Краткий spec в `docs/supabase/` или запись в `MIGRATIONS_INDEX.md`
+2. Имя файла: `kebab-case` или принятый `SPEC_…`
+3. Связь с процессом: ссылка на `docs/business/…`
+4. Миграции — только через `supabase/migrations/`; имя с timestamp
+
+## Edge Functions (ориентир)
+
+- `send_sms_hook` — Auth SMS → WhatsApp COPY_CODE (не смешивать с inbound webhook)
+- `whatsapp_webhook` — Meta inbound verify + messages
+
+## Запрещено
+
+- класть `service_role` / secret / verify token в эти файлы
+- дублировать продуктовые сценарии вместо ссылки на `docs/business/`

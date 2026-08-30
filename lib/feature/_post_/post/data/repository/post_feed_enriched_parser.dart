@@ -1,7 +1,7 @@
-import 'package:clover/feature/post/data/models/post_feed_item.dart';
-import 'package:clover/feature/post/data/models/post_marker_summary.dart';
-import 'package:clover/feature/post/data/models/post_model.dart';
-import 'package:clover/feature/post/data/models/post_profile_filter_value.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
+import 'package:clover/feature/_post_/post/data/models/post_marker_summary.dart';
+import 'package:clover/feature/_post_/post/data/models/post_model.dart';
+import 'package:clover/feature/_post_/post/data/models/post_profile_filter_value.dart';
 
 typedef PostFeedItemCache = void Function(PostFeedItem item);
 

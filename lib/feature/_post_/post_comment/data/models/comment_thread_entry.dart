@@ -1,4 +1,4 @@
-import 'package:clover/feature/post_comment/data/models/comment_item.dart';
+import 'package:clover/feature/_post_/post_comment/data/models/comment_item.dart';
 
 class CommentThreadEntry {
   const CommentThreadEntry({

@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:clover/feature/chat_page/data/models/chat_message.dart';
-import 'package:clover/feature/chat_page/data/models/chat_message_post_ref.dart';
-import 'package:clover/feature/message_page/data/models/message_chat_preview.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_post_ref.dart';
+import 'package:clover/feature/_chat_/message_page/data/models/message_chat_preview.dart';
 
 abstract final class ChatEnrichedMapper {
   static MessageChatPreview? toConversationPreview(

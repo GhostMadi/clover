@@ -5,18 +5,18 @@ import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_nav_bar/app_tab_reselect_tap_logic.dart';
-import 'package:clover/feature/dashboard_page/presentation/config/dashboard_home_tab_config.dart';
+import 'package:clover/feature/_feed_/events_page/data/events_filter_location_store.dart';
+import 'package:clover/feature/_feed_/events_page/data/models/events_filter.dart';
+import 'package:clover/feature/_feed_/events_page/presentation/scope/events_feed_filter_scope.dart';
+import 'package:clover/feature/_feed_/events_page/presentation/widget/events_filter_sheet.dart';
+import 'package:clover/feature/_feed_/map_page/presentation/scope/map_markers_filter_scope.dart';
+import 'package:clover/feature/_feed_/map_page/presentation/widget/map_markers_filter_sheet.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/widget/profile_dashboard_more_sheet.dart';
 import 'package:clover/feature/dashboard_page/data/models/dashboard_home_mode.dart';
+import 'package:clover/feature/dashboard_page/presentation/config/dashboard_home_tab_config.dart';
 import 'package:clover/feature/dashboard_page/presentation/config/dashboard_tab_config.dart';
 import 'package:clover/feature/dashboard_page/presentation/cubit/dashboard_home_mode_cubit.dart';
 import 'package:clover/feature/dashboard_page/presentation/widget/dashboard_bottom_bar.dart';
-import 'package:clover/feature/events_page/data/events_filter_location_store.dart';
-import 'package:clover/feature/events_page/data/models/events_filter.dart';
-import 'package:clover/feature/events_page/presentation/scope/events_feed_filter_scope.dart';
-import 'package:clover/feature/events_page/presentation/widget/events_filter_sheet.dart';
-import 'package:clover/feature/map_page/presentation/scope/map_markers_filter_scope.dart';
-import 'package:clover/feature/map_page/presentation/widget/map_markers_filter_sheet.dart';
-import 'package:clover/feature/profile_page/presentation/widget/profile_dashboard_more_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -97,7 +97,7 @@ class _AppDashboardPageState extends State<AppDashboardPage> {
   @override
   Widget build(BuildContext context) {
     if (!_ready) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppColors.pageBackground,
         body: Center(child: CircularProgressIndicator(strokeWidth: 2)),
       );
@@ -112,6 +112,7 @@ class _AppDashboardPageState extends State<AppDashboardPage> {
           final activeIndex = tabsRouter.activeIndex;
           final homeMode = context.watch<DashboardHomeModeCubit>().state;
 
+          // Обычный Scaffold + Stack: позиция навбара — наша логика.
           return EventsFeedFilterScope(
             filter: _eventsFilter,
             child: MapMarkersFilterScope(
@@ -119,20 +120,23 @@ class _AppDashboardPageState extends State<AppDashboardPage> {
               child: Scaffold(
                 extendBody: true,
                 resizeToAvoidBottomInset: true,
+                backgroundColor: AppColors.pageBackground,
                 body: Stack(
                   fit: StackFit.expand,
+                  clipBehavior: Clip.none,
                   children: [
                     Positioned.fill(child: child),
                     DashboardBottomBar(
                       currentIndex: activeIndex,
-                      homeMode: homeMode,
                       items: DashboardTabConfig.navItemsFor(homeMode),
                       onTabTap: (index) => _handleTabTap(tabsRouter, index),
                       onHomeTab: DashboardTabConfig.showHomeTabAccessories(activeIndex),
                       showHomeTabFilter: DashboardTabConfig.showHomeTabFilter(activeIndex),
                       showHomeTabNotifications: DashboardTabConfig.showHomeTabNotifications(activeIndex),
                       showProfileAccessories: activeIndex == DashboardTabConfig.profileTabIndex,
-                      showFilterBadge: homeMode == DashboardHomeMode.map ? _mapFilter.hasSelection : _eventsFilter.hasSelection,
+                      showFilterBadge: homeMode == DashboardHomeMode.map
+                          ? _mapFilter.hasSelection
+                          : _eventsFilter.hasSelection,
                       onFilterTap: () => unawaited(_openHomeFilter(homeMode)),
                       onNotificationsTap: () => context.router.push(const NotificationsRoute()),
                       onProfileMoreTap: _openProfileMore,

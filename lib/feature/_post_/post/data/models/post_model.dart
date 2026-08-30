@@ -1,5 +1,5 @@
-import 'package:clover/feature/marker_tags/data/models/marker_tag_model.dart';
-import 'package:clover/feature/post/data/models/post_media_model.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_model.dart';
+import 'package:clover/feature/_post_/post/data/models/post_media_model.dart';
 
 /// Пост из `public.posts` + `post_media` (только картинки).
 class PostModel {

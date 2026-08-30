@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:clover/feature/post/data/models/post_feed_item.dart';
-import 'package:clover/feature/post/data/models/post_model.dart';
-import 'package:clover/feature/post/data/repository/post_feed_enriched_parser.dart';
-import 'package:clover/feature/post/data/repository/post_local_cache.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
+import 'package:clover/feature/_post_/post/data/models/post_model.dart';
+import 'package:clover/feature/_post_/post/data/repository/post_feed_enriched_parser.dart';
+import 'package:clover/feature/_post_/post/data/repository/post_local_cache.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

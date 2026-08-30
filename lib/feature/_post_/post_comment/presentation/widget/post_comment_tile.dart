@@ -1,9 +1,9 @@
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/feature/post_comment/data/models/comment_item.dart';
-import 'package:clover/feature/post_comment/data/models/comment_model.dart';
-import 'package:clover/feature/post_comment/presentation/widget/comment_time_format.dart';
+import 'package:clover/feature/_post_/post_comment/data/models/comment_item.dart';
+import 'package:clover/feature/_post_/post_comment/data/models/comment_model.dart';
+import 'package:clover/feature/_post_/post_comment/presentation/widget/comment_time_format.dart';
 import 'package:flutter/material.dart';
 
 class PostCommentTile extends StatelessWidget {

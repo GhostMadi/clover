@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:clover/core/storage/domain/repositories/i_app_storage.dart';
 import 'package:clover/core/storage/extensions/app_storage_extensions.dart';
-import 'package:clover/feature/post/data/models/post_model.dart';
+import 'package:clover/feature/_post_/post/data/models/post_model.dart';
 import 'package:injectable/injectable.dart';
 
 /// Дисковый кэш ленты постов пользователя (local-first UI).

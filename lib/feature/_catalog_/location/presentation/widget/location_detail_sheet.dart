@@ -8,10 +8,10 @@ import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_field/english_address_input_formatter.dart';
 import 'package:clover/core/shared/app_switch.dart';
 import 'package:clover/core/shared/app_text_button.dart';
-import 'package:clover/feature/city/presentation/widget/city_single_select_field.dart';
-import 'package:clover/feature/countries/presentation/widget/country_single_select_field.dart';
-import 'package:clover/feature/location/data/models/location_model.dart';
-import 'package:clover/feature/location/data/repository/location_repository.dart';
+import 'package:clover/feature/_catalog_/city/presentation/widget/city_single_select_field.dart';
+import 'package:clover/feature/_catalog_/countries/presentation/widget/country_single_select_field.dart';
+import 'package:clover/feature/_catalog_/location/data/models/location_model.dart';
+import 'package:clover/feature/_catalog_/location/data/repository/location_repository.dart';
 import 'package:flutter/material.dart';
 
 /// Шторка деталей местоположения: адрес + привязка страны/города.

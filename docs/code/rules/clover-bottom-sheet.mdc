@@ -1,0 +1,57 @@
+---
+description: Bottom sheet Clover — только AppBottomSheet, клавиатура внутри sheet
+alwaysApply: true
+---
+
+# Bottom sheet
+
+Только `AppBottomSheet.show` (и обёртки поверх него: селекторы, фильтры, share).  
+Сырой `showModalBottomSheet` / `showCupertinoModalPopup` в фичах — **запрещён**.
+
+Клавиатуру **не** падить вручную в фиче: `viewInsets` уже поднимает `AppBottomSheet.show`.  
+Инпут в sheet = shared-поле проекта (`AppTextField` / принятый инпут), не сырой `TextField` без стиля.
+
+## API
+
+```dart
+await AppBottomSheet.show<T>(
+  context: context,
+  title: '…', // UI-строка через l10n / принятый источник строк
+  content: …,
+  actions: […], // опционально
+  contentHeight: …, // для списков / форм с фиксированной высотой
+);
+```
+
+Длинный список постов в шторке — `postFeedSurface: true`.  
+Растянуть тело на высоту — `expandBody: true` (теги и т.п.).
+
+Справочник / мультивыбор → `AppSingleSelect` / `AppMultiSelector` + enum-ключ, не список «сырых» подписей с API.
+
+## Если внутри инпут / клава
+
+Контент сжимается, CTA — нет:
+
+```dart
+Column(
+  children: [
+    Expanded(
+      child: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        children: [/* fields */],
+      ),
+    ),
+    /* кнопка в actions или внизу content */,
+  ],
+)
+```
+
+```dart
+// ❌ клава перекрывает поле / кнопка уезжает
+Column(children: [TextField(...), const Spacer(), ElevatedButton(...)])
+Padding(padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom), ...)
+```
+
+## Не sheet
+
+Поле на странице (композер поста, полный редактор) — страница / scaffold, не sheet.

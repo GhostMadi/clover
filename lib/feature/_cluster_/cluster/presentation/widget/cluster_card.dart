@@ -83,6 +83,7 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final sel = widget.isSelected;
     final mid = widget.subtitle?.trim();
     final hasMid = mid != null && mid.isNotEmpty;
@@ -104,7 +105,7 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(cardRadius),
         border: Border.all(
-          color: sel ? AppColors.primary : AppColors.border.withValues(alpha: 0.3),
+          color: sel ? colors.primary : colors.border.withValues(alpha: 0.45),
           width: context.widthByContext(
             sel ? ClusterCard._figmaBorderSelected : ClusterCard._figmaBorderNormal,
           ),
@@ -114,34 +115,34 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
         borderRadius: BorderRadius.circular(cardRadius - 1),
         child: Stack(
           children: [
-            // 1. Задний фон: Фотография 1х1 на всю карточку
             Positioned.fill(
               child: hasThumb
                   ? CachedNetworkImage(
                       imageUrl: url,
                       fit: BoxFit.cover,
-                      placeholder: (_, __) => const ColoredBox(color: AppColors.surfaceSoft),
+                      placeholder: (_, __) => ColoredBox(color: colors.surfaceSoft),
                       errorWidget: (_, __, ___) => ColoredBox(
-                        color: AppColors.surfaceSoft,
+                        color: colors.surfaceSoft,
                         child: Icon(
                           Icons.image_not_supported_outlined,
                           size: context.heightByContext(ClusterCard._figmaIconSize),
-                          color: AppColors.iconMuted,
+                          color: colors.iconMuted,
                         ),
                       ),
                     )
-                  : Container(
-                      color: AppColors.surfaceSoft,
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.folder_open_rounded,
-                        size: context.heightByContext(ClusterCard._figmaIconSize),
-                        color: AppColors.iconMuted,
+                  : ColoredBox(
+                      color: colors.surfaceSoft,
+                      child: Center(
+                        child: Icon(
+                          Icons.folder_open_rounded,
+                          size: context.heightByContext(ClusterCard._figmaIconSize),
+                          color: colors.iconMuted,
+                        ),
                       ),
                     ),
             ),
 
-            // 2. Затемнение снизу (Градиент), чтобы белый текст всегда читался
+            // Затемнение снизу — текст поверх фото всегда читается.
             Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
@@ -149,9 +150,9 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.black.withValues(alpha: 0.0),
-                      Colors.black.withValues(alpha: 0.15),
-                      Colors.black.withValues(alpha: 0.65),
+                      colors.black.withValues(alpha: 0.0),
+                      colors.black.withValues(alpha: 0.2),
+                      colors.black.withValues(alpha: 0.72),
                     ],
                     stops: const [0.0, 0.4, 1.0],
                   ),
@@ -159,19 +160,17 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
               ),
             ),
 
-            // 3. Слой с контентом (Текстовые плашки/чипсы)
             Positioned.fill(
               child: Padding(
                 padding: EdgeInsets.all(padding),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end, // Прижимаем инфу к нижнему краю
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    // Чипс-Заголовок (с эффектом подложки)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.25),
+                        color: colors.black.withValues(alpha: 0.35),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -180,26 +179,24 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyle.base(
                           titleFont,
-                          color: AppColors.white,
+                          color: colors.white,
                           fontWeight: FontWeight.w700,
                           height: 1.15,
                         ),
                       ),
                     ),
 
-                    // Строка с подзаголовком и счетчиком
                     if (hasMid || hasCount) ...[
                       const SizedBox(height: 6),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Подзаголовок как мини-чипс
                           if (hasMid)
                             Expanded(
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
+                                  color: colors.white.withValues(alpha: 0.18),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
@@ -208,14 +205,12 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTextStyle.base(
                                     subtitleFont,
-                                    color: AppColors.white.withValues(alpha: 0.95),
+                                    color: colors.white.withValues(alpha: 0.95),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
                             ),
-
-                          // Счетчик (переиспользуем твой _CountChip, но делаем ярким контрастным)
                           if (hasCount) ...[
                             const SizedBox(width: 6),
                             _CountChip(label: widget.countLabel, selected: sel),
@@ -256,7 +251,6 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
     final menuPadding = context.widthByContext(ClusterCard._figmaMenuPadding);
     final menuIconSize = context.heightByContext(ClusterCard._figmaIconSize);
 
-    // Меню «три точки» аккуратно сидит в верхнем правом углу поверх фото
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -271,9 +265,9 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
               padding: EdgeInsets.all(menuPadding),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.black.withValues(alpha: 0.4), // Темный кружок, контрастирующий с фото
+                color: colors.black.withValues(alpha: 0.45),
               ),
-              child: Icon(Icons.more_vert_rounded, size: menuIconSize, color: AppColors.white),
+              child: Icon(Icons.more_vert_rounded, size: menuIconSize, color: colors.white),
             ),
           ),
         ),
@@ -282,7 +276,6 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
   }
 }
 
-// Модифицированный чипс для счетчика, адаптированный под темный фон картинки
 class _CountChip extends StatelessWidget {
   const _CountChip({required this.label, required this.selected});
 
@@ -295,6 +288,11 @@ class _CountChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    // Поверх фото: выбранный — primary; иначе светлая плашка с тёмным текстом (контраст в любой теме).
+    final bg = selected ? colors.primary : colors.white;
+    final fg = selected ? colors.white : const Color(0xFF1A1D1E);
+
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: context.widthByContext(_figmaChipHPadding),
@@ -302,8 +300,7 @@ class _CountChip extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        // Если выбран — горит основным цветом, если нет — белая контрастная плашка
-        color: selected ? AppColors.primary : Colors.white,
+        color: bg,
       ),
       child: Text(
         label,
@@ -311,7 +308,7 @@ class _CountChip extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         style: AppTextStyle.base(
           context.heightByContext(_figmaChipFont),
-          color: selected ? AppColors.white : AppColors.textColor,
+          color: fg,
           height: 1.05,
           fontWeight: FontWeight.w800,
         ),

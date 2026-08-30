@@ -1,6 +1,6 @@
-import 'package:clover/feature/events_page/data/models/events_content_kind.dart';
-import 'package:clover/feature/events_page/data/models/events_filter.dart';
-import 'package:clover/feature/post/data/models/post_feed_item.dart';
+import 'package:clover/feature/_feed_/events_page/data/models/events_content_kind.dart';
+import 'package:clover/feature/_feed_/events_page/data/models/events_filter.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 
 abstract final class EventsFeedFilter {
   static List<PostFeedItem> apply(List<PostFeedItem> items, EventsFilter filter) {

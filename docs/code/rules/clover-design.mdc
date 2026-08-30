@@ -1,0 +1,45 @@
+---
+description: Визуальный язык Clover — бренд, спокойная иерархия, без generic AI-look
+alwaysApply: true
+---
+
+# Design Vision — Clover
+
+Продуктовый UI вокруг **бренда Clover**: спокойная иерархия, зелёный/brand акцент, чистые поверхности. Не «дашборд-каша» и не generic Material purple / AI-glow.
+
+## Палитра (источник истины — `AppColors` / `AppPalette`)
+
+| Роль | Токены |
+|------|--------|
+| Бренд / CTA | `brand`, `primary` |
+| Фоны | `pageBackground`, `surface`, `surfaceMuted`, `surfaceSoft*` |
+| Текст | `textColor`, `subTextColor`, `textInverse` |
+| Хром | `border`, `borderSoft`, `divider`, `iconMuted` |
+| Состояния | `activeColor`, `error`, `destructive`, `successSoft`, `infoSoft` |
+| Интерактив | `btn*`, `field*`, `bottomBar*` |
+| Мягкие статусы | `functionalSoftBlue/Orange/Red` (+ Icon-токены) |
+
+`primary` / `brand` — CTA и активные акценты точечно.  
+Мягкие цветные surfaces — badges / статусы / секции, не вместо brand на каждой иконке.
+
+## Порядок создания страницы / виджета
+
+1. Документ (если новый сценарий / UI-паттерн) — `docs/business/` или `docs/code/ui/`
+2. Сначала ресурсы (`AppColors` / `AppTextStyle` / `AppIcons` / строки) — см. `clover-resources`
+3. Shared → `AdaptiveStatelessWidget` (тема + iOS/Android) — см. `clover-widgets`
+4. Один фокус на экране, воздух, без перегруза чипами и карточками
+5. Нижняя навигация — `AppNavBar` (центрированная); аксессуары вкладки — по `navigation-bars.md`
+6. Иконки только из `AppIcons` (и принятых SVG через `AppAssets`)
+7. Запрещено: фиолетовые AI-градиенты, неоновый glow, сырые `Colors.*` / hex в фичах
+
+## Светлая / тёмная
+
+- Цвета идут через `AppPalette` + `ThemeExtension` (lerp light↔dark)
+- В UI — `context.colors` / `AppColors.of(context)`, не статичный «всегда light» hex
+- Dark: бренд только на CTA / активном состоянии, не на всём хроме
+
+## Чеклист перед UI
+
+- [ ] Экран читается как Clover, а не как шаблон Flutter / AI landing
+- [ ] Цвета из `AppColors`; типографика из `AppTextStyle`
+- [ ] Нет лишнего декора «ради красоты»

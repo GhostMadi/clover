@@ -63,6 +63,7 @@ class AppTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final minHeight = context.heightByContext(_figmaMinHeight);
     final hPadding = context.widthByContext(_figmaHPadding);
     final vPadding = context.heightByContext(_figmaVPadding);
@@ -73,14 +74,14 @@ class AppTile extends StatelessWidget {
     final radius = context.widthByContext(radiusValue);
 
     final titleColor = !enabled
-        ? AppColors.subTextColor
+        ? colors.subTextColor
         : destructive
-        ? AppColors.destructive
+        ? colors.destructive
         : selected
-        ? AppColors.primary
-        : AppColors.textColor;
+        ? colors.primary
+        : colors.textColor;
 
-    final subtitleColor = AppColors.subTextColor.withValues(alpha: enabled ? 0.88 : 0.55);
+    final subtitleColor = colors.subTextColor.withValues(alpha: enabled ? 0.88 : 0.55);
 
     final leadingWidget = leading ?? _buildLeading(context);
     final trailingWidget = trailing ?? (showChevron ? _buildChevron(context) : null);
@@ -90,18 +91,18 @@ class AppTile extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: hPadding, vertical: vPadding),
       decoration: filled
           ? BoxDecoration(
-              color: selected ? AppColors.successSoft.withValues(alpha: 0.5) : AppColors.surface,
+              color: selected ? colors.successSoft.withValues(alpha: 0.5) : colors.surface,
               borderRadius: BorderRadius.circular(radius),
               border: Border.all(
                 color: selected
-                    ? AppColors.primary.withValues(alpha: 0.38)
-                    : AppColors.border.withValues(alpha: 0.55),
+                    ? colors.primary.withValues(alpha: 0.38)
+                    : colors.border.withValues(alpha: 0.55),
                 width: context.widthByContext(_figmaBorderWidth),
               ),
             )
           : selected
           ? BoxDecoration(
-              color: AppColors.successSoft.withValues(alpha: 0.35),
+              color: colors.successSoft.withValues(alpha: 0.35),
               borderRadius: BorderRadius.circular(radius),
             )
           : null,

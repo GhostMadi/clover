@@ -8,13 +8,13 @@ import 'package:clover/core/shared/app_functional_button/app_functional_pill_but
 import 'package:clover/core/shared/app_map/app_map.dart';
 import 'package:clover/core/shared/app_nav_bar/app_nav_bar.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/feature/events_page/data/models/events_filter.dart';
-import 'package:clover/feature/map_page/data/models/map_marker_item.dart';
-import 'package:clover/feature/map_page/presentation/cubit/map_markers_cubit.dart';
-import 'package:clover/feature/map_page/presentation/scope/map_markers_filter_scope.dart';
-import 'package:clover/feature/map_page/presentation/widget/map_marker_group_sheet.dart';
-import 'package:clover/feature/map_page/presentation/widget/map_marker_post_sheet.dart';
-import 'package:clover/feature/map_page/presentation/widget/map_markers_pagination_bar.dart';
+import 'package:clover/feature/_feed_/events_page/data/models/events_filter.dart';
+import 'package:clover/feature/_feed_/map_page/data/models/map_marker_item.dart';
+import 'package:clover/feature/_feed_/map_page/presentation/cubit/map_markers_cubit.dart';
+import 'package:clover/feature/_feed_/map_page/presentation/scope/map_markers_filter_scope.dart';
+import 'package:clover/feature/_feed_/map_page/presentation/widget/map_marker_group_sheet.dart';
+import 'package:clover/feature/_feed_/map_page/presentation/widget/map_marker_post_sheet.dart';
+import 'package:clover/feature/_feed_/map_page/presentation/widget/map_markers_pagination_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

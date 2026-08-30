@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
-import 'package:clover/feature/cluster/data/models/cluster_model.dart';
-import 'package:clover/feature/cluster/data/repository/cluster_repository.dart';
+import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
+import 'package:clover/feature/_cluster_/cluster/data/repository/cluster_repository.dart';
 
 part 'clusters_list_cubit.freezed.dart';
 

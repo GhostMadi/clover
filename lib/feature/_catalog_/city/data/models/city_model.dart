@@ -1,4 +1,4 @@
-import 'package:clover/feature/city/data/models/city_code.dart';
+import 'package:clover/feature/_catalog_/city/data/models/city_code.dart';
 
 /// Строка `public.cities`.
 class CityModel {

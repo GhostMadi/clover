@@ -1,7 +1,7 @@
-import 'package:clover/feature/edit_profile/data/models/edit_profile_error.dart';
-import 'package:clover/feature/edit_profile/data/models/edit_profile_save_input.dart';
-import 'package:clover/feature/edit_profile/data/repository/edit_profile_repository.dart';
-import 'package:clover/feature/profile_page/data/model/profile_new_model.dart';
+import 'package:clover/feature/_profile_/edit_profile/data/models/edit_profile_error.dart';
+import 'package:clover/feature/_profile_/edit_profile/data/models/edit_profile_save_input.dart';
+import 'package:clover/feature/_profile_/edit_profile/data/repository/edit_profile_repository.dart';
+import 'package:clover/feature/_profile_/profile_page/data/model/profile_new_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';

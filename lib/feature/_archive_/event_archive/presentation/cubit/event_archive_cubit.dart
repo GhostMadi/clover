@@ -1,5 +1,5 @@
-import 'package:clover/feature/archive/event_archive/data/repository/event_archive_repository.dart';
-import 'package:clover/feature/post/data/models/post_feed_item.dart';
+import 'package:clover/feature/_archive_/event_archive/data/repository/event_archive_repository.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 

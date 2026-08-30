@@ -7,8 +7,8 @@ import 'package:clover/core/shared/app_functional_button/functional_button_item.
 import 'package:clover/core/shared/app_functional_button/map_functional_buttons.dart';
 import 'package:clover/core/shared/app_map/app_map.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/feature/location/data/repository/location_repository.dart';
-import 'package:clover/feature/location/presentation/widget/location_create_map_view.dart';
+import 'package:clover/feature/_catalog_/location/data/repository/location_repository.dart';
+import 'package:clover/feature/_catalog_/location/presentation/widget/location_create_map_view.dart';
 import 'package:flutter/material.dart';
 
 @RoutePage()

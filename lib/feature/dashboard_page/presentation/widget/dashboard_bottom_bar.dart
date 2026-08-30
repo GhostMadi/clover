@@ -1,20 +1,22 @@
 import 'package:clover/core/resources/colors.dart';
-import 'package:clover/core/shared/app_nav_bar/app_nav_bar.dart';
-import 'package:clover/core/shared/jelly.dart';
-import 'package:clover/feature/dashboard_page/data/models/dashboard_home_mode.dart';
-import 'package:clover/core/shared/app_nav_bar/app_nav_bar_item.dart';
 import 'package:clover/core/shared/app_functional_button/app_functional_pill_button.dart';
+import 'package:clover/core/shared/app_nav_bar/app_nav_bar.dart';
+import 'package:clover/core/shared/app_nav_bar/app_nav_bar_item.dart';
 import 'package:clover/feature/dashboard_page/presentation/config/dashboard_tab_config.dart';
 import 'package:clover/feature/dashboard_page/presentation/layout/dashboard_bottom_bar_layout.dart';
-import 'package:clover/feature/profile_page/presentation/widget/profile_dashboard_accessories.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/widget/profile_dashboard_accessories.dart';
 import 'package:flutter/material.dart';
 
-/// Нижняя панель дашборда: accessory-кнопки + табы.
+/// Нижняя панель дашборда.
+///
+/// Навбар всегда по центру.
+/// На Home: фильтр слева, уведомления справа; на Profile: «ещё» справа.
+///
+/// Навбар — простой [AppNavBar] в [AnimatedPositioned]-слоте.
 class DashboardBottomBar extends StatelessWidget {
   const DashboardBottomBar({
     super.key,
     required this.currentIndex,
-    required this.homeMode,
     required this.items,
     required this.onTabTap,
     required this.onHomeTab,
@@ -28,7 +30,6 @@ class DashboardBottomBar extends StatelessWidget {
   });
 
   final int currentIndex;
-  final DashboardHomeMode homeMode;
   final List<AppNavBarItem> items;
   final ValueChanged<int> onTabTap;
   final bool onHomeTab;
@@ -57,7 +58,7 @@ class DashboardBottomBar extends StatelessWidget {
       bottom: navInsets.bottom,
       height: layout.barHeight,
       child: Stack(
-        clipBehavior: Clip.hardEdge,
+        clipBehavior: Clip.none,
         children: [
           _AnimatedAccessoryPill(
             left: layout.filterLeft,
@@ -84,8 +85,9 @@ class DashboardBottomBar extends StatelessWidget {
             ),
           ),
           _AnimatedRightAccessories(
-            layout: layout,
-            showProfileAccessories: showProfileAccessories,
+            left: layout.rightAccessoriesLeft,
+            opacity: layout.rightAccessoriesOpacity,
+            interactive: showProfileAccessories,
             onProfileMoreTap: onProfileMoreTap,
           ),
           AnimatedPositioned(
@@ -94,10 +96,12 @@ class DashboardBottomBar extends StatelessWidget {
             left: layout.navLeft,
             bottom: 0,
             width: layout.navWidth,
-            child: JellyBounce(
-              trigger: homeMode,
-              alignment: Alignment.bottomCenter,
-              child: AppNavBar(currentIndex: currentIndex, items: items, onTap: onTabTap),
+            height: layout.barHeight,
+            // Клип на самом AppNavBar — Stack оставляем Clip.none для аксессуаров.
+            child: AppNavBar(
+              currentIndex: currentIndex,
+              items: items,
+              onTap: onTabTap,
             ),
           ),
         ],
@@ -141,13 +145,15 @@ class _AnimatedAccessoryPill extends StatelessWidget {
 
 class _AnimatedRightAccessories extends StatelessWidget {
   const _AnimatedRightAccessories({
-    required this.layout,
-    required this.showProfileAccessories,
+    required this.left,
+    required this.opacity,
+    required this.interactive,
     required this.onProfileMoreTap,
   });
 
-  final DashboardBottomBarLayout layout;
-  final bool showProfileAccessories;
+  final double left;
+  final double opacity;
+  final bool interactive;
   final VoidCallback onProfileMoreTap;
 
   @override
@@ -155,14 +161,14 @@ class _AnimatedRightAccessories extends StatelessWidget {
     return AnimatedPositioned(
       duration: AppNavBar.dashboardLayoutDuration,
       curve: AppNavBar.dashboardLayoutCurve,
-      left: layout.rightAccessoriesLeft,
+      left: left,
       bottom: 0,
       child: IgnorePointer(
-        ignoring: !showProfileAccessories,
+        ignoring: !interactive,
         child: AnimatedOpacity(
           duration: AppNavBar.dashboardLayoutDuration,
           curve: AppNavBar.dashboardLayoutCurve,
-          opacity: layout.rightAccessoriesOpacity,
+          opacity: opacity,
           child: ProfileDashboardAccessories(onMoreTap: onProfileMoreTap),
         ),
       ),

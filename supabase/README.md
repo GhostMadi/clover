@@ -1,28 +1,22 @@
-## Supabase (migrations + edge functions)
+## Supabase (код бэкенда)
 
-### 1) Apply SQL migrations
-Run from repo root:
+**Документация** (спеки, index): [`docs/supabase/`](../docs/supabase/README.md)
+
+**Код:**
+
+- `migrations/` — SQL (CLI применяет только отсюда)
+- `functions/` — Edge Functions
+- `config.toml` — локальный конфиг
+
+### Apply migrations
 
 ```bash
 supabase db push
 ```
 
-If you use hosted Supabase (remote), link your project first:
+Hosted: `supabase link` → `supabase db push`
 
-```bash
-supabase link
-supabase db push
-```
-
-### 2) Deploy Edge Functions
-Functions added:
-- `create_post`
-- `register_post_view`
-- `register_post_send`
-- `refresh_hot_posts_24h`
-- `send_chat_attachments` (чат / вложения)
-
-Deploy:
+### Deploy Edge Functions
 
 ```bash
 supabase functions deploy create_post
@@ -30,29 +24,14 @@ supabase functions deploy register_post_view
 supabase functions deploy register_post_send
 supabase functions deploy refresh_hot_posts_24h
 supabase functions deploy send_chat_attachments
+supabase functions deploy send_sms_hook
+supabase functions deploy whatsapp_webhook
 ```
 
-### 3) Set function secrets (required)
-`create_post`, `register_post_view`, `register_post_send` use user JWT (Authorization header) + anon key.
-`refresh_hot_posts_24h` uses service role key.
+### Secrets
 
 ```bash
 supabase secrets set SUPABASE_URL=... SUPABASE_ANON_KEY=... SUPABASE_SERVICE_ROLE_KEY=...
 ```
 
-### 4) Notes / mapping to migrations
-Навигаторы по доменам (SQL остаётся только в корне `migrations/`):
-
-- Посты: `migrations/_posts/README.md`
-- Комментарии: `migrations/_comments/README.md`
-- Кластеры: `migrations/_clusters/README.md`
-- **Чат и сообщения**: `migrations/_chat/README.md` (в т.ч. **Realtime**: `postgres_changes`, broadcast **`message_enriched`** / **`peer_read`**, read receipts).
-
-Быстрые ссылки на первые файлы домена:
-
-- Posts schema + RLS + counters: `migrations/20260402140000_posts_post_media_engagement.sql`
-- Views events + batch flush: `migrations/20260402150000_post_view_events.sql`
-- Storage for post media + sends events: `migrations/20260407193000_posts_storage_views_sends.sql`
-- Hot feed MV + refresh: `migrations/20260407201000_hot_feed_materialized_view.sql`
-- Chat schema + RPC entrypoint: `migrations/20260417160000_chat_schema.sql`, `migrations/20260417161000_chat_rpc.sql`
-
+Навигаторы по доменам в `migrations/_*/README.md`. Полный index — [`docs/supabase/MIGRATIONS_INDEX.md`](../docs/supabase/MIGRATIONS_INDEX.md).

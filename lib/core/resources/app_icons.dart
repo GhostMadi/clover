@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:clover/core/shared/platform/app_platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -50,7 +49,7 @@ enum AppIcons {
   const AppIcons({required this.iconAndroid, required this.iconIos});
 
   IconData get icon {
-    if (Platform.isIOS) {
+    if (AppPlatform.isIOS) {
       return iconIos;
     }
     return iconAndroid;

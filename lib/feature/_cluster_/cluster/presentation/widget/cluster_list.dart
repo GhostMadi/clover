@@ -6,13 +6,13 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_dialog.dart';
 import 'package:clover/core/shared/app_mini_menu.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/feature/cluster/data/models/cluster_model.dart';
-import 'package:clover/feature/cluster/data/repository/cluster_repository.dart';
-import 'package:clover/feature/cluster/presentation/cluster_list_refresh.dart';
-import 'package:clover/feature/cluster/presentation/cubit/clusters_list_cubit.dart';
-import 'package:clover/feature/cluster/presentation/widget/cluster_card.dart';
-import 'package:clover/feature/cluster/presentation/widget/cluster_shimmer.dart';
-import 'package:clover/feature/profile_page/presentation/cubit/profile_cubit.dart';
+import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
+import 'package:clover/feature/_cluster_/cluster/data/repository/cluster_repository.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/cluster_list_refresh.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/cubit/clusters_list_cubit.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/widget/cluster_card.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/widget/cluster_shimmer.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -138,7 +138,7 @@ class _ClusterListCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool readOnly;
 
-  static const _menuItems = [
+  static final _menuItems = [
     AppMiniMenuItem(value: 'archive', title: 'Архивировать', icon: Icons.archive_outlined),
     AppMiniMenuItem(
       value: 'delete',

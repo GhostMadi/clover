@@ -21,3 +21,18 @@ verify_jwt = false
 [functions.send_chat_attachments]
 verify_jwt = false
 
+# Auth Send SMS Hook — signature via Standard Webhooks, not user JWT.
+[functions.send_sms_hook]
+verify_jwt = false
+
+# Meta WhatsApp Cloud API inbound webhook (NOT Auth Send SMS Hook).
+[functions.whatsapp_webhook]
+verify_jwt = false
+
+# Local Auth Hook (optional). Hosted: Authentication → Hooks → Send SMS in Dashboard.
+# To enable locally, set SEND_SMS_HOOK_SECRET=v1,whsec_<base64> in supabase/.env and:
+# [auth.hook.send_sms]
+# enabled = true
+# uri = "http://host.docker.internal:54321/functions/v1/send_sms_hook"
+# secrets = "env(SEND_SMS_HOOK_SECRET)"
+

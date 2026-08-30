@@ -3,7 +3,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_switch.dart';
 import 'package:clover/feature/_bonus_/bonus_settings/data/models/bonus_program_settings.dart';
 import 'package:clover/feature/_bonus_/shared/data/models/bonus_program_status.dart';
-import 'package:clover/feature/settings/presentation/widget/settings_screen_shell.dart';
+import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:flutter/material.dart';
 
 class BonusProgramSettingsForm extends StatelessWidget {

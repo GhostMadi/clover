@@ -1,7 +1,7 @@
-import 'package:clover/feature/city/data/models/city_model.dart';
-import 'package:clover/feature/city/data/models/city_ref.dart';
-import 'package:clover/feature/countries/data/models/country_model.dart';
-import 'package:clover/feature/countries/data/models/country_ref.dart';
+import 'package:clover/feature/_catalog_/city/data/models/city_model.dart';
+import 'package:clover/feature/_catalog_/city/data/models/city_ref.dart';
+import 'package:clover/feature/_catalog_/countries/data/models/country_model.dart';
+import 'package:clover/feature/_catalog_/countries/data/models/country_ref.dart';
 
 /// Страна и её города одним объектом.
 class CountryWithCities {

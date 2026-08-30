@@ -1,0 +1,84 @@
+---
+description: Как собирать feature (data + presentation + cubit)
+globs: lib/feature/**/*.dart
+alwaysApply: false
+---
+
+# Feature
+
+Два слоя: **data** и **presentation**. Референс: `feature/_profile_/profile_page`, `feature/_post_/post`, `feature/_post_/post_create`.
+
+## data/
+
+### models/
+
+```dart
+@freezed
+class ProfileNewModel with _$ProfileNewModel {
+  const factory ProfileNewModel({ ... }) = _ProfileNewModel;
+  // fromJson / toJson по принятому в фиче паттерну
+}
+```
+
+### repository /
+
+- Concrete class, `@lazySingleton` / injectable — как в соседних фичах
+- Зависит от `SupabaseClient` / storage через конструктор
+- Без abstract/interface
+
+## presentation/
+
+### cubit/
+
+Файл(ы): `<name>_cubit.dart` (+ `*_state.dart` или freezed state рядом — как уже принято в этой фиче).
+
+```dart
+@injectable
+class ProfileCubit extends Cubit<ProfileState> {
+  ProfileCubit(this._repository) : super(/* initial */);
+  // …
+}
+```
+
+Не ходить в UI из cubit. Не ходить в Supabase из page минуя repository.
+
+### page(s)/
+
+```dart
+@RoutePage()
+class ProfilePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // BlocProvider / getIt по принятому паттерну shell
+    return /* view */;
+  }
+}
+```
+
+- Добавить route в `AppRouter`
+- UI: `context.colors`, `AppTextStyle`, switch по state
+
+### widgets/
+
+Только UI фичи. Без прямого доступа к repository.
+
+## Группы (`feature/_group_/`)
+
+Если экраны связаны, но это разные фичи — отдельная папка на каждую:
+
+- `_booking_/booking_create`
+- `_booking_/booking_list`
+- `_booking_/my_bookings`
+
+Общую модель можно импортировать из соседней фичи группы.
+
+## Новый feature — чеклист
+
+1. Процесс в `docs/business/` (если новый сценарий)
+2. Папки data/presentation (в группе — `feature/_group_/<name>/`)
+3. Model + Repository при необходимости
+4. Cubit + page + widgets
+5. Route в `AppRouter`
+6. Ресурсы / строки
+7. `dart run build_runner build --delete-conflicting-outputs`
+8. Строка в `docs/business/features-catalog.md`

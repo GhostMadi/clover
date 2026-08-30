@@ -1,6 +1,6 @@
 import 'package:clover/core/storage/domain/repositories/i_app_storage.dart';
-import 'package:clover/feature/post/data/repository/post_repository.dart';
-import 'package:clover/feature/profile_page/presentation/cubit/profile_cubit.dart';
+import 'package:clover/feature/_post_/post/data/repository/post_repository.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
 import 'package:injectable/injectable.dart';
 
 /// Очистка локальных данных аккаунта при выходе (справочники не затрагиваются).

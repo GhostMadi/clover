@@ -1,15 +1,14 @@
-import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_multi_selector.dart';
-import 'package:clover/feature/marker_tags/data/models/marker_tag_group_key.dart';
-import 'package:clover/feature/marker_tags/data/models/marker_tag_model.dart';
-import 'package:clover/feature/marker_tags/data/repository/marker_tags_repository.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/catalog/marker_tags_catalog.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_group_key.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_model.dart';
 import 'package:flutter/material.dart';
 
-/// Множественный выбор тегов маркера из справочника `marker_tags`.
-class MultiMarkerTags extends StatefulWidget {
+/// Множественный выбор тегов из enum-справочника [MarkerTagsCatalog].
+class MultiMarkerTags extends StatelessWidget {
   const MultiMarkerTags({
     super.key,
     this.label,
@@ -25,7 +24,7 @@ class MultiMarkerTags extends StatefulWidget {
   final String? label;
   final String hint;
 
-  /// Id выбранных тегов (`marker_tags.id`).
+  /// Ключи выбранных тегов (`marker_tags.key`).
   final Set<String> values;
   final ValueChanged<Set<String>> onChanged;
 
@@ -36,157 +35,79 @@ class MultiMarkerTags extends StatefulWidget {
 
   static const double _fieldRadius = 12;
 
-  @override
-  State<MultiMarkerTags> createState() => _MultiMarkerTagsState();
-}
+  List<MarkerTagModel> get _tags {
+    final items = MarkerTagsCatalog.all;
+    if (excludeGroupKeys.isEmpty) return items;
 
-class _MultiMarkerTagsState extends State<MultiMarkerTags> {
-  final _repository = sl<MarkerTagsRepository>();
-
-  List<MarkerTagModel> _tags = const [];
-  bool _loading = true;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTags();
+    return items
+        .where((tag) {
+          final group = tag.groupKeyEnum;
+          return group == null || !excludeGroupKeys.contains(group);
+        })
+        .toList(growable: false);
   }
 
-  Future<void> _loadTags() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+  Set<String> _normalizeValues(List<MarkerTagModel> tags) {
+    if (values.isEmpty || tags.isEmpty) return const {};
 
-    try {
-      final items = await _repository.listAll();
-      if (!mounted) return;
-
-      final filtered = widget.excludeGroupKeys.isEmpty
-          ? items
-          : items
-                .where((tag) {
-                  final group = tag.groupKeyEnum;
-                  return group == null || !widget.excludeGroupKeys.contains(group);
-                })
-                .toList(growable: false);
-
-      setState(() {
-        _tags = filtered;
-        _loading = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = 'Не удалось загрузить теги';
-      });
-    }
+    final knownKeys = tags.map((tag) => tag.key).toSet();
+    return values.where(knownKeys.contains).toSet();
   }
 
-  Set<String> _normalizeValues() {
-    if (widget.values.isEmpty || _tags.isEmpty) return const {};
-
-    final knownIds = _tags.map((tag) => tag.id).toSet();
-    return widget.values.where(knownIds.contains).toSet();
-  }
-
-  List<AppMultiSelectGroup<String>> get _groups => MarkerTagModel.toMultiSelectGroups(_tags);
-
-  String? _selectedDisplay() {
-    final selected = _normalizeValues();
+  String? _selectedDisplay(List<MarkerTagModel> tags, Set<String> selected) {
     if (selected.isEmpty) return null;
 
     final labels = <String>[];
-    for (final tag in _tags) {
-      if (selected.contains(tag.id)) labels.add(tag.labelRu);
+    for (final tag in tags) {
+      if (selected.contains(tag.key)) labels.add(tag.labelRu);
     }
     if (labels.isEmpty) return null;
     return labels.join(', ');
   }
 
-  Future<void> _openSheet() async {
-    if (_tags.isEmpty || !widget.enabled) return;
+  Future<void> _openSheet(BuildContext context, List<MarkerTagModel> tags) async {
+    if (tags.isEmpty || !enabled) return;
 
+    final groups = MarkerTagModel.toMultiSelectGroups(tags);
     final picked = await AppBottomSheet.show<Set<String>>(
       context: context,
-      title: widget.sheetTitle ?? widget.label ?? 'Теги маркера',
+      title: sheetTitle ?? label ?? 'Теги маркера',
       upperCaseTitle: false,
       showCloseButton: true,
       contentBottomSpacing: 0,
       expandBody: true,
-      sheetOuterPadding: EdgeInsets.zero,
-      sheetWidth: MediaQuery.sizeOf(context).width,
       content: AppMultiSelectSheetContent<String>(
-        searchHint: widget.searchHint,
-        groups: _groups,
+        searchHint: searchHint,
+        groups: groups,
         options: const [],
-        selected: _normalizeValues(),
+        selected: _normalizeValues(tags),
         confirmLabel: 'Готово',
       ),
     );
 
-    if (!mounted || picked == null) return;
-    widget.onChanged(picked);
+    if (picked == null) return;
+    onChanged(picked);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (widget.label != null) ...[
-            Text(
-              widget.label!,
-              style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-          ],
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.2)),
-            ),
-          ),
-        ],
-      );
-    }
-
-    if (_error != null) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (widget.label != null) ...[
-            Text(
-              widget.label!,
-              style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-          ],
-          Text(_error!, style: AppTextStyle.base(13, color: AppColors.subTextColor)),
-        ],
-      );
-    }
-
-    final emptyHint = _tags.isEmpty ? 'Нет доступных тегов' : widget.hint;
-    final display = _selectedDisplay();
+    final tags = _tags;
+    final emptyHint = tags.isEmpty ? 'Нет доступных тегов' : hint;
+    final selected = _normalizeValues(tags);
+    final display = _selectedDisplay(tags, selected);
     final hasValue = display != null && display.isNotEmpty;
-    final canOpen = _tags.isNotEmpty && widget.enabled;
+    final canOpen = tags.isNotEmpty && enabled;
 
     final field = Material(
       color: AppColors.fieldBackground,
-      borderRadius: BorderRadius.circular(MultiMarkerTags._fieldRadius),
+      borderRadius: BorderRadius.circular(_fieldRadius),
       child: InkWell(
-        borderRadius: BorderRadius.circular(MultiMarkerTags._fieldRadius),
-        onTap: canOpen ? _openSheet : null,
+        borderRadius: BorderRadius.circular(_fieldRadius),
+        onTap: canOpen ? () => _openSheet(context, tags) : null,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(MultiMarkerTags._fieldRadius),
+            borderRadius: BorderRadius.circular(_fieldRadius),
             border: Border.all(color: AppColors.fieldBorder),
           ),
           child: Row(
@@ -215,16 +136,16 @@ class _MultiMarkerTagsState extends State<MultiMarkerTags> {
     );
 
     return AbsorbPointer(
-      absorbing: !widget.enabled,
+      absorbing: !enabled,
       child: Opacity(
-        opacity: widget.enabled ? 1 : 0.55,
+        opacity: enabled ? 1 : 0.55,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (widget.label != null) ...[
+            if (label != null) ...[
               Text(
-                widget.label!,
+                label!,
                 style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),

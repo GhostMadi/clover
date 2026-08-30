@@ -1,6 +1,6 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_shimmer.dart';
-import 'package:clover/feature/post/presentation/widget/post_marker_details_shimmer.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_marker_details_shimmer.dart';
 import 'package:flutter/material.dart';
 
 /// Шиммер экрана поста до появления [initialPost].
@@ -9,13 +9,14 @@ class PostDetailShimmer extends StatelessWidget {
 
   final bool showMarkerBlock;
 
-  static Widget _box({required double height, double? width, double radius = 8}) {
+  static Widget _box(BuildContext context, {required double height, double? width, double radius = 8}) {
+    final colors = AppColors.of(context);
     return SizedBox(
       width: width,
       height: height,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: colors.surfaceSoft,
           borderRadius: BorderRadius.circular(radius),
         ),
       ),
@@ -24,6 +25,7 @@ class PostDetailShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return AppShimmer(
       child: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 24),
@@ -34,30 +36,30 @@ class PostDetailShimmer extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
               child: Row(
                 children: [
-                  _box(height: 44, width: 44, radius: 22),
+                  _box(context, height: 44, width: 44, radius: 22),
                   const SizedBox(width: 12),
-                  Expanded(child: _box(height: 14)),
+                  Expanded(child: _box(context, height: 14)),
                   const SizedBox(width: 12),
-                  _box(height: 40, width: 112, radius: 14),
+                  _box(context, height: 40, width: 112, radius: 14),
                 ],
               ),
             ),
             AspectRatio(
               aspectRatio: 1,
-              child: ColoredBox(color: AppColors.white),
+              child: ColoredBox(color: colors.surfaceSoft),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _box(height: 14, width: 200),
+                  _box(context, height: 14, width: 200),
                   const SizedBox(height: 10),
-                  _box(height: 20, width: double.infinity),
+                  _box(context, height: 20, width: double.infinity),
                   const SizedBox(height: 8),
-                  _box(height: 20, width: 240),
+                  _box(context, height: 20, width: 240),
                   const SizedBox(height: 8),
-                  _box(height: 14, width: double.infinity),
+                  _box(context, height: 14, width: double.infinity),
                   if (showMarkerBlock) ...[
                     const SizedBox(height: 24),
                     const PostMarkerDetailsShimmer(),

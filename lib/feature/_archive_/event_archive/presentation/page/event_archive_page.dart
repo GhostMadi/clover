@@ -4,12 +4,12 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_refresh.dart';
-import 'package:clover/feature/archive/presentation/widget/archive_post_grid_shimmer.dart';
-import 'package:clover/feature/archive/event_archive/presentation/cubit/event_archive_cubit.dart';
-import 'package:clover/feature/post/data/models/post_archive_context.dart';
-import 'package:clover/feature/post/data/models/post_feed_item.dart';
-import 'package:clover/feature/post/presentation/widget/post_grid.dart';
-import 'package:clover/feature/settings/presentation/widget/settings_screen_shell.dart';
+import 'package:clover/feature/_archive_/shared/presentation/widget/archive_post_grid_shimmer.dart';
+import 'package:clover/feature/_archive_/event_archive/presentation/cubit/event_archive_cubit.dart';
+import 'package:clover/feature/_post_/post/data/models/post_archive_context.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_grid.dart';
+import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -110,7 +110,7 @@ class _ArchiveError extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          Text(message, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.subTextColor)),
+          Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.subTextColor)),
           const SizedBox(height: 12),
           AppButton(text: 'Повторить', onTap: onRetry),
         ],

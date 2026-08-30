@@ -1,6 +1,6 @@
 import 'package:clover/core/shared/app_single_selctor.dart';
-import 'package:clover/feature/countries/data/catalog/countries_catalog.dart';
-import 'package:clover/feature/countries/data/models/country_code.dart';
+import 'package:clover/feature/_catalog_/countries/data/catalog/countries_catalog.dart';
+import 'package:clover/feature/_catalog_/countries/data/models/country_code.dart';
 import 'package:flutter/material.dart';
 
 /// Одиночный выбор страны из [CountriesCatalog].

@@ -1,8 +1,8 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_single_selctor.dart';
-import 'package:clover/feature/city/data/catalog/cities_catalog.dart';
-import 'package:clover/feature/countries/data/models/country_code.dart';
+import 'package:clover/feature/_catalog_/city/data/catalog/cities_catalog.dart';
+import 'package:clover/feature/_catalog_/countries/data/models/country_code.dart';
 import 'package:flutter/material.dart';
 
 /// Одиночный выбор города из [CitiesCatalog] для выбранной страны.

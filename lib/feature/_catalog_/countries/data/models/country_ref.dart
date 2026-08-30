@@ -1,5 +1,5 @@
-import 'package:clover/feature/countries/data/models/country_code.dart';
-import 'package:clover/feature/countries/data/models/country_model.dart';
+import 'package:clover/feature/_catalog_/countries/data/models/country_code.dart';
+import 'package:clover/feature/_catalog_/countries/data/models/country_model.dart';
 
 /// Страна: enum + поля справочника (`is_active`, `sort_order`).
 class CountryRef {

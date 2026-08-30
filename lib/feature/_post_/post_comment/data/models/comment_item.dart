@@ -1,4 +1,4 @@
-import 'package:clover/feature/post_comment/data/models/comment_model.dart';
+import 'package:clover/feature/_post_/post_comment/data/models/comment_model.dart';
 
 /// Комментарий + автор + моя реакция из enriched-RPC.
 class CommentItem {

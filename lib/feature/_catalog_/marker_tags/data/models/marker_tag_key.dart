@@ -1,4 +1,4 @@
-import 'package:clover/feature/marker_tags/data/models/marker_tag_group_key.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_group_key.dart';
 
 /// Ключ тега маркера как в `public.marker_tags.key`.
 enum MarkerTagKey {
@@ -7,6 +7,15 @@ enum MarkerTagKey {
   individual('individual', 'Частное лицо', MarkerTagGroupKey.who),
   community('community', 'Сообщество', MarkerTagGroupKey.who),
   brand('brand', 'Бренд', MarkerTagGroupKey.who),
+
+  // type (ex profile categories)
+  salon('salon', 'Салон', MarkerTagGroupKey.type),
+  barbershop('barbershop', 'Барбершоп', MarkerTagGroupKey.type),
+  music('music', 'Музыка', MarkerTagGroupKey.type),
+  sports('sports', 'Спорт', MarkerTagGroupKey.type),
+  food('food', 'Еда', MarkerTagGroupKey.type),
+  tech('tech', 'Технологии', MarkerTagGroupKey.type),
+  store('store', 'Магазин', MarkerTagGroupKey.type),
 
   // for
   kids('kids', 'Дети', MarkerTagGroupKey.forAudience),

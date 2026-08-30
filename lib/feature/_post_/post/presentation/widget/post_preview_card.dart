@@ -3,9 +3,9 @@ import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/post_media/post_media.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/feature/post/data/models/post_model.dart';
-import 'package:clover/feature/post/data/repository/post_repository.dart';
-import 'package:clover/feature/post/presentation/widget/post_image_tile.dart';
+import 'package:clover/feature/_post_/post/data/models/post_model.dart';
+import 'package:clover/feature/_post_/post/data/repository/post_repository.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_image_tile.dart';
 import 'package:flutter/material.dart';
 
 /// Карточка одного поста: мгновенно из memory-кэша, затем remote enriched.

@@ -4,8 +4,8 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/feature/post_comment/presentation/cubit/post_comments_cubit.dart';
-import 'package:clover/feature/post_comment/presentation/widget/post_comment_tile.dart';
+import 'package:clover/feature/_post_/post_comment/presentation/cubit/post_comments_cubit.dart';
+import 'package:clover/feature/_post_/post_comment/presentation/widget/post_comment_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -110,10 +110,10 @@ class _PostCommentsSheetBodyState extends State<_PostCommentsSheetBody> {
               Expanded(
                 child: switch (state) {
                   PostCommentsInitial() ||
-                  PostCommentsLoading() => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  PostCommentsLoading() => Center(child: CircularProgressIndicator(strokeWidth: 2)),
                   PostCommentsError(:final message) => Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(24),
+                      padding: EdgeInsets.all(24),
                       child: Text(
                         message,
                         textAlign: TextAlign.center,
@@ -124,7 +124,7 @@ class _PostCommentsSheetBodyState extends State<_PostCommentsSheetBody> {
                   PostCommentsLoaded(:final threads, :final isLoadingMore, :final isFromCache) => Column(
                     children: [
                       if (isFromCache)
-                        const LinearProgressIndicator(
+                        LinearProgressIndicator(
                           minHeight: 2,
                           backgroundColor: AppColors.surfaceSoft,
                           color: AppColors.primary,
@@ -221,7 +221,7 @@ class _ReplyBanner extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: AppColors.surfaceSoft,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
           Expanded(
@@ -232,7 +232,7 @@ class _ReplyBanner extends StatelessWidget {
           ),
           GestureDetector(
             onTap: onCancel,
-            child: const Icon(Icons.close_rounded, size: 18, color: AppColors.subTextColor),
+            child: Icon(Icons.close_rounded, size: 18, color: AppColors.subTextColor),
           ),
         ],
       ),
@@ -268,7 +268,7 @@ class _CommentInputBar extends StatelessWidget {
           suffixIcon: IconButton(
             onPressed: submitting ? null : onSubmit,
             icon: submitting
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                 : Icon(Icons.send_rounded, color: AppColors.primary),
           ),
         ),

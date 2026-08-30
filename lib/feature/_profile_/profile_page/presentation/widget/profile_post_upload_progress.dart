@@ -124,11 +124,11 @@ class _UploadingFooter extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  const ColoredBox(color: AppColors.surfaceSoft),
+                  ColoredBox(color: AppColors.surfaceSoft),
                   FractionallySizedBox(
                     alignment: Alignment.centerLeft,
                     widthFactor: progress / 100,
-                    child: const ColoredBox(color: AppColors.primary),
+                    child: ColoredBox(color: AppColors.primary),
                   ),
                 ],
               ),

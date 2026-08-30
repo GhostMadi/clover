@@ -1,4 +1,4 @@
-import 'package:clover/feature/profile_page/data/model/profile_new_model.dart';
+import 'package:clover/feature/_profile_/profile_page/data/model/profile_new_model.dart';
 
 /// Лимиты смены никнейма (`enforce_username_change_limit` на бэке).
 class EditProfileUsernamePolicy {

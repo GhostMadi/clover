@@ -1,7 +1,7 @@
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_shimmer.dart';
-import 'package:clover/feature/cluster/presentation/widget/cluster_card.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/widget/cluster_card.dart';
 import 'package:flutter/material.dart';
 
 /// Шиммер сетки кластеров в архиве (квадратные карточки 1×1).
@@ -15,6 +15,7 @@ class ArchiveClusterGridShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final gap = context.widthByContext(_figmaGap);
     final size = clusterCardWidth(context);
     final radius = context.widthByContext(_figmaCardRadius);
@@ -31,7 +32,7 @@ class ArchiveClusterGridShimmer extends StatelessWidget {
                 width: size,
                 height: size,
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: colors.surfaceSoft,
                   borderRadius: BorderRadius.circular(radius),
                 ),
               ),

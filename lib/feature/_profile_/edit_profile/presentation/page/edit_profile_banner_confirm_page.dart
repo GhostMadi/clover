@@ -6,10 +6,10 @@ import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_text_button.dart';
 import 'package:clover/core/shared/image_select/app_image_edit_preview.dart';
 import 'package:clover/core/shared/image_select/models/app_image_editor_result.dart';
-import 'package:clover/feature/edit_profile/edit_profile_banner_flow.dart';
-import 'package:clover/feature/edit_profile/extension/edit_profile_banner_draft_extension.dart';
-import 'package:clover/feature/edit_profile/extension/edit_profile_banner_router_extension.dart';
-import 'package:clover/feature/post_create/presentation/widget/post_create_step_guard.dart';
+import 'package:clover/feature/_profile_/edit_profile/edit_profile_banner_flow.dart';
+import 'package:clover/feature/_profile_/edit_profile/extension/edit_profile_banner_draft_extension.dart';
+import 'package:clover/feature/_profile_/edit_profile/extension/edit_profile_banner_router_extension.dart';
+import 'package:clover/feature/_post_/post_create/presentation/widget/post_create_step_guard.dart';
 import 'package:flutter/material.dart';
 
 @RoutePage()

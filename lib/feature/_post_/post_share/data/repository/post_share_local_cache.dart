@@ -1,6 +1,6 @@
 import 'package:clover/core/storage/domain/repositories/i_app_storage.dart';
 import 'package:clover/core/storage/extensions/app_storage_extensions.dart';
-import 'package:clover/feature/post_share/data/models/post_share_recipient.dart';
+import 'package:clover/feature/_post_/post_share/data/models/post_share_recipient.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton

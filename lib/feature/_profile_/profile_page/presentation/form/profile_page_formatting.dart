@@ -1,4 +1,4 @@
-import 'package:clover/feature/profile_page/data/model/profile_new_model.dart';
+import 'package:clover/feature/_profile_/profile_page/data/model/profile_new_model.dart';
 
 /// Форматирование данных профиля для UI (без виджетов — легко тестировать и переиспользовать).
 abstract final class ProfilePageFormatting {

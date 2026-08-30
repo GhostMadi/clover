@@ -1,4 +1,4 @@
-import 'package:clover/feature/events_page/data/models/events_content_kind.dart';
+import 'package:clover/feature/_feed_/events_page/data/models/events_content_kind.dart';
 
 class EventsFilter {
   const EventsFilter({
@@ -18,7 +18,7 @@ class EventsFilter {
   final String? cityCode;
   final String? emoji;
 
-  /// Выбранные теги маркера (`marker_tags.id`).
+  /// Выбранные ключи тегов (`marker_tags.key`, как enum).
   final Set<String> tagIds;
 
   static const defaults = EventsFilter();

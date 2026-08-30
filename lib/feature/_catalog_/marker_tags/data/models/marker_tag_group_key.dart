@@ -1,12 +1,13 @@
 /// Группа тега маркера как в `public.marker_tags.group_key`.
 enum MarkerTagGroupKey {
   who('who', 'Кто', 0),
-  forAudience('for', 'Для кого', 1),
-  place('place', 'Место', 2),
-  event('event', 'Событие', 3),
-  format('format', 'Формат', 4),
-  conditions('conditions', 'Условия', 5),
-  account('account', 'Аккаунт', 6);
+  type('type', 'Тип', 1),
+  forAudience('for', 'Для кого', 2),
+  place('place', 'Место', 3),
+  event('event', 'Событие', 4),
+  format('format', 'Формат', 5),
+  conditions('conditions', 'Условия', 6),
+  account('account', 'Аккаунт', 7);
 
   const MarkerTagGroupKey(this.key, this.labelRu, this.sortOrder);
 

@@ -5,7 +5,7 @@ import 'package:clover/feature/_bonus_/bonus_history/presentation/widget/bonus_h
 import 'package:clover/feature/_bonus_/bonus_history/presentation/widget/bonus_history_empty_state.dart';
 import 'package:clover/feature/_bonus_/bonus_history/presentation/widget/bonus_history_entry_tile.dart';
 import 'package:clover/feature/_bonus_/my_bonuses/data/models/bonus_account_item.dart';
-import 'package:clover/feature/settings/presentation/widget/settings_screen_shell.dart';
+import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

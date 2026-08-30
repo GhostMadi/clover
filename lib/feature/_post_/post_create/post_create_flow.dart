@@ -1,5 +1,5 @@
 import 'package:clover/core/shared/image_select/models/app_image_editor_result.dart';
-import 'package:clover/feature/post_create/model/post_create_draft.dart';
+import 'package:clover/feature/_post_/post_create/model/post_create_draft.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 /// Хранит данные между шагами: выбор → редактор → публикация.

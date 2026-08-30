@@ -1,5 +1,5 @@
 import 'package:clover/core/shared/image_select/models/app_image_editor_result.dart';
-import 'package:clover/feature/edit_profile/model/edit_profile_avatar_draft.dart';
+import 'package:clover/feature/_profile_/edit_profile/model/edit_profile_avatar_draft.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 /// Данные между шагами смены аватара: выбор → редактор 1:1 → подтверждение.

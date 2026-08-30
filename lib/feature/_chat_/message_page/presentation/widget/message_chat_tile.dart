@@ -1,7 +1,7 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/feature/message_page/data/models/message_chat_preview.dart';
-import 'package:clover/feature/message_page/presentation/form/message_chat_time_formatting.dart';
+import 'package:clover/feature/_chat_/message_page/data/models/message_chat_preview.dart';
+import 'package:clover/feature/_chat_/message_page/presentation/form/message_chat_time_formatting.dart';
 import 'package:flutter/material.dart';
 
 class MessageChatTile extends StatelessWidget {
@@ -129,7 +129,7 @@ class _MessageReadStatus extends StatelessWidget {
         return Container(
           width: 10,
           height: 10,
-          decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+          decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
         );
       }
       return const SizedBox(width: 10, height: 10);

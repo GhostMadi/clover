@@ -1,7 +1,7 @@
-import 'package:clover/feature/chat/data/chat_enriched_mapper.dart';
-import 'package:clover/feature/chat/data/repository/chat_local_cache.dart';
-import 'package:clover/feature/chat/data/repository/chat_repository.dart';
-import 'package:clover/feature/chat_page/data/models/chat_message.dart';
+import 'package:clover/feature/_chat_/chat/data/chat_enriched_mapper.dart';
+import 'package:clover/feature/_chat_/chat/data/repository/chat_local_cache.dart';
+import 'package:clover/feature/_chat_/chat/data/repository/chat_repository.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

@@ -1,5 +1,5 @@
-import 'package:clover/feature/city/data/models/city_code.dart';
-import 'package:clover/feature/countries/data/models/country_code.dart';
+import 'package:clover/feature/_catalog_/city/data/models/city_code.dart';
+import 'package:clover/feature/_catalog_/countries/data/models/country_code.dart';
 
 /// Местоположение пользователя / магазина.
 class LocationModel {
