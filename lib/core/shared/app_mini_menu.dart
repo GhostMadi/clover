@@ -1,6 +1,7 @@
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/core/shared/platform/adaptive_widget.dart';
 import 'package:flutter/material.dart';
 
 class AppMiniMenuItem<T> {
@@ -26,7 +27,7 @@ class AppMiniMenuItem<T> {
 /// - Если передан [child], меню откроется при нажатии на него.
 /// - Если [child] равен null, отобразится стандартная иконка "⋯".
 /// - Если список [items] пуст, виджет ничего не рендерит.
-class AppMiniMenu<T> extends StatelessWidget {
+class AppMiniMenu<T> extends AdaptiveStatelessWidget {
   const AppMiniMenu({
     super.key,
     required this.items,
@@ -48,17 +49,19 @@ class AppMiniMenu<T> extends StatelessWidget {
   final EdgeInsets? iconPadding;
 
   @override
-  Widget build(BuildContext context) {
-    if (items.isEmpty) return const SizedBox.shrink();
+  Widget buildMaterial(BuildContext context, AppPalette colors) => _build(colors);
 
-    final colors = context.colors;
+  @override
+  Widget buildCupertino(BuildContext context, AppPalette colors) => _build(colors);
+
+  Widget _build(AppPalette colors) {
+    if (items.isEmpty) return const SizedBox.shrink();
 
     return PopupMenuButton<T>(
       tooltip: menuTooltip,
       color: colors.surface,
-      // ХАК: Обнуляем скрытые вертикальные отступы самого контейнера меню
       menuPadding: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias, // Обрезаем углы сплеша по форме borderRadius
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
         side: BorderSide(color: colors.border.withValues(alpha: 0.8)),
@@ -69,9 +72,8 @@ class AppMiniMenu<T> extends StatelessWidget {
           return PopupMenuItem<T>(
             value: it.value,
             enabled: it.enabled,
-            // Выставляем нужные отступы внутри самого элемента
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            height: 0, // Убираем дефолтное ограничение по высоте (48)
+            height: 0,
             child: Row(
               children: [
                 if (it.icon != null) ...[

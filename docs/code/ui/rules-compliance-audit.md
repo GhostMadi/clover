@@ -55,7 +55,7 @@
 | `app_nav_bar/` | ✅ `context.colors` | ❌ | IconData снаружи | 🟡 |
 | `app_tab.dart` | ✅ | ❌ | ✅ | 🟡 |
 | `app_tile.dart` | ✅ | ❌ | ✅ AppIcons | 🟡 |
-| `app_mini_menu.dart` | ✅ | ❌ | ✅ AppIcons | 🟡 |
+| `app_mini_menu.dart` | ✅ | ✅ `AdaptiveStatelessWidget` | ✅ AppIcons | 🟡 |
 
 ### Selectors / pickers
 
