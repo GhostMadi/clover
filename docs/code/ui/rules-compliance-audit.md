@@ -148,7 +148,7 @@
 | | |
 |--|--|
 | ✅ | База adaptive (`platform/`); sheet-API единый; типографика в shared часто через `AppTextStyle` |
-| 🟡 | Почти все контролы на static `AppColors` + `Icons.*`, без AdaptiveStatelessWidget |
+| 🟡 | Icons: основные контролы → `AppIcons`; остаются edge-case `Icons.*` в booking/settings/post menu |
 | 🔴 | `image_select/` — RU strings, `Colors.transparent` (остаточный долг) |
 
 ### По фичам (логика правил)
