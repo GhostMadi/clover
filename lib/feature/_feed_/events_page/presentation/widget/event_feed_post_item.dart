@@ -216,6 +216,7 @@ class _ReactionRow extends StatelessWidget {
                 icon: feedItem.isDisliked ? AppIcons.dislikeFilled.icon : AppIcons.dislike.icon,
                 label: _countLabel(post.dislikesCount),
                 active: feedItem.isDisliked,
+                activeColor: context.colors.textColor,
                 onTap: () => cubit.toggleDislike(feedItem),
               ),
               const Spacer(),
@@ -275,19 +276,19 @@ class _ReactionIcon extends StatelessWidget {
     required this.icon,
     this.label,
     this.active = false,
-    this.activeColor = Colors.red,
+    this.activeColor,
     this.onTap,
   });
 
   final IconData icon;
   final String? label;
   final bool active;
-  final Color activeColor;
+  final Color? activeColor;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final color = active ? activeColor : context.colors.textColor;
+    final color = active ? (activeColor ?? context.colors.destructive) : context.colors.textColor;
 
     return Material(
       color: Colors.transparent,

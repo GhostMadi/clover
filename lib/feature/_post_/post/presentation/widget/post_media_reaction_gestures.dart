@@ -31,7 +31,7 @@ class _PostMediaReactionGesturesState extends State<PostMediaReactionGestures> w
   late final Animation<double> _scaleAnimation;
   late final Animation<double> _opacityAnimation;
   IconData? _overlayIcon;
-  Color _overlayIconColor = const Color(0xFFFFFFFF);
+  late Color _overlayIconColor;
 
   @override
   void initState() {

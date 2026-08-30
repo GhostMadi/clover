@@ -89,7 +89,7 @@ class PostCommentTile extends StatelessWidget {
                   child: Icon(
                     item.isLiked ? AppIcons.likeFilled.icon : AppIcons.like.icon,
                     size: 16,
-                    color: item.isLiked ? Colors.red : context.colors.subTextColor,
+                    color: item.isLiked ? context.colors.destructive : context.colors.subTextColor,
                   ),
                 ),
               ),

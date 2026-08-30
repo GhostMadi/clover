@@ -90,7 +90,7 @@ class _ReactionBadge extends StatelessWidget {
     final (icon, color, bg) = switch (kind) {
       NotificationKind.like || NotificationKind.commentLike => (
         AppIcons.likeFilled.icon,
-        Colors.red,
+        context.colors.destructive,
         context.colors.white,
       ),
       NotificationKind.dislike || NotificationKind.commentDislike => (
