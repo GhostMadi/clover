@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
@@ -78,18 +79,18 @@ class _ClusterCreateComposePageState extends State<ClusterCreateComposePage> {
     return ClusterCreateStepGuard(
       canShow: ClusterCreateFlow.instance.draft.canOpenCompose,
       child: Scaffold(
-        backgroundColor: AppColors.postEditorBackground,
+        backgroundColor: context.colors.postEditorBackground,
         appBar: AppBar(
-          backgroundColor: AppColors.postEditorBackground,
+          backgroundColor: context.colors.postEditorBackground,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
             icon: Icon(
-              Icons.arrow_back_rounded,
+              AppIcons.arrowBackRounded.icon,
               size: context.widthByContext(ClusterCreateComposePage._figmaCloseIconSize),
             ),
-            color: AppColors.postEditorOnSurface,
+            color: context.colors.postEditorOnSurface,
             onPressed: () => context.router.maybePop(),
           ),
           title: Text(
@@ -97,7 +98,7 @@ class _ClusterCreateComposePageState extends State<ClusterCreateComposePage> {
             style: AppTextStyle.base(
               ClusterCreateComposePage._figmaAppBarTitleFont,
               fontWeight: FontWeight.w700,
-              color: AppColors.postEditorOnSurface,
+              color: context.colors.postEditorOnSurface,
             ),
           ),
           actions: [
@@ -132,7 +133,7 @@ class _ClusterCreateComposePageState extends State<ClusterCreateComposePage> {
                             imageWidth: _cover.asset.width,
                             imageHeight: _cover.asset.height,
                             borderRadius: context.widthByContext(ClusterCreateComposePage._figmaPreviewRadius),
-                            backgroundColor: AppColors.surfaceSoft,
+                            backgroundColor: context.colors.surfaceSoft,
                           ),
                         ),
                         SizedBox(height: context.heightByContext(ClusterCreateComposePage._figmaSectionGap)),

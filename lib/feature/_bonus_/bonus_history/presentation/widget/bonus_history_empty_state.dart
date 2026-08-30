@@ -12,7 +12,7 @@ class BonusHistoryEmptyState extends StatelessWidget {
       child: Text(
         'История пока пуста',
         textAlign: TextAlign.center,
-        style: AppTextStyle.base(15, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+        style: AppTextStyle.base(15, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
       ),
     );
   }

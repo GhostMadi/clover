@@ -36,7 +36,7 @@ class BookingListCard extends StatelessWidget {
     final timeLabel = date != null ? '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}' : '—';
 
     return Material(
-      color: AppColors.surface,
+      color: context.colors.surface,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
@@ -45,7 +45,7 @@ class BookingListCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+            border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,12 +58,12 @@ class BookingListCard extends StatelessWidget {
                   children: [
                     Text(
                       item.serviceTitle,
-                      style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w700),
+                      style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       item.clientName,
-                      style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w500),
+                      style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -93,15 +93,15 @@ class _DateBadge extends StatelessWidget {
       width: 72,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.surfaceSoftGreen.withValues(alpha: 0.55),
+        color: context.colors.surfaceSoftGreen.withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.borderCardGreen.withValues(alpha: 0.7)),
+        border: Border.all(color: context.colors.borderCardGreen.withValues(alpha: 0.7)),
       ),
       child: Column(
         children: [
           Text(
             timeLabel,
-            style: AppTextStyle.base(15, color: AppColors.primary, fontWeight: FontWeight.w800),
+            style: AppTextStyle.base(15, color: context.colors.primary, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 2),
           Text(
@@ -109,7 +109,7 @@ class _DateBadge extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyle.base(11, color: AppColors.subTextColor, fontWeight: FontWeight.w600, height: 1.15),
+            style: AppTextStyle.base(11, color: context.colors.subTextColor, fontWeight: FontWeight.w600, height: 1.15),
           ),
         ],
       ),

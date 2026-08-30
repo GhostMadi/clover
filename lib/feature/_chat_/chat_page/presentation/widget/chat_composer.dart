@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:clover/core/resources/app_icons.dart';
 
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -82,17 +83,17 @@ class _ChatComposerState extends State<ChatComposer> {
           filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: AppColors.surface.withValues(alpha: 0.94),
+              color: context.colors.surface.withValues(alpha: 0.94),
               borderRadius: BorderRadius.circular(ChatComposer._barRadius),
-              border: Border.all(color: AppColors.border.withValues(alpha: 0.7)),
+              border: Border.all(color: context.colors.border.withValues(alpha: 0.7)),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.shadowDark.withValues(alpha: 0.08),
+                  color: context.colors.shadowDark.withValues(alpha: 0.08),
                   blurRadius: 20,
                   offset: Offset(0, 6),
                 ),
                 BoxShadow(
-                  color: AppColors.shadowPrimary.withValues(alpha: 0.06),
+                  color: context.colors.shadowPrimary.withValues(alpha: 0.06),
                   blurRadius: 28,
                   offset: const Offset(0, 10),
                 ),
@@ -110,7 +111,7 @@ class _ChatComposerState extends State<ChatComposer> {
                         AppMiniMenuItem(
                           value: ChatAttachmentAction.photo,
                           title: 'Фото',
-                          icon: Icons.image_outlined,
+                          icon: AppIcons.imageOutlined.icon,
                         ),
                         AppMiniMenuItem(
                           value: ChatAttachmentAction.document,
@@ -123,13 +124,13 @@ class _ChatComposerState extends State<ChatComposer> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceSoft,
+                          color: context.colors.surfaceSoft,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          Icons.add_rounded,
+                          AppIcons.addRounded.icon,
                           size: 24,
-                          color: AppColors.primary,
+                          color: context.colors.primary,
                         ),
                       ),
                     ),
@@ -141,13 +142,13 @@ class _ChatComposerState extends State<ChatComposer> {
                       minLines: 1,
                       maxLines: 5,
                       textInputAction: TextInputAction.newline,
-                      style: AppTextStyle.base(16, color: AppColors.textColor, height: 1.35),
-                      cursorColor: AppColors.fieldCursor,
+                      style: AppTextStyle.base(16, color: context.colors.textColor, height: 1.35),
+                      cursorColor: context.colors.fieldCursor,
                       decoration: InputDecoration(
                         hintText: 'Сообщение',
-                        hintStyle: AppTextStyle.base(16, color: AppColors.subTextColor),
+                        hintStyle: AppTextStyle.base(16, color: context.colors.subTextColor),
                         filled: true,
-                        fillColor: AppColors.surfaceSoft.withValues(alpha: 0.65),
+                        fillColor: context.colors.surfaceSoft.withValues(alpha: 0.65),
                         isDense: true,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
                         border: OutlineInputBorder(
@@ -161,7 +162,7 @@ class _ChatComposerState extends State<ChatComposer> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(22),
                           borderSide: BorderSide(
-                            color: AppColors.primary.withValues(alpha: 0.35),
+                            color: context.colors.primary.withValues(alpha: 0.35),
                             width: 1.2,
                           ),
                         ),
@@ -173,12 +174,12 @@ class _ChatComposerState extends State<ChatComposer> {
                     duration: Duration(milliseconds: 180),
                     curve: Curves.easeOut,
                     decoration: BoxDecoration(
-                      color: canSend ? AppColors.primary : AppColors.surfaceSoft,
+                      color: canSend ? context.colors.primary : context.colors.surfaceSoft,
                       borderRadius: BorderRadius.circular(22),
                       boxShadow: canSend
                           ? [
                               BoxShadow(
-                                color: AppColors.shadowPrimary.withValues(alpha: 0.28),
+                                color: context.colors.shadowPrimary.withValues(alpha: 0.28),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -199,12 +200,12 @@ class _ChatComposerState extends State<ChatComposer> {
                                   padding: EdgeInsets.all(12),
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: AppColors.white,
+                                    color: context.colors.white,
                                   ),
                                 )
                               : Icon(
-                                  Icons.send_rounded,
-                                  color: canSend ? AppColors.white : AppColors.iconMuted,
+                                  AppIcons.send.icon,
+                                  color: canSend ? context.colors.white : context.colors.iconMuted,
                                   size: 22,
                                 ),
                         ),

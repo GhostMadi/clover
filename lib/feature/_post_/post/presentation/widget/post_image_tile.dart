@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/shared/app_shimmer.dart';
 import 'package:clover/core/storage/app_progressive_network_image.dart';
 import 'package:flutter/material.dart';
@@ -25,8 +26,8 @@ class PostImageTile extends StatelessWidget {
       return ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
         child: ColoredBox(
-          color: AppColors.surfaceSoft,
-          child: Center(child: Icon(Icons.image_outlined, color: AppColors.iconMuted, size: 28)),
+          color: context.colors.surfaceSoft,
+          child: Center(child: Icon(AppIcons.imageOutlined.icon, color: context.colors.iconMuted, size: 28)),
         ),
       );
     }
@@ -54,7 +55,7 @@ class PostImagePlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
-      child: AppShimmer(child: ColoredBox(color: AppColors.of(context).surfaceSoft)),
+      child: AppShimmer(child: ColoredBox(color: context.colors.surfaceSoft)),
     );
   }
 }

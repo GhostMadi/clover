@@ -35,7 +35,7 @@ class _ClientBookingCommentFieldState extends State<ClientBookingCommentField> {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = _isFocused ? AppColors.fieldBorderFocused : AppColors.fieldBorder;
+    final borderColor = _isFocused ? context.colors.fieldBorderFocused : context.colors.fieldBorder;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -47,32 +47,32 @@ class _ClientBookingCommentFieldState extends State<ClientBookingCommentField> {
             style: AppTextStyle.base(
               13,
               fontWeight: FontWeight.w600,
-              color: _isFocused ? AppColors.fieldLabelFocused : AppColors.fieldLabel,
+              color: _isFocused ? context.colors.fieldLabelFocused : context.colors.fieldLabel,
             ),
           ),
         ),
         Text(
           'Необязательно — пожелания к услуге или уточнения для мастера',
-          style: AppTextStyle.base(12, color: AppColors.subTextColor, height: 1.3),
+          style: AppTextStyle.base(12, color: context.colors.subTextColor, height: 1.3),
         ),
         const SizedBox(height: 8),
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: AppColors.fieldBackground,
+            color: context.colors.fieldBackground,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: borderColor, width: _isFocused ? 1.6 : 1),
             boxShadow: _isFocused
                 ? [
                     BoxShadow(
-                      color: AppColors.fieldShadowFocused.withValues(alpha: 0.12),
+                      color: context.colors.fieldShadowFocused.withValues(alpha: 0.12),
                       blurRadius: 14,
                       offset: const Offset(0, 6),
                     ),
                   ]
                 : [
                     BoxShadow(
-                      color: AppColors.shadowDark.withValues(alpha: 0.04),
+                      color: context.colors.shadowDark.withValues(alpha: 0.04),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -87,13 +87,13 @@ class _ClientBookingCommentFieldState extends State<ClientBookingCommentField> {
             textInputAction: TextInputAction.newline,
             keyboardType: TextInputType.multiline,
             textCapitalization: TextCapitalization.sentences,
-            style: AppTextStyle.base(16, fontWeight: FontWeight.w500, color: AppColors.fieldText, height: 1.4),
-            cursorColor: AppColors.fieldCursor,
+            style: AppTextStyle.base(16, fontWeight: FontWeight.w500, color: context.colors.fieldText, height: 1.4),
+            cursorColor: context.colors.fieldCursor,
             decoration: InputDecoration(
               hintText: 'Например: коротко сбоку, без фейда',
-              hintStyle: AppTextStyle.base(16, fontWeight: FontWeight.w400, color: AppColors.fieldHint),
+              hintStyle: AppTextStyle.base(16, fontWeight: FontWeight.w400, color: context.colors.fieldHint),
               border: InputBorder.none,
-              counterStyle: AppTextStyle.base(12, color: AppColors.subTextColor),
+              counterStyle: AppTextStyle.base(12, color: context.colors.subTextColor),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
           ),

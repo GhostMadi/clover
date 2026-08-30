@@ -363,7 +363,7 @@ class _PostPageState extends State<PostPage> {
       ),
       FunctionalButtonItem(
         icon: item.mySaved ? AppIcons.bookmarkFilled.icon : AppIcons.bookmark.icon,
-        iconColor: item.mySaved ? AppColors.textColor : null,
+        iconColor: item.mySaved ? context.colors.textColor : null,
         onTap: _cubit.toggleSave,
       ),
     ];
@@ -372,7 +372,7 @@ class _PostPageState extends State<PostPage> {
   List<FunctionalButtonItem> _buttons(PostFeedItem item) => [
     FunctionalButtonItem(
       icon: AppIcons.back.icon,
-      customColor: AppColors.primary,
+      customColor: context.colors.primary,
       keepWhenCollapsed: true,
       onTap: () => context.router.maybePop(),
     ),
@@ -402,7 +402,7 @@ class _PostPageState extends State<PostPage> {
                 buttons: [
                   FunctionalButtonItem(
                     icon: AppIcons.back.icon,
-                    customColor: AppColors.primary,
+                    customColor: context.colors.primary,
                     keepWhenCollapsed: true,
                     onTap: () => context.router.maybePop(),
                   ),
@@ -416,7 +416,7 @@ class _PostPageState extends State<PostPage> {
                         Text(
                           message,
                           textAlign: TextAlign.center,
-                          style: AppTextStyle.base(14, color: AppColors.subTextColor),
+                          style: AppTextStyle.base(14, color: context.colors.subTextColor),
                         ),
                         const SizedBox(height: 12),
                         AppButton(text: 'Повторить', onTap: _cubit.reload),
@@ -443,7 +443,7 @@ class _PostPageState extends State<PostPage> {
       buttons: [
         FunctionalButtonItem(
           icon: AppIcons.back.icon,
-          customColor: AppColors.primary,
+          customColor: context.colors.primary,
           keepWhenCollapsed: true,
           onTap: () => context.router.maybePop(),
         ),
@@ -494,7 +494,7 @@ class _PostPageState extends State<PostPage> {
         controller: _scrollController,
         slivers: [
           if (isRefreshing)
-            SliverToBoxAdapter(child: LinearProgressIndicator(minHeight: 2, color: AppColors.primary)),
+            SliverToBoxAdapter(child: LinearProgressIndicator(minHeight: 2, color: context.colors.primary)),
 
           SliverToBoxAdapter(
             child: Padding(
@@ -552,14 +552,14 @@ class _PostPageState extends State<PostPage> {
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.borderSoft),
+            border: Border.all(color: context.colors.borderSoft),
           ),
           child: CircleAvatar(
             radius: 22,
-            backgroundColor: AppColors.surfaceSoft,
+            backgroundColor: context.colors.surfaceSoft,
             backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
             child: avatarUrl == null || avatarUrl.isEmpty
-                ? Icon(Icons.person, color: AppColors.iconMuted, size: 22)
+                ? Icon(Icons.person, color: context.colors.iconMuted, size: 22)
                 : null,
           ),
         ),
@@ -569,7 +569,7 @@ class _PostPageState extends State<PostPage> {
             username ?? 'noName',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyle.base(15, color: AppColors.textColor, fontWeight: FontWeight.w700),
+            style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
           ),
         ),
         if (!isOwnPost && item.myFollowingAuthor != null) ...[
@@ -596,11 +596,11 @@ class _PostPageState extends State<PostPage> {
           AppMiniMenu<_PostMenuAction>(
             iconPadding: const EdgeInsets.all(8),
             items: widget.archiveContext != PostArchiveContext.none
-                ? const [
+                ? [
                     AppMiniMenuItem(
                       value: _PostMenuAction.unarchive,
                       title: 'Разархивировать',
-                      icon: Icons.unarchive_outlined,
+                      icon: AppIcons.unarchive.icon,
                     ),
                   ]
                 : [
@@ -616,17 +616,17 @@ class _PostPageState extends State<PostPage> {
                         title: 'Привязать к кластеру',
                         icon: Icons.collections_outlined,
                       ),
-                    const AppMiniMenuItem(
+                    AppMiniMenuItem(
                       value: _PostMenuAction.archive,
                       title: 'Архивировать',
-                      icon: Icons.archive_outlined,
+                      icon: AppIcons.archive.icon,
                     ),
                     AppMiniMenuItem(
                       value: _PostMenuAction.delete,
                       title: 'Удалить',
-                      icon: Icons.delete_outline_rounded,
-                      titleColor: AppColors.error,
-                      iconColor: AppColors.error,
+                      icon: AppIcons.delete.icon,
+                      titleColor: context.colors.error,
+                      iconColor: context.colors.error,
                     ),
                   ],
             onSelected: (action) {

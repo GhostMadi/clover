@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -126,29 +127,29 @@ class _ChatPageState extends State<ChatPage> {
           }
         },
         child: Scaffold(
-          backgroundColor: AppColors.pageBackground,
+          backgroundColor: context.colors.pageBackground,
           appBar: AppBar(
-            backgroundColor: AppColors.pageBackground,
+            backgroundColor: context.colors.pageBackground,
             surfaceTintColor: Colors.transparent,
             elevation: 0,
             scrolledUnderElevation: 0,
             leading: IconButton(
-              icon: Icon(Icons.arrow_back_rounded),
-              color: AppColors.textColor,
+              icon: Icon(AppIcons.arrowBackRounded.icon),
+              color: context.colors.textColor,
               onPressed: () => context.router.maybePop(),
             ),
             title: Text(
               _handle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.base(17, color: AppColors.textColor, fontWeight: FontWeight.w700),
+              style: AppTextStyle.base(17, color: context.colors.textColor, fontWeight: FontWeight.w700),
             ),
           ),
           body: BlocBuilder<ChatThreadCubit, ChatThreadState>(
             builder: (context, state) {
               return switch (state) {
                 ChatThreadInitial() || ChatThreadLoading() => Center(
-                  child: CircularProgressIndicator(color: AppColors.primary),
+                  child: CircularProgressIndicator(color: context.colors.primary),
                 ),
                 ChatThreadError(:final message) => _ChatThreadErrorView(
                   message: message,
@@ -165,7 +166,7 @@ class _ChatPageState extends State<ChatPage> {
                           child: SizedBox(
                             width: 22,
                             height: 22,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                            child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primary),
                           ),
                         ),
                       ),
@@ -173,7 +174,7 @@ class _ChatPageState extends State<ChatPage> {
                       Center(
                         child: Text(
                           'Напишите первое сообщение',
-                          style: AppTextStyle.base(15, color: AppColors.subTextColor),
+                          style: AppTextStyle.base(15, color: context.colors.subTextColor),
                         ),
                       )
                     else
@@ -221,17 +222,17 @@ class _ChatThreadErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline_rounded, size: 48, color: AppColors.iconMuted),
+            Icon(AppIcons.errorOutline.icon, size: 48, color: context.colors.iconMuted),
             SizedBox(height: 12),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 16),
             FilledButton(
               onPressed: onRetry,
-              style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+              style: FilledButton.styleFrom(backgroundColor: context.colors.primary),
               child: const Text('Повторить'),
             ),
           ],

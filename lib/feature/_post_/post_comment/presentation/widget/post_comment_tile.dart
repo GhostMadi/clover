@@ -33,10 +33,10 @@ class PostCommentTile extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: dense ? 14 : 18,
-            backgroundColor: AppColors.surfaceSoft,
+            backgroundColor: context.colors.surfaceSoft,
             backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
             child: avatarUrl == null || avatarUrl.isEmpty
-                ? Icon(Icons.person, size: dense ? 16 : 20, color: AppColors.iconMuted)
+                ? Icon(Icons.person, size: dense ? 16 : 20, color: context.colors.iconMuted)
                 : null,
           ),
           const SizedBox(width: 12),
@@ -46,7 +46,7 @@ class PostCommentTile extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: AppTextStyle.base(14, color: AppColors.textColor, height: 1.35),
+                    style: AppTextStyle.base(14, color: context.colors.textColor, height: 1.35),
                     children: [
                       TextSpan(
                         text: username ?? 'noName',
@@ -62,7 +62,7 @@ class PostCommentTile extends StatelessWidget {
                   children: [
                     Text(
                       CommentTimeFormat.format(item.comment.createdAt),
-                      style: AppTextStyle.base(12, color: AppColors.subTextColor, fontWeight: FontWeight.w500),
+                      style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(width: 16),
                     GestureDetector(
@@ -70,7 +70,7 @@ class PostCommentTile extends StatelessWidget {
                       behavior: HitTestBehavior.opaque,
                       child: Text(
                         'Ответить',
-                        style: AppTextStyle.base(12, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+                        style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -89,14 +89,14 @@ class PostCommentTile extends StatelessWidget {
                   child: Icon(
                     item.isLiked ? AppIcons.likeFilled.icon : AppIcons.like.icon,
                     size: 16,
-                    color: item.isLiked ? Colors.red : AppColors.subTextColor,
+                    color: item.isLiked ? Colors.red : context.colors.subTextColor,
                   ),
                 ),
               ),
               if (likesLabel != null)
                 Text(
                   likesLabel,
-                  style: AppTextStyle.base(11, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+                  style: AppTextStyle.base(11, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
                 ),
             ],
           ),
@@ -137,7 +137,7 @@ class PostCommentRepliesToggle extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: Text(
           label,
-          style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w700),
+          style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
         ),
       ),
     );

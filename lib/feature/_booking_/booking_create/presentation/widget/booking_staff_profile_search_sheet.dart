@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_button.dart';
@@ -100,7 +101,7 @@ class _BodyState extends State<_Body> {
         AppField(
           controller: _queryController,
           hintText: 'Поиск по никнейму или имени',
-          prefixIcon: Icons.search_rounded,
+          prefixIcon: AppIcons.searchRounded.icon,
           textInputAction: TextInputAction.search,
         ),
         const SizedBox(height: 16),
@@ -110,7 +111,7 @@ class _BodyState extends State<_Body> {
             child: Text(
               _error!,
               textAlign: TextAlign.center,
-              style: AppTextStyle.base(13, color: AppColors.subTextColor),
+              style: AppTextStyle.base(13, color: context.colors.subTextColor),
             ),
           ),
         Expanded(
@@ -120,7 +121,7 @@ class _BodyState extends State<_Body> {
               ? Center(
                   child: Text(
                     'Никого не найдено',
-                    style: AppTextStyle.base(14, color: AppColors.subTextColor),
+                    style: AppTextStyle.base(14, color: context.colors.subTextColor),
                   ),
                 )
               : ListView.separated(
@@ -152,9 +153,9 @@ class _ProfileTile extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -165,10 +166,10 @@ class _ProfileTile extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 20,
-                  backgroundColor: AppColors.surfaceSoft,
+                  backgroundColor: context.colors.surfaceSoft,
                   backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
                   child: avatarUrl == null || avatarUrl.isEmpty
-                      ? Icon(Icons.person, color: AppColors.iconMuted, size: 20)
+                      ? Icon(Icons.person, color: context.colors.iconMuted, size: 20)
                       : null,
                 ),
                 const SizedBox(width: 12),
@@ -178,13 +179,13 @@ class _ProfileTile extends StatelessWidget {
                     children: [
                       Text(
                         profile.title,
-                        style: AppTextStyle.base(15, color: AppColors.textColor, fontWeight: FontWeight.w700),
+                        style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
                       ),
                       if (profile.displayName?.trim().isNotEmpty == true) ...[
                         const SizedBox(height: 2),
                         Text(
                           profile.displayUsername,
-                          style: AppTextStyle.base(13, color: AppColors.subTextColor),
+                          style: AppTextStyle.base(13, color: context.colors.subTextColor),
                         ),
                       ],
                     ],

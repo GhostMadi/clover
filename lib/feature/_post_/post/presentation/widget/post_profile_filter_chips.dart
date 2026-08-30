@@ -24,15 +24,15 @@ class PostProfileFilterChips extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.successSoft.withValues(alpha: 0.55),
+              color: context.colors.successSoft.withValues(alpha: 0.55),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.primary.withValues(alpha: 0.18)),
+              border: Border.all(color: context.colors.primary.withValues(alpha: 0.18)),
             ),
             child: Text(
               filter.label,
               style: AppTextStyle.base(
                 11,
-                color: AppColors.textColor,
+                color: context.colors.textColor,
                 fontWeight: FontWeight.w600,
                 height: 1.1,
               ),

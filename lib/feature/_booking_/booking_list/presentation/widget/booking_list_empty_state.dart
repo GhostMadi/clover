@@ -29,22 +29,22 @@ class BookingListEmptyState extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: AppColors.surfaceSoftGreen.withValues(alpha: 0.5),
+                color: context.colors.surfaceSoftGreen.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.event_available_outlined, size: 36, color: AppColors.primary.withValues(alpha: 0.85)),
+              child: Icon(Icons.event_available_outlined, size: 36, color: context.colors.primary.withValues(alpha: 0.85)),
             ),
             const SizedBox(height: 16),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: AppTextStyle.base(18, color: AppColors.textColor, fontWeight: FontWeight.w700),
+              style: AppTextStyle.base(18, color: context.colors.textColor, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: AppTextStyle.base(14, color: AppColors.subTextColor, height: 1.35),
+              style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.35),
             ),
             if (showCreateButton && onCreate != null) ...[
               const SizedBox(height: 20),

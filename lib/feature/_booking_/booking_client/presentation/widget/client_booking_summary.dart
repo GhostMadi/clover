@@ -65,46 +65,46 @@ class ClientBookingSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.functionalSoftBlue,
+        color: context.colors.functionalSoftBlue,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderCardBlue.withValues(alpha: 0.85)),
+        border: Border.all(color: context.colors.borderCardBlue.withValues(alpha: 0.85)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             'Итого',
-            style: AppTextStyle.base(14, color: AppColors.functionalSoftBlueIcon, fontWeight: FontWeight.w700),
+            style: AppTextStyle.base(14, color: context.colors.functionalSoftBlueIcon, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
             hostDisplayName,
-            style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 2),
           Text(
             executor.displayLabel,
-            style: AppTextStyle.base(13, color: AppColors.textColor, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(13, color: context.colors.textColor, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
             '${service.emojiText} ${service.title}',
-            style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w800),
+            style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 4),
-          Text(dateLabel, style: AppTextStyle.base(14, color: AppColors.textColor, fontWeight: FontWeight.w600)),
+          Text(dateLabel, style: AppTextStyle.base(14, color: context.colors.textColor, fontWeight: FontWeight.w600)),
           const SizedBox(height: 2),
-          Text(timeLabel, style: AppTextStyle.base(13, color: AppColors.subTextColor)),
+          Text(timeLabel, style: AppTextStyle.base(13, color: context.colors.subTextColor)),
           const SizedBox(height: 6),
           Text(
             service.priceLabel,
-            style: AppTextStyle.base(15, color: AppColors.primary, fontWeight: FontWeight.w800),
+            style: AppTextStyle.base(15, color: context.colors.primary, fontWeight: FontWeight.w800),
           ),
           if (showBonusBlock) ...[
             const SizedBox(height: 10),
             Text(
               'Бонусы после визита',
-              style: AppTextStyle.base(12, color: AppColors.subTextColor, fontWeight: FontWeight.w700),
+              style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             if (service.bonusPayPercent > 0) ...[
@@ -114,32 +114,32 @@ class ClientBookingSummary extends StatelessWidget {
                     : useBonuses
                         ? 'Списать: 0 ${BonusFormat.bonusWord(0)} (недостаточно на балансе)'
                         : 'Списать: не используем',
-                style: AppTextStyle.base(13, color: AppColors.textColor, fontWeight: FontWeight.w600),
+                style: AppTextStyle.base(13, color: context.colors.textColor, fontWeight: FontWeight.w600),
               ),
             ],
             if (expectedEarn > 0) ...[
               const SizedBox(height: 2),
               Text(
                 'Начислить: +$expectedEarn ${BonusFormat.bonusWord(expectedEarn)}',
-                style: AppTextStyle.base(13, color: AppColors.textColor, fontWeight: FontWeight.w600),
+                style: AppTextStyle.base(13, color: context.colors.textColor, fontWeight: FontWeight.w600),
               ),
             ],
             const SizedBox(height: 4),
             Text(
               'Деньги за услугу оплачиваются на месте — приложение ведёт только бонусный счёт.',
-              style: AppTextStyle.base(12, color: AppColors.subTextColor, fontWeight: FontWeight.w500, height: 1.35),
+              style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w500, height: 1.35),
             ),
           ],
           if (clientComment != null && clientComment!.trim().isNotEmpty) ...[
             const SizedBox(height: 10),
             Text(
               'Комментарий',
-              style: AppTextStyle.base(12, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 2),
             Text(
               clientComment!.trim(),
-              style: AppTextStyle.base(13, color: AppColors.textColor, fontWeight: FontWeight.w600, height: 1.35),
+              style: AppTextStyle.base(13, color: context.colors.textColor, fontWeight: FontWeight.w600, height: 1.35),
             ),
           ],
         ],

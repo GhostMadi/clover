@@ -261,7 +261,7 @@ class _EventsFilterContentState extends State<_EventsFilterContent> {
           if (!_isMapMode) const SizedBox(height: 16),
           Text(
             'Дни ивента',
-            style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Wrap(
@@ -357,7 +357,7 @@ class _DatePresetChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.surfaceSoftGreen.withValues(alpha: 0.7) : AppColors.surfaceSoft,
+      color: selected ? context.colors.surfaceSoftGreen.withValues(alpha: 0.7) : context.colors.surfaceSoft,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -367,14 +367,14 @@ class _DatePresetChip extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: selected ? AppColors.borderCardGreen : AppColors.borderSoft,
+              color: selected ? context.colors.borderCardGreen : context.colors.borderSoft,
             ),
           ),
           child: Text(
             label,
             style: AppTextStyle.base(
               13,
-              color: selected ? AppColors.primary : AppColors.textColor,
+              color: selected ? context.colors.primary : context.colors.textColor,
               fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
             ),
           ),

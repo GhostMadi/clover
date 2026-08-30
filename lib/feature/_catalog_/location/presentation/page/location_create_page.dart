@@ -101,7 +101,7 @@ class _LocationCreatePageState extends State<LocationCreatePage> {
         FunctionalButtonItem(
           icon: AppIcons.back.icon,
           keepWhenCollapsed: true,
-          customColor: AppColors.primary,
+          customColor: context.colors.primary,
           isLoading: _submitting,
           onTap: () => context.router.maybePop(),
         ),
@@ -114,7 +114,7 @@ class _LocationCreatePageState extends State<LocationCreatePage> {
           FunctionalButtonItem(
             icon: AppIcons.arrowForward.icon,
             label: 'Далее',
-            customColor: AppColors.primary,
+            customColor: context.colors.primary,
             iconColor: Colors.white,
             textColor: Colors.white,
             isLoading: _submitting,

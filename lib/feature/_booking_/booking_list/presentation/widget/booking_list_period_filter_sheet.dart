@@ -97,7 +97,7 @@ class _BookingListPeriodFilterContentState extends State<_BookingListPeriodFilte
       children: [
         Text(
           'Быстрый выбор',
-          style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+          style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 10),
         Wrap(
@@ -115,7 +115,7 @@ class _BookingListPeriodFilterContentState extends State<_BookingListPeriodFilte
         const SizedBox(height: 16),
         Text(
           'Или свой период',
-          style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+          style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 10),
         Row(
@@ -161,11 +161,11 @@ class _PresetChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = selected ? AppColors.primary : AppColors.surfaceSoftBlue;
-    final fg = selected ? AppColors.white : AppColors.functionalSoftBlueIcon;
+    final bg = selected ? context.colors.primary : context.colors.surfaceSoftBlue;
+    final fg = selected ? context.colors.white : context.colors.functionalSoftBlueIcon;
     final border = selected
-        ? AppColors.primary
-        : AppColors.borderCardBlue.withValues(alpha: 0.85);
+        ? context.colors.primary
+        : context.colors.borderCardBlue.withValues(alpha: 0.85);
 
     return Material(
       color: bg,

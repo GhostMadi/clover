@@ -7,7 +7,7 @@ class PostMarkerDetailsShimmer extends StatelessWidget {
   const PostMarkerDetailsShimmer({super.key});
 
   static Widget _box(BuildContext context, {required double height, double? width, double radius = 8}) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
     return SizedBox(
       width: width,
       height: height,
@@ -22,7 +22,7 @@ class PostMarkerDetailsShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
     return AppShimmer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

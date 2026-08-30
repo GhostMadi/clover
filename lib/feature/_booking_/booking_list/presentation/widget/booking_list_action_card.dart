@@ -36,9 +36,9 @@ class BookingListActionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final start = item.startsAtDate;
     final borderColor = emphasize
-        ? AppColors.functionalSoftOrangeIcon.withValues(alpha: 0.55)
-        : AppColors.border.withValues(alpha: 0.55);
-    final background = emphasize ? AppColors.functionalSoftOrange.withValues(alpha: 0.45) : AppColors.surface;
+        ? context.colors.functionalSoftOrangeIcon.withValues(alpha: 0.55)
+        : context.colors.border.withValues(alpha: 0.55);
+    final background = emphasize ? context.colors.functionalSoftOrange.withValues(alpha: 0.45) : context.colors.surface;
 
     return Material(
       color: background,
@@ -64,18 +64,18 @@ class BookingListActionCard extends StatelessWidget {
                       children: [
                         Text(
                           item.clientName.isEmpty ? 'Клиент' : item.clientName,
-                          style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w800),
+                          style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w800),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${item.serviceEmoji} ${item.serviceTitle}',
-                          style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+                          style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
                         ),
                         if (item.executorName?.trim().isNotEmpty == true) ...[
                           const SizedBox(height: 2),
                           Text(
                             item.executorName!,
-                            style: AppTextStyle.base(13, color: AppColors.subTextColor),
+                            style: AppTextStyle.base(13, color: context.colors.subTextColor),
                           ),
                         ],
                       ],
@@ -84,7 +84,7 @@ class BookingListActionCard extends StatelessWidget {
                   const SizedBox(width: 10),
                   Text(
                     timeLabel(start),
-                    style: AppTextStyle.base(15, color: AppColors.primary, fontWeight: FontWeight.w800),
+                    style: AppTextStyle.base(15, color: context.colors.primary, fontWeight: FontWeight.w800),
                   ),
                 ],
               ),
@@ -94,7 +94,7 @@ class BookingListActionCard extends StatelessWidget {
                   item.notes!.trim(),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyle.base(13, color: AppColors.subTextColor, height: 1.3),
+                  style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.3),
                 ),
               ],
               const SizedBox(height: 14),

@@ -99,7 +99,7 @@ class _ArchiveError extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.subTextColor)),
+          Text(message, textAlign: TextAlign.center, style: TextStyle(color: context.colors.subTextColor)),
           const SizedBox(height: 12),
           AppButton(text: 'Повторить', onTap: onRetry),
         ],

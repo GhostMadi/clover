@@ -87,12 +87,12 @@ class _GridMarkerTile extends StatelessWidget {
                       bottom: 0,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: AppColors.white,
+                          color: context.colors.white,
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.primary, width: 3),
+                          border: Border.all(color: context.colors.primary, width: 3),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.shadowDark.withValues(alpha: 0.14),
+                              color: context.colors.shadowDark.withValues(alpha: 0.14),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),

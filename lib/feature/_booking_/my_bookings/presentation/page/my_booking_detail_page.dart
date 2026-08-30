@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -76,7 +77,7 @@ class _MyBookingDetailPageState extends State<MyBookingDetailPage> {
       isLoading: _isCancelling,
       showCancel: showCancel,
       cancelLabel: 'Отменить',
-      cancelIcon: Icons.delete_outline_rounded,
+      cancelIcon: AppIcons.delete.icon,
       onCancelTap: _cancelBooking,
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(16, 8, 16, bottomGap),
@@ -111,7 +112,7 @@ class _CancelBookingButton extends StatelessWidget {
     final active = enabled && !isLoading;
 
     return Material(
-      color: active ? AppColors.functionalSoftRed : AppColors.surfaceSoft,
+      color: active ? context.colors.functionalSoftRed : context.colors.surfaceSoft,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: active ? onTap : onTap,
@@ -121,7 +122,7 @@ class _CancelBookingButton extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: active ? AppColors.borderCardRed : AppColors.border),
+            border: Border.all(color: active ? context.colors.borderCardRed : context.colors.border),
           ),
           child: isLoading
               ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.2))
@@ -129,9 +130,9 @@ class _CancelBookingButton extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.delete_outline_rounded,
+                      AppIcons.delete.icon,
                       size: 20,
-                      color: active ? AppColors.destructive : AppColors.subTextColor,
+                      color: active ? context.colors.destructive : context.colors.subTextColor,
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -139,7 +140,7 @@ class _CancelBookingButton extends StatelessWidget {
                       style: AppTextStyle.base(
                         16,
                         fontWeight: FontWeight.w700,
-                        color: active ? AppColors.destructive : AppColors.subTextColor,
+                        color: active ? context.colors.destructive : context.colors.subTextColor,
                       ),
                     ),
                   ],

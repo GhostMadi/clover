@@ -32,7 +32,7 @@ class BookingServiceCard extends StatelessWidget {
     final executorsLabel = _executorsLabel;
 
     return Material(
-      color: AppColors.surface,
+      color: context.colors.surface,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
@@ -41,7 +41,7 @@ class BookingServiceCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+            border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
           ),
           child: Row(
             children: [
@@ -53,18 +53,18 @@ class BookingServiceCard extends StatelessWidget {
                   children: [
                     Text(
                       service.title,
-                      style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w700),
+                      style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       service.displaySubtitle,
-                      style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w500),
+                      style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w500),
                     ),
                     if (executorsLabel != null) ...[
                       const SizedBox(height: 6),
                       Text(
                         'Исполнители: $executorsLabel',
-                        style: AppTextStyle.base(12, color: AppColors.primary, fontWeight: FontWeight.w600),
+                        style: AppTextStyle.base(12, color: context.colors.primary, fontWeight: FontWeight.w600),
                       ),
                     ],
                     if (service.description != null && service.description!.isNotEmpty) ...[
@@ -73,7 +73,7 @@ class BookingServiceCard extends StatelessWidget {
                         service.description!,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTextStyle.base(13, color: AppColors.subTextColor, height: 1.3),
+                        style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.3),
                       ),
                     ],
                   ],
@@ -82,7 +82,7 @@ class BookingServiceCard extends StatelessWidget {
               const SizedBox(width: 10),
               Text(
                 service.priceLabel,
-                style: AppTextStyle.base(15, color: AppColors.primary, fontWeight: FontWeight.w800),
+                style: AppTextStyle.base(15, color: context.colors.primary, fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -104,9 +104,9 @@ class _EmojiBadge extends StatelessWidget {
       height: 52,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.surfaceSoftGreen.withValues(alpha: 0.55),
+        color: context.colors.surfaceSoftGreen.withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.borderCardGreen.withValues(alpha: 0.7)),
+        border: Border.all(color: context.colors.borderCardGreen.withValues(alpha: 0.7)),
       ),
       child: Text(emoji, style: const TextStyle(fontSize: 26, height: 1)),
     );

@@ -134,7 +134,7 @@ class _BookingClientPageState extends State<BookingClientPage> {
                   children: [
                     Text(
                       'Выберите услугу, мастера, дату и время. Учитываются ваши записи на других аккаунтах.',
-                      style: AppTextStyle.base(13, color: AppColors.subTextColor, height: 1.35),
+                      style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
                     ),
                     const SizedBox(height: 16),
                     ClientBookingServicePicker(

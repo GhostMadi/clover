@@ -96,7 +96,7 @@ class _PostMediaReactionGesturesState extends State<PostMediaReactionGestures> w
     }
     setState(() {
       _overlayIcon = AppIcons.dislikeFilled.icon;
-      _overlayIconColor = AppColors.textColor.withValues(alpha: 0.85);
+      _overlayIconColor = context.colors.textColor.withValues(alpha: 0.85);
     });
     _animationController.forward(from: 0);
   }

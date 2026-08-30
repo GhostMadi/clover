@@ -57,12 +57,12 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
         color: Colors.transparent,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: AppColors.surface.withValues(alpha: 0.94),
+            color: context.colors.surface.withValues(alpha: 0.94),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+            border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
             boxShadow: [
               BoxShadow(
-                color: AppColors.shadowDark.withValues(alpha: 0.1),
+                color: context.colors.shadowDark.withValues(alpha: 0.1),
                 blurRadius: 14,
                 offset: const Offset(0, 4),
               ),
@@ -94,7 +94,7 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
             Icon(
               AppIcons.locationOn.icon,
               size: 22,
-              color: hasAddress ? AppColors.primary : AppColors.iconMuted,
+              color: hasAddress ? context.colors.primary : context.colors.iconMuted,
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -104,7 +104,7 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyle.base(
                   14,
-                  color: hasAddress ? AppColors.textColor : AppColors.subTextColor,
+                  color: hasAddress ? context.colors.textColor : context.colors.subTextColor,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -112,7 +112,7 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
             Icon(
               AppIcons.arrowDown.icon,
               size: 22,
-              color: AppColors.iconMuted,
+              color: context.colors.iconMuted,
             ),
           ],
         ),
@@ -137,10 +137,10 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
                   Expanded(
                     child: Text(
                       'Адрес',
-                      style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+                      style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
                     ),
                   ),
-                  Icon(AppIcons.arrowUp.icon, size: 22, color: AppColors.iconMuted),
+                  Icon(AppIcons.arrowUp.icon, size: 22, color: context.colors.iconMuted),
                 ],
               ),
             ),

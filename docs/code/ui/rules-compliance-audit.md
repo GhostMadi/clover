@@ -23,7 +23,7 @@
 | Adaptive iOS/Android | ❌ почти нигде (база `AdaptiveStatelessWidget` есть, миграции нет) |
 | Concrete repo only | 🟡 много `abstract` + Impl (~35) |
 | Docs-first | 🟡 сильные зоны (auth/profile/posts); booking/chat/bonus без бизнес-дока |
-| Тема через `context.colors` | ✅ shared полностью мигрирован; фичи — частично static |
+| Тема через `context.colors` | ✅ shared + feature presentation |
 
 ---
 

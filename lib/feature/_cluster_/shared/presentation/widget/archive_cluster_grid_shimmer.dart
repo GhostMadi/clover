@@ -15,7 +15,7 @@ class ArchiveClusterGridShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
     final gap = context.widthByContext(_figmaGap);
     final size = clusterCardWidth(context);
     final radius = context.widthByContext(_figmaCardRadius);

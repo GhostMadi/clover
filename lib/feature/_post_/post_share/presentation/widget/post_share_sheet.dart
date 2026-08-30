@@ -1,4 +1,5 @@
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
@@ -161,12 +162,12 @@ class _PostShareSheetBodyState extends State<_PostShareSheetBody> {
               child: AppField(
                 controller: _searchController,
                 hintText: 'Поиск',
-                prefixIcon: Icons.search_rounded,
+                prefixIcon: AppIcons.searchRounded.icon,
                 textInputAction: TextInputAction.search,
               ),
             ),
             Expanded(child: _buildBody(state)),
-            Divider(height: 1, color: AppColors.border),
+            Divider(height: 1, color: context.colors.border),
             _ShareMessageInputBar(
               controller: _messageController,
               canSend: _selectedIds.isNotEmpty && !_submitting,
@@ -189,7 +190,7 @@ class _PostShareSheetBodyState extends State<_PostShareSheetBody> {
           child: Text(
             message,
             textAlign: TextAlign.center,
-            style: AppTextStyle.base(14, color: AppColors.subTextColor),
+            style: AppTextStyle.base(14, color: context.colors.subTextColor),
           ),
         ),
       ),
@@ -211,7 +212,7 @@ class _PostShareSheetBodyState extends State<_PostShareSheetBody> {
       return Center(
         child: Text(
           query.isEmpty ? 'Нет подписок для отправки' : 'Никого не найдено',
-          style: AppTextStyle.base(14, color: AppColors.subTextColor),
+          style: AppTextStyle.base(14, color: context.colors.subTextColor),
         ),
       );
     }
@@ -267,16 +268,16 @@ class _ShareRecipientGridCell extends StatelessWidget {
                   height: _avatarSize + (selected ? 6 : 0),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: selected ? Border.all(color: AppColors.primary, width: 2) : null,
+                    border: selected ? Border.all(color: context.colors.primary, width: 2) : null,
                   ),
                   child: CircleAvatar(
                     radius: _avatarSize / 2,
-                    backgroundColor: AppColors.surfaceSoft,
+                    backgroundColor: context.colors.surfaceSoft,
                     backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
                         ? NetworkImage(avatarUrl)
                         : null,
                     child: avatarUrl == null || avatarUrl.isEmpty
-                        ? Icon(Icons.person, color: AppColors.iconMuted, size: 28)
+                        ? Icon(Icons.person, color: context.colors.iconMuted, size: 28)
                         : null,
                   ),
                 ),
@@ -287,8 +288,8 @@ class _ShareRecipientGridCell extends StatelessWidget {
                     child: Container(
                       width: 22,
                       height: 22,
-                      decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                      child: const Icon(Icons.check_rounded, size: 14, color: Colors.white),
+                      decoration: BoxDecoration(color: context.colors.primary, shape: BoxShape.circle),
+                      child: Icon(AppIcons.checkRounded.icon, size: 14, color: Colors.white),
                     ),
                   ),
               ],
@@ -300,7 +301,7 @@ class _ShareRecipientGridCell extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: AppTextStyle.base(11, color: AppColors.textColor),
+            style: AppTextStyle.base(11, color: context.colors.textColor),
           ),
         ],
       ),
@@ -337,7 +338,7 @@ class _ShareMessageInputBar extends StatelessWidget {
             onPressed: canSend ? onSend : null,
             icon: submitting
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : Icon(Icons.send_rounded, color: canSend ? AppColors.primary : AppColors.iconMuted),
+                : Icon(AppIcons.send.icon, color: canSend ? context.colors.primary : context.colors.iconMuted),
           ),
         ),
       ),

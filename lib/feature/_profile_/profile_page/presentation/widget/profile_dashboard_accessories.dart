@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/shared/app_functional_button/app_functional_pill_button.dart';
 import 'package:flutter/material.dart';
 
@@ -11,9 +12,9 @@ class ProfileDashboardAccessories extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppFunctionalPillButton(
-      customColor: AppColors.functionalSoftBlue,
-      icon: Icons.more_horiz_rounded,
-      iconColor: AppColors.functionalSoftBlueIcon,
+      customColor: context.colors.functionalSoftBlue,
+      icon: AppIcons.more.icon,
+      iconColor: context.colors.functionalSoftBlueIcon,
       onTap: onMoreTap,
     );
   }

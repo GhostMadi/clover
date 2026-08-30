@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/form/chat_time_formatting.dart';
@@ -22,14 +23,16 @@ class ChatMessageBubble extends StatelessWidget {
         ? (ChatPostRefPreview.width + 28).clamp(0.0, screenWidth * _maxWidthFactor)
         : screenWidth * _maxWidthFactor;
 
-    final background = isMine ? AppColors.primary : AppColors.surface;
-    final textColor = isMine ? AppColors.white : AppColors.textColor;
-    final metaColor = isMine ? AppColors.white.withValues(alpha: 0.82) : AppColors.subTextColor;
+    final background = isMine ? context.colors.primary : context.colors.surface;
+    final textColor = isMine ? context.colors.white : context.colors.textColor;
+    final metaColor = isMine ? context.colors.white.withValues(alpha: 0.82) : context.colors.subTextColor;
 
     final borderRadius = _radius.copyWith(
       bottomRight: isMine ? const Radius.circular(8) : _radius.bottomRight,
       bottomLeft: isMine ? _radius.bottomLeft : const Radius.circular(8),
     );
+
+    final colors = context.colors;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -51,7 +54,7 @@ class ChatMessageBubble extends StatelessWidget {
                     borderRadius: borderRadius,
                     timeLabel: timeLabel,
                     isMine: isMine,
-                    bubbleDecoration: _bubbleDecoration,
+                    bubbleDecoration: (bg, radius, mine) => _bubbleDecoration(colors, bg, radius, mine),
                     timeRow: (time, meta, mine, msg) => _TimeRow(
                       timeLabel: time,
                       metaColor: meta,
@@ -98,7 +101,7 @@ class _TextBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return IntrinsicWidth(
       child: DecoratedBox(
-        decoration: _bubbleDecoration(background, borderRadius, isMine),
+        decoration: _bubbleDecoration(context.colors, background, borderRadius, isMine),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 11, 14, 9),
           child: Column(
@@ -119,14 +122,14 @@ class _TextBubble extends StatelessWidget {
   }
 }
 
-BoxDecoration _bubbleDecoration(Color background, BorderRadius borderRadius, bool isMine) {
+BoxDecoration _bubbleDecoration(AppPalette colors, Color background, BorderRadius borderRadius, bool isMine) {
   return BoxDecoration(
     color: background,
     borderRadius: borderRadius,
-    border: isMine ? null : Border.all(color: AppColors.border.withValues(alpha: 0.75)),
+    border: isMine ? null : Border.all(color: colors.border.withValues(alpha: 0.75)),
     boxShadow: [
       BoxShadow(
-        color: (isMine ? AppColors.shadowPrimary : AppColors.shadowDark).withValues(alpha: 0.1),
+        color: (isMine ? colors.shadowPrimary : colors.shadowDark).withValues(alpha: 0.1),
         blurRadius: 10,
         offset: const Offset(0, 3),
       ),
@@ -163,7 +166,7 @@ class _TimeRow extends StatelessWidget {
             Icon(
               message.isPending
                   ? Icons.schedule_rounded
-                  : (message.isRead ? Icons.done_all_rounded : Icons.done_rounded),
+                  : (message.isRead ? AppIcons.doneAll.icon : AppIcons.done.icon),
               size: 14,
               color: metaColor,
             ),

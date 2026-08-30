@@ -119,14 +119,14 @@ class _AuthorRow extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.borderSoft),
+                border: Border.all(color: context.colors.borderSoft),
               ),
               child: CircleAvatar(
                 radius: 22,
-                backgroundColor: AppColors.surfaceSoft,
+                backgroundColor: context.colors.surfaceSoft,
                 backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
                 child: avatarUrl == null || avatarUrl.isEmpty
-                    ? Icon(Icons.person, color: AppColors.iconMuted, size: 22)
+                    ? Icon(Icons.person, color: context.colors.iconMuted, size: 22)
                     : null,
               ),
             ),
@@ -136,7 +136,7 @@ class _AuthorRow extends StatelessWidget {
                 username ?? 'noName',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppTextStyle.base(15, color: AppColors.textColor, fontWeight: FontWeight.w700),
+                style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
               ),
             ),
             if (followButton != null) ...[
@@ -248,7 +248,7 @@ class _ReactionRow extends StatelessWidget {
               _ReactionIcon(
                 icon: feedItem.mySaved ? AppIcons.bookmarkFilled.icon : AppIcons.bookmark.icon,
                 active: feedItem.mySaved,
-                activeColor: AppColors.textColor,
+                activeColor: context.colors.textColor,
                 onTap: () => cubit.toggleSave(feedItem),
               ),
             ],
@@ -287,7 +287,7 @@ class _ReactionIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = active ? activeColor : AppColors.textColor;
+    final color = active ? activeColor : context.colors.textColor;
 
     return Material(
       color: Colors.transparent,

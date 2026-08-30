@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -87,7 +88,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             builder: (context, state) {
               return switch (state) {
                 NotificationsInitial() || NotificationsLoading() => Center(
-                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                  child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primary),
                 ),
                 NotificationsError(:final message) => _NotificationsError(
                   message: message,
@@ -142,7 +143,7 @@ class _LoadedBody extends StatelessWidget {
                 child: Text(
                   'Уведомлений нет',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, color: AppColors.subTextColor),
+                  style: TextStyle(fontSize: 15, color: context.colors.subTextColor),
                 ),
               ),
             ),
@@ -165,7 +166,7 @@ class _LoadedBody extends StatelessWidget {
         itemBuilder: (context, index) {
           final contentCount = _listItemCount(sections);
           if (index < contentCount) {
-            return _buildListItem(sections, index, onOpen);
+            return _buildListItem(context, sections, index, onOpen);
           }
 
           if (isLoadingMore && index == contentCount) {
@@ -182,7 +183,7 @@ class _LoadedBody extends StatelessWidget {
             child: Text(
               'Показаны уведомления за последние 30 дней',
               textAlign: TextAlign.center,
-              style: AppTextStyle.base(13, color: AppColors.subTextColor),
+              style: AppTextStyle.base(13, color: context.colors.subTextColor),
             ),
           );
         },
@@ -199,6 +200,7 @@ class _LoadedBody extends StatelessWidget {
   }
 
   Widget _buildListItem(
+    BuildContext context,
     List<(NotificationDateSection, List<NotificationItem>)> sections,
     int index,
     Future<void> Function(NotificationItem item) onOpen,
@@ -219,7 +221,7 @@ class _LoadedBody extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               NotificationTile(item: item, onTap: item.postId != null ? () => onOpen(item) : null),
-              if (showDivider) Divider(height: 1, thickness: 1, color: AppColors.divider),
+              if (showDivider) Divider(height: 1, thickness: 1, color: context.colors.divider),
             ],
           );
         }
@@ -245,17 +247,17 @@ class _NotificationsError extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline_rounded, size: 48, color: AppColors.iconMuted),
+            Icon(AppIcons.errorOutline.icon, size: 48, color: context.colors.iconMuted),
             SizedBox(height: 12),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 16),
             FilledButton(
               onPressed: onRetry,
-              style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+              style: FilledButton.styleFrom(backgroundColor: context.colors.primary),
               child: const Text('Повторить'),
             ),
           ],

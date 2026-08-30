@@ -42,7 +42,7 @@ class PostGrid extends StatelessWidget {
         child: Text(
           emptyMessage,
           textAlign: TextAlign.center,
-          style: AppTextStyle.base(context.heightByContext(14), color: AppColors.subTextColor, height: 1.35),
+          style: AppTextStyle.base(context.heightByContext(14), color: context.colors.subTextColor, height: 1.35),
         ),
       );
     }
@@ -98,7 +98,7 @@ class _PostGridCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surfaceSoft,
+      color: context.colors.surfaceSoft,
       borderRadius: BorderRadius.circular(borderRadius),
       clipBehavior: Clip.antiAlias,
       child: InkWell(

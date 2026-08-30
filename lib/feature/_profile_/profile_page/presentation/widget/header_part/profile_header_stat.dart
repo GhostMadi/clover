@@ -24,7 +24,7 @@ class ProfileHeaderStat extends StatelessWidget {
           textAlign: TextAlign.center,
           style: AppTextStyle.base(
             context.heightByContext(_figmaValueFont),
-            color: AppColors.textColor,
+            color: context.colors.textColor,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -35,7 +35,7 @@ class ProfileHeaderStat extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: AppTextStyle.base(
             context.heightByContext(_figmaLabelFont),
-            color: AppColors.subTextColor,
+            color: context.colors.subTextColor,
             fontWeight: FontWeight.w500,
           ),
         ),

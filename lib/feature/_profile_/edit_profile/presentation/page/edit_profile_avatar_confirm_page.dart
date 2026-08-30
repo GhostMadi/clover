@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -49,18 +50,18 @@ class _EditProfileAvatarConfirmBody extends StatelessWidget {
     final previewSize = context.widthByContext(EditProfileAvatarConfirmPage._figmaPreviewSize);
 
     return Scaffold(
-      backgroundColor: AppColors.postEditorBackground,
+      backgroundColor: context.colors.postEditorBackground,
       appBar: AppBar(
-        backgroundColor: AppColors.postEditorBackground,
+        backgroundColor: context.colors.postEditorBackground,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: Icon(
-            Icons.arrow_back_rounded,
+            AppIcons.arrowBackRounded.icon,
             size: context.widthByContext(EditProfileAvatarConfirmPage._figmaCloseIconSize),
           ),
-          color: AppColors.postEditorOnSurface,
+          color: context.colors.postEditorOnSurface,
           onPressed: () => context.router.maybePop(),
         ),
         title: Text(
@@ -68,7 +69,7 @@ class _EditProfileAvatarConfirmBody extends StatelessWidget {
           style: AppTextStyle.base(
             EditProfileAvatarConfirmPage._figmaAppBarTitleFont,
             fontWeight: FontWeight.w700,
-            color: AppColors.postEditorOnSurface,
+            color: context.colors.postEditorOnSurface,
           ),
         ),
         actions: [
@@ -89,7 +90,7 @@ class _EditProfileAvatarConfirmBody extends StatelessWidget {
                       settings: avatar.settings,
                       imageWidth: avatar.asset.width,
                       imageHeight: avatar.asset.height,
-                      backgroundColor: AppColors.surfaceSoft,
+                      backgroundColor: context.colors.surfaceSoft,
                     ),
                   ),
                 ),

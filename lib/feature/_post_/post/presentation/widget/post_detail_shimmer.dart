@@ -10,7 +10,7 @@ class PostDetailShimmer extends StatelessWidget {
   final bool showMarkerBlock;
 
   static Widget _box(BuildContext context, {required double height, double? width, double radius = 8}) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
     return SizedBox(
       width: width,
       height: height,
@@ -25,7 +25,7 @@ class PostDetailShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
     return AppShimmer(
       child: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 24),

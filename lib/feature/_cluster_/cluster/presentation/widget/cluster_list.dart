@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:clover/core/resources/app_icons.dart';
 
 import 'package:clover/core/dependencies/get_it.dart' show sl;
 import 'package:clover/core/extension/context.dart';
@@ -138,14 +139,14 @@ class _ClusterListCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool readOnly;
 
-  static final _menuItems = [
-    AppMiniMenuItem(value: 'archive', title: 'Архивировать', icon: Icons.archive_outlined),
+  static List<AppMiniMenuItem<String>> _menuItems(AppPalette colors) => [
+    AppMiniMenuItem(value: 'archive', title: 'Архивировать', icon: AppIcons.archive.icon),
     AppMiniMenuItem(
       value: 'delete',
       title: 'Удалить',
-      icon: Icons.delete_outline,
-      titleColor: AppColors.error,
-      iconColor: AppColors.error,
+      icon: AppIcons.delete.icon,
+      titleColor: colors.error,
+      iconColor: colors.error,
     ),
   ];
 
@@ -211,7 +212,7 @@ class _ClusterListCard extends StatelessWidget {
       countLabel: cluster.postsCountLabel,
       isSelected: isSelected,
       onTap: onTap,
-      menuItems: readOnly ? null : _menuItems,
+      menuItems: readOnly ? null : _menuItems(context.colors),
       onMenuSelected: readOnly ? null : (v) => _onMenu(context, v),
     );
   }

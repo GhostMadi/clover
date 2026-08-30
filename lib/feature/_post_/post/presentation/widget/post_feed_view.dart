@@ -44,7 +44,7 @@ class PostFeedView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (isRefreshing)
-                  LinearProgressIndicator(minHeight: 2, color: AppColors.primary),
+                  LinearProgressIndicator(minHeight: 2, color: context.colors.primary),
                 PostGrid(
                   posts: posts,
                   savedByPostId: savedByPostId,
@@ -79,7 +79,7 @@ class _PostFeedError extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
         children: [
-          Text(message, textAlign: TextAlign.center, style: AppTextStyle.base(13, color: AppColors.subTextColor)),
+          Text(message, textAlign: TextAlign.center, style: AppTextStyle.base(13, color: context.colors.subTextColor)),
           const SizedBox(height: 8),
           AppButton(text: 'Повторить', onTap: onRetry),
         ],

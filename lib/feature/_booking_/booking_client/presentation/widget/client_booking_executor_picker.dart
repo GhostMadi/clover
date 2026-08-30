@@ -24,7 +24,7 @@ class ClientBookingExecutorPicker extends StatelessWidget {
       children: [
         Text(
           'Исполнитель',
-          style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+          style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 10),
         for (final executor in executors) ...[
@@ -54,7 +54,7 @@ class _ExecutorTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.functionalSoftBlue : AppColors.surface,
+      color: selected ? context.colors.functionalSoftBlue : context.colors.surface,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -64,7 +64,7 @@ class _ExecutorTile extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: selected ? AppColors.functionalSoftBlueIcon : AppColors.border.withValues(alpha: 0.55),
+              color: selected ? context.colors.functionalSoftBlueIcon : context.colors.border.withValues(alpha: 0.55),
               width: selected ? 1.5 : 1,
             ),
           ),
@@ -72,21 +72,21 @@ class _ExecutorTile extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 18,
-                backgroundColor: AppColors.surfaceSoftGreen.withValues(alpha: 0.6),
+                backgroundColor: context.colors.surfaceSoftGreen.withValues(alpha: 0.6),
                 child: Text(
                   executor.displayName.characters.first,
-                  style: AppTextStyle.base(14, color: AppColors.primary, fontWeight: FontWeight.w800),
+                  style: AppTextStyle.base(14, color: context.colors.primary, fontWeight: FontWeight.w800),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   executor.displayLabel,
-                  style: AppTextStyle.base(14, color: AppColors.textColor, fontWeight: FontWeight.w600),
+                  style: AppTextStyle.base(14, color: context.colors.textColor, fontWeight: FontWeight.w600),
                 ),
               ),
               if (selected)
-                Icon(Icons.check_circle_rounded, size: 20, color: AppColors.functionalSoftBlueIcon),
+                Icon(Icons.check_circle_rounded, size: 20, color: context.colors.functionalSoftBlueIcon),
             ],
           ),
         ),

@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
@@ -24,7 +25,7 @@ class SettingsResourcesPage extends StatelessWidget {
                 AppTile(
                   title: 'Местоположения',
                   subtitle: 'Адреса, точки на карте, зоны доставки',
-                  icon: Icons.location_on_outlined,
+                  icon: AppIcons.locationOn.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const LocationRoute()),
                 ),

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:clover/core/resources/app_icons.dart';
 
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
@@ -51,9 +52,9 @@ class ProfilePostUploadProgress extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(horizontal, vertical, horizontal, 0),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(context.widthByContext(_figmaCardRadius)),
-          border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+          border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
         ),
         child: Padding(
           padding: EdgeInsets.all(context.widthByContext(12)),
@@ -78,7 +79,7 @@ class ProfilePostUploadProgress extends StatelessWidget {
                       style: AppTextStyle.base(
                         context.heightByContext(15),
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textColor,
+                        color: context.colors.textColor,
                         height: 1.25,
                       ),
                     ),
@@ -90,13 +91,13 @@ class ProfilePostUploadProgress extends StatelessWidget {
                 ProfilePostUploadStatus.uploading => _UploadingFooter(progress: clampedProgress),
                 ProfilePostUploadStatus.success => _StatusFooter(
                   label: successLabel,
-                  color: AppColors.primary,
+                  color: context.colors.primary,
                   icon: Icons.check_circle_rounded,
                 ),
                 ProfilePostUploadStatus.failure => _StatusFooter(
                   label: statusMessage ?? failureLabel,
-                  color: AppColors.error,
-                  icon: Icons.error_outline_rounded,
+                  color: context.colors.error,
+                  icon: AppIcons.errorOutline.icon,
                 ),
               },
             ],
@@ -124,11 +125,11 @@ class _UploadingFooter extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  ColoredBox(color: AppColors.surfaceSoft),
+                  ColoredBox(color: context.colors.surfaceSoft),
                   FractionallySizedBox(
                     alignment: Alignment.centerLeft,
                     widthFactor: progress / 100,
-                    child: ColoredBox(color: AppColors.primary),
+                    child: ColoredBox(color: context.colors.primary),
                   ),
                 ],
               ),
@@ -141,7 +142,7 @@ class _UploadingFooter extends StatelessWidget {
           style: AppTextStyle.base(
             context.heightByContext(12),
             fontWeight: FontWeight.w700,
-            color: AppColors.subTextColor,
+            color: context.colors.subTextColor,
           ),
         ),
       ],
@@ -209,8 +210,8 @@ class _Thumbnail extends StatelessWidget {
       image = Image.network(remoteUrl, fit: BoxFit.cover);
     } else {
       image = ColoredBox(
-        color: AppColors.surfaceSoft,
-        child: Icon(Icons.image_outlined, size: size * 0.42, color: AppColors.iconMuted),
+        color: context.colors.surfaceSoft,
+        child: Icon(AppIcons.imageOutlined.icon, size: size * 0.42, color: context.colors.iconMuted),
       );
     }
 

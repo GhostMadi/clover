@@ -22,7 +22,7 @@ class ClientBookingServicePicker extends StatelessWidget {
       children: [
         Text(
           'Услуга',
-          style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+          style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 10),
         for (final service in services) ...[
@@ -52,7 +52,7 @@ class _ServiceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.surfaceSoftGreen.withValues(alpha: 0.55) : AppColors.surface,
+      color: selected ? context.colors.surfaceSoftGreen.withValues(alpha: 0.55) : context.colors.surface,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -62,7 +62,7 @@ class _ServiceTile extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: selected ? AppColors.primary : AppColors.border.withValues(alpha: 0.55),
+              color: selected ? context.colors.primary : context.colors.border.withValues(alpha: 0.55),
               width: selected ? 1.5 : 1,
             ),
           ),
@@ -76,19 +76,19 @@ class _ServiceTile extends StatelessWidget {
                   children: [
                     Text(
                       service.title,
-                      style: AppTextStyle.base(15, color: AppColors.textColor, fontWeight: FontWeight.w700),
+                      style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       service.displaySubtitle,
-                      style: AppTextStyle.base(12, color: AppColors.subTextColor, fontWeight: FontWeight.w500),
+                      style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
               ),
               Text(
                 service.priceLabel,
-                style: AppTextStyle.base(14, color: AppColors.primary, fontWeight: FontWeight.w800),
+                style: AppTextStyle.base(14, color: context.colors.primary, fontWeight: FontWeight.w800),
               ),
             ],
           ),

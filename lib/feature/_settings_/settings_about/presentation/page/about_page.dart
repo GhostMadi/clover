@@ -17,7 +17,7 @@ class AboutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
 
     return SettingsScreenShell(
       title: 'О приложении',

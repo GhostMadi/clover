@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_chat_/message_page/data/models/message_chat_preview.dart';
 import 'package:clover/feature/_chat_/message_page/presentation/form/message_chat_time_formatting.dart';
@@ -21,7 +22,7 @@ class MessageChatTile extends StatelessWidget {
     final hasUnread = chat.hasUnread;
 
     return Material(
-      color: hasUnread ? AppColors.surfaceSoftGreen.withValues(alpha: 0.35) : AppColors.pageBackground,
+      color: hasUnread ? context.colors.surfaceSoftGreen.withValues(alpha: 0.35) : context.colors.pageBackground,
       child: InkWell(
         onTap: onTap,
         child: Padding(
@@ -44,7 +45,7 @@ class MessageChatTile extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyle.base(
                               16,
-                              color: AppColors.textColor,
+                              color: context.colors.textColor,
                               fontWeight: hasUnread ? FontWeight.w700 : FontWeight.w600,
                             ),
                           ),
@@ -54,7 +55,7 @@ class MessageChatTile extends StatelessWidget {
                           timeLabel,
                           style: AppTextStyle.base(
                             12,
-                            color: hasUnread ? AppColors.primary : AppColors.subTextColor,
+                            color: hasUnread ? context.colors.primary : context.colors.subTextColor,
                             fontWeight: hasUnread ? FontWeight.w600 : FontWeight.w500,
                           ),
                         ),
@@ -71,7 +72,7 @@ class MessageChatTile extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyle.base(
                               14,
-                              color: hasUnread ? AppColors.textColor : AppColors.subTextColor,
+                              color: hasUnread ? context.colors.textColor : context.colors.subTextColor,
                               fontWeight: hasUnread ? FontWeight.w600 : FontWeight.w500,
                               height: 1.25,
                             ),
@@ -105,12 +106,12 @@ class _MessageChatAvatar extends StatelessWidget {
 
     return CircleAvatar(
       radius: MessageChatTile._avatarSize / 2,
-      backgroundColor: AppColors.surfaceSoft,
+      backgroundColor: context.colors.surfaceSoft,
       backgroundImage: url != null && url.isNotEmpty ? NetworkImage(url) : null,
       child: url == null || url.isEmpty
           ? Text(
               initial,
-              style: AppTextStyle.base(18, color: AppColors.primary, fontWeight: FontWeight.w700),
+              style: AppTextStyle.base(18, color: context.colors.primary, fontWeight: FontWeight.w700),
             )
           : null,
     );
@@ -129,14 +130,14 @@ class _MessageReadStatus extends StatelessWidget {
         return Container(
           width: 10,
           height: 10,
-          decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+          decoration: BoxDecoration(color: context.colors.primary, shape: BoxShape.circle),
         );
       }
       return const SizedBox(width: 10, height: 10);
     }
 
-    final icon = chat.isRead ? Icons.done_all_rounded : Icons.done_rounded;
-    final color = chat.isRead ? AppColors.primary : AppColors.iconMuted;
+    final icon = chat.isRead ? AppIcons.doneAll.icon : AppIcons.done.icon;
+    final color = chat.isRead ? context.colors.primary : context.colors.iconMuted;
 
     return Icon(icon, size: 18, color: color);
   }

@@ -14,9 +14,9 @@ class BonusHistoryAccountHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
+        border: Border.all(color: context.colors.primary.withValues(alpha: 0.35)),
       ),
       child: Row(
         children: [
@@ -26,13 +26,13 @@ class BonusHistoryAccountHeader extends StatelessWidget {
               children: [
                 Text(
                   account.hostDisplayName,
-                  style: AppTextStyle.base(16, fontWeight: FontWeight.w700, color: AppColors.textColor),
+                  style: AppTextStyle.base(16, fontWeight: FontWeight.w700, color: context.colors.textColor),
                 ),
                 if (account.usernameLabel.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
                     account.usernameLabel,
-                    style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w500),
+                    style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w500),
                   ),
                 ],
               ],
@@ -43,11 +43,11 @@ class BonusHistoryAccountHeader extends StatelessWidget {
             children: [
               Text(
                 account.formattedBalance,
-                style: AppTextStyle.base(22, fontWeight: FontWeight.w800, color: AppColors.primary),
+                style: AppTextStyle.base(22, fontWeight: FontWeight.w800, color: context.colors.primary),
               ),
               Text(
                 BonusFormat.bonusWord(account.balance),
-                style: AppTextStyle.base(12, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+                style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
               ),
             ],
           ),

@@ -21,7 +21,7 @@ class ClientBookingTimeSlots extends StatelessWidget {
       children: [
         Text(
           'Время',
-          style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+          style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -47,10 +47,10 @@ class _SlotChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg, border) = switch (slot.status) {
-      ClientBookingSlotStatus.selected => (AppColors.primary, AppColors.textInverse, AppColors.primary),
-      ClientBookingSlotStatus.available => (AppColors.surface, AppColors.textColor, AppColors.borderCardGreen),
+      ClientBookingSlotStatus.selected => (context.colors.primary, context.colors.textInverse, context.colors.primary),
+      ClientBookingSlotStatus.available => (context.colors.surface, context.colors.textColor, context.colors.borderCardGreen),
       ClientBookingSlotStatus.myConflict => (Color(0xFFFFEBEE), const Color(0xFFC62828), const Color(0xFFEF9A9A)),
-      ClientBookingSlotStatus.hostBusy => (AppColors.surfaceSoft, AppColors.subTextColor, AppColors.borderSoft),
+      ClientBookingSlotStatus.hostBusy => (context.colors.surfaceSoft, context.colors.subTextColor, context.colors.borderSoft),
     };
 
     return Material(
@@ -82,10 +82,10 @@ class _Legend extends StatelessWidget {
       spacing: 12,
       runSpacing: 6,
       children: [
-        _LegendItem(color: AppColors.primary, label: 'Выбрано'),
-        _LegendItem(color: AppColors.borderCardGreen, label: 'Свободно'),
+        _LegendItem(color: context.colors.primary, label: 'Выбрано'),
+        _LegendItem(color: context.colors.borderCardGreen, label: 'Свободно'),
         _LegendItem(color: Color(0xFFEF9A9A), label: 'Ваш конфликт'),
-        _LegendItem(color: AppColors.borderSoft, label: 'Занято'),
+        _LegendItem(color: context.colors.borderSoft, label: 'Занято'),
       ],
     );
   }
@@ -108,7 +108,7 @@ class _LegendItem extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         SizedBox(width: 6),
-        Text(label, style: AppTextStyle.base(11, color: AppColors.subTextColor, fontWeight: FontWeight.w600)),
+        Text(label, style: AppTextStyle.base(11, color: context.colors.subTextColor, fontWeight: FontWeight.w600)),
       ],
     );
   }

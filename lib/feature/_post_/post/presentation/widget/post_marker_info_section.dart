@@ -30,7 +30,7 @@ class AppLeftBorderBlock extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border(
-          left: BorderSide(color: AppColors.primary, width: lineWidth),
+          left: BorderSide(color: context.colors.primary, width: lineWidth),
         ),
       ),
       padding: padding,
@@ -176,7 +176,7 @@ class _PostCaptionBlock extends StatelessWidget {
     final hasReactions = likesLabel != null || dislikesLabel != null;
     final reactionsStyle = AppTextStyle.base(
       14,
-      color: AppColors.textColor,
+      color: context.colors.textColor,
       fontWeight: FontWeight.w400,
       letterSpacing: -0.2,
     );
@@ -193,7 +193,7 @@ class _PostCaptionBlock extends StatelessWidget {
                     text: '$authorName ',
                     style: AppTextStyle.base(
                       14,
-                      color: AppColors.textColor,
+                      color: context.colors.textColor,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.2,
                     ),
@@ -202,7 +202,7 @@ class _PostCaptionBlock extends StatelessWidget {
                 if (likesLabel != null && dislikesLabel != null)
                   TextSpan(
                     text: ' · ',
-                    style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w400),
+                    style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w400),
                   ),
                 if (dislikesLabel != null) TextSpan(text: dislikesLabel, style: reactionsStyle),
               ],
@@ -218,7 +218,7 @@ class _PostCaptionBlock extends StatelessWidget {
             title,
             style: AppTextStyle.base(
               20,
-              color: AppColors.textColor,
+              color: context.colors.textColor,
               fontWeight: FontWeight.w700,
               letterSpacing: -0.4,
               height: 1.25,
@@ -231,7 +231,7 @@ class _PostCaptionBlock extends StatelessWidget {
             description,
             style: AppTextStyle.base(
               15,
-              color: AppColors.subTextColor,
+              color: context.colors.subTextColor,
               fontWeight: FontWeight.w400,
               height: 1.45,
             ),
@@ -270,7 +270,7 @@ class _PostPublicationDetailsBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
     final emoji = textEmoji?.trim() ?? '';
     final country = _countryLabel;
     final city = _cityLabel;
@@ -325,7 +325,7 @@ class _PostPublicationDetailsBlock extends StatelessWidget {
                   style: AppTextStyle.base(
                     10,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.subTextColor,
+                    color: context.colors.subTextColor,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -335,7 +335,7 @@ class _PostPublicationDetailsBlock extends StatelessWidget {
                   style: AppTextStyle.base(
                     16,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textColor,
+                    color: context.colors.textColor,
                     height: 1.3,
                   ),
                 ),
@@ -343,7 +343,7 @@ class _PostPublicationDetailsBlock extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     secondary,
-                    style: AppTextStyle.base(13, fontWeight: FontWeight.w400, color: AppColors.subTextColor),
+                    style: AppTextStyle.base(13, fontWeight: FontWeight.w400, color: context.colors.subTextColor),
                   ),
                 ],
               ],
@@ -364,7 +364,7 @@ class _MarkerDetailsBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
     final emoji = marker.textEmoji.trim();
     final country = marker.countryLabel;
     final city = marker.cityLabel;
@@ -417,7 +417,7 @@ class _MarkerDetailsBlock extends StatelessWidget {
                   style: AppTextStyle.base(
                     10,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.subTextColor,
+                    color: context.colors.subTextColor,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -427,7 +427,7 @@ class _MarkerDetailsBlock extends StatelessWidget {
                   style: AppTextStyle.base(
                     16,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textColor,
+                    color: context.colors.textColor,
                     height: 1.3,
                   ),
                 ),
@@ -435,7 +435,7 @@ class _MarkerDetailsBlock extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     secondaryAddress,
-                    style: AppTextStyle.base(13, fontWeight: FontWeight.w400, color: AppColors.subTextColor),
+                    style: AppTextStyle.base(13, fontWeight: FontWeight.w400, color: context.colors.subTextColor),
                   ),
                 ],
               ],
@@ -456,14 +456,14 @@ class _MarkerDetailsBlock extends StatelessWidget {
                         style: AppTextStyle.base(
                           10,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.subTextColor,
+                          color: context.colors.subTextColor,
                           letterSpacing: 0.5,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         AppTimePicker.formatEventStart(start),
-                        style: AppTextStyle.base(14, fontWeight: FontWeight.w700, color: AppColors.textColor),
+                        style: AppTextStyle.base(14, fontWeight: FontWeight.w700, color: context.colors.textColor),
                       ),
                     ],
                   ),
@@ -564,7 +564,7 @@ class _PostMarkerCountdownState extends State<_PostMarkerCountdown> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: isLive ? AppColors.primary : AppColors.textColor.withValues(alpha: 0.05),
+        color: isLive ? context.colors.primary : context.colors.textColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
@@ -572,7 +572,7 @@ class _PostMarkerCountdownState extends State<_PostMarkerCountdown> {
         style: AppTextStyle.base(
           10,
           fontWeight: FontWeight.w800,
-          color: isLive ? AppColors.white : AppColors.subTextColor,
+          color: isLive ? context.colors.white : context.colors.subTextColor,
           letterSpacing: 0.3,
         ),
       ),
@@ -597,12 +597,12 @@ class _MarkerTagChips extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.06),
+              color: context.colors.primary.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               '#${tag.labelRu.toLowerCase()}',
-              style: AppTextStyle.base(11, fontWeight: FontWeight.w700, color: AppColors.primary),
+              style: AppTextStyle.base(11, fontWeight: FontWeight.w700, color: context.colors.primary),
             ),
           ),
       ],

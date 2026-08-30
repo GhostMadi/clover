@@ -31,7 +31,7 @@ class SettingsScreenShell extends StatelessWidget {
         FunctionalButtonItem(
           icon: AppIcons.back.icon,
           keepWhenCollapsed: true,
-          customColor: AppColors.primary,
+          customColor: context.colors.primary,
           onTap: () => context.router.maybePop(),
         ),
         ...extraButtons,
@@ -55,7 +55,7 @@ class _SettingsTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.pageBackground,
+      color: context.colors.pageBackground,
       child: SafeArea(
         bottom: false,
         child: SizedBox(
@@ -65,7 +65,7 @@ class _SettingsTopBar extends StatelessWidget {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.base(17, color: AppColors.textColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(17, color: context.colors.textColor, fontWeight: FontWeight.w600),
             ),
           ),
         ),

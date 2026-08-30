@@ -261,14 +261,14 @@ class _LocationDetailSheetState extends State<LocationDetailSheet> {
             const SizedBox(height: 20),
             Text(
               'Привязка',
-              style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Text(
               hasBinding
                   ? 'Страна и город привязаны к этому адресу'
                   : 'Выберите страну и город для этого адреса',
-              style: AppTextStyle.base(13, color: AppColors.subTextColor, height: 1.35),
+              style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
             ),
             const SizedBox(height: 14),
             AbsorbPointer(
@@ -320,7 +320,7 @@ class _LocationDetailSheetState extends State<LocationDetailSheet> {
                 style: AppTextStyle.base(
                   16,
                   fontWeight: FontWeight.w700,
-                  color: busy ? AppColors.iconMuted : AppColors.error,
+                  color: busy ? context.colors.iconMuted : context.colors.error,
                   letterSpacing: 0.3,
                 ),
               ),

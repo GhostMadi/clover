@@ -13,18 +13,18 @@ class MyBonusesEmptyState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.loyalty_outlined, size: 56, color: AppColors.subTextColor.withValues(alpha: 0.45)),
+            Icon(Icons.loyalty_outlined, size: 56, color: context.colors.subTextColor.withValues(alpha: 0.45)),
             const SizedBox(height: 16),
             Text(
               'Бонусов пока нет',
               textAlign: TextAlign.center,
-              style: AppTextStyle.base(17, fontWeight: FontWeight.w700, color: AppColors.textColor),
+              style: AppTextStyle.base(17, fontWeight: FontWeight.w700, color: context.colors.textColor),
             ),
             const SizedBox(height: 8),
             Text(
               'Здесь появятся салоны и магазины, где вы копите бонусы',
               textAlign: TextAlign.center,
-              style: AppTextStyle.base(14, color: AppColors.subTextColor, height: 1.4),
+              style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.4),
             ),
           ],
         ),

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:clover/core/resources/app_icons.dart';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
@@ -123,7 +124,7 @@ class _MapPageState extends State<MapPage> {
       child: BlocBuilder<MapMarkersCubit, MapMarkersState>(
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: AppColors.pageBackground,
+            backgroundColor: context.colors.pageBackground,
             body: Stack(
               fit: StackFit.expand,
               children: [
@@ -152,11 +153,11 @@ class _MapPageState extends State<MapPage> {
                   right: 16,
                   bottom: locationBottom,
                   child: AppFunctionalPillButton(
-                    icon: Icons.my_location_rounded,
-                    customColor: AppColors.functionalSoftBlue,
-                    iconColor: AppColors.functionalSoftBlueIcon,
-                    backgroundColor: AppColors.white,
-                    borderColor: AppColors.primary,
+                    icon: AppIcons.myLocation.icon,
+                    customColor: context.colors.functionalSoftBlue,
+                    iconColor: context.colors.functionalSoftBlueIcon,
+                    backgroundColor: context.colors.white,
+                    borderColor: context.colors.primary,
                     onTap: () => unawaited(_moveToMyLocation()),
                   ),
                 ),

@@ -36,7 +36,7 @@ class MyBookingCard extends StatelessWidget {
     final timeLabel = date != null ? '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}' : '—';
 
     return Material(
-      color: AppColors.surface,
+      color: context.colors.surface,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
@@ -45,7 +45,7 @@ class MyBookingCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+            border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,18 +58,18 @@ class MyBookingCard extends StatelessWidget {
                   children: [
                     Text(
                       item.serviceTitle,
-                      style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w700),
+                      style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       item.hostDisplayName,
-                      style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w500),
+                      style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w500),
                     ),
                     if (item.executorName != null && item.executorName!.isNotEmpty) ...[
                       const SizedBox(height: 2),
                       Text(
                         item.executorName!,
-                        style: AppTextStyle.base(12, color: AppColors.subTextColor, fontWeight: FontWeight.w500),
+                        style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w500),
                       ),
                     ],
                   ],
@@ -106,13 +106,13 @@ class _DateBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
         color: isPast
-            ? AppColors.surfaceSoft.withValues(alpha: 0.85)
-            : AppColors.surfaceSoftGreen.withValues(alpha: 0.55),
+            ? context.colors.surfaceSoft.withValues(alpha: 0.85)
+            : context.colors.surfaceSoftGreen.withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isPast
-              ? AppColors.borderSoft.withValues(alpha: 0.85)
-              : AppColors.borderCardGreen.withValues(alpha: 0.7),
+              ? context.colors.borderSoft.withValues(alpha: 0.85)
+              : context.colors.borderCardGreen.withValues(alpha: 0.7),
         ),
       ),
       child: Column(
@@ -121,7 +121,7 @@ class _DateBadge extends StatelessWidget {
             timeLabel,
             style: AppTextStyle.base(
               15,
-              color: isPast ? AppColors.subTextColor : AppColors.primary,
+              color: isPast ? context.colors.subTextColor : context.colors.primary,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -131,7 +131,7 @@ class _DateBadge extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyle.base(11, color: AppColors.subTextColor, fontWeight: FontWeight.w600, height: 1.15),
+            style: AppTextStyle.base(11, color: context.colors.subTextColor, fontWeight: FontWeight.w600, height: 1.15),
           ),
         ],
       ),

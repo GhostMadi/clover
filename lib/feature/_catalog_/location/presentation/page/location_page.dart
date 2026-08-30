@@ -51,7 +51,7 @@ class LocationPage extends StatelessWidget {
                   child: SizedBox(
                     height: 240,
                     child: Center(
-                      child: Text(message, style: AppTextStyle.base(14, color: AppColors.subTextColor)),
+                      child: Text(message, style: AppTextStyle.base(14, color: context.colors.subTextColor)),
                     ),
                   ),
                 ),
@@ -72,8 +72,8 @@ class LocationPage extends StatelessWidget {
                               title: 'Добавить',
                               subtitle: 'Новое местоположение',
                               icon: AppIcons.addRounded.icon,
-                              iconColor: AppColors.primary,
-                              iconBackgroundColor: AppColors.primary.withValues(alpha: 0.12),
+                              iconColor: context.colors.primary,
+                              iconBackgroundColor: context.colors.primary.withValues(alpha: 0.12),
                               showChevron: true,
                               onTap: () => _openCreate(context, cubit),
                             ),
@@ -87,7 +87,7 @@ class LocationPage extends StatelessWidget {
                             child: Text(
                               'Пока пусто — добавьте первое местоположение',
                               textAlign: TextAlign.center,
-                              style: AppTextStyle.base(14, color: AppColors.subTextColor),
+                              style: AppTextStyle.base(14, color: context.colors.subTextColor),
                             ),
                           )
                         else
@@ -100,7 +100,7 @@ class LocationPage extends StatelessWidget {
                                       ? item.displaySubtitle
                                       : '${item.displaySubtitle} · неактивно',
                                   icon: AppIcons.locationOn.icon,
-                                  iconColor: item.hasGeoBinding ? AppColors.primary : AppColors.iconMuted,
+                                  iconColor: item.hasGeoBinding ? context.colors.primary : context.colors.iconMuted,
                                   enabled: item.isActive,
                                   showChevron: true,
                                   onTap: item.isActive ? () => _openDetail(context, cubit, item) : null,

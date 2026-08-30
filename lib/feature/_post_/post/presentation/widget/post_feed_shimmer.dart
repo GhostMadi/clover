@@ -48,7 +48,7 @@ class PostFeedShimmer extends StatelessWidget {
               mainAxisCellCount: spans[i].main,
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: context.colors.white,
                   borderRadius: BorderRadius.circular(radius),
                 ),
               ),

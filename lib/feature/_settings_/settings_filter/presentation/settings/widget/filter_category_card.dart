@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_settings_/settings_filter/data/models/filter_category.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ class FilterCategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surface,
+      color: context.colors.surface,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
@@ -28,7 +29,7 @@ class FilterCategoryCard extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+            border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,12 +39,12 @@ class FilterCategoryCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       category.name,
-                      style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w700),
+                      style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w700),
                     ),
                   ),
                   Text(
                     '${category.values.length}',
-                    style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+                    style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
                   ),
                   if (onDelete != null) ...[
                     const SizedBox(width: 4),
@@ -52,7 +53,7 @@ class FilterCategoryCard extends StatelessWidget {
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                       onPressed: onDelete,
-                      icon: Icon(Icons.delete_outline_rounded, size: 20, color: AppColors.iconMuted),
+                      icon: Icon(AppIcons.delete.icon, size: 20, color: context.colors.iconMuted),
                     ),
                   ],
                 ],
@@ -83,13 +84,13 @@ class _FilterValueChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-        color: AppColors.surfaceSoft,
+        color: context.colors.surfaceSoft,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.7)),
+        border: Border.all(color: context.colors.border.withValues(alpha: 0.7)),
       ),
       child: Text(
         label,
-        style: AppTextStyle.base(13, color: AppColors.textColor, fontWeight: FontWeight.w600),
+        style: AppTextStyle.base(13, color: context.colors.textColor, fontWeight: FontWeight.w600),
       ),
     );
   }

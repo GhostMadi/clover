@@ -106,7 +106,7 @@ class _LocationSingleSelectFieldState extends State<LocationSingleSelectField> {
           if (widget.label != null) ...[
             Text(
               widget.label!,
-              style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
           ],
@@ -128,11 +128,11 @@ class _LocationSingleSelectFieldState extends State<LocationSingleSelectField> {
           if (widget.label != null) ...[
             Text(
               widget.label!,
-              style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
           ],
-          Text(_error!, style: AppTextStyle.base(13, color: AppColors.subTextColor)),
+          Text(_error!, style: AppTextStyle.base(13, color: context.colors.subTextColor)),
         ],
       );
     }

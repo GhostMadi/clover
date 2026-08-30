@@ -21,7 +21,7 @@ class ProfileFilterButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: _isActive ? AppColors.successSoft.withValues(alpha: 0.65) : AppColors.surface,
+      color: _isActive ? context.colors.successSoft.withValues(alpha: 0.65) : context.colors.surface,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: isLoading ? null : onTap,
@@ -33,8 +33,8 @@ class ProfileFilterButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: _isActive
-                  ? AppColors.primary.withValues(alpha: 0.45)
-                  : AppColors.border.withValues(alpha: 0.55),
+                  ? context.colors.primary.withValues(alpha: 0.45)
+                  : context.colors.border.withValues(alpha: 0.55),
             ),
           ),
           child: isLoading
@@ -48,7 +48,7 @@ class ProfileFilterButton extends StatelessWidget {
               Icon(
                 Icons.tune_rounded,
                 size: 22,
-                color: _isActive ? AppColors.primary : AppColors.iconMuted,
+                color: _isActive ? context.colors.primary : context.colors.iconMuted,
               ),
               if (_isActive)
                 Positioned(
@@ -58,7 +58,7 @@ class ProfileFilterButton extends StatelessWidget {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: context.colors.primary,
                       shape: BoxShape.circle,
                     ),
                   ),

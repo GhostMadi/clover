@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -83,7 +84,7 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
     final sel = widget.isSelected;
     final mid = widget.subtitle?.trim();
     final hasMid = mid != null && mid.isNotEmpty;
@@ -267,7 +268,7 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
                 shape: BoxShape.circle,
                 color: colors.black.withValues(alpha: 0.45),
               ),
-              child: Icon(Icons.more_vert_rounded, size: menuIconSize, color: colors.white),
+              child: Icon(AppIcons.moreVert.icon, size: menuIconSize, color: colors.white),
             ),
           ),
         ),
@@ -288,7 +289,7 @@ class _CountChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
     // Поверх фото: выбранный — primary; иначе светлая плашка с тёмным текстом (контраст в любой теме).
     final bg = selected ? colors.primary : colors.white;
     final fg = selected ? colors.white : const Color(0xFF1A1D1E);

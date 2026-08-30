@@ -69,7 +69,7 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.colors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: Text(
           'Отменить последний шаг?',
@@ -77,18 +77,18 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
         ),
         content: Text(
           'Запись вернётся на предыдущий этап. Например, если случайно отметили «Клиент пришёл».',
-          style: AppTextStyle.base(14, color: AppColors.subTextColor, height: 1.4),
+          style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Назад', style: AppTextStyle.base(14, color: AppColors.subTextColor)),
+            child: Text('Назад', style: AppTextStyle.base(14, color: context.colors.subTextColor)),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(
               'Вернуть',
-              style: AppTextStyle.base(14, fontWeight: FontWeight.w700, color: AppColors.primary),
+              style: AppTextStyle.base(14, fontWeight: FontWeight.w700, color: context.colors.primary),
             ),
           ),
         ],
@@ -149,14 +149,14 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.colors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: Text(title, style: AppTextStyle.base(18, fontWeight: FontWeight.w700)),
-        content: Text(message, style: AppTextStyle.base(14, color: AppColors.subTextColor, height: 1.4)),
+        content: Text(message, style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.4)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Назад', style: AppTextStyle.base(14, color: AppColors.subTextColor)),
+            child: Text('Назад', style: AppTextStyle.base(14, color: context.colors.subTextColor)),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -166,8 +166,8 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
                 14,
                 fontWeight: FontWeight.w700,
                 color: action == BookingHostEmergencyAction.cancel
-                    ? AppColors.destructive
-                    : AppColors.primary,
+                    ? context.colors.destructive
+                    : context.colors.primary,
               ),
             ),
           ),

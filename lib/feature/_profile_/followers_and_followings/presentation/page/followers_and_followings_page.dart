@@ -72,7 +72,7 @@ class _FollowersAndFollowingsPageState extends State<FollowersAndFollowingsPage>
                   child: Text(
                     message,
                     textAlign: TextAlign.center,
-                    style: AppTextStyle.base(14, color: AppColors.subTextColor),
+                    style: AppTextStyle.base(14, color: context.colors.subTextColor),
                   ),
                 ),
               ),
@@ -220,7 +220,7 @@ class _FollowListTab extends StatelessWidget {
               child: Text(
                 error!,
                 textAlign: TextAlign.center,
-                style: AppTextStyle.base(13, color: AppColors.subTextColor),
+                style: AppTextStyle.base(13, color: context.colors.subTextColor),
               ),
             ),
           if (isLoading && rows.isEmpty)
@@ -234,7 +234,7 @@ class _FollowListTab extends StatelessWidget {
               child: Text(
                 emptyMessage,
                 textAlign: TextAlign.center,
-                style: AppTextStyle.base(14, color: AppColors.subTextColor),
+                style: AppTextStyle.base(14, color: context.colors.subTextColor),
               ),
             )
           else

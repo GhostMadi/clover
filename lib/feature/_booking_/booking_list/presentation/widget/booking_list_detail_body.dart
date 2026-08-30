@@ -144,9 +144,9 @@ class _HeaderCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceSoftGreen.withValues(alpha: 0.45),
+        color: context.colors.surfaceSoftGreen.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.borderCardGreen.withValues(alpha: 0.75)),
+        border: Border.all(color: context.colors.borderCardGreen.withValues(alpha: 0.75)),
       ),
       child: Row(
         children: [
@@ -155,7 +155,7 @@ class _HeaderCard extends StatelessWidget {
             height: 56,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(item.serviceEmoji, style: const TextStyle(fontSize: 28, height: 1)),
@@ -167,7 +167,7 @@ class _HeaderCard extends StatelessWidget {
               children: [
                 Text(
                   item.serviceTitle,
-                  style: AppTextStyle.base(18, color: AppColors.textColor, fontWeight: FontWeight.w800),
+                  style: AppTextStyle.base(18, color: context.colors.textColor, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 6),
                 BookingListStatusChip(
@@ -195,16 +195,16 @@ class _Section extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             title,
-            style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w700),
+            style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 10),
           ...children,
@@ -236,7 +236,7 @@ class _DetailRow extends StatelessWidget {
             width: 118,
             child: Text(
               label,
-              style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
             ),
           ),
           Expanded(
@@ -244,7 +244,7 @@ class _DetailRow extends StatelessWidget {
               value,
               style: AppTextStyle.base(
                 14,
-                color: AppColors.textColor,
+                color: context.colors.textColor,
                 fontWeight: FontWeight.w600,
                 height: multiline ? 1.35 : 1.2,
               ),
@@ -273,11 +273,11 @@ class BookingListStatusChip extends StatelessWidget {
     final (bg, fg) = isUnmarked
         ? (const Color(0xFFFFF3E0), const Color(0xFFE65100))
         : switch (status) {
-            BookingStatus.pending => (AppColors.surfaceSoft, AppColors.subTextColor),
-            BookingStatus.confirmed => (AppColors.successSoft.withValues(alpha: 0.7), AppColors.primary),
-            BookingStatus.clientArrived => (AppColors.infoSoft, AppColors.functionalSoftBlueIcon),
-            BookingStatus.inProgress => (AppColors.functionalSoftBlue, AppColors.functionalSoftBlueIcon),
-            BookingStatus.completed => (AppColors.surfaceSoft, AppColors.textColor),
+            BookingStatus.pending => (context.colors.surfaceSoft, context.colors.subTextColor),
+            BookingStatus.confirmed => (context.colors.successSoft.withValues(alpha: 0.7), context.colors.primary),
+            BookingStatus.clientArrived => (context.colors.infoSoft, context.colors.functionalSoftBlueIcon),
+            BookingStatus.inProgress => (context.colors.functionalSoftBlue, context.colors.functionalSoftBlueIcon),
+            BookingStatus.completed => (context.colors.surfaceSoft, context.colors.textColor),
             BookingStatus.cancelled => (const Color(0xFFFFEBEE), const Color(0xFFC62828)),
             BookingStatus.noShow => (const Color(0xFFFFF3E0), const Color(0xFFE65100)),
           };

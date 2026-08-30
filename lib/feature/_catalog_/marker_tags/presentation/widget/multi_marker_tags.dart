@@ -100,7 +100,7 @@ class MultiMarkerTags extends StatelessWidget {
     final canOpen = tags.isNotEmpty && enabled;
 
     final field = Material(
-      color: AppColors.fieldBackground,
+      color: context.colors.fieldBackground,
       borderRadius: BorderRadius.circular(_fieldRadius),
       child: InkWell(
         borderRadius: BorderRadius.circular(_fieldRadius),
@@ -109,7 +109,7 @@ class MultiMarkerTags extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(_fieldRadius),
-            border: Border.all(color: AppColors.fieldBorder),
+            border: Border.all(color: context.colors.fieldBorder),
           ),
           child: Row(
             children: [
@@ -118,7 +118,7 @@ class MultiMarkerTags extends StatelessWidget {
                   hasValue ? display : emptyHint,
                   style: AppTextStyle.base(
                     16,
-                    color: hasValue ? AppColors.textColor : AppColors.subTextColor.withValues(alpha: 0.65),
+                    color: hasValue ? context.colors.textColor : context.colors.subTextColor.withValues(alpha: 0.65),
                     height: 1.25,
                   ),
                   maxLines: 2,
@@ -127,7 +127,7 @@ class MultiMarkerTags extends StatelessWidget {
               ),
               Icon(
                 AppIcons.arrowDown.icon,
-                color: AppColors.subTextColor.withValues(alpha: 0.55),
+                color: context.colors.subTextColor.withValues(alpha: 0.55),
                 size: 24,
               ),
             ],
@@ -147,7 +147,7 @@ class MultiMarkerTags extends StatelessWidget {
             if (label != null) ...[
               Text(
                 label!,
-                style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+                style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
             ],

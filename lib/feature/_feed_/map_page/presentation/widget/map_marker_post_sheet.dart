@@ -161,7 +161,7 @@ class _MapMarkerPostSheetBodyState extends State<_MapMarkerPostSheetBody> {
   Widget build(BuildContext context) {
     if (_loading) {
       return ColoredBox(
-        color: AppColors.pageBackground,
+        color: context.colors.pageBackground,
         child: PostDetailShimmer(showMarkerBlock: true),
       );
     }
@@ -173,7 +173,7 @@ class _MapMarkerPostSheetBodyState extends State<_MapMarkerPostSheetBody> {
           child: Text(
             _error ?? 'Пост недоступен',
             textAlign: TextAlign.center,
-            style: AppTextStyle.base(15, color: AppColors.subTextColor),
+            style: AppTextStyle.base(15, color: context.colors.subTextColor),
           ),
         ),
       );
@@ -185,7 +185,7 @@ class _MapMarkerPostSheetBodyState extends State<_MapMarkerPostSheetBody> {
     final description = post.description?.trim();
 
     return ColoredBox(
-      color: AppColors.pageBackground,
+      color: context.colors.pageBackground,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
@@ -244,7 +244,7 @@ class _MapMarkerPostSheetBodyState extends State<_MapMarkerPostSheetBody> {
                 _ReactionIcon(
                   icon: item.mySaved ? AppIcons.bookmarkFilled.icon : AppIcons.bookmark.icon,
                   active: item.mySaved,
-                  activeColor: AppColors.textColor,
+                  activeColor: context.colors.textColor,
                   onTap: _toggleSave,
                 ),
               ],
@@ -283,14 +283,14 @@ class _AuthorRow extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.borderSoft, width: 1.5),
+              border: Border.all(color: context.colors.borderSoft, width: 1.5),
             ),
             child: CircleAvatar(
               radius: 18,
-              backgroundColor: AppColors.surfaceSoft,
+              backgroundColor: context.colors.surfaceSoft,
               backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
               child: avatarUrl == null || avatarUrl.isEmpty
-                  ? Icon(Icons.person_rounded, size: 20, color: AppColors.subTextColor.withValues(alpha: 0.7))
+                  ? Icon(AppIcons.personRounded.icon, size: 20, color: context.colors.subTextColor.withValues(alpha: 0.7))
                   : null,
             ),
           ),
@@ -298,7 +298,7 @@ class _AuthorRow extends StatelessWidget {
           Expanded(
             child: Text(
               username != null && username.isNotEmpty ? '@$username' : 'Автор',
-              style: AppTextStyle.base(15, color: AppColors.textColor, fontWeight: FontWeight.w700),
+              style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -326,7 +326,7 @@ class _ReactionIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = active ? activeColor : AppColors.textColor;
+    final color = active ? activeColor : context.colors.textColor;
 
     return Material(
       color: Colors.transparent,

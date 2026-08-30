@@ -125,7 +125,7 @@ class _EditProfileUsernameSheetBodyState extends State<_EditProfileUsernameSheet
         if (hint != null) ...[
           Text(
             hint,
-            style: AppTextStyle.base(13, color: AppColors.subTextColor, height: 1.35),
+            style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
           ),
           const SizedBox(height: 12),
         ],

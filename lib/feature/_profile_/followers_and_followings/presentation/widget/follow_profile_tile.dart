@@ -37,10 +37,10 @@ class FollowProfileTile extends StatelessWidget {
           },
       leading: CircleAvatar(
         radius: 20,
-        backgroundColor: AppColors.surfaceSoft,
+        backgroundColor: context.colors.surfaceSoft,
         backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
         child: avatarUrl == null || avatarUrl.isEmpty
-            ? Icon(Icons.person, color: AppColors.iconMuted, size: 20)
+            ? Icon(Icons.person, color: context.colors.iconMuted, size: 20)
             : null,
       ),
       trailing: showFollowButton ? _buildFollowButton() : null,

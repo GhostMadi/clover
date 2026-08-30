@@ -52,12 +52,12 @@ class MapMarkersPaginationBar extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: AppColors.white.withValues(alpha: 0.95),
+              color: context.colors.white.withValues(alpha: 0.95),
               borderRadius: BorderRadius.circular(barRadius),
-              border: Border.all(color: AppColors.primary.withValues(alpha: 0.85)),
+              border: Border.all(color: context.colors.primary.withValues(alpha: 0.85)),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.shadowDark.withValues(alpha: 0.10),
+                  color: context.colors.shadowDark.withValues(alpha: 0.10),
                   blurRadius: context.heightByContext(_figmaShadowBlur),
                   offset: Offset(0, context.heightByContext(_figmaShadowOffsetY)),
                 ),
@@ -83,7 +83,7 @@ class MapMarkersPaginationBar extends StatelessWidget {
                           'Маркеры',
                           style: AppTextStyle.base(
                             10,
-                            color: AppColors.subTextColor,
+                            color: context.colors.subTextColor,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -111,7 +111,7 @@ class MapMarkersPaginationBar extends StatelessWidget {
                                   height: 18,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.2,
-                                    color: AppColors.primary.withValues(alpha: 0.85),
+                                    color: context.colors.primary.withValues(alpha: 0.85),
                                   ),
                                 )
                               : Text(
@@ -120,7 +120,7 @@ class MapMarkersPaginationBar extends StatelessWidget {
                                   textAlign: TextAlign.center,
                                   style: AppTextStyle.base(
                                     13,
-                                    color: AppColors.textColor,
+                                    color: context.colors.textColor,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -200,21 +200,21 @@ class _ArrowButtonState extends State<_ArrowButton> with SingleTickerProviderSta
       child: Opacity(
         opacity: widget.enabled ? 1 : 0.32,
         child: Material(
-          color: widget.enabled ? AppColors.white : AppColors.surfaceMuted,
+          color: widget.enabled ? context.colors.white : context.colors.surfaceMuted,
           shape: CircleBorder(
             side: BorderSide(
-              color: widget.enabled ? AppColors.primary.withValues(alpha: 0.85) : AppColors.borderSoft,
+              color: widget.enabled ? context.colors.primary.withValues(alpha: 0.85) : context.colors.borderSoft,
             ),
           ),
           child: InkWell(
             onTap: widget.enabled ? _handleTap : null,
             borderRadius: BorderRadius.circular(widget.size / 2),
-            splashColor: AppColors.primary.withValues(alpha: 0.12),
-            highlightColor: AppColors.primary.withValues(alpha: 0.06),
+            splashColor: context.colors.primary.withValues(alpha: 0.12),
+            highlightColor: context.colors.primary.withValues(alpha: 0.06),
             child: SizedBox(
               width: widget.size,
               height: widget.size,
-              child: Icon(widget.icon, size: iconSize, color: AppColors.textColor),
+              child: Icon(widget.icon, size: iconSize, color: context.colors.textColor),
             ),
           ),
         ),

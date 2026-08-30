@@ -18,14 +18,14 @@ class BonusHistoryEntryTile extends StatelessWidget {
     final date = entry.occurredAt.toLocal();
     final dateLabel = '${date.day} ${_monthLabels[date.month - 1]}, '
         '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-    final amountColor = entry.isCredit ? AppColors.primary : AppColors.destructive;
+    final amountColor = entry.isCredit ? context.colors.primary : context.colors.destructive;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
       ),
       child: Row(
         children: [
@@ -35,17 +35,17 @@ class BonusHistoryEntryTile extends StatelessWidget {
               children: [
                 Text(
                   entry.title,
-                  style: AppTextStyle.base(15, fontWeight: FontWeight.w700, color: AppColors.textColor),
+                  style: AppTextStyle.base(15, fontWeight: FontWeight.w700, color: context.colors.textColor),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   entry.subtitle,
-                  style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w500),
+                  style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   dateLabel,
-                  style: AppTextStyle.base(12, color: AppColors.subTextColor.withValues(alpha: 0.85)),
+                  style: AppTextStyle.base(12, color: context.colors.subTextColor.withValues(alpha: 0.85)),
                 ),
               ],
             ),

@@ -52,12 +52,12 @@ class _AuthSplash extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBackground,
+      backgroundColor: context.colors.pageBackground,
       body: Center(
         child: SizedBox(
           width: 28,
           height: 28,
-          child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+          child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primary),
         ),
       ),
     );

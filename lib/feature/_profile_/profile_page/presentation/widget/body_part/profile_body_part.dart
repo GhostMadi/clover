@@ -163,7 +163,7 @@ class ProfilePostsGuestPlaceholder extends StatelessWidget {
         child: Text(
           'Войдите, чтобы видеть публикации',
           textAlign: TextAlign.center,
-          style: AppTextStyle.base(context.heightByContext(14), color: AppColors.subTextColor),
+          style: AppTextStyle.base(context.heightByContext(14), color: context.colors.subTextColor),
         ),
       ),
     );

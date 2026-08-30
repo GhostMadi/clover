@@ -28,7 +28,7 @@ class BookingAnalyticsPeriodPicker extends StatelessWidget {
       children: [
         Text(
           'Период',
-          style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+          style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 10),
         Wrap(
@@ -83,7 +83,7 @@ class _PresetChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surfaceSoftGreen.withValues(alpha: 0.55),
+      color: context.colors.surfaceSoftGreen.withValues(alpha: 0.55),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -92,11 +92,11 @@ class _PresetChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.borderCardGreen.withValues(alpha: 0.7)),
+            border: Border.all(color: context.colors.borderCardGreen.withValues(alpha: 0.7)),
           ),
           child: Text(
             label,
-            style: AppTextStyle.base(13, color: AppColors.primary, fontWeight: FontWeight.w700),
+            style: AppTextStyle.base(13, color: context.colors.primary, fontWeight: FontWeight.w700),
           ),
         ),
       ),

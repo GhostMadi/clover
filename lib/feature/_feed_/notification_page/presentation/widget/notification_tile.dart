@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
@@ -53,7 +54,7 @@ class _NotificationTileState extends State<NotificationTile> {
             item.kind == NotificationKind.commentDislike);
 
     return Material(
-      color: item.isUnread ? AppColors.bgSoftMint.withValues(alpha: 0.55) : AppColors.pageBackground,
+      color: item.isUnread ? context.colors.bgSoftMint.withValues(alpha: 0.55) : context.colors.pageBackground,
       child: InkWell(
         onTap: widget.onTap,
         child: Padding(
@@ -69,7 +70,7 @@ class _NotificationTileState extends State<NotificationTile> {
                   children: [
                     RichText(
                       text: TextSpan(
-                        style: AppTextStyle.base(14, color: AppColors.textColor, height: 1.35),
+                        style: AppTextStyle.base(14, color: context.colors.textColor, height: 1.35),
                         children: text,
                       ),
                     ),
@@ -79,13 +80,13 @@ class _NotificationTileState extends State<NotificationTile> {
                         preview,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTextStyle.base(13, color: AppColors.subTextColor, height: 1.3),
+                        style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.3),
                       ),
                     ],
                     const SizedBox(height: 4),
                     Text(
                       timeLabel,
-                      style: AppTextStyle.base(12, color: AppColors.subTextColor.withValues(alpha: 0.85)),
+                      style: AppTextStyle.base(12, color: context.colors.subTextColor.withValues(alpha: 0.85)),
                     ),
                   ],
                 ),
@@ -106,11 +107,11 @@ class _NotificationTileState extends State<NotificationTile> {
     final actorsLabel = _actorsLabel(item.actors);
     final bold = (String text) => TextSpan(
       text: text,
-      style: AppTextStyle.base(14, color: AppColors.textColor, fontWeight: FontWeight.w700, height: 1.35),
+      style: AppTextStyle.base(14, color: context.colors.textColor, fontWeight: FontWeight.w700, height: 1.35),
     );
     final regular = (String text) => TextSpan(
       text: text,
-      style: AppTextStyle.base(14, color: AppColors.textColor, height: 1.35),
+      style: AppTextStyle.base(14, color: context.colors.textColor, height: 1.35),
     );
 
     return switch (item.kind) {
@@ -200,8 +201,8 @@ class _PostPreview extends StatelessWidget {
         errorBuilder: (_, __, ___) => Container(
           width: 44,
           height: 44,
-          color: AppColors.surfaceSoft,
-          child: Icon(Icons.image_outlined, size: 20, color: AppColors.subTextColor.withValues(alpha: 0.6)),
+          color: context.colors.surfaceSoft,
+          child: Icon(AppIcons.imageOutlined.icon, size: 20, color: context.colors.subTextColor.withValues(alpha: 0.6)),
         ),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:clover/core/extension/context.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:flutter/material.dart';
@@ -35,19 +36,19 @@ class ProfileHeaderIdentity extends StatelessWidget {
         if (hasName) ...[
           Text(
             name,
-            style: AppTextStyle.base(nameFont, color: AppColors.textColor, fontWeight: FontWeight.w800),
+            style: AppTextStyle.base(nameFont, color: context.colors.textColor, fontWeight: FontWeight.w800),
           ),
           SizedBox(height: gap),
         ],
         if (!hasNick)
           Text(
             'пусто',
-            style: AppTextStyle.base(nickFont, color: AppColors.iconMuted, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(nickFont, color: context.colors.iconMuted, fontWeight: FontWeight.w600),
           )
         else
           Text(
             '@$nick',
-            style: AppTextStyle.base(nickFont, color: AppColors.primary, fontWeight: FontWeight.w700),
+            style: AppTextStyle.base(nickFont, color: context.colors.primary, fontWeight: FontWeight.w700),
           ),
       ],
     );
@@ -93,13 +94,13 @@ class _ProfileHeaderBioState extends State<ProfileHeaderBio> {
           onTap: () => _expanded.value = !expanded,
           child: RichText(
             text: TextSpan(
-              style: AppTextStyle.base(fontSize, color: AppColors.textColor, height: 1.4),
+              style: AppTextStyle.base(fontSize, color: context.colors.textColor, height: 1.4),
               children: [
                 TextSpan(text: bio.length > 90 && !expanded ? '${bio.substring(0, 90)}...' : bio),
                 if (bio.length > 90 && !expanded)
                   TextSpan(
                     text: ' еще',
-                    style: AppTextStyle.base(fontSize, color: AppColors.primary, fontWeight: FontWeight.bold),
+                    style: AppTextStyle.base(fontSize, color: context.colors.primary, fontWeight: FontWeight.bold),
                   ),
               ],
             ),
@@ -125,9 +126,9 @@ class ProfileHeaderLocation extends StatelessWidget {
     return Row(
       children: [
         Icon(
-          Icons.location_on_outlined,
+          AppIcons.locationOn.icon,
           size: context.heightByContext(_figmaIconSize),
-          color: AppColors.primary,
+          color: context.colors.primary,
         ),
         SizedBox(width: context.widthByContext(_figmaGap)),
         Expanded(
@@ -135,7 +136,7 @@ class ProfileHeaderLocation extends StatelessWidget {
             location,
             style: AppTextStyle.base(
               context.heightByContext(_figmaFont),
-              color: AppColors.primary,
+              color: context.colors.primary,
               fontWeight: FontWeight.w600,
             ),
           ),

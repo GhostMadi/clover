@@ -71,12 +71,12 @@ class _BookingServiceCancelSheetBodyState extends State<_BookingServiceCancelShe
       children: [
         Text(
           '«${widget.serviceTitle}» перестанет отображаться клиентам. Новые записи будут недоступны.',
-          style: AppTextStyle.base(14, color: AppColors.subTextColor, height: 1.4),
+          style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.4),
         ),
         const SizedBox(height: 16),
         Text(
           'Готовые сообщения',
-          style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+          style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 10),
         Wrap(
@@ -112,7 +112,7 @@ class _BookingServiceCancelSheetBodyState extends State<_BookingServiceCancelShe
             const SizedBox(width: 8),
             Expanded(
               child: Material(
-                color: canConfirm ? AppColors.functionalSoftRedIcon : AppColors.surfaceSoft,
+                color: canConfirm ? context.colors.functionalSoftRedIcon : context.colors.surfaceSoft,
                 borderRadius: BorderRadius.circular(12),
                 child: InkWell(
                   onTap: canConfirm ? _confirm : null,
@@ -123,7 +123,7 @@ class _BookingServiceCancelSheetBodyState extends State<_BookingServiceCancelShe
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: canConfirm ? AppColors.functionalSoftRedIcon : AppColors.border,
+                        color: canConfirm ? context.colors.functionalSoftRedIcon : context.colors.border,
                       ),
                     ),
                     child: Text(
@@ -131,7 +131,7 @@ class _BookingServiceCancelSheetBodyState extends State<_BookingServiceCancelShe
                       style: AppTextStyle.base(
                         16,
                         fontWeight: FontWeight.w700,
-                        color: canConfirm ? AppColors.textInverse : AppColors.subTextColor,
+                        color: canConfirm ? context.colors.textInverse : context.colors.subTextColor,
                       ),
                     ),
                   ),
@@ -154,7 +154,7 @@ class _PresetChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.functionalSoftRed,
+      color: context.colors.functionalSoftRed,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -163,11 +163,11 @@ class _PresetChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.borderCardRed.withValues(alpha: 0.85)),
+            border: Border.all(color: context.colors.borderCardRed.withValues(alpha: 0.85)),
           ),
           child: Text(
             label,
-            style: AppTextStyle.base(13, color: AppColors.destructive, fontWeight: FontWeight.w600, height: 1.25),
+            style: AppTextStyle.base(13, color: context.colors.destructive, fontWeight: FontWeight.w600, height: 1.25),
           ),
         ),
       ),

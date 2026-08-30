@@ -1,4 +1,5 @@
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_field.dart';
@@ -205,30 +206,30 @@ class _BookingServiceFormBody extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               'Буфер задаётся только при создании услуги',
-              style: AppTextStyle.base(12, color: AppColors.subTextColor, height: 1.3),
+              style: AppTextStyle.base(12, color: context.colors.subTextColor, height: 1.3),
             ),
           ],
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+              border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
                   'Бонусы',
-                  style: AppTextStyle.base(15, color: AppColors.textColor, fontWeight: FontWeight.w800),
+                  style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   bonusProgramEnabled
                       ? 'Настройки начисления и оплаты бонусами за эту услугу'
                       : 'Включите бонусную программу в настройках, чтобы настроить бонусы',
-                  style: AppTextStyle.base(12, color: AppColors.subTextColor, height: 1.3),
+                  style: AppTextStyle.base(12, color: context.colors.subTextColor, height: 1.3),
                 ),
                 const SizedBox(height: 12),
                 AppField(
@@ -268,12 +269,12 @@ class _BookingServiceFormBody extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             'Исполнители',
-            style: AppTextStyle.base(14, color: AppColors.textColor, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(14, color: context.colors.textColor, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 6),
           Text(
             'Один сервис — несколько мастеров. Найдите аккаунты из приложения.',
-            style: AppTextStyle.base(13, color: AppColors.subTextColor, height: 1.35),
+            style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
           ),
           if (selectedExecutors.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -302,7 +303,7 @@ class _BookingServiceFormBody extends StatelessWidget {
                 Icon(
                   Icons.person_search_outlined,
                   size: 18,
-                  color: enabled ? AppColors.textColor : AppColors.subTextColor,
+                  color: enabled ? context.colors.textColor : context.colors.subTextColor,
                 ),
                 const SizedBox(width: 6),
                 Text(
@@ -310,7 +311,7 @@ class _BookingServiceFormBody extends StatelessWidget {
                   style: AppTextStyle.base(
                     16,
                     fontWeight: FontWeight.w700,
-                    color: enabled ? AppColors.textColor : AppColors.subTextColor,
+                    color: enabled ? context.colors.textColor : context.colors.subTextColor,
                   ),
                 ),
               ],
@@ -347,9 +348,9 @@ class _ExecutorChip extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.surfaceSoftGreen.withValues(alpha: 0.45),
+        color: context.colors.surfaceSoftGreen.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: AppColors.borderCardGreen.withValues(alpha: 0.65)),
+        border: Border.all(color: context.colors.borderCardGreen.withValues(alpha: 0.65)),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(6, 6, 10, 6),
@@ -358,16 +359,16 @@ class _ExecutorChip extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 14,
-              backgroundColor: AppColors.surfaceSoft,
+              backgroundColor: context.colors.surfaceSoft,
               backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
               child: avatarUrl == null || avatarUrl.isEmpty
-                  ? Icon(Icons.person, color: AppColors.iconMuted, size: 14)
+                  ? Icon(Icons.person, color: context.colors.iconMuted, size: 14)
                   : null,
             ),
             const SizedBox(width: 8),
             Text(
               executor.displayName,
-              style: AppTextStyle.base(13, color: AppColors.textColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(13, color: context.colors.textColor, fontWeight: FontWeight.w600),
             ),
             if (onRemove != null) ...[
               const SizedBox(width: 4),
@@ -377,9 +378,9 @@ class _ExecutorChip extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(2),
                   child: Icon(
-                    Icons.close_rounded,
+                    AppIcons.closeRounded.icon,
                     size: 16,
-                    color: enabled ? AppColors.subTextColor : AppColors.border,
+                    color: enabled ? context.colors.subTextColor : context.colors.border,
                   ),
                 ),
               ),

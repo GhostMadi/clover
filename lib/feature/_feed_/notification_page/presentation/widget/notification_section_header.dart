@@ -10,12 +10,12 @@ class NotificationSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: AppColors.pageBackground,
+      color: context.colors.pageBackground,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
         child: Text(
           title,
-          style: AppTextStyle.base(15, color: AppColors.textColor, fontWeight: FontWeight.w700),
+          style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
         ),
       ),
     );

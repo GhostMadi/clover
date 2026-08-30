@@ -31,13 +31,13 @@ class LoginPage extends StatelessWidget {
           ..showSnackBar(
             SnackBar(
               content: Text(AuthErrorMessages.messageFor(state.code)),
-              backgroundColor: AppColors.shadowDark.withValues(alpha: 0.9),
+              backgroundColor: context.colors.shadowDark.withValues(alpha: 0.9),
               behavior: SnackBarBehavior.floating,
             ),
           );
       },
       child: Scaffold(
-        backgroundColor: AppColors.bgColor,
+        backgroundColor: context.colors.bgColor,
         body: SafeArea(
           child: Column(
             children: [
@@ -59,7 +59,7 @@ class LoginPage extends StatelessWidget {
                     style: AppTextStyle.base(
                       context.heightByContext(32),
                       fontWeight: FontWeight.w600,
-                      color: AppColors.activeColor,
+                      color: context.colors.activeColor,
                       letterSpacing: -0.5,
                     ),
                   ),
@@ -79,7 +79,7 @@ class LoginPage extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: AppTextStyle.base(
                       context.heightByContext(13),
-                      color: AppColors.error,
+                      color: context.colors.error,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -121,7 +121,7 @@ class LoginPage extends StatelessWidget {
         Expanded(
           child: Container(
             height: 1,
-            color: AppColors.border,
+            color: context.colors.border,
           ),
         ),
         Padding(
@@ -132,7 +132,7 @@ class LoginPage extends StatelessWidget {
             'or',
             style: AppTextStyle.base(
               context.heightByContext(12),
-              color: AppColors.subTextColor,
+              color: context.colors.subTextColor,
               fontWeight: FontWeight.w400,
               letterSpacing: 0.8,
             ),
@@ -141,7 +141,7 @@ class LoginPage extends StatelessWidget {
         Expanded(
           child: Container(
             height: 1,
-            color: AppColors.border,
+            color: context.colors.border,
           ),
         ),
       ],
@@ -164,17 +164,17 @@ class LoginPage extends StatelessWidget {
             : () => context.read<AuthCubit>().loginWithGoogle(),
 
         style: OutlinedButton.styleFrom(
-          backgroundColor: AppColors.surface,
-          disabledBackgroundColor: AppColors.surfaceMuted,
+          backgroundColor: context.colors.surface,
+          disabledBackgroundColor: context.colors.surfaceMuted,
           side: BorderSide(
-            color: AppColors.borderInput,
+            color: context.colors.borderInput,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(
               context.widthByContext(14),
             ),
           ),
-          foregroundColor: AppColors.textColor,
+          foregroundColor: context.colors.textColor,
         ),
 
         child: isLoading
@@ -183,7 +183,7 @@ class LoginPage extends StatelessWidget {
                 height: 22,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: AppColors.primary,
+                  color: context.colors.primary,
                 ),
               )
             : Row(
@@ -199,7 +199,7 @@ class LoginPage extends StatelessWidget {
                     style: AppTextStyle.base(
                       15,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textColor,
+                      color: context.colors.textColor,
                     ),
                   ),
                 ],

@@ -39,9 +39,9 @@ class BookingVisitProgressSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -51,7 +51,7 @@ class BookingVisitProgressSection extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Отметки визита',
-                  style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w700),
+                  style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
                 ),
               ),
               AppMiniMenu<BookingHostEmergencyAction>(
@@ -73,8 +73,8 @@ class BookingVisitProgressSection extends StatelessWidget {
                     value: BookingHostEmergencyAction.cancel,
                     title: 'Отменить визит',
                     icon: Icons.block_rounded,
-                    titleColor: AppColors.destructive,
-                    iconColor: AppColors.destructive,
+                    titleColor: context.colors.destructive,
+                    iconColor: context.colors.destructive,
                     enabled: !isLoading,
                   ),
                 ],
@@ -86,7 +86,7 @@ class BookingVisitProgressSection extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'Время записи прошло. Завершите визит или отметьте «не пришёл» — слот освободится.',
-              style: AppTextStyle.base(13, color: AppColors.destructive, height: 1.35),
+              style: AppTextStyle.base(13, color: context.colors.destructive, height: 1.35),
             ),
           ],
           const SizedBox(height: 12),
@@ -144,10 +144,10 @@ class _StepRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dotColor = isDone
-        ? AppColors.primary
+        ? context.colors.primary
         : isActive
-        ? AppColors.functionalSoftBlueIcon
-        : AppColors.border;
+        ? context.colors.functionalSoftBlueIcon
+        : context.colors.border;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,7 +171,7 @@ class _StepRow extends StatelessWidget {
                   width: 2,
                   height: 28,
                   margin: const EdgeInsets.symmetric(vertical: 4),
-                  color: isDone ? AppColors.primary.withValues(alpha: 0.35) : AppColors.border,
+                  color: isDone ? context.colors.primary.withValues(alpha: 0.35) : context.colors.border,
                 ),
             ],
           ),
@@ -183,7 +183,7 @@ class _StepRow extends StatelessWidget {
               title,
               style: AppTextStyle.base(
                 14,
-                color: isDone || isActive ? AppColors.textColor : AppColors.subTextColor,
+                color: isDone || isActive ? context.colors.textColor : context.colors.subTextColor,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
               ),
             ),

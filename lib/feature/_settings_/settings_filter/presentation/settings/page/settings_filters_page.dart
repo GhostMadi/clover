@@ -95,9 +95,9 @@ class _SettingsFiltersPageState extends State<SettingsFiltersPage> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceSoftGreen.withValues(alpha: 0.45),
+                        color: context.colors.surfaceSoftGreen.withValues(alpha: 0.45),
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: AppColors.borderCardGreen.withValues(alpha: 0.8)),
+                        border: Border.all(color: context.colors.borderCardGreen.withValues(alpha: 0.8)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,14 +106,14 @@ class _SettingsFiltersPageState extends State<SettingsFiltersPage> {
                             'Категории фильтров',
                             style: AppTextStyle.base(
                               15,
-                              color: AppColors.textColor,
+                              color: context.colors.textColor,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             'Создайте категорию, укажите название и добавьте варианты значений. После первой категории фильтр появится в профиле.',
-                            style: AppTextStyle.base(13, color: AppColors.subTextColor, height: 1.35),
+                            style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
                           ),
                         ],
                       ),
@@ -170,7 +170,7 @@ class _SettingsFiltersError extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: AppTextStyle.base(14, color: AppColors.subTextColor),
+            style: AppTextStyle.base(14, color: context.colors.subTextColor),
           ),
           const SizedBox(height: 16),
           AppButton(text: 'Повторить', isExpanded: true, onTap: onRetry),

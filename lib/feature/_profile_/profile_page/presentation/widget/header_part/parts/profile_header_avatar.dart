@@ -1,4 +1,5 @@
 import 'package:clover/core/extension/context.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -22,17 +23,17 @@ class ProfileHeaderAvatar extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.all(context.widthByContext(_figmaOuterPadding)),
-      decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.activeColor),
+      decoration: BoxDecoration(shape: BoxShape.circle, color: context.colors.activeColor),
       child: Container(
         padding: EdgeInsets.all(context.widthByContext(_figmaInnerPadding)),
-        decoration: BoxDecoration(color: AppColors.white, shape: BoxShape.circle),
+        decoration: BoxDecoration(color: context.colors.white, shape: BoxShape.circle),
         child: CircleAvatar(
           radius: radius,
-          backgroundColor: AppColors.surface,
+          backgroundColor: context.colors.surface,
           backgroundImage: hasImage ? NetworkImage(url) : null,
           child: hasImage
               ? null
-              : Icon(Icons.person_rounded, size: iconSize, color: AppColors.iconMuted),
+              : Icon(AppIcons.personRounded.icon, size: iconSize, color: context.colors.iconMuted),
         ),
       ),
     );

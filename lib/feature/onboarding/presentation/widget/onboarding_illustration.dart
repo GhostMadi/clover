@@ -91,7 +91,7 @@ class _ColorDisc extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppColors.of(context);
+    final palette = context.colors;
     return DecoratedBox(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
@@ -140,7 +140,7 @@ class _EmojiChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppColors.of(context);
+    final palette = context.colors;
     return Container(
       width: size,
       height: size,
@@ -239,7 +239,7 @@ class _FeedMapArt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final morph = (0.5 + 0.5 * _wave(t, phase: 0.15)).clamp(0.0, 1.0);
-    final palette = AppColors.of(context);
+    final palette = context.colors;
 
     return _ColorDisc(
       colors: const [

@@ -76,7 +76,16 @@ enum AppIcons {
   locationOn(iconAndroid: Icons.location_on_outlined, iconIos: CupertinoIcons.location),
   translate(iconAndroid: Icons.translate_rounded, iconIos: Icons.translate_rounded),
   tune(iconAndroid: Icons.tune_rounded, iconIos: CupertinoIcons.slider_horizontal_3),
-  arrowForward(iconAndroid: Icons.arrow_forward_rounded, iconIos: CupertinoIcons.arrow_right);
+  arrowForward(iconAndroid: Icons.arrow_forward_rounded, iconIos: CupertinoIcons.arrow_right),
+  archive(iconAndroid: Icons.archive_outlined, iconIos: CupertinoIcons.archivebox),
+  unarchive(iconAndroid: Icons.unarchive_outlined, iconIos: CupertinoIcons.tray_arrow_up_fill),
+  imageOutlined(iconAndroid: Icons.image_outlined, iconIos: CupertinoIcons.photo),
+  notificationsOutlined(iconAndroid: Icons.notifications_outlined, iconIos: CupertinoIcons.bell),
+  filterList(iconAndroid: Icons.filter_list_rounded, iconIos: CupertinoIcons.line_horizontal_3_decrease),
+  logout(iconAndroid: Icons.logout_rounded, iconIos: CupertinoIcons.square_arrow_right),
+  personRounded(iconAndroid: Icons.person_rounded, iconIos: CupertinoIcons.person_fill),
+  done(iconAndroid: Icons.done_rounded, iconIos: CupertinoIcons.checkmark),
+  doneAll(iconAndroid: Icons.done_all_rounded, iconIos: CupertinoIcons.checkmark_alt);
 
   final IconData iconAndroid;
   final IconData iconIos;

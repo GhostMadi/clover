@@ -14,23 +14,23 @@ class FilterSettingsEmptyState extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
       ),
       child: Column(
         children: [
-          Icon(Icons.tune_rounded, size: 40, color: AppColors.iconMuted),
+          Icon(Icons.tune_rounded, size: 40, color: context.colors.iconMuted),
           const SizedBox(height: 12),
           Text(
             'Пока нет категорий',
-            style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 6),
           Text(
             'Например: Размер → XS, S, M\nЦвет → Черный, Белый',
             textAlign: TextAlign.center,
-            style: AppTextStyle.base(13, color: AppColors.subTextColor, height: 1.35),
+            style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
           ),
           const SizedBox(height: 16),
           AppButton(text: 'Создать первую категорию', isExpanded: true, onTap: onCreate),

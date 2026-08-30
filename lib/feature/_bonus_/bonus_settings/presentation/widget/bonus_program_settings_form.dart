@@ -41,7 +41,7 @@ class BonusProgramSettingsForm extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             'Доля оплаты бонусами настраивается отдельно для каждой услуги при её создании или редактировании.',
-            style: AppTextStyle.base(13, color: AppColors.subTextColor, height: 1.35, fontWeight: FontWeight.w500),
+            style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35, fontWeight: FontWeight.w500),
           ),
         ],
       ),

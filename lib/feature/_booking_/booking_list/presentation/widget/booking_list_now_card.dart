@@ -25,7 +25,7 @@ class BookingListNowCard extends StatelessWidget {
         '${BookingListActionCard.timeLabel(start)} – ${BookingListActionCard.timeLabel(end)}';
 
     return Material(
-      color: AppColors.surfaceSoftGreen.withValues(alpha: 0.55),
+      color: context.colors.surfaceSoftGreen.withValues(alpha: 0.55),
       borderRadius: BorderRadius.circular(22),
       child: InkWell(
         onTap: onOpenDetails,
@@ -35,49 +35,49 @@ class BookingListNowCard extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: AppColors.borderCardGreen.withValues(alpha: 0.8)),
+            border: Border.all(color: context.colors.borderCardGreen.withValues(alpha: 0.8)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
                 'Сейчас в кресле',
-                style: AppTextStyle.base(13, color: AppColors.primary, fontWeight: FontWeight.w700),
+                style: AppTextStyle.base(13, color: context.colors.primary, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 10),
               Text(
                 item.clientName.isEmpty ? 'Клиент' : item.clientName,
-                style: AppTextStyle.base(22, color: AppColors.textColor, fontWeight: FontWeight.w800),
+                style: AppTextStyle.base(22, color: context.colors.textColor, fontWeight: FontWeight.w800),
               ),
               if (item.clientUsernameLabel.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Text(
                   item.clientUsernameLabel,
-                  style: AppTextStyle.base(14, color: AppColors.primary, fontWeight: FontWeight.w600),
+                  style: AppTextStyle.base(14, color: context.colors.primary, fontWeight: FontWeight.w600),
                 ),
               ],
               const SizedBox(height: 12),
               Text(
                 '${item.serviceEmoji} ${item.serviceTitle}',
-                style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w700),
+                style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 6),
               Text(
                 timeRange,
-                style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+                style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
               ),
               if (item.executorName?.trim().isNotEmpty == true) ...[
                 const SizedBox(height: 4),
                 Text(
                   'Мастер: ${item.executorName}',
-                  style: AppTextStyle.base(13, color: AppColors.subTextColor),
+                  style: AppTextStyle.base(13, color: context.colors.subTextColor),
                 ),
               ],
               if (item.notes?.trim().isNotEmpty == true) ...[
                 const SizedBox(height: 12),
                 Text(
                   item.notes!.trim(),
-                  style: AppTextStyle.base(14, color: AppColors.textColor, height: 1.35),
+                  style: AppTextStyle.base(14, color: context.colors.textColor, height: 1.35),
                 ),
               ],
               if (onOpenProfile != null) ...[

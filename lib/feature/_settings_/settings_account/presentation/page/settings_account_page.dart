@@ -79,7 +79,7 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
                   selected: option == selected,
                   showChevron: option == selected,
                   trailing: option == selected
-                      ? Icon(AppIcons.check.icon, color: AppColors.primary, size: 20)
+                      ? Icon(AppIcons.check.icon, color: context.colors.primary, size: 20)
                       : null,
                   onTap: () => Navigator.of(sheetContext).pop(option),
                 ),
@@ -98,7 +98,7 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
       title: 'Выход',
       content: Text(
         'Выйти из аккаунта на этом устройстве?',
-        style: TextStyle(color: AppColors.subTextColor, fontSize: 14, height: 1.4),
+        style: TextStyle(color: context.colors.subTextColor, fontSize: 14, height: 1.4),
       ),
       actions: [
         Builder(
@@ -165,8 +165,8 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
               children: [
                 AppTile(
                   title: 'Выйти из аккаунта',
-                  icon: Icons.logout_rounded,
-                  iconColor: AppColors.destructive,
+                  icon: AppIcons.logout.icon,
+                  iconColor: context.colors.destructive,
                   destructive: true,
                   enabled: !_isLoggingOut,
                   trailing: _isLoggingOut

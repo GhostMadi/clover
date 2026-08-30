@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_date_picker.dart';
@@ -176,13 +177,13 @@ class BookingScheduleSettingsForm extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.surfaceSoft,
+                color: context.colors.surfaceSoft,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border.withValues(alpha: 0.45)),
+                border: Border.all(color: context.colors.border.withValues(alpha: 0.45)),
               ),
               child: Text(
                 'Например, 10 минут после стрижки — время на уборку. Откройте услугу и создайте новую, если нужен другой буфер.',
-                style: AppTextStyle.base(13, color: AppColors.subTextColor, height: 1.35),
+                style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
               ),
             ),
           ),
@@ -373,14 +374,14 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.add_rounded, size: 18, color: widget.enabled ? AppColors.textColor : AppColors.subTextColor),
+                  Icon(AppIcons.addRounded.icon, size: 18, color: widget.enabled ? context.colors.textColor : context.colors.subTextColor),
                   const SizedBox(width: 6),
                   Text(
                     'Добавить период',
                     style: AppTextStyle.base(
                       16,
                       fontWeight: FontWeight.w700,
-                      color: widget.enabled ? AppColors.textColor : AppColors.subTextColor,
+                      color: widget.enabled ? context.colors.textColor : context.colors.subTextColor,
                     ),
                   ),
                 ],
@@ -414,9 +415,9 @@ class _AbsenceTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -425,20 +426,20 @@ class _AbsenceTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(name, style: AppTextStyle.base(14, color: AppColors.textColor, fontWeight: FontWeight.w700)),
+                Text(name, style: AppTextStyle.base(14, color: context.colors.textColor, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 2),
-                Text(range, style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w600)),
+                Text(range, style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600)),
                 if (note != null && note.isNotEmpty) ...[
                   const SizedBox(height: 2),
-                  Text(note, style: AppTextStyle.base(12, color: AppColors.subTextColor)),
+                  Text(note, style: AppTextStyle.base(12, color: context.colors.subTextColor)),
                 ],
               ],
             ),
           ),
           IconButton(
             onPressed: enabled ? onRemove : null,
-            icon: const Icon(Icons.close_rounded, size: 20),
-            color: AppColors.subTextColor,
+            icon: Icon(AppIcons.closeRounded.icon, size: 20),
+            color: context.colors.subTextColor,
           ),
         ],
       ),
@@ -462,16 +463,16 @@ class _SectionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(title, style: AppTextStyle.base(15, color: AppColors.textColor, fontWeight: FontWeight.w800)),
+          Text(title, style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
-          Text(subtitle, style: AppTextStyle.base(12, color: AppColors.subTextColor, height: 1.3)),
+          Text(subtitle, style: AppTextStyle.base(12, color: context.colors.subTextColor, height: 1.3)),
           const SizedBox(height: 12),
           child,
         ],

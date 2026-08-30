@@ -14,7 +14,7 @@ class SettingsTileSectionTitle extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
       child: Text(
         title,
-        style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+        style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
       ),
     );
   }

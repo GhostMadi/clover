@@ -1,4 +1,5 @@
 import 'package:clover/core/shared/app_snack_bar.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/extension/context.dart';
@@ -114,18 +115,18 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
     return PostCreateStepGuard(
       canShow: PostCreateFlow.instance.draft.canOpenCompose,
       child: Scaffold(
-        backgroundColor: AppColors.postEditorBackground,
+        backgroundColor: context.colors.postEditorBackground,
         appBar: AppBar(
-          backgroundColor: AppColors.postEditorBackground,
+          backgroundColor: context.colors.postEditorBackground,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
             icon: Icon(
-              Icons.arrow_back_rounded,
+              AppIcons.arrowBackRounded.icon,
               size: context.widthByContext(PostCreateComposePage._figmaCloseIconSize),
             ),
-            color: AppColors.postEditorOnSurface,
+            color: context.colors.postEditorOnSurface,
             onPressed: _handleClose,
           ),
           title: Text(
@@ -133,7 +134,7 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
             style: AppTextStyle.base(
               PostCreateComposePage._figmaAppBarTitleFont,
               fontWeight: FontWeight.w700,
-              color: AppColors.postEditorOnSurface,
+              color: context.colors.postEditorOnSurface,
             ),
           ),
           actions: [
@@ -176,7 +177,7 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
                                 imageWidth: item.asset.width,
                                 imageHeight: item.asset.height,
                                 borderRadius: context.widthByContext(PostCreateComposePage._figmaPreviewRadius),
-                                backgroundColor: AppColors.surfaceSoft,
+                                backgroundColor: context.colors.surfaceSoft,
                               );
                             },
                           ),
@@ -295,7 +296,7 @@ class _PreviewDots extends StatelessWidget {
           width: isActive ? 8 : 6,
           height: isActive ? 8 : 6,
           decoration: BoxDecoration(
-            color: isActive ? AppColors.primary : AppColors.border,
+            color: isActive ? context.colors.primary : context.colors.border,
             shape: BoxShape.circle,
           ),
         );
@@ -336,7 +337,7 @@ class _DescriptionFieldState extends State<_DescriptionField> {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = _isFocused ? AppColors.fieldBorderFocused : AppColors.fieldBorder;
+    final borderColor = _isFocused ? context.colors.fieldBorderFocused : context.colors.fieldBorder;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -348,27 +349,27 @@ class _DescriptionFieldState extends State<_DescriptionField> {
             style: AppTextStyle.base(
               13,
               fontWeight: FontWeight.w600,
-              color: _isFocused ? AppColors.fieldLabelFocused : AppColors.fieldLabel,
+              color: _isFocused ? context.colors.fieldLabelFocused : context.colors.fieldLabel,
             ),
           ),
         ),
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: widget.enabled ? AppColors.fieldBackground : AppColors.fieldBackgroundDisabled,
+            color: widget.enabled ? context.colors.fieldBackground : context.colors.fieldBackgroundDisabled,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: borderColor, width: _isFocused ? 1.6 : 1),
             boxShadow: _isFocused
                 ? [
                     BoxShadow(
-                      color: AppColors.fieldShadowFocused.withValues(alpha: 0.12),
+                      color: context.colors.fieldShadowFocused.withValues(alpha: 0.12),
                       blurRadius: 14,
                       offset: const Offset(0, 6),
                     ),
                   ]
                 : [
                     BoxShadow(
-                      color: AppColors.shadowDark.withValues(alpha: 0.04),
+                      color: context.colors.shadowDark.withValues(alpha: 0.04),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -387,15 +388,15 @@ class _DescriptionFieldState extends State<_DescriptionField> {
             style: AppTextStyle.base(
               16,
               fontWeight: FontWeight.w500,
-              color: AppColors.fieldText,
+              color: context.colors.fieldText,
               height: 1.45,
             ),
-            cursorColor: AppColors.fieldCursor,
+            cursorColor: context.colors.fieldCursor,
             decoration: InputDecoration(
               hintText: 'Расскажите о публикации',
-              hintStyle: AppTextStyle.base(16, fontWeight: FontWeight.w400, color: AppColors.fieldHint),
+              hintStyle: AppTextStyle.base(16, fontWeight: FontWeight.w400, color: context.colors.fieldHint),
               border: InputBorder.none,
-              counterStyle: AppTextStyle.base(12, color: AppColors.subTextColor),
+              counterStyle: AppTextStyle.base(12, color: context.colors.subTextColor),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
           ),

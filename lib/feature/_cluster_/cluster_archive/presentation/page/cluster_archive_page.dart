@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:clover/core/resources/app_icons.dart';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
@@ -78,7 +79,7 @@ class _ClusterArchivePageState extends State<ClusterArchivePage> {
                         child: Center(
                           child: Text(
                             'Архив кластеров пуст',
-                            style: TextStyle(color: AppColors.subTextColor, fontSize: context.heightByContext(14)),
+                            style: TextStyle(color: context.colors.subTextColor, fontSize: context.heightByContext(14)),
                           ),
                         ),
                       ),
@@ -118,14 +119,14 @@ class _ArchivedClusterCard extends StatelessWidget {
   final ClusterModel cluster;
   final Future<void> Function() onChanged;
 
-  static final _menuItems = [
-    AppMiniMenuItem(value: 'unarchive', title: 'Разархивировать', icon: Icons.unarchive_outlined),
+  static List<AppMiniMenuItem<String>> _menuItems(AppPalette colors) => [
+    AppMiniMenuItem(value: 'unarchive', title: 'Разархивировать', icon: AppIcons.unarchive.icon),
     AppMiniMenuItem(
       value: 'delete',
       title: 'Удалить',
-      icon: Icons.delete_outline,
-      titleColor: AppColors.error,
-      iconColor: AppColors.error,
+      icon: AppIcons.delete.icon,
+      titleColor: colors.error,
+      iconColor: colors.error,
     ),
   ];
 
@@ -191,7 +192,7 @@ class _ArchivedClusterCard extends StatelessWidget {
       subtitle: cluster.subtitle,
       coverUrl: cluster.coverUrl,
       countLabel: cluster.postsCountLabel,
-      menuItems: _menuItems,
+      menuItems: _menuItems(context.colors),
       onMenuSelected: (v) => _onMenu(context, cubit, v),
     );
   }
@@ -209,7 +210,7 @@ class _ArchiveError extends StatelessWidget {
       padding: EdgeInsets.all(24),
       child: Column(
         children: [
-          Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.subTextColor)),
+          Text(message, textAlign: TextAlign.center, style: TextStyle(color: context.colors.subTextColor)),
           const SizedBox(height: 12),
           AppButton(text: 'Повторить', onTap: onRetry),
         ],

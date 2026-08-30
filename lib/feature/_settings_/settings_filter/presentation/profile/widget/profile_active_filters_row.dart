@@ -26,7 +26,7 @@ class ProfileActiveFiltersRow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: AppTextStyle.base(
                 12,
-                color: AppColors.subTextColor,
+                color: context.colors.subTextColor,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -36,7 +36,7 @@ class ProfileActiveFiltersRow extends StatelessWidget {
             onTap: onClear,
             child: Text(
               'Сбросить',
-              style: AppTextStyle.base(12, color: AppColors.primary, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(12, color: context.colors.primary, fontWeight: FontWeight.w600),
             ),
           ),
         ],

@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/shared/app_functional_button/app_functional_pill_button.dart';
 import 'package:clover/core/shared/app_nav_bar/app_nav_bar.dart';
 import 'package:clover/core/shared/app_nav_bar/app_nav_bar_item.dart';
@@ -65,9 +66,9 @@ class DashboardBottomBar extends StatelessWidget {
             opacity: layout.filterOpacity,
             interactive: onHomeTab && showHomeTabFilter,
             child: AppFunctionalPillButton(
-              icon: Icons.filter_list_rounded,
-              customColor: AppColors.functionalSoftBlue,
-              iconColor: AppColors.functionalSoftBlueIcon,
+              icon: AppIcons.filterList.icon,
+              customColor: context.colors.functionalSoftBlue,
+              iconColor: context.colors.functionalSoftBlueIcon,
               showBadge: showFilterBadge,
               onTap: onFilterTap,
             ),
@@ -77,9 +78,9 @@ class DashboardBottomBar extends StatelessWidget {
             opacity: layout.notificationsOpacity,
             interactive: onHomeTab && showHomeTabNotifications,
             child: AppFunctionalPillButton(
-              icon: Icons.notifications_outlined,
-              customColor: AppColors.functionalSoftOrange,
-              iconColor: AppColors.functionalSoftOrangeIcon,
+              icon: AppIcons.notificationsOutlined.icon,
+              customColor: context.colors.functionalSoftOrange,
+              iconColor: context.colors.functionalSoftOrangeIcon,
               showBadge: true,
               onTap: onNotificationsTap,
             ),

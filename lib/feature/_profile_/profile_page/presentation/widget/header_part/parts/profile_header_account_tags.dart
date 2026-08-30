@@ -21,12 +21,12 @@ class ProfileHeaderAccountTags extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.06),
+              color: context.colors.primary.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               '#${tag.labelRu.toLowerCase()}',
-              style: AppTextStyle.base(11, fontWeight: FontWeight.w700, color: AppColors.primary),
+              style: AppTextStyle.base(11, fontWeight: FontWeight.w700, color: context.colors.primary),
             ),
           ),
       ],

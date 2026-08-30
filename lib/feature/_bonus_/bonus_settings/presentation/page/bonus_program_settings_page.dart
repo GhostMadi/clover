@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_functional_button/functional_button_item.dart';
@@ -62,10 +63,10 @@ class BonusProgramSettingsPage extends StatelessWidget {
               extraButtons: [
                 if (draft.status != initial.status || isSaving)
                   FunctionalButtonItem(
-                    icon: Icons.check_rounded,
+                    icon: AppIcons.checkRounded.icon,
                     label: 'Сохранить',
                     keepWhenCollapsed: true,
-                    customColor: AppColors.primary,
+                    customColor: context.colors.primary,
                     iconColor: Colors.white,
                     textColor: Colors.white,
                     isLoading: isSaving,

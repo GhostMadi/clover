@@ -134,7 +134,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
         child: Scaffold(
-          backgroundColor: AppColors.pageBackground,
+          backgroundColor: context.colors.pageBackground,
           body: SafeArea(
             bottom: false,
             child: AppRefresh(
@@ -282,7 +282,7 @@ class _ProfileNewErrorTop extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.subTextColor, fontSize: 13),
+            style: TextStyle(color: context.colors.subTextColor, fontSize: 13),
           ),
           const SizedBox(height: 8),
           AppButton(text: 'Повторить', onTap: onRetry),

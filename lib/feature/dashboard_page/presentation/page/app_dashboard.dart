@@ -98,7 +98,7 @@ class _AppDashboardPageState extends State<AppDashboardPage> {
   Widget build(BuildContext context) {
     if (!_ready) {
       return Scaffold(
-        backgroundColor: AppColors.pageBackground,
+        backgroundColor: context.colors.pageBackground,
         body: Center(child: CircularProgressIndicator(strokeWidth: 2)),
       );
     }
@@ -120,7 +120,7 @@ class _AppDashboardPageState extends State<AppDashboardPage> {
               child: Scaffold(
                 extendBody: true,
                 resizeToAvoidBottomInset: true,
-                backgroundColor: AppColors.pageBackground,
+                backgroundColor: context.colors.pageBackground,
                 body: Stack(
                   fit: StackFit.expand,
                   clipBehavior: Clip.none,

@@ -53,7 +53,7 @@ class BookingListArchiveBody extends StatelessWidget {
           _SectionTitle(
             title: 'Требуют закрытия',
             subtitle: 'Визит закончился, статус ещё не отмечен',
-            accent: AppColors.functionalSoftOrangeIcon,
+            accent: context.colors.functionalSoftOrangeIcon,
           ),
           const SizedBox(height: 10),
           for (final item in forgotten) ...[
@@ -79,11 +79,11 @@ class BookingListArchiveBody extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(bottom: 8),
             title: Text(
               'История записей',
-              style: AppTextStyle.base(15, color: AppColors.textColor, fontWeight: FontWeight.w700),
+              style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
             ),
             subtitle: Text(
               history.isEmpty ? 'Пока пусто' : '${history.length}',
-              style: AppTextStyle.base(12, color: AppColors.subTextColor),
+              style: AppTextStyle.base(12, color: context.colors.subTextColor),
             ),
             children: [
               if (history.isEmpty)
@@ -99,7 +99,7 @@ class BookingListArchiveBody extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         BookingHostInbox.archiveDayLabel(entry.key),
-                        style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w700),
+                        style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
                       ),
                     ),
                   ),
@@ -119,11 +119,11 @@ class BookingListArchiveBody extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(bottom: 8),
             title: Text(
               'Отменённые',
-              style: AppTextStyle.base(15, color: AppColors.textColor, fontWeight: FontWeight.w700),
+              style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
             ),
             subtitle: Text(
               cancelled.isEmpty ? 'Пока пусто' : '${cancelled.length}',
-              style: AppTextStyle.base(12, color: AppColors.subTextColor),
+              style: AppTextStyle.base(12, color: context.colors.subTextColor),
             ),
             children: [
               if (cancelled.isEmpty)
@@ -139,7 +139,7 @@ class BookingListArchiveBody extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         BookingHostInbox.archiveDayLabel(entry.key),
-                        style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w700),
+                        style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
                       ),
                     ),
                   ),
@@ -174,7 +174,7 @@ class _SectionTitle extends StatelessWidget {
       children: [
         Text(title, style: AppTextStyle.base(16, color: accent, fontWeight: FontWeight.w800)),
         const SizedBox(height: 2),
-        Text(subtitle, style: AppTextStyle.base(13, color: AppColors.subTextColor)),
+        Text(subtitle, style: AppTextStyle.base(13, color: context.colors.subTextColor)),
       ],
     );
   }

@@ -1,4 +1,5 @@
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
@@ -117,7 +118,7 @@ class _PostCommentsSheetBodyState extends State<_PostCommentsSheetBody> {
                       child: Text(
                         message,
                         textAlign: TextAlign.center,
-                        style: AppTextStyle.base(14, color: AppColors.subTextColor),
+                        style: AppTextStyle.base(14, color: context.colors.subTextColor),
                       ),
                     ),
                   ),
@@ -126,8 +127,8 @@ class _PostCommentsSheetBodyState extends State<_PostCommentsSheetBody> {
                       if (isFromCache)
                         LinearProgressIndicator(
                           minHeight: 2,
-                          backgroundColor: AppColors.surfaceSoft,
-                          color: AppColors.primary,
+                          backgroundColor: context.colors.surfaceSoft,
+                          color: context.colors.primary,
                         ),
                       Expanded(
                         child: threads.isEmpty
@@ -135,7 +136,7 @@ class _PostCommentsSheetBodyState extends State<_PostCommentsSheetBody> {
                                 child: Text(
                                   'Комментариев пока нет.\nБудьте первым!',
                                   textAlign: TextAlign.center,
-                                  style: AppTextStyle.base(14, color: AppColors.subTextColor, height: 1.4),
+                                  style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.4),
                                 ),
                               )
                             : ListView.builder(
@@ -220,19 +221,19 @@ class _ReplyBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: AppColors.surfaceSoft,
+      color: context.colors.surfaceSoft,
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
           Expanded(
             child: Text(
               'Ответ для $username',
-              style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
             ),
           ),
           GestureDetector(
             onTap: onCancel,
-            child: Icon(Icons.close_rounded, size: 18, color: AppColors.subTextColor),
+            child: Icon(AppIcons.closeRounded.icon, size: 18, color: context.colors.subTextColor),
           ),
         ],
       ),
@@ -269,7 +270,7 @@ class _CommentInputBar extends StatelessWidget {
             onPressed: submitting ? null : onSubmit,
             icon: submitting
                 ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : Icon(Icons.send_rounded, color: AppColors.primary),
+                : Icon(AppIcons.send.icon, color: context.colors.primary),
           ),
         ),
       ),

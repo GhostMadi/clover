@@ -23,13 +23,13 @@ class BookingAnalyticsPopularServicesSection extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.surfaceSoft,
+          color: context.colors.surfaceSoft,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Text(
           'За выбранный период записей нет',
           textAlign: TextAlign.center,
-          style: AppTextStyle.base(14, color: AppColors.subTextColor),
+          style: AppTextStyle.base(14, color: context.colors.subTextColor),
         ),
       );
     }
@@ -44,25 +44,25 @@ class BookingAnalyticsPopularServicesSection extends StatelessWidget {
             Expanded(
               child: Text(
                 periodLabel,
-                style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+                style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
               ),
             ),
             Text(
               '$totalBookings записей',
-              style: AppTextStyle.base(13, color: AppColors.primary, fontWeight: FontWeight.w700),
+              style: AppTextStyle.base(13, color: context.colors.primary, fontWeight: FontWeight.w700),
             ),
           ],
         ),
         const SizedBox(height: 8),
         Text(
           'Популярные услуги',
-          style: AppTextStyle.base(18, color: AppColors.textColor, fontWeight: FontWeight.w800),
+          style: AppTextStyle.base(18, color: context.colors.textColor, fontWeight: FontWeight.w800),
         ),
         if (userLabel != null) ...[
           const SizedBox(height: 4),
           Text(
             userLabel!,
-            style: AppTextStyle.base(13, color: AppColors.functionalSoftBlueIcon, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(13, color: context.colors.functionalSoftBlueIcon, fontWeight: FontWeight.w600),
           ),
         ],
         const SizedBox(height: 12),
@@ -91,9 +91,9 @@ class _PopularServiceRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -105,7 +105,7 @@ class _PopularServiceRow extends StatelessWidget {
                 height: 40,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceSoftGreen.withValues(alpha: 0.55),
+                  color: context.colors.surfaceSoftGreen.withValues(alpha: 0.55),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(service.emojiText, style: const TextStyle(fontSize: 22, height: 1)),
@@ -117,12 +117,12 @@ class _PopularServiceRow extends StatelessWidget {
                   children: [
                     Text(
                       service.title,
-                      style: AppTextStyle.base(15, color: AppColors.textColor, fontWeight: FontWeight.w700),
+                      style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${service.bookingCount} записей',
-                      style: AppTextStyle.base(12, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+                      style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -135,8 +135,8 @@ class _PopularServiceRow extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 8,
-              backgroundColor: AppColors.surfaceSoft,
-              color: AppColors.primary,
+              backgroundColor: context.colors.surfaceSoft,
+              color: context.colors.primary,
             ),
           ),
         ],

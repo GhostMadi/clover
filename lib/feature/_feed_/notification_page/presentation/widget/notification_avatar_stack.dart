@@ -66,14 +66,14 @@ class _ActorAvatar extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: AppColors.white, width: showBorder ? 2 : 1.5),
+        border: Border.all(color: context.colors.white, width: showBorder ? 2 : 1.5),
       ),
       child: CircleAvatar(
         radius: size / 2,
-        backgroundColor: AppColors.surfaceSoft,
+        backgroundColor: context.colors.surfaceSoft,
         backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
         child: avatarUrl == null || avatarUrl.isEmpty
-            ? Icon(Icons.person_rounded, size: size * 0.45, color: AppColors.subTextColor.withValues(alpha: 0.7))
+            ? Icon(AppIcons.personRounded.icon, size: size * 0.45, color: context.colors.subTextColor.withValues(alpha: 0.7))
             : null,
       ),
     );
@@ -91,17 +91,17 @@ class _ReactionBadge extends StatelessWidget {
       NotificationKind.like || NotificationKind.commentLike => (
         AppIcons.likeFilled.icon,
         Colors.red,
-        AppColors.white,
+        context.colors.white,
       ),
       NotificationKind.dislike || NotificationKind.commentDislike => (
         AppIcons.dislikeFilled.icon,
-        AppColors.textColor,
-        AppColors.white,
+        context.colors.textColor,
+        context.colors.white,
       ),
-      NotificationKind.comment => (AppIcons.comment.icon, AppColors.primary, AppColors.white),
+      NotificationKind.comment => (AppIcons.comment.icon, context.colors.primary, context.colors.white),
       NotificationKind.followedYou ||
       NotificationKind.youFollowed ||
-      NotificationKind.mutualFollow => (Icons.person_add_alt_1_rounded, AppColors.primary, AppColors.white),
+      NotificationKind.mutualFollow => (Icons.person_add_alt_1_rounded, context.colors.primary, context.colors.white),
     };
 
     return Container(
@@ -110,10 +110,10 @@ class _ReactionBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: bg,
         shape: BoxShape.circle,
-        border: Border.all(color: AppColors.white, width: 1.5),
+        border: Border.all(color: context.colors.white, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.08),
+            color: context.colors.black.withValues(alpha: 0.08),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),

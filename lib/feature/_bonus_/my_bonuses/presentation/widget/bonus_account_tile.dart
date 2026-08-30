@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
@@ -38,9 +39,9 @@ class BonusAccountTile extends StatelessWidget {
     }
 
     return Container(
-      decoration: _neonOuterDecoration(borderRadius),
+      decoration: _neonOuterDecoration(borderRadius, context.colors),
       child: Container(
-        decoration: _neonInnerDecoration(borderRadius),
+        decoration: _neonInnerDecoration(borderRadius, context.colors),
         clipBehavior: Clip.antiAlias,
         child: IntrinsicHeight(
           child: Row(
@@ -67,7 +68,7 @@ class BonusAccountTile extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: AppTextStyle.base(
                                   16,
-                                  color: AppColors.textColor,
+                                  color: context.colors.textColor,
                                   fontWeight: FontWeight.w700,
                                   height: 1.2,
                                 ),
@@ -78,7 +79,7 @@ class BonusAccountTile extends StatelessWidget {
                                   username,
                                   style: AppTextStyle.base(
                                     13,
-                                    color: AppColors.subTextColor,
+                                    color: context.colors.subTextColor,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -103,8 +104,8 @@ class BonusAccountTile extends StatelessWidget {
                       _BalanceColumn(item: item),
                       const SizedBox(width: 4),
                       Icon(
-                        Icons.chevron_right_rounded,
-                        color: AppColors.primary.withValues(alpha: 0.55),
+                        AppIcons.chevronRight.icon,
+                        color: context.colors.primary.withValues(alpha: 0.55),
                         size: 20,
                       ),
                     ],
@@ -118,21 +119,21 @@ class BonusAccountTile extends StatelessWidget {
     );
   }
 
-  static BoxDecoration _neonOuterDecoration(BorderRadius borderRadius) {
+  static BoxDecoration _neonOuterDecoration(BorderRadius borderRadius, AppPalette colors) {
     return BoxDecoration(
       borderRadius: borderRadius,
       boxShadow: [
-        BoxShadow(color: AppColors.primary.withValues(alpha: 0.32), blurRadius: 14),
-        BoxShadow(color: AppColors.primary.withValues(alpha: 0.14), blurRadius: 28, spreadRadius: 1),
+        BoxShadow(color: colors.primary.withValues(alpha: 0.32), blurRadius: 14),
+        BoxShadow(color: colors.primary.withValues(alpha: 0.14), blurRadius: 28, spreadRadius: 1),
       ],
     );
   }
 
-  static BoxDecoration _neonInnerDecoration(BorderRadius borderRadius) {
+  static BoxDecoration _neonInnerDecoration(BorderRadius borderRadius, AppPalette colors) {
     return BoxDecoration(
-      color: AppColors.surface,
+      color: colors.surface,
       borderRadius: borderRadius,
-      border: Border.all(color: AppColors.primary.withValues(alpha: 0.42), width: 1.2),
+      border: Border.all(color: colors.primary.withValues(alpha: 0.42), width: 1.2),
     );
   }
 }
@@ -151,8 +152,8 @@ class _TileTapZone extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: borderRadius,
-        splashColor: AppColors.primary.withValues(alpha: 0.08),
-        highlightColor: AppColors.primary.withValues(alpha: 0.04),
+        splashColor: context.colors.primary.withValues(alpha: 0.08),
+        highlightColor: context.colors.primary.withValues(alpha: 0.04),
         child: child,
       ),
     );
@@ -173,15 +174,15 @@ class _Avatar extends StatelessWidget {
       height: 48,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.45), width: 1.2),
-        boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.35), blurRadius: 10)],
+        border: Border.all(color: context.colors.primary.withValues(alpha: 0.45), width: 1.2),
+        boxShadow: [BoxShadow(color: context.colors.primary.withValues(alpha: 0.35), blurRadius: 10)],
       ),
       child: ClipOval(
         child: hasImage
             ? Image.network(avatarUrl!, fit: BoxFit.cover, width: 48, height: 48)
             : ColoredBox(
-                color: AppColors.surfaceSoft,
-                child: Icon(Icons.person_rounded, size: 26, color: AppColors.primary.withValues(alpha: 0.7)),
+                color: context.colors.surfaceSoft,
+                child: Icon(AppIcons.personRounded.icon, size: 26, color: context.colors.primary.withValues(alpha: 0.7)),
               ),
       ),
     );
@@ -202,12 +203,12 @@ class _NeonDivider extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            AppColors.primary.withValues(alpha: 0.05),
-            AppColors.primary.withValues(alpha: 0.75),
-            AppColors.primary.withValues(alpha: 0.05),
+            context.colors.primary.withValues(alpha: 0.05),
+            context.colors.primary.withValues(alpha: 0.75),
+            context.colors.primary.withValues(alpha: 0.05),
           ],
         ),
-        boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.45), blurRadius: 8)],
+        boxShadow: [BoxShadow(color: context.colors.primary.withValues(alpha: 0.45), blurRadius: 8)],
       ),
     );
   }
@@ -221,8 +222,8 @@ class _BalanceColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final neonShadow = [
-      Shadow(color: AppColors.primary.withValues(alpha: 0.6), blurRadius: 10),
-      Shadow(color: AppColors.primary.withValues(alpha: 0.25), blurRadius: 18),
+      Shadow(color: context.colors.primary.withValues(alpha: 0.6), blurRadius: 10),
+      Shadow(color: context.colors.primary.withValues(alpha: 0.25), blurRadius: 18),
     ];
 
     return SizedBox(
@@ -236,7 +237,7 @@ class _BalanceColumn extends StatelessWidget {
             textAlign: TextAlign.right,
             style: AppTextStyle.base(
               20,
-              color: AppColors.primary,
+              color: context.colors.primary,
               fontWeight: FontWeight.w800,
               height: 1,
               letterSpacing: -0.3,
@@ -246,7 +247,7 @@ class _BalanceColumn extends StatelessWidget {
           Text(
             BonusFormat.bonusWord(item.balance),
             textAlign: TextAlign.right,
-            style: AppTextStyle.base(11, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(11, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
           ),
         ],
       ),

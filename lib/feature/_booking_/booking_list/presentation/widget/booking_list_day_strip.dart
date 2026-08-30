@@ -37,7 +37,7 @@ class BookingListDayStrip extends StatelessWidget {
           final dayNumber = '${key.day}';
 
           return Material(
-            color: selected ? AppColors.primary : AppColors.surfaceSoft,
+            color: selected ? context.colors.primary : context.colors.surfaceSoft,
             borderRadius: BorderRadius.circular(16),
             child: InkWell(
               onTap: () {
@@ -55,7 +55,7 @@ class BookingListDayStrip extends StatelessWidget {
                       label,
                       style: AppTextStyle.base(
                         12,
-                        color: selected ? AppColors.white : AppColors.textColor,
+                        color: selected ? context.colors.white : context.colors.textColor,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -63,7 +63,7 @@ class BookingListDayStrip extends StatelessWidget {
                       dayNumber,
                       style: AppTextStyle.base(
                         11,
-                        color: selected ? AppColors.white.withValues(alpha: 0.85) : AppColors.subTextColor,
+                        color: selected ? context.colors.white.withValues(alpha: 0.85) : context.colors.subTextColor,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

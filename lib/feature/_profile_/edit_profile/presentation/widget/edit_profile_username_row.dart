@@ -31,7 +31,7 @@ class EditProfileUsernameRow extends StatelessWidget {
           padding: const EdgeInsets.only(left: 4, bottom: 6),
           child: Text(
             'Никнейм',
-            style: AppTextStyle.base(13, fontWeight: FontWeight.w600, color: AppColors.fieldLabel),
+            style: AppTextStyle.base(13, fontWeight: FontWeight.w600, color: context.colors.fieldLabel),
           ),
         ),
         AppTile(

@@ -53,7 +53,7 @@ class ProfileHeaderShimmer extends StatelessWidget {
                     Container(
                       width: context.heightByContext(_figmaAvatar),
                       height: context.heightByContext(_figmaAvatar),
-                      decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.white),
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: context.colors.white),
                     ),
                     SizedBox(width: context.widthByContext(_figmaGapAvatarStats)),
                     Expanded(
@@ -67,7 +67,7 @@ class ProfileHeaderShimmer extends StatelessWidget {
                                 width: context.widthByContext(_figmaStatValueW),
                                 height: context.heightByContext(_figmaStatValueH),
                                 decoration: BoxDecoration(
-                                  color: AppColors.white,
+                                  color: context.colors.white,
                                   borderRadius: BorderRadius.circular(
                                     context.widthByContext(_figmaStatValueRadius),
                                   ),
@@ -78,7 +78,7 @@ class ProfileHeaderShimmer extends StatelessWidget {
                                 width: context.widthByContext(_figmaStatLabelW),
                                 height: context.heightByContext(_figmaStatLabelH),
                                 decoration: BoxDecoration(
-                                  color: AppColors.white,
+                                  color: context.colors.white,
                                   borderRadius: BorderRadius.circular(
                                     context.widthByContext(_figmaStatLabelRadius),
                                   ),
@@ -130,7 +130,7 @@ class ProfileHeaderShimmer extends StatelessWidget {
     final box = Container(
       width: fullWidth ? double.infinity : width,
       height: height,
-      decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(radius)),
+      decoration: BoxDecoration(color: context.colors.white, borderRadius: BorderRadius.circular(radius)),
     );
     return fullWidth ? box : Align(alignment: Alignment.centerLeft, child: box);
   }

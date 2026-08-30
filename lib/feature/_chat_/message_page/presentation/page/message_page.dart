@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -56,7 +57,7 @@ class _MessagePageState extends State<MessagePage> {
     return BlocProvider.value(
       value: _cubit,
       child: Scaffold(
-        backgroundColor: AppColors.pageBackground,
+        backgroundColor: context.colors.pageBackground,
         body: SafeArea(
           bottom: false,
           child: Column(
@@ -66,7 +67,7 @@ class _MessagePageState extends State<MessagePage> {
                 padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
                 child: Text(
                   'Сообщения',
-                  style: AppTextStyle.base(24, color: AppColors.textColor, fontWeight: FontWeight.w800),
+                  style: AppTextStyle.base(24, color: context.colors.textColor, fontWeight: FontWeight.w800),
                 ),
               ),
               Padding(
@@ -74,7 +75,7 @@ class _MessagePageState extends State<MessagePage> {
                 child: AppField(
                   controller: _searchController,
                   hintText: 'Поиск по чатам',
-                  prefixIcon: Icons.search_rounded,
+                  prefixIcon: AppIcons.searchRounded.icon,
                   textInputAction: TextInputAction.search,
                   onChanged: (value) => setState(() => _query = value),
                 ),
@@ -84,7 +85,7 @@ class _MessagePageState extends State<MessagePage> {
                   builder: (context, state) {
                     return switch (state) {
                       MessageListInitial() || MessageListLoading() => Center(
-                        child: CircularProgressIndicator(color: AppColors.primary),
+                        child: CircularProgressIndicator(color: context.colors.primary),
                       ),
                       MessageListError(:final message) => _MessageErrorState(
                         message: message,
@@ -156,7 +157,7 @@ class _MessagePageState extends State<MessagePage> {
             separatorBuilder: (_, __) => Divider(
               height: 1,
               thickness: 1,
-              color: AppColors.border.withValues(alpha: 0.65),
+              color: context.colors.border.withValues(alpha: 0.65),
               indent: 80,
             ),
             itemBuilder: (context, index) {
@@ -178,7 +179,7 @@ class _MessagePageState extends State<MessagePage> {
                 child: SizedBox(
                   width: 22,
                   height: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                  child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primary),
                 ),
               ),
             ),
@@ -202,17 +203,17 @@ class _MessageErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline_rounded, size: 48, color: AppColors.iconMuted),
+            Icon(AppIcons.errorOutline.icon, size: 48, color: context.colors.iconMuted),
             SizedBox(height: 12),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 16),
             FilledButton(
               onPressed: onRetry,
-              style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+              style: FilledButton.styleFrom(backgroundColor: context.colors.primary),
               child: const Text('Повторить'),
             ),
           ],
@@ -236,18 +237,18 @@ class _MessageEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.chat_bubble_outline_rounded, size: 48, color: AppColors.iconMuted),
+            Icon(Icons.chat_bubble_outline_rounded, size: 48, color: context.colors.iconMuted),
             SizedBox(height: 12),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 6),
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: AppTextStyle.base(14, color: AppColors.subTextColor),
+              style: AppTextStyle.base(14, color: context.colors.subTextColor),
             ),
           ],
         ),

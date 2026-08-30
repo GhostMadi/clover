@@ -66,7 +66,7 @@ class _PostPreviewCardState extends State<PostPreviewCard> {
         padding: EdgeInsets.all(context.widthByContext(16)),
         child: Text(
           'Пост недоступен',
-          style: AppTextStyle.base(context.heightByContext(14), color: AppColors.subTextColor),
+          style: AppTextStyle.base(context.heightByContext(14), color: context.colors.subTextColor),
         ),
       );
     }
@@ -78,9 +78,9 @@ class _PostPreviewCardState extends State<PostPreviewCard> {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),
@@ -100,8 +100,8 @@ class _PostPreviewCardState extends State<PostPreviewCard> {
             if (_loadingRemote)
               LinearProgressIndicator(
                 minHeight: 2,
-                backgroundColor: AppColors.surfaceSoft,
-                color: AppColors.primary.withValues(alpha: 0.5),
+                backgroundColor: context.colors.surfaceSoft,
+                color: context.colors.primary.withValues(alpha: 0.5),
               ),
             if (title != null && title.isNotEmpty)
               Padding(
@@ -116,7 +116,7 @@ class _PostPreviewCardState extends State<PostPreviewCard> {
                   style: AppTextStyle.base(
                     context.heightByContext(16),
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textColor,
+                    color: context.colors.textColor,
                   ),
                 ),
               ),
@@ -133,7 +133,7 @@ class _PostPreviewCardState extends State<PostPreviewCard> {
                   style: AppTextStyle.base(
                     context.heightByContext(14),
                     height: 1.35,
-                    color: AppColors.textColor.withValues(alpha: 0.9),
+                    color: context.colors.textColor.withValues(alpha: 0.9),
                   ),
                 ),
               )

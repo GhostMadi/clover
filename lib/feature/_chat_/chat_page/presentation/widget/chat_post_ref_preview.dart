@@ -85,9 +85,9 @@ class _ChatPostRefPreviewState extends State<ChatPostRefPreview> {
         child: Ink(
           width: ChatPostRefPreview.width,
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border.withValues(alpha: 0.65)),
+            border: Border.all(color: context.colors.border.withValues(alpha: 0.65)),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(14),
@@ -116,7 +116,7 @@ class _ChatPostRefPreviewState extends State<ChatPostRefPreview> {
         padding: EdgeInsets.all(14),
         child: Text(
           'Пост недоступен',
-          style: AppTextStyle.base(13, color: AppColors.subTextColor),
+          style: AppTextStyle.base(13, color: context.colors.subTextColor),
         ),
       );
     }
@@ -137,8 +137,8 @@ class _ChatPostRefPreviewState extends State<ChatPostRefPreview> {
         if (_loadingRemote)
           LinearProgressIndicator(
             minHeight: 2,
-            backgroundColor: AppColors.surfaceSoft,
-            color: AppColors.primary,
+            backgroundColor: context.colors.surfaceSoft,
+            color: context.colors.primary,
           ),
         Padding(
           padding: EdgeInsets.fromLTRB(10, 8, 10, 10),
@@ -146,7 +146,7 @@ class _ChatPostRefPreviewState extends State<ChatPostRefPreview> {
             title?.isNotEmpty == true ? title! : 'Пост',
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyle.base(13, color: AppColors.textColor, fontWeight: FontWeight.w700),
+            style: AppTextStyle.base(13, color: context.colors.textColor, fontWeight: FontWeight.w700),
           ),
         ),
       ],

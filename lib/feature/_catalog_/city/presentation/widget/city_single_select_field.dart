@@ -74,20 +74,20 @@ class CitySingleSelectField extends StatelessWidget {
         if (label != null) ...[
           Text(
             label!,
-            style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
         ],
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
-            color: AppColors.fieldBackground,
+            color: context.colors.fieldBackground,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.fieldBorder),
+            border: Border.all(color: context.colors.fieldBorder),
           ),
           child: Text(
             text,
-            style: AppTextStyle.base(16, color: AppColors.subTextColor.withValues(alpha: 0.55), height: 1.25),
+            style: AppTextStyle.base(16, color: context.colors.subTextColor.withValues(alpha: 0.55), height: 1.25),
           ),
         ),
       ],

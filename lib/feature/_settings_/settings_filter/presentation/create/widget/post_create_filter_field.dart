@@ -125,7 +125,7 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
 
     if (_error != null) {
       return _SectionShell(
-        child: Text(_error!, style: AppTextStyle.base(13, color: AppColors.subTextColor)),
+        child: Text(_error!, style: AppTextStyle.base(13, color: context.colors.subTextColor)),
       );
     }
 
@@ -144,7 +144,7 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Material(
-                color: AppColors.fieldBackground,
+                color: context.colors.fieldBackground,
                 borderRadius: BorderRadius.circular(16),
                 child: InkWell(
                   onTap: canOpen ? _openSheet : null,
@@ -153,7 +153,7 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.fieldBorder),
+                      border: Border.all(color: context.colors.fieldBorder),
                     ),
                     child: Row(
                       children: [
@@ -162,14 +162,14 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
                           height: 36,
                           decoration: BoxDecoration(
                             color: selected.isEmpty
-                                ? AppColors.surfaceSoft
-                                : AppColors.successSoft.withValues(alpha: 0.7),
+                                ? context.colors.surfaceSoft
+                                : context.colors.successSoft.withValues(alpha: 0.7),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
                             AppIcons.tune.icon,
                             size: 20,
-                            color: selected.isEmpty ? AppColors.iconMuted : AppColors.primary,
+                            color: selected.isEmpty ? context.colors.iconMuted : context.colors.primary,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -181,7 +181,7 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
                                 selected.isEmpty ? 'Выберите фильтры' : 'Фильтры выбраны',
                                 style: AppTextStyle.base(
                                   15,
-                                  color: AppColors.textColor,
+                                  color: context.colors.textColor,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -190,14 +190,14 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
                                 selected.isEmpty
                                     ? 'Размер, цвет, бренд и другие категории'
                                     : '${selected.length} ${_countLabel(selected.length)}',
-                                style: AppTextStyle.base(13, color: AppColors.subTextColor),
+                                style: AppTextStyle.base(13, color: context.colors.subTextColor),
                               ),
                             ],
                           ),
                         ),
                         Icon(
                           AppIcons.arrowDown.icon,
-                          color: AppColors.subTextColor.withValues(alpha: 0.55),
+                          color: context.colors.subTextColor.withValues(alpha: 0.55),
                           size: 24,
                         ),
                       ],
@@ -217,14 +217,14 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
                           FilterCatalog.selectionLabel(entry),
                           style: AppTextStyle.base(
                             13,
-                            color: AppColors.textColor,
+                            color: context.colors.textColor,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         deleteIcon: Icon(AppIcons.closeRounded.icon, size: 16),
                         onDeleted: canOpen ? () => _removeValue(entry) : null,
-                        backgroundColor: AppColors.surfaceSoft,
-                        side: BorderSide(color: AppColors.border.withValues(alpha: 0.7)),
+                        backgroundColor: context.colors.surfaceSoft,
+                        side: BorderSide(color: context.colors.border.withValues(alpha: 0.7)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                   ],
@@ -264,7 +264,7 @@ class _SectionShell extends StatelessWidget {
             style: AppTextStyle.base(
               13,
               fontWeight: FontWeight.w600,
-              color: AppColors.fieldLabel,
+              color: context.colors.fieldLabel,
             ),
           ),
         ),

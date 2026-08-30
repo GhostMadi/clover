@@ -29,7 +29,7 @@ class BookingAnalyticsUserPicker extends StatelessWidget {
       children: [
         Text(
           'Исполнитель',
-          style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+          style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 10),
         AppSingleSelect<String?>(

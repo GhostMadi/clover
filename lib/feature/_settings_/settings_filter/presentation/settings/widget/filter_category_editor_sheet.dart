@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_button.dart';
@@ -111,7 +112,7 @@ class _FilterCategoryEditorState extends State<_FilterCategoryEditor> {
         const SizedBox(height: 16),
         Text(
           'Значения',
-          style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+          style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         Row(
@@ -127,7 +128,7 @@ class _FilterCategoryEditorState extends State<_FilterCategoryEditor> {
             ),
             const SizedBox(width: 8),
             Material(
-              color: AppColors.surfaceSoft,
+              color: context.colors.surfaceSoft,
               borderRadius: BorderRadius.circular(16),
               child: InkWell(
                 onTap: _addValue,
@@ -135,7 +136,7 @@ class _FilterCategoryEditorState extends State<_FilterCategoryEditor> {
                 child: SizedBox(
                   width: 52,
                   height: 52,
-                  child: Icon(Icons.add_rounded, color: AppColors.primary),
+                  child: Icon(AppIcons.addRounded.icon, color: context.colors.primary),
                 ),
               ),
             ),
@@ -147,13 +148,13 @@ class _FilterCategoryEditorState extends State<_FilterCategoryEditor> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.surfaceSoft,
+              color: context.colors.surfaceSoft,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
+              border: Border.all(color: context.colors.border.withValues(alpha: 0.6)),
             ),
             child: Text(
               'Добавьте хотя бы одно значение',
-              style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w500),
+              style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w500),
             ),
           )
         else
@@ -165,12 +166,12 @@ class _FilterCategoryEditorState extends State<_FilterCategoryEditor> {
                 InputChip(
                   label: Text(
                     value,
-                    style: AppTextStyle.base(13, color: AppColors.textColor, fontWeight: FontWeight.w600),
+                    style: AppTextStyle.base(13, color: context.colors.textColor, fontWeight: FontWeight.w600),
                   ),
-                  deleteIcon: const Icon(Icons.close_rounded, size: 18),
+                  deleteIcon: Icon(AppIcons.closeRounded.icon, size: 18),
                   onDeleted: () => _removeValue(value),
-                  backgroundColor: AppColors.surfaceSoft,
-                  side: BorderSide(color: AppColors.border.withValues(alpha: 0.7)),
+                  backgroundColor: context.colors.surfaceSoft,
+                  side: BorderSide(color: context.colors.border.withValues(alpha: 0.7)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
             ],

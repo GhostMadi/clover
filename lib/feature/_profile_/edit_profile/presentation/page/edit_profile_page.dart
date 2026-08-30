@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
@@ -215,7 +216,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   extraButtons: [
                     if (state.mapOrNull(loaded: (_) => true) ?? false)
                       FunctionalButtonItem(
-                        icon: Icons.check_rounded,
+                        icon: AppIcons.checkRounded.icon,
                         keepWhenCollapsed: true,
                         isLoading: editState.mapOrNull(saving: (_) => true) ?? false,
                         onTap: editState.mapOrNull(saving: (_) => true, savingUsername: (_) => true) ?? false
@@ -325,20 +326,20 @@ class _EditProfileEmailRow extends StatelessWidget {
           padding: const EdgeInsets.only(left: 4, bottom: 6),
           child: Text(
             'Email',
-            style: AppTextStyle.base(13, fontWeight: FontWeight.w600, color: AppColors.fieldLabel),
+            style: AppTextStyle.base(13, fontWeight: FontWeight.w600, color: context.colors.fieldLabel),
           ),
         ),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
           decoration: BoxDecoration(
-            color: AppColors.fieldBackgroundDisabled,
+            color: context.colors.fieldBackgroundDisabled,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.fieldBorder),
+            border: Border.all(color: context.colors.fieldBorder),
           ),
           child: Row(
             children: [
-              Icon(Icons.mail_outline_rounded, size: 22, color: AppColors.fieldIcon),
+              Icon(Icons.mail_outline_rounded, size: 22, color: context.colors.fieldIcon),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -346,7 +347,7 @@ class _EditProfileEmailRow extends StatelessWidget {
                   style: AppTextStyle.base(
                     16,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.fieldTextDisabled,
+                    color: context.colors.fieldTextDisabled,
                   ),
                 ),
               ),

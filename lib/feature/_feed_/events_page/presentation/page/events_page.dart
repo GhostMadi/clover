@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -90,7 +91,7 @@ class _EventsPageState extends State<EventsPage> {
           );
         },
         child: Scaffold(
-          backgroundColor: AppColors.pageBackground,
+          backgroundColor: context.colors.pageBackground,
           body: BlocBuilder<EventsFeedCubit, EventsFeedState>(
             builder: (context, state) {
               final isLoading = state.maybeMap(
@@ -113,20 +114,20 @@ class _EventsPageState extends State<EventsPage> {
                     SliverAppBar(
                       title: Text(
                         'События',
-                        style: AppTextStyle.base(20, color: AppColors.textColor, fontWeight: FontWeight.w500),
+                        style: AppTextStyle.base(20, color: context.colors.textColor, fontWeight: FontWeight.w500),
                       ),
                       centerTitle: true,
                       floating: true,
                       snap: true,
                       pinned: false,
-                      backgroundColor: AppColors.pageBackground,
+                      backgroundColor: context.colors.pageBackground,
                       surfaceTintColor: Colors.transparent,
                       elevation: 0,
                       scrolledUnderElevation: 0,
                     ),
                     if (isLoading)
                       SliverFillRemaining(
-                        child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                        child: Center(child: CircularProgressIndicator(color: context.colors.primary)),
                       )
                     else if (errorMessage != null)
                       SliverFillRemaining(
@@ -145,7 +146,7 @@ class _EventsPageState extends State<EventsPage> {
                             child: Text(
                               'Ничего не найдено\nПопробуйте изменить фильтр',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 15, color: AppColors.subTextColor, height: 1.4),
+                              style: TextStyle(fontSize: 15, color: context.colors.subTextColor, height: 1.4),
                             ),
                           ),
                         ),
@@ -153,14 +154,14 @@ class _EventsPageState extends State<EventsPage> {
                     else ...[
                       if (isRefreshing)
                         SliverToBoxAdapter(
-                          child: LinearProgressIndicator(minHeight: 2, color: AppColors.primary),
+                          child: LinearProgressIndicator(minHeight: 2, color: context.colors.primary),
                         ),
                       SliverPadding(
                         padding: EdgeInsets.only(bottom: bottomGap),
                         sliver: SliverList.separated(
                           itemCount: items.length + (isLoadingMore ? 1 : 0),
                           separatorBuilder: (context, index) =>
-                              ColoredBox(color: AppColors.pageBackground, child: SizedBox(height: 10)),
+                              ColoredBox(color: context.colors.pageBackground, child: SizedBox(height: 10)),
                           itemBuilder: (context, index) {
                             if (index >= items.length) {
                               return const Padding(
@@ -185,7 +186,7 @@ class _EventsPageState extends State<EventsPage> {
                             child: Text(
                               'Больше публикаций нет',
                               textAlign: TextAlign.center,
-                              style: AppTextStyle.base(13, color: AppColors.subTextColor),
+                              style: AppTextStyle.base(13, color: context.colors.subTextColor),
                             ),
                           ),
                         ),
@@ -215,17 +216,17 @@ class _EventsFeedError extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline_rounded, size: 48, color: AppColors.iconMuted),
+            Icon(AppIcons.errorOutline.icon, size: 48, color: context.colors.iconMuted),
             SizedBox(height: 12),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTextStyle.base(16, color: AppColors.textColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 16),
             FilledButton(
               onPressed: onRetry,
-              style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+              style: FilledButton.styleFrom(backgroundColor: context.colors.primary),
               child: const Text('Повторить'),
             ),
           ],

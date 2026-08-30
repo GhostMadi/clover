@@ -74,7 +74,7 @@ class BookingScreenShell extends StatelessWidget {
         FunctionalButtonItem(
           icon: AppIcons.back.icon,
           keepWhenCollapsed: true,
-          customColor: AppColors.primary,
+          customColor: context.colors.primary,
           isLoading: isLoading,
           onTap: onBackTap ?? () => context.router.maybePop(),
         ),
@@ -83,18 +83,18 @@ class BookingScreenShell extends StatelessWidget {
             icon: cancelIcon,
             label: cancelLabel.isEmpty ? null : cancelLabel,
             keepWhenCollapsed: true,
-            customColor: AppColors.functionalSoftRed,
-            iconColor: AppColors.functionalSoftRedIcon,
-            textColor: AppColors.destructive,
+            customColor: context.colors.functionalSoftRed,
+            iconColor: context.colors.functionalSoftRedIcon,
+            textColor: context.colors.destructive,
             isLoading: isLoading,
             onTap: onCancelTap ?? () {},
           ),
         if (showFilter)
           FunctionalButtonItem(
-            icon: Icons.filter_list_rounded,
+            icon: AppIcons.filterList.icon,
             keepWhenCollapsed: true,
-            customColor: AppColors.functionalSoftBlue,
-            iconColor: AppColors.functionalSoftBlueIcon,
+            customColor: context.colors.functionalSoftBlue,
+            iconColor: context.colors.functionalSoftBlueIcon,
             isLoading: isLoading,
             onTap: onFilterTap ?? () {},
           ),
@@ -102,8 +102,8 @@ class BookingScreenShell extends StatelessWidget {
           FunctionalButtonItem(
             icon: Icons.settings_outlined,
             keepWhenCollapsed: true,
-            customColor: AppColors.functionalSoftBlue,
-            iconColor: AppColors.functionalSoftBlueIcon,
+            customColor: context.colors.functionalSoftBlue,
+            iconColor: context.colors.functionalSoftBlueIcon,
             isLoading: isLoading,
             onTap: onSettingsTap ?? () {},
           ),
@@ -111,17 +111,17 @@ class BookingScreenShell extends StatelessWidget {
           FunctionalButtonItem(
             icon: AppIcons.add.icon,
             keepWhenCollapsed: true,
-            customColor: AppColors.primary,
+            customColor: context.colors.primary,
             iconColor: Colors.white,
             isLoading: isLoading,
             onTap: onAddTap ?? () {},
           ),
         if (showSave && (canSave || isLoading))
           FunctionalButtonItem(
-            icon: Icons.check_rounded,
+            icon: AppIcons.checkRounded.icon,
             label: saveLabel,
             keepWhenCollapsed: true,
-            customColor: AppColors.primary,
+            customColor: context.colors.primary,
             iconColor: Colors.white,
             textColor: Colors.white,
             isLoading: isLoading,
@@ -145,7 +145,7 @@ class BookingScreenShell extends StatelessWidget {
           FunctionalButtonItem(
             icon: AppIcons.add.icon,
             label: 'Создать',
-            customColor: AppColors.primary,
+            customColor: context.colors.primary,
             iconColor: Colors.white,
             textColor: Colors.white,
             isLoading: isLoading,
@@ -171,7 +171,7 @@ class _BookingTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.pageBackground,
+      color: context.colors.pageBackground,
       child: SafeArea(
         bottom: false,
         child: SizedBox(
@@ -181,7 +181,7 @@ class _BookingTopBar extends StatelessWidget {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.base(17, color: AppColors.textColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(17, color: context.colors.textColor, fontWeight: FontWeight.w600),
             ),
           ),
         ),

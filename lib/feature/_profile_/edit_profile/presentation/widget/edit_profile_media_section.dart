@@ -1,4 +1,5 @@
 import 'package:clover/core/extension/context.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/image_select/app_image_edit_preview.dart';
@@ -90,10 +91,10 @@ class EditProfileMediaSection extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.activeColor),
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: context.colors.activeColor),
                     child: Container(
                       padding: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(color: AppColors.white, shape: BoxShape.circle),
+                      decoration: BoxDecoration(color: context.colors.white, shape: BoxShape.circle),
                       child: _AvatarImage(
                         avatarUrl: avatarUrl,
                         avatarPreview: avatarPreview,
@@ -108,11 +109,11 @@ class EditProfileMediaSection extends StatelessWidget {
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: context.colors.primary,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.white, width: 2),
+                        border: Border.all(color: context.colors.white, width: 2),
                       ),
-                      child: Icon(Icons.camera_alt_rounded, size: 16, color: AppColors.textInverse),
+                      child: Icon(Icons.camera_alt_rounded, size: 16, color: context.colors.textInverse),
                     ),
                   ),
                 ],
@@ -156,7 +157,7 @@ class _AvatarImage extends StatelessWidget {
             settings: preview.settings,
             imageWidth: preview.asset.width,
             imageHeight: preview.asset.height,
-            backgroundColor: AppColors.surface,
+            backgroundColor: context.colors.surface,
           ),
         ),
       );
@@ -166,15 +167,15 @@ class _AvatarImage extends StatelessWidget {
     if (url != null && url.isNotEmpty) {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.colors.surface,
         backgroundImage: NetworkImage(url),
       );
     }
 
     return CircleAvatar(
       radius: radius,
-      backgroundColor: AppColors.surface,
-      child: Icon(Icons.person_rounded, size: radius, color: AppColors.iconMuted),
+      backgroundColor: context.colors.surface,
+      child: Icon(AppIcons.personRounded.icon, size: radius, color: context.colors.iconMuted),
     );
   }
 }
@@ -202,7 +203,7 @@ class _CoverImage extends StatelessWidget {
         imageWidth: preview.asset.width,
         imageHeight: preview.asset.height,
         borderRadius: borderRadius,
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.colors.surface,
       );
     }
 
@@ -212,8 +213,8 @@ class _CoverImage extends StatelessWidget {
     }
 
     return ColoredBox(
-      color: AppColors.surface,
-      child: Icon(Icons.image_outlined, size: 40, color: AppColors.iconMuted),
+      color: context.colors.surface,
+      child: Icon(AppIcons.imageOutlined.icon, size: 40, color: context.colors.iconMuted),
     );
   }
 }
