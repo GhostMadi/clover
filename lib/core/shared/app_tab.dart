@@ -30,7 +30,7 @@ class AppTab extends StatelessWidget {
     if (tabs.isEmpty) return const SizedBox.shrink();
 
     final index = currentIndex.clamp(0, tabs.length - 1);
-    final colors = AppColors.of(context);
+    final colors = context.colors;
 
     if (scrollable) {
       return _ScrollableAppTab(
@@ -93,7 +93,7 @@ class _TabIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
     final isDark = colors.brightness == Brightness.dark;
 
     return DecoratedBox(
@@ -211,7 +211,7 @@ class _ScrollableAppTabState extends State<_ScrollableAppTab> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
 
     return Container(
       width: double.infinity,
@@ -306,7 +306,7 @@ class _AppTabItemState extends State<_AppTabItem> with SingleTickerProviderState
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
 
     return AnimatedBuilder(
       animation: _jellyController.scaleAnimation,

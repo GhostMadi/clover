@@ -70,14 +70,15 @@ class _AppFunctionalPillButtonState extends State<AppFunctionalPillButton> with 
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final size = context.heightByContext(AppFunctionalPillButton._figmaSize).clamp(48.0, 80.0);
     final barRadius = context.widthByContext(AppFunctionalPillButton._figmaBarRadius);
     final blur = context.heightByContext(AppFunctionalPillButton._figmaBlurSigma).clamp(8.0, 32.0);
     final iconSize = context.heightByContext(AppFunctionalPillButton._figmaIconSize).clamp(18.0, 32.0);
     final hasCustomColor = widget.customColor != null;
-    final contentColor = hasCustomColor ? AppColors.textInverse : AppColors.textColor;
-    final backgroundColor = widget.backgroundColor ?? AppColors.surfaceSoft;
-    final borderColor = widget.borderColor ?? AppColors.border;
+    final contentColor = hasCustomColor ? colors.textInverse : colors.textColor;
+    final backgroundColor = widget.backgroundColor ?? colors.surfaceSoft;
+    final borderColor = widget.borderColor ?? colors.border;
 
     return AnimatedBuilder(
       animation: _jellyController.scaleAnimation,
@@ -101,12 +102,12 @@ class _AppFunctionalPillButtonState extends State<AppFunctionalPillButton> with 
                     border: Border.all(color: borderColor.withValues(alpha: 0.45)),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.shadowDark.withValues(alpha: 0.06),
+                        color: colors.shadowDark.withValues(alpha: 0.06),
                         blurRadius: context.heightByContext(AppFunctionalPillButton._figmaShadowBlur),
                         offset: Offset(0, context.heightByContext(AppFunctionalPillButton._figmaShadowOffsetY)),
                       ),
                       BoxShadow(
-                        color: AppColors.shadowDark.withValues(alpha: 0.03),
+                        color: colors.shadowDark.withValues(alpha: 0.03),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -119,8 +120,8 @@ class _AppFunctionalPillButtonState extends State<AppFunctionalPillButton> with 
                     child: InkWell(
                       onTap: widget.isLoading ? null : _handleTap,
                       borderRadius: BorderRadius.circular(barRadius),
-                      splashColor: (widget.customColor ?? AppColors.primary).withValues(alpha: 0.12),
-                      highlightColor: (widget.customColor ?? AppColors.primary).withValues(alpha: 0.06),
+                      splashColor: (widget.customColor ?? colors.primary).withValues(alpha: 0.12),
+                      highlightColor: (widget.customColor ?? colors.primary).withValues(alpha: 0.06),
                       child: Center(
                         child: widget.isLoading
                             ? SizedBox(
@@ -150,9 +151,9 @@ class _AppFunctionalPillButtonState extends State<AppFunctionalPillButton> with 
                   width: 10,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
+                    color: colors.primary,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.surfaceSoft, width: 1.5),
+                    border: Border.all(color: colors.surfaceSoft, width: 1.5),
                   ),
                 ),
               ),

@@ -28,6 +28,8 @@ import '../../feature/_bonus_/bonus_history/presentation/cubit/bonus_history_cub
     as _i654;
 import '../../feature/_bonus_/bonus_settings/data/repository/bonus_program_repository.dart'
     as _i502;
+import '../../feature/_bonus_/bonus_settings/presentation/cubit/bonus_program_settings_cubit.dart'
+    as _i790;
 import '../../feature/_bonus_/my_bonuses/data/repository/my_bonuses_repository.dart'
     as _i1031;
 import '../../feature/_bonus_/my_bonuses/presentation/cubit/my_bonuses_cubit.dart'
@@ -61,20 +63,10 @@ import '../../feature/_booking_/my_bookings/data/repository/my_bookings_reposito
 import '../../feature/_booking_/my_bookings/presentation/cubit/my_bookings_cubit.dart'
     as _i536;
 import '../../feature/_booking_/shared/data/booking_local_cache.dart' as _i984;
-import '../../feature/_catalog_/cities/data/repository/cities_repository.dart'
-    as _i396;
-import '../../feature/_catalog_/cities/data/repository/cities_repository_impl.dart'
-    as _i315;
-import '../../feature/_catalog_/cities/presentation/cubit/cities_cubit.dart'
-    as _i841;
-import '../../feature/_catalog_/countries/data/repository/countries_repository.dart'
-    as _i874;
-import '../../feature/_catalog_/countries/data/repository/countries_repository_impl.dart'
-    as _i276;
-import '../../feature/_catalog_/countries/presentation/cubit/countries_cubit.dart'
-    as _i104;
 import '../../feature/_catalog_/location/data/repository/location_repository.dart'
     as _i634;
+import '../../feature/_catalog_/location/presentation/cubit/location_cubit.dart'
+    as _i339;
 import '../../feature/_catalog_/marker_tags/data/repository/marker_tags_repository.dart'
     as _i34;
 import '../../feature/_catalog_/social_graph/data/repository/social_graph_repository.dart'
@@ -107,6 +99,10 @@ import '../../feature/_feed_/map_page/data/repository/map_markers_repository.dar
     as _i232;
 import '../../feature/_feed_/map_page/presentation/cubit/map_markers_cubit.dart'
     as _i1010;
+import '../../feature/_feed_/notification_page/data/repository/notifications_repository.dart'
+    as _i194;
+import '../../feature/_feed_/notification_page/presentation/cubit/notifications_cubit.dart'
+    as _i996;
 import '../../feature/_post_/marker_create/data/repository/marker_create_repository.dart'
     as _i31;
 import '../../feature/_post_/marker_create/presentation/cubit/marker_create_upload_cubit.dart'
@@ -163,10 +159,6 @@ import '../../feature/dashboard_page/data/dashboard_home_mode_store.dart'
     as _i501;
 import '../../feature/dashboard_page/presentation/cubit/dashboard_home_mode_cubit.dart'
     as _i4;
-import '../../feature/notification_page/data/repository/notifications_repository.dart'
-    as _i932;
-import '../../feature/notification_page/presentation/cubit/notifications_cubit.dart'
-    as _i492;
 import '../../feature/onboarding/data/onboarding_store.dart' as _i643;
 import '../auth/cubit/auth_cubit.dart' as _i575;
 import '../auth/repositories/auth_repository.dart' as _i964;
@@ -188,12 +180,6 @@ extension GetItInjectableX on _i174.GetIt {
     final appModule = _$AppModule();
     gh.lazySingleton<_i454.SupabaseClient>(() => appModule.supabaseClient);
     gh.lazySingleton<_i116.GoogleSignIn>(() => appModule.googleSignIn);
-    gh.lazySingleton<_i874.CountriesRepository>(
-      () => _i276.CountriesRepositoryImpl(),
-    );
-    gh.lazySingleton<_i396.CitiesRepository>(
-      () => _i315.CitiesRepositoryImpl(),
-    );
     gh.lazySingleton<_i1029.IAppStorage>(() => _i814.IsarAppStorageImpl());
     gh.lazySingleton<_i347.ClusterRepository>(
       () => _i347.ClusterRepositoryImpl(gh<_i454.SupabaseClient>()),
@@ -274,17 +260,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1053.SavedPostsCubit>(
       () => _i1053.SavedPostsCubit(gh<_i15.SavedPostsRepository>()),
     );
-    gh.lazySingleton<_i932.NotificationsRepository>(
-      () => _i932.NotificationsRepositoryImpl(gh<_i454.SupabaseClient>()),
+    gh.lazySingleton<_i194.NotificationsRepository>(
+      () => _i194.NotificationsRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
-    gh.lazySingleton<_i104.CountriesCubit>(
-      () => _i104.CountriesCubit(gh<_i874.CountriesRepository>()),
+    gh.factory<_i996.NotificationsCubit>(
+      () => _i996.NotificationsCubit(gh<_i194.NotificationsRepository>()),
     );
     gh.factory<_i643.PostArchiveCubit>(
       () => _i643.PostArchiveCubit(gh<_i381.PostArchiveRepository>()),
     );
-    gh.lazySingleton<_i841.CitiesCubit>(
-      () => _i841.CitiesCubit(gh<_i396.CitiesRepository>()),
+    gh.factory<_i339.LocationCubit>(
+      () => _i339.LocationCubit(gh<_i634.LocationRepository>()),
     );
     gh.factory<_i633.BookingScheduleSettingsCubit>(
       () => _i633.BookingScheduleSettingsCubit(
@@ -405,11 +391,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i454.SupabaseClient>(),
       ),
     );
-    gh.factory<_i492.NotificationsCubit>(
-      () => _i492.NotificationsCubit(gh<_i932.NotificationsRepository>()),
-    );
     gh.factory<_i121.ProfileFilterCubit>(
       () => _i121.ProfileFilterCubit(gh<_i858.FilterRepository>()),
+    );
+    gh.factory<_i790.BonusProgramSettingsCubit>(
+      () => _i790.BonusProgramSettingsCubit(
+        gh<_i502.BonusProgramRepository>(),
+        gh<_i95.ProfileCubit>(),
+      ),
     );
     gh.factory<_i68.EventArchiveCubit>(
       () => _i68.EventArchiveCubit(gh<_i74.EventArchiveRepository>()),

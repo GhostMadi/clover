@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 /// База для переиспользуемых виджетов в `core/shared`.
 ///
 /// При создании любого shared UI:
-/// 1. Тема — цвета только через [AppColors.of] / [AppPalette] (light/dark).
+/// 1. Тема — цвета только через [AppColorsContext.colors] / [AppPalette] (light/dark).
 /// 2. Платформа — разный нативный вид (Material / Cupertino).
 ///
 /// ```dart
@@ -28,7 +28,7 @@ abstract class AdaptiveStatelessWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
 
     return switch (AppPlatform.current) {
       AppPlatformType.ios => buildCupertino(context, colors),

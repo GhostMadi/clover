@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
@@ -125,7 +126,7 @@ class MultiMarkerTags extends StatelessWidget {
                 ),
               ),
               Icon(
-                Icons.keyboard_arrow_down_rounded,
+                AppIcons.arrowDown.icon,
                 color: AppColors.subTextColor.withValues(alpha: 0.55),
                 size: 24,
               ),

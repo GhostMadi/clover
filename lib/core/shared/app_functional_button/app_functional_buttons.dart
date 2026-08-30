@@ -85,6 +85,7 @@ class _AppFunctionalButtonsState extends State<AppFunctionalButtons> {
       return const SizedBox.shrink();
     }
 
+    final colors = context.colors;
     final barRadius = context.widthByContext(_figmaBarRadius);
     final height = context.heightByContext(_figmaBarHeight);
     final blur = context.heightByContext(_figmaBlurSigma).clamp(8.0, 32.0);
@@ -101,12 +102,12 @@ class _AppFunctionalButtonsState extends State<AppFunctionalButtons> {
         filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: widget.backgroundColor ?? AppColors.surfaceSoft.withValues(alpha: 0.92),
+            color: widget.backgroundColor ?? colors.surfaceSoft.withValues(alpha: 0.92),
             borderRadius: BorderRadius.circular(barRadius),
-            border: Border.all(color: AppColors.border.withValues(alpha: 0.7)),
+            border: Border.all(color: colors.border.withValues(alpha: 0.7)),
             boxShadow: [
               BoxShadow(
-                color: AppColors.shadowDark.withValues(alpha: 0.10),
+                color: colors.shadowDark.withValues(alpha: 0.10),
                 blurRadius: context.heightByContext(_figmaShadowBlur),
                 offset: Offset(0, context.heightByContext(_figmaShadowOffsetY)),
               ),
@@ -203,9 +204,10 @@ class _FunctionalButtonTabState extends State<_FunctionalButtonTab> with SingleT
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final bool hasCustomColor = widget.button.customColor != null;
 
-    final Color contentColor = hasCustomColor ? AppColors.textInverse : AppColors.textColor;
+    final Color contentColor = hasCustomColor ? colors.textInverse : colors.textColor;
 
     return AnimatedBuilder(
       animation: _jellyController.scaleAnimation,
@@ -221,8 +223,8 @@ class _FunctionalButtonTabState extends State<_FunctionalButtonTab> with SingleT
           child: InkWell(
             onTap: widget.button.isLoading ? null : _handleTap,
             borderRadius: BorderRadius.circular(widget.indicatorRadius),
-            splashColor: (widget.button.customColor ?? AppColors.primary).withValues(alpha: 0.12),
-            highlightColor: (widget.button.customColor ?? AppColors.primary).withValues(alpha: 0.06),
+            splashColor: (widget.button.customColor ?? colors.primary).withValues(alpha: 0.12),
+            highlightColor: (widget.button.customColor ?? colors.primary).withValues(alpha: 0.06),
             child: SizedBox.expand(
               child: FittedBox(
                 fit: BoxFit.scaleDown,

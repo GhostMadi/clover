@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
@@ -64,11 +65,12 @@ class AppSingleSelect<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final display = _selectedLabel();
     final hasValue = display != null && display.isNotEmpty;
 
     final field = Material(
-      color: AppColors.fieldBackground,
+      color: colors.fieldBackground,
       borderRadius: BorderRadius.circular(_radius),
       child: InkWell(
         borderRadius: BorderRadius.circular(_radius),
@@ -77,7 +79,7 @@ class AppSingleSelect<T> extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(_radius),
-            border: Border.all(color: AppColors.fieldBorder),
+            border: Border.all(color: colors.fieldBorder),
           ),
           child: Row(
             children: [
@@ -86,7 +88,7 @@ class AppSingleSelect<T> extends StatelessWidget {
                   hasValue ? display : hint,
                   style: AppTextStyle.base(
                     16,
-                    color: hasValue ? AppColors.textColor : AppColors.subTextColor.withValues(alpha: 0.65),
+                    color: hasValue ? colors.textColor : colors.subTextColor.withValues(alpha: 0.65),
                     height: 1.25,
                   ),
                   maxLines: 1,
@@ -94,8 +96,8 @@ class AppSingleSelect<T> extends StatelessWidget {
                 ),
               ),
               Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: AppColors.subTextColor.withValues(alpha: 0.55),
+                AppIcons.arrowDown.icon,
+                color: colors.subTextColor.withValues(alpha: 0.55),
                 size: 24,
               ),
             ],
@@ -111,7 +113,7 @@ class AppSingleSelect<T> extends StatelessWidget {
         if (label != null) ...[
           Text(
             label!,
-            style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
         ],
@@ -182,6 +184,7 @@ class _AppSingleSelectSheetContentState<T> extends State<AppSingleSelectSheetCon
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final bottom = MediaQuery.paddingOf(context).bottom;
 
     return Column(
@@ -190,7 +193,7 @@ class _AppSingleSelectSheetContentState<T> extends State<AppSingleSelectSheetCon
         AppField(
           hintText: widget.searchHint,
           controller: _search,
-          prefixIcon: Icons.search_rounded,
+          prefixIcon: AppIcons.searchRounded.icon,
           textInputAction: TextInputAction.search,
           onChanged: (v) => setState(() => _query = v),
         ),
@@ -202,7 +205,7 @@ class _AppSingleSelectSheetContentState<T> extends State<AppSingleSelectSheetCon
                     padding: const EdgeInsets.all(24),
                     child: Text(
                       'Ничего не найдено',
-                      style: AppTextStyle.base(14, color: AppColors.subTextColor),
+                      style: AppTextStyle.base(14, color: colors.subTextColor),
                     ),
                   ),
                 )
@@ -210,7 +213,7 @@ class _AppSingleSelectSheetContentState<T> extends State<AppSingleSelectSheetCon
                   padding: EdgeInsets.only(bottom: 16 + bottom),
                   itemCount: _filtered.length,
                   separatorBuilder: (_, __) =>
-                      Divider(height: 1, color: AppColors.border.withValues(alpha: 0.6)),
+                      Divider(height: 1, color: colors.border.withValues(alpha: 0.6)),
                   itemBuilder: (context, i) {
                     final o = _filtered[i];
                     final isSelected = widget.selected == o.value;
@@ -220,12 +223,12 @@ class _AppSingleSelectSheetContentState<T> extends State<AppSingleSelectSheetCon
                         o.label,
                         style: AppTextStyle.base(
                           16,
-                          color: AppColors.textColor,
+                          color: colors.textColor,
                           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                         ),
                       ),
                       trailing: isSelected
-                          ? Icon(Icons.check_rounded, color: AppColors.btnBackground, size: 22)
+                          ? Icon(AppIcons.checkRounded.icon, color: colors.btnBackground, size: 22)
                           : null,
                       onTap: () => Navigator.pop(context, o.value),
                     );

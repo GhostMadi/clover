@@ -1,6 +1,6 @@
-import 'package:clover/feature/notification_page/data/models/notification_item.dart';
-import 'package:clover/feature/notification_page/data/repository/notifications_repository.dart';
-import 'package:clover/feature/notification_page/presentation/utils/notification_date_grouping.dart';
+import 'package:clover/feature/_feed_/notification_page/data/models/notification_item.dart';
+import 'package:clover/feature/_feed_/notification_page/data/repository/notifications_repository.dart';
+import 'package:clover/feature/_feed_/notification_page/presentation/utils/notification_date_grouping.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 

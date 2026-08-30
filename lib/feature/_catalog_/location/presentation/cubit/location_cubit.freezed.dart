@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'cities_cubit.dart';
+part of 'location_cubit.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -12,7 +12,7 @@ part of 'cities_cubit.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$CitiesState {
+mixin _$LocationState {
 
 
 
@@ -20,7 +20,7 @@ mixin _$CitiesState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CitiesState);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LocationState);
 }
 
 
@@ -29,20 +29,20 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'CitiesState()';
+  return 'LocationState()';
 }
 
 
 }
 
 /// @nodoc
-class $CitiesStateCopyWith<$Res>  {
-$CitiesStateCopyWith(CitiesState _, $Res Function(CitiesState) __);
+class $LocationStateCopyWith<$Res>  {
+$LocationStateCopyWith(LocationState _, $Res Function(LocationState) __);
 }
 
 
-/// Adds pattern-matching-related methods to [CitiesState].
-extension CitiesStatePatterns on CitiesState {
+/// Adds pattern-matching-related methods to [LocationState].
+extension LocationStatePatterns on LocationState {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -128,12 +128,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( String countryCode,  List<CityModel> items)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<LocationModel> items)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading();case _Loaded() when loaded != null:
-return loaded(_that.countryCode,_that.items);case _Error() when error != null:
+return loaded(_that.items);case _Error() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -152,12 +152,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( String countryCode,  List<CityModel> items)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<LocationModel> items)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Loading():
 return loading();case _Loaded():
-return loaded(_that.countryCode,_that.items);case _Error():
+return loaded(_that.items);case _Error():
 return error(_that.message);case _:
   throw StateError('Unexpected subclass');
 
@@ -175,12 +175,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( String countryCode,  List<CityModel> items)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<LocationModel> items)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading();case _Loaded() when loaded != null:
-return loaded(_that.countryCode,_that.items);case _Error() when error != null:
+return loaded(_that.items);case _Error() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -192,7 +192,7 @@ return error(_that.message);case _:
 /// @nodoc
 
 
-class _Initial implements CitiesState {
+class _Initial implements LocationState {
   const _Initial();
   
 
@@ -212,7 +212,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'CitiesState.initial()';
+  return 'LocationState.initial()';
 }
 
 
@@ -224,7 +224,7 @@ String toString() {
 /// @nodoc
 
 
-class _Loading implements CitiesState {
+class _Loading implements LocationState {
   const _Loading();
   
 
@@ -244,7 +244,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'CitiesState.loading()';
+  return 'LocationState.loading()';
 }
 
 
@@ -256,20 +256,19 @@ String toString() {
 /// @nodoc
 
 
-class _Loaded implements CitiesState {
-  const _Loaded({required this.countryCode, required final  List<CityModel> items}): _items = items;
+class _Loaded implements LocationState {
+  const _Loaded(final  List<LocationModel> items): _items = items;
   
 
- final  String countryCode;
- final  List<CityModel> _items;
- List<CityModel> get items {
+ final  List<LocationModel> _items;
+ List<LocationModel> get items {
   if (_items is EqualUnmodifiableListView) return _items;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_items);
 }
 
 
-/// Create a copy of CitiesState
+/// Create a copy of LocationState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
@@ -279,27 +278,27 @@ _$LoadedCopyWith<_Loaded> get copyWith => __$LoadedCopyWithImpl<_Loaded>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&(identical(other.countryCode, countryCode) || other.countryCode == countryCode)&&const DeepCollectionEquality().equals(other._items, _items));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&const DeepCollectionEquality().equals(other._items, _items));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,countryCode,const DeepCollectionEquality().hash(_items));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items));
 
 @override
 String toString() {
-  return 'CitiesState.loaded(countryCode: $countryCode, items: $items)';
+  return 'LocationState.loaded(items: $items)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$LoadedCopyWith<$Res> implements $CitiesStateCopyWith<$Res> {
+abstract mixin class _$LoadedCopyWith<$Res> implements $LocationStateCopyWith<$Res> {
   factory _$LoadedCopyWith(_Loaded value, $Res Function(_Loaded) _then) = __$LoadedCopyWithImpl;
 @useResult
 $Res call({
- String countryCode, List<CityModel> items
+ List<LocationModel> items
 });
 
 
@@ -314,13 +313,12 @@ class __$LoadedCopyWithImpl<$Res>
   final _Loaded _self;
   final $Res Function(_Loaded) _then;
 
-/// Create a copy of CitiesState
+/// Create a copy of LocationState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? countryCode = null,Object? items = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? items = null,}) {
   return _then(_Loaded(
-countryCode: null == countryCode ? _self.countryCode : countryCode // ignore: cast_nullable_to_non_nullable
-as String,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
-as List<CityModel>,
+null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
+as List<LocationModel>,
   ));
 }
 
@@ -330,13 +328,13 @@ as List<CityModel>,
 /// @nodoc
 
 
-class _Error implements CitiesState {
+class _Error implements LocationState {
   const _Error(this.message);
   
 
  final  String message;
 
-/// Create a copy of CitiesState
+/// Create a copy of LocationState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
@@ -355,14 +353,14 @@ int get hashCode => Object.hash(runtimeType,message);
 
 @override
 String toString() {
-  return 'CitiesState.error(message: $message)';
+  return 'LocationState.error(message: $message)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$ErrorCopyWith<$Res> implements $CitiesStateCopyWith<$Res> {
+abstract mixin class _$ErrorCopyWith<$Res> implements $LocationStateCopyWith<$Res> {
   factory _$ErrorCopyWith(_Error value, $Res Function(_Error) _then) = __$ErrorCopyWithImpl;
 @useResult
 $Res call({
@@ -381,7 +379,7 @@ class __$ErrorCopyWithImpl<$Res>
   final _Error _self;
   final $Res Function(_Error) _then;
 
-/// Create a copy of CitiesState
+/// Create a copy of LocationState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
   return _then(_Error(

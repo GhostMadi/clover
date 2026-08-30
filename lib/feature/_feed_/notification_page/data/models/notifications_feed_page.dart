@@ -1,4 +1,4 @@
-import 'package:clover/feature/notification_page/data/models/notification_item.dart';
+import 'package:clover/feature/_feed_/notification_page/data/models/notification_item.dart';
 
 class NotificationsFeedPage {
   const NotificationsFeedPage({

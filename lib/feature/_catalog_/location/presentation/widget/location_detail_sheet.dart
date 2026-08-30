@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -235,7 +236,7 @@ class _LocationDetailSheetState extends State<LocationDetailSheet> {
                   controller: _primaryController,
                   labelText: 'Адрес',
                   hintText: 'Abay ave, 150, Almaty',
-                  prefixIcon: Icons.location_on_outlined,
+                  prefixIcon: AppIcons.locationOn.icon,
                   textInputAction: TextInputAction.next,
                   inputFormatters: const [EnglishAddressInputFormatter()],
                   isEnabled: !busy,
@@ -251,7 +252,7 @@ class _LocationDetailSheetState extends State<LocationDetailSheet> {
                   controller: _cyrillicController,
                   labelText: 'Адрес (кириллица)',
                   hintText: 'ул. Абая, 150, Алматы (необязательно)',
-                  prefixIcon: Icons.translate_rounded,
+                  prefixIcon: AppIcons.translate.icon,
                   textInputAction: TextInputAction.done,
                   isEnabled: !busy,
                 ),

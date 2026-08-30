@@ -11,9 +11,8 @@ import 'package:clover/core/shared/app_refresh.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/feature/_cluster_/shared/presentation/widget/archive_cluster_grid_shimmer.dart';
 import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
-import 'package:clover/feature/_cluster_/cluster/data/repository/cluster_repository.dart';
-import 'package:clover/feature/_cluster_/cluster/presentation/cluster_list_refresh.dart';
 import 'package:clover/feature/_cluster_/cluster/presentation/cubit/archived_clusters_cubit.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/cluster_list_refresh.dart';
 import 'package:clover/feature/_cluster_/cluster/presentation/widget/cluster_card.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:flutter/material.dart';
@@ -130,7 +129,7 @@ class _ArchivedClusterCard extends StatelessWidget {
     ),
   ];
 
-  Future<void> _unarchive(BuildContext context) async {
+  Future<void> _unarchive(BuildContext context, ArchivedClustersCubit cubit) async {
     final ok = await AppDialog.showConfirm(
       context: context,
       title: 'Разархивировать кластер?',
@@ -141,7 +140,7 @@ class _ArchivedClusterCard extends StatelessWidget {
     if (ok != true || !context.mounted) return;
 
     try {
-      await sl<ClusterRepository>().unarchiveCluster(clusterId: cluster.id);
+      await cubit.unarchive(cluster.id);
       clusterListRefreshTick.value++;
       if (!context.mounted) return;
       AppSnackBar.show(context, message: 'Кластер разархивирован', kind: AppSnackBarKind.success);
@@ -152,7 +151,7 @@ class _ArchivedClusterCard extends StatelessWidget {
     }
   }
 
-  Future<void> _delete(BuildContext context) async {
+  Future<void> _delete(BuildContext context, ArchivedClustersCubit cubit) async {
     final ok = await AppDialog.showConfirm(
       context: context,
       title: 'Удалить кластер?',
@@ -164,7 +163,7 @@ class _ArchivedClusterCard extends StatelessWidget {
     if (ok != true || !context.mounted) return;
 
     try {
-      await sl<ClusterRepository>().deleteCluster(clusterId: cluster.id);
+      await cubit.delete(cluster.id);
       clusterListRefreshTick.value++;
       if (!context.mounted) return;
       AppSnackBar.show(context, message: 'Кластер удалён', kind: AppSnackBarKind.success);
@@ -175,24 +174,25 @@ class _ArchivedClusterCard extends StatelessWidget {
     }
   }
 
-  void _onMenu(BuildContext context, String action) {
+  void _onMenu(BuildContext context, ArchivedClustersCubit cubit, String action) {
     switch (action) {
       case 'unarchive':
-        unawaited(_unarchive(context));
+        unawaited(_unarchive(context, cubit));
       case 'delete':
-        unawaited(_delete(context));
+        unawaited(_delete(context, cubit));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<ArchivedClustersCubit>();
     return ClusterCard(
       title: cluster.title,
       subtitle: cluster.subtitle,
       coverUrl: cluster.coverUrl,
       countLabel: cluster.postsCountLabel,
       menuItems: _menuItems,
-      onMenuSelected: (v) => _onMenu(context, v),
+      onMenuSelected: (v) => _onMenu(context, cubit, v),
     );
   }
 }

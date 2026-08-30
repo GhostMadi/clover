@@ -17,19 +17,12 @@ class AppShimmer extends StatelessWidget {
   final Color? highlightColor;
   final Duration period;
 
-  /// База — холодный серый, блик — почти белый «металлик» (светлая тема).
-  static const Color silverBase = Color(0xFFC8C8CC);
-  static const Color silverHighlight = Color(0xFFF4F4F6);
-
-  static const Color _darkBase = Color(0xFF2C2C2E);
-  static const Color _darkHighlight = Color(0xFF3A3A3C);
-
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = context.colors;
     return Shimmer.fromColors(
-      baseColor: baseColor ?? (isDark ? _darkBase : silverBase),
-      highlightColor: highlightColor ?? (isDark ? _darkHighlight : silverHighlight),
+      baseColor: baseColor ?? colors.shimmerBase,
+      highlightColor: highlightColor ?? colors.shimmerHighlight,
       period: period,
       child: child,
     );
@@ -44,7 +37,8 @@ class PostMediaFramePlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final box = SizedBox.expand(child: ColoredBox(color: AppColors.surfaceSoft));
+    final colors = context.colors;
+    final box = SizedBox.expand(child: ColoredBox(color: colors.surfaceSoft));
     if (!shimmer) return box;
     return AppShimmer(child: box);
   }

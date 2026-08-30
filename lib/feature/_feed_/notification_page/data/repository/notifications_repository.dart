@@ -1,7 +1,7 @@
-import 'package:clover/feature/notification_page/data/models/notification_actor.dart';
-import 'package:clover/feature/notification_page/data/models/notification_item.dart';
-import 'package:clover/feature/notification_page/data/models/notification_kind.dart';
-import 'package:clover/feature/notification_page/data/models/notifications_feed_page.dart';
+import 'package:clover/feature/_feed_/notification_page/data/models/notification_actor.dart';
+import 'package:clover/feature/_feed_/notification_page/data/models/notification_item.dart';
+import 'package:clover/feature/_feed_/notification_page/data/models/notification_kind.dart';
+import 'package:clover/feature/_feed_/notification_page/data/models/notifications_feed_page.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/shared/app_functional_button/functional_button_item.dart';
 import 'package:flutter/material.dart';
 
@@ -9,9 +10,9 @@ abstract final class MapFunctionalButtons {
     required VoidCallback onMyLocation,
   }) {
     return [
-      FunctionalButtonItem(icon: Icons.add_rounded, onTap: onZoomIn),
-      FunctionalButtonItem(icon: Icons.remove_rounded, onTap: onZoomOut),
-      FunctionalButtonItem(icon: Icons.my_location_rounded, onTap: onMyLocation),
+      FunctionalButtonItem(icon: AppIcons.addRounded.icon, onTap: onZoomIn),
+      FunctionalButtonItem(icon: AppIcons.removeRounded.icon, onTap: onZoomOut),
+      FunctionalButtonItem(icon: AppIcons.myLocation.icon, onTap: onMyLocation),
     ];
   }
 }

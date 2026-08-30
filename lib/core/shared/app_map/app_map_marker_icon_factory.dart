@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/theme/app_color_binding.dart';
 import 'package:flutter/material.dart';
 
 /// Рендер иконки маркера: круг-бейдж + emoji поверх (stack), emoji чуть выходит за круг.
@@ -26,25 +26,26 @@ abstract final class AppMapMarkerIconFactory {
   }
 
   static Future<Uint8List> _render({required String emoji, required Color borderColor}) async {
+    final p = AppColorBinding.palette;
     const size = _size;
     const center = Offset(size / 2, size / 2);
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
     // 1. Бейдж (круг снизу)
-    final dropShadow = Paint()..color = AppColors.shadowDark.withValues(alpha: 0.28);
+    final dropShadow = Paint()..color = p.shadowDark.withValues(alpha: 0.28);
     canvas.drawCircle(center.translate(0, 4), _radius + 2, dropShadow);
 
-    final halo = Paint()..color = AppColors.shadowDark.withValues(alpha: 0.2);
+    final halo = Paint()..color = p.shadowDark.withValues(alpha: 0.2);
     canvas.drawCircle(center, _haloRadius, halo);
 
-    canvas.drawCircle(center, _radius, Paint()..color = AppColors.white);
+    canvas.drawCircle(center, _radius, Paint()..color = p.white);
 
     canvas.drawCircle(
       center,
       _radius,
       Paint()
-        ..color = AppColors.shadowDark.withValues(alpha: 0.5)
+        ..color = p.shadowDark.withValues(alpha: 0.5)
         ..style = PaintingStyle.stroke
         ..strokeWidth = _darkBorderWidth,
     );

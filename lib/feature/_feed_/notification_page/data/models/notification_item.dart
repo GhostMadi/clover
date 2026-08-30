@@ -1,5 +1,5 @@
-import 'package:clover/feature/notification_page/data/models/notification_actor.dart';
-import 'package:clover/feature/notification_page/data/models/notification_kind.dart';
+import 'package:clover/feature/_feed_/notification_page/data/models/notification_actor.dart';
+import 'package:clover/feature/_feed_/notification_page/data/models/notification_kind.dart';
 
 class NotificationItem {
   const NotificationItem({

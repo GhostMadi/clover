@@ -23,7 +23,7 @@
 | Adaptive iOS/Android | ❌ почти нигде (база `AdaptiveStatelessWidget` есть, миграции нет) |
 | Concrete repo only | 🟡 много `abstract` + Impl (~35) |
 | Docs-first | 🟡 сильные зоны (auth/profile/posts); booking/chat/bonus без бизнес-дока |
-| Тема через `of(context)` | 🟡 shared в основном статичный `AppColors.*` |
+| Тема через `context.colors` | ✅ shared полностью мигрирован; фичи — частично static |
 
 ---
 
@@ -36,53 +36,51 @@
 | Виджет | Тема (`of` / colors) | Adaptive | Icons / styles | Вердикт |
 |--------|----------------------|----------|----------------|---------|
 | `platform/` (`AppPlatform`, `AdaptiveStatelessWidget`) | ✅ база | ✅ | — | ✅ |
-| `app_button.dart` | ~ static `AppColors` | ❌ | styles ✅ | 🟡 |
-| `app_outlined_button.dart` | ~ | ❌ | ✅ | 🟡 |
-| `app_text_button.dart` | ~ | ❌ | ✅ | 🟡 |
-| `app_field.dart` | ~ | ❌ | `IconData?`, не AppIcons | 🟡 |
-| `app_switch.dart` | ~ | ✅ `Switch.adaptive` | ✅ | 🟡 |
-| `app_dialog.dart` | ~ + `Colors.*` | ❌ | ✅ | 🟡 |
-| `app_bottom_sheet.dart` | ~ | ❌ (обёртка modal — ок) | `Icons.close` | 🟡 |
-| `app_snack_bar.dart` | ~ | ❌ | `Icons.*` | 🟡 |
-| `app_refresh.dart` | ~ | ❌ | — | 🟡 |
-| `app_shimmer.dart` | ❌ hex | ❌ | — | 🔴 |
+| `app_button.dart` | ✅ `context.colors` | ❌ | styles ✅ | 🟡 |
+| `app_outlined_button.dart` | ✅ | ❌ | ✅ | 🟡 |
+| `app_text_button.dart` | ✅ | ❌ | ✅ | 🟡 |
+| `app_field.dart` | ✅ | ❌ | `IconData?`, не AppIcons | 🟡 |
+| `app_switch.dart` | ✅ | ✅ `Switch.adaptive` | ✅ | 🟡 |
+| `app_dialog.dart` | ✅ (+ barrier `Colors.*`) | ❌ | ✅ | 🟡 |
+| `app_bottom_sheet.dart` | ✅ | ❌ (обёртка modal — ок) | ✅ AppIcons | 🟡 |
+| `app_snack_bar.dart` | ✅ | ❌ | ✅ AppIcons | 🟡 |
+| `app_refresh.dart` | ✅ | ❌ | — | 🟡 |
+| `app_shimmer.dart` | ✅ `context.colors` | ❌ | — | ✅ |
 | `jelly.dart`, `gestures/`, `switchable_stack` | n/a | n/a | n/a | ✅ infra |
 
 ### Nav / tiles
 
 | Виджет | Тема | Adaptive | Icons/styles | Вердикт |
 |--------|------|----------|--------------|---------|
-| `app_nav_bar/` | ✅ `AppColors.of` | ❌ | IconData снаружи | 🟡 |
+| `app_nav_bar/` | ✅ `context.colors` | ❌ | IconData снаружи | 🟡 |
 | `app_tab.dart` | ✅ | ❌ | ✅ | 🟡 |
-| `app_tile.dart` | ✅ / ~ | ❌ | `Icons.chevron_*` | 🟡 |
-| `app_mini_menu.dart` | ~ | ❌ | `Icons.more_vert` | 🟡 |
+| `app_tile.dart` | ✅ | ❌ | ✅ AppIcons | 🟡 |
+| `app_mini_menu.dart` | ✅ | ❌ | ✅ AppIcons | 🟡 |
 
 ### Selectors / pickers
 
 | Виджет | Тема | Adaptive | Icons/styles | Вердикт |
 |--------|------|----------|--------------|---------|
-| `app_single_selctor.dart` | ~ | ❌ | `Icons.*`, RU strings | 🟡 |
-| `app_multi_selector.dart` | ~ | ❌ | то же | 🟡 |
-| `app_picker_common.dart` | ~ | ❌ | `Icons.*` | 🟡 |
-| `app_date_picker.dart` | ~ | ❌ | `Icons.*`, RU | 🟡 |
-| `app_time_picker.dart` | ~ | ❌ | то же | 🟡 |
-| `app_smile_picker.dart` | ~ | ❌ | ✅ | 🟡 |
+| `app_single_selctor.dart` | ✅ | ❌ | ✅ AppIcons, RU strings | 🟡 |
+| `app_multi_selector.dart` | ✅ | ❌ | ✅ AppIcons, RU strings | 🟡 |
+| `app_picker_common.dart` | ✅ | ❌ | ✅ AppIcons | 🟡 |
+| `app_date_picker.dart` | ✅ | ❌ | RU | 🟡 |
+| `app_time_picker.dart` | ✅ | ❌ | RU | 🟡 |
+| `app_smile_picker.dart` | ✅ | ❌ | ✅ | 🟡 |
 
 ### Map / functional / media
 
 | Виджет | Тема | Adaptive | Icons/styles | Вердикт |
 |--------|------|----------|--------------|---------|
-| `app_functional_button/` | ~ | ❌ | `Icons.*` в map buttons | 🟡 |
-| `app_map/` | частично of; pin/hex | ❌ | raw TextStyle на emoji | 🟡 |
-| `image_select/` | ~ + transparent | ❌ | много `Icons.*`, RU | 🔴 |
+| `app_functional_button/` | ✅ | ❌ | ✅ AppIcons | 🟡 |
+| `app_map/` | ✅ (+ `AppColorBinding` для bitmap) | ❌ | raw TextStyle на emoji | 🟡 |
+| `image_select/` | ✅ | ❌ | ✅ AppIcons | 🟡 |
 
-### Shared — что мигрировать первым
+### Shared — миграция темы
 
-1. `AppButton` / `AppField` / `AppBottomSheet` / `AppDialog` → `AppColors.of` + `AppIcons` + (по желанию) `AdaptiveStatelessWidget`
-2. Selectors / pickers / `AppTile` / snack
-3. `AppSwitch` как эталон adaptive + of
-4. `image_select` + `AppShimmer` (самый тяжёлый долг)
-5. Map marker factories (hex → палитра)
+1. ~~Весь `lib/core/shared/`~~ → ✅ `context.colors` + `AppIcons`
+2. Остаётся: `AdaptiveStatelessWidget` в контролах (не блокер)
+3. Map marker default border hex → токен палитры (косметика)
 
 ---
 
@@ -107,40 +105,38 @@
 | `auth` | partial (core/auth) | ok | Icons | authentication | 🟡 |
 | `onboarding` | partial | ok | dirty | onboarding | 🟡 |
 | `dashboard_page` | partial | ok | ok | navigation-bars | 🟡 |
-| `profile_page` | yes | leak | dirty | profile | 🟡 |
-| `edit_profile` | yes | ok | dirty | profile | 🟡 |
-| `post` | yes | leak | dirty | publications | 🟡 |
-| `events_page` | yes | leak | dirty | publications | 🟡 |
-| `map_page` | yes | ok | dirty | publications | 🟡 |
-| `notification_page` | yes | ok | dirty | нет | 🟡 |
-| `followers_and_followings` | yes | leak | ok | partial | 🟡 |
-| `cluster` | partial | ok | dirty | partial | 🟡 |
-| `post_comment` | partial | leak | dirty | нет | 🟡 |
-| `post_share` | partial | leak | dirty | нет | 🟡 |
-| `message_page` | partial | leak | dirty | нет | 🟡 |
-| `chat_page` | partial | leak | dirty | нет | 🟡 |
-| `settings` (+ about/account/resources) | thin pages | ok | разный | нет / partial | 🟡 |
-| `settings_filter` | yes | leak | dirty | нет | 🟡 |
-| `settings_saved_post` | yes | ok | ok | нет | 🟡 |
-| `archive/post_archive` | yes | leak | ok | нет | 🟡 |
-| `archive/event_archive` | yes | leak | ok | нет | 🟡 |
-| `archive/settings_archive` | no | ok | dirty | нет | 🟡 |
+| `_profile_/profile_page` | yes | leak | dirty | profile | 🟡 |
+| `_profile_/edit_profile` | yes | ok | dirty | profile | 🟡 |
+| `_post_/post` | yes | leak | dirty | publications | 🟡 |
+| `_feed_/events_page` | yes | leak | dirty | publications | 🟡 |
+| `_feed_/map_page` | yes | ok | dirty | publications | 🟡 |
+| `_feed_/notification_page` | yes | ok | dirty | нет | 🟡 |
+| `_profile_/followers_and_followings` | yes | leak | ok | partial | 🟡 |
+| `_cluster_/cluster` | partial | ok | dirty | partial | 🟡 |
+| `_post_/post_comment` | partial | leak | dirty | нет | 🟡 |
+| `_post_/post_share` | partial | leak | dirty | нет | 🟡 |
+| `_chat_/message_page` | partial | leak | dirty | нет | 🟡 |
+| `_chat_/chat_page` | partial | leak | dirty | нет | 🟡 |
+| `_settings_/settings` (+ about/account/resources) | thin pages | ok | разный | нет / partial | 🟡 |
+| `_settings_/settings_filter` | yes | leak | dirty | нет | 🟡 |
+| `_settings_/settings_saved_post` | yes | ok | ok | нет | 🟡 |
+| `_archive_/post_archive` | yes | leak | ok | нет | 🟡 |
+| `_archive_/event_archive` | yes | leak | ok | нет | 🟡 |
+| `_archive_/settings_archive` | no | ok | dirty | нет | 🟡 |
 | `_booking_/booking_create` | yes | leak | dirty | нет | 🟡 |
 | `_booking_/booking_list` | yes | leak | dirty | нет | 🟡 |
 | `_booking_/booking_client` | yes | ok | dirty | нет | 🟡 |
 | `_bonus_/my_bonuses` | yes | ok | dirty | нет | 🟡 |
-| `location` | без cubit | **fail** page→repo | dirty | нет | 🔴 |
-| `_bonus_/bonus_settings` | без cubit | **fail** | dirty | нет | 🔴 |
-| `archive/cluster_archive` | thin | **fail** | ok | нет | 🔴 |
-| `_booking_/data`, `_booking_/presentation` | stubs | — | — | — | 🔴 dead |
+| `_catalog_/location` | yes | ok | dirty | нет | 🟡 |
+| `_bonus_/bonus_settings` | yes | ok | dirty | нет | 🟡 |
+| `_cluster_/cluster_archive` | yes | ok | ok | нет | 🟡 |
 
 ### Catalog / data helpers (не экраны)
 
 | Feature | Роль | Вердикт |
 |---------|------|---------|
-| `city`, `countries`, `marker_tags` | catalog + select | ✅ helper |
-| `chat`, `social_graph` | data-only | ✅ |
-| `cities` | дубль/abstract рядом с city | 🟡 |
+| `_catalog_/city`, `_catalog_/countries`, `_catalog_/marker_tags` | enum + catalog + select | ✅ helper |
+| `_chat_/chat`, `_catalog_/social_graph` | data-only | ✅ |
 | `_booking_/shared`, `_bonus_/shared` | группа | 🟡 / ✅ |
 
 ---
@@ -153,7 +149,7 @@
 |--|--|
 | ✅ | База adaptive (`platform/`); sheet-API единый; типографика в shared часто через `AppTextStyle` |
 | 🟡 | Почти все контролы на static `AppColors` + `Icons.*`, без AdaptiveStatelessWidget |
-| 🔴 | `app_shimmer`, `image_select` (hex / тяжёлый Material) |
+| 🔴 | `image_select/` — RU strings, `Colors.transparent` (остаточный долг) |
 
 ### По фичам (логика правил)
 

@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_field.dart';
@@ -91,7 +92,7 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
         child: Row(
           children: [
             Icon(
-              Icons.location_on_outlined,
+              AppIcons.locationOn.icon,
               size: 22,
               color: hasAddress ? AppColors.primary : AppColors.iconMuted,
             ),
@@ -109,7 +110,7 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
               ),
             ),
             Icon(
-              Icons.keyboard_arrow_down_rounded,
+              AppIcons.arrowDown.icon,
               size: 22,
               color: AppColors.iconMuted,
             ),
@@ -139,7 +140,7 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
                       style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
                     ),
                   ),
-                  Icon(Icons.keyboard_arrow_up_rounded, size: 22, color: AppColors.iconMuted),
+                  Icon(AppIcons.arrowUp.icon, size: 22, color: AppColors.iconMuted),
                 ],
               ),
             ),
@@ -148,7 +149,7 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
           AppField(
             controller: widget.cyrillicController,
             hintText: 'Abay ave, 150, Almaty',
-            prefixIcon: Icons.location_on_outlined,
+            prefixIcon: AppIcons.locationOn.icon,
             textInputAction: TextInputAction.next,
             inputFormatters: const [EnglishAddressInputFormatter()],
           ),
@@ -156,7 +157,7 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
           AppField(
             controller: widget.secondaryController,
             hintText: 'ул. Абая, 150, Алматы (необязательно)',
-            prefixIcon: Icons.translate_rounded,
+            prefixIcon: AppIcons.translate.icon,
             textInputAction: TextInputAction.done,
           ),
         ],

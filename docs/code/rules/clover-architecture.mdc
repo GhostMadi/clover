@@ -36,7 +36,7 @@ lib/
   feature/auth/                         # вход (без группы)
   feature/dashboard_page/               # shell
   feature/onboarding/
-  feature/notification_page/
+  feature/_feed_/notification_page/
 ```
 
 ## Группы фич (`_group_`)

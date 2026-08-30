@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 
@@ -97,10 +98,11 @@ class _AppTopSnackState extends State<_AppTopSnack> with SingleTickerProviderSta
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final (accent, icon) = switch (widget.kind) {
-      AppSnackBarKind.success => (AppColors.primary, Icons.check_circle_outline_rounded),
-      AppSnackBarKind.error => (AppColors.destructive, Icons.error_outline_rounded),
-      AppSnackBarKind.info => (AppColors.primary, Icons.info_outline_rounded),
+      AppSnackBarKind.success => (colors.primary, AppIcons.checkCircleOutline.icon),
+      AppSnackBarKind.error => (colors.destructive, AppIcons.errorOutline.icon),
+      AppSnackBarKind.info => (colors.primary, AppIcons.infoOutline.icon),
     };
 
     final safeTop = MediaQuery.paddingOf(context).top;
@@ -156,12 +158,12 @@ class _AppTopSnackState extends State<_AppTopSnack> with SingleTickerProviderSta
                           type: MaterialType.transparency,
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              color: AppColors.surface.withValues(alpha: 0.92),
+                              color: colors.surface.withValues(alpha: 0.92),
                               borderRadius: BorderRadius.circular(999),
-                              border: Border.all(color: AppColors.borderSoft.withValues(alpha: 0.9)),
+                              border: Border.all(color: colors.borderSoft.withValues(alpha: 0.9)),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.shadowDark.withValues(alpha: 0.10),
+                                  color: colors.shadowDark.withValues(alpha: 0.10),
                                   blurRadius: 22,
                                   offset: const Offset(0, 12),
                                 ),
@@ -195,7 +197,7 @@ class _AppTopSnackState extends State<_AppTopSnack> with SingleTickerProviderSta
                                             overflow: TextOverflow.ellipsis,
                                             style: AppTextStyle.base(
                                               13,
-                                              color: AppColors.textColor,
+                                              color: colors.textColor,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
@@ -207,7 +209,7 @@ class _AppTopSnackState extends State<_AppTopSnack> with SingleTickerProviderSta
                                           overflow: TextOverflow.ellipsis,
                                           style: AppTextStyle.base(
                                             13,
-                                            color: AppColors.textColor.withValues(alpha: 0.92),
+                                            color: colors.textColor.withValues(alpha: 0.92),
                                             height: 1.25,
                                           ),
                                         ),

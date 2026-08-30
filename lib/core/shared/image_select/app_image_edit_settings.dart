@@ -1,4 +1,5 @@
 import 'package:clover/core/post_media/post_media.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/shared/image_select/app_image_crop_math.dart';
 import 'package:flutter/material.dart';
 
@@ -76,16 +77,18 @@ class AppImageEditSettings {
 }
 
 enum AppImageEditTool {
-  brightness('Яркость', Icons.brightness_6_outlined),
-  contrast('Контраст', Icons.contrast_outlined),
-  saturation('Насыщенность', Icons.palette_outlined),
-  warmth('Теплота', Icons.wb_sunny_outlined),
-  fade('Затухание', Icons.blur_on_outlined);
+  brightness('Яркость', AppIcons.editBrightness),
+  contrast('Контраст', AppIcons.editContrast),
+  saturation('Насыщенность', AppIcons.editPalette),
+  warmth('Теплота', AppIcons.editWarmth),
+  fade('Затухание', AppIcons.editFade);
 
-  const AppImageEditTool(this.label, this.icon);
+  const AppImageEditTool(this.label, this.appIcon);
 
   final String label;
-  final IconData icon;
+  final AppIcons appIcon;
+
+  IconData get icon => appIcon.icon;
 
   double readValue(AppImageEditSettings settings) => switch (this) {
     AppImageEditTool.brightness => settings.brightness,

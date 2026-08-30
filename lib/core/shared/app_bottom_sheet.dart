@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:flutter/material.dart';
@@ -177,35 +178,23 @@ class _DecoratedSheetBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final actionRow = actions;
-    final decoration = postFeedSurface
-        ? BoxDecoration(
-            color: AppColors.pageBackground,
-            borderRadius: _kAppBottomSheetRadius,
-            border: Border.all(color: AppColors.borderSoft, width: 1),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.shadowDark.withValues(alpha: 0.07),
-                blurRadius: 24,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          )
-        : BoxDecoration(
-            color: AppColors.pageBackground,
-            borderRadius: _kAppBottomSheetRadius,
-            border: Border.all(color: AppColors.borderSoft, width: 1),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.shadowDark.withValues(alpha: 0.07),
-                blurRadius: 24,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          );
+    final decoration = BoxDecoration(
+      color: colors.pageBackground,
+      borderRadius: _kAppBottomSheetRadius,
+      border: Border.all(color: colors.borderSoft, width: 1),
+      boxShadow: [
+        BoxShadow(
+          color: colors.shadowDark.withValues(alpha: 0.07),
+          blurRadius: 24,
+          offset: const Offset(0, 10),
+        ),
+      ],
+    );
 
     final content = DefaultTextStyle(
-      style: AppTextStyle.base(15, color: AppColors.textColor, height: 1.5),
+      style: AppTextStyle.base(15, color: colors.textColor, height: 1.5),
       child: body,
     );
 
@@ -236,7 +225,7 @@ class _DecoratedSheetBody extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.subTextColor.withValues(alpha: 0.26),
+                color: colors.subTextColor.withValues(alpha: 0.26),
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
@@ -248,7 +237,7 @@ class _DecoratedSheetBody extends StatelessWidget {
                 showCloseButton: showCloseButton,
                 onClose: onClose,
               ),
-              Divider(height: 1, thickness: 1, color: AppColors.border.withValues(alpha: 0.65)),
+              Divider(height: 1, thickness: 1, color: colors.border.withValues(alpha: 0.65)),
               const SizedBox(height: 8),
             ],
             bodySection,
@@ -290,6 +279,7 @@ class _BottomSheetHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final label = upperCaseTitle ? title.toUpperCase() : title;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 4, 0),
@@ -301,7 +291,7 @@ class _BottomSheetHeader extends StatelessWidget {
             Container(
               width: 3,
               height: 20,
-              decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(2)),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -311,7 +301,7 @@ class _BottomSheetHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyle.base(
                   17,
-                  color: AppColors.textColor,
+                  color: colors.textColor,
                   fontWeight: FontWeight.w600,
                   height: 1.2,
                   letterSpacing: upperCaseTitle ? 0.35 : 0,
@@ -324,8 +314,8 @@ class _BottomSheetHeader extends StatelessWidget {
                 tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-                style: IconButton.styleFrom(foregroundColor: AppColors.subTextColor),
-                icon: const Icon(Icons.close_rounded, size: 22),
+                style: IconButton.styleFrom(foregroundColor: colors.subTextColor),
+                icon: Icon(AppIcons.closeRounded.icon, size: 22),
               ),
           ],
         ),

@@ -136,6 +136,12 @@ class AppPalette extends ThemeExtension<AppPalette> {
   Color get postEditorOnSurfaceHint => borderSoft;
   Color get postEditorSliderOverlay => primary.withValues(alpha: 0.14);
 
+  Color get shimmerBase =>
+      brightness == Brightness.dark ? const Color(0xFF2C2C2E) : const Color(0xFFC8C8CC);
+
+  Color get shimmerHighlight =>
+      brightness == Brightness.dark ? const Color(0xFF3A3A3C) : const Color(0xFFF4F4F6);
+
   static const light = AppPalette(
     brightness: Brightness.light,
     brand: Color(0xffB7F5FE),

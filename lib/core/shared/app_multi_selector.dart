@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
@@ -112,12 +113,13 @@ class AppMultiSelect<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final display = _selectedDisplay();
     final hasValue = display != null && display.isNotEmpty;
     final canOpen = _allOptions.isNotEmpty;
 
     final field = Material(
-      color: AppColors.fieldBackground,
+      color: colors.fieldBackground,
       borderRadius: BorderRadius.circular(_radius),
       child: InkWell(
         borderRadius: BorderRadius.circular(_radius),
@@ -126,7 +128,7 @@ class AppMultiSelect<T> extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(_radius),
-            border: Border.all(color: AppColors.fieldBorder),
+            border: Border.all(color: colors.fieldBorder),
           ),
           child: Row(
             children: [
@@ -135,7 +137,7 @@ class AppMultiSelect<T> extends StatelessWidget {
                   hasValue ? display : (emptySelectionHint ?? hint),
                   style: AppTextStyle.base(
                     16,
-                    color: hasValue ? AppColors.textColor : AppColors.subTextColor.withValues(alpha: 0.65),
+                    color: hasValue ? colors.textColor : colors.subTextColor.withValues(alpha: 0.65),
                     height: 1.25,
                   ),
                   maxLines: 2,
@@ -143,8 +145,8 @@ class AppMultiSelect<T> extends StatelessWidget {
                 ),
               ),
               Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: AppColors.subTextColor.withValues(alpha: 0.55),
+                AppIcons.arrowDown.icon,
+                color: colors.subTextColor.withValues(alpha: 0.55),
                 size: 24,
               ),
             ],
@@ -160,7 +162,7 @@ class AppMultiSelect<T> extends StatelessWidget {
         if (label != null) ...[
           Text(
             label!,
-            style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
         ],
@@ -282,7 +284,7 @@ class _AppMultiSelectSheetContentState<T> extends State<AppMultiSelectSheetConte
 
   void _confirm() => Navigator.pop(context, _selected);
 
-  Widget _optionTile(AppMultiSelectOption<T> option) {
+  Widget _optionTile(AppMultiSelectOption<T> option, AppPalette colors) {
     final isSelected = _selected.contains(option.value);
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 4),
@@ -290,47 +292,47 @@ class _AppMultiSelectSheetContentState<T> extends State<AppMultiSelectSheetConte
         option.label,
         style: AppTextStyle.base(
           16,
-          color: AppColors.textColor,
+          color: colors.textColor,
           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
         ),
       ),
-      trailing: isSelected ? Icon(Icons.check_rounded, color: AppColors.btnBackground, size: 22) : null,
+      trailing: isSelected ? Icon(AppIcons.checkRounded.icon, color: colors.btnBackground, size: 22) : null,
       onTap: () => _toggle(option.value),
     );
   }
 
-  Widget _groupHeader(String title, {required bool isFirst}) {
+  Widget _groupHeader(String title, AppPalette colors, {required bool isFirst}) {
     return Padding(
       padding: EdgeInsets.fromLTRB(4, isFirst ? 4 : 20, 4, 8),
       child: Text(
         title,
-        style: AppTextStyle.base(13, color: AppColors.subTextColor, fontWeight: FontWeight.w600, height: 1.2),
+        style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600, height: 1.2),
       ),
     );
   }
 
-  List<Widget> _buildGroupedListItems() {
+  List<Widget> _buildGroupedListItems(AppPalette colors) {
     final items = <Widget>[];
     for (var i = 0; i < _filteredGroups.length; i++) {
       final group = _filteredGroups[i];
-      items.add(_groupHeader(group.title, isFirst: i == 0));
+      items.add(_groupHeader(group.title, colors, isFirst: i == 0));
       for (var j = 0; j < group.options.length; j++) {
-        items.add(_optionTile(group.options[j]));
+        items.add(_optionTile(group.options[j], colors));
         if (j < group.options.length - 1) {
-          items.add(Divider(height: 1, color: AppColors.border.withValues(alpha: 0.6)));
+          items.add(Divider(height: 1, color: colors.border.withValues(alpha: 0.6)));
         }
       }
     }
     return items;
   }
 
-  List<Widget> _buildFlatListItems() {
+  List<Widget> _buildFlatListItems(AppPalette colors) {
     final filtered = _filteredFlat;
     final items = <Widget>[];
     for (var i = 0; i < filtered.length; i++) {
-      items.add(_optionTile(filtered[i]));
+      items.add(_optionTile(filtered[i], colors));
       if (i < filtered.length - 1) {
-        items.add(Divider(height: 1, color: AppColors.border.withValues(alpha: 0.6)));
+        items.add(Divider(height: 1, color: colors.border.withValues(alpha: 0.6)));
       }
     }
     return items;
@@ -338,13 +340,14 @@ class _AppMultiSelectSheetContentState<T> extends State<AppMultiSelectSheetConte
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         AppField(
           hintText: widget.searchHint,
           controller: _search,
-          prefixIcon: Icons.search_rounded,
+          prefixIcon: AppIcons.searchRounded.icon,
           textInputAction: TextInputAction.search,
           onChanged: (v) => setState(() => _query = v),
         ),
@@ -356,13 +359,13 @@ class _AppMultiSelectSheetContentState<T> extends State<AppMultiSelectSheetConte
                     padding: const EdgeInsets.all(24),
                     child: Text(
                       'Ничего не найдено',
-                      style: AppTextStyle.base(14, color: AppColors.subTextColor),
+                      style: AppTextStyle.base(14, color: colors.subTextColor),
                     ),
                   ),
                 )
               : ListView(
                   padding: const EdgeInsets.only(bottom: 8),
-                  children: _hasGroups ? _buildGroupedListItems() : _buildFlatListItems(),
+                  children: _hasGroups ? _buildGroupedListItems(colors) : _buildFlatListItems(colors),
                 ),
         ),
         const SizedBox(height: 8),

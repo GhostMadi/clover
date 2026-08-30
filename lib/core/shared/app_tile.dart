@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -63,7 +64,7 @@ class AppTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
     final minHeight = context.heightByContext(_figmaMinHeight);
     final hPadding = context.widthByContext(_figmaHPadding);
     final vPadding = context.heightByContext(_figmaVPadding);
@@ -83,8 +84,8 @@ class AppTile extends StatelessWidget {
 
     final subtitleColor = colors.subTextColor.withValues(alpha: enabled ? 0.88 : 0.55);
 
-    final leadingWidget = leading ?? _buildLeading(context);
-    final trailingWidget = trailing ?? (showChevron ? _buildChevron(context) : null);
+    final leadingWidget = leading ?? _buildLeading(context, colors);
+    final trailingWidget = trailing ?? (showChevron ? _buildChevron(context, colors) : null);
 
     final tileBody = Container(
       constraints: BoxConstraints(minHeight: minHeight),
@@ -153,8 +154,8 @@ class AppTile extends StatelessWidget {
       child: InkWell(
         onTap: _isInteractive ? onTap : null,
         borderRadius: radiusValue > 0 ? BorderRadius.circular(radius) : null,
-        splashColor: AppColors.primary.withValues(alpha: 0.08),
-        highlightColor: AppColors.primary.withValues(alpha: 0.04),
+        splashColor: colors.primary.withValues(alpha: 0.08),
+        highlightColor: colors.primary.withValues(alpha: 0.04),
         child: tileBody,
       ),
     );
@@ -172,7 +173,7 @@ class AppTile extends StatelessWidget {
           thickness: 1,
           indent: dividerIndent,
           endIndent: hPadding,
-          color: AppColors.divider,
+          color: colors.divider,
         ),
       ],
     );
@@ -183,31 +184,31 @@ class AppTile extends StatelessWidget {
     return text != null && text.isNotEmpty;
   }
 
-  Widget? _buildLeading(BuildContext context) {
+  Widget? _buildLeading(BuildContext context, AppPalette colors) {
     if (icon == null) return null;
 
     final size = context.heightByContext(_figmaLeadingSize);
     final iconSize = context.heightByContext(_figmaIconSize);
     final leadingRadius = context.widthByContext(_figmaLeadingRadius);
 
-    final fg = iconColor ?? (selected ? AppColors.primary : AppColors.textColor);
+    final fg = iconColor ?? (selected ? colors.primary : colors.textColor);
     final bg =
-        iconBackgroundColor ?? (selected ? AppColors.primary.withValues(alpha: 0.12) : AppColors.surfaceSoft);
+        iconBackgroundColor ?? (selected ? colors.primary.withValues(alpha: 0.12) : colors.surfaceSoft);
 
     return Container(
       width: size,
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(leadingRadius)),
-      child: Icon(icon, size: iconSize, color: enabled ? fg : AppColors.iconMuted),
+      child: Icon(icon, size: iconSize, color: enabled ? fg : colors.iconMuted),
     );
   }
 
-  Widget _buildChevron(BuildContext context) {
+  Widget _buildChevron(BuildContext context, AppPalette colors) {
     return Icon(
-      Icons.chevron_right_rounded,
+      AppIcons.chevronRight.icon,
       size: context.heightByContext(_figmaChevronSize),
-      color: enabled ? AppColors.iconMuted : AppColors.border,
+      color: enabled ? colors.iconMuted : colors.border,
     );
   }
 }
@@ -226,14 +227,15 @@ class AppTileGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     if (children.isEmpty) return const SizedBox.shrink();
 
+    final colors = context.colors;
     final radius = context.widthByContext(borderRadius ?? _figmaRadius);
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(radius),
         border: Border.all(
-          color: AppColors.border.withValues(alpha: 0.55),
+          color: colors.border.withValues(alpha: 0.55),
           width: context.widthByContext(_figmaBorderWidth),
         ),
       ),
@@ -266,6 +268,7 @@ class AppTileDividerWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final hPadding = context.widthByContext(_figmaHPadding);
 
     return Column(
@@ -277,7 +280,7 @@ class AppTileDividerWrapper extends StatelessWidget {
           thickness: 1,
           indent: context.widthByContext(_figmaDividerIndent),
           endIndent: hPadding,
-          color: AppColors.divider,
+          color: colors.divider,
         ),
       ],
     );

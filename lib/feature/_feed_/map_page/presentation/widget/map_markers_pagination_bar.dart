@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -68,7 +69,7 @@ class MapMarkersPaginationBar extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _ArrowButton(
-                    icon: Icons.keyboard_arrow_up_rounded,
+                    icon: AppIcons.arrowUp.icon,
                     enabled: canGoPrevious,
                     size: pillSize - 12,
                     onTap: onPrevious,
@@ -128,7 +129,7 @@ class MapMarkersPaginationBar extends StatelessWidget {
                     ),
                   ),
                   _ArrowButton(
-                    icon: Icons.keyboard_arrow_down_rounded,
+                    icon: AppIcons.arrowDown.icon,
                     enabled: canGoNext,
                     size: pillSize - 12,
                     onTap: onNext,

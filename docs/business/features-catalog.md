@@ -39,7 +39,7 @@
 ### 🟡 Сессия и выход
 Остаёшься в аккаунте между запусками; выход из настроек.  
 Бизнес: только внутри authentication, отдельного дока нет  
-Техника: auth + `lib/feature/settings_account/`
+Техника: auth + `lib/feature/_settings_/settings_account/`
 
 ---
 
@@ -58,12 +58,12 @@
 ### 🟡 Фильтры ленты и карты
 Страна, город и другие отборы.  
 Бизнес: не описан  
-Техника: `events_page/`, `map_page/`, `settings_filter/`
+Техника: `lib/feature/_feed_/events_page/`, `lib/feature/_feed_/map_page/`, `lib/feature/_settings_/settings_filter/`
 
 ### 🟡 Уведомления
 Центр уведомлений с Home.  
 Бизнес: не описан  
-Техника: `lib/feature/notification_page/`
+Техника: `lib/feature/_feed_/notification_page/`
 
 ---
 
@@ -72,27 +72,27 @@
 ### 🟢 Свой профиль
 Витрина: шапка, счётчики, публикации, настройки.  
 Бизнес: [profile.md](profile.md)  
-Техника: `lib/feature/profile_page/`
+Техника: `lib/feature/_profile_/profile_page/`
 
 ### 🟢 Чужой профиль
 Подписка, чат, запись (если хозяин принимает).  
 Бизнес: в profile.md  
-Техника: guest profile в `profile_page/`
+Техника: guest profile в `_profile_/profile_page/`
 
 ### 🟢 Редактирование профиля
 Имя, ник, био, фото, место, теги.  
 Бизнес: profile + [profile-data.md](profile-data.md)  
-Техника: `lib/feature/edit_profile/`
+Техника: `lib/feature/_profile_/edit_profile/`
 
 ### 🟡 Подписчики и подписки
 Списки из счётчиков шапки.  
 Бизнес: только упомянуто в profile  
-Техника: `followers_and_followings/`, `social_graph/`
+Техника: `_profile_/followers_and_followings/`, `_catalog_/social_graph/`
 
 ### 🟢 Теги (единый справочник)
 Профиль, маркеры, фильтры — один список: `salon`, `business`, `booking`, …  
 Бизнес: profile / profile-data  
-Техника: `marker_tags` + `profile_tag_links`, edit через `MultiMarkerTags`
+Техника: `_catalog_/marker_tags/` + `profile_tag_links`, edit через `MultiMarkerTags`
 
 ### 🟢 «Бизнес-профиль» (как отдельный тип)
 Отдельного экрана нет — **так и задумано**: один профиль + теги, запись, бонусы.  
@@ -111,7 +111,7 @@
 ### 🟢 Публикации и ивенты
 Обычный пост или ивент (пост + маркер + период ≤ 24 ч).  
 Бизнес: [publications.md](publications.md)  
-Техника: `post/`, `post_create/`, `marker_create/`, `events_page/`, `map_page/`
+Техника: `_post_/post/`, `_post_/post_create/`, `_post_/marker_create/`, `_feed_/events_page/`, `_feed_/map_page/`
 
 ### 🟢 Создание публикации / ивента
 С профиля через «+».  
@@ -126,22 +126,22 @@ Like / dislike.
 ### 🟡 Комментарии
 Шторка к посту.  
 Бизнес: не описан  
-Техника: `post_comment/`
+Техника: `_post_/post_comment/`
 
 ### 🟡 Шаринг поста в чат
 Только внутри Clover.  
 Бизнес: не описан  
-Техника: `post_share/`
+Техника: `_post_/post_share/`
 
 ### 🟡 Сохранённые посты
 Из настроек.  
 Бизнес: не описан  
-Техника: `settings_saved_post/`
+Техника: `_settings_/settings_saved_post/`
 
 ### 🟡 Архивы
 Публикации / ивенты / кластеры.  
 Бизнес: не описан  
-Техника: `archive/`
+Техника: `_archive_/` (посты, ивенты), `_cluster_/cluster_archive/`
 
 ---
 
@@ -159,7 +159,7 @@ Like / dislike.
 ### 🟡 Список чатов и переписка
 Вкладка Chat, диалоги, вложения, превью постов.  
 Бизнес: не описан  
-Техника: `message_page/`, `chat_page/`, `chat/`; Edge `send_chat_attachments`
+Техника: `_chat_/message_page/`, `_chat_/chat_page/`, `_chat_/chat/`; Edge `send_chat_attachments`
 
 ### 🟡 Подписки (follow)
 См. профиль выше — 🟡
@@ -189,7 +189,7 @@ Like / dislike.
 ### 🟡 Настройки приложения
 Хаб, аккаунт, тема, «О приложении», ресурсы, фильтры витрины.  
 Бизнес: почти нет (кроме связи с онбордингом)  
-Техника: `settings/`, `settings_account/`, `settings_about/`, … + `lib/core/theme/`
+Техника: `_settings_/settings/`, `_settings_/settings_account/`, `_settings_/settings_about/`, … + `lib/core/theme/`
 
 ### 🔴 Сон / сброс аккаунта
 Состояния вроде hibernate на бэке.  
@@ -213,7 +213,7 @@ Enum + catalog: страны, города, теги без sync с бэка.
 ### 🟡 Локации пользователя
 Сохранённые места для постов и ивентов.  
 Бизнес: не описан  
-Техника: `lib/feature/location/`
+Техника: `lib/feature/_catalog_/location/`
 
 ---
 

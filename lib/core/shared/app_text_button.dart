@@ -56,7 +56,8 @@ class _AppTextButtonState extends State<AppTextButton> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    final textColor = _isEnabled ? AppColors.primary : AppColors.iconMuted;
+    final colors = context.colors;
+    final textColor = _isEnabled ? colors.primary : colors.iconMuted;
 
     final content = widget.isLoading
         ? SizedBox(

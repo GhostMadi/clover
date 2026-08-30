@@ -59,25 +59,26 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    final Color backgroundColor = _isEnabled ? AppColors.primary : AppColors.surfaceSoft;
-    final Color textColor = _isEnabled ? AppColors.textInverse : AppColors.subTextColor;
+    final colors = context.colors;
+    final backgroundColor = _isEnabled ? colors.primary : colors.surfaceSoft;
+    final textColor = _isEnabled ? colors.textInverse : colors.subTextColor;
 
-    final List<BoxShadow> shadows = _isEnabled
+    final shadows = _isEnabled
         ? [
             BoxShadow(
-              color: AppColors.shadowDark.withValues(alpha: 0.10),
+              color: colors.shadowDark.withValues(alpha: 0.10),
               blurRadius: 18,
               offset: const Offset(0, 10),
             ),
             BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.20),
+              color: colors.primary.withValues(alpha: 0.20),
               blurRadius: 24,
               offset: const Offset(0, 8),
             ),
           ]
         : [
             BoxShadow(
-              color: AppColors.shadowDark.withValues(alpha: 0.05),
+              color: colors.shadowDark.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -88,7 +89,7 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(widget.borderRadius),
-        border: Border.all(color: _isEnabled ? AppColors.borderCardGreen : AppColors.border),
+        border: Border.all(color: _isEnabled ? colors.borderCardGreen : colors.border),
         boxShadow: shadows,
       ),
       child: Stack(
@@ -101,7 +102,7 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.white.withValues(alpha: 0.08), Colors.transparent],
+                    colors: [colors.white.withValues(alpha: 0.08), Colors.transparent],
                   ),
                 ),
               ),

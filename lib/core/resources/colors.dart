@@ -103,6 +103,9 @@ abstract final class AppColors {
   static Color get postEditorOnSurfaceHint => _p.postEditorOnSurfaceHint;
   static Color get postEditorSliderOverlay => _p.postEditorSliderOverlay;
 
+  static Color get shimmerBase => _p.shimmerBase;
+  static Color get shimmerHighlight => _p.shimmerHighlight;
+
   // Misc
   static Color get postShareIcon => _p.postShareIcon;
 }

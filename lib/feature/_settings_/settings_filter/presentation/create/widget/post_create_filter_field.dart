@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -166,7 +167,7 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
-                            Icons.tune_rounded,
+                            AppIcons.tune.icon,
                             size: 20,
                             color: selected.isEmpty ? AppColors.iconMuted : AppColors.primary,
                           ),
@@ -195,7 +196,7 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
                           ),
                         ),
                         Icon(
-                          Icons.keyboard_arrow_down_rounded,
+                          AppIcons.arrowDown.icon,
                           color: AppColors.subTextColor.withValues(alpha: 0.55),
                           size: 24,
                         ),
@@ -220,7 +221,7 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        deleteIcon: const Icon(Icons.close_rounded, size: 16),
+                        deleteIcon: Icon(AppIcons.closeRounded.icon, size: 16),
                         onDeleted: canOpen ? () => _removeValue(entry) : null,
                         backgroundColor: AppColors.surfaceSoft,
                         side: BorderSide(color: AppColors.border.withValues(alpha: 0.7)),

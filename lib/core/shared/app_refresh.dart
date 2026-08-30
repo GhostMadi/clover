@@ -27,10 +27,11 @@ class AppRefresh extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return RefreshIndicator(
       onRefresh: onRefresh,
-      color: color ?? AppColors.primary,
-      backgroundColor: backgroundColor ?? Colors.white,
+      color: color ?? colors.primary,
+      backgroundColor: backgroundColor ?? colors.surface,
       strokeWidth: strokeWidth,
       displacement: displacement,
       edgeOffset: edgeOffset,

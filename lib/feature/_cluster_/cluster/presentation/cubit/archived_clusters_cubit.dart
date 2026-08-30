@@ -24,6 +24,14 @@ class ArchivedClustersCubit extends Cubit<ArchivedClustersState> {
       emit(ArchivedClustersState.error('$e'));
     }
   }
+
+  Future<void> unarchive(String clusterId) async {
+    await _repository.unarchiveCluster(clusterId: clusterId);
+  }
+
+  Future<void> delete(String clusterId) async {
+    await _repository.deleteCluster(clusterId: clusterId);
+  }
 }
 
 @freezed

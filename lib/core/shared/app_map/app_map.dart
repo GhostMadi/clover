@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:clover/core/theme/app_color_binding.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_map/app_map_cluster_icon_factory.dart';
 import 'package:clover/core/shared/app_map/app_map_marker.dart';
@@ -349,7 +350,7 @@ class _AppMapState extends State<AppMap> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = AppColors.of(context).brightness == Brightness.dark;
+    final isDark = context.colors.brightness == Brightness.dark;
 
     return YandexMap(
       mapType: MapType.map,
@@ -367,18 +368,19 @@ class _AppMapState extends State<AppMap> {
   }
 
   static Future<Uint8List> _createPinImageBytes() async {
+    final p = AppColorBinding.palette;
     const size = 48.0;
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
-    final shadow = Paint()..color = AppColors.shadowDark.withValues(alpha: 0.22);
+    final shadow = Paint()..color = p.shadowDark.withValues(alpha: 0.22);
     canvas.drawCircle(const Offset(size / 2, size / 2 + 1), 16, shadow);
 
-    final fill = Paint()..color = AppColors.primary;
+    final fill = Paint()..color = p.primary;
     canvas.drawCircle(const Offset(size / 2, size / 2), 16, fill);
 
     final border = Paint()
-      ..color = Colors.white
+      ..color = p.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
     canvas.drawCircle(const Offset(size / 2, size / 2), 16, border);

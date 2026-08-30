@@ -70,6 +70,8 @@ import 'package:clover/feature/_feed_/events_page/presentation/page/events_page.
     as _i27;
 import 'package:clover/feature/_feed_/map_page/presentation/page/map_page.dart'
     as _i33;
+import 'package:clover/feature/_feed_/notification_page/presentation/page/notifications_page.dart'
+    as _i41;
 import 'package:clover/feature/_post_/marker_create/presentation/page/marker_create_compose_page.dart'
     as _i34;
 import 'package:clover/feature/_post_/marker_create/presentation/page/marker_create_editor_page.dart'
@@ -128,8 +130,6 @@ import 'package:clover/feature/dashboard_page/presentation/page/app_dashboard.da
     as _i2;
 import 'package:clover/feature/dashboard_page/presentation/page/dashboard_home_page.dart'
     as _i18;
-import 'package:clover/feature/notification_page/presentation/page/notifications_page.dart'
-    as _i41;
 import 'package:clover/feature/onboarding/presentation/page/onboarding_page.dart'
     as _i42;
 import 'package:flutter/material.dart' as _i57;

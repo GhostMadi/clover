@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
@@ -157,7 +158,7 @@ class AppTimePicker extends StatelessWidget {
       label: label,
       hint: hint,
       displayText: value == null ? null : formatRangeDisplay(value!),
-      prefixIcon: Icons.schedule_rounded,
+      prefixIcon: AppIcons.schedule.icon,
       enabled: enabled,
       onTap: enabled ? () => _openSheet(context) : null,
     );
@@ -285,11 +286,11 @@ class _AppDateTimeRangeSheetState extends State<_AppDateTimeRangeSheet> {
     Navigator.of(context).pop(AppDateTimeRange(start: _start, end: _end));
   }
 
-  Widget _sideChip({required _RangeSide side, required String label}) {
+  Widget _sideChip({required _RangeSide side, required String label, required AppPalette colors}) {
     final selected = _side == side;
     return Expanded(
       child: Material(
-        color: selected ? AppColors.primary.withValues(alpha: 0.12) : AppColors.fieldBackground,
+        color: selected ? colors.primary.withValues(alpha: 0.12) : colors.fieldBackground,
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
@@ -302,7 +303,7 @@ class _AppDateTimeRangeSheetState extends State<_AppDateTimeRangeSheet> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: selected ? AppColors.primary.withValues(alpha: 0.45) : AppColors.fieldBorder,
+                color: selected ? colors.primary.withValues(alpha: 0.45) : colors.fieldBorder,
               ),
             ),
             child: Text(
@@ -311,7 +312,7 @@ class _AppDateTimeRangeSheetState extends State<_AppDateTimeRangeSheet> {
               style: AppTextStyle.base(
                 14,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                color: selected ? AppColors.textColor : AppColors.subTextColor,
+                color: selected ? colors.textColor : colors.subTextColor,
               ),
             ),
           ),
@@ -322,6 +323,7 @@ class _AppDateTimeRangeSheetState extends State<_AppDateTimeRangeSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final bottom = MediaQuery.paddingOf(context).bottom;
     final active = _active;
     final dayItems = List.generate(_daysInMonth(active.year, active.month), (i) => i + 1);
@@ -332,21 +334,21 @@ class _AppDateTimeRangeSheetState extends State<_AppDateTimeRangeSheet> {
       children: [
         Row(
           children: [
-            _sideChip(side: _RangeSide.start, label: 'Начало'),
+            _sideChip(side: _RangeSide.start, label: 'Начало', colors: colors),
             const SizedBox(width: 8),
-            _sideChip(side: _RangeSide.end, label: 'Конец'),
+            _sideChip(side: _RangeSide.end, label: 'Конец', colors: colors),
           ],
         ),
         const SizedBox(height: 12),
         Text(
           AppTimePicker.formatDateTime(active),
           textAlign: TextAlign.center,
-          style: AppTextStyle.base(20, fontWeight: FontWeight.w700, color: AppColors.textColor),
+          style: AppTextStyle.base(20, fontWeight: FontWeight.w700, color: colors.textColor),
         ),
         Text(
           '${active.year}',
           textAlign: TextAlign.center,
-          style: AppTextStyle.base(14, color: AppColors.subTextColor),
+          style: AppTextStyle.base(14, color: colors.subTextColor),
         ),
         const SizedBox(height: 8),
         Expanded(
@@ -390,7 +392,7 @@ class _AppDateTimeRangeSheetState extends State<_AppDateTimeRangeSheet> {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
                         ':',
-                        style: AppTextStyle.base(28, fontWeight: FontWeight.w700, color: AppColors.primary),
+                        style: AppTextStyle.base(28, fontWeight: FontWeight.w700, color: colors.primary),
                       ),
                     ),
                     SizedBox(
@@ -410,14 +412,14 @@ class _AppDateTimeRangeSheetState extends State<_AppDateTimeRangeSheet> {
         Text(
           'Длительность: ${AppTimePicker.formatDuration(duration)}',
           textAlign: TextAlign.center,
-          style: AppTextStyle.base(14, color: AppColors.subTextColor, fontWeight: FontWeight.w600),
+          style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w600),
         ),
         if (_error != null) ...[
           const SizedBox(height: 6),
           Text(
             _error!,
             textAlign: TextAlign.center,
-            style: AppTextStyle.base(13, color: AppColors.error),
+            style: AppTextStyle.base(13, color: colors.error),
           ),
         ],
         Padding(

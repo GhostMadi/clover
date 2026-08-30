@@ -61,7 +61,7 @@ class AppNavBar extends StatelessWidget {
     assert(items.isNotEmpty);
     assert(currentIndex < items.length);
 
-    final colors = AppColors.of(context);
+    final colors = context.colors;
     final isDark = colors.brightness == Brightness.dark;
     final barHeight =
         context.heightByContext(_figmaBarHeight).clamp(48.0, 80.0);
@@ -193,7 +193,7 @@ class _StackedNavIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
+    final colors = context.colors;
     final isDark = colors.brightness == Brightness.dark;
 
     // Badge читается как «плашка», не как бледный слой иконки.

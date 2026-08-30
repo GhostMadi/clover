@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ class AppPickerFieldShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final hasValue = displayText != null && displayText!.trim().isNotEmpty;
     final canTap = enabled && onTap != null;
 
@@ -38,12 +40,12 @@ class AppPickerFieldShell extends StatelessWidget {
             padding: const EdgeInsets.only(left: 4, bottom: 6),
             child: Text(
               label!,
-              style: AppTextStyle.base(13, fontWeight: FontWeight.w600, color: AppColors.fieldLabel),
+              style: AppTextStyle.base(13, fontWeight: FontWeight.w600, color: colors.fieldLabel),
             ),
           ),
         ],
         Material(
-          color: enabled ? AppColors.fieldBackground : AppColors.fieldBackgroundDisabled,
+          color: enabled ? colors.fieldBackground : colors.fieldBackgroundDisabled,
           borderRadius: BorderRadius.circular(_radius),
           child: InkWell(
             onTap: canTap ? onTap : null,
@@ -52,10 +54,10 @@ class AppPickerFieldShell extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(_radius),
-                border: Border.all(color: AppColors.fieldBorder),
+                border: Border.all(color: colors.fieldBorder),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.shadowDark.withValues(alpha: 0.04),
+                    color: colors.shadowDark.withValues(alpha: 0.04),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -64,7 +66,7 @@ class AppPickerFieldShell extends StatelessWidget {
               child: Row(
                 children: [
                   if (prefixIcon != null) ...[
-                    Icon(prefixIcon, size: 22, color: AppColors.fieldIcon),
+                    Icon(prefixIcon, size: 22, color: colors.fieldIcon),
                     const SizedBox(width: 10),
                   ],
                   Expanded(
@@ -76,14 +78,14 @@ class AppPickerFieldShell extends StatelessWidget {
                         16,
                         fontWeight: FontWeight.w500,
                         color: hasValue
-                            ? (enabled ? AppColors.fieldText : AppColors.fieldTextDisabled)
-                            : AppColors.fieldHint,
+                            ? (enabled ? colors.fieldText : colors.fieldTextDisabled)
+                            : colors.fieldHint,
                       ),
                     ),
                   ),
                   Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: AppColors.subTextColor.withValues(alpha: 0.55),
+                    AppIcons.arrowDown.icon,
+                    color: colors.subTextColor.withValues(alpha: 0.55),
                     size: 24,
                   ),
                 ],
@@ -160,6 +162,7 @@ class _AppPickerWheelState extends State<AppPickerWheel> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     if (widget.items.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -176,9 +179,9 @@ class _AppPickerWheelState extends State<AppPickerWheel> {
             height: AppPickerWheel.itemExtent,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: colors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.primary.withValues(alpha: 0.22)),
+                border: Border.all(color: colors.primary.withValues(alpha: 0.22)),
               ),
             ),
           ),
@@ -199,7 +202,7 @@ class _AppPickerWheelState extends State<AppPickerWheel> {
                     style: AppTextStyle.base(
                       selected ? 18 : 16,
                       fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                      color: selected ? AppColors.textColor : AppColors.subTextColor.withValues(alpha: 0.75),
+                      color: selected ? colors.textColor : colors.subTextColor.withValues(alpha: 0.75),
                     ),
                     child: Text(widget.items[index], textAlign: TextAlign.center),
                   ),

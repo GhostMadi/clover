@@ -1,4 +1,5 @@
 import 'package:clover/core/extension/context.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/post_media/post_media.dart';
 import 'package:clover/core/resources/style.dart';
@@ -210,19 +211,19 @@ class _AppImageSelectorPageState extends State<AppImageSelectorPage> {
     final normalized = album.name.trim().toLowerCase();
 
     if (album.isAll || normalized == 'recents' || normalized == 'recent') {
-      return Icons.access_time_rounded;
+      return AppIcons.accessTime.icon;
     }
     if (normalized.contains('favorite') || normalized.contains('favour')) {
-      return Icons.favorite_border_rounded;
+      return AppIcons.like.icon;
     }
     if (normalized.contains('screenshot')) {
-      return Icons.screenshot_monitor_outlined;
+      return AppIcons.screenshot.icon;
     }
     if (normalized.contains('selfie')) {
-      return Icons.face_retouching_natural_outlined;
+      return AppIcons.faceRetouching.icon;
     }
 
-    return Icons.folder_outlined;
+    return AppIcons.folderOutlined.icon;
   }
 
   void _handleClose() {
@@ -243,16 +244,17 @@ class _AppImageSelectorPageState extends State<AppImageSelectorPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
-      backgroundColor: AppColors.pageBackground,
+      backgroundColor: colors.pageBackground,
       appBar: AppBar(
-        backgroundColor: AppColors.pageBackground,
+        backgroundColor: colors.pageBackground,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.close, size: context.widthByContext(AppImageSelectorPage._figmaCloseIconSize)),
-          color: AppColors.textColor,
+          icon: Icon(AppIcons.close.icon, size: context.widthByContext(AppImageSelectorPage._figmaCloseIconSize)),
+          color: colors.textColor,
           onPressed: _handleClose,
         ),
         title: Text(
@@ -260,7 +262,7 @@ class _AppImageSelectorPageState extends State<AppImageSelectorPage> {
           style: AppTextStyle.base(
             AppImageSelectorPage._figmaAppBarTitleFont,
             fontWeight: FontWeight.w700,
-            color: AppColors.textColor,
+            color: colors.textColor,
           ),
         ),
         actions: [
@@ -268,12 +270,12 @@ class _AppImageSelectorPageState extends State<AppImageSelectorPage> {
         ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? Center(child: CircularProgressIndicator(color: colors.primary))
           : _albums.isEmpty
           ? Center(
               child: Text(
                 'Нет доступных изображений',
-                style: AppTextStyle.base(15, color: AppColors.subTextColor),
+                style: AppTextStyle.base(15, color: colors.subTextColor),
               ),
             )
           : Column(
@@ -308,14 +310,14 @@ class _AppImageSelectorPageState extends State<AppImageSelectorPage> {
                                   style: AppTextStyle.base(
                                     AppImageSelectorPage._figmaAlbumTitleFont,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.textColor,
+                                    color: colors.textColor,
                                   ),
                                 ),
                                 SizedBox(width: context.widthByContext(4)),
                                 Icon(
-                                  Icons.keyboard_arrow_down_rounded,
+                                  AppIcons.arrowDown.icon,
                                   size: context.widthByContext(AppImageSelectorPage._figmaAlbumChevronSize),
-                                  color: AppColors.textColor,
+                                  color: colors.textColor,
                                 ),
                               ],
                             ),
@@ -324,12 +326,12 @@ class _AppImageSelectorPageState extends State<AppImageSelectorPage> {
                 ),
                 Expanded(
                   child: _isAlbumLoading
-                      ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+                      ? Center(child: CircularProgressIndicator(color: colors.primary))
                       : _mediaList.isEmpty
                       ? Center(
                           child: Text(
                             'В этом альбоме нет фото',
-                            style: AppTextStyle.base(15, color: AppColors.subTextColor),
+                            style: AppTextStyle.base(15, color: colors.subTextColor),
                           ),
                         )
                       : GridView.builder(
@@ -359,10 +361,10 @@ class _AppImageSelectorPageState extends State<AppImageSelectorPage> {
                                   if (isSelected)
                                     DecoratedBox(
                                       decoration: BoxDecoration(
-                                        color: AppColors.primary.withValues(
+                                        color: colors.primary.withValues(
                                           alpha: AppImageSelectorPage._figmaSelectedOverlayAlpha,
                                         ),
-                                        border: Border.all(color: AppColors.primary, width: 2),
+                                        border: Border.all(color: colors.primary, width: 2),
                                       ),
                                     ),
                                   if (order != null)
@@ -386,16 +388,17 @@ class _SelectionBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     const size = 22.0;
 
     return Container(
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+      decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
       child: Text(
         '$order',
-        style: AppTextStyle.base(12, fontWeight: FontWeight.w800, color: AppColors.textInverse),
+        style: AppTextStyle.base(12, fontWeight: FontWeight.w800, color: colors.textInverse),
       ),
     );
   }
@@ -408,13 +411,14 @@ class _PreviewArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return ColoredBox(
-      color: AppColors.surfaceSoft,
+      color: colors.surfaceSoft,
       child: AspectRatio(
         aspectRatio: AppImageSelectorPage._figmaPreviewAspectRatio,
         child: asset == null
             ? Center(
-                child: Text('Выберите фото', style: AppTextStyle.base(15, color: AppColors.subTextColor)),
+                child: Text('Выберите фото', style: AppTextStyle.base(15, color: colors.subTextColor)),
               )
             : AssetEntityImage(
                 asset!,

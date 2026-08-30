@@ -57,9 +57,10 @@ class _AppOutlinedButtonState extends State<AppOutlinedButton> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    final Color backgroundColor = _isEnabled ? AppColors.surface : AppColors.surfaceMuted;
-    final Color borderColor = _isEnabled ? AppColors.borderInput : AppColors.border;
-    final Color textColor = _isEnabled ? AppColors.textColor : AppColors.subTextColor;
+    final colors = context.colors;
+    final backgroundColor = _isEnabled ? colors.surface : colors.surfaceMuted;
+    final borderColor = _isEnabled ? colors.borderInput : colors.border;
+    final textColor = _isEnabled ? colors.textColor : colors.subTextColor;
 
     final button = AnimatedBuilder(
       animation: _jellyController.scaleAnimation,
@@ -77,7 +78,7 @@ class _AppOutlinedButtonState extends State<AppOutlinedButton> with SingleTicker
             boxShadow: _isEnabled
                 ? [
                     BoxShadow(
-                      color: AppColors.shadowDark.withValues(alpha: 0.05),
+                      color: colors.shadowDark.withValues(alpha: 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -91,7 +92,7 @@ class _AppOutlinedButtonState extends State<AppOutlinedButton> with SingleTicker
                     width: 22,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.3,
-                      valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                      valueColor: AlwaysStoppedAnimation(colors.primary),
                     ),
                   )
                 : widget.child ??

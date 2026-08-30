@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/post_media/post_media.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_tab.dart';
@@ -191,16 +192,17 @@ class _AppImageEditorPageState extends State<AppImageEditorPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
-      backgroundColor: AppColors.postEditorBackground,
+      backgroundColor: colors.postEditorBackground,
       appBar: AppBar(
-        backgroundColor: AppColors.postEditorBackground,
+        backgroundColor: colors.postEditorBackground,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, size: context.widthByContext(AppImageEditorPage._figmaCloseIconSize)),
-          color: AppColors.postEditorOnSurface,
+          icon: Icon(AppIcons.arrowBackRounded.icon, size: context.widthByContext(AppImageEditorPage._figmaCloseIconSize)),
+          color: colors.postEditorOnSurface,
           onPressed: _handleClose,
         ),
         title: Text(
@@ -208,7 +210,7 @@ class _AppImageEditorPageState extends State<AppImageEditorPage> {
           style: AppTextStyle.base(
             AppImageEditorPage._figmaAppBarTitleFont,
             fontWeight: FontWeight.w700,
-            color: AppColors.postEditorOnSurface,
+            color: colors.postEditorOnSurface,
           ),
         ),
         actions: [
@@ -219,19 +221,19 @@ class _AppImageEditorPageState extends State<AppImageEditorPage> {
         ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: AppColors.postEditorCta))
+          ? Center(child: CircularProgressIndicator(color: colors.postEditorCta))
           : !_allFilesReady
           ? Center(
               child: Text(
                 'Не удалось загрузить фото',
-                style: AppTextStyle.base(15, color: AppColors.postEditorOnSurfaceMuted),
+                style: AppTextStyle.base(15, color: colors.postEditorOnSurfaceMuted),
               ),
             )
           : Column(
               children: [
                 Expanded(
                   child: ColoredBox(
-                    color: AppColors.surfaceSoft,
+                    color: colors.surfaceSoft,
                     child: Stack(
                       children: [
                         Center(
@@ -272,7 +274,7 @@ class _AppImageEditorPageState extends State<AppImageEditorPage> {
                                         decoration: BoxDecoration(
                                           borderRadius: BorderRadius.circular(10),
                                           border: Border.all(
-                                            color: isActive ? AppColors.postEditorCta : AppColors.border,
+                                            color: isActive ? colors.postEditorCta : colors.border,
                                             width: isActive ? 2 : 1,
                                           ),
                                         ),
@@ -299,9 +301,9 @@ class _AppImageEditorPageState extends State<AppImageEditorPage> {
                             bottom: context.heightByContext(12),
                             child: DecoratedBox(
                               decoration: BoxDecoration(
-                                color: AppColors.postEditorPanel.withValues(alpha: 0.92),
+                                color: colors.postEditorPanel.withValues(alpha: 0.92),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.border),
+                                border: Border.all(color: colors.border),
                               ),
                               child: Padding(
                                 padding: EdgeInsets.symmetric(
@@ -314,7 +316,7 @@ class _AppImageEditorPageState extends State<AppImageEditorPage> {
                                   style: AppTextStyle.base(
                                     12,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.postEditorOnSurfaceMuted,
+                                    color: colors.postEditorOnSurfaceMuted,
                                   ),
                                 ),
                               ),
@@ -372,13 +374,14 @@ class _EditorPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final horizontal = context.widthByContext(AppImageEditorPage._figmaPanelHPadding);
     final vertical = context.heightByContext(AppImageEditorPage._figmaPanelVPadding);
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.postEditorPanel,
-        border: Border(top: BorderSide(color: AppColors.border)),
+        color: colors.postEditorPanel,
+        border: Border(top: BorderSide(color: colors.border)),
       ),
       child: SafeArea(
         top: false,
@@ -400,7 +403,7 @@ class _EditorPanel extends StatelessWidget {
                               style: AppTextStyle.base(
                                 AppImageEditorPage._figmaSliderLabelFont,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.postEditorOnSurface,
+                                color: colors.postEditorOnSurface,
                               ),
                             ),
                           ),
@@ -409,17 +412,17 @@ class _EditorPanel extends StatelessWidget {
                             style: AppTextStyle.base(
                               AppImageEditorPage._figmaSliderLabelFont,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.postEditorCta,
+                              color: colors.postEditorCta,
                             ),
                           ),
                         ],
                       ),
                       SliderTheme(
                         data: SliderTheme.of(context).copyWith(
-                          activeTrackColor: AppColors.postEditorCta,
-                          inactiveTrackColor: AppColors.border,
-                          thumbColor: AppColors.postEditorCta,
-                          overlayColor: AppColors.postEditorSliderOverlay,
+                          activeTrackColor: colors.postEditorCta,
+                          inactiveTrackColor: colors.border,
+                          thumbColor: colors.postEditorCta,
+                          overlayColor: colors.postEditorSliderOverlay,
                           trackHeight: 3,
                         ),
                         child: Slider(
@@ -499,6 +502,7 @@ class _AdjustToolsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: AppImageEditTool.values.map((tool) {
@@ -516,7 +520,7 @@ class _AdjustToolsRow extends StatelessWidget {
               children: [
                 DecoratedBox(
                   decoration: BoxDecoration(
-                    color: selected ? AppColors.postEditorSliderOverlay : Colors.transparent,
+                    color: selected ? colors.postEditorSliderOverlay : Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Padding(
@@ -524,7 +528,7 @@ class _AdjustToolsRow extends StatelessWidget {
                     child: Icon(
                       tool.icon,
                       size: context.widthByContext(AppImageEditorPage._figmaToolIconSize),
-                      color: selected ? AppColors.postEditorCta : AppColors.postEditorOnSurfaceDim,
+                      color: selected ? colors.postEditorCta : colors.postEditorOnSurfaceDim,
                     ),
                   ),
                 ),
@@ -537,7 +541,7 @@ class _AdjustToolsRow extends StatelessWidget {
                   style: AppTextStyle.base(
                     AppImageEditorPage._figmaToolLabelFont,
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                    color: selected ? AppColors.postEditorOnSurface : AppColors.postEditorOnSurfaceMuted,
+                    color: selected ? colors.postEditorOnSurface : colors.postEditorOnSurfaceMuted,
                   ),
                 ),
               ],
@@ -566,6 +570,7 @@ class _EffectChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final width = context.widthByContext(AppImageEditorPage._figmaEffectThumbSize);
 
     return GestureDetector(
@@ -582,7 +587,7 @@ class _EffectChip extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: selected ? AppColors.postEditorCta : AppColors.border,
+                    color: selected ? colors.postEditorCta : colors.border,
                     width: selected ? 2 : 1,
                   ),
                 ),
@@ -602,7 +607,7 @@ class _EffectChip extends StatelessWidget {
               style: AppTextStyle.base(
                 AppImageEditorPage._figmaEffectLabelFont,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                color: selected ? AppColors.postEditorOnSurface : AppColors.postEditorOnSurfaceMuted,
+                color: selected ? colors.postEditorOnSurface : colors.postEditorOnSurfaceMuted,
               ),
             ),
           ],
@@ -818,6 +823,7 @@ class _AspectRatioRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Row(
       children: PostAspectRatio.values.map((ratio) {
         final isSelected = ratio == selected;
@@ -839,7 +845,7 @@ class _AspectRatioRow extends StatelessWidget {
                   style: AppTextStyle.base(
                     12,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: isSelected ? AppColors.postEditorOnSurface : AppColors.postEditorOnSurfaceMuted,
+                    color: isSelected ? colors.postEditorOnSurface : colors.postEditorOnSurfaceMuted,
                   ),
                 ),
               ],
@@ -862,6 +868,7 @@ class _AspectRatioFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final boxHeight = context.heightByContext(AppImageEditorPage._figmaAspectFrameHeight);
     final maxWidth = context.widthByContext(52);
 
@@ -884,10 +891,10 @@ class _AspectRatioFrame extends StatelessWidget {
           width: frameWidth,
           height: frameHeight,
           decoration: BoxDecoration(
-            color: selected ? AppColors.postEditorSliderOverlay : AppColors.surfaceMuted,
+            color: selected ? colors.postEditorSliderOverlay : colors.surfaceMuted,
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
-              color: selected ? AppColors.postEditorCta : AppColors.border,
+              color: selected ? colors.postEditorCta : colors.border,
               width: selected ? 2 : 1,
             ),
           ),

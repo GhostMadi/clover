@@ -17,18 +17,19 @@ class AppSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final canChange = enabled && onChanged != null;
 
     return Switch.adaptive(
       value: value,
       onChanged: canChange ? onChanged : null,
-      activeThumbColor: AppColors.textInverse,
-      activeTrackColor: AppColors.primary,
-      inactiveThumbColor: AppColors.white,
-      inactiveTrackColor: AppColors.border,
+      activeThumbColor: colors.textInverse,
+      activeTrackColor: colors.primary,
+      inactiveThumbColor: colors.white,
+      inactiveTrackColor: colors.border,
       trackOutlineColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) return AppColors.primary;
-        return AppColors.borderSoft;
+        if (states.contains(WidgetState.selected)) return colors.primary;
+        return colors.borderSoft;
       }),
     );
   }
@@ -55,13 +56,14 @@ class AppSwitchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final hasSubtitle = subtitle != null && subtitle!.trim().isNotEmpty;
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(_radius),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: colors.border.withValues(alpha: 0.55)),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
@@ -76,7 +78,7 @@ class AppSwitchRow extends StatelessWidget {
                     title,
                     style: AppTextStyle.base(
                       15,
-                      color: enabled ? AppColors.textColor : AppColors.subTextColor,
+                      color: enabled ? colors.textColor : colors.subTextColor,
                       fontWeight: FontWeight.w700,
                       height: 1.25,
                     ),
@@ -87,7 +89,7 @@ class AppSwitchRow extends StatelessWidget {
                       subtitle!.trim(),
                       style: AppTextStyle.base(
                         13,
-                        color: AppColors.subTextColor,
+                        color: colors.subTextColor,
                         fontWeight: FontWeight.w500,
                         height: 1.3,
                       ),

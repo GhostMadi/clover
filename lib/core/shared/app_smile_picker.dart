@@ -218,8 +218,9 @@ class _EmojiChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Material(
-      color: enabled ? AppColors.surfaceSoft : AppColors.fieldBackgroundDisabled,
+      color: enabled ? colors.surfaceSoft : colors.fieldBackgroundDisabled,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: enabled ? onTap : null,
@@ -230,7 +231,7 @@ class _EmojiChip extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: enabled ? AppColors.borderSoft : AppColors.border.withValues(alpha: 0.5),
+              color: enabled ? colors.borderSoft : colors.border.withValues(alpha: 0.5),
             ),
           ),
           child: Text(emoji, style: AppTextStyle.base(26, height: 1)),

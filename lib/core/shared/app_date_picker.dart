@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
@@ -69,7 +70,7 @@ class AppDatePicker extends StatelessWidget {
       label: label,
       hint: hint,
       displayText: value == null ? null : formatDisplay(value!),
-      prefixIcon: Icons.calendar_today_outlined,
+      prefixIcon: AppIcons.calendarToday.icon,
       enabled: enabled,
       onTap: enabled ? () => _openSheet(context) : null,
     );
@@ -145,6 +146,7 @@ class _AppDatePickerSheetState extends State<_AppDatePickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final bottom = MediaQuery.paddingOf(context).bottom;
 
     return Column(
@@ -155,13 +157,13 @@ class _AppDatePickerSheetState extends State<_AppDatePickerSheet> {
           child: Text(
             AppDatePicker.formatDisplay(_selected),
             textAlign: TextAlign.center,
-            style: AppTextStyle.base(20, fontWeight: FontWeight.w700, color: AppColors.textColor),
+            style: AppTextStyle.base(20, fontWeight: FontWeight.w700, color: colors.textColor),
           ),
         ),
         Text(
           '$_year',
           textAlign: TextAlign.center,
-          style: AppTextStyle.base(14, color: AppColors.subTextColor),
+          style: AppTextStyle.base(14, color: colors.subTextColor),
         ),
         const SizedBox(height: 8),
         Expanded(

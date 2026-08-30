@@ -2,10 +2,10 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
-import 'package:clover/feature/notification_page/data/models/notification_actor.dart';
-import 'package:clover/feature/notification_page/data/models/notification_item.dart';
-import 'package:clover/feature/notification_page/data/models/notification_kind.dart';
-import 'package:clover/feature/notification_page/presentation/widget/notification_avatar_stack.dart';
+import 'package:clover/feature/_feed_/notification_page/data/models/notification_actor.dart';
+import 'package:clover/feature/_feed_/notification_page/data/models/notification_item.dart';
+import 'package:clover/feature/_feed_/notification_page/data/models/notification_kind.dart';
+import 'package:clover/feature/_feed_/notification_page/presentation/widget/notification_avatar_stack.dart';
 import 'package:flutter/material.dart';
 
 class NotificationTile extends StatefulWidget {

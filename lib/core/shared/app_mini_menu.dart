@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:flutter/material.dart';
@@ -50,15 +51,17 @@ class AppMiniMenu<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     if (items.isEmpty) return const SizedBox.shrink();
 
+    final colors = context.colors;
+
     return PopupMenuButton<T>(
       tooltip: menuTooltip,
-      color: AppColors.surface,
+      color: colors.surface,
       // ХАК: Обнуляем скрытые вертикальные отступы самого контейнера меню
       menuPadding: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias, // Обрезаем углы сплеша по форме borderRadius
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        side: BorderSide(color: AppColors.border.withValues(alpha: 0.8)),
+        side: BorderSide(color: colors.border.withValues(alpha: 0.8)),
       ),
       onSelected: onSelected,
       itemBuilder: (context) {
@@ -72,7 +75,7 @@ class AppMiniMenu<T> extends StatelessWidget {
             child: Row(
               children: [
                 if (it.icon != null) ...[
-                  Icon(it.icon, size: 20, color: it.iconColor ?? AppColors.textColor),
+                  Icon(it.icon, size: 20, color: it.iconColor ?? colors.textColor),
                   const SizedBox(width: 10),
                 ],
                 Text(
@@ -80,7 +83,7 @@ class AppMiniMenu<T> extends StatelessWidget {
                   style: AppTextStyle.base(
                     14,
                     fontWeight: FontWeight.w700,
-                    color: it.titleColor ?? AppColors.textColor,
+                    color: it.titleColor ?? colors.textColor,
                   ),
                 ),
               ],
@@ -93,9 +96,9 @@ class AppMiniMenu<T> extends StatelessWidget {
           Padding(
             padding: iconPadding ?? EdgeInsets.zero,
             child: Icon(
-              Icons.more_vert_rounded,
+              AppIcons.moreVert.icon,
               size: 20,
-              color: iconColor ?? AppColors.subTextColor.withValues(alpha: 0.75),
+              color: iconColor ?? colors.subTextColor.withValues(alpha: 0.75),
             ),
           ),
     );

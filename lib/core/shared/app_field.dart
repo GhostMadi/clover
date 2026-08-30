@@ -57,15 +57,13 @@ class _AppFieldState extends State<AppField> {
 
   @override
   Widget build(BuildContext context) {
-    final bool enabled = widget.isEnabled;
+    final colors = context.colors;
+    final enabled = widget.isEnabled;
 
-    final Color borderColor = _isFocused ? AppColors.fieldBorderFocused : AppColors.fieldBorder;
-
-    final Color bgColor = enabled ? AppColors.fieldBackground : AppColors.fieldBackgroundDisabled;
-
-    final Color textColor = enabled ? AppColors.fieldText : AppColors.fieldTextDisabled;
-
-    final Color iconColor = _isFocused ? AppColors.fieldIconFocused : AppColors.fieldIcon;
+    final borderColor = _isFocused ? colors.fieldBorderFocused : colors.fieldBorder;
+    final bgColor = enabled ? colors.fieldBackground : colors.fieldBackgroundDisabled;
+    final textColor = enabled ? colors.fieldText : colors.fieldTextDisabled;
+    final iconColor = _isFocused ? colors.fieldIconFocused : colors.fieldIcon;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,31 +76,28 @@ class _AppFieldState extends State<AppField> {
               style: AppTextStyle.base(
                 13,
                 fontWeight: FontWeight.w600,
-                color: _isFocused ? AppColors.fieldLabelFocused : AppColors.fieldLabel,
+                color: _isFocused ? colors.fieldLabelFocused : colors.fieldLabel,
               ),
             ),
           ),
         ],
-
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(16),
-
             border: Border.all(color: borderColor, width: _isFocused ? 1.6 : 1.0),
-
             boxShadow: _isFocused
                 ? [
                     BoxShadow(
-                      color: AppColors.fieldShadowFocused.withValues(alpha: 0.12),
+                      color: colors.fieldShadowFocused.withValues(alpha: 0.12),
                       blurRadius: 14,
                       offset: const Offset(0, 6),
                     ),
                   ]
                 : [
                     BoxShadow(
-                      color: AppColors.shadowDark.withValues(alpha: 0.04),
+                      color: colors.shadowDark.withValues(alpha: 0.04),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -118,26 +113,15 @@ class _AppFieldState extends State<AppField> {
             onChanged: widget.onChanged,
             validator: widget.validator,
             inputFormatters: widget.inputFormatters,
-
             style: AppTextStyle.base(16, fontWeight: FontWeight.w500, color: textColor),
-
-            cursorColor: AppColors.fieldCursor,
-
+            cursorColor: colors.fieldCursor,
             decoration: InputDecoration(
               hintText: widget.hintText,
-              hintStyle: AppTextStyle.base(16, fontWeight: FontWeight.w400, color: AppColors.fieldHint),
-
-              prefixIcon: widget.prefixIcon != null
-                  ? Icon(widget.prefixIcon, color: iconColor, size: 22)
-                  : null,
-
+              hintStyle: AppTextStyle.base(16, fontWeight: FontWeight.w400, color: colors.fieldHint),
+              prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon, color: iconColor, size: 22) : null,
               suffixIcon: widget.suffixIcon != null
-                  ? IconTheme(
-                      data: IconThemeData(color: iconColor),
-                      child: widget.suffixIcon!,
-                    )
+                  ? IconTheme(data: IconThemeData(color: iconColor), child: widget.suffixIcon!)
                   : null,
-
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
             ),

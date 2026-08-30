@@ -112,7 +112,7 @@ class _LocationCreatePageState extends State<LocationCreatePage> {
         ),
         if (_canProceed || _submitting)
           FunctionalButtonItem(
-            icon: Icons.arrow_forward_rounded,
+            icon: AppIcons.arrowForward.icon,
             label: 'Далее',
             customColor: AppColors.primary,
             iconColor: Colors.white,
