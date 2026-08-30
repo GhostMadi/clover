@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/shared/platform/adaptive_widget.dart';
+import 'package:flutter/material.dart';
 
 /// Единый refresh-контрол проекта (визуально совпадает с `AppCircularProgressIndicator`).
-class AppRefresh extends StatelessWidget {
+class AppRefresh extends AdaptiveStatelessWidget {
   const AppRefresh({
     super.key,
     required this.onRefresh,
@@ -12,7 +13,6 @@ class AppRefresh extends StatelessWidget {
     this.strokeWidth = 2.5,
     this.displacement = 40.0,
     this.edgeOffset = 0.0,
-    // this.notificationPredicate = defaultScrollNotificationPredicate,
   });
 
   final Future<void> Function() onRefresh;
@@ -23,11 +23,14 @@ class AppRefresh extends StatelessWidget {
   final double strokeWidth;
   final double displacement;
   final double edgeOffset;
-  // final ScrollNotificationPredicate notificationPredicate;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
+  Widget buildMaterial(BuildContext context, AppPalette colors) => _build(colors);
+
+  @override
+  Widget buildCupertino(BuildContext context, AppPalette colors) => _build(colors);
+
+  Widget _build(AppPalette colors) {
     return RefreshIndicator(
       onRefresh: onRefresh,
       color: color ?? colors.primary,
@@ -35,7 +38,6 @@ class AppRefresh extends StatelessWidget {
       strokeWidth: strokeWidth,
       displacement: displacement,
       edgeOffset: edgeOffset,
-      // notificationPredicate: notificationPredicate,
       child: child,
     );
   }

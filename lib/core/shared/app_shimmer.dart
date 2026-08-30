@@ -1,9 +1,10 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/shared/platform/adaptive_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Серебристый шиммер по умолчанию; оборачивает [child] (плейсхолдеры с заливкой).
-class AppShimmer extends StatelessWidget {
+class AppShimmer extends AdaptiveStatelessWidget {
   const AppShimmer({
     super.key,
     required this.child,
@@ -18,8 +19,12 @@ class AppShimmer extends StatelessWidget {
   final Duration period;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
+  Widget buildMaterial(BuildContext context, AppPalette colors) => _build(colors);
+
+  @override
+  Widget buildCupertino(BuildContext context, AppPalette colors) => _build(colors);
+
+  Widget _build(AppPalette colors) {
     return Shimmer.fromColors(
       baseColor: baseColor ?? colors.shimmerBase,
       highlightColor: highlightColor ?? colors.shimmerHighlight,
@@ -30,14 +35,18 @@ class AppShimmer extends StatelessWidget {
 }
 
 /// Зона под фото без иконки «картинки» по центру: только форма кадра; при [shimmer] — лёгкий шиммер (загрузка).
-class PostMediaFramePlaceholder extends StatelessWidget {
+class PostMediaFramePlaceholder extends AdaptiveStatelessWidget {
   const PostMediaFramePlaceholder({super.key, this.shimmer = true});
 
   final bool shimmer;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
+  Widget buildMaterial(BuildContext context, AppPalette colors) => _build(colors);
+
+  @override
+  Widget buildCupertino(BuildContext context, AppPalette colors) => _build(colors);
+
+  Widget _build(AppPalette colors) {
     final box = SizedBox.expand(child: ColoredBox(color: colors.surfaceSoft));
     if (!shimmer) return box;
     return AppShimmer(child: box);

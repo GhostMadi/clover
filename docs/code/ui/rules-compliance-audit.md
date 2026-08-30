@@ -20,7 +20,7 @@
 | Правило | Сейчас |
 |---------|--------|
 | Sheets в фичах | ✅ везде `AppBottomSheet` (сырых modal в feature нет) |
-| Adaptive iOS/Android | ❌ почти нигде (база `AdaptiveStatelessWidget` есть, миграции нет) |
+| Adaptive iOS/Android | 🟡 старт: `AppShimmer`, `AppRefresh`, `AppSwitch`/`AppSwitchRow` → `AdaptiveStatelessWidget`; остальное — при правках |
 | Concrete repo only | 🟡 много `abstract` + Impl (~35) |
 | Docs-first | 🟡 сильные зоны (auth/profile/posts); booking/chat/bonus без бизнес-дока |
 | Тема через `context.colors` | ✅ shared + feature presentation |
@@ -40,12 +40,12 @@
 | `app_outlined_button.dart` | ✅ | ❌ | ✅ | 🟡 |
 | `app_text_button.dart` | ✅ | ❌ | ✅ | 🟡 |
 | `app_field.dart` | ✅ | ❌ | `IconData?`, не AppIcons | 🟡 |
-| `app_switch.dart` | ✅ | ✅ `Switch.adaptive` | ✅ | 🟡 |
+| `app_switch.dart` | ✅ | ✅ `Switch.adaptive` + `AdaptiveStatelessWidget` | ✅ | ✅ |
 | `app_dialog.dart` | ✅ (+ barrier `Colors.*`) | ❌ | ✅ | 🟡 |
 | `app_bottom_sheet.dart` | ✅ | ❌ (обёртка modal — ок) | ✅ AppIcons | 🟡 |
 | `app_snack_bar.dart` | ✅ | ❌ | ✅ AppIcons | 🟡 |
-| `app_refresh.dart` | ✅ | ❌ | — | 🟡 |
-| `app_shimmer.dart` | ✅ `context.colors` | ❌ | — | ✅ |
+| `app_refresh.dart` | ✅ | ✅ `AdaptiveStatelessWidget` | — | 🟡 |
+| `app_shimmer.dart` | ✅ `context.colors` | ✅ `AdaptiveStatelessWidget` | — | ✅ |
 | `jelly.dart`, `gestures/`, `switchable_stack` | n/a | n/a | n/a | ✅ infra |
 
 ### Nav / tiles

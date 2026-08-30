@@ -59,8 +59,9 @@ Sheet: только `AppBottomSheet.show` (см. `clover-bottom-sheet`).
 | Область | Сейчас | Цель |
 |---------|--------|------|
 | Иконки | `AppIcons` android/ios | оставить; детект через `AppPlatform` |
-| Switch | `Switch.adaptive` + токены | оставить / при необходимости CupertinoSwitch |
+| Switch | `Switch.adaptive` + `AdaptiveStatelessWidget` | Cupertino split при необходимости |
 | Button / dialog / field | в основном единый Material-look | постепенно Material vs Cupertino при правках |
+| Shimmer / refresh / switch row | `AdaptiveStatelessWidget` (каркас готов) | нативный split по мере правок |
 | Bottom sheet | единый `AppBottomSheet` | API один; внутренности можно адаптировать позже |
 
 Новые shared-виджеты — **сразу** через `AdaptiveStatelessWidget`, без «потом допилим нативность».

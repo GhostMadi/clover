@@ -1,9 +1,10 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/core/shared/platform/adaptive_widget.dart';
 import 'package:flutter/material.dart';
 
 /// Переключатель в стиле приложения.
-class AppSwitch extends StatelessWidget {
+class AppSwitch extends AdaptiveStatelessWidget {
   const AppSwitch({
     super.key,
     required this.value,
@@ -16,8 +17,12 @@ class AppSwitch extends StatelessWidget {
   final bool enabled;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
+  Widget buildMaterial(BuildContext context, AppPalette colors) => _build(colors);
+
+  @override
+  Widget buildCupertino(BuildContext context, AppPalette colors) => _build(colors);
+
+  Widget _build(AppPalette colors) {
     final canChange = enabled && onChanged != null;
 
     return Switch.adaptive(
@@ -36,7 +41,7 @@ class AppSwitch extends StatelessWidget {
 }
 
 /// Строка с заголовком и [AppSwitch] — для настроек и шторок.
-class AppSwitchRow extends StatelessWidget {
+class AppSwitchRow extends AdaptiveStatelessWidget {
   const AppSwitchRow({
     super.key,
     required this.title,
@@ -55,8 +60,12 @@ class AppSwitchRow extends StatelessWidget {
   static const double _radius = 14;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
+  Widget buildMaterial(BuildContext context, AppPalette colors) => _build(colors);
+
+  @override
+  Widget buildCupertino(BuildContext context, AppPalette colors) => _build(colors);
+
+  Widget _build(AppPalette colors) {
     final hasSubtitle = subtitle != null && subtitle!.trim().isNotEmpty;
 
     return DecoratedBox(
