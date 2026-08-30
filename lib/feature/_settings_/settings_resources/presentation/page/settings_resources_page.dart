@@ -32,7 +32,7 @@ class SettingsResourcesPage extends StatelessWidget {
                 AppTile(
                   title: 'Фильтры',
                   subtitle: 'Категории и значения для фильтрации',
-                  icon: Icons.tune_rounded,
+                  icon: AppIcons.tune.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const SettingsFiltersRoute()),
                 ),

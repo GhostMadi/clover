@@ -24,7 +24,7 @@ enum AppIcons {
   delete(iconAndroid: Icons.delete_outline_outlined, iconIos: CupertinoIcons.delete),
   search(iconAndroid: Icons.search, iconIos: CupertinoIcons.search),
   more(iconAndroid: Icons.more_horiz_rounded, iconIos: CupertinoIcons.ellipsis),
-  
+
   // Обычные (контурные)
   like(iconAndroid: Icons.favorite_border_rounded, iconIos: CupertinoIcons.heart),
   dislike(iconAndroid: Icons.thumb_down_alt_outlined, iconIos: CupertinoIcons.hand_thumbsdown),
@@ -85,7 +85,42 @@ enum AppIcons {
   logout(iconAndroid: Icons.logout_rounded, iconIos: CupertinoIcons.square_arrow_right),
   personRounded(iconAndroid: Icons.person_rounded, iconIos: CupertinoIcons.person_fill),
   done(iconAndroid: Icons.done_rounded, iconIos: CupertinoIcons.checkmark),
-  doneAll(iconAndroid: Icons.done_all_rounded, iconIos: CupertinoIcons.checkmark_alt);
+  doneAll(iconAndroid: Icons.done_all_rounded, iconIos: CupertinoIcons.checkmark_alt),
+  checkCircle(iconAndroid: Icons.check_circle_rounded, iconIos: CupertinoIcons.checkmark_circle_fill),
+  contentCut(iconAndroid: Icons.content_cut_outlined, iconIos: CupertinoIcons.scissors),
+  calendarMonth(iconAndroid: Icons.calendar_month_outlined, iconIos: CupertinoIcons.calendar),
+  loyalty(iconAndroid: Icons.loyalty_outlined, iconIos: CupertinoIcons.gift),
+  eventAvailable(iconAndroid: Icons.event_available_outlined, iconIos: CupertinoIcons.calendar_badge_plus),
+  photoCamera(iconAndroid: Icons.photo_camera_outlined, iconIos: CupertinoIcons.camera),
+  cameraAlt(iconAndroid: Icons.camera_alt_rounded, iconIos: CupertinoIcons.camera_fill),
+  personSearch(iconAndroid: Icons.person_search_outlined, iconIos: CupertinoIcons.search),
+  linkOff(iconAndroid: Icons.link_off_outlined, iconIos: CupertinoIcons.link),
+  collections(iconAndroid: Icons.collections_outlined, iconIos: CupertinoIcons.photo_on_rectangle),
+  collectionsFilled(iconAndroid: Icons.collections, iconIos: CupertinoIcons.photo_fill_on_rectangle_fill),
+  inventory(iconAndroid: Icons.inventory_2_outlined, iconIos: CupertinoIcons.archivebox),
+  giftCard(iconAndroid: Icons.card_giftcard_outlined, iconIos: CupertinoIcons.gift),
+  bookmarkOutline(iconAndroid: Icons.bookmark_outline_rounded, iconIos: CupertinoIcons.bookmark),
+  personOutline(iconAndroid: Icons.person_outline_rounded, iconIos: CupertinoIcons.person),
+  badge(iconAndroid: Icons.badge_outlined, iconIos: CupertinoIcons.person_crop_circle),
+  mail(iconAndroid: Icons.mail_outline_rounded, iconIos: CupertinoIcons.mail),
+  personOff(iconAndroid: Icons.person_off_outlined, iconIos: CupertinoIcons.person_crop_circle_badge_xmark),
+  block(iconAndroid: Icons.block_rounded, iconIos: CupertinoIcons.clear),
+  gridView(iconAndroid: Icons.grid_view_rounded, iconIos: CupertinoIcons.square_grid_2x2),
+  event(iconAndroid: Icons.event_outlined, iconIos: CupertinoIcons.calendar),
+  personRemove(
+    iconAndroid: Icons.person_remove_alt_1_rounded,
+    iconIos: CupertinoIcons.person_crop_circle_badge_minus,
+  ),
+  personAdd(iconAndroid: Icons.person_add_alt_1_rounded, iconIos: CupertinoIcons.person_add),
+  description(iconAndroid: Icons.description_outlined, iconIos: CupertinoIcons.doc),
+  designServices(iconAndroid: Icons.design_services_outlined, iconIos: CupertinoIcons.wrench),
+  insights(iconAndroid: Icons.insights_outlined, iconIos: CupertinoIcons.chart_bar),
+  settingsOutlined(iconAndroid: Icons.settings_outlined, iconIos: CupertinoIcons.gear),
+  alternateEmail(iconAndroid: Icons.alternate_email_rounded, iconIos: CupertinoIcons.at),
+  eventBusy(iconAndroid: Icons.event_busy_rounded, iconIos: CupertinoIcons.calendar_badge_minus),
+  imageNotSupported(iconAndroid: Icons.image_not_supported_outlined, iconIos: CupertinoIcons.photo),
+  folderOpen(iconAndroid: Icons.folder_open_rounded, iconIos: CupertinoIcons.folder_open),
+  autoAwesome(iconAndroid: Icons.auto_awesome_outlined, iconIos: CupertinoIcons.sparkles);
 
   final IconData iconAndroid;
   final IconData iconIos;

@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/extension/context.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/resources.dart';
 import 'package:clover/core/resources/style.dart';
@@ -74,7 +75,7 @@ class AboutPage extends StatelessWidget {
                 AppTile(
                   title: 'Онбординг',
                   subtitle: 'Показать знакомство с приложением',
-                  icon: Icons.auto_awesome_outlined,
+                  icon: AppIcons.autoAwesome.icon,
                   showChevron: true,
                   onTap: () => context.router.push(OnboardingRoute(replay: true)),
                 ),

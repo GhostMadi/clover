@@ -25,7 +25,7 @@ class BookingScreenShell extends StatelessWidget {
     this.canSave = false,
     this.saveLabel = 'Сохранить',
     this.cancelLabel = 'Отменить',
-    this.cancelIcon = Icons.block_rounded,
+    this.cancelIcon,
     this.onAnalyticsTap,
     this.onCreateTap,
     this.onAddTap,
@@ -52,7 +52,7 @@ class BookingScreenShell extends StatelessWidget {
   final bool canSave;
   final String saveLabel;
   final String cancelLabel;
-  final IconData cancelIcon;
+  final IconData? cancelIcon;
   final VoidCallback? onAnalyticsTap;
   final VoidCallback? onCreateTap;
   final VoidCallback? onAddTap;
@@ -80,7 +80,7 @@ class BookingScreenShell extends StatelessWidget {
         ),
         if (showCancel)
           FunctionalButtonItem(
-            icon: cancelIcon,
+            icon: cancelIcon ?? AppIcons.block.icon,
             label: cancelLabel.isEmpty ? null : cancelLabel,
             keepWhenCollapsed: true,
             customColor: context.colors.functionalSoftRed,
@@ -100,7 +100,7 @@ class BookingScreenShell extends StatelessWidget {
           ),
         if (showSettings)
           FunctionalButtonItem(
-            icon: Icons.settings_outlined,
+            icon: AppIcons.settingsOutlined.icon,
             keepWhenCollapsed: true,
             customColor: context.colors.functionalSoftBlue,
             iconColor: context.colors.functionalSoftBlueIcon,
@@ -112,7 +112,7 @@ class BookingScreenShell extends StatelessWidget {
             icon: AppIcons.add.icon,
             keepWhenCollapsed: true,
             customColor: context.colors.primary,
-            iconColor: Colors.white,
+            iconColor: context.colors.textInverse,
             isLoading: isLoading,
             onTap: onAddTap ?? () {},
           ),
@@ -122,21 +122,21 @@ class BookingScreenShell extends StatelessWidget {
             label: saveLabel,
             keepWhenCollapsed: true,
             customColor: context.colors.primary,
-            iconColor: Colors.white,
-            textColor: Colors.white,
+            iconColor: context.colors.textInverse,
+            textColor: context.colors.textInverse,
             isLoading: isLoading,
             onTap: onSaveTap ?? () {},
           ),
         if (showServices)
           FunctionalButtonItem(
-            icon: Icons.design_services_outlined,
+            icon: AppIcons.designServices.icon,
             label: 'Услуги',
             isLoading: isLoading,
             onTap: onServicesTap ?? () {},
           ),
         if (showAnalytics)
           FunctionalButtonItem(
-            icon: Icons.insights_outlined,
+            icon: AppIcons.insights.icon,
             label: 'Аналитика',
             isLoading: isLoading,
             onTap: onAnalyticsTap ?? () {},
@@ -146,8 +146,8 @@ class BookingScreenShell extends StatelessWidget {
             icon: AppIcons.add.icon,
             label: 'Создать',
             customColor: context.colors.primary,
-            iconColor: Colors.white,
-            textColor: Colors.white,
+            iconColor: context.colors.textInverse,
+            textColor: context.colors.textInverse,
             isLoading: isLoading,
             onTap: onCreateTap ?? () {},
           ),

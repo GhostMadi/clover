@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_tile.dart';
@@ -12,7 +13,7 @@ abstract final class ProfileDashboardMoreSheet {
         mainAxisSize: MainAxisSize.min,
         children: [
           AppTile(
-            icon: Icons.calendar_month_outlined,
+            icon: AppIcons.calendarMonth.icon,
             title: 'Мои бронирования',
             onTap: () {
               Navigator.of(context).pop();
@@ -20,7 +21,7 @@ abstract final class ProfileDashboardMoreSheet {
             },
           ),
           AppTile(
-            icon: Icons.loyalty_outlined,
+            icon: AppIcons.loyalty.icon,
             title: 'Мои бонусы',
             onTap: () {
               Navigator.of(context).pop();

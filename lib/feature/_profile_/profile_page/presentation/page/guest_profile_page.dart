@@ -227,7 +227,7 @@ class _GuestFollowActionsState extends State<_GuestFollowActions> {
                             text: '',
                             isLoading: loaded.isFollowUpdating,
                             onTap: cubit.toggleFollow,
-                            child: Icon(Icons.person_remove_alt_1_rounded, color: context.colors.textColor),
+                            child: Icon(AppIcons.personRemove.icon, color: context.colors.textColor),
                           ),
                         ),
                         const SizedBox(width: 10),

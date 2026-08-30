@@ -301,7 +301,7 @@ class _BookingServiceFormBody extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.person_search_outlined,
+                  AppIcons.personSearch.icon,
                   size: 18,
                   color: enabled ? context.colors.textColor : context.colors.subTextColor,
                 ),
@@ -362,7 +362,7 @@ class _ExecutorChip extends StatelessWidget {
               backgroundColor: context.colors.surfaceSoft,
               backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
               child: avatarUrl == null || avatarUrl.isEmpty
-                  ? Icon(Icons.person, color: context.colors.iconMuted, size: 14)
+                  ? Icon(AppIcons.user.icon, color: context.colors.iconMuted, size: 14)
                   : null,
             ),
             const SizedBox(width: 8),

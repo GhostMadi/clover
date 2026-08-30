@@ -277,7 +277,7 @@ class _ShareRecipientGridCell extends StatelessWidget {
                         ? NetworkImage(avatarUrl)
                         : null,
                     child: avatarUrl == null || avatarUrl.isEmpty
-                        ? Icon(Icons.person, color: context.colors.iconMuted, size: 28)
+                        ? Icon(AppIcons.user.icon, color: context.colors.iconMuted, size: 28)
                         : null,
                   ),
                 ),
@@ -289,7 +289,7 @@ class _ShareRecipientGridCell extends StatelessWidget {
                       width: 22,
                       height: 22,
                       decoration: BoxDecoration(color: context.colors.primary, shape: BoxShape.circle),
-                      child: Icon(AppIcons.checkRounded.icon, size: 14, color: Colors.white),
+                      child: Icon(AppIcons.checkRounded.icon, size: 14, color: context.colors.textInverse),
                     ),
                   ),
               ],

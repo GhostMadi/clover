@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_button.dart';
@@ -40,7 +41,7 @@ class FollowProfileTile extends StatelessWidget {
         backgroundColor: context.colors.surfaceSoft,
         backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
         child: avatarUrl == null || avatarUrl.isEmpty
-            ? Icon(Icons.person, color: context.colors.iconMuted, size: 20)
+            ? Icon(AppIcons.user.icon, color: context.colors.iconMuted, size: 20)
             : null,
       ),
       trailing: showFollowButton ? _buildFollowButton() : null,

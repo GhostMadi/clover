@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_mini_menu.dart';
@@ -59,20 +60,20 @@ class BookingVisitProgressSection extends StatelessWidget {
                   AppMiniMenuItem(
                     value: BookingHostEmergencyAction.complete,
                     title: 'Завершить визит сейчас',
-                    icon: Icons.check_circle_outline_rounded,
+                    icon: AppIcons.checkCircleOutline.icon,
                     enabled: !isLoading,
                   ),
                   if (canNoShow)
                     AppMiniMenuItem(
                       value: BookingHostEmergencyAction.noShow,
                       title: 'Клиент не пришёл',
-                      icon: Icons.person_off_outlined,
+                      icon: AppIcons.personOff.icon,
                       enabled: !isLoading,
                     ),
                   AppMiniMenuItem(
                     value: BookingHostEmergencyAction.cancel,
                     title: 'Отменить визит',
-                    icon: Icons.block_rounded,
+                    icon: AppIcons.block.icon,
                     titleColor: context.colors.destructive,
                     iconColor: context.colors.destructive,
                     enabled: !isLoading,

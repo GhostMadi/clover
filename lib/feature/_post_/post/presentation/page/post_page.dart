@@ -324,17 +324,17 @@ class _PostPageState extends State<PostPage> {
       FunctionalButtonItem(
         icon: item.isLiked ? AppIcons.likeFilled.icon : AppIcons.like.icon,
         label: _countLabel(post.likesCount),
-        customColor: item.isLiked ? Colors.red : null,
-        iconColor: item.isLiked ? Colors.white : null,
-        textColor: item.isLiked ? Colors.white : null,
+        customColor: item.isLiked ? context.colors.destructive : null,
+        iconColor: item.isLiked ? context.colors.textInverse : null,
+        textColor: item.isLiked ? context.colors.textInverse : null,
         onTap: _cubit.toggleLike,
       ),
       FunctionalButtonItem(
         icon: item.isDisliked ? AppIcons.dislikeFilled.icon : AppIcons.dislike.icon,
         label: _countLabel(post.dislikesCount),
-        customColor: item.isDisliked ? Colors.red : null,
-        iconColor: item.isDisliked ? Colors.white : null,
-        textColor: item.isDisliked ? Colors.white : null,
+        customColor: item.isDisliked ? context.colors.destructive : null,
+        iconColor: item.isDisliked ? context.colors.textInverse : null,
+        textColor: item.isDisliked ? context.colors.textInverse : null,
         onTap: _cubit.toggleDislike,
       ),
       FunctionalButtonItem(
@@ -559,7 +559,7 @@ class _PostPageState extends State<PostPage> {
             backgroundColor: context.colors.surfaceSoft,
             backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
             child: avatarUrl == null || avatarUrl.isEmpty
-                ? Icon(Icons.person, color: context.colors.iconMuted, size: 22)
+                ? Icon(AppIcons.user.icon, color: context.colors.iconMuted, size: 22)
                 : null,
           ),
         ),
@@ -605,16 +605,16 @@ class _PostPageState extends State<PostPage> {
                   ]
                 : [
                     if (_hasCluster(item))
-                      const AppMiniMenuItem(
+                      AppMiniMenuItem(
                         value: _PostMenuAction.detach,
                         title: 'Отвязать от кластера',
-                        icon: Icons.link_off_outlined,
+                        icon: AppIcons.linkOff.icon,
                       )
                     else
-                      const AppMiniMenuItem(
+                      AppMiniMenuItem(
                         value: _PostMenuAction.attach,
                         title: 'Привязать к кластеру',
-                        icon: Icons.collections_outlined,
+                        icon: AppIcons.collectionsFilled.icon,
                       ),
                     AppMiniMenuItem(
                       value: _PostMenuAction.archive,

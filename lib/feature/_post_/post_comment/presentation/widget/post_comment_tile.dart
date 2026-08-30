@@ -36,7 +36,7 @@ class PostCommentTile extends StatelessWidget {
             backgroundColor: context.colors.surfaceSoft,
             backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
             child: avatarUrl == null || avatarUrl.isEmpty
-                ? Icon(Icons.person, size: dense ? 16 : 20, color: context.colors.iconMuted)
+                ? Icon(AppIcons.user.icon, size: dense ? 16 : 20, color: context.colors.iconMuted)
                 : null,
           ),
           const SizedBox(width: 12),

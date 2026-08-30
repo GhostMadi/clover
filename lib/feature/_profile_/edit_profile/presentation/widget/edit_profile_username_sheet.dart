@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_button.dart';
@@ -133,7 +134,7 @@ class _EditProfileUsernameSheetBodyState extends State<_EditProfileUsernameSheet
           controller: _controller,
           labelText: 'Никнейм',
           hintText: 'username',
-          prefixIcon: Icons.alternate_email_rounded,
+          prefixIcon: AppIcons.alternateEmail.icon,
           textInputAction: TextInputAction.done,
           isEnabled: _policy.canChange && !_isSubmitting,
           inputFormatters: [

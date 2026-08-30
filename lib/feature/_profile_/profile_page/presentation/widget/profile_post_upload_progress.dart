@@ -92,7 +92,7 @@ class ProfilePostUploadProgress extends StatelessWidget {
                 ProfilePostUploadStatus.success => _StatusFooter(
                   label: successLabel,
                   color: context.colors.primary,
-                  icon: Icons.check_circle_rounded,
+                  icon: AppIcons.checkCircle.icon,
                 ),
                 ProfilePostUploadStatus.failure => _StatusFooter(
                   label: statusMessage ?? failureLabel,

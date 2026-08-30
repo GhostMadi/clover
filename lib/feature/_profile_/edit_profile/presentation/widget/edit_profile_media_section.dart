@@ -73,7 +73,7 @@ class EditProfileMediaSection extends StatelessWidget {
                     ),
                     Center(
                       child: _MediaActionChip(
-                        icon: Icons.photo_camera_outlined,
+                        icon: AppIcons.photoCamera.icon,
                         label: _coverLabel(coverUrl, coverPreview),
                       ),
                     ),
@@ -113,7 +113,7 @@ class EditProfileMediaSection extends StatelessWidget {
                         shape: BoxShape.circle,
                         border: Border.all(color: context.colors.white, width: 2),
                       ),
-                      child: Icon(Icons.camera_alt_rounded, size: 16, color: context.colors.textInverse),
+                      child: Icon(AppIcons.cameraAlt.icon, size: 16, color: context.colors.textInverse),
                     ),
                   ),
                 ],
@@ -236,11 +236,11 @@ class _MediaActionChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: Colors.white),
+          Icon(icon, size: 18, color: context.colors.textInverse),
           const SizedBox(width: 8),
           Text(
             label,
-            style: AppTextStyle.base(13, color: Colors.white, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(13, color: context.colors.textInverse, fontWeight: FontWeight.w600),
           ),
         ],
       ),

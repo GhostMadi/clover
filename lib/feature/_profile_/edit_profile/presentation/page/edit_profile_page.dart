@@ -254,7 +254,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     controller: _fullNameController,
                                     labelText: 'Имя',
                                     hintText: 'Как вас зовут',
-                                    prefixIcon: Icons.badge_outlined,
+                                    prefixIcon: AppIcons.badge.icon,
                                     textInputAction: TextInputAction.next,
                                   ),
                                   const SizedBox(height: 12),
@@ -339,7 +339,7 @@ class _EditProfileEmailRow extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(Icons.mail_outline_rounded, size: 22, color: context.colors.fieldIcon),
+              Icon(AppIcons.mail.icon, size: 22, color: context.colors.fieldIcon),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(

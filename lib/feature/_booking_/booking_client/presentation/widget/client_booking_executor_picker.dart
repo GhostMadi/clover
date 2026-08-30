@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
 import 'package:flutter/material.dart';
@@ -86,7 +87,7 @@ class _ExecutorTile extends StatelessWidget {
                 ),
               ),
               if (selected)
-                Icon(Icons.check_circle_rounded, size: 20, color: context.colors.functionalSoftBlueIcon),
+                Icon(AppIcons.checkCircle.icon, size: 20, color: context.colors.functionalSoftBlueIcon),
             ],
           ),
         ),

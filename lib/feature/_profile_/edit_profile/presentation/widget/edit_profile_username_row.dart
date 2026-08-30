@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_profile_/edit_profile/data/edit_profile_username_policy.dart';
@@ -37,7 +38,7 @@ class EditProfileUsernameRow extends StatelessWidget {
         AppTile(
           title: display,
           subtitle: subtitle,
-          icon: Icons.alternate_email_rounded,
+          icon: AppIcons.alternateEmail.icon,
           showChevron: policy.canChange,
           filled: true,
           onTap: policy.canChange ? onTap : null,

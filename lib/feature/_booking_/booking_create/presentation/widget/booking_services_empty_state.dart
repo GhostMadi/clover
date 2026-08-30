@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +21,7 @@ class BookingServicesEmptyState extends StatelessWidget {
                 color: context.colors.surfaceSoftGreen.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.content_cut_outlined, size: 34, color: context.colors.primary.withValues(alpha: 0.85)),
+              child: Icon(AppIcons.contentCut.icon, size: 34, color: context.colors.primary.withValues(alpha: 0.85)),
             ),
             const SizedBox(height: 16),
             Text(

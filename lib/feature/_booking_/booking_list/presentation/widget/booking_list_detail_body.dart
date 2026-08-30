@@ -271,15 +271,15 @@ class BookingListStatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg) = isUnmarked
-        ? (const Color(0xFFFFF3E0), const Color(0xFFE65100))
+        ? (context.colors.functionalSoftOrange, context.colors.functionalSoftOrangeIcon)
         : switch (status) {
             BookingStatus.pending => (context.colors.surfaceSoft, context.colors.subTextColor),
             BookingStatus.confirmed => (context.colors.successSoft.withValues(alpha: 0.7), context.colors.primary),
             BookingStatus.clientArrived => (context.colors.infoSoft, context.colors.functionalSoftBlueIcon),
             BookingStatus.inProgress => (context.colors.functionalSoftBlue, context.colors.functionalSoftBlueIcon),
             BookingStatus.completed => (context.colors.surfaceSoft, context.colors.textColor),
-            BookingStatus.cancelled => (const Color(0xFFFFEBEE), const Color(0xFFC62828)),
-            BookingStatus.noShow => (const Color(0xFFFFF3E0), const Color(0xFFE65100)),
+            BookingStatus.cancelled => (context.colors.functionalSoftRed, context.colors.functionalSoftRedIcon),
+            BookingStatus.noShow => (context.colors.functionalSoftOrange, context.colors.functionalSoftOrangeIcon),
           };
 
     return Container(

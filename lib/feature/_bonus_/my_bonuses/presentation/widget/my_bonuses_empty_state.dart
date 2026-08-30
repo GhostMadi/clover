@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +14,7 @@ class MyBonusesEmptyState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.loyalty_outlined, size: 56, color: context.colors.subTextColor.withValues(alpha: 0.45)),
+            Icon(AppIcons.loyalty.icon, size: 56, color: context.colors.subTextColor.withValues(alpha: 0.45)),
             const SizedBox(height: 16),
             Text(
               'Бонусов пока нет',

@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_bonus_/shared/data/bonus_format.dart';
 import 'package:clover/feature/_booking_/booking_client/data/client_booking_availability.dart';
@@ -159,22 +160,23 @@ class ClientBookingConflictBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFEBEE),
+        color: colors.functionalSoftRed,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFEF9A9A)),
+        border: Border.all(color: colors.borderCardRed),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.event_busy_rounded, size: 18, color: Color(0xFFC62828)),
+          Icon(AppIcons.eventBusy.icon, size: 18, color: colors.functionalSoftRedIcon),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               message,
-              style: AppTextStyle.base(13, color: const Color(0xFFC62828), fontWeight: FontWeight.w600, height: 1.3),
+              style: AppTextStyle.base(13, color: colors.functionalSoftRedIcon, fontWeight: FontWeight.w600, height: 1.3),
             ),
           ),
         ],

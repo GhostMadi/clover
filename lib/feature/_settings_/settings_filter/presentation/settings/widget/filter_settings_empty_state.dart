@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class FilterSettingsEmptyState extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(Icons.tune_rounded, size: 40, color: context.colors.iconMuted),
+          Icon(AppIcons.tune.icon, size: 40, color: context.colors.iconMuted),
           const SizedBox(height: 12),
           Text(
             'Пока нет категорий',

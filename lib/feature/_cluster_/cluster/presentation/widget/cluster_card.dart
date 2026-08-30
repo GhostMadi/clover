@@ -125,7 +125,7 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
                       errorWidget: (_, __, ___) => ColoredBox(
                         color: colors.surfaceSoft,
                         child: Icon(
-                          Icons.image_not_supported_outlined,
+                          AppIcons.imageNotSupported.icon,
                           size: context.heightByContext(ClusterCard._figmaIconSize),
                           color: colors.iconMuted,
                         ),
@@ -135,7 +135,7 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
                       color: colors.surfaceSoft,
                       child: Center(
                         child: Icon(
-                          Icons.folder_open_rounded,
+                          AppIcons.folderOpen.icon,
                           size: context.heightByContext(ClusterCard._figmaIconSize),
                           color: colors.iconMuted,
                         ),
@@ -292,7 +292,7 @@ class _CountChip extends StatelessWidget {
     final colors = context.colors;
     // Поверх фото: выбранный — primary; иначе светлая плашка с тёмным текстом (контраст в любой теме).
     final bg = selected ? colors.primary : colors.white;
-    final fg = selected ? colors.white : const Color(0xFF1A1D1E);
+    final fg = selected ? colors.white : colors.textColor;
 
     return Container(
       padding: EdgeInsets.symmetric(

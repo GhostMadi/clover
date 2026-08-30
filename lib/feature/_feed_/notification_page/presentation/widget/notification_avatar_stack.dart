@@ -101,7 +101,7 @@ class _ReactionBadge extends StatelessWidget {
       NotificationKind.comment => (AppIcons.comment.icon, context.colors.primary, context.colors.white),
       NotificationKind.followedYou ||
       NotificationKind.youFollowed ||
-      NotificationKind.mutualFollow => (Icons.person_add_alt_1_rounded, context.colors.primary, context.colors.white),
+      NotificationKind.mutualFollow => (AppIcons.personAdd.icon, context.colors.primary, context.colors.white),
     };
 
     return Container(

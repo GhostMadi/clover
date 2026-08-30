@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:flutter/material.dart';
 
 /// Компактная кнопка фильтра рядом с табами профиля.
@@ -46,7 +47,7 @@ class ProfileFilterButton extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               Icon(
-                Icons.tune_rounded,
+                AppIcons.tune.icon,
                 size: 22,
                 color: _isActive ? context.colors.primary : context.colors.iconMuted,
               ),

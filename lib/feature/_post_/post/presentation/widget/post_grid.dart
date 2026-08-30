@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -124,7 +125,7 @@ class _PostGridCell extends StatelessWidget {
                   ),
                   child: Padding(
                     padding: EdgeInsets.all(context.widthByContext(4)),
-                    child: Icon(Icons.bookmark, size: context.heightByContext(16), color: Colors.white),
+                    child: Icon(AppIcons.bookmarkFilled.icon, size: context.heightByContext(16), color: context.colors.textInverse),
                   ),
                 ),
               ),

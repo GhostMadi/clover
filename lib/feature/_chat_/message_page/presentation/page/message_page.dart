@@ -237,7 +237,7 @@ class _MessageEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.chat_bubble_outline_rounded, size: 48, color: context.colors.iconMuted),
+            Icon(AppIcons.chat.icon, size: 48, color: context.colors.iconMuted),
             SizedBox(height: 12),
             Text(
               title,

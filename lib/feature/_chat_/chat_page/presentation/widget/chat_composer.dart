@@ -116,7 +116,7 @@ class _ChatComposerState extends State<ChatComposer> {
                         AppMiniMenuItem(
                           value: ChatAttachmentAction.document,
                           title: 'Документ',
-                          icon: Icons.description_outlined,
+                          icon: AppIcons.description.icon,
                         ),
                       ],
                       onSelected: widget.onAttachmentSelected!,

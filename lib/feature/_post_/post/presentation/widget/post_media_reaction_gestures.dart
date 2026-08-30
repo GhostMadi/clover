@@ -31,7 +31,7 @@ class _PostMediaReactionGesturesState extends State<PostMediaReactionGestures> w
   late final Animation<double> _scaleAnimation;
   late final Animation<double> _opacityAnimation;
   IconData? _overlayIcon;
-  Color _overlayIconColor = Colors.white;
+  Color _overlayIconColor = const Color(0xFFFFFFFF);
 
   @override
   void initState() {
@@ -85,7 +85,7 @@ class _PostMediaReactionGesturesState extends State<PostMediaReactionGestures> w
     }
     setState(() {
       _overlayIcon = AppIcons.likeFilled.icon;
-      _overlayIconColor = Colors.red.withValues(alpha: 0.95);
+      _overlayIconColor = context.colors.destructive.withValues(alpha: 0.95);
     });
     _animationController.forward(from: 0);
   }

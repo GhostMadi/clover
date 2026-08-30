@@ -165,7 +165,7 @@ class _TimeRow extends StatelessWidget {
             const SizedBox(width: 4),
             Icon(
               message.isPending
-                  ? Icons.schedule_rounded
+                  ? AppIcons.schedule.icon
                   : (message.isRead ? AppIcons.doneAll.icon : AppIcons.done.icon),
               size: 14,
               color: metaColor,

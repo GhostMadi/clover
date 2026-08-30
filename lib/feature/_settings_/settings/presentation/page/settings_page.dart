@@ -25,7 +25,7 @@ class SettingsPage extends StatelessWidget {
                 AppTile(
                   title: 'Ресурсы',
                   subtitle: 'Местоположения и другие справочники',
-                  icon: Icons.inventory_2_outlined,
+                  icon: AppIcons.inventory.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const SettingsResourcesRoute()),
                 ),
@@ -37,14 +37,14 @@ class SettingsPage extends StatelessWidget {
               children: [
                 AppTile(
                   title: 'Запись',
-                  icon: Icons.calendar_month_outlined,
+                  icon: AppIcons.calendarMonth.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const BookingListRoute()),
                 ),
                 AppTile(
                   title: 'Бонусы',
                   subtitle: 'Программа лояльности для клиентов',
-                  icon: Icons.card_giftcard_outlined,
+                  icon: AppIcons.giftCard.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const BonusProgramSettingsRoute()),
                 ),
@@ -64,7 +64,7 @@ class SettingsPage extends StatelessWidget {
                 AppTile(
                   title: 'Сохраненные посты',
                   subtitle: 'Посты, которые вы сохранили',
-                  icon: Icons.bookmark_outline_rounded,
+                  icon: AppIcons.bookmarkOutline.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const SavedPostsRoute()),
                 ),
@@ -76,7 +76,7 @@ class SettingsPage extends StatelessWidget {
                 AppTile(
                   title: 'Аккаунт',
                   subtitle: 'Язык, тема и выход',
-                  icon: Icons.person_outline_rounded,
+                  icon: AppIcons.personOutline.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const SettingsAccountRoute()),
                 ),
@@ -89,7 +89,7 @@ class SettingsPage extends StatelessWidget {
                 AppTile(
                   title: 'О приложении',
                   subtitle: 'Версия и онбординг',
-                  icon: Icons.info_outline_rounded,
+                  icon: AppIcons.infoOutline.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const AboutRoute()),
                 ),

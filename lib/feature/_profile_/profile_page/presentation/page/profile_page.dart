@@ -205,7 +205,7 @@ class _ProfileNewActions extends StatelessWidget {
                           },
                         ),
                         AppTile(
-                          icon: Icons.collections,
+                          icon: AppIcons.collectionsFilled.icon,
                           title: 'Добавить кластер',
                           onTap: () {
                             Navigator.of(context).pop();
@@ -216,9 +216,9 @@ class _ProfileNewActions extends StatelessWidget {
                     ),
                   );
                 },
-                child: const Padding(
+                child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 14),
-                  child: Icon(Icons.add, color: Colors.white, size: 22),
+                  child: Icon(AppIcons.add.icon, color: context.colors.textInverse, size: 22),
                 ),
               ),
               SizedBox(width: context.widthByContext(5)),
@@ -227,9 +227,9 @@ class _ProfileNewActions extends StatelessWidget {
                 onTap: () {
                   context.router.push(const SettingsRoute());
                 },
-                child: const Padding(
+                child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 14),
-                  child: Icon(Icons.settings_outlined, color: Colors.white, size: 22),
+                  child: Icon(AppIcons.settingsOutlined.icon, color: context.colors.textInverse, size: 22),
                 ),
               ),
             ],

@@ -169,7 +169,7 @@ class _ProfileTile extends StatelessWidget {
                   backgroundColor: context.colors.surfaceSoft,
                   backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
                   child: avatarUrl == null || avatarUrl.isEmpty
-                      ? Icon(Icons.person, color: context.colors.iconMuted, size: 20)
+                      ? Icon(AppIcons.user.icon, color: context.colors.iconMuted, size: 20)
                       : null,
                 ),
                 const SizedBox(width: 12),

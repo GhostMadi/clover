@@ -1,4 +1,5 @@
 import 'package:clover/core/post_media/post_media.dart';
+import 'package:clover/core/resources/colors.dart';
 import 'package:clover/feature/_post_/post/data/models/post_media_model.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_image_tile.dart';
 import 'package:flutter/material.dart';
@@ -109,6 +110,7 @@ class _PageDots extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(count, (index) {
           final isActive = index == activeIndex;
+          final dot = context.colors.textInverse;
 
           return AnimatedContainer(
             duration: const Duration(milliseconds: 180),
@@ -116,9 +118,15 @@ class _PageDots extends StatelessWidget {
             width: isActive ? 8 : 6,
             height: isActive ? 8 : 6,
             decoration: BoxDecoration(
-              color: isActive ? Colors.white : Colors.white.withValues(alpha: 0.45),
+              color: isActive ? dot : dot.withValues(alpha: 0.45),
               shape: BoxShape.circle,
-              boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 4, offset: Offset(0, 1))],
+              boxShadow: [
+                BoxShadow(
+                  color: context.colors.shadowDark.withValues(alpha: 0.2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
+                ),
+              ],
             ),
           );
         }),

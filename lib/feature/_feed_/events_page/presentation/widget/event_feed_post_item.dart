@@ -26,7 +26,7 @@ class EventFeedPostItem extends StatelessWidget {
     final description = post.description?.trim();
 
     return ColoredBox(
-      color: Colors.white,
+      color: context.colors.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -126,7 +126,7 @@ class _AuthorRow extends StatelessWidget {
                 backgroundColor: context.colors.surfaceSoft,
                 backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
                 child: avatarUrl == null || avatarUrl.isEmpty
-                    ? Icon(Icons.person, color: context.colors.iconMuted, size: 22)
+                    ? Icon(AppIcons.user.icon, color: context.colors.iconMuted, size: 22)
                     : null,
               ),
             ),
