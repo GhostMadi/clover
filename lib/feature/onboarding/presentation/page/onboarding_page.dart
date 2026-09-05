@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/auth/cubit/auth_cubit.dart';
 import 'package:clover/core/auth/cubit/auth_state.dart';
+import 'package:clover/core/deep_link/app_deep_link_service.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
@@ -59,6 +60,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
       return;
     }
     await context.router.replaceAll([const AppDashboardRoute()]);
+    if (mounted) {
+      await sl<AppDeepLinkService>().flushPending();
+    }
   }
 
   void _next() {

@@ -4,7 +4,7 @@
 
 | Кто | Что делает |
 |-----|------------|
-| **Host** | Включает программу (`profiles.bonus_program_status = active`), настраивает на услуге `bonus_pay_percent` и `bonus_earn_amount` |
+| **Host** | На услуге `bonus_earn_amount` и `bonus_pay_percent`; отдельного свитча программы нет |
 | **Клиент** | Записывается, при необходимости включает «Оплатить бонусами» (`bookings.use_bonuses`, по умолчанию `true`) |
 | **Система** | При переводе записи в `completed` двигает бонусы по журналу |
 
@@ -27,13 +27,13 @@
 
 Триггер вызывает `bonus_apply_booking_completed(booking_id)`:
 
-1. **Списание** (`bonus_apply_booking_payment_spend`) — если программа активна, `use_bonuses = true`, процент > 0:
+1. **Списание** (`bonus_apply_booking_payment_spend`) — если `use_bonuses = true`, процент > 0:
    - лимит = `floor(price × service_bonus_pay_percent / 100)`
    - факт = `min(баланс кошелька, лимит)`
    - запись в ledger: `kind = spend`, `source = booking_payment`
    - `bookings.bonus_spent_amount` — для аудита
 
-2. **Начисление** (`bonus_apply_booking_service_earn`) — если программа активна, `service_bonus_earn_amount > 0`:
+2. **Начисление** (`bonus_apply_booking_service_earn`) — если `service_bonus_earn_amount > 0`:
    - запись в ledger: `kind = earn`, `source = booking_service`
 
 Порядок: **сначала списание, потом начисление** — оплата бонусами за визит, затем кэшбэк за визит.

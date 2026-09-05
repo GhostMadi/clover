@@ -3,6 +3,8 @@ import 'package:clover/core/theme/app_colors_scope.dart';
 import 'package:clover/core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 
+export 'package:clover/core/resources/app_service_accent.dart'
+    show AppServiceAccent, AppServiceAccentResolver, AppServiceKind;
 export 'package:clover/core/theme/app_colors_scope.dart' show AppColorsContext, AppColorsScope;
 export 'package:clover/core/theme/app_palette.dart' show AppPalette;
 
@@ -40,6 +42,7 @@ abstract final class AppColors {
   static Color get borderInput => _p.borderInput;
   static Color get borderCardGreen => _p.borderCardGreen;
   static Color get borderCardBlue => _p.borderCardBlue;
+  static Color get borderCardYellow => _p.borderCardYellow;
   static Color get divider => _p.divider;
 
   // Text
@@ -59,6 +62,8 @@ abstract final class AppColors {
   static Color get functionalSoftBlueIcon => _p.functionalSoftBlueIcon;
   static Color get functionalSoftOrange => _p.functionalSoftOrange;
   static Color get functionalSoftOrangeIcon => _p.functionalSoftOrangeIcon;
+  static Color get functionalSoftYellow => _p.functionalSoftYellow;
+  static Color get functionalSoftYellowIcon => _p.functionalSoftYellowIcon;
   static Color get functionalSoftRed => _p.functionalSoftRed;
   static Color get functionalSoftRedIcon => _p.functionalSoftRedIcon;
   static Color get borderCardRed => _p.borderCardRed;

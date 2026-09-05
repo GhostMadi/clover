@@ -12,6 +12,8 @@ abstract class NotificationsRepository {
   });
 
   Future<void> markRead({List<String>? ids});
+
+  Future<int> countUnread();
 }
 
 @LazySingleton(as: NotificationsRepository)
@@ -53,6 +55,14 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     await _client.rpc('mark_notifications_read', params: params);
   }
 
+  @override
+  Future<int> countUnread() async {
+    final res = await _client.rpc('count_unread_notifications');
+    if (res is int) return res;
+    if (res is num) return res.toInt();
+    return 0;
+  }
+
   static List<NotificationItem> _parseRows(dynamic res) {
     if (res is! List) return const [];
 
@@ -87,8 +97,19 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     final previewUrl = (map['post_preview_url'] as String?)?.trim();
     final commentPreview = (payload['comment_preview'] as String?)?.trim();
 
-    final kind = _kindFromApi(kindRaw);
+    final isFollowingActor = map['is_following_actor'] == true;
+    final kind = _kindFromApi(kindRaw, isFollowingActor: isFollowingActor);
     final isReply = kindRaw == 'comment_reply' || payload['is_reply'] == true;
+    final isFollowKind = kindRaw == 'user_follow';
+
+    final bookingId = (map['booking_id'] as String?)?.trim();
+    final serviceTitle = (payload['service_title'] as String?)?.trim();
+    final bookingStartsAt = _parseDateTime(payload['starts_at']);
+    final bonusRaw = payload['bonus_earn_amount'];
+    final bonusEarnAmount = bonusRaw is num ? bonusRaw.toInt() : int.tryParse('$bonusRaw');
+    final reminderRaw = payload['minutes_before'];
+    final reminderMinutes =
+        reminderRaw is num ? reminderRaw.toInt() : int.tryParse('$reminderRaw');
 
     return NotificationItem(
       id: id,
@@ -101,6 +122,14 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       commentPreview: commentPreview != null && commentPreview.isNotEmpty ? commentPreview : null,
       isReply: isReply,
       isUnread: readAt == null,
+      showFollowButton: isFollowKind,
+      isFollowingActor: isFollowingActor,
+      bookingId: bookingId != null && bookingId.isNotEmpty ? bookingId : null,
+      bookingServiceTitle: serviceTitle != null && serviceTitle.isNotEmpty ? serviceTitle : null,
+      bookingStartsAt: bookingStartsAt,
+      bonusEarnAmount: bonusEarnAmount != null && bonusEarnAmount > 0 ? bonusEarnAmount : null,
+      bookingReminderMinutesBefore:
+          reminderMinutes != null && reminderMinutes > 0 ? reminderMinutes : null,
     );
   }
 
@@ -121,7 +150,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     );
   }
 
-  static NotificationKind _kindFromApi(String kind) {
+  static NotificationKind _kindFromApi(String kind, {required bool isFollowingActor}) {
     return switch (kind) {
       'post_like' => NotificationKind.like,
       'post_dislike' => NotificationKind.dislike,
@@ -129,6 +158,16 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       'comment_reply' => NotificationKind.comment,
       'comment_like' => NotificationKind.commentLike,
       'comment_dislike' => NotificationKind.commentDislike,
+      'user_follow' => isFollowingActor ? NotificationKind.mutualFollow : NotificationKind.followedYou,
+      'booking_created_host' => NotificationKind.bookingCreatedHost,
+      'booking_booked_client' => NotificationKind.bookingBookedClient,
+      'booking_reminder_client' => NotificationKind.bookingReminderClient,
+      'booking_visit_started' => NotificationKind.bookingVisitStarted,
+      'booking_visit_needs_close' => NotificationKind.bookingVisitNeedsClose,
+      'booking_cancelled_host' => NotificationKind.bookingCancelledHost,
+      'booking_cancelled_client' => NotificationKind.bookingCancelledClient,
+      'booking_completed_client' => NotificationKind.bookingCompletedClient,
+      'booking_no_show_client' => NotificationKind.bookingNoShowClient,
       _ => NotificationKind.comment,
     };
   }

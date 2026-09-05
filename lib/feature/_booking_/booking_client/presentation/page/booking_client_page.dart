@@ -19,10 +19,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
 class BookingClientPage extends StatefulWidget {
-  const BookingClientPage({super.key, required this.hostId, required this.hostDisplayName});
+  const BookingClientPage({
+    super.key,
+    required this.hostId,
+    required this.hostDisplayName,
+    this.initialServiceId,
+  });
 
   final String hostId;
   final String hostDisplayName;
+  final String? initialServiceId;
 
   @override
   State<BookingClientPage> createState() => _BookingClientPageState();
@@ -36,7 +42,11 @@ class _BookingClientPageState extends State<BookingClientPage> {
   void initState() {
     super.initState();
     _cubit = sl<BookingClientCubit>()
-      ..init(hostId: widget.hostId, hostDisplayName: widget.hostDisplayName);
+      ..init(
+        hostId: widget.hostId,
+        hostDisplayName: widget.hostDisplayName,
+        initialServiceId: widget.initialServiceId,
+      );
     _commentController.addListener(() => setState(() {}));
   }
 
@@ -71,7 +81,7 @@ class _BookingClientPageState extends State<BookingClientPage> {
     if (!mounted) return;
 
     if (ok) {
-      AppSnackBar.show(context, message: 'Запись создана', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: 'Запись подтверждена', kind: AppSnackBarKind.success);
       context.router.maybePop(true);
       return;
     }

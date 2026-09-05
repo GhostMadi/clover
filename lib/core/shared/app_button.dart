@@ -12,6 +12,7 @@ class AppButton extends StatefulWidget {
   final bool isExpanded;
   final bool interactive;
   final Widget? child;
+  final AppServiceKind? service;
 
   const AppButton({
     super.key,
@@ -23,6 +24,7 @@ class AppButton extends StatefulWidget {
     this.isExpanded = false,
     this.interactive = true,
     this.child,
+    this.service,
   });
 
   @override
@@ -60,8 +62,11 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final backgroundColor = _isEnabled ? colors.primary : colors.surfaceSoft;
-    final textColor = _isEnabled ? colors.textInverse : colors.subTextColor;
+    final serviceAccent = widget.service != null ? colors.serviceAccent(widget.service!) : null;
+    final ctaColor = serviceAccent?.cta ?? colors.primary;
+    final ctaBorder = serviceAccent?.ctaBorder ?? colors.borderCardGreen;
+    final backgroundColor = _isEnabled ? ctaColor : colors.surfaceSoft;
+    final textColor = _isEnabled ? (serviceAccent?.ctaForeground ?? colors.textInverse) : colors.subTextColor;
 
     final shadows = _isEnabled
         ? [
@@ -71,7 +76,7 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
               offset: const Offset(0, 10),
             ),
             BoxShadow(
-              color: colors.primary.withValues(alpha: 0.20),
+              color: ctaColor.withValues(alpha: 0.20),
               blurRadius: 24,
               offset: const Offset(0, 8),
             ),
@@ -89,7 +94,7 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(widget.borderRadius),
-        border: Border.all(color: _isEnabled ? colors.borderCardGreen : colors.border),
+        border: Border.all(color: _isEnabled ? ctaBorder : colors.border),
         boxShadow: shadows,
       ),
       child: Stack(

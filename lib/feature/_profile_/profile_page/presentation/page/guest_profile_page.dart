@@ -8,8 +8,7 @@ import 'package:clover/core/shared/app_functional_button/app_functional_screen.d
 import 'package:clover/core/shared/app_functional_button/functional_button_item.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_refresh.dart';
-import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/feature/_chat_/chat/data/repository/chat_repository.dart';
+import 'package:clover/core/shared/app_state.dart';
 import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
 import 'package:clover/feature/_cluster_/cluster/presentation/cubit/clusters_list_cubit.dart';
 import 'package:clover/feature/_post_/post/presentation/cubit/post_feed_cubit.dart';
@@ -148,7 +147,13 @@ class _GuestHeaderBlock extends StatelessWidget {
           error: (message) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _GuestProfileErrorTop(message: message, onRetry: onRetry),
+              AppState(
+                state: AppScreenState.error,
+                variant: AppStateVariant.inline,
+                errorMessage: message,
+                onRetry: onRetry,
+                child: const SizedBox.shrink(),
+              ),
               const ProfileHeaderSection.loading(),
             ],
           ),
@@ -158,35 +163,13 @@ class _GuestHeaderBlock extends StatelessWidget {
   }
 }
 
-class _GuestFollowActions extends StatefulWidget {
+class _GuestFollowActions extends StatelessWidget {
   const _GuestFollowActions({required this.cubit});
 
   final GuestProfileCubit cubit;
 
-  @override
-  State<_GuestFollowActions> createState() => _GuestFollowActionsState();
-}
-
-class _GuestFollowActionsState extends State<_GuestFollowActions> {
-  bool _isOpeningChat = false;
-
-  GuestProfileCubit get cubit => widget.cubit;
-
-  Future<void> _openChat(String userId, String username) async {
-    if (_isOpeningChat) return;
-
-    setState(() => _isOpeningChat = true);
-    try {
-      final conversationId = await sl<ChatRepository>().createDm(userId);
-      if (!mounted) return;
-      await context.router.push(ChatRoute(chatId: conversationId, username: username));
-    } catch (error) {
-      if (!mounted) return;
-      final message = error is ChatRepositoryException ? error.message : 'Не удалось открыть чат';
-      AppSnackBar.show(context, message: message, kind: AppSnackBarKind.error);
-    } finally {
-      if (mounted) setState(() => _isOpeningChat = false);
-    }
+  void _openChat(BuildContext context, String userId, String username) {
+    context.router.push(ChatRoute(otherUserId: userId, username: username));
   }
 
   @override
@@ -235,8 +218,7 @@ class _GuestFollowActionsState extends State<_GuestFollowActions> {
                           child: AppButton(
                             text: 'Сообщения',
                             isExpanded: true,
-                            isLoading: _isOpeningChat,
-                            onTap: _isOpeningChat ? null : () => _openChat(loaded.profile.id, displayName),
+                            onTap: () => _openChat(context, loaded.profile.id, displayName),
                           ),
                         ),
                       ],
@@ -256,8 +238,7 @@ class _GuestFollowActionsState extends State<_GuestFollowActions> {
                           width: 56,
                           child: AppOutlinedButton(
                             text: ' ',
-                            isLoading: _isOpeningChat,
-                            onTap: _isOpeningChat ? null : () => _openChat(loaded.profile.id, displayName),
+                            onTap: () => _openChat(context, loaded.profile.id, displayName),
                             child: Icon(AppIcons.chat.icon, color: context.colors.primary),
                           ),
                         ),
@@ -280,28 +261,3 @@ class _GuestFollowActionsState extends State<_GuestFollowActions> {
   }
 }
 
-class _GuestProfileErrorTop extends StatelessWidget {
-  const _GuestProfileErrorTop({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: context.colors.subTextColor, fontSize: 13),
-          ),
-          const SizedBox(height: 8),
-          AppButton(text: 'Повторить', onTap: onRetry),
-        ],
-      ),
-    );
-  }
-}

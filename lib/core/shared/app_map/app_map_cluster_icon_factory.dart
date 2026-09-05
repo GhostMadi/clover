@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 /// Иконка стопки / кластера: до 3 полноразмерных маркеров веером.
 abstract final class AppMapClusterIconFactory {
-  static const _cacheVersion = 3;
+  static const _cacheVersion = 6;
 
   static const canvasWidth = 300.0;
   static const canvasHeight = 230.0;

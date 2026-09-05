@@ -19,19 +19,6 @@ class SettingsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SettingsTileSectionTitle('Ресурсы'),
-            AppTileGroup(
-              children: [
-                AppTile(
-                  title: 'Ресурсы',
-                  subtitle: 'Местоположения и другие справочники',
-                  icon: AppIcons.inventory.icon,
-                  showChevron: true,
-                  onTap: () => context.router.push(const SettingsResourcesRoute()),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
             const SettingsTileSectionTitle('Сервисы'),
             AppTileGroup(
               children: [
@@ -42,11 +29,16 @@ class SettingsPage extends StatelessWidget {
                   onTap: () => context.router.push(const BookingListRoute()),
                 ),
                 AppTile(
-                  title: 'Бонусы',
-                  subtitle: 'Программа лояльности для клиентов',
-                  icon: AppIcons.giftCard.icon,
+                  title: 'Посещаемость',
+                  icon: AppIcons.schedule.icon,
                   showChevron: true,
-                  onTap: () => context.router.push(const BonusProgramSettingsRoute()),
+                  onTap: () => context.router.push(const AttendanceHubRoute()),
+                ),
+                AppTile(
+                  title: 'Ресурсы',
+                  icon: AppIcons.inventory.icon,
+                  showChevron: true,
+                  onTap: () => context.router.push(const SettingsResourcesRoute()),
                 ),
               ],
             ),

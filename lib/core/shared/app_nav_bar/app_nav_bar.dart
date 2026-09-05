@@ -147,7 +147,7 @@ class _NavTab extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (behind == null)
-            Icon(item.icon, size: iconSize, color: color)
+            _TabIconWithBadge(showBadge: item.showBadge, child: Icon(item.icon, size: iconSize, color: color))
           else
             _StackedNavIcon(
               front: item.icon,
@@ -171,6 +171,38 @@ class _NavTab extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+class _TabIconWithBadge extends StatelessWidget {
+  const _TabIconWithBadge({required this.showBadge, required this.child});
+
+  final bool showBadge;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!showBadge) return child;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        child,
+        Positioned(
+          right: -2,
+          top: -2,
+          child: Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: context.colors.destructive,
+              shape: BoxShape.circle,
+              border: Border.all(color: context.colors.surface, width: 1.5),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

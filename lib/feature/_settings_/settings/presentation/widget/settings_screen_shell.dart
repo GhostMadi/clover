@@ -31,7 +31,8 @@ class SettingsScreenShell extends StatelessWidget {
         FunctionalButtonItem(
           icon: AppIcons.back.icon,
           keepWhenCollapsed: true,
-          customColor: context.colors.primary,
+          borderColor: context.colors.primary,
+          iconColor: context.colors.primary,
           onTap: () => context.router.maybePop(),
         ),
         ...extraButtons,

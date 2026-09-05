@@ -9,16 +9,10 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-abstract class PostCreateRepository {
-  Future<String> createPost({
-    required PostCreateRequest request,
-    ValueChanged<int>? onProgress,
-  });
-}
-
-@LazySingleton(as: PostCreateRepository)
-class PostCreateRepositoryImpl implements PostCreateRepository {
-  PostCreateRepositoryImpl(this._client, this._filterRepository, this._markerTagsRepository);
+/// Публикация поста: обычная или ивент (marker + post при [PostCreateRequest.isEvent]).
+@lazySingleton
+class PostCreateRepository {
+  PostCreateRepository(this._client, this._filterRepository, this._markerTagsRepository);
 
   final SupabaseClient _client;
   final FilterRepository _filterRepository;
@@ -26,26 +20,153 @@ class PostCreateRepositoryImpl implements PostCreateRepository {
 
   static const _bucketPostMedia = 'post_media';
 
-  @override
-  Future<String> createPost({
+  Future<PostCreateResult> publish({
+    required PostCreateRequest request,
+    ValueChanged<int>? onProgress,
+  }) {
+    if (request.isEvent) {
+      return _publishEvent(request: request, onProgress: onProgress);
+    }
+    return _publishPostOnly(request: request, onProgress: onProgress);
+  }
+
+  Future<PostCreateResult> _publishPostOnly({
     required PostCreateRequest request,
     ValueChanged<int>? onProgress,
   }) async {
+    final uid = _requireUid();
+    _requireMedia(request);
+
+    void report(int value) => onProgress?.call(value.clamp(0, 100));
+    report(5);
+
+    final postId = await _insertPost(uid: uid, request: request);
+    report(12);
+
+    final uploadedPaths = <String>[];
+    try {
+      await _uploadMedia(
+        postId: postId,
+        media: request.media,
+        uploadedPaths: uploadedPaths,
+        onProgress: report,
+        progressStart: 12,
+        progressSpan: 78,
+      );
+
+      await _attachPostMeta(postId: postId, request: request, markerId: null);
+    } catch (error) {
+      await _rollbackPostOnly(postId: postId, storagePaths: uploadedPaths);
+      rethrow;
+    }
+
+    report(100);
+    return PostCreateResult(postId: postId);
+  }
+
+  Future<PostCreateResult> _publishEvent({
+    required PostCreateRequest request,
+    ValueChanged<int>? onProgress,
+  }) async {
+    final uid = _requireUid();
+    _requireMedia(request);
+
+    final location = request.location;
+    final period = request.eventPeriod;
+    if (location == null) {
+      throw ArgumentError('Не выбрано местоположение');
+    }
+    if (period == null) {
+      throw ArgumentError('Не выбран период события');
+    }
+
+    final lat = location.latitude;
+    final lng = location.longitude;
+    if (lat == null || lng == null) {
+      throw ArgumentError('У местоположения нет координат');
+    }
+
+    final duration = period.duration;
+    if (duration.inMinutes <= 0 || duration > const Duration(hours: 24)) {
+      throw ArgumentError('Длительность события должна быть от 1 мин до 24 ч');
+    }
+
+    void report(int value) => onProgress?.call(value.clamp(0, 100));
+    report(5);
+
+    final markerRow = await _client
+        .from('markers')
+        .insert(_markerInsertRow(uid: uid, request: request, lat: lat, lng: lng))
+        .select('id')
+        .single();
+
+    final markerId = (markerRow['id'] as String?)?.trim();
+    if (markerId == null || markerId.isEmpty) {
+      throw StateError('Не удалось создать маркер');
+    }
+
+    report(12);
+
+    String? postId;
+    final uploadedPaths = <String>[];
+    try {
+      postId = await _insertPost(uid: uid, request: request, markerId: markerId);
+      report(18);
+
+      final coverUrl = await _uploadMedia(
+        postId: postId,
+        media: request.media,
+        uploadedPaths: uploadedPaths,
+        onProgress: report,
+        progressStart: 18,
+        progressSpan: 62,
+        captureCoverUrl: true,
+      );
+
+      report(84);
+
+      if (coverUrl != null) {
+        await _client.from('markers').update({'cover_image_url': coverUrl}).eq('id', markerId);
+      }
+
+      report(90);
+
+      await _attachPostMeta(
+        postId: postId,
+        request: request,
+        markerId: markerId,
+      );
+
+      report(100);
+      return PostCreateResult(postId: postId, markerId: markerId);
+    } catch (error) {
+      await _rollbackEvent(markerId: markerId, postId: postId, storagePaths: uploadedPaths);
+      rethrow;
+    }
+  }
+
+  String _requireUid() {
     final uid = _client.auth.currentUser?.id;
     if (uid == null) {
       throw StateError('Нет сессии: войдите в аккаунт');
     }
+    return uid;
+  }
+
+  void _requireMedia(PostCreateRequest request) {
     if (request.media.isEmpty) {
       throw ArgumentError('Нужно хотя бы одно фото');
     }
+  }
 
-    void report(int value) => onProgress?.call(value.clamp(0, 100));
-
-    report(5);
-
+  Future<String> _insertPost({
+    required String uid,
+    required PostCreateRequest request,
+    String? markerId,
+  }) async {
     final postRow = await _client
         .from('posts')
-        .insert(_postInsertRow(uid: uid, request: request))
+        .insert(_postInsertRow(uid: uid, request: request, markerId: markerId))
         .select('id')
         .single();
 
@@ -53,66 +174,76 @@ class PostCreateRepositoryImpl implements PostCreateRepository {
     if (postId == null || postId.isEmpty) {
       throw StateError('Не удалось создать пост');
     }
+    return postId;
+  }
 
-    report(12);
+  Future<String?> _uploadMedia({
+    required String postId,
+    required List<PostCreateMediaInput> media,
+    required List<String> uploadedPaths,
+    required void Function(int) onProgress,
+    required int progressStart,
+    required int progressSpan,
+    bool captureCoverUrl = false,
+  }) async {
+    final mediaRows = <Map<String, dynamic>>[];
+    String? coverUrl;
+    final total = media.length;
 
-    final uploadedPaths = <String>[];
+    for (var i = 0; i < total; i++) {
+      final item = media[i];
+      final mediaId = _newMediaId();
+      final fileName = '$mediaId${item.aspectRatio.storageMarker}.jpg';
+      final storagePath = 'posts/$postId/$fileName';
 
-    try {
-      final mediaRows = <Map<String, dynamic>>[];
-      final total = request.media.length;
-      final uploadSpan = 78;
+      final bytes = await AppImageEditExporter.exportJpegBytes(
+        sourceFile: item.sourceFile,
+        settings: item.settings,
+        imageWidth: item.imageWidth,
+        imageHeight: item.imageHeight,
+      );
+      final compressed = await FlutterImageCompress.compressWithList(bytes, quality: 88);
 
-      for (var i = 0; i < total; i++) {
-        final item = request.media[i];
-        final mediaId = _newMediaId();
-        final fileName = '$mediaId${item.aspectRatio.storageMarker}.jpg';
-        final storagePath = 'posts/$postId/$fileName';
+      await _client.storage.from(_bucketPostMedia).uploadBinary(
+            storagePath,
+            compressed,
+            fileOptions: const FileOptions(upsert: true, contentType: 'image/jpeg'),
+          );
 
-        final bytes = await AppImageEditExporter.exportJpegBytes(
-          sourceFile: item.sourceFile,
-          settings: item.settings,
-          imageWidth: item.imageWidth,
-          imageHeight: item.imageHeight,
-        );
-        final compressed = await FlutterImageCompress.compressWithList(bytes, quality: 88);
+      uploadedPaths.add(storagePath);
+      final publicUrl = _publicUrl(storagePath);
+      coverUrl ??= captureCoverUrl ? publicUrl : null;
 
-        await _client.storage.from(_bucketPostMedia).uploadBinary(
-              storagePath,
-              compressed,
-              fileOptions: const FileOptions(upsert: true, contentType: 'image/jpeg'),
-            );
+      mediaRows.add({
+        'post_id': postId,
+        'url': publicUrl,
+        'type': 'image',
+        'sort_order': item.sortOrder,
+      });
 
-        uploadedPaths.add(storagePath);
-        final publicUrl = _publicUrl(storagePath);
-
-        mediaRows.add({
-          'post_id': postId,
-          'url': publicUrl,
-          'type': 'image',
-          'sort_order': item.sortOrder,
-        });
-
-        final step = 12 + (((i + 1) / total) * uploadSpan).round();
-        report(step);
-      }
-
-      await _client.from('post_media').insert(mediaRows);
-
-      if (request.tagIds.isNotEmpty) {
-        await _markerTagsRepository.setForPost(postId: postId, tagKeys: request.tagIds);
-      }
-
-      if (request.filterValues.isNotEmpty) {
-        await _filterRepository.setPostFilters(postId: postId, selectionKeys: request.filterValues);
-      }
-    } catch (error) {
-      await _rollbackCreate(postId: postId, storagePaths: uploadedPaths);
-      rethrow;
+      final step = progressStart + (((i + 1) / total) * progressSpan).round();
+      onProgress(step);
     }
 
-    report(100);
-    return postId;
+    await _client.from('post_media').insert(mediaRows);
+    return coverUrl;
+  }
+
+  Future<void> _attachPostMeta({
+    required String postId,
+    required PostCreateRequest request,
+    required String? markerId,
+  }) async {
+    if (request.tagIds.isNotEmpty) {
+      await _markerTagsRepository.setForPost(postId: postId, tagKeys: request.tagIds);
+      if (markerId != null) {
+        await _markerTagsRepository.setForMarker(markerId: markerId, tagKeys: request.tagIds);
+      }
+    }
+
+    if (request.filterValues.isNotEmpty) {
+      await _filterRepository.setPostFilters(postId: postId, selectionKeys: request.filterValues);
+    }
   }
 
   Map<String, dynamic> _postInsertRow({
@@ -126,6 +257,7 @@ class PostCreateRepositoryImpl implements PostCreateRepository {
     return {
       'user_id': uid,
       if (markerId != null) 'marker_id': markerId,
+      if (request.bookingServiceId != null) 'booking_service_id': request.bookingServiceId,
       'title': request.title.isEmpty ? null : request.title,
       'description': request.description.isEmpty ? null : request.description,
       if (emoji.isNotEmpty) 'text_emoji': emoji,
@@ -133,28 +265,85 @@ class PostCreateRepositoryImpl implements PostCreateRepository {
     };
   }
 
+  Map<String, dynamic> _markerInsertRow({
+    required String uid,
+    required PostCreateRequest request,
+    required double lat,
+    required double lng,
+  }) {
+    final location = request.location!;
+    final period = request.eventPeriod!;
+    final primary = location.addressPrimary.trim();
+    final cyrillic = location.addressCyrillic?.trim();
+    final country = location.countryCode?.trim().toLowerCase();
+    final city = location.cityCode?.trim();
+
+    return {
+      'owner_id': uid,
+      'text_emoji': request.textEmoji.trim(),
+      'location_id': location.id,
+      'location': 'SRID=4326;POINT($lng $lat)',
+      'event_time': period.start.toUtc().toIso8601String(),
+      'duration': _formatPgInterval(period.duration),
+      if (primary.isNotEmpty) 'address_primary': primary,
+      if (cyrillic != null && cyrillic.isNotEmpty) 'address_cyrillic': cyrillic,
+      if (country != null && country.isNotEmpty && city != null && city.isNotEmpty) ...{
+        'country_code': country,
+        'city_code': city,
+      },
+    };
+  }
+
+  String _formatPgInterval(Duration duration) {
+    final totalMinutes = duration.inMinutes;
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+
+    if (hours == 0) return '$minutes minutes';
+    if (minutes == 0) return '$hours hours';
+    return '$hours hours $minutes minutes';
+  }
+
   String _publicUrl(String path) {
     final base = _client.storage.from(_bucketPostMedia).getPublicUrl(path);
     return '$base?v=${DateTime.now().millisecondsSinceEpoch}';
   }
 
-  Future<void> _rollbackCreate({
+  Future<void> _rollbackPostOnly({
     required String postId,
     required List<String> storagePaths,
   }) async {
     if (storagePaths.isNotEmpty) {
       try {
         await _client.storage.from(_bucketPostMedia).remove(storagePaths);
-      } catch (_) {
-        // best effort
-      }
+      } catch (_) {}
     }
 
     try {
       await _client.from('posts').delete().eq('id', postId);
-    } catch (_) {
-      // best effort
+    } catch (_) {}
+  }
+
+  Future<void> _rollbackEvent({
+    required String markerId,
+    String? postId,
+    required List<String> storagePaths,
+  }) async {
+    if (storagePaths.isNotEmpty) {
+      try {
+        await _client.storage.from(_bucketPostMedia).remove(storagePaths);
+      } catch (_) {}
     }
+
+    if (postId != null && postId.isNotEmpty) {
+      try {
+        await _client.from('posts').delete().eq('id', postId);
+      } catch (_) {}
+    }
+
+    try {
+      await _client.from('markers').delete().eq('id', markerId);
+    } catch (_) {}
   }
 
   String _newMediaId() {

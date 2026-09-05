@@ -15,6 +15,11 @@ class NotificationItem {
     this.isUnread = false,
     this.showFollowButton = false,
     this.isFollowingActor = false,
+    this.bookingId,
+    this.bookingServiceTitle,
+    this.bookingStartsAt,
+    this.bonusEarnAmount,
+    this.bookingReminderMinutesBefore,
   });
 
   final String id;
@@ -29,14 +34,20 @@ class NotificationItem {
   final bool isUnread;
   final bool showFollowButton;
   final bool isFollowingActor;
+  final String? bookingId;
+  final String? bookingServiceTitle;
+  final DateTime? bookingStartsAt;
+  final int? bonusEarnAmount;
+  final int? bookingReminderMinutesBefore;
 
   NotificationItem copyWith({
     bool? isFollowingActor,
     bool? isUnread,
+    NotificationKind? kind,
   }) {
     return NotificationItem(
       id: id,
-      kind: kind,
+      kind: kind ?? this.kind,
       actors: actors,
       createdAt: createdAt,
       postId: postId,
@@ -47,6 +58,11 @@ class NotificationItem {
       isUnread: isUnread ?? this.isUnread,
       showFollowButton: showFollowButton,
       isFollowingActor: isFollowingActor ?? this.isFollowingActor,
+      bookingId: bookingId,
+      bookingServiceTitle: bookingServiceTitle,
+      bookingStartsAt: bookingStartsAt,
+      bonusEarnAmount: bonusEarnAmount,
+      bookingReminderMinutesBefore: bookingReminderMinutesBefore,
     );
   }
 }

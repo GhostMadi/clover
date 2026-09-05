@@ -93,23 +93,28 @@
 
 **Семантика по умолчанию для follow:** если существует блок в любом из направлений, релевантных продукту (задать явно: только `blocker→blocked` или также обратная проверка), создание ребра **запрещено**.
 
-### 3.4 Уведомления — `public.notification_events` (или эквивалент)
+### 3.4 Уведомления — `public.notifications` (as-built)
 
-**Назначение:** запись события после успешного создания ребра (at least once + дедуп).
+> **Актуально:** in-app лента — таблица **`public.notifications`**, kind `user_follow`.  
+> Legacy **`notification_events`** использовался на раннем этапе; follow backfill в `notifications` — `20260830210000`.  
+> Полный контракт: [SPEC_IN_APP_NOTIFICATIONS.md](SPEC_IN_APP_NOTIFICATIONS.md) · [notifications.md](../business/notifications.md).
 
-Минимальный контракт:
+**Назначение:** запись события после успешного follow (at least once + dedupe через `upsert_notification` в `follow_user` RPC).
+
+Минимальный контракт (текущая таблица):
 
 | Колонка | Смысл |
 |--------|--------|
-| `dedupe_key` | Уникальный ключ, напр. `follow:{follower_id}:{following_id}` или + `type` |
+| `dedupe_key` | напр. `follow:{follower_id}:{following_id}` |
 | `recipient_id` | Кому (обычно `following_id`) |
-| `payload` | `jsonb` (тип, actor_id, текст для клиента) |
-| `created_at` | |
+| `actor_id` | Кто подписался |
+| `kind` | `user_follow` |
+| `payload` | `jsonb` (mutual follow и т.п.) |
+| `read_at` | Прочитано |
 
-- `UNIQUE (dedupe_key)` **или** уникальность по `(recipient_id, dedupe_key)` в зависимости от модели хранения
-- Политика TTL дедупа (например 48h) — опционально, документировать
+**Доставка** push — вне ядра Postgres (backlog); ядро фиксирует **запись** и **отсутствие дублей** по `dedupe_key`.
 
-**Доставка** в push — вне ядра Postgres (Edge / очередь); ядро фиксирует **запись события** и **отсутствие дублей** по ключу.
+_(Историческая заметка: ранний черновик описывал отдельную `notification_events` — не целевая модель v1.)_
 
 ### 3.5 Производительность и корректность: триггеры под большой нагрузкой
 
@@ -157,9 +162,9 @@
 
 После успешного `follow_user`:
 
-- Запись в `notification_events` с **дедуп-ключом** — в **той же транзакции**, что и `INSERT` ребра, **но** вызывается из **тела RPC** после вставки ребра, **не** из тяжёлого `AFTER INSERT` триггера на `profile_follows` (чтобы триггер на графе оставался холодным и предсказуемым по времени).
+- `PERFORM upsert_notification(...)` с **dedupe-ключом** — в **той же транзакции**, что и `INSERT` ребра, из **тела RPC**, **не** из тяжёлого триггера на `profile_follows`.
 
-Исключение: отдельный минимальный триггер только на `INSERT INTO notification_events` одной строкой — допустимо; **не** смешивать обновление счётчиков, нотификации и сторонние вызовы в одном триггере.
+Исключение: отдельный минимальный триггер только на insert в `notifications` — допустимо; **не** смешивать обновление счётчиков, нотификации и сторонние вызовы в одном триггере.
 
 #### 3.5.6 Корректность при сбоях
 
@@ -373,16 +378,17 @@
 3. Подписка на пользователя в `hibernate` — отказ с кодом `user_sleeping`.  
 4. Подписка при активной блокировке — отказ с кодом `user_blocked`.  
 5. После вставки ребра счётчики у обоих профилей соответствуют `COUNT(*)` из `profile_follows`.  
-6. `notification_events` (или аналог) не содержит двух записей с одним `dedupe_key` для одного follow-события.  
+6. `notifications` не содержит двух строк с одним `dedupe_key` для одного follow-события.  
 7. Reconcile при искусственно сломанном счётчике восстанавливает значение (тест на стейдже).  
 8. `wake_up_if_needed` переводит только `hibernate → active` для текущего uid, идемпотентно.  
-9. Триггерные функции на `profile_follows` не содержат `COUNT` по графу, внешних HTTP/notify и записи в `notification_events` (см. §3.5); при code review отклонять расширение тела без пересмотра производительности.
+9. Триггерные функции на `profile_follows` не содержат `COUNT` по графу, внешних HTTP/notify и записи в `notifications` (см. §3.5); при code review отклонять расширение тела без пересмотра производительности.
 
 ---
 
 ## 13. Связанные документы
 
 - `docs/supabase/MIGRATIONS_INDEX.md` — индекс миграций и актуальное состояние **reset / hibernate**.  
+- [SPEC_IN_APP_NOTIFICATIONS.md](SPEC_IN_APP_NOTIFICATIONS.md) · [notifications.md](../business/notifications.md) — in-app лента (follow и др.).  
 - Продуктовое ТЗ по бизнес-процессам Follow / Feed / Notification — источник сценариев; **настоящий документ** — норматив по реализации в Supabase.
 
 ---

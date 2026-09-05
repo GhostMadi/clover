@@ -1,9 +1,8 @@
 import 'dart:async';
-import 'package:clover/core/resources/app_icons.dart';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
-import 'package:clover/core/extension/context.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_functional_button/app_functional_pill_button.dart';
 import 'package:clover/core/shared/app_map/app_map.dart';
@@ -15,7 +14,6 @@ import 'package:clover/feature/_feed_/map_page/presentation/cubit/map_markers_cu
 import 'package:clover/feature/_feed_/map_page/presentation/scope/map_markers_filter_scope.dart';
 import 'package:clover/feature/_feed_/map_page/presentation/widget/map_marker_group_sheet.dart';
 import 'package:clover/feature/_feed_/map_page/presentation/widget/map_marker_post_sheet.dart';
-import 'package:clover/feature/_feed_/map_page/presentation/widget/map_markers_pagination_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -55,17 +53,20 @@ class _MapPageState extends State<MapPage> {
     final filter = MapMarkersFilterScope.of(context);
     if (_lastFilter != filter) {
       _lastFilter = filter;
-      _reloadMarkers();
+      _reloadMarkers(force: true);
     }
   }
 
-  void _reloadMarkers() {
+  void _reloadMarkers({bool force = false}) {
     final filter = _lastFilter ?? MapMarkersFilterScope.of(context);
-    unawaited(_markersCubit.load(viewport: _viewport, filter: filter, resetPage: true));
+    unawaited(_markersCubit.load(viewport: _viewport, filter: filter, force: force));
   }
 
   void _onCameraChanged(AppMapViewport viewport, {required bool finished}) {
-    if (finished) _viewport = viewport;
+    _viewport = viewport;
+    if (finished) {
+      unawaited(_markersCubit.onViewportSettled(viewport));
+    }
   }
 
   Future<void> _moveToMyLocation() async {
@@ -73,7 +74,7 @@ class _MapPageState extends State<MapPage> {
     if (!mounted || point == null) return;
 
     _viewport = AppMapViewport(center: point, zoom: _viewport.zoom);
-    _reloadMarkers();
+    _reloadMarkers(force: true);
   }
 
   Map<String, MapMarkerItem> _markersById(MapMarkersState state) {
@@ -114,10 +115,7 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     final controlsBottom = AppNavBar.scrollBottomClearance(context);
-    final pillSize = context.heightByContext(AppFunctionalPillButton.figmaSize).clamp(48.0, 80.0);
-    const gap = 12.0;
     final locationBottom = controlsBottom + 16;
-    final paginationBottom = locationBottom + pillSize + gap;
 
     return BlocProvider.value(
       value: _markersCubit,
@@ -134,20 +132,6 @@ class _MapPageState extends State<MapPage> {
                   markers: state.mapMarkers,
                   onCameraChanged: _onCameraChanged,
                   onMarkerTap: (tap) => unawaited(_onMarkerTap(tap, state)),
-                ),
-                Positioned(
-                  right: 16,
-                  bottom: paginationBottom,
-                  child: MapMarkersPaginationBar(
-                    rangeStart: state.rangeStart,
-                    rangeEnd: state.rangeEnd,
-                    totalCount: state.totalCount,
-                    canGoPrevious: state.canGoPrevious,
-                    canGoNext: state.canGoNext,
-                    isLoading: state.isLoading,
-                    onPrevious: _markersCubit.previousPage,
-                    onNext: _markersCubit.nextPage,
-                  ),
                 ),
                 Positioned(
                   right: 16,

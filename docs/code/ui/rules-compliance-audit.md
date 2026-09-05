@@ -96,7 +96,6 @@
 | Feature | Каркас | Слой | UI-долг | Docs | Вердикт |
 |---------|--------|------|---------|------|---------|
 | `post_create` | yes | ok | мало | publications | ✅ |
-| `marker_create` | yes | ok | мало | publications | ✅ |
 | `cluster_create` | yes | ok | мало | partial | ✅ |
 | `_booking_/booking_settings` | yes | ok | мало | нет | ✅ |
 | `_booking_/booking_analytics` | yes | ok | мало | нет | ✅ |
@@ -155,7 +154,7 @@
 
 | | |
 |--|--|
-| ✅ ближе всех | `post_create`, `marker_create`, `cluster_create`, booking_settings/analytics/my_bookings, bonus_history + catalog helpers |
+| ✅ ближе всех | `post_create`, `cluster_create`, booking_settings/analytics/my_bookings, bonus_history + catalog helpers |
 | 🟡 основная масса | profile/post/map/events/chat/settings/booking_create… — каркас есть, долг Icons + leak uid + мало docs |
 | 🔴 чинить первыми | `location`, `bonus_settings`, `cluster_archive` (page→repo); пустые stubs booking |
 

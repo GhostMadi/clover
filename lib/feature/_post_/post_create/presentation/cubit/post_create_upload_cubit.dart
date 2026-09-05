@@ -1,4 +1,3 @@
-import 'package:clover/feature/_post_/marker_create/data/repository/marker_create_repository.dart';
 import 'package:clover/feature/_post_/post_create/data/repository/post_create_repository.dart';
 import 'package:clover/feature/_post_/post_create/extension/post_create_compose_result_extension.dart';
 import 'package:clover/feature/_post_/post_create/extension/post_create_compose_validation.dart';
@@ -9,10 +8,9 @@ import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class PostCreateUploadCubit extends Cubit<PostCreateUploadState> {
-  PostCreateUploadCubit(this._markerRepository, this._postRepository) : super(const PostCreateUploadIdle());
+  PostCreateUploadCubit(this._repository) : super(const PostCreateUploadIdle());
 
-  final MarkerCreateRepository _markerRepository;
-  final PostCreateRepository _postRepository;
+  final PostCreateRepository _repository;
 
   Future<void> publish(PostCreateComposeResult result) async {
     if (state is PostCreateUploadUploading) return;
@@ -34,15 +32,25 @@ class PostCreateUploadCubit extends Cubit<PostCreateUploadState> {
     );
 
     try {
-      final postId = result.isEvent
-          ? await _publishEvent(result, title, thumbnailPath)
-          : await _publishPostOnly(result, title, thumbnailPath);
+      final created = await _repository.publish(
+        request: result.toPostCreateRequest(),
+        onProgress: (progress) {
+          if (isClosed) return;
+          emit(
+            PostCreateUploadUploading(
+              title: title,
+              progress: progress,
+              thumbnailPath: thumbnailPath,
+            ),
+          );
+        },
+      );
 
       if (isClosed) return;
       emit(
         PostCreateUploadSuccess(
           title: title,
-          postId: postId,
+          postId: created.postId,
           thumbnailPath: thumbnailPath,
         ),
       );
@@ -56,47 +64,6 @@ class PostCreateUploadCubit extends Cubit<PostCreateUploadState> {
         ),
       );
     }
-  }
-
-  Future<String> _publishEvent(
-    PostCreateComposeResult result,
-    String title,
-    String? thumbnailPath,
-  ) async {
-    final response = await _markerRepository.createMarker(
-      request: result.toMarkerCreateRequest(),
-      onProgress: (progress) {
-        if (isClosed) return;
-        emit(
-          PostCreateUploadUploading(
-            title: title,
-            progress: progress,
-            thumbnailPath: thumbnailPath,
-          ),
-        );
-      },
-    );
-    return response.postId;
-  }
-
-  Future<String> _publishPostOnly(
-    PostCreateComposeResult result,
-    String title,
-    String? thumbnailPath,
-  ) async {
-    return _postRepository.createPost(
-      request: result.toPostCreateRequest(),
-      onProgress: (progress) {
-        if (isClosed) return;
-        emit(
-          PostCreateUploadUploading(
-            title: title,
-            progress: progress,
-            thumbnailPath: thumbnailPath,
-          ),
-        );
-      },
-    );
   }
 
   void reset() {

@@ -1,25 +1,37 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 
 enum AppSnackBarKind { info, success, error }
 
-/// Топовое уведомление (как in-app notification), не системный SnackBar.
+enum AppSnackBarPlacement { top, center }
+
+/// Топовое / центрированное уведомление (не системный SnackBar).
 ///
-/// - Появляется сверху через [Overlay]
-/// - Закрывается по таймеру, по тапу, или свайпом вверх
-/// - Реагирует на drag естественно (следует за пальцем)
+/// - Появляется через [Overlay] с плавным slide + fade + soft scale
+/// - Закрывается по таймеру, тапу или свайпу
+/// - Drag с резиновой натяжкой и spring-возвратом
 abstract final class AppSnackBar {
   static OverlayEntry? _entry;
   static Timer? _timer;
+  static Future<void> Function()? _animatedClose;
 
-  static void hide() {
+  static void hide({bool animated = false}) {
     _timer?.cancel();
     _timer = null;
+
+    if (animated && _animatedClose != null) {
+      unawaited(_animatedClose!());
+      return;
+    }
+
+    _animatedClose = null;
     _entry?.remove();
     _entry = null;
   }
@@ -29,23 +41,45 @@ abstract final class AppSnackBar {
     required String message,
     String? title,
     AppSnackBarKind kind = AppSnackBarKind.info,
+    AppSnackBarPlacement placement = AppSnackBarPlacement.top,
     Duration duration = const Duration(seconds: 3),
     VoidCallback? onTap,
   }) {
-    hide();
+    hide(animated: false);
 
     final overlay = Overlay.of(context, rootOverlay: true);
 
     _entry = OverlayEntry(
       builder: (ctx) {
-        return _AppTopSnack(title: title, message: message, kind: kind, onTap: onTap, onDismiss: hide);
+        return _AppTopSnack(
+          title: title,
+          message: message,
+          kind: kind,
+          placement: placement,
+          onTap: onTap,
+          onDismiss: () {
+            _animatedClose = null;
+            _timer?.cancel();
+            _timer = null;
+            _entry?.remove();
+            _entry = null;
+          },
+          onReady: (close) => _animatedClose = close,
+          onInteractionChanged: (active) {
+            if (active) {
+              _timer?.cancel();
+              _timer = null;
+            } else if (_entry != null) {
+              _timer?.cancel();
+              _timer = Timer(duration, () => hide(animated: true));
+            }
+          },
+        );
       },
     );
     overlay.insert(_entry!);
 
-    _timer = Timer(duration, () {
-      hide();
-    });
+    _timer = Timer(duration, () => hide(animated: true));
   }
 }
 
@@ -54,46 +88,138 @@ class _AppTopSnack extends StatefulWidget {
     required this.title,
     required this.message,
     required this.kind,
+    required this.placement,
     required this.onTap,
     required this.onDismiss,
+    required this.onReady,
+    required this.onInteractionChanged,
   });
 
   final String? title;
   final String message;
   final AppSnackBarKind kind;
+  final AppSnackBarPlacement placement;
   final VoidCallback? onTap;
   final VoidCallback onDismiss;
+  final void Function(Future<void> Function() close) onReady;
+  final void Function(bool active) onInteractionChanged;
 
   @override
   State<_AppTopSnack> createState() => _AppTopSnackState();
 }
 
-class _AppTopSnackState extends State<_AppTopSnack> with SingleTickerProviderStateMixin {
-  late final AnimationController _c;
-  late final Animation<double> _appear;
+class _AppTopSnackState extends State<_AppTopSnack> with TickerProviderStateMixin {
+  static const _enterMs = 420;
+  static const _exitMs = 280;
+  static const _dismissThreshold = -42.0;
+  static const _dismissVelocity = -700.0;
 
-  double _dragDy = 0;
+  late final AnimationController _appear;
+  late final AnimationController _drag;
+  late final Animation<double> _appearT;
+
   bool _closing = false;
 
   @override
   void initState() {
     super.initState();
-    _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 220));
-    _appear = CurvedAnimation(parent: _c, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
-    _c.forward();
+    _appear = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: _enterMs),
+      reverseDuration: const Duration(milliseconds: _exitMs),
+    );
+    _appearT = CurvedAnimation(parent: _appear, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
+
+    _drag = AnimationController.unbounded(vsync: this)
+      ..addListener(() {
+        if (mounted) setState(() {});
+      });
+
+    widget.onReady(_close);
+    _appear.forward();
   }
 
   @override
   void dispose() {
-    _c.dispose();
+    _appear.dispose();
+    _drag.dispose();
     super.dispose();
   }
 
-  Future<void> _close() async {
+  double get _dragDy => _drag.value;
+
+  /// Вниз — резиновая натяжка; вверх — почти 1:1 для свайпа закрытия.
+  double get _visualDrag {
+    final dy = _dragDy;
+    if (dy >= 0) {
+      // rubber-band: чем дальше тянешь вниз, тем сильнее сопротивление
+      return 28 * math.log(1 + dy / 28);
+    }
+    return dy;
+  }
+
+  Future<void> _close({double? flingVelocity}) async {
     if (_closing) return;
     _closing = true;
-    await _c.reverse();
+    widget.onInteractionChanged(false);
+
+    final start = _dragDy;
+    final target = -140.0;
+    final v = flingVelocity ?? 0;
+
+    // Улетает вверх вместе с fade/scale
+    unawaited(
+      _drag.animateWith(
+        SpringSimulation(
+          const SpringDescription(mass: 1, stiffness: 220, damping: 22),
+          start,
+          target,
+          v.clamp(-2400.0, 0.0),
+        ),
+      ),
+    );
+
+    await _appear.reverse();
+    if (!mounted) return;
     widget.onDismiss();
+  }
+
+  void _onDragStart(DragStartDetails _) {
+    if (_closing) return;
+    widget.onInteractionChanged(true);
+    _drag.stop();
+  }
+
+  void _onDragUpdate(DragUpdateDetails d) {
+    if (_closing) return;
+    _drag.value = (_drag.value + d.delta.dy).clamp(-240.0, 160.0);
+  }
+
+  void _onDragEnd(DragEndDetails d) {
+    if (_closing) return;
+
+    final v = d.primaryVelocity ?? 0;
+    final shouldDismiss = _dragDy < _dismissThreshold || v < _dismissVelocity;
+    if (shouldDismiss) {
+      unawaited(_close(flingVelocity: v));
+      return;
+    }
+
+    // Пружинный возврат на место
+    final from = _dragDy;
+    _drag
+        .animateWith(
+          SpringSimulation(
+            const SpringDescription(mass: 0.85, stiffness: 260, damping: 20),
+            from,
+            0,
+            v.clamp(-1200.0, 1200.0),
+          ),
+        )
+        .whenComplete(() {
+          if (!mounted || _closing) return;
+          widget.onInteractionChanged(false);
+        });
   }
 
   @override
@@ -105,67 +231,62 @@ class _AppTopSnackState extends State<_AppTopSnack> with SingleTickerProviderSta
       AppSnackBarKind.info => (colors.primary, AppIcons.infoOutline.icon),
     };
 
-    final safeTop = MediaQuery.paddingOf(context).top;
-    final yDrag = _dragDy.clamp(-200.0, 0.0);
-
     return Positioned.fill(
       child: IgnorePointer(
-        ignoring: false,
+        ignoring: _closing && _appear.value < 0.05,
         child: SafeArea(
           top: true,
           bottom: false,
           child: Align(
             alignment: Alignment.topCenter,
             child: AnimatedBuilder(
-              animation: _appear,
+              animation: Listenable.merge([_appearT, _drag]),
               builder: (context, child) {
-                // стартует чуть выше и плавно спускается
-                final baseY = (-24.0) * (1.0 - _appear.value);
-                return Transform.translate(
-                  offset: Offset(0, baseY + yDrag),
-                  child: Opacity(opacity: _appear.value, child: child),
+                final t = _appearT.value;
+                final slideIn = (1.0 - t) * -56.0;
+                final scale = 0.92 + (0.08 * t);
+                return Opacity(
+                  opacity: t.clamp(0.0, 1.0),
+                  child: Transform.translate(
+                    offset: Offset(0, slideIn + _visualDrag),
+                    child: Transform.scale(scale: scale, alignment: Alignment.topCenter, child: child),
+                  ),
                 );
               },
               child: Padding(
-                padding: EdgeInsets.fromLTRB(12, safeTop > 0 ? 6 : 10, 12, 0),
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
+                    if (_closing) return;
                     widget.onTap?.call();
-                    _close();
+                    unawaited(_close());
                   },
-                  onVerticalDragUpdate: (d) {
-                    setState(() {
-                      _dragDy = (_dragDy + d.delta.dy).clamp(-220.0, 220.0);
-                    });
-                  },
-                  onVerticalDragEnd: (d) {
-                    final v = d.primaryVelocity ?? 0;
-                    final shouldDismiss = _dragDy < -48 || v < -650;
-                    if (shouldDismiss) {
-                      _close();
-                    } else {
-                      setState(() => _dragDy = 0);
-                    }
+                  onVerticalDragStart: _onDragStart,
+                  onVerticalDragUpdate: _onDragUpdate,
+                  onVerticalDragEnd: _onDragEnd,
+                  onVerticalDragCancel: () {
+                    if (_closing) return;
+                    _onDragEnd(DragEndDetails(primaryVelocity: 0));
                   },
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 520),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(999),
                       child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                         child: Material(
                           type: MaterialType.transparency,
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              color: colors.surface.withValues(alpha: 0.92),
+                              color: colors.surface.withValues(alpha: 0.94),
                               borderRadius: BorderRadius.circular(999),
                               border: Border.all(color: colors.borderSoft.withValues(alpha: 0.9)),
                               boxShadow: [
                                 BoxShadow(
-                                  color: colors.shadowDark.withValues(alpha: 0.10),
-                                  blurRadius: 22,
-                                  offset: const Offset(0, 12),
+                                  color: colors.shadowDark.withValues(alpha: 0.12),
+                                  blurRadius: 24,
+                                  offset: const Offset(0, 10),
                                 ),
                               ],
                             ),
@@ -216,8 +337,6 @@ class _AppTopSnackState extends State<_AppTopSnack> with SingleTickerProviderSta
                                       ],
                                     ),
                                   ),
-
-                                  // ),
                                 ],
                               ),
                             ),

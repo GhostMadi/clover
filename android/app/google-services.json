@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1044695605376",
+    "project_id": "clover-52112",
+    "storage_bucket": "clover-52112.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1044695605376:android:1531d3cb92021cb2c58665",
+        "android_client_info": {
+          "package_name": "clover.mobile.clover"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCg4KHXfnwejPR52zWDIkmBacpOB-FvDFU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

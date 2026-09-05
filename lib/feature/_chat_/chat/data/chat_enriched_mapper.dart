@@ -1,8 +1,12 @@
 import 'dart:convert';
 
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_attachment.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_post_ref.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_reaction.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_reply_preview.dart';
 import 'package:clover/feature/_chat_/message_page/data/models/message_chat_preview.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract final class ChatEnrichedMapper {
   static MessageChatPreview? toConversationPreview(
@@ -17,6 +21,7 @@ abstract final class ChatEnrichedMapper {
     final otherUser = _asMap(row['other_user']);
     final lastMessage = _asMap(row['last_message']);
     final unreadCount = _asInt(row['unread_count']);
+    final isGroup = type == 'group';
 
     final peerUsername = otherUser?['username']?.toString().trim();
     final displayName = switch (type) {
@@ -41,12 +46,15 @@ abstract final class ChatEnrichedMapper {
       isRead: isRead,
       avatarUrl: otherUser?['avatar_url']?.toString(),
       unreadCount: unreadCount,
+      type: type,
+      isGroup: isGroup,
     );
   }
 
   static ChatMessage? toChatMessage(
     Map<String, dynamic> row, {
     required String currentUserId,
+    SupabaseClient? storageClient,
     bool isPending = false,
   }) {
     final message = _asMap(row['message']);
@@ -60,7 +68,11 @@ abstract final class ChatEnrichedMapper {
     final sentAt = _parseDate(message['created_at']) ?? DateTime.now();
     final kind = message['kind']?.toString() ?? 'text';
     final postRef = _parsePostRef(row['post_ref']);
-    final text = _messageText(message, attachments: row['attachments'], postRef: postRef, kind: kind);
+    final attachments = _parseAttachments(row['attachments'], storageClient: storageClient);
+    final myReactions = _parseMyReactions(row['my_reactions']);
+    final reactions = _parseReactions(row['reactions'], myReactions: myReactions);
+    final replyPreview = _parseReplyPreview(row['reply_preview']);
+    final text = _messageText(message, attachments: attachments, postRef: postRef, kind: kind);
 
     return ChatMessage(
       id: id,
@@ -72,7 +84,84 @@ abstract final class ChatEnrichedMapper {
       clientMessageId: message['client_message_id']?.toString(),
       isPending: isPending,
       postRef: postRef,
+      attachments: attachments,
+      reactions: reactions,
+      myReactions: myReactions,
+      replyPreview: replyPreview,
+      editedAt: _parseDate(message['edited_at']),
     );
+  }
+
+  static ChatMessageReplyPreview? _parseReplyPreview(dynamic value) {
+    final map = _asMap(value);
+    if (map == null) return null;
+    final preview = ChatMessageReplyPreview.fromJson(map);
+    if (preview.id.isEmpty) return null;
+    return preview;
+  }
+
+  static List<ChatMessageAttachment> _parseAttachments(
+    dynamic value, {
+    SupabaseClient? storageClient,
+  }) {
+    if (value is! List) return const [];
+
+    final items = <ChatMessageAttachment>[];
+    for (final raw in value) {
+      if (raw is! Map) continue;
+      final map = Map<String, dynamic>.from(raw);
+      final bucket = map['bucket']?.toString().trim() ?? 'chat_media';
+      final path = map['path']?.toString().trim() ?? '';
+      if (path.isEmpty) continue;
+
+      String? url;
+      if (storageClient != null) {
+        url = storageClient.storage.from(bucket).getPublicUrl(path);
+      }
+
+      items.add(
+        ChatMessageAttachment(
+          id: map['id']?.toString().trim() ?? '',
+          bucket: bucket,
+          path: path,
+          mime: map['mime']?.toString().trim(),
+          sizeBytes: (map['size_bytes'] as num?)?.toInt(),
+          url: url,
+        ),
+      );
+    }
+    return items;
+  }
+
+  static List<String> _parseMyReactions(dynamic value) {
+    if (value is! List) return const [];
+    return [
+      for (final raw in value)
+        if (raw?.toString().trim().isNotEmpty == true) raw.toString().trim(),
+    ];
+  }
+
+  static List<ChatMessageReaction> _parseReactions(
+    dynamic value, {
+    required List<String> myReactions,
+  }) {
+    if (value is! List) return const [];
+
+    final mine = myReactions.toSet();
+    final items = <ChatMessageReaction>[];
+    for (final raw in value) {
+      if (raw is! Map) continue;
+      final emoji = raw['emoji']?.toString().trim() ?? '';
+      if (emoji.isEmpty) continue;
+      items.add(
+        ChatMessageReaction(
+          emoji: emoji,
+          count: (raw['count'] as num?)?.toInt() ?? 0,
+          isMine: mine.contains(emoji),
+        ),
+      );
+    }
+    return items;
   }
 
   static ChatMessagePostRef? _parsePostRef(dynamic value) {
@@ -96,7 +185,7 @@ abstract final class ChatEnrichedMapper {
 
   static String _messageText(
     Map<String, dynamic> message, {
-    dynamic attachments,
+    required List<ChatMessageAttachment> attachments,
     ChatMessagePostRef? postRef,
     required String kind,
   }) {
@@ -105,7 +194,7 @@ abstract final class ChatEnrichedMapper {
       return caption ?? '';
     }
 
-    return displayText(message, attachments: attachments);
+    return displayText(message, attachmentCount: attachments.length);
   }
 
   static String previewText(Map<String, dynamic>? message) {
@@ -115,8 +204,7 @@ abstract final class ChatEnrichedMapper {
     final text = message['text']?.toString().trim();
 
     return switch (kind) {
-      'media' => text?.isNotEmpty == true ? text! : 'Фото',
-      'file' => text?.isNotEmpty == true ? text! : 'Документ',
+      'media' || 'file' => text?.isNotEmpty == true ? text! : '',
       'post_ref' => 'Пост',
       'system' => text?.isNotEmpty == true ? text! : 'Системное сообщение',
       _ => text?.isNotEmpty == true ? text! : 'Сообщение',
@@ -126,6 +214,7 @@ abstract final class ChatEnrichedMapper {
   static String displayText(
     Map<String, dynamic> message, {
     dynamic attachments,
+    int attachmentCount = 0,
   }) {
     final kind = message['kind']?.toString() ?? 'text';
     final text = message['text']?.toString().trim();
@@ -138,17 +227,11 @@ abstract final class ChatEnrichedMapper {
       return text!;
     }
 
-    final attachCount = switch (attachments) {
-      List<dynamic> list => list.length,
-      _ => 0,
-    };
-
     return switch (kind) {
-      'media' => attachCount > 1 ? 'Фото ($attachCount)' : 'Фото',
-      'file' => attachCount > 1 ? 'Документы ($attachCount)' : 'Документ',
+      'media' || 'file' => '',
       'post_ref' => 'Пост',
       'system' => 'Системное сообщение',
-      _ => 'Сообщение',
+      _ => '',
     };
   }
 

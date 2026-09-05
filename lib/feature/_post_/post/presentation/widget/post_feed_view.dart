@@ -1,6 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
-import 'package:clover/core/resources/style.dart';
-import 'package:clover/core/shared/app_button.dart';
+import 'package:clover/core/shared/app_state.dart';
 import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 import 'package:clover/feature/_post_/post/presentation/cubit/post_feed_cubit.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_feed_shimmer.dart';
@@ -10,10 +9,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Сетка постов из [PostFeedCubit] (local → remote).
 class PostFeedView extends StatelessWidget {
-  const PostFeedView({super.key, this.onPostTap, this.emptyMessage = 'нет публикаций'});
+  const PostFeedView({
+    super.key,
+    this.onPostTap,
+    this.emptyMessage = 'Нет публикаций',
+    this.emptySubtitle,
+    this.emptyIcon,
+    this.onEmptyAction,
+    this.emptyActionLabel = 'Создать',
+  });
 
   final ValueChanged<PostFeedItem>? onPostTap;
   final String emptyMessage;
+  final String? emptySubtitle;
+  final IconData? emptyIcon;
+  final VoidCallback? onEmptyAction;
+  final String emptyActionLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +41,12 @@ class PostFeedView extends StatelessWidget {
       builder: (context, state) {
         return switch (state) {
           PostFeedInitial() || PostFeedLoading() => const PostFeedShimmer(),
-          PostFeedError(:final message) => _PostFeedError(
-            message: message,
+          PostFeedError(:final message) => AppState(
+            state: AppScreenState.error,
+            variant: AppStateVariant.inline,
+            errorMessage: message,
             onRetry: () => context.read<PostFeedCubit>().reload(),
+            child: const SizedBox.shrink(),
           ),
           PostFeedLoaded(
             :final posts,
@@ -49,6 +63,10 @@ class PostFeedView extends StatelessWidget {
                   posts: posts,
                   savedByPostId: savedByPostId,
                   emptyMessage: emptyMessage,
+                  emptySubtitle: emptySubtitle,
+                  emptyIcon: emptyIcon,
+                  onEmptyAction: onEmptyAction,
+                  emptyActionLabel: emptyActionLabel,
                   onPostTap: onPostTap == null
                       ? null
                       : (post) => onPostTap!(context.read<PostFeedCubit>().feedItemFor(post)),
@@ -67,23 +85,3 @@ class PostFeedView extends StatelessWidget {
   }
 }
 
-class _PostFeedError extends StatelessWidget {
-  const _PostFeedError({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      child: Column(
-        children: [
-          Text(message, textAlign: TextAlign.center, style: AppTextStyle.base(13, color: context.colors.subTextColor)),
-          const SizedBox(height: 8),
-          AppButton(text: 'Повторить', onTap: onRetry),
-        ],
-      ),
-    );
-  }
-}

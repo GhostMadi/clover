@@ -11,8 +11,7 @@ abstract final class EventsFeedFilter {
   }
 
   static bool _matches(PostFeedItem item, EventsFilter filter) {
-    final isEvent = item.marker != null || item.post.hasMarker;
-    if (filter.contentKind == EventsContentKind.eventsOnly && !isEvent) {
+    if (filter.contentKind == EventsContentKind.eventsOnly && !item.isEvent) {
       return false;
     }
 

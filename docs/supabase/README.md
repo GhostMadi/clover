@@ -17,7 +17,11 @@
 | [MIGRATIONS_INDEX.md](MIGRATIONS_INDEX.md) | Навигатор по миграциям |
 | [booking_backend_spec.md](booking_backend_spec.md) | Запись (booking) |
 | [SPEC_BOOKING_SYSTEM.md](SPEC_BOOKING_SYSTEM.md) | Booking system |
+| [SPEC_IN_APP_NOTIFICATIONS.md](SPEC_IN_APP_NOTIFICATIONS.md) | In-app уведомления (соц + запись) |
+| [SPEC_POSTS_AND_EVENTS.md](SPEC_POSTS_AND_EVENTS.md) | Публикации, ивенты, enriched RPC |
 | [SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md](SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md) | Соцграф / аккаунт |
+| [SPEC_EMAIL_AUTH.md](SPEC_EMAIL_AUTH.md) | Email OTP: Resend SMTP, DNS clover.com.kz, Flutter |
+| [SPEC_ATTENDANCE_SYSTEM.md](SPEC_ATTENDANCE_SYSTEM.md) | Посещаемость (ядро: workplace / punch / membership) |
 | [SPEC_RELATIONS_SYSTEM.md](SPEC_RELATIONS_SYSTEM.md) | Relations (legacy) |
 
 Шаблон нового дока: [_template.md](_template.md)

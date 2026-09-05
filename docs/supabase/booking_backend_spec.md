@@ -6,7 +6,8 @@
 
 Документ описывает схему БД, RPC и правила для модуля **Запись** (`lib/feature/booking`), исходя из текущего UI (mock-only).
 
-**Rev. 2** — доработки после review: per-staff schedule, blocked slots, history, search, analytics, reviews, guard деактивации услуг. Уведомления — **не в v1** (backlog).
+**Rev. 2** — доработки после review: per-staff schedule, blocked slots, history, search, analytics, reviews, guard деактивации услуг.  
+**Rev. 3** — in-app уведомления по записи в общей таблице `notifications` (v1). См. [SPEC_IN_APP_NOTIFICATIONS.md](SPEC_IN_APP_NOTIFICATIONS.md).
 
 ## Цели
 
@@ -635,35 +636,12 @@ get_booking_analytics(
 
 ---
 
-## Backlog (не v1)
+## Уведомления (in-app v1)
 
-### `booking_notifications` — отложено
+Реализовано в **`public.notifications`** (не отдельная `booking_notifications`).  
+Kinds, triggers, cron: [SPEC_IN_APP_NOTIFICATIONS.md](SPEC_IN_APP_NOTIFICATIONS.md) § 4 · migration `20260830220000_booking_notifications.sql`.
 
-Таблица и push/in-app — **после** стабилизации core flow. Черновик на будущее:
-
-```sql
--- v2
-create type booking_notification_type as enum (
-  'booking_created',
-  'booking_confirmed',
-  'booking_cancelled',
-  'booking_completed',
-  'booking_reminder'
-);
-
-create table booking_notifications (
-  id uuid primary key,
-  booking_id uuid references bookings(id),
-  user_id uuid references profiles(id),
-  type booking_notification_type not null,
-  title text not null,
-  message text not null,
-  is_read boolean not null default false,
-  created_at timestamptz not null default now()
-);
-```
-
-Заполнять из trigger на `bookings.status` или из RPC `update_booking_status` — решить при реализации v2.
+Push / напоминание клиенту за N минут — backlog.
 
 ---
 
@@ -681,7 +659,7 @@ create table booking_notifications (
 
 | Фича | Как |
 |------|-----|
-| Уведомления | `booking_notifications` + cron reminder |
+| Push / client reminder | FCM + cron (in-app v1 уже в `notifications`) |
 | UI отзывов | `create_booking_review` RPC |
 | UI per-staff schedule | CRUD `booking_staff_schedule` |
 | Групповые записи | participants sum в availability |

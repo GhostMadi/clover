@@ -293,7 +293,7 @@ as String?,
 
 
 class BookingListLoaded implements BookingListState {
-  const BookingListLoaded({required this.period, this.query, required final  List<BookingListItem> items, this.mainTabIndex = 0, this.upcomingDay, this.isFromCache = false, this.isRefreshing = false, final  Set<String> updatingIds = const <String>{}}): _items = items,_updatingIds = updatingIds;
+  const BookingListLoaded({required this.period, this.query, required final  List<BookingListItem> items, this.mainTabIndex = 1, this.upcomingDay, this.isFromCache = false, this.isRefreshing = false, final  Set<String> updatingIds = const <String>{}}): _items = items,_updatingIds = updatingIds;
   
 
  final  BookingListDateRange period;
@@ -306,6 +306,7 @@ class BookingListLoaded implements BookingListState {
 }
 
 @JsonKey() final  int mainTabIndex;
+// BookingHostInboxTab.upcoming
  final  DateTime? upcomingDay;
 @JsonKey() final  bool isFromCache;
 @JsonKey() final  bool isRefreshing;

@@ -1,6 +1,6 @@
 /// POST /functions/v1/send_chat_attachments
 /// Content-Type: multipart/form-data
-/// Поля: conversation_id (обязательно), caption, reply_to (опционально).
+/// Поля: conversation_id (обязательно), caption, reply_to, client_message_id (опционально).
 /// Файлы: несколько частей с именем поля `files`.
 ///
 /// Загрузка в bucket `chat_media` + один RPC `send_message_with_attachments`.
@@ -132,6 +132,14 @@ Deno.serve(async (req) => {
           ? replyRaw.trim() || null
           : null;
 
+    const clientRaw = form.get("client_message_id");
+    const clientMessageId =
+      clientRaw === null || clientRaw === ""
+        ? null
+        : typeof clientRaw === "string"
+          ? clientRaw.trim() || null
+          : null;
+
     const rawFiles = form.getAll("files").filter((x): x is File => x instanceof File);
     if (rawFiles.length === 0) return badRequest("files required");
     if (rawFiles.length > RPC_MAX_ATTACHMENTS) {
@@ -171,13 +179,18 @@ Deno.serve(async (req) => {
     const allImages = attachments.every((a) => typeof a.mime === "string" && isImageMime(a.mime as string));
     const kind = allImages ? "media" : "file";
 
-    const { data: mid, error: rpcErr } = await supabase.rpc("send_message_with_attachments", {
+    const rpcParams: Record<string, unknown> = {
       p_conversation_id: conversationId,
       p_kind: kind,
       p_text: caption,
       p_reply_to: replyTo,
       p_attachments: attachments,
-    });
+    };
+    if (clientMessageId) {
+      rpcParams.p_client_message_id = clientMessageId;
+    }
+
+    const { data: mid, error: rpcErr } = await supabase.rpc("send_message_with_attachments", rpcParams);
 
     if (rpcErr || mid === null || mid === undefined) {
       return new Response(JSON.stringify({ error: "rpc_failed", detail: rpcErr?.message ?? String(mid) }), {

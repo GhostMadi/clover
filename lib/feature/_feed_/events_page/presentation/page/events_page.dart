@@ -1,10 +1,11 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_nav_bar/app_nav_bar.dart';
 import 'package:clover/core/shared/app_refresh.dart';
+import 'package:clover/core/shared/app_state.dart';
 import 'package:clover/feature/_feed_/events_page/data/models/events_filter.dart';
 import 'package:clover/feature/_feed_/events_page/presentation/cubit/events_feed_cubit.dart';
 import 'package:clover/feature/_feed_/events_page/presentation/scope/events_feed_filter_scope.dart';
@@ -125,31 +126,20 @@ class _EventsPageState extends State<EventsPage> {
                       elevation: 0,
                       scrolledUnderElevation: 0,
                     ),
-                    if (isLoading)
-                      SliverFillRemaining(
-                        child: Center(child: CircularProgressIndicator(color: context.colors.primary)),
-                      )
-                    else if (errorMessage != null)
-                      SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: _EventsFeedError(
-                          message: errorMessage,
-                          onRetry: () => _cubit.load(_lastFilter ?? EventsFilter.defaults),
+                    if (isLoading || errorMessage != null || items.isEmpty)
+                      AppState(
+                        asSliver: true,
+                        state: AppState.resolve(
+                          isLoading: isLoading,
+                          errorMessage: errorMessage,
+                          isEmpty: items.isEmpty,
                         ),
-                      )
-                    else if (items.isEmpty)
-                      SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(24),
-                            child: Text(
-                              'Ничего не найдено\nПопробуйте изменить фильтр',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 15, color: context.colors.subTextColor, height: 1.4),
-                            ),
-                          ),
-                        ),
+                        errorMessage: errorMessage,
+                        onRetry: () => _cubit.load(_lastFilter ?? EventsFilter.defaults),
+                        emptyIcon: AppIcons.filterList.icon,
+                        emptyTitle: 'Ничего не найдено',
+                        emptySubtitle: 'Попробуйте изменить фильтр',
+                        child: const SizedBox.shrink(),
                       )
                     else ...[
                       if (isRefreshing)
@@ -202,36 +192,3 @@ class _EventsPageState extends State<EventsPage> {
   }
 }
 
-class _EventsFeedError extends StatelessWidget {
-  const _EventsFeedError({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(AppIcons.errorOutline.icon, size: 48, color: context.colors.iconMuted),
-            SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w600),
-            ),
-            SizedBox(height: 16),
-            FilledButton(
-              onPressed: onRetry,
-              style: FilledButton.styleFrom(backgroundColor: context.colors.primary),
-              child: const Text('Повторить'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

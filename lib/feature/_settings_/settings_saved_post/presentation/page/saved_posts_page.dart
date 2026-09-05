@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_button.dart';
@@ -77,6 +78,7 @@ class _SavedPostsPageState extends State<SavedPostsPage> {
                         posts: posts,
                         savedByPostId: _savedMap(posts),
                         emptyMessage: 'Сохранённых постов пока нет',
+                        emptyIcon: AppIcons.bookmarkOutline.icon,
                         onPostTap: (post) async {
                           sl<PostRepository>().cacheMySaved(post.id, true);
                           await context.router.push(

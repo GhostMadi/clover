@@ -1,4 +1,3 @@
-import 'package:clover/feature/_bonus_/shared/data/models/bonus_program_status.dart';
 import 'package:clover/feature/_catalog_/city/data/models/city_code.dart';
 import 'package:clover/feature/_catalog_/countries/data/models/country_code.dart';
 import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_key.dart';
@@ -33,9 +32,6 @@ abstract class ProfileNewModel with _$ProfileNewModel {
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
     @JsonKey(name: 'has_filters') @Default(false) bool hasFilters,
-    @JsonKey(name: 'bonus_program_status')
-    @Default(BonusProgramStatus.inactive)
-    BonusProgramStatus bonusProgramStatus,
     @JsonKey(name: 'tag_link_id') String? tagLinkId,
     @JsonKey(name: 'tag_ids') @Default([]) List<String> tagIds,
     @JsonKey(includeFromJson: false, includeToJson: false) @Default([]) List<MarkerTagModel> tags,
@@ -63,8 +59,6 @@ abstract class ProfileNewModel with _$ProfileNewModel {
 
   /// Подпись города для UI.
   String? get cityLabel => cityCode?.labelRu ?? citySlug;
-
-  bool get isBonusProgramActive => bonusProgramStatus.isActive;
 
   /// «Страна,город» или одно из полей — для строки локации в хедере.
   String get locationLine {

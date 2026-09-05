@@ -106,12 +106,14 @@ class AppPickerWheel extends StatefulWidget {
     required this.selectedIndex,
     required this.onSelectedIndexChanged,
     this.width,
+    this.service,
   });
 
   final List<String> items;
   final int selectedIndex;
   final ValueChanged<int> onSelectedIndexChanged;
   final double? width;
+  final AppServiceKind? service;
 
   static const double itemExtent = 46;
 
@@ -167,6 +169,9 @@ class _AppPickerWheelState extends State<AppPickerWheel> {
       return const SizedBox.shrink();
     }
 
+    final serviceAccent = widget.service != null ? colors.serviceAccent(widget.service!) : null;
+    final highlight = serviceAccent?.cta ?? colors.primary;
+
     return SizedBox(
       width: widget.width,
       height: AppPickerWheel.itemExtent * 5,
@@ -179,9 +184,9 @@ class _AppPickerWheelState extends State<AppPickerWheel> {
             height: AppPickerWheel.itemExtent,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: colors.primary.withValues(alpha: 0.1),
+                color: highlight.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: colors.primary.withValues(alpha: 0.22)),
+                border: Border.all(color: highlight.withValues(alpha: 0.22)),
               ),
             ),
           ),

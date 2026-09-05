@@ -1,14 +1,23 @@
 import 'package:clover/feature/_feed_/notification_page/data/models/notification_item.dart';
+import 'package:clover/feature/_feed_/notification_page/data/models/notification_kind.dart';
 import 'package:clover/feature/_feed_/notification_page/data/repository/notifications_repository.dart';
+import 'package:clover/feature/_feed_/notification_page/presentation/cubit/notifications_unread_cubit.dart';
 import 'package:clover/feature/_feed_/notification_page/presentation/utils/notification_date_grouping.dart';
+import 'package:clover/feature/_catalog_/social_graph/data/repository/social_graph_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class NotificationsCubit extends Cubit<NotificationsState> {
-  NotificationsCubit(this._repository) : super(const NotificationsState.initial());
+  NotificationsCubit(
+    this._repository,
+    this._socialGraphRepository,
+    this._unreadCubit,
+  ) : super(const NotificationsState.initial());
 
   final NotificationsRepository _repository;
+  final SocialGraphRepository _socialGraphRepository;
+  final NotificationsUnreadCubit _unreadCubit;
 
   static const _pageSize = 24;
 
@@ -77,6 +86,7 @@ class NotificationsCubit extends Cubit<NotificationsState> {
 
       if (items.any((e) => e.isUnread)) {
         await _repository.markRead();
+        await _unreadCubit.refresh();
         if (isClosed) return;
         final cur = state;
         if (cur is NotificationsLoaded) {
@@ -98,6 +108,47 @@ class NotificationsCubit extends Cubit<NotificationsState> {
       }
       emit(NotificationsState.error('$e'));
     }
+  }
+
+  Future<void> toggleFollow(NotificationItem item) async {
+    final cur = state;
+    if (cur is! NotificationsLoaded) return;
+
+    final actorId = item.actors.isNotEmpty ? item.actors.first.id.trim() : '';
+    if (actorId.isEmpty) return;
+
+    final nextFollowing = !item.isFollowingActor;
+    final optimistic = _updateFollowState(cur.items, item.id, nextFollowing: nextFollowing);
+    emit(cur.copyWith(items: optimistic));
+
+    try {
+      if (nextFollowing) {
+        await _socialGraphRepository.followUser(actorId);
+      } else {
+        await _socialGraphRepository.unfollowUser(actorId);
+      }
+    } catch (_) {
+      if (isClosed) return;
+      final rollback = _updateFollowState(cur.items, item.id, nextFollowing: item.isFollowingActor);
+      emit(cur.copyWith(items: rollback));
+    }
+  }
+
+  static List<NotificationItem> _updateFollowState(
+    List<NotificationItem> items,
+    String id, {
+    required bool nextFollowing,
+  }) {
+    return [
+      for (final item in items)
+        if (item.id == id)
+          item.copyWith(
+            isFollowingActor: nextFollowing,
+            kind: nextFollowing ? NotificationKind.mutualFollow : NotificationKind.followedYou,
+          )
+        else
+          item,
+    ];
   }
 
   static List<NotificationItem> _withinRetention(List<NotificationItem> items) {

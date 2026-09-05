@@ -6,75 +6,9 @@ import 'package:clover/feature/_post_/post/data/repository/post_local_cache.dart
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-abstract class PostRepository {
-  /// Лента пользователя (enriched RPC или fallback select).
-  Future<List<PostFeedItem>> listUserFeed({
-    required String userId,
-    int limit = 24,
-    DateTime? cursorCreatedAt,
-    String? cursorPostId,
-    String? clusterId,
-    bool onlyWithoutCluster = false,
-    bool onlyWithMarker = false,
-    bool excludeWithMarker = true,
-    Set<String> filterSelectionKeys = const {},
-  });
-
-  /// Пост по id (с медиа).
-  Future<PostModel?> getById(String postId);
-
-  /// Enriched один пост.
-  Future<PostFeedItem?> getPostEnriched(String postId);
-
-  /// In-memory кэш (мгновенный UI).
-  PostModel? getCachedPostById(String postId);
-
-  /// Enriched item из ленты / get_post_enriched (маркер, автор, реакция).
-  PostFeedItem? getCachedFeedItem(String postId);
-
-  void cacheFeedItem(PostFeedItem item);
-
-  void cachePost(PostModel post);
-
-  /// In-memory кэш моей реакции на пост (`like` | `dislike` | null).
-  bool hasCachedMyReaction(String postId);
-
-  String? getCachedMyReaction(String postId);
-
-  void cacheMyReaction(String postId, String? reaction);
-
-  /// In-memory кэш «сохранено мной».
-  bool hasCachedMySaved(String postId);
-
-  bool getCachedMySaved(String postId);
-
-  void cacheMySaved(String postId, bool saved);
-
-  /// Сброс in-memory кэша (logout / смена аккаунта).
-  void clearMemoryCache();
-
-  /// `like` | `dislike` | null — снять реакцию.
-  Future<String?> setPostReaction(String postId, String? kind);
-
-  /// Сохранить или убрать пост из сохранённых.
-  Future<void> setPostSaved(String postId, bool saved);
-
-  /// Привязка поста к кластеру; [clusterId] = null — отвязать.
-  Future<void> setPostCluster(String postId, {String? clusterId});
-
-  /// Архивировать публикацию или ивент ([markerId] — архив маркера, иначе posts.is_archived).
-  Future<void> archivePost(String postId, {String? markerId});
-
-  /// Разархивировать публикацию или ивент.
-  Future<void> unarchivePost(String postId, {String? markerId});
-
-  /// Безвозвратно удалить публикацию, все файлы в Storage и связанные кэши.
-  Future<void> deletePost(String postId, {PostModel? cachedPost});
-}
-
-@LazySingleton(as: PostRepository)
-class PostRepositoryImpl implements PostRepository {
-  PostRepositoryImpl(this._client, this._localCache);
+@lazySingleton
+class PostRepository {
+  PostRepository(this._client, this._localCache);
 
   final SupabaseClient _client;
   final PostLocalCache _localCache;
@@ -85,7 +19,6 @@ class PostRepositoryImpl implements PostRepository {
   final Map<String, ({String? reaction, DateTime storedAt})> _reactionMemory = {};
   final Map<String, ({bool saved, DateTime storedAt})> _savedMemory = {};
 
-  @override
   PostModel? getCachedPostById(String postId) {
     final id = postId.trim();
     if (id.isEmpty) return null;
@@ -98,7 +31,6 @@ class PostRepositoryImpl implements PostRepository {
     return e.post;
   }
 
-  @override
   bool hasCachedMyReaction(String postId) {
     final id = postId.trim();
     if (id.isEmpty) return false;
@@ -111,13 +43,11 @@ class PostRepositoryImpl implements PostRepository {
     return true;
   }
 
-  @override
   String? getCachedMyReaction(String postId) {
     if (!hasCachedMyReaction(postId)) return null;
     return _reactionMemory[postId.trim()]!.reaction;
   }
 
-  @override
   void cacheMyReaction(String postId, String? reaction) {
     final id = postId.trim();
     if (id.isEmpty) return;
@@ -131,7 +61,6 @@ class PostRepositoryImpl implements PostRepository {
     }
   }
 
-  @override
   bool hasCachedMySaved(String postId) {
     final id = postId.trim();
     if (id.isEmpty) return false;
@@ -144,13 +73,11 @@ class PostRepositoryImpl implements PostRepository {
     return true;
   }
 
-  @override
   bool getCachedMySaved(String postId) {
     if (!hasCachedMySaved(postId)) return false;
     return _savedMemory[postId.trim()]!.saved;
   }
 
-  @override
   void cacheMySaved(String postId, bool saved) {
     final id = postId.trim();
     if (id.isEmpty) return;
@@ -162,7 +89,6 @@ class PostRepositoryImpl implements PostRepository {
     }
   }
 
-  @override
   PostFeedItem? getCachedFeedItem(String postId) {
     final id = postId.trim();
     if (id.isEmpty) return null;
@@ -175,7 +101,6 @@ class PostRepositoryImpl implements PostRepository {
     return e.item;
   }
 
-  @override
   void cacheFeedItem(PostFeedItem item) {
     final id = item.post.id.trim();
     if (id.isEmpty) return;
@@ -190,7 +115,6 @@ class PostRepositoryImpl implements PostRepository {
     }
   }
 
-  @override
   void cachePost(PostModel post) {
     final id = post.id.trim();
     if (id.isEmpty) return;
@@ -202,7 +126,6 @@ class PostRepositoryImpl implements PostRepository {
     }
   }
 
-  @override
   void clearMemoryCache() {
     _memory.clear();
     _feedMemory.clear();
@@ -210,7 +133,7 @@ class PostRepositoryImpl implements PostRepository {
     _savedMemory.clear();
   }
 
-  @override
+  /// Лента пользователя (lightweight list RPC). Marker payload — только в [getPostEnriched].
   Future<List<PostFeedItem>> listUserFeed({
     required String userId,
     int limit = 24,
@@ -365,7 +288,6 @@ class PostRepositoryImpl implements PostRepository {
     );
   }
 
-  @override
   Future<PostModel?> getById(String postId) async {
     final cached = getCachedPostById(postId);
     if (cached != null) return cached;
@@ -380,7 +302,6 @@ class PostRepositoryImpl implements PostRepository {
     return post;
   }
 
-  @override
   Future<PostFeedItem?> getPostEnriched(String postId) async {
     final id = postId.trim();
     if (id.isEmpty) return null;
@@ -424,7 +345,6 @@ class PostRepositoryImpl implements PostRepository {
     }
   }
 
-  @override
   Future<String?> setPostReaction(String postId, String? kind) async {
     final id = postId.trim();
     if (id.isEmpty) throw ArgumentError('postId');
@@ -456,7 +376,6 @@ class PostRepositoryImpl implements PostRepository {
     return payload;
   }
 
-  @override
   Future<void> setPostSaved(String postId, bool saved) async {
     final id = postId.trim();
     if (id.isEmpty) throw ArgumentError('postId');
@@ -467,7 +386,6 @@ class PostRepositoryImpl implements PostRepository {
     );
   }
 
-  @override
   Future<void> setPostCluster(String postId, {String? clusterId}) async {
     final id = postId.trim();
     if (id.isEmpty) throw ArgumentError('postId');
@@ -478,7 +396,6 @@ class PostRepositoryImpl implements PostRepository {
     await _client.from('posts').update({'cluster_id': payload}).eq('id', id);
   }
 
-  @override
   Future<void> archivePost(String postId, {String? markerId}) async {
     final id = postId.trim();
     if (id.isEmpty) throw ArgumentError('postId');
@@ -496,7 +413,6 @@ class PostRepositoryImpl implements PostRepository {
     _savedMemory.remove(id);
   }
 
-  @override
   Future<void> unarchivePost(String postId, {String? markerId}) async {
     final id = postId.trim();
     if (id.isEmpty) throw ArgumentError('postId');
@@ -509,7 +425,6 @@ class PostRepositoryImpl implements PostRepository {
     }
   }
 
-  @override
   Future<void> deletePost(String postId, {PostModel? cachedPost}) async {
     final id = postId.trim();
     if (id.isEmpty) throw ArgumentError('postId');

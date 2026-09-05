@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 
+import 'package:clover/core/debug/app_log.dart';
+import 'package:clover/core/debug/app_shake_logger_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 /// Включить обёртку [SupabaseLoggingHttpClient] в [Supabase.initialize].
-/// По умолчанию только в debug-сборке.
-bool get supabaseHttpLoggingEnabled => kDebugMode;
+/// Debug или shake-логгер для тестеров.
+bool get supabaseHttpLoggingEnabled => kDebugMode || AppShakeLoggerConfig.enabled;
 
 const _logName = 'SupabaseHTTP';
 const _maxBodyLogChars = 6000;
@@ -55,6 +57,12 @@ class SupabaseLoggingHttpClient extends http.BaseClient {
         error: e,
         stackTrace: st,
       );
+      AppLog.e(
+        '✗ ${sw.elapsedMilliseconds}ms · ${prepared.method} $summary',
+        tag: _logName,
+        error: e,
+        stackTrace: st,
+      );
       rethrow;
     }
   }
@@ -66,6 +74,7 @@ class SupabaseLoggingHttpClient extends http.BaseClient {
 
   static void _log(String message) {
     developer.log(message, name: _logName);
+    AppLog.i(message, tag: _logName);
   }
 
   static void _logBody(String label, String? raw) {

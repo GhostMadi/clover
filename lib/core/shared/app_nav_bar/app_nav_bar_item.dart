@@ -7,6 +7,7 @@ class AppNavBarItem {
     required this.icon,
     this.behindIcon,
     this.label,
+    this.showBadge = false,
   });
 
   /// Основная (передняя) иконка.
@@ -17,4 +18,7 @@ class AppNavBarItem {
   final IconData? behindIcon;
 
   final String? label;
+
+  /// Точка непрочитанного на табе.
+  final bool showBadge;
 }

@@ -7,4 +7,28 @@ enum NotificationKind {
   comment,
   commentLike,
   commentDislike,
+  bookingCreatedHost,
+  bookingBookedClient,
+  bookingVisitStarted,
+  bookingVisitNeedsClose,
+  bookingCancelledHost,
+  bookingCancelledClient,
+  bookingCompletedClient,
+  bookingNoShowClient,
+  bookingReminderClient,
+}
+
+extension NotificationKindBookingX on NotificationKind {
+  bool get isBookingHostInbox =>
+      this == NotificationKind.bookingCreatedHost ||
+      this == NotificationKind.bookingVisitStarted ||
+      this == NotificationKind.bookingVisitNeedsClose ||
+      this == NotificationKind.bookingCancelledHost;
+
+  bool get isBookingClientInbox =>
+      this == NotificationKind.bookingBookedClient ||
+      this == NotificationKind.bookingReminderClient ||
+      this == NotificationKind.bookingCancelledClient ||
+      this == NotificationKind.bookingCompletedClient ||
+      this == NotificationKind.bookingNoShowClient;
 }

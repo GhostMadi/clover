@@ -1,7 +1,7 @@
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
-import 'package:clover/core/resources/style.dart';
+import 'package:clover/core/shared/app_state.dart';
 import 'package:clover/feature/_post_/post/data/models/post_model.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_cover_hero.dart';
 import 'package:clover/core/post_media/post_media.dart';
@@ -16,7 +16,11 @@ class PostGrid extends StatelessWidget {
     required this.posts,
     this.savedByPostId,
     this.onPostTap,
-    this.emptyMessage = 'нет публикаций',
+    this.emptyMessage = 'Нет публикаций',
+    this.emptySubtitle,
+    this.emptyIcon,
+    this.onEmptyAction,
+    this.emptyActionLabel = 'Создать',
     this.spacing = 3,
     this.crossAxisCount = PostMediaLayout.gridCrossAxisCount,
   });
@@ -25,6 +29,10 @@ class PostGrid extends StatelessWidget {
   final Map<String, bool>? savedByPostId;
   final ValueChanged<PostModel>? onPostTap;
   final String emptyMessage;
+  final String? emptySubtitle;
+  final IconData? emptyIcon;
+  final VoidCallback? onEmptyAction;
+  final String emptyActionLabel;
   final double spacing;
   final int crossAxisCount;
 
@@ -36,14 +44,18 @@ class PostGrid extends StatelessWidget {
       return Padding(
         padding: EdgeInsets.fromLTRB(
           context.widthByContext(24),
-          context.heightByContext(32),
+          context.heightByContext(40),
           context.widthByContext(24),
-          context.heightByContext(32),
+          context.heightByContext(40),
         ),
-        child: Text(
-          emptyMessage,
-          textAlign: TextAlign.center,
-          style: AppTextStyle.base(context.heightByContext(14), color: context.colors.subTextColor, height: 1.35),
+        child: AppState(
+          state: AppScreenState.empty,
+          emptyIcon: emptyIcon ?? AppIcons.collections.icon,
+          emptyTitle: emptyMessage,
+          emptySubtitle: emptySubtitle,
+          onEmptyAction: onEmptyAction,
+          emptyActionLabel: emptyActionLabel,
+          child: const SizedBox.shrink(),
         ),
       );
     }

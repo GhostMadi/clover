@@ -47,7 +47,6 @@
 profiles.country_code = "kz"
 profiles.city_code    = "almaty"
 profile tag key       = "salon"   -- через marker_tags + profile_tag_links
-bonus_program_status  = "active"
 ```
 
 Не так:

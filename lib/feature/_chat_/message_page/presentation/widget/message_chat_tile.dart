@@ -30,7 +30,7 @@ class MessageChatTile extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _MessageChatAvatar(username: username, avatarUrl: chat.avatarUrl),
+              _MessageChatAvatar(username: username, avatarUrl: chat.avatarUrl, isGroup: chat.isGroup),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -94,15 +94,24 @@ class MessageChatTile extends StatelessWidget {
 }
 
 class _MessageChatAvatar extends StatelessWidget {
-  const _MessageChatAvatar({required this.username, this.avatarUrl});
+  const _MessageChatAvatar({required this.username, this.avatarUrl, this.isGroup = false});
 
   final String username;
   final String? avatarUrl;
+  final bool isGroup;
 
   @override
   Widget build(BuildContext context) {
     final url = avatarUrl?.trim();
     final initial = username.isNotEmpty ? username.characters.first.toUpperCase() : '?';
+
+    if (isGroup && (url == null || url.isEmpty)) {
+      return CircleAvatar(
+        radius: MessageChatTile._avatarSize / 2,
+        backgroundColor: context.colors.surfaceSoft,
+        child: Icon(AppIcons.groupOutlined.icon, color: context.colors.primary, size: 24),
+      );
+    }
 
     return CircleAvatar(
       radius: MessageChatTile._avatarSize / 2,

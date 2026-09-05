@@ -3,13 +3,21 @@ import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/form/chat_time_formatting.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_attachment_bubble.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_post_ref_preview.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_reactions_row.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_reply_quote.dart';
 import 'package:flutter/material.dart';
 
 class ChatMessageBubble extends StatelessWidget {
-  const ChatMessageBubble({super.key, required this.message});
+  const ChatMessageBubble({
+    super.key,
+    required this.message,
+    this.onReactionToggle,
+  });
 
   final ChatMessage message;
+  final ValueChanged<String>? onReactionToggle;
 
   static const double _maxWidthFactor = 0.76;
   static const BorderRadius _radius = BorderRadius.all(Radius.circular(20));
@@ -33,47 +41,99 @@ class ChatMessageBubble extends StatelessWidget {
     );
 
     final colors = context.colors;
+    final reactions = message.hasReactions
+        ? ChatReactionsRow(
+            reactions: message.reactions,
+            isMine: isMine,
+            onReactionTap: onReactionToggle,
+          )
+        : null;
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: isMine ? 40 : 0,
-        right: isMine ? 0 : 40,
-        bottom: 10,
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: _buildBody(
+        context,
+        colors: colors,
+        background: background,
+        textColor: textColor,
+        metaColor: metaColor,
+        borderRadius: borderRadius,
+        timeLabel: timeLabel,
+        isMine: isMine,
+        reactions: reactions,
       ),
-      child: Row(
-        mainAxisAlignment: isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context, {
+    required AppPalette colors,
+    required Color background,
+    required Color textColor,
+    required Color metaColor,
+    required BorderRadius borderRadius,
+    required String timeLabel,
+    required bool isMine,
+    required Widget? reactions,
+  }) {
+    if (message.isPostShare) {
+      return Column(
+        crossAxisAlignment: isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxWidth),
-            child: message.isPostShare
-                ? ChatPostShareBubble(
-                    message: message,
-                    background: background,
-                    textColor: textColor,
-                    metaColor: metaColor,
-                    borderRadius: borderRadius,
-                    timeLabel: timeLabel,
-                    isMine: isMine,
-                    bubbleDecoration: (bg, radius, mine) => _bubbleDecoration(colors, bg, radius, mine),
-                    timeRow: (time, meta, mine, msg) => _TimeRow(
-                      timeLabel: time,
-                      metaColor: meta,
-                      isMine: mine,
-                      message: msg,
-                    ),
-                  )
-                : _TextBubble(
-                    message: message,
-                    background: background,
-                    textColor: textColor,
-                    metaColor: metaColor,
-                    borderRadius: borderRadius,
-                    timeLabel: timeLabel,
-                    isMine: isMine,
-                  ),
+          ChatPostShareBubble(
+            message: message,
+            background: background,
+            textColor: textColor,
+            metaColor: metaColor,
+            borderRadius: borderRadius,
+            timeLabel: timeLabel,
+            isMine: isMine,
+            bubbleDecoration: (bg, radius, mine) => _bubbleDecoration(colors, bg, radius, mine),
+            timeRow: (time, meta, mine, msg) => _TimeRow(
+              timeLabel: time,
+              metaColor: meta,
+              isMine: mine,
+              message: msg,
+            ),
           ),
+          if (reactions != null) ...[
+            const SizedBox(height: 4),
+            reactions,
+          ],
         ],
-      ),
+      );
+    }
+
+    if (message.isMedia || message.isFile) {
+      return ChatAttachmentBubble(
+        message: message,
+        background: background,
+        textColor: textColor,
+        metaColor: metaColor,
+        borderRadius: borderRadius,
+        timeLabel: timeLabel,
+        isMine: isMine,
+        reactions: reactions,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: [
+        _TextBubble(
+          message: message,
+          background: background,
+          textColor: textColor,
+          metaColor: metaColor,
+          borderRadius: borderRadius,
+          timeLabel: timeLabel,
+          isMine: isMine,
+        ),
+        if (reactions != null) ...[
+          const SizedBox(height: 4),
+          reactions,
+        ],
+      ],
     );
   }
 }
@@ -108,6 +168,12 @@ class _TextBubble extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (message.hasReply && message.replyPreview != null)
+                ChatReplyQuote(
+                  preview: message.replyPreview!,
+                  textColor: textColor,
+                  accentColor: isMine ? context.colors.white : context.colors.primary,
+                ),
               Text(
                 message.text,
                 style: AppTextStyle.base(15, color: textColor, height: 1.35),
@@ -161,6 +227,13 @@ class _TimeRow extends StatelessWidget {
             timeLabel,
             style: AppTextStyle.base(11, color: metaColor, fontWeight: FontWeight.w500),
           ),
+          if (message.isEdited) ...[
+            const SizedBox(width: 4),
+            Text(
+              'изм.',
+              style: AppTextStyle.base(10, color: metaColor, fontWeight: FontWeight.w600),
+            ),
+          ],
           if (isMine) ...[
             const SizedBox(width: 4),
             Icon(

@@ -102,6 +102,19 @@ class _ReactionBadge extends StatelessWidget {
       NotificationKind.followedYou ||
       NotificationKind.youFollowed ||
       NotificationKind.mutualFollow => (AppIcons.personAdd.icon, context.colors.primary, context.colors.white),
+      NotificationKind.bookingCreatedHost ||
+      NotificationKind.bookingBookedClient ||
+      NotificationKind.bookingReminderClient ||
+      NotificationKind.bookingVisitStarted ||
+      NotificationKind.bookingVisitNeedsClose ||
+      NotificationKind.bookingCancelledHost ||
+      NotificationKind.bookingCancelledClient ||
+      NotificationKind.bookingCompletedClient ||
+      NotificationKind.bookingNoShowClient => (
+        AppIcons.eventAvailable.icon,
+        context.colors.primary,
+        context.colors.white,
+      ),
     };
 
     return Container(

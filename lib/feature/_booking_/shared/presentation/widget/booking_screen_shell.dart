@@ -4,6 +4,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_functional_button/app_functional_screen.dart';
 import 'package:clover/core/shared/app_functional_button/functional_button_item.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 
 /// Оболочка экранов записи: заголовок + левитирующая нижняя панель [AppFunctionalScreen].
@@ -63,10 +64,13 @@ class BookingScreenShell extends StatelessWidget {
   final VoidCallback? onCancelTap;
   final VoidCallback? onBackTap;
 
-  static double scrollBottomGap(BuildContext context) => AppFunctionalScreen.scrollBottomClearance(context);
+  static double scrollBottomGap(BuildContext context) =>
+      AppFunctionalScreen.scrollBottomClearance(context) + 24;
 
   @override
   Widget build(BuildContext context) {
+    final accent = bookingServiceAccent(context.colors);
+
     return AppFunctionalScreen(
       collapsed: compactBar,
       collapsedBarWidthPerButton: 130,
@@ -74,7 +78,8 @@ class BookingScreenShell extends StatelessWidget {
         FunctionalButtonItem(
           icon: AppIcons.back.icon,
           keepWhenCollapsed: true,
-          customColor: context.colors.primary,
+          borderColor: accent.icon,
+          iconColor: accent.icon,
           isLoading: isLoading,
           onTap: onBackTap ?? () => context.router.maybePop(),
         ),
@@ -93,8 +98,8 @@ class BookingScreenShell extends StatelessWidget {
           FunctionalButtonItem(
             icon: AppIcons.filterList.icon,
             keepWhenCollapsed: true,
-            customColor: context.colors.functionalSoftBlue,
-            iconColor: context.colors.functionalSoftBlueIcon,
+            customColor: accent.soft,
+            iconColor: accent.icon,
             isLoading: isLoading,
             onTap: onFilterTap ?? () {},
           ),
@@ -102,8 +107,8 @@ class BookingScreenShell extends StatelessWidget {
           FunctionalButtonItem(
             icon: AppIcons.settingsOutlined.icon,
             keepWhenCollapsed: true,
-            customColor: context.colors.functionalSoftBlue,
-            iconColor: context.colors.functionalSoftBlueIcon,
+            customColor: accent.soft,
+            iconColor: accent.icon,
             isLoading: isLoading,
             onTap: onSettingsTap ?? () {},
           ),
@@ -111,8 +116,8 @@ class BookingScreenShell extends StatelessWidget {
           FunctionalButtonItem(
             icon: AppIcons.add.icon,
             keepWhenCollapsed: true,
-            customColor: context.colors.primary,
-            iconColor: context.colors.textInverse,
+            customColor: accent.cta,
+            iconColor: accent.ctaForeground,
             isLoading: isLoading,
             onTap: onAddTap ?? () {},
           ),
@@ -121,9 +126,9 @@ class BookingScreenShell extends StatelessWidget {
             icon: AppIcons.checkRounded.icon,
             label: saveLabel,
             keepWhenCollapsed: true,
-            customColor: context.colors.primary,
-            iconColor: context.colors.textInverse,
-            textColor: context.colors.textInverse,
+            customColor: accent.cta,
+            iconColor: accent.ctaForeground,
+            textColor: accent.ctaForeground,
             isLoading: isLoading,
             onTap: onSaveTap ?? () {},
           ),
@@ -145,9 +150,9 @@ class BookingScreenShell extends StatelessWidget {
           FunctionalButtonItem(
             icon: AppIcons.add.icon,
             label: 'Создать',
-            customColor: context.colors.primary,
-            iconColor: context.colors.textInverse,
-            textColor: context.colors.textInverse,
+            customColor: accent.cta,
+            iconColor: accent.ctaForeground,
+            textColor: accent.ctaForeground,
             isLoading: isLoading,
             onTap: onCreateTap ?? () {},
           ),

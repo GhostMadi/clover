@@ -1,9 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_analytics/data/models/booking_analytics_user.dart';
 import 'package:clover/feature/_booking_/booking_analytics/presentation/cubit/booking_analytics_cubit.dart';
 import 'package:clover/feature/_booking_/booking_analytics/presentation/widget/booking_analytics_period_picker.dart';
 import 'package:clover/feature/_booking_/booking_analytics/presentation/widget/booking_analytics_popular_services_section.dart';
+import 'package:clover/feature/_booking_/booking_analytics/presentation/widget/booking_analytics_summary_section.dart';
+import 'package:clover/feature/_booking_/booking_analytics/presentation/widget/booking_analytics_top_staff_section.dart';
 import 'package:clover/feature/_booking_/booking_analytics/presentation/widget/booking_analytics_user_picker.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:flutter/material.dart';
@@ -134,13 +138,31 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  if (result != null)
-                    BookingAnalyticsPopularServicesSection(
+                  if (result != null) ...[
+                    BookingAnalyticsSummarySection(
                       periodLabel: periodLabel,
-                      totalBookings: result.totalBookings,
-                      services: result.popularServices,
+                      result: result,
                       userLabel: userLabel,
                     ),
+                    const SizedBox(height: 24),
+                    if (result.popularServices.isNotEmpty) ...[
+                      BookingAnalyticsPopularServicesSection(services: result.popularServices),
+                      const SizedBox(height: 24),
+                    ],
+                    if (result.topStaff.isNotEmpty)
+                      BookingAnalyticsTopStaffSection(staff: result.topStaff),
+                    if (result.totalBookings == 0 &&
+                        result.popularServices.isEmpty &&
+                        result.topStaff.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          'За выбранный период записей нет',
+                          textAlign: TextAlign.center,
+                          style: AppTextStyle.base(14, color: context.colors.subTextColor),
+                        ),
+                      ),
+                  ],
                 ],
               ),
             ),

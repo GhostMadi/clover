@@ -2,12 +2,17 @@ import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_mode
 import 'package:clover/feature/_post_/post/data/models/post_media_model.dart';
 
 /// Пост из `public.posts` + `post_media` (только картинки).
+///
+/// **Контракт расширений:** `marker_id` — единственный переключатель ивента.
+/// Пусто → обычная публикация, payload маркера не грузим.
+/// Не пусто → ивент; enriched-RPC подтягивает `post.marker` (см. [PostFeedItem]).
 class PostModel {
   const PostModel({
     required this.id,
     required this.userId,
     this.clusterId,
     this.markerId,
+    this.bookingServiceId,
     this.title,
     this.description,
     this.textEmoji,
@@ -30,6 +35,7 @@ class PostModel {
   final String userId;
   final String? clusterId;
   final String? markerId;
+  final String? bookingServiceId;
   final String? title;
   final String? description;
   final String? textEmoji;
@@ -50,6 +56,14 @@ class PostModel {
   bool get hasMarker {
     final m = markerId?.trim();
     return m != null && m.isNotEmpty;
+  }
+
+  /// Синоним продукта: пост с непустым [markerId].
+  bool get isEvent => hasMarker;
+
+  bool get hasBookingService {
+    final id = bookingServiceId?.trim();
+    return id != null && id.isNotEmpty;
   }
 
   List<PostMediaModel> get sortedMedia {
@@ -91,6 +105,7 @@ class PostModel {
       userId: json['user_id'] as String,
       clusterId: (json['cluster_id'] as String?)?.trim(),
       markerId: (json['marker_id'] as String?)?.trim(),
+      bookingServiceId: (json['booking_service_id'] as String?)?.trim(),
       title: (json['title'] as String?)?.trim(),
       description: (json['description'] as String?)?.trim(),
       textEmoji: (json['text_emoji'] as String?)?.trim(),
@@ -116,6 +131,8 @@ class PostModel {
     String? clusterId,
     bool clearClusterId = false,
     String? markerId,
+    String? bookingServiceId,
+    bool clearBookingServiceId = false,
     String? title,
     String? description,
     String? textEmoji,
@@ -138,6 +155,7 @@ class PostModel {
       userId: userId ?? this.userId,
       clusterId: clearClusterId ? null : (clusterId ?? this.clusterId),
       markerId: markerId ?? this.markerId,
+      bookingServiceId: clearBookingServiceId ? null : (bookingServiceId ?? this.bookingServiceId),
       title: title ?? this.title,
       description: description ?? this.description,
       textEmoji: textEmoji ?? this.textEmoji,
@@ -162,6 +180,7 @@ class PostModel {
     'user_id': userId,
     'cluster_id': clusterId,
     'marker_id': markerId,
+    'booking_service_id': bookingServiceId,
     'title': title,
     'description': description,
     'text_emoji': textEmoji,

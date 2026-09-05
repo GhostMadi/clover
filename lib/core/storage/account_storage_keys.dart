@@ -4,6 +4,14 @@ abstract final class AccountStorageKeys {
 
   static const authUserId = 'auth_user_id';
 
+  /// Локальный флаг: у userId уже был пароль (после RPC `true` или setPassword).
+  /// Префикс `resource_` — не чистится при logout; `false` не кэшируем.
+  static String hasPassword(String userId) => 'resource_auth_has_password_$userId';
+
+  /// Epoch-ms последней успешной OTP-отправки на email (синхрон с бэк-cooldown).
+  static String otpCooldown(String email) =>
+      'resource_auth_otp_cooldown_${email.trim().toLowerCase()}';
+
   /// Префиксы ключей, которые удаляются при выходе из аккаунта.
   static const accountPrefixes = <String>[
     'auth_',

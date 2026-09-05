@@ -7,7 +7,8 @@ import 'package:clover/feature/_feed_/events_page/presentation/cubit/events_feed
 import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 import 'package:clover/feature/_post_/post_comment/presentation/widget/post_comments_sheet.dart';
 import 'package:clover/feature/_post_/post_share/presentation/widget/post_share_sheet.dart';
-import 'package:clover/feature/_post_/post/presentation/widget/post_marker_info_section.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_author_header.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_feed_card_details.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_media_gallery.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_media_reaction_gestures.dart';
 import 'package:flutter/material.dart';
@@ -21,10 +22,6 @@ class EventFeedPostItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final post = item.post;
-    final title = post.title?.trim();
-    final description = post.description?.trim();
-
     return ColoredBox(
       color: context.colors.surface,
       child: Column(
@@ -36,16 +33,46 @@ class EventFeedPostItem extends StatelessWidget {
           ),
           _PostMediaSection(item: item),
           _ReactionRow(item: item),
-          PostMarkerInfoSection(
-            marker: item.marker,
-            title: title,
-            description: description,
-            username: item.authorUsername,
-            likesCount: post.likesCount,
-            dislikesCount: post.dislikesCount,
-          ),
+          _DetailsSection(item: item),
         ],
       ),
+    );
+  }
+}
+
+class _DetailsSection extends StatelessWidget {
+  const _DetailsSection({required this.item});
+
+  final PostFeedItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<EventsFeedCubit, EventsFeedState>(
+      buildWhen: (previous, current) {
+        final prevItem = _findItem(previous, item.post.id);
+        final nextItem = _findItem(current, item.post.id);
+        if (prevItem == null || nextItem == null) return true;
+        return prevItem.post.likesCount != nextItem.post.likesCount ||
+            prevItem.post.dislikesCount != nextItem.post.dislikesCount ||
+            prevItem.marker != nextItem.marker ||
+            prevItem.bookingService != nextItem.bookingService ||
+            prevItem.profileFilters != nextItem.profileFilters;
+      },
+      builder: (context, state) {
+        final feedItem = _findItem(state, item.post.id) ?? item;
+        return PostFeedCardDetails(item: feedItem);
+      },
+    );
+  }
+
+  PostFeedItem? _findItem(EventsFeedState state, String postId) {
+    return state.mapOrNull(
+      loaded: (s) {
+        for (final feedItem in s.items) {
+          if (feedItem.post.id == postId) return feedItem;
+        }
+        return null;
+      },
     );
   }
 }
@@ -114,51 +141,34 @@ class _AuthorRow extends StatelessWidget {
         final followButton = cubit.followButtonFor(feedItem);
         final isUpdating = cubit.isFollowUpdating(feedItem);
 
-        return Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: context.colors.borderSoft),
-              ),
-              child: CircleAvatar(
-                radius: 22,
-                backgroundColor: context.colors.surfaceSoft,
-                backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
-                child: avatarUrl == null || avatarUrl.isEmpty
-                    ? Icon(AppIcons.user.icon, color: context.colors.iconMuted, size: 22)
-                    : null,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                username ?? 'noName',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
-              ),
-            ),
-            if (followButton != null) ...[
-              const SizedBox(width: 8),
-              switch (followButton) {
-                EventsFeedFollowButton.subscribe => AppButton(
-                  text: 'Подписаться',
-                  height: 40,
-                  borderRadius: 14,
-                  isLoading: isUpdating,
-                  onTap: isUpdating ? null : () => cubit.toggleFollow(feedItem),
+        return PostAuthorHeader(
+          userId: feedItem.post.userId,
+          username: username,
+          avatarUrl: avatarUrl,
+          trailing: followButton == null
+              ? null
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 8),
+                    switch (followButton) {
+                      EventsFeedFollowButton.subscribe => AppButton(
+                        text: 'Подписаться',
+                        height: 40,
+                        borderRadius: 14,
+                        isLoading: isUpdating,
+                        onTap: isUpdating ? null : () => cubit.toggleFollow(feedItem),
+                      ),
+                      EventsFeedFollowButton.unsubscribe => AppOutlinedButton(
+                        text: 'Отписаться',
+                        height: 40,
+                        borderRadius: 14,
+                        isLoading: isUpdating,
+                        onTap: isUpdating ? null : () => cubit.toggleFollow(feedItem),
+                      ),
+                    },
+                  ],
                 ),
-                EventsFeedFollowButton.unsubscribe => AppOutlinedButton(
-                  text: 'Отписаться',
-                  height: 40,
-                  borderRadius: 14,
-                  isLoading: isUpdating,
-                  onTap: isUpdating ? null : () => cubit.toggleFollow(feedItem),
-                ),
-              },
-            ],
-          ],
         );
       },
     );

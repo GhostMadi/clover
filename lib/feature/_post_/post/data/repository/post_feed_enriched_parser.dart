@@ -1,3 +1,4 @@
+import 'package:clover/feature/_post_/post/data/models/post_booking_service_summary.dart';
 import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 import 'package:clover/feature/_post_/post/data/models/post_marker_summary.dart';
 import 'package:clover/feature/_post_/post/data/models/post_model.dart';
@@ -12,6 +13,12 @@ abstract final class PostFeedEnrichedParser {
     bool? onlyWithMarker,
     PostFeedItemCache? onItemParsed,
   }) {
+    if (res is Map) {
+      final item = _parseRow(Map<String, dynamic>.from(res), onlyWithMarker: onlyWithMarker);
+      if (item == null) return const [];
+      onItemParsed?.call(item);
+      return [item];
+    }
     if (res is! List) return const [];
 
     final items = <PostFeedItem>[];
@@ -35,12 +42,16 @@ abstract final class PostFeedEnrichedParser {
     final postMap = Map<String, dynamic>.from(postRaw);
     postMap.remove('profile_filters');
     postMap.remove('tags');
+    postMap.remove('marker');
+    postMap.remove('booking_service');
     final profileFilters = PostProfileFilterValue.listFromJson(postRaw['profile_filters']);
-    final marker = PostMarkerSummary.tryFromJson(postMap['marker']);
     final post = PostModel.fromJson({
       ...postMap,
       'tags': postRaw['tags'],
     });
+    final marker = post.hasMarker ? PostMarkerSummary.tryFromJson(postRaw['marker']) : null;
+    final bookingService =
+        post.hasBookingService ? PostBookingServiceSummary.tryFromJson(postRaw['booking_service']) : null;
 
     if (onlyWithMarker != null) {
       if (onlyWithMarker ? !post.hasMarker : post.hasMarker) return null;
@@ -85,6 +96,7 @@ abstract final class PostFeedEnrichedParser {
       mySaved: mySaved,
       myFollowingAuthor: myFollowingAuthor,
       marker: marker,
+      bookingService: bookingService,
       profileFilters: profileFilters,
     );
   }

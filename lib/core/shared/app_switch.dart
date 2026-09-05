@@ -10,11 +10,13 @@ class AppSwitch extends AdaptiveStatelessWidget {
     required this.value,
     required this.onChanged,
     this.enabled = true,
+    this.service,
   });
 
   final bool value;
   final ValueChanged<bool>? onChanged;
   final bool enabled;
+  final AppServiceKind? service;
 
   @override
   Widget buildMaterial(BuildContext context, AppPalette colors) => _build(colors);
@@ -24,16 +26,18 @@ class AppSwitch extends AdaptiveStatelessWidget {
 
   Widget _build(AppPalette colors) {
     final canChange = enabled && onChanged != null;
+    final serviceAccent = service != null ? colors.serviceAccent(service!) : null;
+    final activeColor = serviceAccent?.cta ?? colors.primary;
 
     return Switch.adaptive(
       value: value,
       onChanged: canChange ? onChanged : null,
       activeThumbColor: colors.textInverse,
-      activeTrackColor: colors.primary,
+      activeTrackColor: activeColor,
       inactiveThumbColor: colors.white,
       inactiveTrackColor: colors.border,
       trackOutlineColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) return colors.primary;
+        if (states.contains(WidgetState.selected)) return activeColor;
         return colors.borderSoft;
       }),
     );
@@ -49,6 +53,7 @@ class AppSwitchRow extends AdaptiveStatelessWidget {
     required this.value,
     required this.onChanged,
     this.enabled = true,
+    this.service,
   });
 
   final String title;
@@ -56,6 +61,7 @@ class AppSwitchRow extends AdaptiveStatelessWidget {
   final bool value;
   final ValueChanged<bool>? onChanged;
   final bool enabled;
+  final AppServiceKind? service;
 
   static const double _radius = 14;
 
@@ -108,7 +114,7 @@ class AppSwitchRow extends AdaptiveStatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            AppSwitch(value: value, onChanged: onChanged, enabled: enabled),
+            AppSwitch(value: value, onChanged: onChanged, enabled: enabled, service: service),
           ],
         ),
       ),

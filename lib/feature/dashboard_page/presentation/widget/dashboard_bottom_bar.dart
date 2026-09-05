@@ -25,6 +25,7 @@ class DashboardBottomBar extends StatelessWidget {
     required this.showHomeTabNotifications,
     required this.showProfileAccessories,
     required this.showFilterBadge,
+    required this.showNotificationsBadge,
     required this.onFilterTap,
     required this.onNotificationsTap,
     required this.onProfileMoreTap,
@@ -38,6 +39,7 @@ class DashboardBottomBar extends StatelessWidget {
   final bool showHomeTabNotifications;
   final bool showProfileAccessories;
   final bool showFilterBadge;
+  final bool showNotificationsBadge;
   final VoidCallback onFilterTap;
   final VoidCallback onNotificationsTap;
   final VoidCallback onProfileMoreTap;
@@ -81,7 +83,7 @@ class DashboardBottomBar extends StatelessWidget {
               icon: AppIcons.notificationsOutlined.icon,
               customColor: context.colors.functionalSoftOrange,
               iconColor: context.colors.functionalSoftOrangeIcon,
-              showBadge: true,
+              showBadge: showNotificationsBadge,
               onTap: onNotificationsTap,
             ),
           ),

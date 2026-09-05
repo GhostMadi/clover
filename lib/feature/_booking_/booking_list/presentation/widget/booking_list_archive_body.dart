@@ -33,22 +33,22 @@ class BookingListArchiveBody extends StatelessWidget {
     final isEmpty = forgotten.isEmpty && history.isEmpty && cancelled.isEmpty;
 
     if (isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-        children: const [
-          SizedBox(height: 80),
-          Center(
-            child: Text('Архив пока пуст'),
-          ),
-        ],
+      return const Padding(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+        child: Column(
+          children: [
+            SizedBox(height: 80),
+            Center(child: Text('Архив пока пуст')),
+          ],
+        ),
       );
     }
 
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
+    return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      children: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
         if (forgotten.isNotEmpty) ...[
           _SectionTitle(
             title: 'Требуют закрытия',
@@ -152,6 +152,7 @@ class BookingListArchiveBody extends StatelessWidget {
           ),
         ),
       ],
+      ),
     );
   }
 }

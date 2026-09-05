@@ -39,8 +39,7 @@ username_change_count,
 username_next_change_allowed_at,
 created_at,
 updated_at,
-has_filters,
-bonus_program_status
+has_filters
 ''';
 
   /// Профиль + tag_ids + теги.

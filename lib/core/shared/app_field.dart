@@ -16,6 +16,7 @@ class AppField extends StatefulWidget {
   final FormFieldValidator<String>? validator;
   final List<TextInputFormatter>? inputFormatters;
   final bool isEnabled;
+  final AppServiceKind? service;
 
   const AppField({
     super.key,
@@ -31,6 +32,7 @@ class AppField extends StatefulWidget {
     this.validator,
     this.inputFormatters,
     this.isEnabled = true,
+    this.service,
   });
 
   @override
@@ -59,11 +61,18 @@ class _AppFieldState extends State<AppField> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final enabled = widget.isEnabled;
+    final serviceAccent = widget.service != null ? colors.serviceAccent(widget.service!) : null;
+    final accent = serviceAccent?.icon ?? colors.fieldBorderFocused;
 
-    final borderColor = _isFocused ? colors.fieldBorderFocused : colors.fieldBorder;
+    final borderColor = _isFocused
+        ? accent
+        : (serviceAccent != null ? serviceAccent.ctaBorder.withValues(alpha: 0.65) : colors.fieldBorder);
     final bgColor = enabled ? colors.fieldBackground : colors.fieldBackgroundDisabled;
     final textColor = enabled ? colors.fieldText : colors.fieldTextDisabled;
-    final iconColor = _isFocused ? colors.fieldIconFocused : colors.fieldIcon;
+    final iconColor = _isFocused ? accent : colors.fieldIcon;
+    final labelFocusedColor = serviceAccent?.icon ?? colors.fieldLabelFocused;
+    final cursorColor = serviceAccent?.cta ?? colors.fieldCursor;
+    final focusShadow = serviceAccent?.cta ?? colors.fieldShadowFocused;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,7 +85,7 @@ class _AppFieldState extends State<AppField> {
               style: AppTextStyle.base(
                 13,
                 fontWeight: FontWeight.w600,
-                color: _isFocused ? colors.fieldLabelFocused : colors.fieldLabel,
+                color: _isFocused ? labelFocusedColor : colors.fieldLabel,
               ),
             ),
           ),
@@ -90,7 +99,7 @@ class _AppFieldState extends State<AppField> {
             boxShadow: _isFocused
                 ? [
                     BoxShadow(
-                      color: colors.fieldShadowFocused.withValues(alpha: 0.12),
+                      color: focusShadow.withValues(alpha: 0.14),
                       blurRadius: 14,
                       offset: const Offset(0, 6),
                     ),
@@ -114,7 +123,7 @@ class _AppFieldState extends State<AppField> {
             validator: widget.validator,
             inputFormatters: widget.inputFormatters,
             style: AppTextStyle.base(16, fontWeight: FontWeight.w500, color: textColor),
-            cursorColor: colors.fieldCursor,
+            cursorColor: cursorColor,
             decoration: InputDecoration(
               hintText: widget.hintText,
               hintStyle: AppTextStyle.base(16, fontWeight: FontWeight.w400, color: colors.fieldHint),

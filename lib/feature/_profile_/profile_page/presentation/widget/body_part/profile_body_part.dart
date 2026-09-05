@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/extension/context.dart';
-import 'package:clover/core/resources/colors.dart';
-import 'package:clover/core/resources/style.dart';
+import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/shared/app_state.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/feature/_settings_/settings_filter/presentation/profile/widget/profile_feed_filter_section.dart';
 import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
@@ -67,6 +67,7 @@ class _ProfileBodyPartState extends State<ProfileBodyPart> {
         postId: item.post.id,
         initialPost: item.post,
         initialMarker: item.marker,
+        initialBookingService: item.bookingService,
         initialMyReaction: item.myReaction,
         initialAuthorUsername: authorUsername,
         initialAuthorAvatarUrl: authorAvatarUrl,
@@ -116,6 +117,7 @@ class _ProfileBodyPartState extends State<ProfileBodyPart> {
             value: widget.publicationsFeedCubit,
             child: _ProfilePublicationsTab(
               hasOwner: hasOwner,
+              isOwnProfile: widget.authorProfile == null,
               onPostTap: (item) => _openPost(context, item),
             ),
           ),
@@ -140,14 +142,25 @@ class _ProfileBodyPartState extends State<ProfileBodyPart> {
 
 /// Вкладка «Публикации».
 class _ProfilePublicationsTab extends StatelessWidget {
-  const _ProfilePublicationsTab({required this.hasOwner, required this.onPostTap});
+  const _ProfilePublicationsTab({
+    required this.hasOwner,
+    required this.isOwnProfile,
+    required this.onPostTap,
+  });
 
   final bool hasOwner;
+  final bool isOwnProfile;
   final ValueChanged<PostFeedItem> onPostTap;
 
   @override
   Widget build(BuildContext context) {
-    return hasOwner ? PostFeedView(onPostTap: onPostTap) : const PostFeedShimmer(tileCount: 6);
+    if (!hasOwner) return const PostFeedShimmer(tileCount: 6);
+
+    return PostFeedView(
+      onPostTap: onPostTap,
+      emptySubtitle: isOwnProfile ? 'Добавьте первую публикацию' : null,
+      onEmptyAction: isOwnProfile ? () => context.router.push(const PostCreateRoute()) : null,
+    );
   }
 }
 
@@ -159,12 +172,11 @@ class ProfilePostsGuestPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: context.heightByContext(200),
-      child: Center(
-        child: Text(
-          'Войдите, чтобы видеть публикации',
-          textAlign: TextAlign.center,
-          style: AppTextStyle.base(context.heightByContext(14), color: context.colors.subTextColor),
-        ),
+      child: AppState(
+        state: AppScreenState.empty,
+        emptyIcon: AppIcons.personOutline.icon,
+        emptyTitle: 'Войдите, чтобы видеть публикации',
+        child: const SizedBox.shrink(),
       ),
     );
   }

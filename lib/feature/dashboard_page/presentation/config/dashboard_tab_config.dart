@@ -20,7 +20,7 @@ abstract final class DashboardTabConfig {
     ProfileRoute(),
   ];
 
-  static List<AppNavBarItem> navItemsFor(DashboardHomeMode mode) {
+  static List<AppNavBarItem> navItemsFor(DashboardHomeMode mode, {bool showChatBadge = false}) {
     final onEvents = mode == DashboardHomeMode.events;
     return [
       AppNavBarItem(
@@ -29,7 +29,7 @@ abstract final class DashboardTabConfig {
         behindIcon: onEvents ? AppIcons.map.icon : AppIcons.ticket.icon,
         label: onEvents ? 'Event' : 'Map',
       ),
-      AppNavBarItem(icon: AppIcons.chat.icon, label: 'Chat'),
+      AppNavBarItem(icon: AppIcons.chat.icon, label: 'Chat', showBadge: showChatBadge),
       AppNavBarItem(icon: AppIcons.user.icon, label: 'Profile'),
     ];
   }

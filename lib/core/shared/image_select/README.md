@@ -110,7 +110,7 @@ final ratio = results.previewAspectRatioAt(0);
 
 ## Пример полного флоу
 
-Реализация создания поста: `lib/feature/post_create/`.
+Реализация создания поста: `lib/feature/_post_/post_create/` (`PostCreateRepository.publish`).
 
 ```dart
 // Шаг 1 — выбор

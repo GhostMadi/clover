@@ -118,12 +118,9 @@
 
 | Поле (БД) | Тип | Значения | Смысл |
 |-----------|-----|----------|--------|
-| `has_filters` | bool | `true` / `false` | Есть ли фильтры ленты профиля |
-| `bonus_program_status` | enum БД + enum приложения | `active` \| `inactive` | Бонусная программа хозяина включена или нет |
+| `has_filters` | bool | — | Есть ли сохранённые фильтры витрины |
 | `account_state` | текст с ограничением | `active` \| `hibernate` | Аккаунт обычный или «сон» (контент скрывается) |
 | `content_visible` | bool | (служебное к состоянию аккаунта) | Видимость контента при сне / пробуждении |
-
-**`BonusProgramStatus`:** `active`, `inactive`.
 
 **`account_state`:** `active`, `hibernate`  
 (есть в БД и в бизнес-правилах видимости; в `ProfileNewModel` на клиенте сейчас **не** прокинут как поле модели — но в таблице лежит).
@@ -150,7 +147,7 @@
 | Коды справочников | `country_code`, `city_code` | Enum / slug |
 | Теги | `tag_link_id` → `tag_ids` / `MarkerTagKey` | Id + ключи-enum |
 | Числа | счётчики, `username_change_count` | int |
-| Статусы | `bonus_program_status`, `account_state` | Enum |
+| Статусы | `account_state` | Enum |
 | Флаги | `has_filters`, `content_visible` | bool |
 | Время | `created_at`, `updated_at`, лимиты ника | datetime |
 

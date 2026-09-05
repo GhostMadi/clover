@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/extension/context.dart';
@@ -9,6 +11,7 @@ import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_nav_bar/app_nav_bar.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_refresh.dart';
+import 'package:clover/core/shared/app_state.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
 import 'package:clover/feature/_cluster_/cluster/presentation/cluster_list_refresh.dart';
@@ -18,6 +21,10 @@ import 'package:clover/feature/_cluster_/cluster_create/presentation/cubit/clust
 import 'package:clover/feature/_post_/post/presentation/cubit/post_feed_cubit.dart';
 import 'package:clover/feature/_post_/post_create/presentation/cubit/post_create_upload_cubit.dart';
 import 'package:clover/feature/_post_/post_create/presentation/cubit/post_create_upload_state.dart';
+import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
+import 'package:clover/feature/_attendance_/shared/data/profile_attendance_admin_shortcut_store.dart';
+import 'package:clover/feature/_profile_/profile_page/data/profile_booking_shortcut_store.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/widget/body_part/profile_body_part.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/widget/header_part/parts/profile_header_from_profile.dart';
@@ -167,8 +174,31 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-class _ProfileNewActions extends StatelessWidget {
+class _ProfileNewActions extends StatefulWidget {
   const _ProfileNewActions();
+
+  @override
+  State<_ProfileNewActions> createState() => _ProfileNewActionsState();
+}
+
+class _ProfileNewActionsState extends State<_ProfileNewActions> {
+  late final ProfileBookingShortcutStore _bookingShortcutStore;
+  late final ProfileAttendanceAdminShortcutStore _attendanceAdminShortcutStore;
+  late final AttendanceContextStore _attendanceStore;
+
+  @override
+  void initState() {
+    super.initState();
+    _bookingShortcutStore = sl<ProfileBookingShortcutStore>();
+    _attendanceAdminShortcutStore = sl<ProfileAttendanceAdminShortcutStore>();
+    _attendanceStore = sl<AttendanceContextStore>();
+    final uid = Supabase.instance.client.auth.currentUser?.id.trim();
+    if (uid != null && uid.isNotEmpty) {
+      _bookingShortcutStore.load(uid);
+      _attendanceAdminShortcutStore.load(uid);
+      unawaited(_attendanceStore.hydrate(uid));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -234,9 +264,90 @@ class _ProfileNewActions extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: context.heightByContext(10)),
+          _ProfileServiceShortcutsRow(
+            bookingShortcutStore: _bookingShortcutStore,
+            attendanceStore: _attendanceStore,
+            attendanceAdminShortcutStore: _attendanceAdminShortcutStore,
+          ),
         ],
       ),
+    );
+  }
+}
+
+/// «Запись» + «Посещаемость» в одной строке; admin — отдельной строкой ниже.
+class _ProfileServiceShortcutsRow extends StatelessWidget {
+  const _ProfileServiceShortcutsRow({
+    required this.bookingShortcutStore,
+    required this.attendanceStore,
+    required this.attendanceAdminShortcutStore,
+  });
+
+  final ProfileBookingShortcutStore bookingShortcutStore;
+  final AttendanceContextStore attendanceStore;
+  final ProfileAttendanceAdminShortcutStore attendanceAdminShortcutStore;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: bookingShortcutStore.visible,
+      builder: (context, showBooking, _) {
+        return ValueListenableBuilder(
+          valueListenable: attendanceStore.snapshot,
+          builder: (context, attendanceSnap, _) {
+            return ValueListenableBuilder<bool>(
+              valueListenable: attendanceAdminShortcutStore.visible,
+              builder: (context, showAdminShortcut, _) {
+                final showWorker = attendanceSnap?.showProfileWorkerButton ?? false;
+                final showAdmin = showAdminShortcut && (attendanceSnap?.isAdmin ?? false);
+                if (!showBooking && !showWorker && !showAdmin) {
+                  return const SizedBox.shrink();
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (showBooking || showWorker)
+                        Row(
+                          children: [
+                            if (showBooking)
+                              Expanded(
+                                child: AppOutlinedButton(
+                                  text: 'Запись',
+                                  isExpanded: true,
+                                  onTap: () => context.router.push(const BookingListRoute()),
+                                ),
+                              ),
+                            if (showBooking && showWorker) const SizedBox(width: 10),
+                            if (showWorker)
+                              Expanded(
+                                child: AppOutlinedButton(
+                                  text: 'Посещаемость',
+                                  service: kAttendanceService,
+                                  isExpanded: true,
+                                  onTap: () => context.router.push(const AttendanceWorkerHubRoute()),
+                                ),
+                              ),
+                          ],
+                        ),
+                      if (showAdmin) ...[
+                        if (showBooking || showWorker) const SizedBox(height: 10),
+                        AttendancePrimaryButton(
+                          text: 'Управление посещаемостью',
+                          isExpanded: true,
+                          onTap: () => context.router.push(const AttendanceHubRoute()),
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -256,7 +367,13 @@ class _ProfileHeaderBlock extends StatelessWidget {
           error: (message) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _ProfileNewErrorTop(message: message, onRetry: () => context.read<ProfileCubit>().load()),
+              AppState(
+                state: AppScreenState.error,
+                variant: AppStateVariant.inline,
+                errorMessage: message,
+                onRetry: () => context.read<ProfileCubit>().load(),
+                child: const SizedBox.shrink(),
+              ),
               const ProfileHeaderSection.loading(),
             ],
           ),
@@ -266,28 +383,3 @@ class _ProfileHeaderBlock extends StatelessWidget {
   }
 }
 
-class _ProfileNewErrorTop extends StatelessWidget {
-  const _ProfileNewErrorTop({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: context.colors.subTextColor, fontSize: 13),
-          ),
-          const SizedBox(height: 8),
-          AppButton(text: 'Повторить', onTap: onRetry),
-        ],
-      ),
-    );
-  }
-}

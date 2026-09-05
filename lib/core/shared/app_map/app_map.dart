@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
-import 'package:clover/core/theme/app_color_binding.dart';
-import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_map/app_map_cluster_icon_factory.dart';
 import 'package:clover/core/shared/app_map/app_map_marker.dart';
 import 'package:clover/core/shared/app_map/app_map_marker_icon_factory.dart';
 import 'package:clover/core/shared/app_map/app_map_marker_tap.dart';
 import 'package:clover/core/shared/app_map/app_map_point.dart';
 import 'package:clover/core/shared/app_map/app_map_viewport.dart';
+import 'package:clover/core/theme/app_color_binding.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
@@ -34,6 +33,9 @@ class AppMapController {
 
   Future<void> zoomOut() => _state?.zoomOut() ?? SynchronousFuture(null);
 
+  Future<void> moveTo(AppMapPoint point, {double? zoom}) =>
+      _state?.moveTo(point, zoom: zoom) ?? SynchronousFuture(null);
+
   Future<AppMapPoint?> moveToMyLocation() => _state?.moveToMyLocation() ?? SynchronousFuture(null);
 }
 
@@ -43,6 +45,7 @@ class AppMap extends StatefulWidget {
     super.key,
     required this.initialCenter,
     this.selectedPoint,
+    this.geofenceRadiusM,
     this.markers = const [],
     this.onPointSelected,
     this.onMarkerTap,
@@ -52,6 +55,10 @@ class AppMap extends StatefulWidget {
 
   final AppMapPoint initialCenter;
   final AppMapPoint? selectedPoint;
+
+  /// Радиус геозоны в метрах вокруг [selectedPoint] (круг на карте).
+  final double? geofenceRadiusM;
+
   final List<AppMapMarker> markers;
   final ValueChanged<AppMapPoint>? onPointSelected;
   final ValueChanged<AppMapMarkerTap>? onMarkerTap;
@@ -64,6 +71,7 @@ class AppMap extends StatefulWidget {
 
 class _AppMapState extends State<AppMap> {
   static const _selectedPlacemarkId = MapObjectId('app_map_selected_point');
+  static const _geofenceCircleId = MapObjectId('app_map_geofence_circle');
   static const _markersClusterId = MapObjectId('app_map_markers_cluster');
   static const _defaultZoom = 14.0;
   static const _animation = MapAnimation(type: MapAnimationType.smooth, duration: 0.25);
@@ -97,17 +105,24 @@ class _AppMapState extends State<AppMap> {
       oldWidget.controller?._detach(this);
       widget.controller?._attach(this);
     }
-    if (oldWidget.selectedPoint != widget.selectedPoint || !_sameMarkers(oldWidget.markers, widget.markers)) {
+    if (oldWidget.selectedPoint != widget.selectedPoint ||
+        oldWidget.geofenceRadiusM != widget.geofenceRadiusM ||
+        !_sameMarkers(oldWidget.markers, widget.markers)) {
       unawaited(_syncMapObjects());
     }
   }
+
+  Future<void> moveTo(AppMapPoint point, {double? zoom}) => _moveTo(point, zoom: zoom);
 
   bool _sameMarkers(List<AppMapMarker> a, List<AppMapMarker> b) {
     if (a.length != b.length) return false;
     for (var i = 0; i < a.length; i++) {
       final left = a[i];
       final right = b[i];
-      if (left.id != right.id || left.emoji != right.emoji || left.point != right.point) {
+      if (left.id != right.id ||
+          left.emoji != right.emoji ||
+          left.point != right.point ||
+          left.borderColor != right.borderColor) {
         return false;
       }
     }
@@ -170,6 +185,25 @@ class _AppMapState extends State<AppMap> {
     final objects = <MapObject>[];
 
     final selectedPoint = widget.selectedPoint;
+    final geofenceRadius = widget.geofenceRadiusM;
+    if (selectedPoint != null && geofenceRadius != null && geofenceRadius > 0) {
+      final p = AppColorBinding.palette;
+      objects.add(
+        CircleMapObject(
+          mapId: _geofenceCircleId,
+          circle: Circle(
+            center: _toYandex(selectedPoint),
+            radius: geofenceRadius,
+          ),
+          isGeodesic: true,
+          zIndex: 0,
+          strokeColor: p.functionalSoftBlueIcon,
+          strokeWidth: 2,
+          fillColor: p.functionalSoftBlue.withValues(alpha: 0.55),
+        ),
+      );
+    }
+
     final pinIcon = _pinIcon;
     if (selectedPoint != null && pinIcon != null) {
       objects.add(
@@ -298,7 +332,7 @@ class _AppMapState extends State<AppMap> {
         PlacemarkIconStyle(
           image: icon,
           scale: AppMapMarkerIconFactory.mapScale,
-          anchor: const Offset(0.5, 0.5),
+          anchor: AppMapMarkerIconFactory.anchor,
         ),
       ),
     );
@@ -350,13 +384,14 @@ class _AppMapState extends State<AppMap> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.colors.brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return YandexMap(
       mapType: MapType.map,
       nightModeEnabled: isDark,
+      mode2DEnabled: false,
       rotateGesturesEnabled: true,
-      tiltGesturesEnabled: false,
+      tiltGesturesEnabled: true,
       scrollGesturesEnabled: true,
       zoomGesturesEnabled: true,
       fastTapEnabled: true,

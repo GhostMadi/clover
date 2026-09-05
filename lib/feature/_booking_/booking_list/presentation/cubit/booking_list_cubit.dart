@@ -24,11 +24,11 @@ class BookingListCubit extends Cubit<BookingListState> {
 
   Future<void> load({BookingListDateRange? period, String? query}) async {
     if (isClosed) return;
-    final range = period ?? BookingListDateRange.thisWeek();
+    final range = period ?? BookingListDateRange.hostInbox();
     _lastQuery = query;
 
     final previous = state.mapOrNull(loaded: (s) => s);
-    final tab = previous?.mainTabIndex ?? 0;
+    final tab = previous?.mainTabIndex ?? BookingHostInboxTab.upcoming.index;
     final day = previous?.upcomingDay;
 
     final uid = _client.auth.currentUser?.id.trim();
@@ -71,7 +71,7 @@ class BookingListCubit extends Cubit<BookingListState> {
           loading: (s) => s.period,
           error: (s) => s.period,
         ) ??
-        BookingListDateRange.thisWeek();
+        BookingListDateRange.hostInbox();
     await load(period: period, query: query);
   }
 
@@ -106,7 +106,7 @@ class BookingListCubit extends Cubit<BookingListState> {
     await _syncRemote(
       period,
       query: _lastQuery,
-      mainTabIndex: loaded?.mainTabIndex ?? 0,
+      mainTabIndex: loaded?.mainTabIndex ?? BookingHostInboxTab.upcoming.index,
       upcomingDay: loaded?.upcomingDay,
     );
   }
@@ -163,7 +163,7 @@ class BookingListCubit extends Cubit<BookingListState> {
   Future<void> _syncRemote(
     BookingListDateRange range, {
     String? query,
-    int mainTabIndex = 0,
+    required int mainTabIndex,
     DateTime? upcomingDay,
   }) async {
     try {
@@ -217,7 +217,7 @@ class BookingListState with _$BookingListState {
     required BookingListDateRange period,
     String? query,
     required List<BookingListItem> items,
-    @Default(0) int mainTabIndex,
+    @Default(1) int mainTabIndex, // BookingHostInboxTab.upcoming
     DateTime? upcomingDay,
     @Default(false) bool isFromCache,
     @Default(false) bool isRefreshing,

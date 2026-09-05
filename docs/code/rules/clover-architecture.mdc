@@ -43,7 +43,7 @@ lib/
 
 ```
 feature/_cluster_/     cluster, cluster_create, cluster_archive, shared
-feature/_post_/        post, post_create, post_comment, post_share, marker_create
+feature/_post_/        post, post_create, post_comment, post_share
 feature/_archive_/     post_archive, event_archive, settings_archive, shared
 feature/_feed_/        events_page, map_page
 feature/_profile_/     profile_page, edit_profile, followers_and_followings

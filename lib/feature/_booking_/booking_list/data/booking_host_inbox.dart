@@ -2,7 +2,6 @@ import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_i
 import 'package:clover/feature/_booking_/shared/data/models/booking_status.dart';
 
 enum BookingHostInboxTab {
-  pending,
   inChair,
   upcoming,
   archive,
@@ -10,21 +9,19 @@ enum BookingHostInboxTab {
 
 extension BookingHostInboxTabX on BookingHostInboxTab {
   String get shortLabel => switch (this) {
-        BookingHostInboxTab.pending => 'Подтвердить',
         BookingHostInboxTab.inChair => 'Сейчас',
         BookingHostInboxTab.upcoming => 'Предстоящие',
         BookingHostInboxTab.archive => 'Архив',
       };
 
   String get label => switch (this) {
-        BookingHostInboxTab.pending => 'Надо подтвердить',
         BookingHostInboxTab.inChair => 'Сейчас в кресле',
         BookingHostInboxTab.upcoming => 'Предстоящие',
         BookingHostInboxTab.archive => 'Прошедшие и архив',
       };
 }
 
-/// Разбивка host-записей по 4 табам inbox.
+/// Разбивка host-записей по 3 табам inbox.
 abstract final class BookingHostInbox {
   static DateTime dayKey(DateTime value) {
     final local = value.toLocal();
@@ -46,10 +43,10 @@ abstract final class BookingHostInbox {
   }
 
   static bool isUpcoming(BookingListItem item, {DateTime? now}) {
-    if (item.status != BookingStatus.confirmed) return false;
     final start = item.startsAtDate;
     if (start == null) return false;
-    return start.isAfter(now ?? DateTime.now());
+    if (!start.isAfter(now ?? DateTime.now())) return false;
+    return item.status == BookingStatus.confirmed || item.status == BookingStatus.pending;
   }
 
   static bool isForgotten(BookingListItem item, {DateTime? now}) {
@@ -135,6 +132,29 @@ abstract final class BookingHostInbox {
         final bAt = b.startsAtDate ?? DateTime.fromMillisecondsSinceEpoch(0);
         return bAt.compareTo(aAt);
       });
+  }
+
+  /// Активные записи по дням для календаря (pending, сейчас, предстоящие, незакрытые).
+  static Map<DateTime, int> overviewCountsByDay(List<BookingListItem> items, {DateTime? now}) {
+    final at = now ?? DateTime.now();
+    final map = <DateTime, int>{};
+
+    void bump(BookingListItem item) {
+      final start = item.startsAtDate;
+      if (start == null) return;
+      final key = dayKey(start);
+      map[key] = (map[key] ?? 0) + 1;
+    }
+
+    for (final item in items) {
+      if (isPending(item) ||
+          isInChair(item, now: at) ||
+          isUpcoming(item, now: at) ||
+          isForgotten(item, now: at)) {
+        bump(item);
+      }
+    }
+    return map;
   }
 
   /// Дни для горизонтальной ленты: сегодня + дни, где есть upcoming.

@@ -1,4 +1,7 @@
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_attachment.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_post_ref.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_reaction.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_reply_preview.dart';
 
 class ChatMessage {
   const ChatMessage({
@@ -11,6 +14,11 @@ class ChatMessage {
     this.clientMessageId,
     this.isPending = false,
     this.postRef,
+    this.attachments = const [],
+    this.reactions = const [],
+    this.myReactions = const [],
+    this.replyPreview,
+    this.editedAt,
   });
 
   final String id;
@@ -22,10 +30,27 @@ class ChatMessage {
   final String? clientMessageId;
   final bool isPending;
   final ChatMessagePostRef? postRef;
+  final List<ChatMessageAttachment> attachments;
+  final List<ChatMessageReaction> reactions;
+  final List<String> myReactions;
+  final ChatMessageReplyPreview? replyPreview;
+  final DateTime? editedAt;
 
   bool get isPostShare => kind == 'post_ref';
 
+  bool get isMedia => kind == 'media';
+
+  bool get isFile => kind == 'file';
+
+  bool get hasAttachments => attachments.isNotEmpty;
+
   bool get hasPostPreview => postRef != null && postRef!.postId.isNotEmpty;
+
+  bool get hasReactions => reactions.isNotEmpty;
+
+  bool get hasReply => replyPreview != null && replyPreview!.id.isNotEmpty;
+
+  bool get isEdited => editedAt != null;
 
   Map<String, dynamic> toJson() {
     return {
@@ -38,6 +63,11 @@ class ChatMessage {
       if (clientMessageId != null) 'client_message_id': clientMessageId,
       'is_pending': isPending,
       if (postRef != null) 'post_ref': postRef!.toJson(),
+      'attachments': attachments.map((item) => item.toJson()).toList(growable: false),
+      'reactions': reactions.map((item) => item.toJson()).toList(growable: false),
+      'my_reactions': myReactions,
+      if (replyPreview != null) 'reply_preview': replyPreview!.toJson(),
+      if (editedAt != null) 'edited_at': editedAt!.toUtc().toIso8601String(),
     };
   }
 
@@ -47,6 +77,42 @@ class ChatMessage {
     if (postRefRaw is Map) {
       final parsed = ChatMessagePostRef.fromJson(Map<String, dynamic>.from(postRefRaw));
       if (parsed.postId.isNotEmpty) postRef = parsed;
+    }
+
+    ChatMessageReplyPreview? replyPreview;
+    final replyRaw = json['reply_preview'];
+    if (replyRaw is Map) {
+      final parsed = ChatMessageReplyPreview.fromJson(Map<String, dynamic>.from(replyRaw));
+      if (parsed.id.isNotEmpty) replyPreview = parsed;
+    }
+
+    final attachmentsRaw = json['attachments'];
+    final attachments = <ChatMessageAttachment>[];
+    if (attachmentsRaw is List) {
+      for (final raw in attachmentsRaw) {
+        if (raw is! Map) continue;
+        final item = ChatMessageAttachment.fromJson(Map<String, dynamic>.from(raw));
+        if (item.path.isNotEmpty) attachments.add(item);
+      }
+    }
+
+    final reactionsRaw = json['reactions'];
+    final reactions = <ChatMessageReaction>[];
+    if (reactionsRaw is List) {
+      for (final raw in reactionsRaw) {
+        if (raw is! Map) continue;
+        final item = ChatMessageReaction.fromJson(Map<String, dynamic>.from(raw));
+        if (item.emoji.isNotEmpty) reactions.add(item);
+      }
+    }
+
+    final myReactionsRaw = json['my_reactions'];
+    final myReactions = <String>[];
+    if (myReactionsRaw is List) {
+      for (final raw in myReactionsRaw) {
+        final emoji = raw?.toString().trim();
+        if (emoji != null && emoji.isNotEmpty) myReactions.add(emoji);
+      }
     }
 
     return ChatMessage(
@@ -59,6 +125,11 @@ class ChatMessage {
       clientMessageId: (json['client_message_id'] as String?)?.trim(),
       isPending: json['is_pending'] == true,
       postRef: postRef,
+      attachments: attachments,
+      reactions: reactions,
+      myReactions: myReactions,
+      replyPreview: replyPreview,
+      editedAt: DateTime.tryParse(json['edited_at']?.toString() ?? '')?.toUtc(),
     );
   }
 
@@ -72,6 +143,13 @@ class ChatMessage {
     String? clientMessageId,
     bool? isPending,
     ChatMessagePostRef? postRef,
+    List<ChatMessageAttachment>? attachments,
+    List<ChatMessageReaction>? reactions,
+    List<String>? myReactions,
+    ChatMessageReplyPreview? replyPreview,
+    DateTime? editedAt,
+    bool clearReplyPreview = false,
+    bool clearEditedAt = false,
   }) {
     return ChatMessage(
       id: id ?? this.id,
@@ -83,6 +161,11 @@ class ChatMessage {
       clientMessageId: clientMessageId ?? this.clientMessageId,
       isPending: isPending ?? this.isPending,
       postRef: postRef ?? this.postRef,
+      attachments: attachments ?? this.attachments,
+      reactions: reactions ?? this.reactions,
+      myReactions: myReactions ?? this.myReactions,
+      replyPreview: clearReplyPreview ? null : (replyPreview ?? this.replyPreview),
+      editedAt: clearEditedAt ? null : (editedAt ?? this.editedAt),
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_dialog.dart';
 import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_field/english_address_input_formatter.dart';
+import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/app_switch.dart';
 import 'package:clover/core/shared/app_text_button.dart';
 import 'package:clover/feature/_catalog_/city/presentation/widget/city_single_select_field.dart';
@@ -177,9 +178,11 @@ class _LocationDetailSheetState extends State<LocationDetailSheet> {
     } catch (_) {
       if (!mounted) return;
       setState(() => _saving = false);
-      ScaffoldMessenger.of(
+      AppSnackBar.show(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Не удалось сохранить изменения')));
+        message: 'Не удалось сохранить изменения',
+        kind: AppSnackBarKind.error,
+      );
     }
   }
 
@@ -207,7 +210,11 @@ class _LocationDetailSheetState extends State<LocationDetailSheet> {
     } catch (_) {
       if (!mounted) return;
       setState(() => _deleting = false);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Не удалось удалить')));
+      AppSnackBar.show(
+        context,
+        message: 'Не удалось удалить',
+        kind: AppSnackBarKind.error,
+      );
     }
   }
 

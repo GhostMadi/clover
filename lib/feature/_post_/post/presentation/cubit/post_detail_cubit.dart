@@ -1,5 +1,5 @@
 import 'package:clover/feature/_cluster_/cluster/presentation/cluster_list_refresh.dart';
-import 'package:clover/feature/_catalog_/marker_tags/data/repository/marker_tags_repository.dart';
+import 'package:clover/feature/_post_/post/data/models/post_booking_service_summary.dart';
 import 'package:clover/feature/_post_/post/data/models/post_marker_summary.dart';
 import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 import 'package:clover/feature/_post_/post/data/models/post_model.dart';
@@ -12,12 +12,10 @@ import 'package:injectable/injectable.dart';
 /// Экран одного поста: мгновенно из [initialPost] / кэша ленты; RPC только без seed или по refresh/reload.
 @injectable
 class PostDetailCubit extends Cubit<PostDetailState> {
-  PostDetailCubit(this._repository, this._socialGraph, this._markerTags)
-      : super(const PostDetailState.initial());
+  PostDetailCubit(this._repository, this._socialGraph) : super(const PostDetailState.initial());
 
   final PostRepository _repository;
   final SocialGraphRepository _socialGraph;
-  final MarkerTagsRepository _markerTags;
 
   String? _postId;
   PostModel? _initialPost;
@@ -25,6 +23,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
   String? _initialAuthorUsername;
   String? _initialAuthorAvatarUrl;
   PostMarkerSummary? _initialMarker;
+  PostBookingServiceSummary? _initialBookingService;
   bool _reactionRequestInFlight = false;
   bool _followRequestInFlight = false;
   bool _saveRequestInFlight = false;
@@ -35,6 +34,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
     String postId, {
     PostModel? initialPost,
     PostMarkerSummary? initialMarker,
+    PostBookingServiceSummary? initialBookingService,
     String? initialMyReaction,
     String? initialAuthorUsername,
     String? initialAuthorAvatarUrl,
@@ -50,6 +50,8 @@ class PostDetailCubit extends Cubit<PostDetailState> {
     final cachedItem = _repository.getCachedFeedItem(id);
     _initialPost = initialPost ?? cachedItem?.post ?? _repository.getCachedPostById(id);
     _initialMarker = initialMarker ?? cachedItem?.marker ?? _initialMarker;
+    _initialBookingService =
+        initialBookingService ?? cachedItem?.bookingService ?? _initialBookingService;
     _initialMyReaction = _resolveInitialReaction(initialMyReaction ?? cachedItem?.myReaction, id);
     _initialAuthorUsername = _trimOrNull(initialAuthorUsername ?? cachedItem?.authorUsername);
     _initialAuthorAvatarUrl = _trimOrNull(initialAuthorAvatarUrl ?? cachedItem?.authorAvatarUrl);
@@ -62,12 +64,14 @@ class PostDetailCubit extends Cubit<PostDetailState> {
         authorUsername: _initialAuthorUsername,
         authorAvatarUrl: _initialAuthorAvatarUrl,
         marker: _initialMarker,
+        bookingService: _initialBookingService,
         mySaved: _resolveInitialSaved(cachedItem?.mySaved, id),
         myFollowingAuthor: cachedItem?.myFollowingAuthor,
         profileFilters: cachedItem?.profileFilters ?? const [],
       );
       _repository.cacheFeedItem(item);
-      emit(PostDetailState.loaded(item, isFromCache: true));
+      final needsRemotePayload = item.isMarkerPayloadPending || item.isBookingServicePayloadPending;
+      emit(PostDetailState.loaded(item, isFromCache: true, isRefreshing: needsRemotePayload));
 
       await _fetchRemote();
       return;
@@ -94,6 +98,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
             authorUsername: _initialAuthorUsername,
             authorAvatarUrl: _initialAuthorAvatarUrl,
             marker: _initialMarker,
+            bookingService: _initialBookingService,
             profileFilters: cachedItem?.profileFilters ?? const [],
           ),
           isFromCache: true,
@@ -271,7 +276,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
     final id = _postId;
     if (id == null || id.isEmpty) return;
 
-    final markerId = cur.item.marker?.id.trim() ?? cur.item.post.markerId?.trim();
+    final markerId = cur.item.eventMarkerId;
     await _repository.archivePost(id, markerId: markerId);
     clusterListRefreshTick.value++;
   }
@@ -284,7 +289,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
     final id = _postId;
     if (id == null || id.isEmpty) return;
 
-    final markerId = isEvent ? cur.item.marker?.id.trim() ?? cur.item.post.markerId?.trim() : null;
+    final markerId = isEvent ? cur.item.eventMarkerId : null;
     await _repository.unarchivePost(id, markerId: markerId);
     clusterListRefreshTick.value++;
   }
@@ -402,6 +407,12 @@ class PostDetailCubit extends Cubit<PostDetailState> {
     final id = _postId;
     if (id == null) return;
 
+    final curBefore = state;
+    if (curBefore is PostDetailLoaded &&
+        (curBefore.item.isMarkerPayloadPending || curBefore.item.isBookingServicePayloadPending)) {
+      emit(curBefore.copyWith(isRefreshing: true));
+    }
+
     try {
       final fetched = await _repository.getPostEnriched(id);
       if (isClosed) return;
@@ -416,7 +427,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
         return;
       }
 
-      final item = await _withMarkerTags(fetched);
+      final item = fetched;
       if (isClosed) return;
 
       _repository.cacheMyReaction(id, item.myReaction);
@@ -470,6 +481,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
           authorUsername: item.authorUsername ?? cur.item.authorUsername,
           authorAvatarUrl: item.authorAvatarUrl ?? cur.item.authorAvatarUrl,
           marker: item.marker ?? cur.item.marker,
+          bookingService: item.bookingService ?? cur.item.bookingService,
         );
         emit(
           PostDetailState.loaded(
@@ -481,6 +493,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
         );
         _initialMyReaction = mergedWithAuthor.myReaction;
         _initialMarker = mergedWithAuthor.marker ?? _initialMarker;
+        _initialBookingService = mergedWithAuthor.bookingService ?? _initialBookingService;
         _initialAuthorUsername = mergedWithAuthor.authorUsername ?? _initialAuthorUsername;
         _initialAuthorAvatarUrl = mergedWithAuthor.authorAvatarUrl ?? _initialAuthorAvatarUrl;
         _repository.cacheFeedItem(mergedWithAuthor);
@@ -497,6 +510,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
       );
       _initialMyReaction = item.myReaction;
       _initialMarker = item.marker ?? _initialMarker;
+      _initialBookingService = item.bookingService ?? _initialBookingService;
       _initialAuthorUsername = item.authorUsername ?? _initialAuthorUsername;
       _initialAuthorAvatarUrl = item.authorAvatarUrl ?? _initialAuthorAvatarUrl;
       _repository.cacheFeedItem(item);
@@ -509,19 +523,6 @@ class PostDetailCubit extends Cubit<PostDetailState> {
         return;
       }
       emit(PostDetailState.error('$e'));
-    }
-  }
-
-  Future<PostFeedItem> _withMarkerTags(PostFeedItem item) async {
-    final marker = item.marker;
-    if (marker == null || marker.tags.isNotEmpty) return item;
-
-    try {
-      final tags = await _markerTags.listForMarker(marker.id);
-      if (tags.isEmpty) return item;
-      return item.copyWith(marker: marker.copyWith(tags: tags));
-    } catch (_) {
-      return item;
     }
   }
 

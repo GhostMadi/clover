@@ -6,65 +6,24 @@ import 'package:flutter/material.dart';
 class BookingAnalyticsPopularServicesSection extends StatelessWidget {
   const BookingAnalyticsPopularServicesSection({
     super.key,
-    required this.periodLabel,
-    required this.totalBookings,
     required this.services,
-    this.userLabel,
   });
 
-  final String periodLabel;
-  final int totalBookings;
   final List<BookingAnalyticsPopularService> services;
-  final String? userLabel;
 
   @override
   Widget build(BuildContext context) {
-    if (services.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: context.colors.surfaceSoft,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Text(
-          'За выбранный период записей нет',
-          textAlign: TextAlign.center,
-          style: AppTextStyle.base(14, color: context.colors.subTextColor),
-        ),
-      );
-    }
+    if (services.isEmpty) return const SizedBox.shrink();
 
     final maxCount = services.map((e) => e.bookingCount).reduce((a, b) => a > b ? a : b);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                periodLabel,
-                style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
-              ),
-            ),
-            Text(
-              '$totalBookings записей',
-              style: AppTextStyle.base(13, color: context.colors.primary, fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
         Text(
           'Популярные услуги',
           style: AppTextStyle.base(18, color: context.colors.textColor, fontWeight: FontWeight.w800),
         ),
-        if (userLabel != null) ...[
-          const SizedBox(height: 4),
-          Text(
-            userLabel!,
-            style: AppTextStyle.base(13, color: context.colors.functionalSoftBlueIcon, fontWeight: FontWeight.w600),
-          ),
-        ],
         const SizedBox(height: 12),
         for (final service in services) ...[
           _PopularServiceRow(service: service, maxCount: maxCount),

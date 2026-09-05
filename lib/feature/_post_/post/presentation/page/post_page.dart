@@ -14,14 +14,16 @@ import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_cluster_/cluster/data/repository/cluster_repository.dart';
 import 'package:clover/feature/_post_/post/data/models/post_archive_context.dart';
+import 'package:clover/feature/_post_/post/data/models/post_booking_service_summary.dart';
 import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 import 'package:clover/feature/_post_/post/data/models/post_marker_summary.dart';
 import 'package:clover/feature/_post_/post/data/models/post_model.dart';
 import 'package:clover/feature/_post_/post/presentation/cubit/post_detail_cubit.dart';
 import 'package:clover/feature/_post_/post/presentation/cubit/post_feed_cubit.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_author_header.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_cover_hero.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_feed_card_details.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_detail_shimmer.dart';
-import 'package:clover/feature/_post_/post/presentation/widget/post_marker_info_section.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_media_gallery.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_media_reaction_gestures.dart';
 import 'package:clover/feature/_post_/post_comment/presentation/widget/post_comments_sheet.dart';
@@ -39,6 +41,7 @@ class PostPage extends StatefulWidget {
     required this.postId,
     this.initialPost,
     this.initialMarker,
+    this.initialBookingService,
     this.initialMyReaction,
     this.initialAuthorUsername,
     this.initialAuthorAvatarUrl,
@@ -48,6 +51,7 @@ class PostPage extends StatefulWidget {
   final String postId;
   final PostModel? initialPost;
   final PostMarkerSummary? initialMarker;
+  final PostBookingServiceSummary? initialBookingService;
 
   /// `like` | `dislike` | null — из enriched-ленты профиля.
   final String? initialMyReaction;
@@ -76,6 +80,7 @@ class _PostPageState extends State<PostPage> {
         widget.postId,
         initialPost: widget.initialPost,
         initialMarker: widget.initialMarker,
+        initialBookingService: widget.initialBookingService,
         initialMyReaction: widget.initialMyReaction,
         initialAuthorUsername: widget.initialAuthorUsername,
         initialAuthorAvatarUrl: widget.initialAuthorAvatarUrl,
@@ -150,6 +155,7 @@ class _PostPageState extends State<PostPage> {
       authorUsername: widget.initialAuthorUsername,
       authorAvatarUrl: widget.initialAuthorAvatarUrl,
       marker: widget.initialMarker,
+      bookingService: widget.initialBookingService,
     );
   }
 
@@ -230,7 +236,7 @@ class _PostPageState extends State<PostPage> {
   }
 
   Future<void> _archivePost(PostFeedItem item) async {
-    final isEvent = item.marker != null || item.post.hasMarker;
+    final isEvent = item.isEvent;
     final ok = await AppDialog.showConfirm(
       context: context,
       title: isEvent ? 'Архивировать ивент?' : 'Архивировать публикацию?',
@@ -287,7 +293,7 @@ class _PostPageState extends State<PostPage> {
   }
 
   Future<void> _deletePost(PostFeedItem item) async {
-    final isEvent = item.marker != null || item.post.hasMarker;
+    final isEvent = item.isEvent;
     final ok = await AppDialog.showConfirm(
       context: context,
       title: isEvent ? 'Удалить ивент?' : 'Удалить публикацию?',
@@ -394,7 +400,12 @@ class _PostPageState extends State<PostPage> {
               PostDetailInitial() || PostDetailLoading() => _buildShell(
                 item: item,
                 body: item != null
-                    ? _buildScrollBody(item: item, isMarkerLoading: _isMarkerLoading(item))
+                    ? _buildScrollBody(
+                        item: item,
+                        isRefreshing: true,
+                        isMarkerLoading: _isMarkerLoading(item, isRefreshing: true),
+                        isBookingServiceLoading: _isBookingServiceLoading(item, isRefreshing: true),
+                      )
                     : const PostDetailShimmer(),
               ),
               PostDetailError(:final message) => AppFunctionalScreen(
@@ -474,19 +485,22 @@ class _PostPageState extends State<PostPage> {
     );
   }
 
-  bool _isMarkerLoading(PostFeedItem item) => item.post.hasMarker && item.marker == null;
+  bool _isMarkerLoading(PostFeedItem item, {required bool isRefreshing}) =>
+      isRefreshing && item.isMarkerPayloadPending;
+
+  bool _isBookingServiceLoading(PostFeedItem item, {required bool isRefreshing}) =>
+      isRefreshing && item.isBookingServicePayloadPending;
 
   Widget _buildScrollBody({
     required PostFeedItem item,
     bool isRefreshing = false,
     bool isFollowUpdating = false,
     bool? isMarkerLoading,
+    bool? isBookingServiceLoading,
   }) {
-    final post = item.post;
-    final title = post.title?.trim();
-    final description = post.description?.trim();
-    final authorUsername = item.authorUsername ?? widget.initialAuthorUsername;
-    final markerLoading = isMarkerLoading ?? _isMarkerLoading(item);
+    final markerLoading = isMarkerLoading ?? _isMarkerLoading(item, isRefreshing: isRefreshing);
+    final bookingServiceLoading =
+        isBookingServiceLoading ?? _isBookingServiceLoading(item, isRefreshing: isRefreshing);
 
     return SafeArea(
       bottom: false,
@@ -505,21 +519,10 @@ class _PostPageState extends State<PostPage> {
 
           SliverToBoxAdapter(child: _buildCover(widget.postId, item)),
           SliverToBoxAdapter(
-            child: PostMarkerInfoSection(
-              marker: item.marker,
-              title: title,
-              description: description,
-              username: authorUsername,
-              likesCount: post.likesCount,
-              dislikesCount: post.dislikesCount,
+            child: PostFeedCardDetails(
+              item: item,
               isMarkerLoading: markerLoading,
-              profileFilters: item.profileFilters,
-              postTextEmoji: post.textEmoji,
-              postTags: post.tags,
-              postAddressPrimary: post.addressPrimary,
-              postAddressCyrillic: post.addressCyrillic,
-              postCountryCode: post.countryCode,
-              postCityCode: post.cityCode,
+              isBookingServiceLoading: bookingServiceLoading,
             ),
           ),
           SliverToBoxAdapter(child: SizedBox(height: AppFunctionalScreen.scrollBottomClearance(context))),
@@ -536,116 +539,98 @@ class _PostPageState extends State<PostPage> {
         item: item,
         isRefreshing: isRefreshing,
         isFollowUpdating: isFollowUpdating,
-        isMarkerLoading: _isMarkerLoading(item),
+        isMarkerLoading: _isMarkerLoading(item, isRefreshing: isRefreshing),
+        isBookingServiceLoading: _isBookingServiceLoading(item, isRefreshing: isRefreshing),
       ),
     );
   }
 
   Widget _buildAuthorRow(PostFeedItem item, {required bool isFollowUpdating}) {
-    final username = item.authorUsername?.trim();
-    final avatarUrl = item.authorAvatarUrl?.trim();
     final isOwnPost = _isOwnPost(item);
     final isFollowing = item.myFollowingAuthor ?? false;
 
-    return Row(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: context.colors.borderSoft),
-          ),
-          child: CircleAvatar(
-            radius: 22,
-            backgroundColor: context.colors.surfaceSoft,
-            backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
-            child: avatarUrl == null || avatarUrl.isEmpty
-                ? Icon(AppIcons.user.icon, color: context.colors.iconMuted, size: 22)
-                : null,
-          ),
-        ),
-        SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            username ?? 'noName',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
-          ),
-        ),
-        if (!isOwnPost && item.myFollowingAuthor != null) ...[
-          const SizedBox(width: 8),
-          if (isFollowing)
-            AppOutlinedButton(
-              text: 'Отписаться',
-              height: 40,
-              borderRadius: 14,
-              isLoading: isFollowUpdating,
-              onTap: _cubit.toggleFollow,
-            )
-          else
-            AppButton(
-              text: 'Подписаться',
-              height: 40,
-              borderRadius: 14,
-              isLoading: isFollowUpdating,
-              onTap: _cubit.toggleFollow,
-            ),
-        ],
-        if (isOwnPost) ...[
-          const SizedBox(width: 4),
-          AppMiniMenu<_PostMenuAction>(
-            iconPadding: const EdgeInsets.all(8),
-            items: widget.archiveContext != PostArchiveContext.none
-                ? [
-                    AppMiniMenuItem(
-                      value: _PostMenuAction.unarchive,
-                      title: 'Разархивировать',
-                      icon: AppIcons.unarchive.icon,
-                    ),
-                  ]
-                : [
-                    if (_hasCluster(item))
+    return PostAuthorHeader(
+      userId: item.post.userId,
+      username: item.authorUsername ?? widget.initialAuthorUsername,
+      avatarUrl: item.authorAvatarUrl ?? widget.initialAuthorAvatarUrl,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (!isOwnPost && item.myFollowingAuthor != null) ...[
+            const SizedBox(width: 8),
+            if (isFollowing)
+              AppOutlinedButton(
+                text: 'Отписаться',
+                height: 40,
+                borderRadius: 14,
+                isLoading: isFollowUpdating,
+                onTap: _cubit.toggleFollow,
+              )
+            else
+              AppButton(
+                text: 'Подписаться',
+                height: 40,
+                borderRadius: 14,
+                isLoading: isFollowUpdating,
+                onTap: _cubit.toggleFollow,
+              ),
+          ],
+          if (isOwnPost) ...[
+            const SizedBox(width: 4),
+            AppMiniMenu<_PostMenuAction>(
+              iconPadding: const EdgeInsets.all(8),
+              items: widget.archiveContext != PostArchiveContext.none
+                  ? [
                       AppMiniMenuItem(
-                        value: _PostMenuAction.detach,
-                        title: 'Отвязать от кластера',
-                        icon: AppIcons.linkOff.icon,
-                      )
-                    else
-                      AppMiniMenuItem(
-                        value: _PostMenuAction.attach,
-                        title: 'Привязать к кластеру',
-                        icon: AppIcons.collectionsFilled.icon,
+                        value: _PostMenuAction.unarchive,
+                        title: 'Разархивировать',
+                        icon: AppIcons.unarchive.icon,
                       ),
-                    AppMiniMenuItem(
-                      value: _PostMenuAction.archive,
-                      title: 'Архивировать',
-                      icon: AppIcons.archive.icon,
-                    ),
-                    AppMiniMenuItem(
-                      value: _PostMenuAction.delete,
-                      title: 'Удалить',
-                      icon: AppIcons.delete.icon,
-                      titleColor: context.colors.error,
-                      iconColor: context.colors.error,
-                    ),
-                  ],
-            onSelected: (action) {
-              switch (action) {
-                case _PostMenuAction.attach:
-                  _pickClusterAndAttach(item);
-                case _PostMenuAction.detach:
-                  _detachFromCluster();
-                case _PostMenuAction.archive:
-                  _archivePost(item);
-                case _PostMenuAction.unarchive:
-                  _unarchivePost(item);
-                case _PostMenuAction.delete:
-                  _deletePost(item);
-              }
-            },
-          ),
+                    ]
+                  : [
+                      if (_hasCluster(item))
+                        AppMiniMenuItem(
+                          value: _PostMenuAction.detach,
+                          title: 'Отвязать от кластера',
+                          icon: AppIcons.linkOff.icon,
+                        )
+                      else
+                        AppMiniMenuItem(
+                          value: _PostMenuAction.attach,
+                          title: 'Привязать к кластеру',
+                          icon: AppIcons.collectionsFilled.icon,
+                        ),
+                      AppMiniMenuItem(
+                        value: _PostMenuAction.archive,
+                        title: 'Архивировать',
+                        icon: AppIcons.archive.icon,
+                      ),
+                      AppMiniMenuItem(
+                        value: _PostMenuAction.delete,
+                        title: 'Удалить',
+                        icon: AppIcons.delete.icon,
+                        titleColor: context.colors.error,
+                        iconColor: context.colors.error,
+                      ),
+                    ],
+              onSelected: (action) {
+                switch (action) {
+                  case _PostMenuAction.attach:
+                    _pickClusterAndAttach(item);
+                  case _PostMenuAction.detach:
+                    _detachFromCluster();
+                  case _PostMenuAction.archive:
+                    _archivePost(item);
+                  case _PostMenuAction.unarchive:
+                    _unarchivePost(item);
+                  case _PostMenuAction.delete:
+                    _deletePost(item);
+                }
+              },
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }

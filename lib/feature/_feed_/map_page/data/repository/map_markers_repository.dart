@@ -16,8 +16,6 @@ abstract class MapMarkersRepository {
     required int offset,
     required int limit,
   });
-
-  Future<int> countMarkers({required AppMapPoint center, required double zoom, required EventsFilter filter});
 }
 
 @LazySingleton(as: MapMarkersRepository)
@@ -41,19 +39,7 @@ class MapMarkersRepositoryImpl implements MapMarkersRepository {
     final rows = res as List<dynamic>? ?? const [];
     final items = rows.map((row) => MapMarkerItem.fromJson(Map<String, dynamic>.from(row as Map))).toList();
 
-    return MapMarkersPageResult(items: _applyDateFilter(items, filter), totalCount: 0);
-  }
-
-  @override
-  Future<int> countMarkers({
-    required AppMapPoint center,
-    required double zoom,
-    required EventsFilter filter,
-  }) async {
-    final params = _rpcParams(center: center, zoom: zoom, filter: filter);
-    final res = await _client.rpc('count_markers_map', params: params);
-    final total = (res as num?)?.toInt() ?? 0;
-    return _adjustTotalForDateFilter(total, filter);
+    return MapMarkersPageResult(items: _applyDateFilter(items, filter), totalCount: items.length);
   }
 
   Map<String, dynamic> _rpcParams({
@@ -95,10 +81,5 @@ class MapMarkersRepositoryImpl implements MapMarkersRepository {
     }
 
     return result;
-  }
-
-  int _adjustTotalForDateFilter(int total, EventsFilter filter) {
-    if (filter.dateFrom == null && filter.dateTo == null) return total;
-    return total;
   }
 }

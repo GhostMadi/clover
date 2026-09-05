@@ -17,7 +17,10 @@ abstract final class AppBottomSheet {
     required BuildContext context,
     String? title,
     required Widget content,
+
+    /// Кнопки внизу шторки — по умолчанию столбиком (полная ширина каждая).
     List<Widget>? actions,
+    Axis actionsAxis = Axis.vertical,
     bool barrierDismissible = true,
     bool upperCaseTitle = true,
     bool showCloseButton = false,
@@ -44,6 +47,9 @@ abstract final class AppBottomSheet {
 
     /// Растянуть [content] на всю доступную высоту (только для длинных списков, напр. теги маркера).
     bool expandBody = false,
+
+    /// Акцент сервиса (заголовок, ручка) — синий для посещаемости и т.д.
+    AppServiceKind? service,
   }) {
     return showModalBottomSheet<T>(
       context: context,
@@ -83,7 +89,12 @@ abstract final class AppBottomSheet {
                 chromeReserve += 44.0 + 1.0 + 8.0;
               }
               if (actions != null && actions.isNotEmpty) {
-                chromeReserve += 20.0 + 52.0;
+                final actionCount = actions.length;
+                if (actionsAxis == Axis.vertical) {
+                  chromeReserve += 20.0 + actionCount * 52.0 + max(0, actionCount - 1) * 12.0;
+                } else {
+                  chromeReserve += 20.0 + 52.0;
+                }
               }
 
               final resolvedContentPadding = contentPadding.resolve(dir);
@@ -126,7 +137,9 @@ abstract final class AppBottomSheet {
                                 contentPadding: contentPadding,
                                 contentBottomSpacing: contentBottomSpacing,
                                 actions: actions,
+                                actionsAxis: actionsAxis,
                                 scrollContent: scrollContent,
+                                service: service,
                                 body: body,
                               ),
                             ),
@@ -159,7 +172,9 @@ class _DecoratedSheetBody extends StatelessWidget {
     required this.contentPadding,
     required this.contentBottomSpacing,
     required this.actions,
+    required this.actionsAxis,
     required this.body,
+    this.service,
   });
 
   final bool postFeedSurface;
@@ -174,12 +189,16 @@ class _DecoratedSheetBody extends StatelessWidget {
   final EdgeInsetsGeometry contentPadding;
   final double contentBottomSpacing;
   final List<Widget>? actions;
+  final Axis actionsAxis;
   final Widget body;
+  final AppServiceKind? service;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final actionRow = actions;
+    final serviceAccent = service != null ? colors.serviceAccent(service!) : null;
+    final accentColor = serviceAccent?.icon ?? colors.primary;
     final decoration = BoxDecoration(
       color: colors.pageBackground,
       borderRadius: _kAppBottomSheetRadius,
@@ -206,10 +225,7 @@ class _DecoratedSheetBody extends StatelessWidget {
         fit: FlexFit.loose,
         child: SingleChildScrollView(physics: const ClampingScrollPhysics(), child: paddedContent),
       ),
-      (false, false) => Flexible(
-        fit: FlexFit.loose,
-        child: paddedContent,
-      ),
+      (false, false) => Flexible(fit: FlexFit.loose, child: paddedContent),
     };
 
     Widget column = ConstrainedBox(
@@ -225,7 +241,9 @@ class _DecoratedSheetBody extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: colors.subTextColor.withValues(alpha: 0.26),
+                color: serviceAccent != null
+                    ? accentColor.withValues(alpha: 0.45)
+                    : colors.subTextColor.withValues(alpha: 0.26),
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
@@ -236,6 +254,7 @@ class _DecoratedSheetBody extends StatelessWidget {
                 upperCaseTitle: upperCaseTitle,
                 showCloseButton: showCloseButton,
                 onClose: onClose,
+                accentColor: accentColor,
               ),
               Divider(height: 1, thickness: 1, color: colors.border.withValues(alpha: 0.65)),
               const SizedBox(height: 8),
@@ -245,14 +264,25 @@ class _DecoratedSheetBody extends StatelessWidget {
             if (actionRow != null && actionRow.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                child: Row(
-                  children: [
-                    for (var i = 0; i < actionRow.length; i++) ...[
-                      Expanded(child: actionRow[i]),
-                      if (i < actionRow.length - 1) const SizedBox(width: 12),
-                    ],
-                  ],
-                ),
+                child: actionsAxis == Axis.vertical
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (var i = 0; i < actionRow.length; i++) ...[
+                            actionRow[i],
+                            if (i < actionRow.length - 1) const SizedBox(height: 12),
+                          ],
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          for (var i = 0; i < actionRow.length; i++) ...[
+                            Expanded(child: actionRow[i]),
+                            if (i < actionRow.length - 1) const SizedBox(width: 12),
+                          ],
+                        ],
+                      ),
               ),
           ],
         ),
@@ -270,12 +300,14 @@ class _BottomSheetHeader extends StatelessWidget {
     required this.upperCaseTitle,
     required this.showCloseButton,
     required this.onClose,
+    required this.accentColor,
   });
 
   final String title;
   final bool upperCaseTitle;
   final bool showCloseButton;
   final VoidCallback onClose;
+  final Color accentColor;
 
   @override
   Widget build(BuildContext context) {
@@ -291,7 +323,7 @@ class _BottomSheetHeader extends StatelessWidget {
             Container(
               width: 3,
               height: 20,
-              decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(color: accentColor, borderRadius: BorderRadius.circular(2)),
             ),
             const SizedBox(width: 12),
             Expanded(

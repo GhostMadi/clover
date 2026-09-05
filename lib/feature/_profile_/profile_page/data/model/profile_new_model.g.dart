@@ -34,12 +34,6 @@ _ProfileNewModel _$ProfileNewModelFromJson(
       ? null
       : DateTime.parse(json['updated_at'] as String),
   hasFilters: json['has_filters'] as bool? ?? false,
-  bonusProgramStatus:
-      $enumDecodeNullable(
-        _$BonusProgramStatusEnumMap,
-        json['bonus_program_status'],
-      ) ??
-      BonusProgramStatus.inactive,
   tagLinkId: json['tag_link_id'] as String?,
   tagIds:
       (json['tag_ids'] as List<dynamic>?)?.map((e) => e as String).toList() ??
@@ -68,13 +62,6 @@ Map<String, dynamic> _$ProfileNewModelToJson(_ProfileNewModel instance) =>
       'created_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),
       'has_filters': instance.hasFilters,
-      'bonus_program_status':
-          _$BonusProgramStatusEnumMap[instance.bonusProgramStatus]!,
       'tag_link_id': instance.tagLinkId,
       'tag_ids': instance.tagIds,
     };
-
-const _$BonusProgramStatusEnumMap = {
-  BonusProgramStatus.active: 'active',
-  BonusProgramStatus.inactive: 'inactive',
-};

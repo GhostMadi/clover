@@ -11,6 +11,9 @@
   - **storage**: bucket `cluster_covers` + policies (cover_url)
 
 ### Posts (3 миграции)
+
+**Spec (контракт enriched + create):** [SPEC_POSTS_AND_EVENTS.md](SPEC_POSTS_AND_EVENTS.md)
+
 - `20260402140000_posts_post_media_engagement.sql`
   - **types**: `public.media_type`
   - **tables**: `public.posts`, `public.post_media`, `public.comments`, `public.post_likes`, `public.comment_likes`, `public.post_saves`
@@ -27,6 +30,13 @@
   - **storage**: bucket `post_media` + policies (path: `posts/{post_id}/{media_id}.*`)
   - **tables**: `public.post_send_events`
   - **triggers**: `posts.sends_count`
+
+- `20260830140000_post_list_enriched_light.sql`
+  - **functions**: `post_enriched_list_json` (post + media + tags + filters, **без** marker subtree)
+  - **RPC**: `list_user_feed_enriched_cursor` → lightweight JSON для сетки профиля; деталь — `get_post_enriched`
+
+- `20260830150000_fix_category_code_trigger_orphans.sql`
+  - **fix**: дроп триггеров/функций с `category_code` после unify tags (INSERT posts 42703)
 
 ### Post media (video posters)
 - `20260418120001_post_media_poster_url.sql`
@@ -99,6 +109,46 @@
 | `20260420120000_profile_follows_social_graph.sql` | `profile_follows`, счётчики на `profiles`, триггеры ±1, RLS, RPC `follow_user` / `unfollow_user` / `is_following_user`, списки подписчиков/подписок. |
 | `20260421100000_social_graph_blocks_notifications_feed_reconcile.sql` | `profile_blocks`, `notification_events` (dedupe), `can_user_interact`, расширенный `follow_user` (блоки, 200/h, нотификация), `list_following_feed_enriched_cursor`, `reconcile_profile_follow_counts` (service_role). |
 
+### In-app уведомления
+
+**Spec:** [SPEC_IN_APP_NOTIFICATIONS.md](SPEC_IN_APP_NOTIFICATIONS.md) · **Process:** [notifications.md](../business/notifications.md)
+
+| Файл | Назначение |
+|------|------------|
+| `20260729120000_notifications_reactions_comments.sql` | `notifications`, триггеры post/comment reactions, `list_notifications_enriched_cursor`, `mark_notifications_read`. |
+| `20260802130000_notifications_last_30_days.sql` | Retention 30 дней в list RPC. |
+| `20260830210000_notifications_follow_unread.sql` | `user_follow` в ленте, `follow_user` → `notifications`, backfill из `notification_events`, `is_following_actor` в list RPC, `count_unread_notifications`. |
+| `20260830211000_fix_notifications_list_following_check.sql` | Fix 403: `is_following_user()` вместо прямого SELECT `profile_follows` в list RPC. |
+| `20260830212000_fix_follow_user_perform_notification.sql` | Fix 42601: `follow_user` — `PERFORM upsert_notification` вместо bare `SELECT`. |
+| `20260830220000_booking_notifications.sql` | Booking kinds в `notifications`, triggers + cron visit reminders, `booking_id` в list RPC, auto_close default `no_show`. |
+| `20260830230000_booking_client_reminders.sql` | `booking_reminder_client` (24h/3h/1h/30m), `booking_notifications_scan_scheduled` cron wrapper. |
+| `20260830240000_booking_get_enriched_by_id.sql` | `get_booking_enriched_for_viewer` — deep link / tap на запись по id. |
+
+### Push / FCM (device tokens)
+
+**Spec:** [SPEC_PUSH_FCM.md](SPEC_PUSH_FCM.md)
+
+| Файл | Назначение |
+|------|------------|
+| `20260901180000_push_device_tokens.sql` | `push_device_tokens` — upsert FCM token per user/device; RLS owner-only. |
+
+### Attendance (посещаемость) — ядро
+
+**Спека:** [SPEC_ATTENDANCE_SYSTEM.md](SPEC_ATTENDANCE_SYSTEM.md) | **Навигатор:** `migrations/_attendance/README.md`  
+**Процесс:** `docs/business/attendance.md`
+
+| Файл | Назначение |
+|------|------------|
+| **`20260903120000_attendance_schema.sql`** | Enums, folders/workplaces/memberships/punches/absences/punch_type_defs, PostGIS location, indexes. |
+| **`20260903120100_attendance_rls_grants.sql`** | RLS + GRANT; punches DML только через RPC. |
+| **`20260903120200_attendance_rpc.sql`** | bootstrap, invite/accept/reject/archive/reinvite, ack, punch submit/cancel, absence upsert. |
+
+#### Ключевые особенности:
+*   **0 трафика для неучастников** — нет полезного SELECT без ownership/membership.
+*   **Geofence на сервере** — `ST_DWithin` в `submit_attendance_punch`.
+*   **Outbox** — `client_punch_id` идемпотентность.
+*   **config_version / ack_version** — punch блокируется до ack.
+
 ### Чат и сообщения (messages)
 
 Подробный разбор файлов и потока данных — **`migrations/_chat/README.md`**.
@@ -121,6 +171,14 @@
 | `20260427130000_chat_participants_grant_select_authenticated.sql` | `GRANT SELECT` для REST peer-курсоров. |
 | `20260428120000_mark_conversation_read_monotonic_cursor.sql` | Монотонный курсор в `mark_conversation_read`. |
 | `20260429140000_chat_broadcast_peer_read.sql` | Broadcast `peer_read` при сдвиге read-курсора (мгновенные галочки у отправителя). |
+| `20260830250000_chat_reactions_rpc.sql` | `toggle_message_reaction`; колонка `my_reactions` в `list_messages_enriched` / `get_message_enriched`. |
+| `20260830260000_chat_messenger_basics.sql` | `delete_message`, `edit_message` — soft-delete и правка текста своих сообщений. |
+| `20260830270000_chat_attachments_client_message_id.sql` | `send_message_with_attachments` + `p_client_message_id` — reconcile optimistic media/file. |
+| `20260831100000_auth_login_helpers.sql` | `auth_is_email_registered`, `auth_resolve_login_email` — OTP только новым / логин по нику. |
+| `20260831120000_auth_current_user_has_password.sql` | `auth_current_user_has_password()` — для Настроек: «Установить» vs «Сбросить пароль». |
+| `20260831130000_auth_email_otp_cooldown.sql` | `auth_email_otp_cooldown` + `auth_claim_email_otp_send` / `auth_email_otp_retry_after` — кулдаун переотправки OTP 400с. |
+| `20260831140000_auth_is_email_fully_registered.sql` | `auth_is_email_fully_registered` — блок регистрации только для завершённых аккаунтов (пароль/OAuth). |
+| `20260831150000_auth_fully_registered_password_flag.sql` | fully_registered = `clover_password_set` meta или OAuth (не `encrypted_password` после OTP). |
 
 ### Ленты / RPC (часть)
 - `20260411150000_list_user_feed_enriched_rpc.sql`, `20260411160000_hot_feed_enriched_profile_cursor.sql`, `20260416120000_user_feed_cluster_filter.sql` и др. — см. имена файлов в `supabase/migrations/`.
@@ -143,6 +201,11 @@
 | **`20260726120000_booking_schema.sql`** | Таблицы booking, EXCLUDE constraints, helpers (`booking_resolve_staff_day_window`, …), `pg_trgm` indexes. |
 | **`20260726120100_booking_rls_grants.sql`** | RLS + GRANT для authenticated. |
 | **`20260726120200_booking_rpc.sql`** | `create_booking`, `get_booking_availability`, enriched lists, status, analytics. |
+| `20260830160000_booking_create_confirmed_instant.sql` | `create_booking` → сразу `confirmed` + `confirmed_at` (instant booking). |
+| `20260830170000_posts_booking_service_link.sql` | `posts.booking_service_id`, trigger same-host, RLS read via post, `set_post_booking_service`, enriched detail. |
+| `20260830190000_post_root_json_booking_service.sql` | `post_enriched_root_json` + `booking_service`; лента ивентов и detail из одного JSON. |
+| `20260830195000_bonus_earn_without_program_switch.sql` | Начисление бонусов за визит не зависит от `bonus_program_status` (только услуга). |
+| `20260830200000_drop_bonus_program_status.sql` | Удалён `bonus_program_status`; бонусы только по полям услуги. |
 
 #### Ключевые особенности:
 *   **Per-staff schedule** — `booking_staff_schedule` + fallback на account settings.

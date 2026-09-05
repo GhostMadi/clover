@@ -1,4 +1,3 @@
-import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -9,10 +8,8 @@ import 'package:clover/core/shared/app_switch.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_draft.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
-import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BookingServiceForm extends StatelessWidget {
   const BookingServiceForm({
@@ -54,89 +51,11 @@ class BookingServiceForm extends StatelessWidget {
   final bool enabled;
   final bool bufferAfterLocked;
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ProfileCubit, ProfileState>(
-      bloc: sl<ProfileCubit>(),
-      builder: (context, profileState) {
-        final bonusProgramEnabled = profileState.maybeMap(
-          loaded: (s) => s.profile.isBonusProgramActive,
-          orElse: () => false,
-        );
-
-        return _BookingServiceFormBody(
-          draft: draft,
-          titleController: titleController,
-          durationController: durationController,
-          emojiController: emojiController,
-          priceController: priceController,
-          maxParticipantsController: maxParticipantsController,
-          bufferAfterController: bufferAfterController,
-          bonusPayPercentController: bonusPayPercentController,
-          bonusEarnAmountController: bonusEarnAmountController,
-          descriptionController: descriptionController,
-          onDraftChanged: onDraftChanged,
-          selectedExecutors: selectedExecutors,
-          onRemoveExecutor: onRemoveExecutor,
-          onAddExecutor: onAddExecutor,
-          onActiveChanged: onActiveChanged,
-          enabled: enabled,
-          bufferAfterLocked: bufferAfterLocked,
-          bonusProgramEnabled: bonusProgramEnabled,
-        );
-      },
-    );
-  }
-}
-
-class _BookingServiceFormBody extends StatelessWidget {
-  const _BookingServiceFormBody({
-    required this.draft,
-    required this.titleController,
-    required this.durationController,
-    required this.emojiController,
-    required this.priceController,
-    required this.maxParticipantsController,
-    required this.bufferAfterController,
-    required this.bonusPayPercentController,
-    required this.bonusEarnAmountController,
-    required this.descriptionController,
-    required this.onDraftChanged,
-    required this.bonusProgramEnabled,
-    this.selectedExecutors = const [],
-    this.onRemoveExecutor,
-    this.onAddExecutor,
-    this.onActiveChanged,
-    this.enabled = true,
-    this.bufferAfterLocked = false,
-  });
-
-  final BookingServiceDraft draft;
-  final TextEditingController titleController;
-  final TextEditingController durationController;
-  final TextEditingController emojiController;
-  final TextEditingController priceController;
-  final TextEditingController maxParticipantsController;
-  final TextEditingController bufferAfterController;
-  final TextEditingController bonusPayPercentController;
-  final TextEditingController bonusEarnAmountController;
-  final TextEditingController descriptionController;
-  final VoidCallback onDraftChanged;
-  final List<BookingServiceExecutor> selectedExecutors;
-  final ValueChanged<String>? onRemoveExecutor;
-  final VoidCallback? onAddExecutor;
-  final ValueChanged<bool>? onActiveChanged;
-  final bool enabled;
-  final bool bufferAfterLocked;
-  final bool bonusProgramEnabled;
-
   static final _intFormatter = FilteringTextInputFormatter.digitsOnly;
   static final _priceFormatter = FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'));
 
   @override
   Widget build(BuildContext context) {
-    final fieldsEnabled = enabled && bonusProgramEnabled;
-
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 8, 16, BookingScreenShell.scrollBottomGap(context)),
       child: Column(
@@ -226,9 +145,7 @@ class _BookingServiceFormBody extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  bonusProgramEnabled
-                      ? 'Настройки начисления и оплаты бонусами за эту услугу'
-                      : 'Включите бонусную программу в настройках, чтобы настроить бонусы',
+                  'Начисление и оплата бонусами настраиваются для каждой услуги отдельно.',
                   style: AppTextStyle.base(12, color: context.colors.subTextColor, height: 1.3),
                 ),
                 const SizedBox(height: 12),
@@ -239,7 +156,7 @@ class _BookingServiceFormBody extends StatelessWidget {
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.next,
                   inputFormatters: [_intFormatter],
-                  isEnabled: fieldsEnabled,
+                  isEnabled: enabled,
                   onChanged: (_) => onDraftChanged(),
                 ),
                 const SizedBox(height: 14),
@@ -250,7 +167,7 @@ class _BookingServiceFormBody extends StatelessWidget {
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.next,
                   inputFormatters: [_intFormatter],
-                  isEnabled: fieldsEnabled,
+                  isEnabled: enabled,
                   onChanged: (_) => onDraftChanged(),
                 ),
               ],

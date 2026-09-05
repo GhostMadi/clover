@@ -23,8 +23,34 @@ final class Unauthenticated extends AuthState {
   const Unauthenticated();
 }
 
+/// OTP sent for [AuthOtpPurpose.register] or [AuthOtpPurpose.resetPassword].
+final class AuthEmailOtpSent extends AuthState {
+  const AuthEmailOtpSent({
+    required this.email,
+    required this.purpose,
+    this.resumedWithoutResend = false,
+  });
+
+  final String email;
+  final AuthOtpPurpose purpose;
+
+  /// Кулдаун ещё идёт: письмо не слали снова, только вернули на ввод кода.
+  final bool resumedWithoutResend;
+}
+
+/// Session after OTP; password must be set before [Authenticated].
+final class AuthPasswordSetupRequired extends AuthState {
+  const AuthPasswordSetupRequired({required this.email, required this.purpose});
+
+  final String email;
+  final AuthOtpPurpose purpose;
+}
+
 final class AuthError extends AuthState {
-  const AuthError(this.code);
+  const AuthError(this.code, {this.retryAfterSeconds});
 
   final AuthErrorCode code;
+  final int? retryAfterSeconds;
 }
+
+enum AuthOtpPurpose { register, resetPassword }

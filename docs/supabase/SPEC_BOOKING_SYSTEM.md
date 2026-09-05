@@ -93,6 +93,8 @@ create_booking(
 
 **Validations:** booking tag, active service/staff, M2M link, horizon, working window, slot alignment, no overlap (staff + client cross-host), blocked slots.
 
+**Result:** новая запись сразу `confirmed`, `confirmed_at = now()`; в `booking_history` — `new_status = confirmed` (без этапа `pending` для клиента).
+
 **Errors:** `P0020` not available, `P0021` conflict, `P0022` service, `P0023` staff, `P0024` schedule, `P0025` disabled, `P0026` future bookings (deactivate), `P0027` self-booking.
 
 ### `get_booking_availability`
@@ -180,7 +182,8 @@ Verify: `supabase/scripts/verify_booking_rpcs.sql`
 
 | Feature | Status |
 |---------|--------|
-| `booking_notifications` | Not v1 |
+| In-app booking notifications | **v1** — общая `notifications`, см. [SPEC_IN_APP_NOTIFICATIONS.md](SPEC_IN_APP_NOTIFICATIONS.md) |
+| Push / FCM | Not v1 |
 | `create_booking_review` RPC | Schema ready |
 | Per-staff schedule UI | Backend ready |
 | Realtime host inbox | Optional |

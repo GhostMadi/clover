@@ -6,8 +6,9 @@ import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 import 'package:clover/feature/_post_/post/data/models/post_reaction_math.dart';
 import 'package:clover/feature/_post_/post/data/repository/post_repository.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_author_header.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_feed_card_details.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_detail_shimmer.dart';
-import 'package:clover/feature/_post_/post/presentation/widget/post_marker_info_section.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_media_gallery.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_media_reaction_gestures.dart';
 import 'package:clover/feature/_post_/post_comment/presentation/widget/post_comments_sheet.dart';
@@ -181,8 +182,6 @@ class _MapMarkerPostSheetBodyState extends State<_MapMarkerPostSheetBody> {
 
     final item = _item!;
     final post = item.post;
-    final title = post.title?.trim();
-    final description = post.description?.trim();
 
     return ColoredBox(
       color: context.colors.pageBackground,
@@ -251,14 +250,7 @@ class _MapMarkerPostSheetBodyState extends State<_MapMarkerPostSheetBody> {
               ],
             ),
           ),
-          PostMarkerInfoSection(
-            marker: item.marker,
-            title: title,
-            description: description,
-            username: item.authorUsername,
-            likesCount: post.likesCount,
-            dislikesCount: post.dislikesCount,
-          ),
+          PostFeedCardDetails(item: item),
         ],
       ),
     );
@@ -279,32 +271,12 @@ class _AuthorRow extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 12, 20, 12),
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: context.colors.borderSoft, width: 1.5),
-            ),
-            child: CircleAvatar(
-              radius: 18,
-              backgroundColor: context.colors.surfaceSoft,
-              backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
-              child: avatarUrl == null || avatarUrl.isEmpty
-                  ? Icon(AppIcons.personRounded.icon, size: 20, color: context.colors.subTextColor.withValues(alpha: 0.7))
-                  : null,
-            ),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              username != null && username.isNotEmpty ? '@$username' : 'Автор',
-              style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
+      child: PostAuthorHeader(
+        userId: item.post.userId,
+        username: username,
+        avatarUrl: avatarUrl,
+        avatarRadius: 18,
+        usernamePrefix: username != null && username.isNotEmpty ? '@' : null,
       ),
     );
   }

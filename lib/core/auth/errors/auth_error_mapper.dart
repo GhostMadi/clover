@@ -23,6 +23,21 @@ abstract final class AuthErrorMapper {
     }
 
     if (error is AuthException) {
+      final message = error.message.toLowerCase();
+      if (message.contains('rate limit') || message.contains('over_email_send_rate_limit')) {
+        return AuthErrorCode.emailOtpRateLimited;
+      }
+      if (message.contains('invalid login credentials') ||
+          message.contains('invalid_credentials') ||
+          message.contains('email not confirmed')) {
+        return AuthErrorCode.invalidCredentials;
+      }
+      if (message.contains('user already registered') || message.contains('already been registered')) {
+        return AuthErrorCode.emailAlreadyRegistered;
+      }
+      if (message.contains('otp') || message.contains('token') || message.contains('expired')) {
+        return AuthErrorCode.emailOtpVerifyFailed;
+      }
       final statusCode = int.tryParse(error.statusCode ?? '');
       if (statusCode != null && statusCode >= 500) {
         return AuthErrorCode.networkError;

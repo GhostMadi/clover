@@ -15,16 +15,20 @@ class ChatComposer extends StatefulWidget {
     required this.onSend,
     this.onAttachmentSelected,
     this.isSending = false,
+    this.onChanged,
+    this.hasAttachments = false,
   });
 
   final TextEditingController controller;
   final VoidCallback onSend;
   final ValueChanged<ChatAttachmentAction>? onAttachmentSelected;
   final bool isSending;
+  final ValueChanged<String>? onChanged;
+  final bool hasAttachments;
 
-  static const double _barRadius = 28;
-  static const double _horizontalMargin = 16;
-  static const double _bottomMargin = 12;
+  static const double _barRadius = 30;
+  static const double _horizontalMargin = 14;
+  static const double _bottomMargin = 14;
 
   @override
   State<ChatComposer> createState() => _ChatComposerState();
@@ -57,6 +61,7 @@ class _ChatComposerState extends State<ChatComposer> {
   }
 
   void _onTextChanged() {
+    widget.onChanged?.call(widget.controller.text);
     final next = widget.controller.text.trim().isNotEmpty;
     if (next == _hasText) return;
     setState(() => _hasText = next);
@@ -66,7 +71,7 @@ class _ChatComposerState extends State<ChatComposer> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
     final bottomSafe = MediaQuery.paddingOf(context).bottom;
-    final canSend = _hasText && !widget.isSending;
+    final canSend = (_hasText || widget.hasAttachments) && !widget.isSending;
 
     return AnimatedPadding(
       duration: const Duration(milliseconds: 180),
@@ -100,7 +105,7 @@ class _ChatComposerState extends State<ChatComposer> {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -121,8 +126,8 @@ class _ChatComposerState extends State<ChatComposer> {
                       ],
                       onSelected: widget.onAttachmentSelected!,
                       child: Container(
-                        width: 40,
-                        height: 40,
+                        width: 44,
+                        height: 44,
                         decoration: BoxDecoration(
                           color: context.colors.surfaceSoft,
                           shape: BoxShape.circle,
@@ -134,7 +139,7 @@ class _ChatComposerState extends State<ChatComposer> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 6),
                   ],
                   Expanded(
                     child: TextField(
@@ -142,7 +147,7 @@ class _ChatComposerState extends State<ChatComposer> {
                       minLines: 1,
                       maxLines: 5,
                       textInputAction: TextInputAction.newline,
-                      style: AppTextStyle.base(16, color: context.colors.textColor, height: 1.35),
+                      style: AppTextStyle.base(16, color: context.colors.textColor, height: 1.4),
                       cursorColor: context.colors.fieldCursor,
                       decoration: InputDecoration(
                         hintText: 'Сообщение',
@@ -150,17 +155,17 @@ class _ChatComposerState extends State<ChatComposer> {
                         filled: true,
                         fillColor: context.colors.surfaceSoft.withValues(alpha: 0.65),
                         isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(22),
+                          borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide.none,
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(22),
+                          borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide.none,
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(22),
+                          borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide(
                             color: context.colors.primary.withValues(alpha: 0.35),
                             width: 1.2,
@@ -169,13 +174,13 @@ class _ChatComposerState extends State<ChatComposer> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 8),
                   AnimatedContainer(
                     duration: Duration(milliseconds: 180),
                     curve: Curves.easeOut,
                     decoration: BoxDecoration(
                       color: canSend ? context.colors.primary : context.colors.surfaceSoft,
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: BorderRadius.circular(24),
                       boxShadow: canSend
                           ? [
                               BoxShadow(
@@ -188,13 +193,13 @@ class _ChatComposerState extends State<ChatComposer> {
                     ),
                     child: Material(
                       color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: BorderRadius.circular(24),
                       child: InkWell(
                         onTap: canSend ? widget.onSend : null,
-                        borderRadius: BorderRadius.circular(22),
+                        borderRadius: BorderRadius.circular(24),
                         child: SizedBox(
-                          width: 44,
-                          height: 44,
+                          width: 48,
+                          height: 48,
                           child: widget.isSending
                               ? Padding(
                                   padding: EdgeInsets.all(12),

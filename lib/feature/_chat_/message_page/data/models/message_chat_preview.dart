@@ -8,6 +8,8 @@ class MessageChatPreview {
     required this.isRead,
     this.avatarUrl,
     this.unreadCount = 0,
+    this.type = 'dm',
+    this.isGroup = false,
   });
 
   final String id;
@@ -18,6 +20,8 @@ class MessageChatPreview {
   final bool isRead;
   final String? avatarUrl;
   final int unreadCount;
+  final String type;
+  final bool isGroup;
 
   bool get hasUnread => unreadCount > 0 || (!isLastMessageMine && !isRead);
 
@@ -31,10 +35,13 @@ class MessageChatPreview {
       'is_read': isRead,
       if (avatarUrl != null) 'avatar_url': avatarUrl,
       'unread_count': unreadCount,
+      'type': type,
+      'is_group': isGroup,
     };
   }
 
   factory MessageChatPreview.fromJson(Map<String, dynamic> json) {
+    final type = (json['type'] as String?)?.trim().isNotEmpty == true ? json['type'] as String : 'dm';
     return MessageChatPreview(
       id: (json['id'] as String?)?.trim() ?? '',
       username: (json['username'] as String?)?.trim() ?? '',
@@ -45,6 +52,8 @@ class MessageChatPreview {
       isRead: json['is_read'] == true,
       avatarUrl: (json['avatar_url'] as String?)?.trim(),
       unreadCount: (json['unread_count'] as num?)?.toInt() ?? 0,
+      type: type,
+      isGroup: json['is_group'] == true || type == 'group',
     );
   }
 }

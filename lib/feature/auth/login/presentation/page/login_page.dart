@@ -6,204 +6,178 @@ import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/resources.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/core/router/app_router.gr.dart';
+import 'package:clover/core/shared/app_field.dart';
+import 'package:clover/core/shared/app_snack_bar.dart';
+import 'package:clover/feature/auth/shared/presentation/widget/auth_social_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 @RoutePage()
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _identifierController = TextEditingController();
+  final _passwordController = TextEditingController();
+  var _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _identifierController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _login() {
+    FocusScope.of(context).unfocus();
+    context.read<AuthCubit>().loginWithPassword(
+      identifier: _identifierController.text,
+      password: _passwordController.text,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final errorCode = switch (context.watch<AuthCubit>().state) {
-      AuthError(:final code) => code,
-      _ => null,
-    };
+    final isLoading = context.select<AuthCubit, bool>((c) => c.state is AuthLoading);
 
     return BlocListener<AuthCubit, AuthState>(
       listenWhen: (prev, curr) => curr is AuthError,
       listener: (context, state) {
         if (state is! AuthError) return;
-
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(
-              content: Text(AuthErrorMessages.messageFor(state.code)),
-              backgroundColor: context.colors.shadowDark.withValues(alpha: 0.9),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+        AppSnackBar.show(
+          context,
+          message: AuthErrorMessages.messageFor(state.code),
+          kind: AppSnackBarKind.error,
+        );
       },
       child: Scaffold(
         backgroundColor: context.colors.bgColor,
         body: SafeArea(
-          child: Column(
-            children: [
-              const Spacer(flex: 3),
-
-              SizedBox(height: context.heightByContext(12)),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    AppImages.logo,
-                    height: context.heightByContext(40),
-                  ),
-                  SizedBox(width: context.widthByContext(12)),
-
-                  Text(
-                    'Clover',
-                    style: AppTextStyle.base(
-                      context.heightByContext(32),
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.activeColor,
-                      letterSpacing: -0.5,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              context.widthByContext(32),
+              context.heightByContext(40),
+              context.widthByContext(32),
+              context.heightByContext(24),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(AppImages.logo, height: context.heightByContext(40)),
+                    SizedBox(width: context.widthByContext(12)),
+                    Text(
+                      'Clover',
+                      style: AppTextStyle.base(
+                        context.heightByContext(32),
+                        fontWeight: FontWeight.w600,
+                        color: context.colors.activeColor,
+                        letterSpacing: -0.5,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: context.heightByContext(12)),
-
-              if (errorCode != null) ...[
-                SizedBox(height: context.heightByContext(20)),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.widthByContext(40),
-                  ),
-                  child: Text(
-                    AuthErrorMessages.messageFor(errorCode),
-                    textAlign: TextAlign.center,
-                    style: AppTextStyle.base(
-                      context.heightByContext(13),
-                      color: context.colors.error,
-                      fontWeight: FontWeight.w400,
+                  ],
+                ),
+                SizedBox(height: context.heightByContext(40)),
+                AppField(
+                  controller: _identifierController,
+                  labelText: 'Ник или email',
+                  hintText: '@username или email',
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  isEnabled: !isLoading,
+                ),
+                const SizedBox(height: 14),
+                AppField(
+                  controller: _passwordController,
+                  labelText: 'Пароль',
+                  hintText: '••••••••',
+                  obscureText: _obscurePassword,
+                  textInputAction: TextInputAction.done,
+                  isEnabled: !isLoading,
+                  suffixIcon: TextButton(
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    child: Text(
+                      _obscurePassword ? 'Показать' : 'Скрыть',
+                      style: AppTextStyle.base(
+                        12,
+                        color: context.colors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: isLoading ? null : () => context.router.push(const ForgotPasswordRoute()),
+                    child: Text(
+                      'Забыли пароль?',
+                      style: AppTextStyle.base(
+                        13,
+                        color: context.colors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 52,
+                  child: FilledButton(
+                    onPressed: isLoading ? null : _login,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: context.colors.primary,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: isLoading
+                        ? SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.white),
+                          )
+                        : Text(
+                            'Войти',
+                            style: AppTextStyle.base(
+                              15,
+                              fontWeight: FontWeight.w600,
+                              color: context.colors.white,
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Нет аккаунта?', style: AppTextStyle.base(14, color: context.colors.subTextColor)),
+                    TextButton(
+                      onPressed: isLoading ? null : () => context.router.push(const RegisterEmailRoute()),
+                      child: Text(
+                        'Создать',
+                        style: AppTextStyle.base(
+                          14,
+                          color: context.colors.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: context.heightByContext(28)),
+                const AuthOrDivider(),
+                SizedBox(height: context.heightByContext(24)),
+                const AuthGoogleSignInButton(),
               ],
-
-              const Spacer(flex: 4),
-
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.widthByContext(32),
-                ),
-                child: const _AuthDivider(),
-              ),
-
-              SizedBox(height: context.heightByContext(28)),
-
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.widthByContext(32),
-                ),
-                child: const _GoogleSignInButton(),
-              ),
-
-              SizedBox(height: context.heightByContext(48)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}class _AuthDivider extends StatelessWidget {
-  const _AuthDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 1,
-            color: context.colors.border,
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: context.widthByContext(16),
-          ),
-          child: Text(
-            'or',
-            style: AppTextStyle.base(
-              context.heightByContext(12),
-              color: context.colors.subTextColor,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 0.8,
             ),
           ),
         ),
-        Expanded(
-          child: Container(
-            height: 1,
-            color: context.colors.border,
-          ),
-        ),
-      ],
-    );
-  }
-}class _GoogleSignInButton extends StatelessWidget {
-  const _GoogleSignInButton();
-
-  @override
-  Widget build(BuildContext context) {
-    final isLoading =
-        context.select<AuthCubit, bool>((c) => c.state is AuthLoading);
-
-    return SizedBox(
-      width: double.infinity,
-      height: context.heightByContext(54),
-      child: OutlinedButton(
-        onPressed: isLoading
-            ? null
-            : () => context.read<AuthCubit>().loginWithGoogle(),
-
-        style: OutlinedButton.styleFrom(
-          backgroundColor: context.colors.surface,
-          disabledBackgroundColor: context.colors.surfaceMuted,
-          side: BorderSide(
-            color: context.colors.borderInput,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              context.widthByContext(14),
-            ),
-          ),
-          foregroundColor: context.colors.textColor,
-        ),
-
-        child: isLoading
-            ? SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: context.colors.primary,
-                ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(
-                    AppSvg.google,
-                    height: context.heightByContext(22),
-                  ),
-                  SizedBox(width: context.widthByContext(12)),
-                  Text(
-                    'Continue with Google',
-                    style: AppTextStyle.base(
-                      15,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.textColor,
-                    ),
-                  ),
-                ],
-              ),
       ),
     );
   }

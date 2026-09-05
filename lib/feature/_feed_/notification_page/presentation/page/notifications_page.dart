@@ -1,11 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/deep_link/app_deep_link_navigator.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_refresh.dart';
 import 'package:clover/feature/_feed_/notification_page/data/models/notification_item.dart';
+import 'package:clover/feature/_feed_/notification_page/data/models/notification_kind.dart';
 import 'package:clover/feature/_feed_/notification_page/presentation/cubit/notifications_cubit.dart';
 import 'package:clover/feature/_feed_/notification_page/presentation/utils/notification_date_grouping.dart';
 import 'package:clover/feature/_feed_/notification_page/presentation/widget/notification_section_header.dart';
@@ -58,10 +60,35 @@ class _NotificationsPageState extends State<NotificationsPage> {
     });
   }
 
-  Future<void> _openPost(NotificationItem item) async {
+  Future<void> _openNotification(NotificationItem item) async {
     final postId = item.postId?.trim();
-    if (postId == null || postId.isEmpty) return;
-    await context.router.push(PostRoute(postId: postId));
+    if (postId != null && postId.isNotEmpty) {
+      await context.router.push(PostRoute(postId: postId));
+      return;
+    }
+
+    final bookingId = item.bookingId?.trim();
+    if (bookingId != null && bookingId.isNotEmpty) {
+      await sl<AppDeepLinkNavigator>().openBookingById(context.router, bookingId);
+      return;
+    }
+
+    if (item.kind.isBookingHostInbox) {
+      await context.router.push(const BookingListRoute());
+      return;
+    }
+
+    if (item.kind.isBookingClientInbox) {
+      await context.router.push(const MyBookingsRoute());
+      return;
+    }
+
+    if (item.showFollowButton) {
+      final userId = item.actors.isNotEmpty ? item.actors.first.id.trim() : '';
+      if (userId.isNotEmpty) {
+        await context.router.push(GuestProfileRoute(userId: userId));
+      }
+    }
   }
 
   @override
@@ -100,7 +127,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   isLoadingMore: isLoadingMore,
                   scrollController: _scrollController,
                   onRefresh: _cubit.refresh,
-                  onOpen: _openPost,
+                  onOpen: _openNotification,
+                  onFollowToggle: _cubit.toggleFollow,
                 ),
               };
             },
@@ -119,6 +147,7 @@ class _LoadedBody extends StatelessWidget {
     required this.scrollController,
     required this.onRefresh,
     required this.onOpen,
+    required this.onFollowToggle,
   });
 
   final List<NotificationItem> items;
@@ -127,6 +156,7 @@ class _LoadedBody extends StatelessWidget {
   final ScrollController scrollController;
   final Future<void> Function() onRefresh;
   final Future<void> Function(NotificationItem item) onOpen;
+  final Future<void> Function(NotificationItem item) onFollowToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +196,7 @@ class _LoadedBody extends StatelessWidget {
         itemBuilder: (context, index) {
           final contentCount = _listItemCount(sections);
           if (index < contentCount) {
-            return _buildListItem(context, sections, index, onOpen);
+            return _buildListItem(context, sections, index, onOpen, onFollowToggle);
           }
 
           if (isLoadingMore && index == contentCount) {
@@ -204,6 +234,7 @@ class _LoadedBody extends StatelessWidget {
     List<(NotificationDateSection, List<NotificationItem>)> sections,
     int index,
     Future<void> Function(NotificationItem item) onOpen,
+    Future<void> Function(NotificationItem item) onFollowToggle,
   ) {
     var cursor = 0;
     for (final (section, sectionItems) in sections) {
@@ -220,7 +251,13 @@ class _LoadedBody extends StatelessWidget {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              NotificationTile(item: item, onTap: item.postId != null ? () => onOpen(item) : null),
+              NotificationTile(
+                item: item,
+                onTap: item.postId != null || item.showFollowButton || item.bookingId != null
+                    ? () => onOpen(item)
+                    : null,
+                onFollowToggle: item.showFollowButton ? (_) => onFollowToggle(item) : null,
+              ),
               if (showDivider) Divider(height: 1, thickness: 1, color: context.colors.divider),
             ],
           );

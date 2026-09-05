@@ -17,7 +17,11 @@ class BookingClientCubit extends Cubit<BookingClientState> {
 
   final BookingClientRepository _repository;
 
-  Future<void> init({required String hostId, required String hostDisplayName}) async {
+  Future<void> init({
+    required String hostId,
+    required String hostDisplayName,
+    String? initialServiceId,
+  }) async {
     emit(BookingClientState.loading(hostId: hostId, hostDisplayName: hostDisplayName));
     try {
       final results = await Future.wait([
@@ -33,6 +37,20 @@ class BookingClientCubit extends Cubit<BookingClientState> {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
 
+      BookingService? selectedService;
+      BookingServiceExecutor? selectedExecutor;
+      final presetId = initialServiceId?.trim();
+      if (presetId != null && presetId.isNotEmpty) {
+        final entry = catalog.where((c) => c.service.id == presetId).firstOrNull;
+        if (entry != null && entry.service.isActive) {
+          selectedService = entry.service;
+          final executors = entry.staff;
+          if (executors.length == 1) {
+            selectedExecutor = executors.first;
+          }
+        }
+      }
+
       emit(BookingClientState.ready(
         hostId: hostId,
         hostDisplayName: hostDisplayName,
@@ -40,7 +58,13 @@ class BookingClientCubit extends Cubit<BookingClientState> {
         schedule: schedule,
         selectedDay: today,
         bonusBalanceAtHost: bonusBalance,
+        selectedService: selectedService,
+        selectedExecutor: selectedExecutor,
       ));
+
+      if (selectedExecutor != null) {
+        await _loadAvailability();
+      }
     } catch (e) {
       if (isClosed) return;
       emit(BookingClientState.error(hostId: hostId, hostDisplayName: hostDisplayName, message: '$e'));

@@ -290,9 +290,10 @@ class _CountChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    // Поверх фото: выбранный — primary; иначе светлая плашка с тёмным текстом (контраст в любой теме).
+    // Поверх фото: выбранный — primary; иначе светлая плашка + всегда тёмный текст
+    // (не theme textColor — в dark он светлый → белое на белом).
     final bg = selected ? colors.primary : colors.white;
-    final fg = selected ? colors.white : colors.textColor;
+    final fg = selected ? colors.white : colors.black;
 
     return Container(
       padding: EdgeInsets.symmetric(

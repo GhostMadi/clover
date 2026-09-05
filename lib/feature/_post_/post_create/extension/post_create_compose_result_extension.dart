@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:clover/feature/_post_/marker_create/data/model/marker_create_request.dart';
 import 'package:clover/feature/_post_/post_create/data/model/post_create_request.dart';
 import 'package:clover/feature/_post_/post_create/model/post_create_compose_result.dart';
 
@@ -33,43 +32,13 @@ extension PostCreateComposeResultExtension on PostCreateComposeResult {
       description: description.trim(),
       textEmoji: textEmoji.trim(),
       location: location,
+      eventPeriod: eventPeriod,
       tagIds: tagIds,
       filterValues: filterValues,
+      bookingServiceId: bookingServiceId?.trim().isEmpty == true ? null : bookingServiceId?.trim(),
       media: [
         for (var i = 0; i < media.length; i++)
           PostCreateMediaInput(
-            sourceFile: media[i].previewFile!,
-            settings: media[i].settings,
-            imageWidth: media[i].asset.width,
-            imageHeight: media[i].asset.height,
-            sortOrder: i,
-          ),
-      ],
-    );
-  }
-
-  MarkerCreateRequest toMarkerCreateRequest() {
-    final selectedLocation = location;
-    final period = eventPeriod;
-
-    if (selectedLocation == null) {
-      throw StateError('Не выбрано местоположение');
-    }
-    if (period == null) {
-      throw StateError('Не выбран период события');
-    }
-
-    return MarkerCreateRequest(
-      textEmoji: textEmoji.trim(),
-      location: selectedLocation,
-      eventPeriod: period,
-      title: title.trim(),
-      description: description.trim(),
-      tagIds: tagIds,
-      filterValues: filterValues,
-      media: [
-        for (var i = 0; i < media.length; i++)
-          MarkerCreateMediaInput(
             sourceFile: media[i].previewFile!,
             settings: media[i].settings,
             imageWidth: media[i].asset.width,

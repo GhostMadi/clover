@@ -13,6 +13,7 @@ class PostCreateComposeResult {
     this.filterValues = const {},
     this.location,
     this.eventPeriod,
+    this.bookingServiceId,
   });
 
   final List<AppImageEditorResult> media;
@@ -23,6 +24,7 @@ class PostCreateComposeResult {
   final Set<String> filterValues;
   final LocationModel? location;
   final AppDateTimeRange? eventPeriod;
+  final String? bookingServiceId;
 
   DateTime? get eventTime => eventPeriod?.start;
 

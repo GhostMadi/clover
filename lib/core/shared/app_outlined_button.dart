@@ -13,6 +13,7 @@ class AppOutlinedButton extends StatefulWidget {
     this.isLoading = false,
     this.isExpanded = false,
     this.child,
+    this.service,
   });
 
   final String text;
@@ -22,6 +23,7 @@ class AppOutlinedButton extends StatefulWidget {
   final bool isLoading;
   final bool isExpanded;
   final Widget? child;
+  final AppServiceKind? service;
 
   @override
   State<AppOutlinedButton> createState() => _AppOutlinedButtonState();
@@ -58,9 +60,11 @@ class _AppOutlinedButtonState extends State<AppOutlinedButton> with SingleTicker
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final backgroundColor = _isEnabled ? colors.surface : colors.surfaceMuted;
-    final borderColor = _isEnabled ? colors.borderInput : colors.border;
-    final textColor = _isEnabled ? colors.textColor : colors.subTextColor;
+    final serviceAccent = widget.service != null ? colors.serviceAccent(widget.service!) : null;
+    final backgroundColor = _isEnabled ? (serviceAccent?.soft ?? colors.surface) : colors.surfaceMuted;
+    final borderColor = _isEnabled ? (serviceAccent?.icon ?? colors.borderInput) : colors.border;
+    final textColor = _isEnabled ? (serviceAccent?.icon ?? colors.textColor) : colors.subTextColor;
+    final loaderColor = serviceAccent?.icon ?? colors.primary;
 
     final button = AnimatedBuilder(
       animation: _jellyController.scaleAnimation,
@@ -92,7 +96,7 @@ class _AppOutlinedButtonState extends State<AppOutlinedButton> with SingleTicker
                     width: 22,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.3,
-                      valueColor: AlwaysStoppedAnimation(colors.primary),
+                      valueColor: AlwaysStoppedAnimation(loaderColor),
                     ),
                   )
                 : widget.child ??

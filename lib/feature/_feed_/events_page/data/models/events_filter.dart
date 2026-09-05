@@ -2,7 +2,7 @@ import 'package:clover/feature/_feed_/events_page/data/models/events_content_kin
 
 class EventsFilter {
   const EventsFilter({
-    this.contentKind = EventsContentKind.eventsOnly,
+    this.contentKind = EventsContentKind.all,
     this.dateFrom,
     this.dateTo,
     this.countryCode,

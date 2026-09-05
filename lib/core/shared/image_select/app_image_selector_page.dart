@@ -4,6 +4,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/post_media/post_media.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_mini_menu.dart';
+import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/app_text_button.dart';
 import 'package:clover/core/shared/image_select/models/app_image_selector_result.dart';
 import 'package:flutter/material.dart';
@@ -167,11 +168,10 @@ class _AppImageSelectorPageState extends State<AppImageSelectorPage> {
 
     if (_selectedAssets.length >= widget.maxSelectionCount) {
       HapticFeedback.lightImpact();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Можно выбрать не больше ${widget.maxSelectionCount} фото'),
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppSnackBar.show(
+        context,
+        message: 'Можно выбрать не больше ${widget.maxSelectionCount} фото',
+        kind: AppSnackBarKind.info,
       );
       return;
     }

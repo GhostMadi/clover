@@ -129,7 +129,9 @@ class _AppFunctionalButtonsState extends State<AppFunctionalButtons> {
                       child: AnimatedPadding(
                         duration: _animationDuration,
                         curve: _animationCurve,
-                        padding: EdgeInsets.all(button.customColor != null ? 2 : 6),
+                        padding: EdgeInsets.all(
+                          button.customColor != null || button.borderColor != null ? 2 : 6,
+                        ),
                         child: _FunctionalButtonTab(
                           button: button,
                           indicatorRadius: context.widthByContext(_figmaIndicatorRadius),
@@ -206,6 +208,7 @@ class _FunctionalButtonTabState extends State<_FunctionalButtonTab> with SingleT
   Widget build(BuildContext context) {
     final colors = context.colors;
     final bool hasCustomColor = widget.button.customColor != null;
+    final bool hasBorder = widget.button.borderColor != null;
 
     final Color contentColor = hasCustomColor ? colors.textInverse : colors.textColor;
 
@@ -218,13 +221,20 @@ class _FunctionalButtonTabState extends State<_FunctionalButtonTab> with SingleT
         data: Theme.of(context).copyWith(materialTapTargetSize: MaterialTapTargetSize.shrinkWrap),
         child: Material(
           color: widget.button.customColor ?? Colors.transparent,
-          borderRadius: BorderRadius.circular(widget.indicatorRadius),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(widget.indicatorRadius),
+            side: hasBorder
+                ? BorderSide(color: widget.button.borderColor!, width: 1.5)
+                : BorderSide.none,
+          ),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: widget.button.isLoading ? null : _handleTap,
             borderRadius: BorderRadius.circular(widget.indicatorRadius),
-            splashColor: (widget.button.customColor ?? colors.primary).withValues(alpha: 0.12),
-            highlightColor: (widget.button.customColor ?? colors.primary).withValues(alpha: 0.06),
+            splashColor: (widget.button.borderColor ?? widget.button.customColor ?? colors.primary)
+                .withValues(alpha: 0.12),
+            highlightColor: (widget.button.borderColor ?? widget.button.customColor ?? colors.primary)
+                .withValues(alpha: 0.06),
             child: SizedBox.expand(
               child: FittedBox(
                 fit: BoxFit.scaleDown,

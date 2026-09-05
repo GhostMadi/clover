@@ -24,6 +24,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.borderInput,
     required this.borderCardGreen,
     required this.borderCardBlue,
+    required this.borderCardYellow,
     required this.divider,
     required this.textColor,
     required this.subTextColor,
@@ -39,6 +40,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.functionalSoftBlueIcon,
     required this.functionalSoftOrange,
     required this.functionalSoftOrangeIcon,
+    required this.functionalSoftYellow,
+    required this.functionalSoftYellowIcon,
     required this.functionalSoftRed,
     required this.functionalSoftRedIcon,
     required this.borderCardRed,
@@ -73,6 +76,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color borderInput;
   final Color borderCardGreen;
   final Color borderCardBlue;
+  final Color borderCardYellow;
   final Color divider;
 
   final Color textColor;
@@ -91,6 +95,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color functionalSoftBlueIcon;
   final Color functionalSoftOrange;
   final Color functionalSoftOrangeIcon;
+  final Color functionalSoftYellow;
+  final Color functionalSoftYellowIcon;
   final Color functionalSoftRed;
   final Color functionalSoftRedIcon;
   final Color borderCardRed;
@@ -136,8 +142,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
   Color get postEditorOnSurfaceHint => borderSoft;
   Color get postEditorSliderOverlay => primary.withValues(alpha: 0.14);
 
-  Color get shimmerBase =>
-      brightness == Brightness.dark ? const Color(0xFF2C2C2E) : const Color(0xFFC8C8CC);
+  Color get shimmerBase => brightness == Brightness.dark ? const Color(0xFF2C2C2E) : const Color(0xFFC8C8CC);
 
   Color get shimmerHighlight =>
       brightness == Brightness.dark ? const Color(0xFF3A3A3C) : const Color(0xFFF4F4F6);
@@ -162,6 +167,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     borderInput: Color(0xFFE0E0E0),
     borderCardGreen: Color(0xFFE0EBD2),
     borderCardBlue: Color(0xFFC8DDF5),
+    borderCardYellow: Color(0xFFE8D96A),
     divider: Color(0xFFEEEEEE),
     textColor: Color(0xFF1A1D1E),
     subTextColor: Color(0xFF6A6A6A),
@@ -177,6 +183,9 @@ class AppPalette extends ThemeExtension<AppPalette> {
     functionalSoftBlueIcon: Color(0xFF5B9BD5),
     functionalSoftOrange: Color(0xFFFFF3E0),
     functionalSoftOrangeIcon: Color(0xFFE65100),
+    /// Запись / ожидание — мягкий жёлтый (верхний левый в палитре сервиса).
+    functionalSoftYellow: Color(0xFFFDF08B),
+    functionalSoftYellowIcon: Color(0xFF9A7B00),
     functionalSoftRed: Color(0xFFFFEBEE),
     functionalSoftRedIcon: Color(0xFFE57373),
     borderCardRed: Color(0xFFF5C6CB),
@@ -208,6 +217,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     borderInput: Color(0xFF333333),
     borderCardGreen: Color(0xFF2C3A24),
     borderCardBlue: Color(0xFF243044),
+    borderCardYellow: Color(0xFF3A3518),
     divider: Color(0xFF2A2A2A),
     textColor: Color(0xFFF2F2F2),
     subTextColor: Color(0xFFA3A3A3),
@@ -223,6 +233,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     functionalSoftBlueIcon: Color(0xFF7EB6E0),
     functionalSoftOrange: Color(0xFF2A1E12),
     functionalSoftOrangeIcon: Color(0xFFFFB74D),
+    functionalSoftYellow: Color(0xFF2E2A14),
+    functionalSoftYellowIcon: Color(0xFFFDF08B),
     functionalSoftRed: Color(0xFF2A1518),
     functionalSoftRedIcon: Color(0xFFEF9A9A),
     borderCardRed: Color(0xFF4A2A2E),
@@ -254,6 +266,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? borderInput,
     Color? borderCardGreen,
     Color? borderCardBlue,
+    Color? borderCardYellow,
     Color? divider,
     Color? textColor,
     Color? subTextColor,
@@ -269,6 +282,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? functionalSoftBlueIcon,
     Color? functionalSoftOrange,
     Color? functionalSoftOrangeIcon,
+    Color? functionalSoftYellow,
+    Color? functionalSoftYellowIcon,
     Color? functionalSoftRed,
     Color? functionalSoftRedIcon,
     Color? borderCardRed,
@@ -298,6 +313,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       borderInput: borderInput ?? this.borderInput,
       borderCardGreen: borderCardGreen ?? this.borderCardGreen,
       borderCardBlue: borderCardBlue ?? this.borderCardBlue,
+      borderCardYellow: borderCardYellow ?? this.borderCardYellow,
       divider: divider ?? this.divider,
       textColor: textColor ?? this.textColor,
       subTextColor: subTextColor ?? this.subTextColor,
@@ -313,6 +329,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       functionalSoftBlueIcon: functionalSoftBlueIcon ?? this.functionalSoftBlueIcon,
       functionalSoftOrange: functionalSoftOrange ?? this.functionalSoftOrange,
       functionalSoftOrangeIcon: functionalSoftOrangeIcon ?? this.functionalSoftOrangeIcon,
+      functionalSoftYellow: functionalSoftYellow ?? this.functionalSoftYellow,
+      functionalSoftYellowIcon: functionalSoftYellowIcon ?? this.functionalSoftYellowIcon,
       functionalSoftRed: functionalSoftRed ?? this.functionalSoftRed,
       functionalSoftRedIcon: functionalSoftRedIcon ?? this.functionalSoftRedIcon,
       borderCardRed: borderCardRed ?? this.borderCardRed,
@@ -352,6 +370,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       borderInput: c(borderInput, other.borderInput),
       borderCardGreen: c(borderCardGreen, other.borderCardGreen),
       borderCardBlue: c(borderCardBlue, other.borderCardBlue),
+      borderCardYellow: c(borderCardYellow, other.borderCardYellow),
       divider: c(divider, other.divider),
       textColor: c(textColor, other.textColor),
       subTextColor: c(subTextColor, other.subTextColor),
@@ -367,6 +386,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       functionalSoftBlueIcon: c(functionalSoftBlueIcon, other.functionalSoftBlueIcon),
       functionalSoftOrange: c(functionalSoftOrange, other.functionalSoftOrange),
       functionalSoftOrangeIcon: c(functionalSoftOrangeIcon, other.functionalSoftOrangeIcon),
+      functionalSoftYellow: c(functionalSoftYellow, other.functionalSoftYellow),
+      functionalSoftYellowIcon: c(functionalSoftYellowIcon, other.functionalSoftYellowIcon),
       functionalSoftRed: c(functionalSoftRed, other.functionalSoftRed),
       functionalSoftRedIcon: c(functionalSoftRedIcon, other.functionalSoftRedIcon),
       borderCardRed: c(borderCardRed, other.borderCardRed),

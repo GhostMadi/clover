@@ -31,7 +31,8 @@ class _NotificationTileState extends State<NotificationTile> {
   @override
   void didUpdateWidget(covariant NotificationTile oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.item.id != widget.item.id) {
+    if (oldWidget.item.id != widget.item.id ||
+        oldWidget.item.isFollowingActor != widget.item.isFollowingActor) {
       _isFollowing = widget.item.isFollowingActor;
     }
   }
@@ -128,6 +129,81 @@ class _NotificationTileState extends State<NotificationTile> {
           : _reactionMessage(actorsLabel, 'прокомментировал(а)', 'ваш пост', bold, regular),
       NotificationKind.commentLike => _reactionMessage(actorsLabel, 'лайкнули', 'ваш комментарий', bold, regular),
       NotificationKind.commentDislike => _reactionMessage(actorsLabel, 'дизлайкнули', 'ваш комментарий', bold, regular),
+      NotificationKind.bookingCreatedHost => [
+        bold(actorsLabel),
+        regular(' записался(-ась): ${_serviceLabel(item)}${_whenSuffix(item)}'),
+      ],
+      NotificationKind.bookingBookedClient => [
+        regular('Вы записаны: '),
+        bold(_serviceLabel(item)),
+        regular(_whenSuffix(item)),
+      ],
+      NotificationKind.bookingReminderClient => [
+        regular(_reminderLead(item)),
+        bold(_serviceLabel(item)),
+        regular(' у ${_hostLabel(item)}${_whenSuffix(item)}'),
+      ],
+      NotificationKind.bookingVisitStarted => [
+        regular('Сейчас визит — '),
+        bold(_serviceLabel(item)),
+        regular('${_whenSuffix(item)}. Отметьте, пришёл ли клиент'),
+      ],
+      NotificationKind.bookingVisitNeedsClose => [
+        regular('Закройте визит — '),
+        bold(_serviceLabel(item)),
+        regular('${_whenSuffix(item)}'),
+      ],
+      NotificationKind.bookingCancelledHost => [
+        bold(actorsLabel),
+        regular(' отменил(а) запись: ${_serviceLabel(item)}${_whenSuffix(item)}'),
+      ],
+      NotificationKind.bookingCancelledClient => [
+        bold(actorsLabel),
+        regular(' отменил(а) вашу запись: ${_serviceLabel(item)}${_whenSuffix(item)}'),
+      ],
+      NotificationKind.bookingCompletedClient => [
+        regular('Визит завершён: '),
+        bold(_serviceLabel(item)),
+        if (item.bonusEarnAmount case final bonus?) regular(' · +$bonus бонусов') else regular(''),
+      ],
+      NotificationKind.bookingNoShowClient => [
+        regular('Визит отмечен как «не пришёл»: '),
+        bold(_serviceLabel(item)),
+        regular(_whenSuffix(item)),
+      ],
+    };
+  }
+
+  String _serviceLabel(NotificationItem item) {
+    final title = item.bookingServiceTitle?.trim();
+    if (title != null && title.isNotEmpty) return title;
+    return 'запись';
+  }
+
+  String _whenSuffix(NotificationItem item) {
+    final when = item.bookingStartsAt;
+    if (when == null) return '';
+    final time =
+        '${when.day.toString().padLeft(2, '0')}.${when.month.toString().padLeft(2, '0')} ${when.hour.toString().padLeft(2, '0')}:${when.minute.toString().padLeft(2, '0')}';
+    return ', $time';
+  }
+
+  String _hostLabel(NotificationItem item) {
+    if (item.actors.isNotEmpty) return item.actors.first.displayName;
+    return 'мастера';
+  }
+
+  String _reminderLead(NotificationItem item) {
+    final minutes = item.bookingReminderMinutesBefore;
+    return switch (minutes) {
+      1440 => 'Завтра запись: ',
+      180 => 'Через 3 часа: ',
+      120 => 'Через 2 часа: ',
+      60 => 'Через час: ',
+      30 => 'Через 30 мин: ',
+      15 => 'Через 15 мин: ',
+      final m? when m > 0 => 'Через $m мин: ',
+      _ => 'Напоминание: ',
     };
   }
 

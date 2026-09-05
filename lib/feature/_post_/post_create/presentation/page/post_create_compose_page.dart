@@ -22,10 +22,13 @@ import 'package:clover/feature/_post_/post_create/extension/post_create_router_e
 import 'package:clover/feature/_post_/post_create/model/post_create_compose_result.dart';
 import 'package:clover/feature/_post_/post_create/post_create_flow.dart';
 import 'package:clover/feature/_post_/post_create/presentation/cubit/post_create_upload_cubit.dart';
+import 'package:clover/feature/_post_/post_create/presentation/widget/post_create_booking_service_field.dart';
 import 'package:clover/feature/_post_/post_create/presentation/widget/post_create_step_guard.dart';
 import 'package:clover/feature/_settings_/settings_filter/presentation/create/widget/post_create_filter_field.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Финальный шаг: превью + поля публикации и маркера на карте.
 @RoutePage()
@@ -57,8 +60,21 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
   Set<String> _selectedTagIds = const {};
   Set<String> _selectedFilterValues = const {};
   AppDateTimeRange? _eventPeriod;
+  String? _selectedBookingServiceId;
 
   late final List<AppImageEditorResult> _media = List.unmodifiable(PostCreateFlow.instance.draft.editedMedia);
+
+  @override
+  void initState() {
+    super.initState();
+    final profileCubit = sl<ProfileCubit>();
+    profileCubit.state.when(
+      initial: () => profileCubit.load(),
+      loading: () {},
+      loaded: (_) {},
+      error: (_) => profileCubit.load(),
+    );
+  }
 
   @override
   void dispose() {
@@ -79,6 +95,7 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
         filterValues: _selectedFilterValues,
         location: _selectedLocation,
         eventPeriod: _eventPeriod,
+        bookingServiceId: _selectedBookingServiceId,
       );
 
   bool get _isEventMode => _eventPeriod != null;
@@ -230,6 +247,26 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
                           onChanged: (ids) => setState(() => _selectedTagIds = ids),
                         ),
                         SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
+                        BlocBuilder<ProfileCubit, ProfileState>(
+                          bloc: sl<ProfileCubit>(),
+                          builder: (context, profileState) {
+                            final hasBookingTag =
+                                profileState.mapOrNull(loaded: (s) => s.profile.hasBookingTag) ?? false;
+                            if (!hasBookingTag) return const SizedBox.shrink();
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                PostCreateBookingServiceField(
+                                  value: _selectedBookingServiceId,
+                                  enabled: !_isPublishing,
+                                  onChanged: (id) => setState(() => _selectedBookingServiceId = id),
+                                ),
+                                SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
+                              ],
+                            );
+                          },
+                        ),
                         LocationSingleSelectField(
                           label: 'Местоположение',
                           hint: 'Выберите местоположение',

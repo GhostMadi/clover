@@ -29,6 +29,8 @@
 | `../20260726120301_booking_visit_status_functions.sql` | `booking_status_blocks_slot()`; visit-flow в `update_booking_status`. |
 | `../20260730200000_booking_no_show_enum.sql` | Enum `no_show`, `auto_closed`, колонка `no_show_at`. |
 | `../20260730200001_booking_host_freedom.sql` | Свобода Host (cancel/complete/no_show), auto-close cron, `reschedule_booking`. |
+| `../20260830160000_booking_create_confirmed_instant.sql` | `create_booking` → сразу `confirmed` + `confirmed_at`. |
+| `../20260830170000_posts_booking_service_link.sql` | `posts.booking_service_id`, `set_post_booking_service`, enriched `booking_service` в `get_post_enriched`. |
 
 ### Таблицы
 
@@ -67,7 +69,7 @@ WHERE (public.booking_status_blocks_slot(status));
 
 #### `create_booking(host_id, service_id, staff_id, starts_at, participants?, notes?) → uuid`
 
-Единственная точка создания записи. Status = `pending`. Пишет `booking_history`.
+Единственная точка создания записи. Status = **`confirmed`** (instant booking), `confirmed_at = now()`. Пишет `booking_history` с `new_status = confirmed`. Legacy `pending` (если есть) — во вкладке «Предстоящие», не отдельным табом.
 
 #### `get_booking_availability(host_id, service_id, staff_id, day) → jsonb`
 
@@ -131,5 +133,5 @@ psql "$DATABASE_URL" -f supabase/scripts/verify_booking_rpcs.sql
 
 ### Backlog (не v1)
 
-- `booking_notifications` — in-app/push при смене статуса
+- Push / client reminder — in-app v1 уже в `notifications`; см. [SPEC_IN_APP_NOTIFICATIONS.md](../../docs/supabase/SPEC_IN_APP_NOTIFICATIONS.md)
 - `create_booking_review` RPC + UI отзывов
