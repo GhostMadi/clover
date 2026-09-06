@@ -52,7 +52,9 @@ jobs:
           security list-keychains -s $KEYCHAIN_PATH
 
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          PP_UUID=$(security cms -D -i "$PP_PATH" | /usr/libexec/PlistBuddy -c 'Print UUID' /dev/stdin)
+          PP_PLIST=$RUNNER_TEMP/pp.plist
+          security cms -D -i "$PP_PATH" > "$PP_PLIST"
+          PP_UUID=$(/usr/libexec/PlistBuddy -c 'Print UUID' "$PP_PLIST")
           cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PP_UUID.mobileprovision"
 
       - name: Build IPA
