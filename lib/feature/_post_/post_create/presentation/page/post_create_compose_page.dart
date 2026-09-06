@@ -5,7 +5,6 @@ import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_smile_picker.dart';
 import 'package:clover/core/shared/app_text_button.dart';
@@ -165,144 +164,124 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: SafeArea(
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(
-                      horizontal,
-                      context.heightByContext(12),
-                      horizontal,
-                      context.heightByContext(24),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        AspectRatio(
-                          aspectRatio: _media.previewAspectRatioAt(_previewIndex),
-                          child: PageView.builder(
-                            controller: _previewController,
-                            itemCount: _media.length,
-                            onPageChanged: (index) => setState(() => _previewIndex = index),
-                            itemBuilder: (context, index) {
-                              final item = _media[index];
-                              final file = item.previewFile!;
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                horizontal,
+                context.heightByContext(12),
+                horizontal,
+                context.heightByContext(24),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AspectRatio(
+                    aspectRatio: _media.previewAspectRatioAt(_previewIndex),
+                    child: PageView.builder(
+                      controller: _previewController,
+                      itemCount: _media.length,
+                      onPageChanged: (index) => setState(() => _previewIndex = index),
+                      itemBuilder: (context, index) {
+                        final item = _media[index];
+                        final file = item.previewFile!;
 
-                              return AppImageEditPreview(
-                                imageFile: file,
-                                settings: item.settings,
-                                imageWidth: item.asset.width,
-                                imageHeight: item.asset.height,
-                                borderRadius: context.widthByContext(PostCreateComposePage._figmaPreviewRadius),
-                                backgroundColor: context.colors.surfaceSoft,
-                              );
-                            },
+                        return AppImageEditPreview(
+                          imageFile: file,
+                          settings: item.settings,
+                          imageWidth: item.asset.width,
+                          imageHeight: item.asset.height,
+                          borderRadius: context.widthByContext(PostCreateComposePage._figmaPreviewRadius),
+                          backgroundColor: context.colors.surfaceSoft,
+                        );
+                      },
+                    ),
+                  ),
+                  if (_media.length > 1) ...[
+                    SizedBox(height: context.heightByContext(10)),
+                    _PreviewDots(count: _media.length, activeIndex: _previewIndex),
+                  ],
+                  SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
+                  AppField(
+                    controller: _titleController,
+                    labelText: 'Заголовок',
+                    hintText: 'Добавьте заголовок',
+                    textInputAction: TextInputAction.next,
+                    isEnabled: !_isPublishing,
+                    onChanged: (_) => setState(() {}),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(PostCreateComposePage._titleMaxLength),
+                    ],
+                  ),
+                  SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
+                  _DescriptionField(
+                    controller: _descriptionController,
+                    focusNode: _descriptionFocus,
+                    maxLength: PostCreateComposePage._descriptionMaxLength,
+                    enabled: !_isPublishing,
+                    onChanged: (_) => setState(() {}),
+                  ),
+                  SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
+                  PostCreateFilterField(
+                    values: _selectedFilterValues,
+                    enabled: !_isPublishing,
+                    onChanged: (values) => setState(() => _selectedFilterValues = values),
+                  ),
+                  SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
+                  AppSmilePicker(
+                    controller: _textEmojiController,
+                    label: 'Эмодзи',
+                    hintText: 'Добавьте эмодзи',
+                    maxLength: PostCreateComposePage._textEmojiMaxLength,
+                    enabled: !_isPublishing,
+                    onChanged: (_) => setState(() {}),
+                  ),
+                  SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
+                  MultiMarkerTags(
+                    label: 'Теги',
+                    hint: 'Выберите теги',
+                    values: _selectedTagIds,
+                    enabled: !_isPublishing,
+                    onChanged: (ids) => setState(() => _selectedTagIds = ids),
+                  ),
+                  SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
+                  BlocBuilder<ProfileCubit, ProfileState>(
+                    bloc: sl<ProfileCubit>(),
+                    builder: (context, profileState) {
+                      final hasBookingTag =
+                          profileState.mapOrNull(loaded: (s) => s.profile.hasBookingTag) ?? false;
+                      if (!hasBookingTag) return const SizedBox.shrink();
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          PostCreateBookingServiceField(
+                            value: _selectedBookingServiceId,
+                            enabled: !_isPublishing,
+                            onChanged: (id) => setState(() => _selectedBookingServiceId = id),
                           ),
-                        ),
-                        if (_media.length > 1) ...[
-                          SizedBox(height: context.heightByContext(10)),
-                          _PreviewDots(count: _media.length, activeIndex: _previewIndex),
+                          SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
                         ],
-                        SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
-                        AppField(
-                          controller: _titleController,
-                          labelText: 'Заголовок',
-                          hintText: 'Добавьте заголовок',
-                          textInputAction: TextInputAction.next,
-                          isEnabled: !_isPublishing,
-                          onChanged: (_) => setState(() {}),
-                          inputFormatters: [
-                            LengthLimitingTextInputFormatter(PostCreateComposePage._titleMaxLength),
-                          ],
-                        ),
-                        SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
-                        _DescriptionField(
-                          controller: _descriptionController,
-                          focusNode: _descriptionFocus,
-                          maxLength: PostCreateComposePage._descriptionMaxLength,
-                          enabled: !_isPublishing,
-                          onChanged: (_) => setState(() {}),
-                        ),
-                        SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
-                        PostCreateFilterField(
-                          values: _selectedFilterValues,
-                          enabled: !_isPublishing,
-                          onChanged: (values) => setState(() => _selectedFilterValues = values),
-                        ),
-                        SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
-                        AppSmilePicker(
-                          controller: _textEmojiController,
-                          label: 'Эмодзи',
-                          hintText: 'Добавьте эмодзи',
-                          maxLength: PostCreateComposePage._textEmojiMaxLength,
-                          enabled: !_isPublishing,
-                          onChanged: (_) => setState(() {}),
-                        ),
-                        SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
-                        MultiMarkerTags(
-                          label: 'Теги',
-                          hint: 'Выберите теги',
-                          values: _selectedTagIds,
-                          enabled: !_isPublishing,
-                          onChanged: (ids) => setState(() => _selectedTagIds = ids),
-                        ),
-                        SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
-                        BlocBuilder<ProfileCubit, ProfileState>(
-                          bloc: sl<ProfileCubit>(),
-                          builder: (context, profileState) {
-                            final hasBookingTag =
-                                profileState.mapOrNull(loaded: (s) => s.profile.hasBookingTag) ?? false;
-                            if (!hasBookingTag) return const SizedBox.shrink();
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                PostCreateBookingServiceField(
-                                  value: _selectedBookingServiceId,
-                                  enabled: !_isPublishing,
-                                  onChanged: (id) => setState(() => _selectedBookingServiceId = id),
-                                ),
-                                SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
-                              ],
-                            );
-                          },
-                        ),
-                        LocationSingleSelectField(
-                          label: 'Местоположение',
-                          hint: 'Выберите местоположение',
-                          value: _selectedLocation?.id,
-                          enabled: !_isPublishing,
-                          onChanged: (location) => setState(() => _selectedLocation = location),
-                        ),
-                        SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
-                        AppTimePicker(
-                          label: 'Период события',
-                          hint: _isEventMode
-                              ? 'Ивент на карте — укажите начало и конец'
-                              : 'Необязательно — без периода обычная публикация',
-                          value: _eventPeriod,
-                          enabled: !_isPublishing,
-                          onChanged: (range) => setState(() => _eventPeriod = range),
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    horizontal,
-                    0,
-                    horizontal,
-                    context.heightByContext(16) + MediaQuery.paddingOf(context).bottom,
+                  LocationSingleSelectField(
+                    label: 'Местоположение',
+                    hint: 'Выберите местоположение',
+                    value: _selectedLocation?.id,
+                    enabled: !_isPublishing,
+                    onChanged: (location) => setState(() => _selectedLocation = location),
                   ),
-                  child: AppButton(
-                    text: 'Опубликовать',
-                    onTap: _canPublish ? _handlePublish : null,
-                    isLoading: _isPublishing,
-                    isExpanded: true,
+                  SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
+                  AppTimePicker(
+                    label: 'Период события',
+                    hint: _isEventMode
+                        ? 'Ивент на карте — укажите начало и конец'
+                        : 'Необязательно — без периода обычная публикация',
+                    value: _eventPeriod,
+                    enabled: !_isPublishing,
+                    onChanged: (range) => setState(() => _eventPeriod = range),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

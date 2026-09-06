@@ -6,6 +6,7 @@ import 'package:clover/feature/_booking_/booking_create/data/models/booking_serv
 import 'package:clover/feature/_booking_/booking_create/presentation/cubit/booking_services_cubit.dart';
 import 'package:clover/feature/_booking_/booking_create/presentation/widget/booking_service_card.dart';
 import 'package:clover/feature/_booking_/booking_create/presentation/widget/booking_services_empty_state.dart';
+import 'package:clover/feature/_booking_/booking_create/presentation/widget/booking_services_qa_checklist.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -74,8 +75,10 @@ class _BookingCreatePageState extends State<BookingCreatePage> {
                   onRefresh: _cubit.refresh,
                   child: ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, BookingScreenShell.scrollBottomGap(context)),
                     children: [
-                      SizedBox(height: MediaQuery.sizeOf(context).height * 0.2),
+                      const BookingServicesQaChecklist(),
+                      SizedBox(height: MediaQuery.sizeOf(context).height * 0.12),
                       const BookingServicesEmptyState(),
                     ],
                   ),
@@ -87,13 +90,13 @@ class _BookingCreatePageState extends State<BookingCreatePage> {
                 child: ListView.separated(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsets.fromLTRB(16, 8, 16, BookingScreenShell.scrollBottomGap(context)),
-                  itemCount: items.isEmpty ? 1 : items.length,
+                  itemCount: items.length + 1,
                   separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
-                    if (items.isEmpty) {
-                      return SizedBox(height: MediaQuery.sizeOf(context).height * 0.35);
+                    if (index == 0) {
+                      return const BookingServicesQaChecklist();
                     }
-                    final service = items[index];
+                    final service = items[index - 1];
                     final executors = [
                       for (final id in service.executorIds)
                         if (staffById[id] != null) staffById[id]!,

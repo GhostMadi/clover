@@ -36,7 +36,11 @@ class ProfileActiveFiltersRow extends StatelessWidget {
             onTap: onClear,
             child: Text(
               'Сбросить',
-              style: AppTextStyle.base(12, color: context.colors.primary, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(
+                12,
+                color: context.colors.serviceAccent(kResourcesService).icon,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],

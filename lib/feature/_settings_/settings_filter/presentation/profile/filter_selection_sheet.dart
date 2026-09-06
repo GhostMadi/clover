@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_multi_selector.dart';
 import 'package:clover/feature/_settings_/settings_filter/data/catalog/filter_catalog.dart';
 import 'package:clover/feature/_settings_/settings_filter/data/models/filter_category.dart';
@@ -18,6 +19,7 @@ abstract final class FilterSelectionSheet {
       selected: selected,
       searchHint: 'Поиск по фильтрам',
       confirmLabel: 'Применить',
+      service: kResourcesService,
     );
   }
 }

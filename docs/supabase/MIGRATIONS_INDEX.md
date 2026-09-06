@@ -136,6 +136,7 @@
 | `20260906020000_booking_push_client_reschedule_attendance_duty_folders.sql` | Booking → `push_outbox`; client reschedule; attendance `duty_only_punch` + folders bootstrap. |
 | `20260906111000_drop_booking_reviews.sql` | Drop unused `booking_reviews` (no in-app reviews). |
 | `20260906120000_replace_booking_staff_absences.sql` | Atomic `replace_booking_staff_absences(jsonb)` — host absences in one txn. |
+| `20260906140000_fix_upsert_notification_overload.sql` | Drop ambiguous 7-arg `upsert_notification` (likes 400 on `set_post_reaction`). |
 
 ### Attendance (посещаемость) — ядро
 

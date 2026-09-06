@@ -180,6 +180,7 @@ class AppMultiSelect<T> extends StatelessWidget {
     Set<T> selected = const {},
     String searchHint = 'Поиск',
     String confirmLabel = 'Готово',
+    AppServiceKind? service,
   }) async {
     assert(groups.isNotEmpty || options.isNotEmpty, 'Provide options or groups');
 
@@ -190,12 +191,14 @@ class AppMultiSelect<T> extends StatelessWidget {
       showCloseButton: true,
       contentHeight: _contentHeight(context),
       contentBottomSpacing: 12,
+      service: service,
       content: AppMultiSelectSheetContent<T>(
         searchHint: searchHint,
         options: groups.isNotEmpty ? const [] : options,
         groups: groups,
         selected: selected,
         confirmLabel: confirmLabel,
+        service: service,
       ),
     );
   }
@@ -210,6 +213,7 @@ class AppMultiSelectSheetContent<T> extends StatefulWidget {
     required this.groups,
     required this.selected,
     required this.confirmLabel,
+    this.service,
   });
 
   final String searchHint;
@@ -217,6 +221,7 @@ class AppMultiSelectSheetContent<T> extends StatefulWidget {
   final List<AppMultiSelectGroup<T>> groups;
   final Set<T> selected;
   final String confirmLabel;
+  final AppServiceKind? service;
 
   @override
   State<AppMultiSelectSheetContent<T>> createState() => _AppMultiSelectSheetContentState<T>();
@@ -286,6 +291,9 @@ class _AppMultiSelectSheetContentState<T> extends State<AppMultiSelectSheetConte
 
   Widget _optionTile(AppMultiSelectOption<T> option, AppPalette colors) {
     final isSelected = _selected.contains(option.value);
+    final checkColor = widget.service != null
+        ? colors.serviceAccent(widget.service!).icon
+        : colors.btnBackground;
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 4),
       title: Text(
@@ -296,7 +304,7 @@ class _AppMultiSelectSheetContentState<T> extends State<AppMultiSelectSheetConte
           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
         ),
       ),
-      trailing: isSelected ? Icon(AppIcons.checkRounded.icon, color: colors.btnBackground, size: 22) : null,
+      trailing: isSelected ? Icon(AppIcons.checkRounded.icon, color: checkColor, size: 22) : null,
       onTap: () => _toggle(option.value),
     );
   }
@@ -369,7 +377,12 @@ class _AppMultiSelectSheetContentState<T> extends State<AppMultiSelectSheetConte
                 ),
         ),
         const SizedBox(height: 8),
-        AppButton(text: widget.confirmLabel, isExpanded: true, onTap: _confirm),
+        AppButton(
+          text: widget.confirmLabel,
+          isExpanded: true,
+          service: widget.service,
+          onTap: _confirm,
+        ),
         const SizedBox(height: 12),
       ],
     );
