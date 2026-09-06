@@ -8,6 +8,11 @@
 	<string>TD97J996Q4</string>
 	<key>signingStyle</key>
 	<string>manual</string>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>clover.mobile.com</key>
+		<string>clover_appstore</string>
+	</dict>
 	<key>uploadSymbols</key>
 	<true/>
 	<key>manageAppVersionAndBuildNumber</key>

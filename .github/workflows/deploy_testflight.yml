@@ -58,7 +58,9 @@ jobs:
           cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PP_UUID.mobileprovision"
 
       - name: Build IPA
-        run: flutter build ipa --release --export-options-plist=ios/Runner/ExportOptions.plist
+        run: |
+          flutter build ipa --release \
+            --export-options-plist=ios/Runner/ExportOptions.plist
 
       - name: Upload to TestFlight
         env:
