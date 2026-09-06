@@ -34,15 +34,22 @@ class LocationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = context.colors.serviceAccent(kResourcesService);
+
     return BlocProvider(
       create: (_) => sl<LocationCubit>()..load(),
       child: SettingsScreenShell(
         title: 'Местоположения',
+        service: kResourcesService,
         body: BlocBuilder<LocationCubit, LocationState>(
           builder: (context, state) {
             return state.when(
-              initial: () => const Center(child: CircularProgressIndicator()),
-              loading: () => const Center(child: CircularProgressIndicator()),
+              initial: () => Center(
+                child: CircularProgressIndicator(color: accent.icon),
+              ),
+              loading: () => Center(
+                child: CircularProgressIndicator(color: accent.icon),
+              ),
               error: (message) => AppRefresh(
                 onRefresh: () => context.read<LocationCubit>().load(),
                 child: SingleChildScrollView(
@@ -72,8 +79,8 @@ class LocationPage extends StatelessWidget {
                               title: 'Добавить',
                               subtitle: 'Новое местоположение',
                               icon: AppIcons.addRounded.icon,
-                              iconColor: context.colors.primary,
-                              iconBackgroundColor: context.colors.primary.withValues(alpha: 0.12),
+                              iconColor: accent.icon,
+                              iconBackgroundColor: accent.soft,
                               showChevron: true,
                               onTap: () => _openCreate(context, cubit),
                             ),
@@ -100,7 +107,8 @@ class LocationPage extends StatelessWidget {
                                       ? item.displaySubtitle
                                       : '${item.displaySubtitle} · неактивно',
                                   icon: AppIcons.locationOn.icon,
-                                  iconColor: item.hasGeoBinding ? context.colors.primary : context.colors.iconMuted,
+                                  iconColor: item.hasGeoBinding ? accent.icon : context.colors.iconMuted,
+                                  iconBackgroundColor: item.hasGeoBinding ? accent.soft : null,
                                   enabled: item.isActive,
                                   showChevron: true,
                                   onTap: item.isActive ? () => _openDetail(context, cubit, item) : null,

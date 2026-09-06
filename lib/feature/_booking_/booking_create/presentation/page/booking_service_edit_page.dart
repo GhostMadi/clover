@@ -5,7 +5,6 @@ import 'package:clover/feature/_booking_/booking_create/data/models/booking_exec
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_draft.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
-import 'package:clover/feature/_booking_/booking_create/data/repository/booking_staff_repository.dart';
 import 'package:clover/feature/_booking_/booking_create/presentation/cubit/booking_service_editor_cubit.dart';
 import 'package:clover/feature/_booking_/booking_create/presentation/widget/booking_service_form.dart';
 import 'package:clover/feature/_booking_/booking_create/presentation/widget/booking_staff_profile_search_sheet.dart';
@@ -26,7 +25,6 @@ class BookingServiceEditPage extends StatefulWidget {
 
 class _BookingServiceEditPageState extends State<BookingServiceEditPage> {
   late final BookingServiceEditorCubit _cubit;
-  late final BookingStaffRepository _staffRepository;
   late final TextEditingController _titleController;
   late final TextEditingController _durationController;
   late final TextEditingController _emojiController;
@@ -44,7 +42,6 @@ class _BookingServiceEditPageState extends State<BookingServiceEditPage> {
   void initState() {
     super.initState();
     _cubit = sl<BookingServiceEditorCubit>()..loadStaff();
-    _staffRepository = sl<BookingStaffRepository>();
     _draft = BookingServiceDraft.fromService(widget.service);
     _titleController = TextEditingController(text: _draft.title);
     _durationController = TextEditingController(text: '${_draft.durationMinutes}');
@@ -124,7 +121,6 @@ class _BookingServiceEditPageState extends State<BookingServiceEditPage> {
   Future<void> _addExecutor() async {
     final profile = await BookingStaffProfileSearchSheet.show(
       context,
-      repository: _staffRepository,
       excludeProfileIds: _excludeProfileIds(),
     );
     if (profile == null || !mounted) return;

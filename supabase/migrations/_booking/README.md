@@ -45,7 +45,7 @@
 | `booking_blocked_slots` | Ручная блокировка времени (обед, совещание) |
 | `bookings` | Записи клиентов + снапшоты услуги |
 | `booking_history` | Аудит created / status_changed |
-| `booking_reviews` | Отзывы (schema v1; RPC/UI — позже) |
+| `booking_history` | Аудит смены статуса |
 
 ### Защита от double-booking
 
@@ -61,7 +61,7 @@ WHERE (public.booking_status_blocks_slot(status));
 
 **Client:** отмена только `pending`/`confirmed` до `starts_at - client_cancel_hours_before` (настройка host-а).
 
-**Auto-close:** cron `booking_auto_close_stale_visits` — `pending`/`confirmed` через N часов после `ends_at` → `completed` или `no_show` (настройка host-а).
+**Auto-close:** cron `booking_auto_close_stale_visits` — только `pending`/`confirmed` через N часов после `ends_at` → **`no_show`**. **`completed` никогда автоматом** (только host). `auto_close_hours_after_visit = 0` → выкл.
 
 Тот же паттерн на `booking_blocked_slots`.
 
@@ -134,4 +134,4 @@ psql "$DATABASE_URL" -f supabase/scripts/verify_booking_rpcs.sql
 ### Backlog (не v1)
 
 - Push / client reminder — in-app v1 уже в `notifications`; см. [SPEC_IN_APP_NOTIFICATIONS.md](../../docs/supabase/SPEC_IN_APP_NOTIFICATIONS.md)
-- `create_booking_review` RPC + UI отзывов
+- `create_booking_review` / UI отзывов — **не делаем** (таблица снята)

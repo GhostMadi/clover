@@ -1,13 +1,12 @@
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_smile_picker.dart';
-import 'package:clover/core/shared/app_switch.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_draft.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -61,7 +60,7 @@ class BookingServiceForm extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AppField(
+          BookingField(
             controller: titleController,
             labelText: 'Название',
             hintText: 'Например, Стрижка мужская',
@@ -78,7 +77,7 @@ class BookingServiceForm extends StatelessWidget {
             onChanged: (_) => onDraftChanged(),
           ),
           const SizedBox(height: 16),
-          AppField(
+          BookingField(
             controller: durationController,
             labelText: 'Длительность (мин)',
             hintText: '30',
@@ -89,7 +88,7 @@ class BookingServiceForm extends StatelessWidget {
             onChanged: (_) => onDraftChanged(),
           ),
           const SizedBox(height: 16),
-          AppField(
+          BookingField(
             controller: priceController,
             labelText: 'Цена (₸)',
             hintText: '0',
@@ -100,7 +99,7 @@ class BookingServiceForm extends StatelessWidget {
             onChanged: (_) => onDraftChanged(),
           ),
           const SizedBox(height: 16),
-          AppField(
+          BookingField(
             controller: maxParticipantsController,
             labelText: 'Макс. участников',
             hintText: '1',
@@ -111,7 +110,7 @@ class BookingServiceForm extends StatelessWidget {
             onChanged: (_) => onDraftChanged(),
           ),
           const SizedBox(height: 16),
-          AppField(
+          BookingField(
             controller: bufferAfterController,
             labelText: 'Буфер после (мин)',
             hintText: '0',
@@ -149,7 +148,7 @@ class BookingServiceForm extends StatelessWidget {
                   style: AppTextStyle.base(12, color: context.colors.subTextColor, height: 1.3),
                 ),
                 const SizedBox(height: 12),
-                AppField(
+                BookingField(
                   controller: bonusEarnAmountController,
                   labelText: 'Бонусов за визит',
                   hintText: '50',
@@ -160,7 +159,7 @@ class BookingServiceForm extends StatelessWidget {
                   onChanged: (_) => onDraftChanged(),
                 ),
                 const SizedBox(height: 14),
-                AppField(
+                BookingField(
                   controller: bonusPayPercentController,
                   labelText: 'Оплата бонусами (%)',
                   hintText: '20',
@@ -174,7 +173,7 @@ class BookingServiceForm extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          AppField(
+          BookingField(
             controller: descriptionController,
             labelText: 'Описание',
             hintText: 'Необязательно',
@@ -213,6 +212,7 @@ class BookingServiceForm extends StatelessWidget {
             text: 'Добавить исполнителя',
             height: 48,
             isExpanded: true,
+            service: kBookingService,
             onTap: enabled ? onAddExecutor : null,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -235,7 +235,7 @@ class BookingServiceForm extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          AppSwitchRow(
+          BookingSwitchRow(
             title: 'Активна',
             subtitle: 'Неактивные услуги не показываются клиентам',
             value: draft.isActive,

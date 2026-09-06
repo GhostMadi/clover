@@ -7,6 +7,7 @@ import 'package:clover/feature/_booking_/booking_client/data/client_booking_bonu
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 
 class ClientBookingSummary extends StatelessWidget {
   const ClientBookingSummary({
@@ -99,7 +100,7 @@ class ClientBookingSummary extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             service.priceLabel,
-            style: AppTextStyle.base(15, color: context.colors.primary, fontWeight: FontWeight.w800),
+            style: AppTextStyle.base(15, color: bookingServiceAccent(context.colors).icon, fontWeight: FontWeight.w800),
           ),
           if (showBonusBlock) ...[
             const SizedBox(height: 10),

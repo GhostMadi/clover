@@ -1,3 +1,4 @@
+import 'package:clover/core/session/app_session.dart';
 import 'package:clover/feature/_booking_/booking_list/data/booking_host_inbox.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_date_range.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_item.dart';
@@ -7,17 +8,16 @@ import 'package:clover/feature/_booking_/shared/data/models/booking_status.dart'
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'booking_list_cubit.freezed.dart';
 
 @injectable
 class BookingListCubit extends Cubit<BookingListState> {
-  BookingListCubit(this._repository, this._cache, this._client) : super(const BookingListState.initial());
+  BookingListCubit(this._repository, this._cache, this._session) : super(const BookingListState.initial());
 
   final BookingHostListRepository _repository;
   final BookingLocalCache _cache;
-  final SupabaseClient _client;
+  final AppSession _session;
 
   String? _lastQuery;
   final Set<String> _updatingIds = {};
@@ -31,7 +31,7 @@ class BookingListCubit extends Cubit<BookingListState> {
     final tab = previous?.mainTabIndex ?? BookingHostInboxTab.upcoming.index;
     final day = previous?.upcomingDay;
 
-    final uid = _client.auth.currentUser?.id.trim();
+    final uid = _session.userId;
     if (uid != null && uid.isNotEmpty) {
       final cached = await _cache.readHostBookings(uid, range, query: query);
       if (isClosed) return;
@@ -190,7 +190,7 @@ class BookingListCubit extends Cubit<BookingListState> {
         ),
       );
 
-      final uid = _client.auth.currentUser?.id.trim();
+      final uid = _session.userId;
       if (uid != null && uid.isNotEmpty) {
         await _cache.writeHostBookings(uid, range, items, query: query);
       }

@@ -16,21 +16,9 @@ class BookingServiceWithStaff {
   final List<BookingServiceExecutor> staff;
 }
 
-abstract class BookingServicesRepository {
-  Future<List<BookingService>> listMyServices();
-
-  Future<List<BookingServiceWithStaff>> listHostCatalog(String hostId);
-
-  Future<BookingService> createService(BookingServiceDraft draft, {List<String>? staffIds});
-
-  Future<BookingService> updateService(String id, BookingServiceDraft draft, {List<String>? staffIds});
-
-  Future<void> deactivateService(String id);
-}
-
-@LazySingleton(as: BookingServicesRepository)
-class BookingServicesRepositoryImpl implements BookingServicesRepository {
-  BookingServicesRepositoryImpl(this._client);
+@lazySingleton
+class BookingServicesRepository {
+  BookingServicesRepository(this._client);
 
   final SupabaseClient _client;
 
@@ -62,7 +50,6 @@ class BookingServicesRepositoryImpl implements BookingServicesRepository {
     }
   }
 
-  @override
   Future<List<BookingService>> listMyServices() async {
     final uid = _uid;
     if (uid == null || uid.isEmpty) return const [];
@@ -78,7 +65,6 @@ class BookingServicesRepositoryImpl implements BookingServicesRepository {
     });
   }
 
-  @override
   Future<List<BookingServiceWithStaff>> listHostCatalog(String hostId) async {
     final id = hostId.trim();
     if (id.isEmpty) return const [];
@@ -102,7 +88,6 @@ class BookingServicesRepositoryImpl implements BookingServicesRepository {
     });
   }
 
-  @override
   Future<BookingService> createService(BookingServiceDraft draft, {List<String>? staffIds}) async {
     final uid = _uid;
     if (uid == null || uid.isEmpty) {
@@ -122,7 +107,6 @@ class BookingServicesRepositoryImpl implements BookingServicesRepository {
     });
   }
 
-  @override
   Future<BookingService> updateService(
     String id,
     BookingServiceDraft draft, {
@@ -155,7 +139,6 @@ class BookingServicesRepositoryImpl implements BookingServicesRepository {
     });
   }
 
-  @override
   Future<void> deactivateService(String id) async {
     return _guard(() async {
       await _client.rpc('deactivate_booking_service', params: {'p_service_id': id});

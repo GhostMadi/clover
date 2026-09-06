@@ -22,23 +22,21 @@ final class BookingDeepLinkHostTarget extends BookingDeepLinkTarget {
   final BookingListItem item;
 }
 
-abstract class BookingDeepLinkRepository {
-  Future<BookingDeepLinkTarget?> resolveBooking(String bookingId);
-}
-
-@LazySingleton(as: BookingDeepLinkRepository)
-class BookingDeepLinkRepositoryImpl implements BookingDeepLinkRepository {
-  BookingDeepLinkRepositoryImpl(this._client);
+@lazySingleton
+class BookingDeepLinkRepository {
+  BookingDeepLinkRepository(this._client);
 
   final SupabaseClient _client;
 
-  @override
   Future<BookingDeepLinkTarget?> resolveBooking(String bookingId) async {
     final id = bookingId.trim();
     if (id.isEmpty) return null;
 
     try {
-      final res = await _client.rpc('get_booking_enriched_for_viewer', params: {'p_booking_id': id});
+      final res = await _client.rpc(
+        'get_booking_enriched_for_viewer',
+        params: {'p_booking_id': id},
+      );
       if (res is! Map) return null;
 
       final map = Map<String, dynamic>.from(res);
@@ -63,15 +61,20 @@ class BookingDeepLinkRepositoryImpl implements BookingDeepLinkRepository {
       hostId: row['host_id']?.toString() ?? '',
       hostDisplayName: row['host_display_name']?.toString() ?? '',
       hostUsername: BookingJson.asString(row['host_username']),
+      serviceId: BookingJson.asString(row['service_id']),
       serviceTitle: row['service_title']?.toString() ?? '',
       serviceEmoji: row['service_emoji']?.toString() ?? '💈',
       durationMinutes: BookingJson.asInt(row['duration_minutes'], fallback: 30),
       price: BookingJson.asDouble(row['price']),
       executorName: BookingJson.asString(row['executor_name']),
+      staffId: BookingJson.asString(row['staff_id']),
       startsAt: BookingJson.asIsoString(row['starts_at']) ?? '',
       status: BookingStatus.fromDbOrPending(row['status']?.toString()),
       notes: BookingJson.asString(row['notes']),
       createdAt: BookingJson.asIsoString(row['created_at']),
+      clientCancelHoursBefore: BookingJson.asInt(
+        row['client_cancel_hours_before'],
+      ),
     );
   }
 
@@ -79,6 +82,8 @@ class BookingDeepLinkRepositoryImpl implements BookingDeepLinkRepository {
     return BookingListItem(
       id: row['id']?.toString() ?? '',
       clientId: BookingJson.asString(row['client_id']),
+      serviceId: BookingJson.asString(row['service_id']),
+      staffId: BookingJson.asString(row['staff_id']),
       clientName: row['client_name']?.toString() ?? '',
       serviceTitle: row['service_title']?.toString() ?? '',
       startsAt: BookingJson.asIsoString(row['starts_at']) ?? '',
@@ -90,7 +95,10 @@ class BookingDeepLinkRepositoryImpl implements BookingDeepLinkRepository {
       price: BookingJson.asDouble(row['price']),
       executorName: BookingJson.asString(row['executor_name']),
       notes: BookingJson.asString(row['notes']),
-      participantsCount: BookingJson.asInt(row['participants_count'], fallback: 1),
+      participantsCount: BookingJson.asInt(
+        row['participants_count'],
+        fallback: 1,
+      ),
       createdAt: BookingJson.asIsoString(row['created_at']),
     );
   }

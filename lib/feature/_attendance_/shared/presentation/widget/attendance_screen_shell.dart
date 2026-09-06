@@ -19,6 +19,7 @@ class AttendanceScreenShell extends StatelessWidget {
     this.onAddTap,
     this.onSaveTap,
     this.onBackTap,
+    this.isSaving = false,
   });
 
   final String title;
@@ -26,6 +27,7 @@ class AttendanceScreenShell extends StatelessWidget {
   final bool showAdd;
   final bool showSave;
   final bool canSave;
+  final bool isSaving;
   final VoidCallback? onAddTap;
   final VoidCallback? onSaveTap;
   final VoidCallback? onBackTap;
@@ -44,8 +46,8 @@ class AttendanceScreenShell extends StatelessWidget {
         FunctionalButtonItem(
           icon: AppIcons.back.icon,
           keepWhenCollapsed: true,
-          borderColor: accent.icon,
-          iconColor: accent.icon,
+          customColor: accent.cta,
+          iconColor: accent.ctaForeground,
           onTap: onBackTap ?? () => context.router.maybePop(),
         ),
         if (showAdd)
@@ -64,7 +66,8 @@ class AttendanceScreenShell extends StatelessWidget {
             customColor: accent.cta,
             iconColor: accent.ctaForeground,
             textColor: accent.ctaForeground,
-            onTap: canSave ? (onSaveTap ?? () {}) : () {},
+            isLoading: isSaving,
+            onTap: canSave && !isSaving ? (onSaveTap ?? () {}) : () {},
           ),
       ],
       body: Column(

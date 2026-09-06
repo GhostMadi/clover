@@ -80,13 +80,31 @@ class _LocationCreatePageState extends State<LocationCreatePage> {
   }
 
   Future<void> _moveToMyLocation() async {
-    await _mapController.moveToMyLocation();
+    final (result, _) = await _mapController.moveToMyLocation();
     if (!mounted) return;
-    setState(() {});
+
+    switch (result) {
+      case AppMapMyLocationResult.moved:
+        return;
+      case AppMapMyLocationResult.permissionDenied:
+        AppSnackBar.show(
+          context,
+          message: 'Разрешите доступ к геолокации в настройках',
+          kind: AppSnackBarKind.error,
+        );
+      case AppMapMyLocationResult.unavailable:
+        AppSnackBar.show(
+          context,
+          message: 'Не удалось определить местоположение',
+          kind: AppSnackBarKind.error,
+        );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final accent = context.colors.serviceAccent(kResourcesService);
+
     return AppFunctionalScreen(
       backgroundColor: Colors.transparent,
       body: LocationCreateMapView(
@@ -101,7 +119,8 @@ class _LocationCreatePageState extends State<LocationCreatePage> {
         FunctionalButtonItem(
           icon: AppIcons.back.icon,
           keepWhenCollapsed: true,
-          customColor: context.colors.primary,
+          customColor: accent.cta,
+          iconColor: accent.ctaForeground,
           isLoading: _submitting,
           onTap: () => context.router.maybePop(),
         ),
@@ -114,9 +133,9 @@ class _LocationCreatePageState extends State<LocationCreatePage> {
           FunctionalButtonItem(
             icon: AppIcons.arrowForward.icon,
             label: 'Далее',
-            customColor: context.colors.primary,
-            iconColor: context.colors.textInverse,
-            textColor: context.colors.textInverse,
+            customColor: accent.cta,
+            iconColor: accent.ctaForeground,
+            textColor: accent.ctaForeground,
             isLoading: _submitting,
             onTap: _submit,
           ),

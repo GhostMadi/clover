@@ -1,22 +1,25 @@
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_workers_mock.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_duty_roster.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
 
-/// Инфо-баннер: кто дежурит сегодня. Не блокирует punch.
+/// Инфо-баннер: кто дежурит сегодня. При [dutyOnlyPunch] — предупреждение о замке.
 class AttendanceDutyTodayBanner extends StatelessWidget {
   const AttendanceDutyTodayBanner({
     super.key,
     required this.roster,
     this.selfWorkerId,
+    this.displayNames = const {},
+    this.dutyOnlyPunch = false,
     this.compact = false,
   });
 
   final AttendanceDutyRoster roster;
   final String? selfWorkerId;
+  final Map<String, String> displayNames;
+  final bool dutyOnlyPunch;
   final bool compact;
 
   @override
@@ -36,12 +39,18 @@ class AttendanceDutyTodayBanner extends StatelessWidget {
         bg: colors.surfaceMuted,
         border: colors.borderSoft,
         title: 'Сегодня не день дежурства',
-        subtitle: 'Очередь есть, но сегодня не рабочий день по настройке.',
+        subtitle: dutyOnlyPunch
+            ? 'Отметка сегодня недоступна — нет дежурного по расписанию.'
+            : 'Очередь есть, но сегодня не рабочий день по настройке.',
       );
     }
 
     final names = onDutyIds
-        .map((id) => AttendanceWorkersMock.byId(id)?.displayName ?? id)
+        .map((id) {
+          final n = displayNames[id]?.trim();
+          if (n != null && n.isNotEmpty) return n;
+          return id.length > 8 ? '${id.substring(0, 8)}…' : id;
+        })
         .join(', ');
     final iAmOnDuty = selfWorkerId != null && onDutyIds.contains(selfWorkerId);
 
@@ -52,9 +61,13 @@ class AttendanceDutyTodayBanner extends StatelessWidget {
       bg: accent.soft.withValues(alpha: 0.85),
       border: accent.icon.withValues(alpha: 0.25),
       title: iAmOnDuty ? 'Сегодня дежурите вы' : 'Сегодня дежурит: $names',
-      subtitle: iAmOnDuty
-          ? 'Инфо + уведомление команде. Отметка доступна как обычно — дежурство не замок.'
-          : 'Инфо для команды (уведомление уходит). Отметиться может любой принятый работник.',
+      subtitle: dutyOnlyPunch
+          ? (iAmOnDuty
+              ? 'Режим «только дежурный»: отметка доступна вам.'
+              : 'Режим «только дежурный»: отметка другим сегодня недоступна.')
+          : (iAmOnDuty
+              ? 'Инфо + уведомление команде. Отметка доступна как обычно — дежурство не замок.'
+              : 'Инфо для команды. Отметиться может любой принятый работник.'),
     );
   }
 }

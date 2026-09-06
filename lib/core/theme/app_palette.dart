@@ -25,6 +25,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.borderCardGreen,
     required this.borderCardBlue,
     required this.borderCardYellow,
+    required this.borderCardLilac,
     required this.divider,
     required this.textColor,
     required this.subTextColor,
@@ -42,6 +43,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.functionalSoftOrangeIcon,
     required this.functionalSoftYellow,
     required this.functionalSoftYellowIcon,
+    required this.functionalSoftLilac,
+    required this.functionalSoftLilacIcon,
     required this.functionalSoftRed,
     required this.functionalSoftRedIcon,
     required this.borderCardRed,
@@ -77,6 +80,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color borderCardGreen;
   final Color borderCardBlue;
   final Color borderCardYellow;
+  final Color borderCardLilac;
   final Color divider;
 
   final Color textColor;
@@ -97,6 +101,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color functionalSoftOrangeIcon;
   final Color functionalSoftYellow;
   final Color functionalSoftYellowIcon;
+  final Color functionalSoftLilac;
+  final Color functionalSoftLilacIcon;
   final Color functionalSoftRed;
   final Color functionalSoftRedIcon;
   final Color borderCardRed;
@@ -168,6 +174,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     borderCardGreen: Color(0xFFE0EBD2),
     borderCardBlue: Color(0xFFC8DDF5),
     borderCardYellow: Color(0xFFE8D96A),
+    borderCardLilac: Color(0xFF9B90D9),
     divider: Color(0xFFEEEEEE),
     textColor: Color(0xFF1A1D1E),
     subTextColor: Color(0xFF6A6A6A),
@@ -186,6 +193,10 @@ class AppPalette extends ThemeExtension<AppPalette> {
     /// Запись / ожидание — мягкий жёлтый (верхний левый в палитре сервиса).
     functionalSoftYellow: Color(0xFFFDF08B),
     functionalSoftYellowIcon: Color(0xFF9A7B00),
+    /// Booking service — lilac accent.
+    /// Бледная подложка тайлов (как softBlue), не насыщенный CTA.
+    functionalSoftLilac: Color(0xFFEDE9FB),
+    functionalSoftLilacIcon: Color(0xFF5C4FA8),
     functionalSoftRed: Color(0xFFFFEBEE),
     functionalSoftRedIcon: Color(0xFFE57373),
     borderCardRed: Color(0xFFF5C6CB),
@@ -218,6 +229,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     borderCardGreen: Color(0xFF2C3A24),
     borderCardBlue: Color(0xFF243044),
     borderCardYellow: Color(0xFF3A3518),
+    borderCardLilac: Color(0xFF7B6BC4),
     divider: Color(0xFF2A2A2A),
     textColor: Color(0xFFF2F2F2),
     subTextColor: Color(0xFFA3A3A3),
@@ -233,8 +245,10 @@ class AppPalette extends ThemeExtension<AppPalette> {
     functionalSoftBlueIcon: Color(0xFF7EB6E0),
     functionalSoftOrange: Color(0xFF2A1E12),
     functionalSoftOrangeIcon: Color(0xFFFFB74D),
-    functionalSoftYellow: Color(0xFF2E2A14),
-    functionalSoftYellowIcon: Color(0xFFFDF08B),
+    functionalSoftYellow: Color(0xFFFDF08B),
+    functionalSoftYellowIcon: Color(0xFF9A7B00),
+    functionalSoftLilac: Color(0xFF221E36),
+    functionalSoftLilacIcon: Color(0xFFC4BBF0),
     functionalSoftRed: Color(0xFF2A1518),
     functionalSoftRedIcon: Color(0xFFEF9A9A),
     borderCardRed: Color(0xFF4A2A2E),
@@ -267,6 +281,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? borderCardGreen,
     Color? borderCardBlue,
     Color? borderCardYellow,
+    Color? borderCardLilac,
     Color? divider,
     Color? textColor,
     Color? subTextColor,
@@ -284,6 +299,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? functionalSoftOrangeIcon,
     Color? functionalSoftYellow,
     Color? functionalSoftYellowIcon,
+    Color? functionalSoftLilac,
+    Color? functionalSoftLilacIcon,
     Color? functionalSoftRed,
     Color? functionalSoftRedIcon,
     Color? borderCardRed,
@@ -314,6 +331,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       borderCardGreen: borderCardGreen ?? this.borderCardGreen,
       borderCardBlue: borderCardBlue ?? this.borderCardBlue,
       borderCardYellow: borderCardYellow ?? this.borderCardYellow,
+      borderCardLilac: borderCardLilac ?? this.borderCardLilac,
       divider: divider ?? this.divider,
       textColor: textColor ?? this.textColor,
       subTextColor: subTextColor ?? this.subTextColor,
@@ -331,6 +349,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       functionalSoftOrangeIcon: functionalSoftOrangeIcon ?? this.functionalSoftOrangeIcon,
       functionalSoftYellow: functionalSoftYellow ?? this.functionalSoftYellow,
       functionalSoftYellowIcon: functionalSoftYellowIcon ?? this.functionalSoftYellowIcon,
+      functionalSoftLilac: functionalSoftLilac ?? this.functionalSoftLilac,
+      functionalSoftLilacIcon: functionalSoftLilacIcon ?? this.functionalSoftLilacIcon,
       functionalSoftRed: functionalSoftRed ?? this.functionalSoftRed,
       functionalSoftRedIcon: functionalSoftRedIcon ?? this.functionalSoftRedIcon,
       borderCardRed: borderCardRed ?? this.borderCardRed,
@@ -371,6 +391,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       borderCardGreen: c(borderCardGreen, other.borderCardGreen),
       borderCardBlue: c(borderCardBlue, other.borderCardBlue),
       borderCardYellow: c(borderCardYellow, other.borderCardYellow),
+      borderCardLilac: c(borderCardLilac, other.borderCardLilac),
       divider: c(divider, other.divider),
       textColor: c(textColor, other.textColor),
       subTextColor: c(subTextColor, other.subTextColor),
@@ -388,6 +409,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       functionalSoftOrangeIcon: c(functionalSoftOrangeIcon, other.functionalSoftOrangeIcon),
       functionalSoftYellow: c(functionalSoftYellow, other.functionalSoftYellow),
       functionalSoftYellowIcon: c(functionalSoftYellowIcon, other.functionalSoftYellowIcon),
+      functionalSoftLilac: c(functionalSoftLilac, other.functionalSoftLilac),
+      functionalSoftLilacIcon: c(functionalSoftLilacIcon, other.functionalSoftLilacIcon),
       functionalSoftRed: c(functionalSoftRed, other.functionalSoftRed),
       functionalSoftRedIcon: c(functionalSoftRedIcon, other.functionalSoftRedIcon),
       borderCardRed: c(borderCardRed, other.borderCardRed),

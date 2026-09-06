@@ -17,6 +17,7 @@ class AppDatePicker extends StatelessWidget {
     this.firstDate,
     this.lastDate,
     this.enabled = true,
+    this.service,
   });
 
   final String? label;
@@ -26,6 +27,7 @@ class AppDatePicker extends StatelessWidget {
   final DateTime? firstDate;
   final DateTime? lastDate;
   final bool enabled;
+  final AppServiceKind? service;
 
   static const _months = <String>[
     'Январь',
@@ -52,12 +54,14 @@ class AppDatePicker extends StatelessWidget {
       title: label ?? 'Дата',
       upperCaseTitle: false,
       showCloseButton: true,
+      service: service,
       contentHeight: MediaQuery.sizeOf(context).height * 0.42,
       contentBottomSpacing: 0,
       content: _AppDatePickerSheet(
         initial: value ?? DateTime.now(),
         firstDate: firstDate,
         lastDate: lastDate,
+        service: service,
       ),
     );
 
@@ -72,6 +76,7 @@ class AppDatePicker extends StatelessWidget {
       displayText: value == null ? null : formatDisplay(value!),
       prefixIcon: AppIcons.calendarToday.icon,
       enabled: enabled,
+      service: service,
       onTap: enabled ? () => _openSheet(context) : null,
     );
   }
@@ -82,11 +87,13 @@ class _AppDatePickerSheet extends StatefulWidget {
     required this.initial,
     this.firstDate,
     this.lastDate,
+    this.service,
   });
 
   final DateTime initial;
   final DateTime? firstDate;
   final DateTime? lastDate;
+  final AppServiceKind? service;
 
   @override
   State<_AppDatePickerSheet> createState() => _AppDatePickerSheetState();
@@ -174,6 +181,7 @@ class _AppDatePickerSheetState extends State<_AppDatePickerSheet> {
                   items: AppDatePicker._months,
                   selectedIndex: _month - 1,
                   onSelectedIndexChanged: _onMonthChanged,
+                  service: widget.service,
                 ),
               ),
               Expanded(
@@ -181,6 +189,7 @@ class _AppDatePickerSheetState extends State<_AppDatePickerSheet> {
                   items: _dayItems.map((d) => d.toString()).toList(),
                   selectedIndex: (_day - 1).clamp(0, _dayItems.length - 1),
                   onSelectedIndexChanged: _onDayChanged,
+                  service: widget.service,
                 ),
               ),
             ],
@@ -188,7 +197,12 @@ class _AppDatePickerSheetState extends State<_AppDatePickerSheet> {
         ),
         Padding(
           padding: EdgeInsets.only(top: 8, bottom: bottom),
-          child: AppButton(text: 'Готово', isExpanded: true, onTap: _confirm),
+          child: AppButton(
+            text: 'Готово',
+            isExpanded: true,
+            service: widget.service,
+            onTap: _confirm,
+          ),
         ),
       ],
     );

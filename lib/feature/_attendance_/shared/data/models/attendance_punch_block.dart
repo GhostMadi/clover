@@ -3,6 +3,7 @@ enum AttendancePunchBlockReason {
   outsideGeofence,
   gpsDisabled,
   noPrimaryPunchType,
+  notOnDuty,
 }
 
 extension AttendancePunchBlockReasonX on AttendancePunchBlockReason {
@@ -11,6 +12,7 @@ extension AttendancePunchBlockReasonX on AttendancePunchBlockReason {
         AttendancePunchBlockReason.outsideGeofence => 'Вы вне зоны',
         AttendancePunchBlockReason.gpsDisabled => 'Геолокация выключена',
         AttendancePunchBlockReason.noPrimaryPunchType => 'Отметки не настроены',
+        AttendancePunchBlockReason.notOnDuty => 'Сегодня не ваше дежурство',
       };
 
   String get detailRu => switch (this) {
@@ -22,5 +24,7 @@ extension AttendancePunchBlockReasonX on AttendancePunchBlockReason {
           'Разрешите геолокацию для Clover в настройках телефона.',
         AttendancePunchBlockReason.noPrimaryPunchType =>
           'Админ не включил «Пришёл» и «Ушёл». Используйте свои отметки, если они есть.',
+        AttendancePunchBlockReason.notOnDuty =>
+          'В этой компании отметка разрешена только дежурному на сегодня.',
       };
 }

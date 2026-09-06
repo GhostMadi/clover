@@ -72,7 +72,9 @@ class BookingListArchiveBody extends StatelessWidget {
           const SizedBox(height: 8),
         ],
         Theme(
-          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          data: Theme.of(context).copyWith(
+            dividerColor: context.colors.surface.withValues(alpha: 0),
+          ),
           child: ExpansionTile(
             initiallyExpanded: forgotten.isEmpty && history.isNotEmpty,
             tilePadding: EdgeInsets.zero,
@@ -112,7 +114,9 @@ class BookingListArchiveBody extends StatelessWidget {
           ),
         ),
         Theme(
-          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          data: Theme.of(context).copyWith(
+            dividerColor: context.colors.surface.withValues(alpha: 0),
+          ),
           child: ExpansionTile(
             initiallyExpanded: false,
             tilePadding: EdgeInsets.zero,

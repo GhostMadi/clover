@@ -7,16 +7,21 @@ import 'package:clover/core/shared/app_functional_button/functional_button_item.
 import 'package:flutter/material.dart';
 
 /// Общая оболочка экранов настроек: заголовок + левитирующая панель «Назад».
+///
+/// [service] — на территории сервиса бренд-зелёный уступает его акценту
+/// (запись → жёлтый, посещаемость → синий, ресурсы → сиреневый).
 class SettingsScreenShell extends StatelessWidget {
   const SettingsScreenShell({
     super.key,
     required this.title,
     required this.body,
+    this.service,
     this.extraButtons = const [],
   });
 
   final String title;
   final Widget body;
+  final AppServiceKind? service;
   final List<FunctionalButtonItem> extraButtons;
 
   /// Нижний зазор для [ListView]/[SingleChildScrollView] — контент не перекрывается панелью.
@@ -24,6 +29,9 @@ class SettingsScreenShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final accent = service != null ? colors.serviceAccent(service!) : null;
+
     return AppFunctionalScreen(
       collapsed: true,
       collapsedBarWidthPerButton: 150,
@@ -31,8 +39,8 @@ class SettingsScreenShell extends StatelessWidget {
         FunctionalButtonItem(
           icon: AppIcons.back.icon,
           keepWhenCollapsed: true,
-          borderColor: context.colors.primary,
-          iconColor: context.colors.primary,
+          customColor: accent?.cta ?? colors.primary,
+          iconColor: accent?.ctaForeground ?? colors.textInverse,
           onTap: () => context.router.maybePop(),
         ),
         ...extraButtons,
@@ -40,7 +48,7 @@ class SettingsScreenShell extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _SettingsTopBar(title: title),
+          _SettingsTopBar(title: title, accent: accent),
           Expanded(child: body),
         ],
       ),
@@ -49,9 +57,10 @@ class SettingsScreenShell extends StatelessWidget {
 }
 
 class _SettingsTopBar extends StatelessWidget {
-  const _SettingsTopBar({required this.title});
+  const _SettingsTopBar({required this.title, this.accent});
 
   final String title;
+  final AppServiceAccent? accent;
 
   @override
   Widget build(BuildContext context) {
@@ -59,16 +68,22 @@ class _SettingsTopBar extends StatelessWidget {
       color: context.colors.pageBackground,
       child: SafeArea(
         bottom: false,
-        child: SizedBox(
-          height: kToolbarHeight,
-          child: Center(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.base(17, color: context.colors.textColor, fontWeight: FontWeight.w600),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (accent != null) Container(height: 3, color: accent!.icon),
+            SizedBox(
+              height: kToolbarHeight,
+              child: Center(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyle.base(17, color: context.colors.textColor, fontWeight: FontWeight.w600),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

@@ -10,6 +10,14 @@ extension AttendanceOvertimeStatusX on AttendanceOvertimeStatus {
         AttendanceOvertimeStatus.approved => 'Утверждено',
         AttendanceOvertimeStatus.rejected => 'Отклонено',
       };
+
+  String get key => name;
+
+  static AttendanceOvertimeStatus fromKey(String? raw) => switch (raw) {
+        'approved' => AttendanceOvertimeStatus.approved,
+        'rejected' => AttendanceOvertimeStatus.rejected,
+        _ => AttendanceOvertimeStatus.pending,
+      };
 }
 
 class AttendanceOvertimeEntry {

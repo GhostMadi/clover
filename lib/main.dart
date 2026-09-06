@@ -30,7 +30,6 @@ Future<void> main() async {
   await runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-
       if (AppShakeLoggerConfig.enabled) {
         FlutterError.onError = (details) {
           appTalker.handle(details.exception, details.stack, 'FlutterError');

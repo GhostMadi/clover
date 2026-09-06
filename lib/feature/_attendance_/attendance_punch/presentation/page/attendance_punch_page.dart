@@ -7,7 +7,8 @@ import 'package:clover/feature/_attendance_/shared/presentation/widget/attendanc
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/app_tile.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
+import 'package:clover/feature/_attendance_/attendance_punch/presentation/cubit/attendance_punch_cubit.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_error.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_block.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_record.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_type.dart';
@@ -16,44 +17,71 @@ import 'package:clover/feature/_attendance_/shared/presentation/attendance_compa
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_duty_today_banner.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
-class AttendancePunchPage extends StatelessWidget {
+class AttendancePunchPage extends StatefulWidget {
   const AttendancePunchPage({super.key, required this.workplaceId});
 
   final String workplaceId;
 
   @override
+  State<AttendancePunchPage> createState() => _AttendancePunchPageState();
+}
+
+class _AttendancePunchPageState extends State<AttendancePunchPage> {
+  late final AttendancePunchCubit _cubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit = sl<AttendancePunchCubit>()..bind(widget.workplaceId);
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final store = sl<AttendanceContextStore>();
-
-    return ValueListenableBuilder(
-      valueListenable: store.snapshot,
-      builder: (context, snap, _) {
-        final workplace = snap?.workplaceById(workplaceId);
-        final membership = snap?.membershipByWorkplace(workplaceId);
+    return BlocBuilder<AttendancePunchCubit, AttendancePunchState>(
+      bloc: _cubit,
+      builder: (context, state) {
         final colors = context.colors;
-        final workerId = membership?.profileId ?? store.selfWorkerId();
 
-        if (workplace == null || membership == null || snap == null) {
+        if (state is! AttendancePunchReady) {
           return AttendanceScreenShell(
             title: 'Отметка',
-            body: Center(child: Text('Компания не найдена', style: AppTextStyle.base(15, color: colors.subTextColor))),
+            body: Center(
+              child: Text('Компания не найдена', style: AppTextStyle.base(15, color: colors.subTextColor)),
+            ),
           );
         }
 
-        final inZone = store.isRemote ? workplace.hasGeofenceCenter : snap.mockInGeofence;
-        final gpsOn = store.isRemote ? true : snap.mockGpsEnabled;
+        final workplace = state.workplace;
+        final membership = state.membership;
+        final workerId = state.workerId;
+        final inZone = state.inZone;
+        final gpsOn = state.gpsOn;
+        final locating = state.locating;
         final primaryType = workplace.resolvePrimaryPunchType(shiftOpen: membership.shiftOpen);
         final customTypes = workplace.customPunchTypes;
-        final blockReason = _resolveBlock(
-          needsAck: membership.needsAck,
-          gpsOn: gpsOn,
-          inZone: inZone,
-          primaryType: primaryType,
-        );
-        final canPunch = blockReason == null;
-        final history = snap.punchHistoryFor(workplaceId: workplaceId, workerId: workerId, includeCancelled: true);
+        final blockReason = locating
+            ? null
+            : _resolveBlock(
+                needsAck: membership.needsAck,
+                gpsOn: gpsOn,
+                inZone: inZone,
+                primaryType: primaryType,
+                dutyOnlyPunch: workplace.dutyOnlyPunch,
+                onDutyToday: workplace.dutyRoster.isConfigured
+                    ? workplace.dutyRoster.onDutyFor(DateTime.now()).contains(workerId)
+                    : true,
+              );
+        final canPunch = !locating && blockReason == null;
+        final history = state.history;
 
         return AttendanceScreenShell(
           title: workplace.name,
@@ -62,12 +90,20 @@ class AttendancePunchPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _GeofenceStatus(inZone: inZone, gpsOn: gpsOn, radiusM: workplace.geofenceRadiusM),
+                _GeofenceStatus(
+                  inZone: inZone,
+                  gpsOn: gpsOn,
+                  radiusM: workplace.geofenceRadiusM,
+                  locating: locating,
+                  onRefresh: () => _cubit.refreshLocation(),
+                ),
                 if (workplace.dutyRoster.isConfigured) ...[
                   const SizedBox(height: 12),
                   AttendanceDutyTodayBanner(
                     roster: workplace.dutyRoster,
                     selfWorkerId: workerId,
+                    displayNames: state.snapshot.profileDisplayNames,
+                    dutyOnlyPunch: workplace.dutyOnlyPunch,
                   ),
                 ],
                 if (blockReason != null) ...[
@@ -75,7 +111,7 @@ class AttendancePunchPage extends StatelessWidget {
                   _BlockReasonCard(
                     reason: blockReason,
                     configVersion: membership.configVersion,
-                    workplaceId: workplaceId,
+                    workplaceId: widget.workplaceId,
                   ),
                 ],
                 const SizedBox(height: 16),
@@ -86,7 +122,11 @@ class AttendancePunchPage extends StatelessWidget {
                     text: primaryType.labelRu.toUpperCase(),
                     isExpanded: true,
                     interactive: canPunch,
-                    onTap: canPunch ? () => _punch(context, store, primaryType) : () => _showBlockSheet(context, blockReason),
+                    onTap: canPunch
+                        ? () => _punch(primaryType)
+                        : blockReason != null
+                            ? () => _showBlockSheet(context, blockReason)
+                            : () {},
                   )
                 else
                   Builder(
@@ -112,7 +152,7 @@ class AttendancePunchPage extends StatelessWidget {
                     text: 'Свои отметки',
                     isExpanded: true,
                     service: kAttendanceService,
-                    onTap: () => _showCustom(context, store, customTypes, blockReason: blockReason),
+                    onTap: () => _showCustom(context, customTypes, blockReason: blockReason),
                   ),
                 ],
                 if (history.any((e) => !e.cancelled)) ...[
@@ -121,22 +161,22 @@ class AttendancePunchPage extends StatelessWidget {
                     text: 'Отменить последнюю отметку',
                     isExpanded: true,
                     service: kAttendanceService,
-                    onTap: () => _showCancel(context, store),
+                    onTap: () => _showCancel(context),
                   ),
                 ],
-                if (!store.isRemote) ...[
+                if (!state.isRemote) ...[
                   const SizedBox(height: 16),
                   AppOutlinedButton(
                     text: inZone ? 'Симулировать «вне зоны»' : 'Симулировать «в зоне»',
                     isExpanded: true,
                     service: kAttendanceService,
-                    onTap: store.toggleMockGeofence,
+                    onTap: _cubit.toggleMockGeofence,
                   ),
                   AppOutlinedButton(
                     text: gpsOn ? 'Симулировать GPS выкл.' : 'Симулировать GPS вкл.',
                     isExpanded: true,
                     service: kAttendanceService,
-                    onTap: store.toggleMockGps,
+                    onTap: _cubit.toggleMockGps,
                   ),
                 ],
                 const SizedBox(height: 24),
@@ -159,8 +199,11 @@ class AttendancePunchPage extends StatelessWidget {
     required bool gpsOn,
     required bool inZone,
     required AttendancePunchType? primaryType,
+    required bool dutyOnlyPunch,
+    required bool onDutyToday,
   }) {
     if (needsAck) return AttendancePunchBlockReason.needsAck;
+    if (dutyOnlyPunch && !onDutyToday) return AttendancePunchBlockReason.notOnDuty;
     if (!gpsOn) return AttendancePunchBlockReason.gpsDisabled;
     if (!inZone) return AttendancePunchBlockReason.outsideGeofence;
     if (primaryType == null) return AttendancePunchBlockReason.noPrimaryPunchType;
@@ -182,13 +225,19 @@ class AttendancePunchPage extends StatelessWidget {
     );
   }
 
-  void _punch(BuildContext context, AttendanceContextStore store, AttendancePunchType type) {
-    store.punch(workplaceId: workplaceId, type: type);
-    AppSnackBar.show(context, message: '${type.labelRu} — сохранено', kind: AppSnackBarKind.success);
-    context.router.maybePop();
+  Future<void> _punch(AttendancePunchType type) async {
+    final ok = await _cubit.punch(type);
+    if (!mounted) return;
+    if (ok) {
+      AppSnackBar.show(context, message: '${type.labelRu} — сохранено', kind: AppSnackBarKind.success);
+      context.router.maybePop();
+    } else {
+      final msg = _cubit.lastPunchError?.userMessage ?? 'Не удалось сохранить отметку';
+      AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
+    }
   }
 
-  Future<void> _showCancel(BuildContext context, AttendanceContextStore store) {
+  Future<void> _showCancel(BuildContext context) {
     final controller = TextEditingController();
     return AttendanceBottomSheet.show(
       context: context,
@@ -210,16 +259,55 @@ class AttendancePunchPage extends StatelessWidget {
           text: 'Отменить отметку',
           isExpanded: true,
           onTap: () {
-            store.cancelLastPunch(
-              workplaceId: workplaceId,
-              comment: controller.text,
-            );
+            _cubit.cancelLastPunch(comment: controller.text);
             Navigator.of(context).pop();
             AppSnackBar.show(
               context,
               message: 'Отметка отменена',
               kind: AppSnackBarKind.success,
             );
+          },
+        ),
+        AppOutlinedButton(
+          text: 'Запросить исправление',
+          isExpanded: true,
+          service: kAttendanceService,
+          onTap: () async {
+            final last = _cubit.state is AttendancePunchReady
+                ? (_cubit.state as AttendancePunchReady)
+                    .history
+                    .where((e) => !e.cancelled)
+                    .fold<AttendancePunchRecord?>(null, (prev, e) => e)
+                : null;
+            if (last == null) {
+              AppSnackBar.show(context, message: 'Нет отметки для исправления', kind: AppSnackBarKind.error);
+              return;
+            }
+            try {
+              final ok = await _cubit.requestPunchCorrection(
+                punchId: last.id,
+                note: controller.text.trim().isEmpty ? null : controller.text.trim(),
+              );
+              if (!context.mounted) return;
+              if (!ok) {
+                AppSnackBar.show(
+                  context,
+                  message: _cubit.lastPunchError?.userMessage ?? 'Не удалось отправить запрос',
+                  kind: AppSnackBarKind.error,
+                );
+                return;
+              }
+              Navigator.of(context).pop();
+              AppSnackBar.show(
+                context,
+                message: 'Запрос на исправление отправлен',
+                kind: AppSnackBarKind.success,
+              );
+            } catch (e) {
+              if (!context.mounted) return;
+              final msg = e is AttendanceException ? e.userMessage : 'Не удалось отправить запрос';
+              AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
+            }
           },
         ),
       ],
@@ -230,7 +318,6 @@ class AttendancePunchPage extends StatelessWidget {
 
   Future<void> _showCustom(
     BuildContext context,
-    AttendanceContextStore store,
     List<AttendancePunchType> types, {
     required AttendancePunchBlockReason? blockReason,
   }) {
@@ -249,7 +336,7 @@ class AttendancePunchPage extends StatelessWidget {
                   _showBlockSheet(context, blockReason);
                   return;
                 }
-                _punch(context, store, t);
+                _punch(t);
               },
             ),
         ],
@@ -374,36 +461,67 @@ class _EnabledTypesHint extends StatelessWidget {
 }
 
 class _GeofenceStatus extends StatelessWidget {
-  const _GeofenceStatus({required this.inZone, required this.gpsOn, required this.radiusM});
+  const _GeofenceStatus({
+    required this.inZone,
+    required this.gpsOn,
+    required this.radiusM,
+    this.locating = false,
+    this.onRefresh,
+  });
 
   final bool inZone;
   final bool gpsOn;
   final int radiusM;
+  final bool locating;
+  final VoidCallback? onRefresh;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final ok = inZone && gpsOn;
-    final bg = ok ? colors.functionalSoftBlue : colors.functionalSoftRed.withValues(alpha: 0.25);
-    final fg = ok ? colors.functionalSoftBlueIcon : colors.destructive;
+    final bg = locating
+        ? colors.surfaceMuted
+        : ok
+            ? colors.functionalSoftBlue
+            : colors.functionalSoftRed.withValues(alpha: 0.25);
+    final fg = locating
+        ? colors.iconMuted
+        : ok
+            ? colors.functionalSoftBlueIcon
+            : colors.destructive;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16)),
       child: Row(
         children: [
-          Icon(ok ? AppIcons.myLocation.icon : AppIcons.locationOn.icon, color: fg),
+          if (locating)
+            SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(strokeWidth: 2, color: colors.iconMuted),
+            )
+          else
+            Icon(ok ? AppIcons.myLocation.icon : AppIcons.locationOn.icon, color: fg),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              !gpsOn
-                  ? 'GPS выключен'
-                  : inZone
-                      ? 'Вы в зоне ($radiusM м)'
-                      : 'Вы вне зоны',
+              locating
+                  ? 'Определяем местоположение…'
+                  : !gpsOn
+                      ? 'GPS недоступен'
+                      : inZone
+                          ? 'Вы в зоне ($radiusM м)'
+                          : 'Вы вне зоны',
               style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w600),
             ),
           ),
+          if (onRefresh != null && !locating)
+            IconButton(
+              onPressed: onRefresh,
+              icon: Icon(AppIcons.myLocation.icon, color: colors.iconMuted, size: 20),
+              tooltip: 'Обновить GPS',
+            ),
         ],
       ),
     );

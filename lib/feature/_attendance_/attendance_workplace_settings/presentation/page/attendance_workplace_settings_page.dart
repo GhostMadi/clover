@@ -6,7 +6,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_payroll_mock.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_payroll_calc.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_payroll_models.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_workplace.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
@@ -92,9 +92,10 @@ class AttendanceWorkplaceSettingsPage extends StatelessWidget {
   }
 
   String _payrollSubtitle(AttendanceWorkplace workplace) {
-    final store = sl<AttendanceContextStore>();
-    final summary = AttendancePayrollMock.teamSummary(workplace, snapshot: store.snapshot.value);
-    return '${summary.periodLabel} · ${attendanceFormatMoney(summary.netPay)} к выплате';
+    final snap = sl<AttendanceContextStore>().snapshot.value;
+    if (snap == null) return 'Оценка по правилам';
+    final summary = AttendancePayrollCalc.teamSummary(workplace, snapshot: snap);
+    return 'Оценка · ${summary.periodLabel} · ${attendanceFormatMoney(summary.netPay)}';
   }
 
   String _punchTypesSubtitle(AttendanceWorkplace workplace) {

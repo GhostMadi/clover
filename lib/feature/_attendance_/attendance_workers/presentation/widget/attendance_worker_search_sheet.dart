@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_remote_repository.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_profile_hit.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +11,7 @@ import 'package:flutter/material.dart';
 abstract final class AttendanceWorkerSearchSheet {
   static Future<AttendanceProfileHit?> show(
     BuildContext context, {
-    required AttendanceRemoteRepository repository,
-    Set<String> excludeProfileIds = const {},
+    required Future<List<AttendanceProfileHit>> Function(String query) search,
   }) {
     return AttendanceBottomSheet.show<AttendanceProfileHit>(
       context: context,
@@ -22,22 +20,15 @@ abstract final class AttendanceWorkerSearchSheet {
       contentPadding: const EdgeInsets.all(16),
       sheetOuterPadding: const EdgeInsets.fromLTRB(16, 48, 16, 12),
       contentBottomSpacing: 16,
-      content: _Body(
-        repository: repository,
-        excludeProfileIds: excludeProfileIds,
-      ),
+      content: _Body(search: search),
     );
   }
 }
 
 class _Body extends StatefulWidget {
-  const _Body({
-    required this.repository,
-    required this.excludeProfileIds,
-  });
+  const _Body({required this.search});
 
-  final AttendanceRemoteRepository repository;
-  final Set<String> excludeProfileIds;
+  final Future<List<AttendanceProfileHit>> Function(String query) search;
 
   @override
   State<_Body> createState() => _BodyState();
@@ -81,16 +72,13 @@ class _BodyState extends State<_Body> {
       _error = null;
     });
     try {
-      final rows = await widget.repository.searchProfiles(
-        query,
-        excludeProfileIds: widget.excludeProfileIds,
-      );
+      final rows = await widget.search(query);
       if (!mounted || token != _searchToken) return;
       setState(() {
         _results = rows;
         _loading = false;
       });
-    } catch (e) {
+    } catch (_) {
       if (!mounted || token != _searchToken) return;
       setState(() {
         _loading = false;

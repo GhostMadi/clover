@@ -372,35 +372,10 @@ create index booking_history_booking_created_idx
 
 ---
 
-### 10. `booking_reviews` — отзывы (v1 schema, UI позже)
+### 10. `booking_reviews` — **снято**
 
-```sql
-create table public.booking_reviews (
-  id          uuid primary key default gen_random_uuid(),
-  booking_id  uuid not null unique references public.bookings(id) on delete cascade,
-  client_id   uuid not null references public.profiles(id) on delete cascade,
-  host_id     uuid not null references public.profiles(id) on delete cascade,
-  staff_id    uuid references public.booking_staff(id) on delete set null,
-  rating      int not null check (rating between 1 and 5),
-  review_text text check (char_length(coalesce(review_text, '')) <= 1000),
-  created_at  timestamptz not null default now(),
-
-  check (client_id <> host_id)
-);
-
-create index booking_reviews_host_created_idx on public.booking_reviews (host_id, created_at desc);
-create index booking_reviews_staff_rating_idx on public.booking_reviews (staff_id, rating)
-  where staff_id is not null;
-```
-
-**Правила (RPC `create_booking_review`, v2 UI):**
-
-- booking.status = `completed`
-- booking.client_id = auth.uid()
-- один отзыв на booking (`unique booking_id`)
-- опционально: только в течение N дней после `completed_at`
-
-Агрегат рейтинга staff — view/RPC позже, schema уже позволяет.
+Таблица удалена миграцией `20260906111000_drop_booking_reviews.sql`.  
+In-app отзывы после визита **не делаем** — клиент может оставить отзыв вне приложения.
 
 ---
 
@@ -454,7 +429,6 @@ list_host_bookings_enriched(
 | `booking_blocked_slots` | host | host | host | host |
 | `bookings` | host + client (свои) | RPC only | RPC only | — |
 | `booking_history` | host + client (свои bookings) | RPC only | — | — |
-| `booking_reviews` | public read для host profile / staff | RPC (v2) | — | — |
 
 ---
 
@@ -580,7 +554,8 @@ get_booking_analytics(
 | Link staff ↔ service | `booking_service_staff` |
 | Upsert account settings | `booking_schedule_settings` |
 | CRUD staff schedule | `booking_staff_schedule` |
-| CRUD absences | `booking_staff_absences` |
+| CRUD absences | `replace_booking_staff_absences` (atomic) / read via PostgREST |
+| Availability (create + reschedule) | `get_booking_availability` (+ optional `p_exclude_booking_id`) |
 | CRUD blocked slots | `booking_blocked_slots` |
 
 ---
@@ -624,15 +599,7 @@ get_booking_analytics(
 
 ## Flutter (после backend)
 
-| Mock | Repository |
-|------|------------|
-| `BookingServicesMockData` | PostgREST + `deactivate_booking_service` |
-| `BookingScheduleSettingsStore` | PostgREST settings (+ staff_schedule later) |
-| `ClientBookingMockData` | `get_booking_availability` |
-| `ClientBookingSubmissionsStore` | `create_booking` |
-| `BookingListMockData` | `list_host_bookings_enriched` (+ search) |
-| `MyBookingsMockData` | `list_my_bookings_enriched` |
-| `BookingAnalyticsMockData` | `get_booking_analytics` |
+Живые репозитории (PostgREST / RPC). Mock-stores удалены.
 
 ---
 
@@ -660,7 +627,6 @@ Push / напоминание клиенту за N минут — backlog.
 | Фича | Как |
 |------|-----|
 | Push / client reminder | FCM + cron (in-app v1 уже в `notifications`) |
-| UI отзывов | `create_booking_review` RPC |
 | UI per-staff schedule | CRUD `booking_staff_schedule` |
 | Групповые записи | participants sum в availability |
 | Оплата | `booking_payments` |
@@ -678,6 +644,6 @@ Push / напоминание клиенту за N минут — backlog.
 - [ ] Деактивация услуги с future pending/confirmed → ошибка
 - [ ] `list_host_bookings_enriched(p_query)` находит по имени/phone/username/услуге
 - [ ] Analytics: revenue, avg_check, top_staff, breakdown по статусам
-- [ ] `booking_reviews` schema создана; RPC отзыва — можно v2
+- [x] `booking_reviews` сняты — in-app отзывы не делаем
 - [ ] RLS: client не видит чужие host bookings
 - [ ] Уведомления **не** в scope v1

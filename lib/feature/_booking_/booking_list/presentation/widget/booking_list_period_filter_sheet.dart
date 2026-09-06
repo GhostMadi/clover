@@ -1,7 +1,7 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
-import 'package:clover/core/shared/app_button.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:clover/core/shared/app_date_picker.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_date_range.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +17,7 @@ abstract final class BookingListPeriodFilterSheet {
       title: 'Фильтр по дате',
       upperCaseTitle: false,
       showCloseButton: true,
+      service: kBookingService,
       content: _BookingListPeriodFilterContent(initial: initial),
     );
   }
@@ -126,6 +127,7 @@ class _BookingListPeriodFilterContentState extends State<_BookingListPeriodFilte
                 hint: 'Дата начала',
                 value: _start,
                 lastDate: _end,
+                service: kBookingService,
                 onChanged: _onStartChanged,
               ),
             ),
@@ -136,13 +138,14 @@ class _BookingListPeriodFilterContentState extends State<_BookingListPeriodFilte
                 hint: 'Дата конца',
                 value: _end,
                 firstDate: _start,
+                service: kBookingService,
                 onChanged: _onEndChanged,
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
-        AppButton(text: 'Применить', isExpanded: true, onTap: _apply),
+        BookingPrimaryButton(text: 'Применить', isExpanded: true, onTap: _apply),
       ],
     );
   }
@@ -161,11 +164,12 @@ class _PresetChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = selected ? context.colors.primary : context.colors.surfaceSoftBlue;
-    final fg = selected ? context.colors.white : context.colors.functionalSoftBlueIcon;
+    final accent = bookingServiceAccent(context.colors);
+    final bg = selected ? accent.cta : accent.soft;
+    final fg = selected ? accent.ctaForeground : accent.icon;
     final border = selected
-        ? context.colors.primary
-        : context.colors.borderCardBlue.withValues(alpha: 0.85);
+        ? accent.cta
+        : accent.ctaBorder.withValues(alpha: 0.85);
 
     return Material(
       color: bg,

@@ -29,6 +29,7 @@ abstract final class FilterCategoryEditorSheet {
       title: title,
       showCloseButton: true,
       contentBottomSpacing: 0,
+      service: kResourcesService,
       content: _FilterCategoryEditor(initial: initial),
     );
   }
@@ -98,6 +99,8 @@ class _FilterCategoryEditorState extends State<_FilterCategoryEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final accent = context.colors.serviceAccent(kResourcesService);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -108,6 +111,7 @@ class _FilterCategoryEditorState extends State<_FilterCategoryEditor> {
           hintText: 'Например: Размер, Цвет, Бренд',
           textInputAction: TextInputAction.next,
           onChanged: (_) => setState(() {}),
+          service: kResourcesService,
         ),
         const SizedBox(height: 16),
         Text(
@@ -124,11 +128,12 @@ class _FilterCategoryEditorState extends State<_FilterCategoryEditor> {
                 hintText: 'XS, Черный, Nike…',
                 textInputAction: TextInputAction.done,
                 onChanged: (_) => setState(() {}),
+                service: kResourcesService,
               ),
             ),
             const SizedBox(width: 8),
             Material(
-              color: context.colors.surfaceSoft,
+              color: accent.soft,
               borderRadius: BorderRadius.circular(16),
               child: InkWell(
                 onTap: _addValue,
@@ -136,7 +141,7 @@ class _FilterCategoryEditorState extends State<_FilterCategoryEditor> {
                 child: SizedBox(
                   width: 52,
                   height: 52,
-                  child: Icon(AppIcons.addRounded.icon, color: context.colors.primary),
+                  child: Icon(AppIcons.addRounded.icon, color: accent.icon),
                 ),
               ),
             ),
@@ -148,9 +153,9 @@ class _FilterCategoryEditorState extends State<_FilterCategoryEditor> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: context.colors.surfaceSoft,
+              color: accent.soft,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: context.colors.border.withValues(alpha: 0.6)),
+              border: Border.all(color: accent.ctaBorder.withValues(alpha: 0.6)),
             ),
             child: Text(
               'Добавьте хотя бы одно значение',
@@ -166,12 +171,12 @@ class _FilterCategoryEditorState extends State<_FilterCategoryEditor> {
                 InputChip(
                   label: Text(
                     value,
-                    style: AppTextStyle.base(13, color: context.colors.textColor, fontWeight: FontWeight.w600),
+                    style: AppTextStyle.base(13, color: accent.icon, fontWeight: FontWeight.w600),
                   ),
-                  deleteIcon: Icon(AppIcons.closeRounded.icon, size: 18),
+                  deleteIcon: Icon(AppIcons.closeRounded.icon, size: 18, color: accent.icon),
                   onDeleted: () => _removeValue(value),
-                  backgroundColor: context.colors.surfaceSoft,
-                  side: BorderSide(color: context.colors.border.withValues(alpha: 0.7)),
+                  backgroundColor: accent.soft,
+                  side: BorderSide(color: accent.ctaBorder.withValues(alpha: 0.7)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
             ],
@@ -180,6 +185,7 @@ class _FilterCategoryEditorState extends State<_FilterCategoryEditor> {
         AppButton(
           text: widget.initial == null ? 'Сохранить категорию' : 'Сохранить изменения',
           isExpanded: true,
+          service: kResourcesService,
           onTap: _canSave ? _save : null,
         ),
         const SizedBox(height: 8),

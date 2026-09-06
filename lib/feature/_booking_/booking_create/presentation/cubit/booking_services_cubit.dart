@@ -1,3 +1,4 @@
+import 'package:clover/core/session/app_session.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
 import 'package:clover/feature/_booking_/booking_create/data/repository/booking_services_repository.dart';
@@ -6,7 +7,6 @@ import 'package:clover/feature/_booking_/shared/data/booking_local_cache.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'booking_services_cubit.freezed.dart';
 
@@ -16,18 +16,18 @@ class BookingServicesCubit extends Cubit<BookingServicesState> {
     this._servicesRepository,
     this._staffRepository,
     this._cache,
-    this._client,
+    this._session,
   ) : super(const BookingServicesState.initial());
 
   final BookingServicesRepository _servicesRepository;
   final BookingStaffRepository _staffRepository;
   final BookingLocalCache _cache;
-  final SupabaseClient _client;
+  final AppSession _session;
 
   Future<void> load() async {
     if (isClosed) return;
 
-    final uid = _client.auth.currentUser?.id.trim();
+    final uid = _session.userId;
     if (uid != null && uid.isNotEmpty) {
       final cachedServices = await _cache.readMyServices(uid);
       final cachedStaff = await _cache.readMyStaff(uid);
@@ -81,7 +81,7 @@ class BookingServicesCubit extends Cubit<BookingServicesState> {
         ),
       );
 
-      final uid = _client.auth.currentUser?.id.trim();
+      final uid = _session.userId;
       if (uid != null && uid.isNotEmpty) {
         await Future.wait([
           _cache.writeMyServices(uid, services),

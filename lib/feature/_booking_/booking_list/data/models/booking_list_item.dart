@@ -9,6 +9,8 @@ class BookingListItem {
     required this.startsAt,
     required this.status,
     this.clientId,
+    this.serviceId,
+    this.staffId,
     this.clientPhone,
     this.clientUsername,
     this.serviceEmoji = '💈',
@@ -22,6 +24,8 @@ class BookingListItem {
 
   final String id;
   final String? clientId;
+  final String? serviceId;
+  final String? staffId;
   final String clientName;
   final String serviceTitle;
   final String startsAt;
@@ -41,7 +45,8 @@ class BookingListItem {
     return parsed?.toLocal();
   }
 
-  DateTime? get createdAtDate => createdAt == null ? null : DateTime.tryParse(createdAt!);
+  DateTime? get createdAtDate =>
+      createdAt == null ? null : DateTime.tryParse(createdAt!);
 
   DateTime? get endsAtDate {
     final start = startsAtDate;
@@ -49,17 +54,27 @@ class BookingListItem {
     return start.add(Duration(minutes: durationMinutes));
   }
 
-  String get statusLabel => BookingStatusDisplay.label(status, endsAt: endsAtDate);
+  String get statusLabel =>
+      BookingStatusDisplay.label(status, endsAt: endsAtDate);
 
-  bool get isVisitUnmarked => BookingStatusDisplay.isUnmarked(status, endsAtDate);
+  bool get isVisitUnmarked =>
+      BookingStatusDisplay.isUnmarked(status, endsAtDate);
 
-  BookingListItem copyWith({BookingStatus? status, String? clientId}) {
+  BookingListItem copyWith({
+    BookingStatus? status,
+    String? clientId,
+    String? serviceId,
+    String? staffId,
+    String? startsAt,
+  }) {
     return BookingListItem(
       id: id,
       clientId: clientId ?? this.clientId,
+      serviceId: serviceId ?? this.serviceId,
+      staffId: staffId ?? this.staffId,
       clientName: clientName,
       serviceTitle: serviceTitle,
-      startsAt: startsAt,
+      startsAt: startsAt ?? this.startsAt,
       status: status ?? this.status,
       clientPhone: clientPhone,
       clientUsername: clientUsername,
@@ -90,6 +105,8 @@ class BookingListItem {
     return BookingListItem(
       id: json['id']?.toString() ?? '',
       clientId: json['client_id']?.toString(),
+      serviceId: json['service_id']?.toString(),
+      staffId: json['staff_id']?.toString(),
       clientName: json['client_name']?.toString() ?? '',
       serviceTitle: json['service_title']?.toString() ?? '',
       startsAt: json['starts_at']?.toString() ?? '',
@@ -107,20 +124,22 @@ class BookingListItem {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'client_id': clientId,
-        'client_name': clientName,
-        'service_title': serviceTitle,
-        'starts_at': startsAt,
-        'status': status.dbValue,
-        'client_phone': clientPhone,
-        'client_username': clientUsername,
-        'service_emoji': serviceEmoji,
-        'duration_minutes': durationMinutes,
-        'price': price,
-        'executor_name': executorName,
-        'notes': notes,
-        'participants_count': participantsCount,
-        'created_at': createdAt,
-      };
+    'id': id,
+    'client_id': clientId,
+    'service_id': serviceId,
+    'staff_id': staffId,
+    'client_name': clientName,
+    'service_title': serviceTitle,
+    'starts_at': startsAt,
+    'status': status.dbValue,
+    'client_phone': clientPhone,
+    'client_username': clientUsername,
+    'service_emoji': serviceEmoji,
+    'duration_minutes': durationMinutes,
+    'price': price,
+    'executor_name': executorName,
+    'notes': notes,
+    'participants_count': participantsCount,
+    'created_at': createdAt,
+  };
 }

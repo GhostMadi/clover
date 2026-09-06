@@ -17,4 +17,10 @@ class AppTextStyle {
     height: height,
     letterSpacing: letterSpacing,
   );
+
+  /// Эмодзи / символы вне Manrope (системный шрифт).
+  static TextStyle emoji(double size, {double height = 1}) => TextStyle(
+        fontSize: size,
+        height: height,
+      );
 }

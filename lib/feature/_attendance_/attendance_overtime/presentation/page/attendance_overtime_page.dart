@@ -1,17 +1,25 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
-import 'package:clover/core/resources/app_service_accent.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/app_tab.dart';
+import 'package:clover/feature/_attendance_/attendance_overtime/presentation/cubit/attendance_overtime_cubit.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_error.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_outbox.dart';
+import 'package:clover/feature/_attendance_/shared/data/models/attendance_day_time.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_overtime_entry.dart';
+import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_record.dart';
+import 'package:clover/feature/_attendance_/shared/data/models/attendance_snapshot.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
 class AttendanceOvertimePage extends StatefulWidget {
@@ -24,16 +32,29 @@ class AttendanceOvertimePage extends StatefulWidget {
 }
 
 class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
-  final _store = sl<AttendanceContextStore>();
+  late final AttendanceOvertimeCubit _cubit;
   int _tabIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    _cubit = sl<AttendanceOvertimeCubit>()..bind(widget.workplaceId);
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: _store.snapshot,
-      builder: (context, snap, _) {
-        final all = snap?.overtimeEntries.where((e) => e.workplaceId == widget.workplaceId).toList() ??
-            const <AttendanceOvertimeEntry>[];
+    return BlocBuilder<AttendanceOvertimeCubit, AttendanceOvertimeState>(
+      bloc: _cubit,
+      builder: (context, state) {
+        final all = state is AttendanceOvertimeLoaded
+            ? state.entries
+            : const <AttendanceOvertimeEntry>[];
         final pending = all.where((e) => e.status == AttendanceOvertimeStatus.pending).toList();
         final approved = all.where((e) => e.status == AttendanceOvertimeStatus.approved).toList();
         final rejected = all.where((e) => e.status == AttendanceOvertimeStatus.rejected).toList();
@@ -46,6 +67,16 @@ class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
         final colors = context.colors;
         final accent = attendanceServiceAccent(colors);
         final yellow = attendanceYellowAccent(colors);
+        final store = sl<AttendanceContextStore>();
+        final snap = store.snapshot.value;
+        final selfId = store.selfWorkerId();
+        final workplace = snap?.workplaceById(widget.workplaceId);
+        final suggestedHours = _lateClockOutHours(
+          snap: snap,
+          workplaceId: widget.workplaceId,
+          workerId: selfId,
+          scheduledOut: workplace?.clockOutScheduledTime,
+        );
 
         return AttendanceScreenShell(
           title: 'Переработка',
@@ -63,27 +94,43 @@ class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
                     const SizedBox(height: 14),
                     _OvertimePipeline(accent: accent, yellow: yellow),
                     const SizedBox(height: 16),
-                    _SuggestionDemoCard(
-                      onCreateRequest: () {
-                        _store.addOvertimeRequest(
-                          AttendanceOvertimeEntry(
-                            id: 'ot_${DateTime.now().millisecondsSinceEpoch}',
-                            workplaceId: widget.workplaceId,
-                            workerId: 'worker_you',
-                            workerName: 'Вы',
-                            date: DateTime.now(),
-                            hours: 2,
-                            status: AttendanceOvertimeStatus.pending,
-                          ),
-                        );
-                        setState(() => _tabIndex = 0);
-                        AppSnackBar.show(
-                          context,
-                          message: 'Заявка создана · ждёт утверждения',
-                          kind: AppSnackBarKind.success,
-                        );
-                      },
-                    ),
+                    if (suggestedHours != null && suggestedHours > 0)
+                      _SuggestionCard(
+                        hours: suggestedHours,
+                        onCreateRequest: () async {
+                          try {
+                            final result = await _cubit.addOvertimeRequest(
+                              AttendanceOvertimeEntry(
+                                id: 'ot_${DateTime.now().millisecondsSinceEpoch}',
+                                workplaceId: widget.workplaceId,
+                                workerId: selfId,
+                                workerName: snap?.profileDisplayNames[selfId] ?? 'Вы',
+                                date: DateTime.now(),
+                                hours: suggestedHours,
+                                status: AttendanceOvertimeStatus.pending,
+                              ),
+                            );
+                            if (!context.mounted) return;
+                            setState(() => _tabIndex = 0);
+                            AppSnackBar.show(
+                              context,
+                              message: result == AttendancePersistResult.queued
+                                  ? 'Сохранено локально, синхронизируется'
+                                  : 'Заявка создана · ждёт утверждения',
+                              kind: AppSnackBarKind.success,
+                            );
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            final msg = e is AttendanceException ? e.userMessage : 'Не удалось создать заявку';
+                            AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
+                          }
+                        },
+                      )
+                    else
+                      Text(
+                        'Подсказка появится после «Ушёл» позже графика компании.',
+                        style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
+                      ),
                     const SizedBox(height: 16),
                     AppTab(
                       tabs: [
@@ -110,7 +157,7 @@ class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
                       )
                     else
                       for (final entry in list)
-                        _OvertimeCard(entry: entry, store: _store),
+                        _OvertimeCard(entry: entry, cubit: _cubit),
                   ],
                 ),
               ),
@@ -119,6 +166,30 @@ class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
         );
       },
     );
+  }
+
+  /// Hours after scheduled clock-out from today's last non-cancelled clock_out.
+  int? _lateClockOutHours({
+    required AttendanceSnapshot? snap,
+    required String workplaceId,
+    required String workerId,
+    required AttendanceDayTime? scheduledOut,
+  }) {
+    if (snap == null || scheduledOut == null) return null;
+    final today = DateTime.now();
+    final dayStart = DateTime(today.year, today.month, today.day);
+    AttendancePunchRecord? lastOut;
+    for (final p in snap.punchHistory) {
+      if (p.workplaceId != workplaceId || p.workerId != workerId) continue;
+      if (p.cancelled || !p.type.isClockOut) continue;
+      if (p.at.isBefore(dayStart)) continue;
+      if (lastOut == null || p.at.isAfter(lastOut.at)) lastOut = p;
+    }
+    if (lastOut == null) return null;
+    final scheduled = DateTime(today.year, today.month, today.day, scheduledOut.hour, scheduledOut.minute);
+    final diffMin = lastOut.at.difference(scheduled).inMinutes;
+    if (diffMin < 30) return null;
+    return ((diffMin + 29) ~/ 60).clamp(1, 12);
   }
 }
 
@@ -187,10 +258,11 @@ class _PipeStep extends StatelessWidget {
   }
 }
 
-class _SuggestionDemoCard extends StatelessWidget {
-  const _SuggestionDemoCard({required this.onCreateRequest});
+class _SuggestionCard extends StatelessWidget {
+  const _SuggestionCard({required this.hours, required this.onCreateRequest});
 
-  final VoidCallback onCreateRequest;
+  final int hours;
+  final FutureOr<void> Function() onCreateRequest;
 
   @override
   Widget build(BuildContext context) {
@@ -221,12 +293,12 @@ class _SuggestionDemoCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'У «Вы» уход позже графика · ~2 ч. Это не доплата, пока нет заявки и утверждения.',
+            'Уход позже графика · ~$hours ч. Это не доплата, пока нет заявки и утверждения.',
             style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
           ),
           const SizedBox(height: 12),
           AttendancePrimaryButton(
-            text: 'Создать заявку на 2 ч',
+            text: 'Создать заявку на $hours ч',
             height: 44,
             isExpanded: true,
             onTap: onCreateRequest,
@@ -238,10 +310,10 @@ class _SuggestionDemoCard extends StatelessWidget {
 }
 
 class _OvertimeCard extends StatelessWidget {
-  const _OvertimeCard({required this.entry, required this.store});
+  const _OvertimeCard({required this.entry, required this.cubit});
 
   final AttendanceOvertimeEntry entry;
-  final AttendanceContextStore store;
+  final AttendanceOvertimeCubit cubit;
 
   @override
   Widget build(BuildContext context) {
@@ -306,9 +378,25 @@ class _OvertimeCard extends StatelessWidget {
                   child: AttendancePrimaryButton(
                     text: 'Утвердить',
                     height: 44,
-                    onTap: () {
-                      store.setOvertimeStatus(entryId: entry.id, status: AttendanceOvertimeStatus.approved);
-                      AppSnackBar.show(context, message: 'В зарплате появится доплата', kind: AppSnackBarKind.success);
+                    onTap: () async {
+                      try {
+                        final result = await cubit.setOvertimeStatus(
+                          entryId: entry.id,
+                          status: AttendanceOvertimeStatus.approved,
+                        );
+                        if (!context.mounted) return;
+                        AppSnackBar.show(
+                          context,
+                          message: result == AttendancePersistResult.queued
+                              ? 'Сохранено локально, синхронизируется'
+                              : 'В зарплате появится доплата',
+                          kind: AppSnackBarKind.success,
+                        );
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        final msg = e is AttendanceException ? e.userMessage : 'Не удалось утвердить';
+                        AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
+                      }
                     },
                   ),
                 ),
@@ -318,9 +406,27 @@ class _OvertimeCard extends StatelessWidget {
                     text: 'Отклонить',
                     height: 44,
                     service: kAttendanceService,
-                    onTap: () {
-                      store.setOvertimeStatus(entryId: entry.id, status: AttendanceOvertimeStatus.rejected);
-                      AppSnackBar.show(context, message: 'Отклонено · без доплаты', kind: AppSnackBarKind.info);
+                    onTap: () async {
+                      try {
+                        final result = await cubit.setOvertimeStatus(
+                          entryId: entry.id,
+                          status: AttendanceOvertimeStatus.rejected,
+                        );
+                        if (!context.mounted) return;
+                        AppSnackBar.show(
+                          context,
+                          message: result == AttendancePersistResult.queued
+                              ? 'Сохранено локально, синхронизируется'
+                              : 'Отклонено · без доплаты',
+                          kind: result == AttendancePersistResult.queued
+                              ? AppSnackBarKind.success
+                              : AppSnackBarKind.info,
+                        );
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        final msg = e is AttendanceException ? e.userMessage : 'Не удалось отклонить';
+                        AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
+                      }
                     },
                   ),
                 ),

@@ -1,3 +1,4 @@
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_attendance_card.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_attachment.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_post_ref.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_reaction.dart';
@@ -14,6 +15,7 @@ class ChatMessage {
     this.clientMessageId,
     this.isPending = false,
     this.postRef,
+    this.attendanceCard,
     this.attachments = const [],
     this.reactions = const [],
     this.myReactions = const [],
@@ -30,6 +32,7 @@ class ChatMessage {
   final String? clientMessageId;
   final bool isPending;
   final ChatMessagePostRef? postRef;
+  final ChatAttendanceCard? attendanceCard;
   final List<ChatMessageAttachment> attachments;
   final List<ChatMessageReaction> reactions;
   final List<String> myReactions;
@@ -37,6 +40,8 @@ class ChatMessage {
   final DateTime? editedAt;
 
   bool get isPostShare => kind == 'post_ref';
+
+  bool get isAttendanceCard => attendanceCard != null;
 
   bool get isMedia => kind == 'media';
 
@@ -125,6 +130,7 @@ class ChatMessage {
       clientMessageId: (json['client_message_id'] as String?)?.trim(),
       isPending: json['is_pending'] == true,
       postRef: postRef,
+      attendanceCard: ChatAttendanceCard.tryParse((json['text'] as String?)?.trim()),
       attachments: attachments,
       reactions: reactions,
       myReactions: myReactions,
@@ -143,6 +149,7 @@ class ChatMessage {
     String? clientMessageId,
     bool? isPending,
     ChatMessagePostRef? postRef,
+    ChatAttendanceCard? attendanceCard,
     List<ChatMessageAttachment>? attachments,
     List<ChatMessageReaction>? reactions,
     List<String>? myReactions,
@@ -161,6 +168,7 @@ class ChatMessage {
       clientMessageId: clientMessageId ?? this.clientMessageId,
       isPending: isPending ?? this.isPending,
       postRef: postRef ?? this.postRef,
+      attendanceCard: attendanceCard ?? this.attendanceCard,
       attachments: attachments ?? this.attachments,
       reactions: reactions ?? this.reactions,
       myReactions: myReactions ?? this.myReactions,

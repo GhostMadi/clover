@@ -1,13 +1,13 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_mini_menu.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_item.dart';
 import 'package:clover/feature/_booking_/shared/data/booking_status_display.dart';
 import 'package:clover/feature/_booking_/shared/data/models/booking_status.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 
 /// Управление визитом host-ом: основной шаг + экстренные действия.
 class BookingVisitProgressSection extends StatelessWidget {
@@ -58,6 +58,12 @@ class BookingVisitProgressSection extends StatelessWidget {
               AppMiniMenu<BookingHostEmergencyAction>(
                 items: [
                   AppMiniMenuItem(
+                    value: BookingHostEmergencyAction.reschedule,
+                    title: 'Перенести',
+                    icon: AppIcons.schedule.icon,
+                    enabled: !isLoading,
+                  ),
+                  AppMiniMenuItem(
                     value: BookingHostEmergencyAction.complete,
                     title: 'Завершить визит сейчас',
                     icon: AppIcons.checkCircleOutline.icon,
@@ -86,7 +92,7 @@ class BookingVisitProgressSection extends StatelessWidget {
           if (item.isVisitUnmarked) ...[
             const SizedBox(height: 8),
             Text(
-              'Время записи прошло. Завершите визит или отметьте «не пришёл» — слот освободится.',
+              'Время записи прошло. Завершите визит сами или отметьте «не пришёл» — система не закроет услугу как сделанную.',
               style: AppTextStyle.base(13, color: context.colors.destructive, height: 1.35),
             ),
           ],
@@ -100,7 +106,7 @@ class BookingVisitProgressSection extends StatelessWidget {
             ),
           if (next != null) ...[
             const SizedBox(height: 16),
-            AppButton(
+            BookingPrimaryButton(
               text: BookingStatusDisplay.actionLabel(next),
               height: 48,
               isExpanded: true,
@@ -145,7 +151,7 @@ class _StepRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dotColor = isDone
-        ? context.colors.primary
+        ? bookingServiceAccent(context.colors).icon
         : isActive
         ? context.colors.functionalSoftBlueIcon
         : context.colors.border;
@@ -162,7 +168,7 @@ class _StepRow extends StatelessWidget {
                 height: 12,
                 margin: const EdgeInsets.only(top: 4),
                 decoration: BoxDecoration(
-                  color: isDone ? dotColor : Colors.transparent,
+                  color: isDone ? dotColor : context.colors.surface.withValues(alpha: 0),
                   shape: BoxShape.circle,
                   border: Border.all(color: dotColor, width: 2),
                 ),
@@ -172,7 +178,7 @@ class _StepRow extends StatelessWidget {
                   width: 2,
                   height: 28,
                   margin: const EdgeInsets.symmetric(vertical: 4),
-                  color: isDone ? context.colors.primary.withValues(alpha: 0.35) : context.colors.border,
+                  color: isDone ? bookingServiceAccent(context.colors).icon.withValues(alpha: 0.35) : context.colors.border,
                 ),
             ],
           ),

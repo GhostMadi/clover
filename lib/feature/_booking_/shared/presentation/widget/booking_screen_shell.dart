@@ -78,8 +78,8 @@ class BookingScreenShell extends StatelessWidget {
         FunctionalButtonItem(
           icon: AppIcons.back.icon,
           keepWhenCollapsed: true,
-          borderColor: accent.icon,
-          iconColor: accent.icon,
+          customColor: accent.cta,
+          iconColor: accent.ctaForeground,
           isLoading: isLoading,
           onTap: onBackTap ?? () => context.router.maybePop(),
         ),
@@ -98,7 +98,7 @@ class BookingScreenShell extends StatelessWidget {
           FunctionalButtonItem(
             icon: AppIcons.filterList.icon,
             keepWhenCollapsed: true,
-            customColor: accent.soft,
+            borderColor: accent.ctaBorder,
             iconColor: accent.icon,
             isLoading: isLoading,
             onTap: onFilterTap ?? () {},
@@ -107,7 +107,7 @@ class BookingScreenShell extends StatelessWidget {
           FunctionalButtonItem(
             icon: AppIcons.settingsOutlined.icon,
             keepWhenCollapsed: true,
-            customColor: accent.soft,
+            borderColor: accent.ctaBorder,
             iconColor: accent.icon,
             isLoading: isLoading,
             onTap: onSettingsTap ?? () {},
@@ -136,6 +136,9 @@ class BookingScreenShell extends StatelessWidget {
           FunctionalButtonItem(
             icon: AppIcons.designServices.icon,
             label: 'Услуги',
+            borderColor: accent.ctaBorder,
+            iconColor: accent.icon,
+            textColor: accent.icon,
             isLoading: isLoading,
             onTap: onServicesTap ?? () {},
           ),
@@ -143,6 +146,9 @@ class BookingScreenShell extends StatelessWidget {
           FunctionalButtonItem(
             icon: AppIcons.insights.icon,
             label: 'Аналитика',
+            borderColor: accent.ctaBorder,
+            iconColor: accent.icon,
+            textColor: accent.icon,
             isLoading: isLoading,
             onTap: onAnalyticsTap ?? () {},
           ),
@@ -160,7 +166,7 @@ class BookingScreenShell extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _BookingTopBar(title: title),
+          _BookingTopBar(title: title, accent: accent),
           Expanded(child: body),
         ],
       ),
@@ -169,9 +175,10 @@ class BookingScreenShell extends StatelessWidget {
 }
 
 class _BookingTopBar extends StatelessWidget {
-  const _BookingTopBar({required this.title});
+  const _BookingTopBar({required this.title, required this.accent});
 
   final String title;
+  final AppServiceAccent accent;
 
   @override
   Widget build(BuildContext context) {
@@ -179,16 +186,22 @@ class _BookingTopBar extends StatelessWidget {
       color: context.colors.pageBackground,
       child: SafeArea(
         bottom: false,
-        child: SizedBox(
-          height: kToolbarHeight,
-          child: Center(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.base(17, color: context.colors.textColor, fontWeight: FontWeight.w600),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(height: 3, color: accent.icon),
+            SizedBox(
+              height: kToolbarHeight,
+              child: Center(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyle.base(17, color: context.colors.textColor, fontWeight: FontWeight.w600),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

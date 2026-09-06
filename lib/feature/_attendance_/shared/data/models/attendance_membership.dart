@@ -1,4 +1,4 @@
-import 'package:clover/feature/_attendance_/shared/data/attendance_workers_mock.dart';
+import 'package:clover/feature/_attendance_/shared/data/models/attendance_worker.dart';
 
 /// Членство работника в компании (локальный snapshot).
 class AttendanceMembership {

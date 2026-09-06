@@ -1,9 +1,9 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_item.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 
 class BookingListActionCard extends StatelessWidget {
   const BookingListActionCard({
@@ -84,7 +84,7 @@ class BookingListActionCard extends StatelessWidget {
                   const SizedBox(width: 10),
                   Text(
                     timeLabel(start),
-                    style: AppTextStyle.base(15, color: context.colors.primary, fontWeight: FontWeight.w800),
+                    style: AppTextStyle.base(15, color: bookingServiceAccent(context.colors).icon, fontWeight: FontWeight.w800),
                   ),
                 ],
               ),
@@ -112,7 +112,7 @@ class BookingListActionCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: AppButton(
+                    child: BookingPrimaryButton(
                       text: primaryLabel,
                       height: 44,
                       borderRadius: 14,

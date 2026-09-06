@@ -64,7 +64,6 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
     final colors = context.colors;
     final serviceAccent = widget.service != null ? colors.serviceAccent(widget.service!) : null;
     final ctaColor = serviceAccent?.cta ?? colors.primary;
-    final ctaBorder = serviceAccent?.ctaBorder ?? colors.borderCardGreen;
     final backgroundColor = _isEnabled ? ctaColor : colors.surfaceSoft;
     final textColor = _isEnabled ? (serviceAccent?.ctaForeground ?? colors.textInverse) : colors.subTextColor;
 
@@ -75,11 +74,7 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
               blurRadius: 18,
               offset: const Offset(0, 10),
             ),
-            BoxShadow(
-              color: ctaColor.withValues(alpha: 0.20),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
-            ),
+            BoxShadow(color: ctaColor.withValues(alpha: 0.20), blurRadius: 24, offset: const Offset(0, 8)),
           ]
         : [
             BoxShadow(
@@ -94,7 +89,7 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(widget.borderRadius),
-        border: Border.all(color: _isEnabled ? ctaBorder : colors.border),
+        // Filled CTA: без отдельной обводки — красим только кнопку.
         boxShadow: shadows,
       ),
       child: Stack(

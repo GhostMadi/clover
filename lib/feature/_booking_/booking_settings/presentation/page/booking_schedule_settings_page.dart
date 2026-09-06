@@ -6,6 +6,7 @@ import 'package:clover/feature/_booking_/booking_settings/data/models/booking_sc
 import 'package:clover/feature/_booking_/booking_settings/presentation/cubit/booking_schedule_settings_cubit.dart';
 import 'package:clover/feature/_booking_/booking_settings/presentation/widget/booking_schedule_settings_form.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -68,7 +69,7 @@ class _BookingScheduleSettingsPageState extends State<BookingScheduleSettingsPag
             error: (s) => Center(child: Text(s.message)),
             orElse: () {
               if (settings == null) {
-                return const Center(child: CircularProgressIndicator());
+                return const BookingLoader();
               }
               return BookingScheduleSettingsForm(
                 settings: settings,

@@ -2,6 +2,7 @@ import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_list/data/booking_host_inbox.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -202,14 +203,15 @@ class _DayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = bookingServiceAccent(context.colors);
     final textColor = selected
-        ? context.colors.white
+        ? accent.ctaForeground
         : isToday
-            ? context.colors.primary
+            ? accent.icon
             : context.colors.textColor;
 
     return Material(
-      color: selected ? context.colors.primary : context.colors.surface,
+      color: selected ? accent.cta : context.colors.surface,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -217,7 +219,7 @@ class _DayCell extends StatelessWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: isToday && !selected ? Border.all(color: context.colors.primary, width: 1.5) : null,
+            border: isToday && !selected ? Border.all(color: accent.icon, width: 1.5) : null,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -233,7 +235,7 @@ class _DayCell extends StatelessWidget {
                         width: 5,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: selected ? context.colors.white.withValues(alpha: 0.9) : context.colors.primary,
+                          color: selected ? accent.ctaForeground.withValues(alpha: 0.85) : accent.icon,
                           shape: BoxShape.circle,
                         ),
                       )

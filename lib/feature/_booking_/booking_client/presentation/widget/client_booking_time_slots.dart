@@ -3,6 +3,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/shared/data/models/client_booking_slot_status.dart';
 import 'package:clover/feature/_booking_/booking_client/data/models/client_booking_slot.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 
 class ClientBookingTimeSlots extends StatelessWidget {
   const ClientBookingTimeSlots({
@@ -46,9 +47,10 @@ class _SlotChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = bookingServiceAccent(context.colors);
     final (bg, fg, border) = switch (slot.status) {
-      ClientBookingSlotStatus.selected => (context.colors.primary, context.colors.textInverse, context.colors.primary),
-      ClientBookingSlotStatus.available => (context.colors.surface, context.colors.textColor, context.colors.borderCardGreen),
+      ClientBookingSlotStatus.selected => (accent.cta, accent.ctaForeground, accent.cta),
+      ClientBookingSlotStatus.available => (context.colors.surface, context.colors.textColor, accent.ctaBorder),
       ClientBookingSlotStatus.myConflict => (
           context.colors.functionalSoftRed,
           context.colors.functionalSoftRedIcon,
@@ -86,8 +88,8 @@ class _Legend extends StatelessWidget {
       spacing: 12,
       runSpacing: 6,
       children: [
-        _LegendItem(color: context.colors.primary, label: 'Выбрано'),
-        _LegendItem(color: context.colors.borderCardGreen, label: 'Свободно'),
+        _LegendItem(color: bookingServiceAccent(context.colors).cta, label: 'Выбрано'),
+        _LegendItem(color: bookingServiceAccent(context.colors).ctaBorder, label: 'Свободно'),
         _LegendItem(color: context.colors.borderCardRed, label: 'Ваш конфликт'),
         _LegendItem(color: context.colors.borderSoft, label: 'Занято'),
       ],

@@ -44,10 +44,10 @@ profiles (host)
   │     └── booking_service_staff (M2M)
   ├── booking_schedule_settings (1 row)
   └── bookings ← client profiles
-        ├── booking_history
-        └── booking_reviews
+        └── booking_history
 ```
 
+~~`booking_reviews`~~ сняты (`20260906111000`); in-app отзывы не делаем.
 ### Key constraints
 
 - `bookings`: EXCLUDE overlap on `staff_id` + time range (pending/confirmed)
@@ -184,7 +184,7 @@ Verify: `supabase/scripts/verify_booking_rpcs.sql`
 |---------|--------|
 | In-app booking notifications | **v1** — общая `notifications`, см. [SPEC_IN_APP_NOTIFICATIONS.md](SPEC_IN_APP_NOTIFICATIONS.md) |
 | Push / FCM | Not v1 |
-| `create_booking_review` RPC | Schema ready |
+| In-app reviews | **Removed** — no `booking_reviews` |
 | Per-staff schedule UI | Backend ready |
 | Realtime host inbox | Optional |
 
@@ -198,6 +198,8 @@ Verify: `supabase/scripts/verify_booking_rpcs.sql`
 - [ ] Cross-host client conflict in availability
 - [ ] History on create + status change
 - [ ] Service deactivate blocked with future bookings
-- [ ] Host search by client/service
+- [x] Host search by client/service
+- [x] Client reschedule (same window as cancel)
+- [x] Blocked slots + staff schedule UI
 - [ ] Analytics metrics complete
 - [ ] RLS isolation between users

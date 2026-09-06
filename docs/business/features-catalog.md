@@ -180,7 +180,7 @@ Like / dislike на постах; уведомления автору.
 ## Запись и бонусы
 
 ### 🟢 Онлайн-запись
-Хозяин (тег `booking`) настраивает услуги и расписание; клиент записывается с профиля или с поста с услугой; «Мои бронирования» через ⋯.  
+Хозяин (тег `booking`) настраивает услуги и расписание; клиент записывается с профиля или с поста; «Мои бронирования»; inbox + перенос; «Оказана» только вручную (без auto-complete).  
 Бизнес: [booking.md](booking.md)  
 Техника: `lib/feature/_booking_/`, [SPEC_BOOKING_SYSTEM.md](../supabase/SPEC_BOOKING_SYSTEM.md)
 
@@ -189,9 +189,9 @@ Like / dislike на постах; уведомления автору.
 Бизнес: [bonuses.md](bonuses.md)  
 Техника: `lib/feature/_bonus_/`, `supabase/migrations/_bonus/FLOW.md`
 
-### 🟡 Посещаемость
-Admin + worker: полный бизнес-процесс по собранным mock-экранам; chat-карточки invite/правил; «Сегодня на смене»; **0 запросов** для неучастников.  
-Бэк ядра 🟡: workplace / membership / punch / absences + bootstrap RPC; OT / payroll / live chat-карточки — следующие срезы.  
+### 🟢 Посещаемость
+Admin + worker: основной цикл + rich chat, corrections, 0-traffic, logout wipe, offline punch, `duty_only_punch`, folders, OT-подсказка.  
+Бэк 🟢 v1.4; Flutter 🟢. Вне скоупа: ARB l10n; push secrets/cron — ops.  
 Бизнес: [attendance.md](attendance.md)  
 Техника: `lib/feature/_attendance_/`, [SPEC_ATTENDANCE_SYSTEM.md](../supabase/SPEC_ATTENDANCE_SYSTEM.md), `supabase/migrations/_attendance/`
 

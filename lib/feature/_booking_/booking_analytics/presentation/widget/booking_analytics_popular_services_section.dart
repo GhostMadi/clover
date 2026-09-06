@@ -1,6 +1,7 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_analytics/data/models/booking_analytics_popular_service.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 
 class BookingAnalyticsPopularServicesSection extends StatelessWidget {
@@ -67,7 +68,7 @@ class _PopularServiceRow extends StatelessWidget {
                   color: context.colors.surfaceSoftGreen.withValues(alpha: 0.55),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text(service.emojiText, style: const TextStyle(fontSize: 22, height: 1)),
+                child: Text(service.emojiText, style: AppTextStyle.emoji(22)),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -95,7 +96,7 @@ class _PopularServiceRow extends StatelessWidget {
               value: progress,
               minHeight: 8,
               backgroundColor: context.colors.surfaceSoft,
-              color: context.colors.primary,
+              color: bookingServiceAccent(context.colors).icon,
             ),
           ),
         ],

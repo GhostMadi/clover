@@ -10,7 +10,9 @@ import 'package:clover/core/shared/app_functional_button/functional_button_item.
 import 'package:clover/core/shared/app_functional_button/map_functional_buttons.dart';
 import 'package:clover/core/shared/app_map/app_map.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
+import 'package:clover/feature/_attendance_/attendance_workplace_settings/presentation/cubit/attendance_workplace_settings_cubit.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_error.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_outbox.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -27,6 +29,7 @@ class AttendanceGeofencePage extends StatefulWidget {
 class _AttendanceGeofencePageState extends State<AttendanceGeofencePage> {
   static const _defaultCenter = AppMapPoint(latitude: 43.238949, longitude: 76.889709);
 
+  late final AttendanceWorkplaceSettingsCubit _cubit;
   final _mapController = AppMapController();
 
   late AppMapPoint _center;
@@ -35,11 +38,20 @@ class _AttendanceGeofencePageState extends State<AttendanceGeofencePage> {
   @override
   void initState() {
     super.initState();
-    final w = sl<AttendanceContextStore>().snapshot.value?.workplaceById(widget.workplaceId);
+    _cubit = sl<AttendanceWorkplaceSettingsCubit>()..bind(widget.workplaceId);
+    final w = _cubit.state is AttendanceWorkplaceSettingsReady
+        ? (_cubit.state as AttendanceWorkplaceSettingsReady).workplace
+        : null;
     _radius = w?.geofenceRadiusM ?? 150;
     _center = w != null && w.hasGeofenceCenter
         ? AppMapPoint(latitude: w.latitude!, longitude: w.longitude!)
         : _defaultCenter;
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
   }
 
   double _zoomForRadius(int radiusM) {
@@ -63,21 +75,50 @@ class _AttendanceGeofencePageState extends State<AttendanceGeofencePage> {
   }
 
   Future<void> _moveToMyLocation() async {
-    final point = await _mapController.moveToMyLocation();
-    if (point == null || !mounted) return;
-    setState(() => _center = point);
-    unawaited(_fitCamera());
+    final (result, point) = await _mapController.moveToMyLocation();
+    if (!mounted) return;
+
+    switch (result) {
+      case AppMapMyLocationResult.moved:
+        if (point == null) return;
+        setState(() => _center = point);
+        unawaited(_fitCamera());
+      case AppMapMyLocationResult.permissionDenied:
+        AppSnackBar.show(
+          context,
+          message: 'Разрешите доступ к геолокации в настройках',
+          kind: AppSnackBarKind.error,
+        );
+      case AppMapMyLocationResult.unavailable:
+        AppSnackBar.show(
+          context,
+          message: 'Не удалось определить местоположение',
+          kind: AppSnackBarKind.error,
+        );
+    }
   }
 
-  void _save() {
-    sl<AttendanceContextStore>().updateGeofence(
-      workplaceId: widget.workplaceId,
-      latitude: _center.latitude,
-      longitude: _center.longitude,
-      geofenceRadiusM: _radius,
-    );
-    AppSnackBar.show(context, message: 'Геозона сохранена', kind: AppSnackBarKind.success);
-    context.router.maybePop();
+  Future<void> _save() async {
+    try {
+      final result = await _cubit.updateGeofence(
+        latitude: _center.latitude,
+        longitude: _center.longitude,
+        geofenceRadiusM: _radius,
+      );
+      if (!mounted) return;
+      AppSnackBar.show(
+        context,
+        message: result == AttendancePersistResult.queued
+            ? 'Сохранено локально, синхронизируется'
+            : 'Геозона сохранена',
+        kind: AppSnackBarKind.success,
+      );
+      context.router.maybePop();
+    } catch (e) {
+      if (!mounted) return;
+      final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить';
+      AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
+    }
   }
 
   @override
@@ -137,8 +178,8 @@ class _AttendanceGeofencePageState extends State<AttendanceGeofencePage> {
         FunctionalButtonItem(
           icon: AppIcons.back.icon,
           keepWhenCollapsed: true,
-          borderColor: attendanceServiceAccent(colors).icon,
-          iconColor: attendanceServiceAccent(colors).icon,
+          customColor: attendanceServiceAccent(colors).cta,
+          iconColor: attendanceServiceAccent(colors).ctaForeground,
           onTap: () => context.router.maybePop(),
         ),
         ...MapFunctionalButtons.controls(
@@ -151,8 +192,8 @@ class _AttendanceGeofencePageState extends State<AttendanceGeofencePage> {
           label: 'Сохранить',
           keepWhenCollapsed: true,
           customColor: attendanceServiceAccent(colors).cta,
-          iconColor: colors.textInverse,
-          textColor: colors.textInverse,
+          iconColor: attendanceServiceAccent(colors).ctaForeground,
+          textColor: attendanceServiceAccent(colors).ctaForeground,
           onTap: _save,
         ),
       ],

@@ -1,4 +1,6 @@
-/// Mock-список работников компании (UI v1).
+import 'package:clover/feature/_attendance_/shared/data/models/attendance_worker.dart';
+
+/// Локальный seed для offline/demo snapshot (не remote path).
 abstract final class AttendanceWorkersMock {
   static const accepted = AttendanceWorkerListItem(
     id: 'worker_you',
@@ -35,7 +37,15 @@ abstract final class AttendanceWorkersMock {
     status: AttendanceWorkerInviteStatus.archived,
   );
 
-  /// Кандидаты для «Добавить работника» (ещё не в команде).
+  static const teamSeed = <AttendanceWorkerListItem>[
+    accepted,
+    mariaPending,
+    ivanAccepted,
+    aidanaAccepted,
+    sergeyArchived,
+  ];
+
+  /// Кандидаты для «Добавить работника» (ещё не в команде) — только demo.
   static const inviteCandidates = <AttendanceWorkerListItem>[
     AttendanceWorkerListItem(
       id: 'worker_nurlan',
@@ -51,67 +61,13 @@ abstract final class AttendanceWorkersMock {
     ),
   ];
 
-  static List<AttendanceWorkerListItem> forWorkplace(String workplaceId) {
-    return const [accepted, mariaPending, ivanAccepted, aidanaAccepted, sergeyArchived];
-  }
-
   static AttendanceWorkerListItem? byId(String workerId) {
-    for (final w in forWorkplace('')) {
+    for (final w in teamSeed) {
       if (w.id == workerId) return w;
     }
     for (final w in inviteCandidates) {
       if (w.id == workerId) return w;
     }
     return null;
-  }
-}
-
-enum AttendanceWorkerInviteStatus {
-  accepted,
-  pending,
-  archived,
-  /// Отклонил invite — вне команды, не в вкладках.
-  declined,
-}
-
-extension AttendanceWorkerInviteStatusX on AttendanceWorkerInviteStatus {
-  String get labelRu => switch (this) {
-        AttendanceWorkerInviteStatus.accepted => 'Принят',
-        AttendanceWorkerInviteStatus.pending => 'Ожидает приглашения',
-        AttendanceWorkerInviteStatus.archived => 'В архиве',
-        AttendanceWorkerInviteStatus.declined => 'Отклонён',
-      };
-
-  bool get isActive => this == AttendanceWorkerInviteStatus.accepted;
-}
-
-class AttendanceWorkerListItem {
-  const AttendanceWorkerListItem({
-    required this.id,
-    required this.displayName,
-    required this.username,
-    required this.status,
-  });
-
-  final String id;
-  final String displayName;
-  final String username;
-  final AttendanceWorkerInviteStatus status;
-
-  bool get isAccepted => status == AttendanceWorkerInviteStatus.accepted;
-
-  bool get isPending => status == AttendanceWorkerInviteStatus.pending;
-
-  bool get isArchived => status == AttendanceWorkerInviteStatus.archived;
-
-  bool get isDeclined => status == AttendanceWorkerInviteStatus.declined;
-
-  AttendanceWorkerListItem copyWith({AttendanceWorkerInviteStatus? status}) {
-    return AttendanceWorkerListItem(
-      id: id,
-      displayName: displayName,
-      username: username,
-      status: status ?? this.status,
-    );
   }
 }

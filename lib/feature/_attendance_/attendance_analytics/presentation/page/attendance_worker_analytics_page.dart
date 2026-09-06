@@ -12,7 +12,7 @@ import 'package:clover/feature/_attendance_/attendance_analytics/presentation/wi
 import 'package:clover/feature/_attendance_/attendance_analytics/presentation/widget/attendance_mini_calendar.dart';
 import 'package:clover/feature/_attendance_/attendance_analytics/presentation/widget/attendance_worker_day_journal.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_payroll_mock.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_payroll_calc.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_absence.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_payroll_models.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_record.dart';
@@ -79,9 +79,9 @@ class _AttendanceWorkerAnalyticsPageState extends State<AttendanceWorkerAnalytic
         final isToday = selectedKey == AttendanceAnalytics.today;
 
         final workplace = snap?.workplaceById(widget.workplaceId);
-        final payroll = workplace == null
+        final payroll = (workplace == null || snap == null)
             ? null
-            : AttendancePayrollMock.forWorkplace(workplace, snapshot: snap)
+            : AttendancePayrollCalc.forWorkplace(workplace, snapshot: snap)
                 .where((e) => e.workerId == widget.workerId)
                 .firstOrNull;
 

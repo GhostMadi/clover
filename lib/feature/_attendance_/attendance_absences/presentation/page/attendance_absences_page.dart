@@ -1,36 +1,57 @@
+import 'package:clover/feature/_attendance_/shared/data/models/attendance_worker.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_workers_mock.dart';
+import 'package:clover/feature/_attendance_/attendance_absences/presentation/cubit/attendance_absences_cubit.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_error.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_outbox.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_absence.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
-class AttendanceAbsencesPage extends StatelessWidget {
+class AttendanceAbsencesPage extends StatefulWidget {
   const AttendanceAbsencesPage({super.key, required this.workplaceId});
 
   final String workplaceId;
 
   @override
-  Widget build(BuildContext context) {
-    final store = sl<AttendanceContextStore>();
+  State<AttendanceAbsencesPage> createState() => _AttendanceAbsencesPageState();
+}
 
-    return ValueListenableBuilder(
-      valueListenable: store.snapshot,
-      builder: (context, snap, _) {
-        final absences = snap?.absences.where((e) => e.workplaceId == workplaceId).toList() ?? const [];
-        absences.sort((a, b) => b.startDate.compareTo(a.startDate));
-        final workers = snap?.workersFor(workplaceId).where((w) => w.isAccepted).toList() ?? const [];
+class _AttendanceAbsencesPageState extends State<AttendanceAbsencesPage> {
+  late final AttendanceAbsencesCubit _cubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit = sl<AttendanceAbsencesCubit>()..bind(widget.workplaceId);
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AttendanceAbsencesCubit, AttendanceAbsencesState>(
+      bloc: _cubit,
+      builder: (context, state) {
+        final loaded = state is AttendanceAbsencesLoaded ? state : null;
+        final absences = loaded?.absences ?? const <AttendanceAbsenceEntry>[];
+        final workers = loaded?.workers ?? const <AttendanceWorkerListItem>[];
+        final snap = loaded?.snapshot;
 
         return AttendanceScreenShell(
           title: 'Отсутствия',
           showAdd: true,
-          onAddTap: () => _showAdd(context, store, workers),
+          onAddTap: () => _showAdd(context, workers),
           body: ListView(
             padding: EdgeInsets.fromLTRB(16, 8, 16, AttendanceScreenShell.scrollBottomGap(context)),
             children: [
@@ -45,7 +66,7 @@ class AttendanceAbsencesPage extends StatelessWidget {
                 for (final entry in absences)
                   _AbsenceCard(
                     entry: entry,
-                    workerName: snap?.workersFor(workplaceId)
+                    workerName: snap?.workersFor(widget.workplaceId)
                             .where((w) => w.id == entry.workerId)
                             .map((w) => w.displayName)
                             .firstOrNull ??
@@ -58,11 +79,7 @@ class AttendanceAbsencesPage extends StatelessWidget {
     );
   }
 
-  Future<void> _showAdd(
-    BuildContext context,
-    AttendanceContextStore store,
-    List<AttendanceWorkerListItem> workers,
-  ) {
+  Future<void> _showAdd(BuildContext context, List<AttendanceWorkerListItem> workers) {
     if (workers.isEmpty) {
       return AttendanceBottomSheet.show(
         context: context,
@@ -119,19 +136,32 @@ class AttendanceAbsencesPage extends StatelessWidget {
         AttendancePrimaryButton(
           text: 'Сохранить',
           isExpanded: true,
-          onTap: () {
-            store.addAbsence(
-              AttendanceAbsenceEntry(
-                id: 'abs_${DateTime.now().millisecondsSinceEpoch}',
-                workplaceId: workplaceId,
-                workerId: workerId,
-                kind: kind,
-                startDate: now,
-                endDate: now,
-              ),
-            );
-            Navigator.of(context).pop();
-            AppSnackBar.show(context, message: 'Отсутствие добавлено', kind: AppSnackBarKind.success);
+          onTap: () async {
+            try {
+              final result = await _cubit.addAbsence(
+                AttendanceAbsenceEntry(
+                  id: 'abs_${DateTime.now().millisecondsSinceEpoch}',
+                  workplaceId: widget.workplaceId,
+                  workerId: workerId,
+                  kind: kind,
+                  startDate: now,
+                  endDate: now,
+                ),
+              );
+              if (!context.mounted) return;
+              Navigator.of(context).pop();
+              AppSnackBar.show(
+                context,
+                message: result == AttendancePersistResult.queued
+                    ? 'Сохранено локально, синхронизируется'
+                    : 'Отсутствие добавлено',
+                kind: AppSnackBarKind.success,
+              );
+            } catch (e) {
+              if (!context.mounted) return;
+              final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить';
+              AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
+            }
           },
         ),
       ],
@@ -174,13 +204,5 @@ class _AbsenceCard extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-extension _FirstOrNullAbs<E> on Iterable<E> {
-  E? get firstOrNull {
-    final it = iterator;
-    if (!it.moveNext()) return null;
-    return it.current;
   }
 }

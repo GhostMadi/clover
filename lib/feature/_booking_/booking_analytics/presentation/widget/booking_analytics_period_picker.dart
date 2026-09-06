@@ -1,6 +1,7 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_date_picker.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 
 class BookingAnalyticsPeriodPicker extends StatelessWidget {
@@ -48,6 +49,7 @@ class BookingAnalyticsPeriodPicker extends StatelessWidget {
                 hint: 'Дата начала',
                 value: start,
                 lastDate: end,
+                service: kBookingService,
                 onChanged: (value) {
                   final normalized = DateTime(value.year, value.month, value.day);
                   onStartChanged(normalized);
@@ -61,6 +63,7 @@ class BookingAnalyticsPeriodPicker extends StatelessWidget {
                 hint: 'Дата конца',
                 value: end,
                 firstDate: start,
+                service: kBookingService,
                 onChanged: (value) {
                   final normalized = DateTime(value.year, value.month, value.day);
                   onEndChanged(normalized);
@@ -82,8 +85,10 @@ class _PresetChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = bookingServiceAccent(context.colors);
+
     return Material(
-      color: context.colors.surfaceSoftGreen.withValues(alpha: 0.55),
+      color: accent.soft,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -92,11 +97,11 @@ class _PresetChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: context.colors.borderCardGreen.withValues(alpha: 0.7)),
+            border: Border.all(color: accent.ctaBorder.withValues(alpha: 0.85)),
           ),
           child: Text(
             label,
-            style: AppTextStyle.base(13, color: context.colors.primary, fontWeight: FontWeight.w700),
+            style: AppTextStyle.base(13, color: accent.icon, fontWeight: FontWeight.w700),
           ),
         ),
       ),

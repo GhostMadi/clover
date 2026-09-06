@@ -6,13 +6,15 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/app_switch.dart';
 import 'package:clover/feature/_attendance_/attendance_analytics/presentation/widget/attendance_analytics_ui.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_payroll_mock.dart';
+import 'package:clover/feature/_attendance_/attendance_payroll_rules/presentation/cubit/attendance_payroll_rules_cubit.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_error.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_outbox.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_payroll_models.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
 class AttendancePayrollRulesPage extends StatefulWidget {
@@ -25,47 +27,61 @@ class AttendancePayrollRulesPage extends StatefulWidget {
 }
 
 class _AttendancePayrollRulesPageState extends State<AttendancePayrollRulesPage> {
-  late AttendancePayrollRules _rules;
-  final _store = sl<AttendanceContextStore>();
+  late final AttendancePayrollRulesCubit _cubit;
 
   @override
   void initState() {
     super.initState();
-    final w = _store.snapshot.value?.workplaceById(widget.workplaceId);
-    _rules = w?.payrollRules ?? const AttendancePayrollRules();
+    _cubit = sl<AttendancePayrollRulesCubit>()..bind(widget.workplaceId);
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: _store.snapshot,
-      builder: (context, snap, _) {
-        final workplace = snap?.workplaceById(widget.workplaceId);
+    return BlocBuilder<AttendancePayrollRulesCubit, AttendancePayrollRulesState>(
+      bloc: _cubit,
+      builder: (context, state) {
+        final workplace = state.workplace;
         if (workplace == null) {
           return AttendanceScreenShell(
             title: 'Зарплата',
             body: Center(
-              child: Text('Компания не найдена', style: AppTextStyle.base(15, color: context.colors.subTextColor)),
+              child: Text(
+                'Компания не найдена',
+                style: AppTextStyle.base(15, color: context.colors.subTextColor),
+              ),
             ),
           );
         }
 
-        final previewWorkplace = workplace.copyWith(payrollRules: _rules);
-        final summary = AttendancePayrollMock.teamSummary(previewWorkplace, snapshot: snap);
-        final rows = AttendancePayrollMock.forWorkplace(previewWorkplace, snapshot: snap);
+        final rules = state.rules;
+        final summary = state.summary;
+        final rows = state.rows;
 
         return AttendanceScreenShell(
           title: 'Зарплата',
           showSave: true,
-          onSaveTap: () => _save(workplace.id),
+          isSaving: state.saving,
+          onSaveTap: _save,
           body: ListView(
             padding: EdgeInsets.fromLTRB(16, 8, 16, AttendanceScreenShell.scrollBottomGap(context)),
             children: [
               Text(
-                '${summary.periodLabel} · расчёт по посещаемости. '
-                'Ниже — кто сколько получает, что списано и что добавлено.',
+                '${summary.periodLabel} · предварительный расчёт по текущим правилам и отметкам.',
                 style: AppTextStyle.base(14, color: context.colors.subTextColor),
               ),
+              if (state.loadingPreview) ...[
+                const SizedBox(height: 10),
+                LinearProgressIndicator(
+                  color: context.colors.primary,
+                  backgroundColor: context.colors.surfaceMuted,
+                ),
+              ],
               const SizedBox(height: 16),
               _TeamSummaryCard(summary: summary),
               const SizedBox(height: 22),
@@ -80,10 +96,7 @@ class _AttendancePayrollRulesPageState extends State<AttendancePayrollRulesPage>
               ),
               const SizedBox(height: 12),
               for (var i = 0; i < rows.length; i++) ...[
-                _WorkerPayrollCard(
-                  payroll: rows[i],
-                  onTap: () => _showWorkerDetail(context, workplace.id, rows[i]),
-                ),
+                _WorkerPayrollCard(payroll: rows[i], onTap: () => _showWorkerDetail(context, rows[i])),
                 if (i < rows.length - 1) const SizedBox(height: 10),
               ],
               const SizedBox(height: 24),
@@ -102,41 +115,41 @@ class _AttendancePayrollRulesPageState extends State<AttendancePayrollRulesPage>
                   _PayrollRuleBlock(
                     title: 'Опоздания уменьшают ЗП',
                     subtitle: 'Списание за каждую минуту опоздания.',
-                    value: _rules.lateDeductsPay,
-                    onChanged: (v) => setState(() => _rules = _rules.copyWith(lateDeductsPay: v)),
+                    value: rules.lateDeductsPay,
+                    onChanged: (v) => _cubit.setRules(rules.copyWith(lateDeductsPay: v)),
                     fieldLabel: '₸ за минуту',
-                    fieldValue: _rules.lateDeductPerMinute,
-                    onFieldChanged: (v) => setState(() => _rules = _rules.copyWith(lateDeductPerMinute: v)),
+                    fieldValue: rules.lateDeductPerMinute,
+                    onFieldChanged: (v) => _cubit.setRules(rules.copyWith(lateDeductPerMinute: v)),
                   ),
                   Divider(height: 1, color: context.colors.divider),
                   _PayrollRuleBlock(
                     title: 'Переработка добавляет к ЗП',
                     subtitle: 'Доплата за каждый час сверх графика.',
-                    value: _rules.overtimeAddsPay,
-                    onChanged: (v) => setState(() => _rules = _rules.copyWith(overtimeAddsPay: v)),
+                    value: rules.overtimeAddsPay,
+                    onChanged: (v) => _cubit.setRules(rules.copyWith(overtimeAddsPay: v)),
                     fieldLabel: '₸ за час',
-                    fieldValue: _rules.overtimeBonusPerHour,
-                    onFieldChanged: (v) => setState(() => _rules = _rules.copyWith(overtimeBonusPerHour: v)),
+                    fieldValue: rules.overtimeBonusPerHour,
+                    onFieldChanged: (v) => _cubit.setRules(rules.copyWith(overtimeBonusPerHour: v)),
                   ),
                   Divider(height: 1, color: context.colors.divider),
                   _PayrollRuleBlock(
                     title: 'Пропуски уменьшают ЗП',
                     subtitle: 'Фиксированное списание за день без отметки.',
-                    value: _rules.absenceDeductsPay,
-                    onChanged: (v) => setState(() => _rules = _rules.copyWith(absenceDeductsPay: v)),
+                    value: rules.absenceDeductsPay,
+                    onChanged: (v) => _cubit.setRules(rules.copyWith(absenceDeductsPay: v)),
                     fieldLabel: '₸ за день',
-                    fieldValue: _rules.absenceDeductPerDay,
-                    onFieldChanged: (v) => setState(() => _rules = _rules.copyWith(absenceDeductPerDay: v)),
+                    fieldValue: rules.absenceDeductPerDay,
+                    onFieldChanged: (v) => _cubit.setRules(rules.copyWith(absenceDeductPerDay: v)),
                   ),
                   Divider(height: 1, color: context.colors.divider),
                   _PayrollRuleBlock(
                     title: 'Неполный день уменьшает ЗП',
                     subtitle: 'Процент от дневной ставки за частичную смену.',
-                    value: _rules.partialDayDeductsPay,
-                    onChanged: (v) => setState(() => _rules = _rules.copyWith(partialDayDeductsPay: v)),
+                    value: rules.partialDayDeductsPay,
+                    onChanged: (v) => _cubit.setRules(rules.copyWith(partialDayDeductsPay: v)),
                     fieldLabel: '% от дня',
-                    fieldValue: _rules.partialDayDeductPercent,
-                    onFieldChanged: (v) => setState(() => _rules = _rules.copyWith(partialDayDeductPercent: v)),
+                    fieldValue: rules.partialDayDeductPercent,
+                    onFieldChanged: (v) => _cubit.setRules(rules.copyWith(partialDayDeductPercent: v)),
                     maxValue: 100,
                   ),
                 ],
@@ -148,24 +161,31 @@ class _AttendancePayrollRulesPageState extends State<AttendancePayrollRulesPage>
     );
   }
 
-  void _save(String workplaceId) {
-    _store.updatePayrollRules(workplaceId: workplaceId, rules: _rules);
-    AppSnackBar.show(context, message: 'Правила сохранены', kind: AppSnackBarKind.success);
-    context.router.maybePop();
+  Future<void> _save() async {
+    if (_cubit.state.saving) return;
+    try {
+      final result = await _cubit.save();
+      if (!mounted) return;
+      AppSnackBar.show(
+        context,
+        message: result == AttendancePersistResult.queued
+            ? 'Сохранено локально, синхронизируется'
+            : 'Правила сохранены',
+        kind: AppSnackBarKind.success,
+      );
+      context.router.maybePop();
+    } catch (e) {
+      if (!mounted) return;
+      final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить';
+      AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
+    }
   }
 
-  Future<void> _showWorkerDetail(
-    BuildContext context,
-    String workplaceId,
-    AttendanceWorkerPayroll payroll,
-  ) {
+  Future<void> _showWorkerDetail(BuildContext context, AttendanceWorkerPayroll payroll) {
     return AttendanceBottomSheet.show(
       context: context,
       title: payroll.displayName,
-      content: _WorkerPayrollDetailSheet(
-        workplaceId: workplaceId,
-        payroll: payroll,
-      ),
+      content: _WorkerPayrollDetailSheet(payroll: payroll, cubit: _cubit),
     );
   }
 }
@@ -187,11 +207,7 @@ class _TeamSummaryCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              AttendanceMetricIcon(
-                icon: AppIcons.payments.icon,
-                tint: accent.icon,
-                bg: accent.soft,
-              ),
+              AttendanceMetricIcon(icon: AppIcons.payments.icon, tint: accent.icon, bg: accent.soft),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -233,13 +249,10 @@ class _TeamSummaryCard extends StatelessWidget {
 }
 
 class _WorkerPayrollDetailSheet extends StatefulWidget {
-  const _WorkerPayrollDetailSheet({
-    required this.workplaceId,
-    required this.payroll,
-  });
+  const _WorkerPayrollDetailSheet({required this.payroll, required this.cubit});
 
-  final String workplaceId;
   final AttendanceWorkerPayroll payroll;
+  final AttendancePayrollRulesCubit cubit;
 
   @override
   State<_WorkerPayrollDetailSheet> createState() => _WorkerPayrollDetailSheetState();
@@ -247,7 +260,6 @@ class _WorkerPayrollDetailSheet extends StatefulWidget {
 
 class _WorkerPayrollDetailSheetState extends State<_WorkerPayrollDetailSheet> {
   late final TextEditingController _salaryController;
-  final _store = sl<AttendanceContextStore>();
 
   @override
   void initState() {
@@ -262,27 +274,37 @@ class _WorkerPayrollDetailSheetState extends State<_WorkerPayrollDetailSheet> {
   }
 
   AttendanceWorkerPayroll get _currentPayroll {
-    final workplace = _store.snapshot.value?.workplaceById(widget.workplaceId);
-    if (workplace == null) return widget.payroll;
-    return AttendancePayrollMock.forWorkplace(workplace, snapshot: _store.snapshot.value).firstWhere(
-      (e) => e.workerId == widget.payroll.workerId,
+    return widget.cubit.state.rows.firstWhere(
+      (row) => row.workerId == widget.payroll.workerId,
       orElse: () => widget.payroll,
     );
   }
 
-  void _saveSalary() {
+  Future<void> _saveSalary() async {
     final parsed = int.tryParse(_salaryController.text.trim());
     if (parsed == null || parsed <= 0) {
       AppSnackBar.show(context, message: 'Укажите оклад в ₸', kind: AppSnackBarKind.error);
       return;
     }
-    _store.updateWorkerBaseSalary(
-      workplaceId: widget.workplaceId,
-      workerId: widget.payroll.workerId,
-      baseSalary: parsed,
-    );
-    AppSnackBar.show(context, message: 'Оклад сохранён', kind: AppSnackBarKind.success);
-    setState(() {});
+    try {
+      final result = await widget.cubit.updateWorkerBaseSalary(
+        workerId: widget.payroll.workerId,
+        baseSalary: parsed,
+      );
+      if (!mounted) return;
+      AppSnackBar.show(
+        context,
+        message: result == AttendancePersistResult.queued
+            ? 'Сохранено локально, синхронизируется'
+            : 'Оклад сохранён',
+        kind: AppSnackBarKind.success,
+      );
+      setState(() {});
+    } catch (e) {
+      if (!mounted) return;
+      final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить оклад';
+      AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
+    }
   }
 
   @override
@@ -305,22 +327,15 @@ class _WorkerPayrollDetailSheetState extends State<_WorkerPayrollDetailSheet> {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         ),
         const SizedBox(height: 10),
-        AttendancePrimaryButton(
-          text: 'Сохранить оклад',
-          isExpanded: true,
-          onTap: _saveSalary,
-        ),
+        AttendancePrimaryButton(text: 'Сохранить оклад', isExpanded: true, onTap: _saveSalary),
         const SizedBox(height: 20),
         Text(
-          'Расчёт за ${AttendancePayrollMock.periodLabel}',
+          'Оценка за ${widget.cubit.state.summary.periodLabel}',
           style: AppTextStyle.base(14, color: colors.textColor, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),
         if (payroll.lines.isEmpty)
-          Text(
-            'Без корректировок за период.',
-            style: AppTextStyle.base(14, color: colors.subTextColor),
-          )
+          Text('Без корректировок за период.', style: AppTextStyle.base(14, color: colors.subTextColor))
         else
           for (final line in payroll.lines)
             Padding(
@@ -422,14 +437,12 @@ class _SummaryRow extends StatelessWidget {
     final colors = context.colors;
     return Row(
       children: [
-        Expanded(child: Text(label, style: AppTextStyle.base(14, color: colors.subTextColor))),
+        Expanded(
+          child: Text(label, style: AppTextStyle.base(14, color: colors.subTextColor)),
+        ),
         Text(
           value,
-          style: AppTextStyle.base(
-            14,
-            color: valueColor ?? colors.textColor,
-            fontWeight: FontWeight.w700,
-          ),
+          style: AppTextStyle.base(14, color: valueColor ?? colors.textColor, fontWeight: FontWeight.w700),
         ),
       ],
     );
@@ -502,20 +515,23 @@ class _WorkerPayrollCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            line.label,
-                            style: AppTextStyle.base(13, color: colors.subTextColor),
-                          ),
+                          Text(line.label, style: AppTextStyle.base(13, color: colors.subTextColor)),
                           if (line.detail != null)
                             Text(
                               line.detail!,
-                              style: AppTextStyle.base(11, color: colors.subTextColor.withValues(alpha: 0.85)),
+                              style: AppTextStyle.base(
+                                11,
+                                color: colors.subTextColor.withValues(alpha: 0.85),
+                              ),
                             ),
                         ],
                       ),
                     ),
                     Text(
-                      attendanceFormatMoneySigned(line.amount, isBonus: line.kind == AttendancePayrollLineKind.bonus),
+                      attendanceFormatMoneySigned(
+                        line.amount,
+                        isBonus: line.kind == AttendancePayrollLineKind.bonus,
+                      ),
                       style: AppTextStyle.base(
                         13,
                         color: line.kind == AttendancePayrollLineKind.bonus ? accent.icon : yellow.icon,
@@ -534,12 +550,7 @@ class _WorkerPayrollCard extends StatelessWidget {
 }
 
 class _DetailRow extends StatelessWidget {
-  const _DetailRow({
-    required this.label,
-    required this.value,
-    this.valueColor,
-    this.bold = false,
-  });
+  const _DetailRow({required this.label, required this.value, this.valueColor, this.bold = false});
 
   final String label;
   final String value;

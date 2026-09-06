@@ -1,9 +1,9 @@
-import 'package:clover/feature/_attendance_/shared/data/attendance_workers_mock.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_absence.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_membership.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_overtime_entry.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_pending_punch.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_record.dart';
+import 'package:clover/feature/_attendance_/shared/data/models/attendance_worker.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_workplace.dart';
 
 class AttendanceSnapshot {
@@ -96,15 +96,14 @@ class AttendanceSnapshot {
   }
 
   AttendanceWorkerInviteStatus workerStatus(String workplaceId, String workerId) {
-    return workerStatusOverrides[workplaceId]?[workerId] ??
-        AttendanceWorkersMock.byId(workerId)?.status ??
-        AttendanceWorkerInviteStatus.accepted;
+    return workerStatusOverrides[workplaceId]?[workerId] ?? AttendanceWorkerInviteStatus.accepted;
   }
 
   /// Работники компании с актуальными статусами.
   /// Declined не показываем во вкладках.
+  /// Remote / roster: только memberships. Local demo: [extraWorkers] (+ overrides).
   List<AttendanceWorkerListItem> workersFor(String workplaceId) {
-    if (fromRemote || rosterMemberships.isNotEmpty) {
+    if (fromRemote || rosterMemberships.isNotEmpty || memberships.isNotEmpty) {
       final source = rosterMemberships.isEmpty ? memberships : rosterMemberships;
       return source
           .where((m) => m.workplaceId == workplaceId && m.profileId != null)
@@ -124,14 +123,10 @@ class AttendanceSnapshot {
           })
           .toList(growable: false);
     }
-    final byId = <String, AttendanceWorkerListItem>{};
-    for (final w in AttendanceWorkersMock.forWorkplace(workplaceId)) {
-      byId[w.id] = w.copyWith(status: workerStatus(workplaceId, w.id));
-    }
-    for (final w in extraWorkers) {
-      byId[w.id] = w.copyWith(status: workerStatus(workplaceId, w.id));
-    }
-    return byId.values.where((w) => !w.isDeclined).toList(growable: false);
+    return extraWorkers
+        .where((w) => !w.isDeclined)
+        .map((w) => w.copyWith(status: workerStatus(workplaceId, w.id)))
+        .toList(growable: false);
   }
 
   AttendanceAbsenceEntry? absenceCovering({
@@ -208,7 +203,8 @@ class AttendanceSnapshot {
       final workplace = workplaceById(m.workplaceId);
       if (workplace == null) continue;
 
-      if (!m.shiftOpen && workplace.clockInEnabled && mockInGeofence) {
+      if (!m.shiftOpen && workplace.clockInEnabled) {
+        // Geofence проверяется на экране punch / GPS — pending только напоминает.
         return AttendancePendingPunch(
           workplaceId: m.workplaceId,
           workplaceName: m.workplaceName,

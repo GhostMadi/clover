@@ -1,6 +1,7 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_analytics/data/repository/booking_analytics_repository.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 
 class BookingAnalyticsTopStaffSection extends StatelessWidget {
@@ -45,6 +46,7 @@ class _StaffRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = bookingServiceAccent(context.colors);
     final progress = maxCount == 0 ? 0.0 : member.bookingCount / maxCount;
     final revenueLabel = member.revenue == member.revenue.roundToDouble()
         ? '${member.revenue.toInt()} ₸'
@@ -70,7 +72,7 @@ class _StaffRow extends StatelessWidget {
               ),
               Text(
                 revenueLabel,
-                style: AppTextStyle.base(13, color: context.colors.primary, fontWeight: FontWeight.w700),
+                style: AppTextStyle.base(13, color: accent.icon, fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -86,7 +88,7 @@ class _StaffRow extends StatelessWidget {
               value: progress,
               minHeight: 8,
               backgroundColor: context.colors.surfaceSoft,
-              color: context.colors.functionalSoftBlueIcon,
+              color: accent.icon,
             ),
           ),
         ],

@@ -5,30 +5,45 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_tile.dart';
-import 'package:clover/feature/_attendance_/attendance_analytics/data/attendance_analytics.dart';
 import 'package:clover/feature/_attendance_/attendance_analytics/presentation/widget/attendance_today_team_section.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
+import 'package:clover/feature/_attendance_/attendance_company/presentation/cubit/attendance_company_cubit.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/attendance_company_chat_nav.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
-class AttendanceCompanyPage extends StatelessWidget {
+class AttendanceCompanyPage extends StatefulWidget {
   const AttendanceCompanyPage({super.key, required this.workplaceId});
 
   final String workplaceId;
 
   @override
+  State<AttendanceCompanyPage> createState() => _AttendanceCompanyPageState();
+}
+
+class _AttendanceCompanyPageState extends State<AttendanceCompanyPage> {
+  late final AttendanceCompanyCubit _cubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit = sl<AttendanceCompanyCubit>()..load(widget.workplaceId);
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final store = sl<AttendanceContextStore>();
-
-    return ValueListenableBuilder(
-      valueListenable: store.snapshot,
-      builder: (context, snap, _) {
-        final workplace = snap?.workplaceById(workplaceId);
-
-        if (workplace == null || snap == null) {
+    return BlocBuilder<AttendanceCompanyCubit, AttendanceCompanyState>(
+      bloc: _cubit,
+      builder: (context, state) {
+        if (state is AttendanceCompanyMissing || state is AttendanceCompanyInitial) {
           return AttendanceScreenShell(
             title: 'Компания',
             body: Center(
@@ -40,13 +55,11 @@ class AttendanceCompanyPage extends StatelessWidget {
           );
         }
 
-        final now = AttendanceAnalytics.today;
-        final overview = AttendanceAnalytics.overview(
-          snapshot: snap,
-          workplaceId: workplaceId,
-          start: now,
-          end: now,
-        );
+        final workplace = state is AttendanceCompanyLoaded
+            ? state.workplace
+            : (state as AttendanceCompanyLoading).workplace;
+        final overview = state is AttendanceCompanyLoaded ? state.todayOverview : null;
+        final workplaceId = widget.workplaceId;
 
         return AttendanceScreenShell(
           title: workplace.name,
@@ -55,10 +68,20 @@ class AttendanceCompanyPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AttendanceTodayTeamSection(
-                  workers: overview.workers,
-                  workplaceId: workplaceId,
-                ),
+                if (overview != null)
+                  AttendanceTodayTeamSection(
+                    workers: overview.workers,
+                    workplaceId: workplaceId,
+                  )
+                else
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: context.colors.serviceAccent(kAttendanceService).icon,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 24),
                 const _CompanySectionTitle('Компания'),
                 AppTileGroup(
@@ -104,6 +127,14 @@ class AttendanceCompanyPage extends StatelessWidget {
                       icon: AppIcons.schedule.icon,
                       showChevron: true,
                       onTap: () => context.router.push(AttendanceOvertimeRoute(workplaceId: workplaceId)),
+                    ),
+                    AttendanceServiceTile(
+                      title: 'Исправления',
+                      subtitle: 'Запросы на правку отметок',
+                      icon: AppIcons.editOutlined.icon,
+                      showChevron: true,
+                      onTap: () =>
+                          context.router.push(AttendanceCorrectionsRoute(workplaceId: workplaceId)),
                     ),
                     AttendanceServiceTile(
                       title: 'Табель',

@@ -1,6 +1,7 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_analytics/data/repository/booking_analytics_repository.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 
 /// Сводка периода: выручка, средний чек, статусы.
@@ -18,6 +19,8 @@ class BookingAnalyticsSummarySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = bookingServiceAccent(context.colors);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -31,7 +34,7 @@ class BookingAnalyticsSummarySection extends StatelessWidget {
             ),
             Text(
               '${result.totalBookings} записей',
-              style: AppTextStyle.base(13, color: context.colors.primary, fontWeight: FontWeight.w700),
+              style: AppTextStyle.base(13, color: accent.icon, fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -39,7 +42,7 @@ class BookingAnalyticsSummarySection extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             userLabel!,
-            style: AppTextStyle.base(13, color: context.colors.functionalSoftBlueIcon, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(13, color: accent.icon, fontWeight: FontWeight.w600),
           ),
         ],
         const SizedBox(height: 14),
@@ -151,16 +154,18 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = bookingServiceAccent(context.colors);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: context.colors.surfaceMuted,
+        color: accent.soft,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: context.colors.borderSoft),
+        border: Border.all(color: accent.ctaBorder.withValues(alpha: 0.7)),
       ),
       child: Text(
         '$label · $count',
-        style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
+        style: AppTextStyle.base(12, color: accent.icon, fontWeight: FontWeight.w600),
       ),
     );
   }

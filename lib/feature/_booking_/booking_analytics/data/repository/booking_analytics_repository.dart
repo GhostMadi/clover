@@ -44,17 +44,9 @@ class BookingAnalyticsStaffStat {
   final int completedCount;
 }
 
-abstract class BookingAnalyticsRepository {
-  Future<BookingAnalyticsResult> load({
-    required DateTime start,
-    required DateTime end,
-    String? staffId,
-  });
-}
-
-@LazySingleton(as: BookingAnalyticsRepository)
-class BookingAnalyticsRepositoryImpl implements BookingAnalyticsRepository {
-  BookingAnalyticsRepositoryImpl(this._client);
+@lazySingleton
+class BookingAnalyticsRepository {
+  BookingAnalyticsRepository(this._client);
 
   final SupabaseClient _client;
 
@@ -66,7 +58,6 @@ class BookingAnalyticsRepositoryImpl implements BookingAnalyticsRepository {
     }
   }
 
-  @override
   Future<BookingAnalyticsResult> load({
     required DateTime start,
     required DateTime end,

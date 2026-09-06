@@ -26,12 +26,12 @@ class LocationDetailSheet extends StatefulWidget {
     final height = MediaQuery.sizeOf(context).height * 0.78;
     return AppBottomSheet.show<bool>(
       context: context,
-
       title: 'Адрес',
       upperCaseTitle: false,
       showCloseButton: true,
       contentHeight: height,
       contentBottomSpacing: 0,
+      service: kResourcesService,
       content: LocationDetailSheet(location: location),
     );
   }
@@ -247,6 +247,7 @@ class _LocationDetailSheetState extends State<LocationDetailSheet> {
                   textInputAction: TextInputAction.next,
                   inputFormatters: const [EnglishAddressInputFormatter()],
                   isEnabled: !busy,
+                  service: kResourcesService,
                 ),
               ),
             ),
@@ -262,6 +263,7 @@ class _LocationDetailSheetState extends State<LocationDetailSheet> {
                   prefixIcon: AppIcons.translate.icon,
                   textInputAction: TextInputAction.done,
                   isEnabled: !busy,
+                  service: kResourcesService,
                 ),
               ),
             ),
@@ -310,12 +312,14 @@ class _LocationDetailSheetState extends State<LocationDetailSheet> {
               value: _isActive,
               onChanged: busy ? null : _onActiveChanged,
               enabled: !busy,
+              service: kResourcesService,
             ),
             const SizedBox(height: 24),
             AppButton(
               text: _saving ? 'Сохранение…' : 'Принять изменения',
               isExpanded: true,
               interactive: _canSave,
+              service: kResourcesService,
               onTap: _canSave ? _acceptChanges : null,
             ),
             AppTextButton(

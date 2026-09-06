@@ -15,6 +15,8 @@ class BookingScheduleSettings {
     required this.workEndHour,
     required this.workEndMinute,
     required this.executorAbsences,
+    this.clientCancelHoursBefore = 0,
+    this.autoCloseHoursAfterVisit = 0,
   });
 
   /// Выходные дни недели (1 = пн … 7 = вс).
@@ -27,6 +29,12 @@ class BookingScheduleSettings {
   final int workEndHour;
   final int workEndMinute;
   final List<BookingExecutorAbsence> executorAbsences;
+
+  /// 0 = клиент может отменить до начала; N = не позже чем за N часов.
+  final int clientCancelHoursBefore;
+
+  /// 0 = выкл; иначе через N часов после ends_at → авто «Не пришёл» (не «Оказана»).
+  final int autoCloseHoursAfterVisit;
 
   factory BookingScheduleSettings.defaults() {
     final today = DateTime.now();
@@ -50,6 +58,8 @@ class BookingScheduleSettings {
           note: 'Отпуск',
         ),
       ],
+      clientCancelHoursBefore: 0,
+      autoCloseHoursAfterVisit: 0,
     );
   }
 
@@ -127,6 +137,8 @@ class BookingScheduleSettings {
     int? workEndHour,
     int? workEndMinute,
     List<BookingExecutorAbsence>? executorAbsences,
+    int? clientCancelHoursBefore,
+    int? autoCloseHoursAfterVisit,
   }) {
     return BookingScheduleSettings(
       restWeekdays: restWeekdays ?? this.restWeekdays,
@@ -140,6 +152,8 @@ class BookingScheduleSettings {
       workEndHour: workEndHour ?? this.workEndHour,
       workEndMinute: workEndMinute ?? this.workEndMinute,
       executorAbsences: executorAbsences ?? this.executorAbsences,
+      clientCancelHoursBefore: clientCancelHoursBefore ?? this.clientCancelHoursBefore,
+      autoCloseHoursAfterVisit: autoCloseHoursAfterVisit ?? this.autoCloseHoursAfterVisit,
     );
   }
 

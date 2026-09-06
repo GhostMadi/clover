@@ -24,34 +24,9 @@ class BookingAvailabilityResult {
   final int slotStepMinutes;
 }
 
-abstract class BookingClientRepository {
-  Future<List<BookingServiceWithStaff>> loadCatalog(String hostId);
-
-  Future<BookingScheduleSettings> loadHostSchedule(String hostId);
-
-  Future<BookingAvailabilityResult> loadAvailability({
-    required String hostId,
-    required String serviceId,
-    required String staffId,
-    required DateTime day,
-  });
-
-  Future<String> createBooking({
-    required String hostId,
-    required String serviceId,
-    required String staffId,
-    required DateTime startsAt,
-    String? clientNotes,
-    int participantsCount = 1,
-    bool useBonuses = true,
-  });
-
-  Future<int> getMyBonusBalanceAtHost(String hostId);
-}
-
-@LazySingleton(as: BookingClientRepository)
-class BookingClientRepositoryImpl implements BookingClientRepository {
-  BookingClientRepositoryImpl(
+@lazySingleton
+class BookingClientRepository {
+  BookingClientRepository(
     this._client,
     this._servicesRepository,
     this._scheduleRepository,
@@ -69,28 +44,31 @@ class BookingClientRepositoryImpl implements BookingClientRepository {
     }
   }
 
-  @override
   Future<List<BookingServiceWithStaff>> loadCatalog(String hostId) =>
       _servicesRepository.listHostCatalog(hostId);
 
-  @override
   Future<BookingScheduleSettings> loadHostSchedule(String hostId) =>
       _scheduleRepository.getSettings(hostId: hostId);
 
-  @override
   Future<BookingAvailabilityResult> loadAvailability({
     required String hostId,
     required String serviceId,
     required String staffId,
     required DateTime day,
+    String? excludeBookingId,
   }) async {
     return _guard(() async {
-      final res = await _client.rpc('get_booking_availability', params: {
+      final params = <String, dynamic>{
         'p_host_id': hostId,
         'p_service_id': serviceId,
         'p_staff_id': staffId,
         'p_day': _dateKey(day),
-      });
+      };
+      final excludedId = excludeBookingId?.trim();
+      if (excludedId != null && excludedId.isNotEmpty) {
+        params['p_exclude_booking_id'] = excludedId;
+      }
+      final res = await _client.rpc('get_booking_availability', params: params);
 
       if (res is! Map) {
         return const BookingAvailabilityResult(slots: []);
@@ -109,7 +87,9 @@ class BookingClientRepositoryImpl implements BookingClientRepository {
           slots.add(
             ClientBookingSlot(
               startsAt: startsAt.toLocal(),
-              status: ClientBookingSlotStatus.fromApiOrAvailable(slotMap['status']?.toString()),
+              status: ClientBookingSlotStatus.fromApiOrAvailable(
+                slotMap['status']?.toString(),
+              ),
               conflictLabel: BookingJson.asString(slotMap['conflict_label']),
             ),
           );
@@ -117,16 +97,20 @@ class BookingClientRepositoryImpl implements BookingClientRepository {
       }
 
       return BookingAvailabilityResult(
-        dayUnavailableReason: BookingJson.asString(map['day_unavailable_reason']),
+        dayUnavailableReason: BookingJson.asString(
+          map['day_unavailable_reason'],
+        ),
         slots: slots,
         workStart: BookingJson.asString(map['work_start']),
         workEnd: BookingJson.asString(map['work_end']),
-        slotStepMinutes: BookingJson.asInt(map['slot_step_minutes'], fallback: 30),
+        slotStepMinutes: BookingJson.asInt(
+          map['slot_step_minutes'],
+          fallback: 30,
+        ),
       );
     });
   }
 
-  @override
   Future<String> createBooking({
     required String hostId,
     required String serviceId,
@@ -137,15 +121,18 @@ class BookingClientRepositoryImpl implements BookingClientRepository {
     bool useBonuses = true,
   }) async {
     return _guard(() async {
-      final id = await _client.rpc('create_booking', params: {
-        'p_host_id': hostId,
-        'p_service_id': serviceId,
-        'p_staff_id': staffId,
-        'p_starts_at': startsAt.toUtc().toIso8601String(),
-        'p_participants_count': participantsCount,
-        'p_client_notes': clientNotes,
-        'p_use_bonuses': useBonuses,
-      });
+      final id = await _client.rpc(
+        'create_booking',
+        params: {
+          'p_host_id': hostId,
+          'p_service_id': serviceId,
+          'p_staff_id': staffId,
+          'p_starts_at': startsAt.toUtc().toIso8601String(),
+          'p_participants_count': participantsCount,
+          'p_client_notes': clientNotes,
+          'p_use_bonuses': useBonuses,
+        },
+      );
       return id?.toString() ?? '';
     });
   }
@@ -153,13 +140,15 @@ class BookingClientRepositoryImpl implements BookingClientRepository {
   String _dateKey(DateTime date) =>
       '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
-  @override
   Future<int> getMyBonusBalanceAtHost(String hostId) async {
     final id = hostId.trim();
     if (id.isEmpty) return 0;
 
     return _guard(() async {
-      final res = await _client.rpc('get_my_bonus_balance_at_host', params: {'p_host_id': id});
+      final res = await _client.rpc(
+        'get_my_bonus_balance_at_host',
+        params: {'p_host_id': id},
+      );
       if (res is int) return res;
       if (res is num) return res.toInt();
       return int.tryParse(res?.toString() ?? '') ?? 0;

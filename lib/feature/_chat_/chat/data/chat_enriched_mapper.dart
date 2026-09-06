@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_attendance_card.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_attachment.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_post_ref.dart';
@@ -72,7 +73,14 @@ abstract final class ChatEnrichedMapper {
     final myReactions = _parseMyReactions(row['my_reactions']);
     final reactions = _parseReactions(row['reactions'], myReactions: myReactions);
     final replyPreview = _parseReplyPreview(row['reply_preview']);
-    final text = _messageText(message, attachments: attachments, postRef: postRef, kind: kind);
+    final rawText = message['text']?.toString();
+    final attendanceCard = ChatAttendanceCard.fromRef(_asMap(row['attendance_card'])) ??
+        ChatAttendanceCard.tryParse(rawText);
+    final text = attendanceCard != null
+        ? (attendanceCard.isInvite
+            ? 'Приглашение · ${attendanceCard.workplaceName}'
+            : 'Правила · ${attendanceCard.workplaceName}')
+        : _messageText(message, attachments: attachments, postRef: postRef, kind: kind);
 
     return ChatMessage(
       id: id,
@@ -84,6 +92,7 @@ abstract final class ChatEnrichedMapper {
       clientMessageId: message['client_message_id']?.toString(),
       isPending: isPending,
       postRef: postRef,
+      attendanceCard: attendanceCard,
       attachments: attachments,
       reactions: reactions,
       myReactions: myReactions,
@@ -206,6 +215,8 @@ abstract final class ChatEnrichedMapper {
     return switch (kind) {
       'media' || 'file' => text?.isNotEmpty == true ? text! : '',
       'post_ref' => 'Пост',
+      'attendance_invite' => text?.isNotEmpty == true ? text! : 'Приглашение в команду',
+      'attendance_rules' => text?.isNotEmpty == true ? text! : 'Правила посещаемости',
       'system' => text?.isNotEmpty == true ? text! : 'Системное сообщение',
       _ => text?.isNotEmpty == true ? text! : 'Сообщение',
     };
@@ -230,6 +241,8 @@ abstract final class ChatEnrichedMapper {
     return switch (kind) {
       'media' || 'file' => '',
       'post_ref' => 'Пост',
+      'attendance_invite' => 'Приглашение в команду',
+      'attendance_rules' => 'Правила посещаемости',
       'system' => 'Системное сообщение',
       _ => '',
     };

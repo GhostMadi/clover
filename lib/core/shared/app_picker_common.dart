@@ -14,6 +14,7 @@ class AppPickerFieldShell extends StatelessWidget {
     required this.onTap,
     this.prefixIcon,
     this.enabled = true,
+    this.service,
   });
 
   final String? label;
@@ -22,6 +23,7 @@ class AppPickerFieldShell extends StatelessWidget {
   final VoidCallback? onTap;
   final IconData? prefixIcon;
   final bool enabled;
+  final AppServiceKind? service;
 
   static const double _radius = 16;
 
@@ -30,6 +32,11 @@ class AppPickerFieldShell extends StatelessWidget {
     final colors = context.colors;
     final hasValue = displayText != null && displayText!.trim().isNotEmpty;
     final canTap = enabled && onTap != null;
+    final serviceAccent = service != null ? colors.serviceAccent(service!) : null;
+    final iconColor = serviceAccent?.icon ?? colors.fieldIcon;
+    final borderColor = serviceAccent != null
+        ? serviceAccent.ctaBorder.withValues(alpha: 0.65)
+        : colors.fieldBorder;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -40,7 +47,11 @@ class AppPickerFieldShell extends StatelessWidget {
             padding: const EdgeInsets.only(left: 4, bottom: 6),
             child: Text(
               label!,
-              style: AppTextStyle.base(13, fontWeight: FontWeight.w600, color: colors.fieldLabel),
+              style: AppTextStyle.base(
+                13,
+                fontWeight: FontWeight.w600,
+                color: serviceAccent?.icon ?? colors.fieldLabel,
+              ),
             ),
           ),
         ],
@@ -54,7 +65,7 @@ class AppPickerFieldShell extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(_radius),
-                border: Border.all(color: colors.fieldBorder),
+                border: Border.all(color: borderColor),
                 boxShadow: [
                   BoxShadow(
                     color: colors.shadowDark.withValues(alpha: 0.04),
@@ -66,7 +77,7 @@ class AppPickerFieldShell extends StatelessWidget {
               child: Row(
                 children: [
                   if (prefixIcon != null) ...[
-                    Icon(prefixIcon, size: 22, color: colors.fieldIcon),
+                    Icon(prefixIcon, size: 22, color: iconColor),
                     const SizedBox(width: 10),
                   ],
                   Expanded(
@@ -85,7 +96,7 @@ class AppPickerFieldShell extends StatelessWidget {
                   ),
                   Icon(
                     AppIcons.arrowDown.icon,
-                    color: colors.subTextColor.withValues(alpha: 0.55),
+                    color: (serviceAccent?.icon ?? colors.subTextColor).withValues(alpha: 0.55),
                     size: 24,
                   ),
                 ],

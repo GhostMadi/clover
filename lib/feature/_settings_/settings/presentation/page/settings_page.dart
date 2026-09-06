@@ -1,7 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_tile.dart';
+import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_tile_section.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +15,10 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final booking = bookingServiceAccent(context.colors);
+    final attendance = attendanceServiceAccent(context.colors);
+    final resources = context.colors.serviceAccent(kResourcesService);
+
     return SettingsScreenShell(
       title: 'Настройки',
       body: SingleChildScrollView(
@@ -24,19 +31,27 @@ class SettingsPage extends StatelessWidget {
               children: [
                 AppTile(
                   title: 'Запись',
+                  subtitle: 'Кнопка в профиле и настройки сервиса',
                   icon: AppIcons.calendarMonth.icon,
+                  iconColor: booking.icon,
+                  iconBackgroundColor: booking.soft,
                   showChevron: true,
-                  onTap: () => context.router.push(const BookingListRoute()),
+                  onTap: () => context.router.push(const SettingsBookingRoute()),
                 ),
                 AppTile(
                   title: 'Посещаемость',
+                  subtitle: 'Кнопка в профиле и настройки сервиса',
                   icon: AppIcons.schedule.icon,
+                  iconColor: attendance.icon,
+                  iconBackgroundColor: attendance.soft,
                   showChevron: true,
-                  onTap: () => context.router.push(const AttendanceHubRoute()),
+                  onTap: () => context.router.push(const SettingsAttendanceRoute()),
                 ),
                 AppTile(
                   title: 'Ресурсы',
                   icon: AppIcons.inventory.icon,
+                  iconColor: resources.icon,
+                  iconBackgroundColor: resources.soft,
                   showChevron: true,
                   onTap: () => context.router.push(const SettingsResourcesRoute()),
                 ),
@@ -48,7 +63,7 @@ class SettingsPage extends StatelessWidget {
               children: [
                 AppTile(
                   title: 'Архивы',
-                  subtitle: 'Публикации, ивенты и кластеры',
+                  subtitle: 'Публикации и кластеры',
                   icon: AppIcons.archive.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const SettingsArchiveRoute()),

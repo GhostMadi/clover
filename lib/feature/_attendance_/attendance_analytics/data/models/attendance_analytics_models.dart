@@ -44,12 +44,16 @@ class AttendanceWorkerDayRecord {
     required this.date,
     required this.status,
     required this.totalMinutes,
+    this.lateMinutes = 0,
     this.punches = const [],
   });
 
   final DateTime date;
   final AttendanceDayStatus status;
   final int totalMinutes;
+
+  /// Минуты опоздания относительно scheduled clock-in (0 если не late).
+  final int lateMinutes;
   final List<AttendanceDayPunch> punches;
 
   String get totalLabel {

@@ -3,6 +3,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_item.dart';
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_detail_body.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 
 class BookingListCard extends StatelessWidget {
   const BookingListCard({
@@ -101,7 +102,7 @@ class _DateBadge extends StatelessWidget {
         children: [
           Text(
             timeLabel,
-            style: AppTextStyle.base(15, color: context.colors.primary, fontWeight: FontWeight.w800),
+            style: AppTextStyle.base(15, color: bookingServiceAccent(context.colors).icon, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 2),
           Text(

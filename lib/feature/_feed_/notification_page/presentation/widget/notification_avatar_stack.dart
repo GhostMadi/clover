@@ -115,6 +115,14 @@ class _ReactionBadge extends StatelessWidget {
         context.colors.primary,
         context.colors.white,
       ),
+      NotificationKind.attendanceInvite ||
+      NotificationKind.attendanceRulesAck ||
+      NotificationKind.attendanceDuty ||
+      NotificationKind.attendanceCorrection => (
+        AppIcons.groupOutlined.icon,
+        context.colors.primary,
+        context.colors.white,
+      ),
     };
 
     return Container(

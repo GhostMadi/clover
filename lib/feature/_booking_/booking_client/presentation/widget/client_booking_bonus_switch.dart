@@ -1,8 +1,8 @@
-import 'package:clover/core/shared/app_switch.dart';
 import 'package:clover/feature/_bonus_/shared/data/bonus_format.dart';
 import 'package:clover/feature/_booking_/booking_client/data/client_booking_bonus_preview.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 
 class ClientBookingBonusSwitch extends StatelessWidget {
   const ClientBookingBonusSwitch({
@@ -34,7 +34,7 @@ class ClientBookingBonusSwitch extends StatelessWidget {
             '(${service.bonusPayPercent}% цены). Остаток — на месте.'
         : 'На балансе $balanceLabel. Бонусы за этот визит не списываем.';
 
-    return AppSwitchRow(
+    return BookingSwitchRow(
       title: 'Оплатить бонусами',
       subtitle: subtitle,
       value: value,

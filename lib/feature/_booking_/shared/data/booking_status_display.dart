@@ -95,4 +95,5 @@ enum BookingHostEmergencyAction {
   complete,
   cancel,
   noShow,
+  reschedule,
 }

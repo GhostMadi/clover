@@ -171,6 +171,19 @@ class _NotificationTileState extends State<NotificationTile> {
         bold(_serviceLabel(item)),
         regular(_whenSuffix(item)),
       ],
+      NotificationKind.attendanceInvite => [
+        bold(actorsLabel),
+        regular(' пригласил(-а) в команду посещаемости'),
+      ],
+      NotificationKind.attendanceRulesAck => [
+        regular('Новые правила компании — нужно принять'),
+      ],
+      NotificationKind.attendanceDuty => [
+        regular('Обновлён список дежурных'),
+      ],
+      NotificationKind.attendanceCorrection => [
+        regular('Запрос на исправление отметки'),
+      ],
     };
   }
 

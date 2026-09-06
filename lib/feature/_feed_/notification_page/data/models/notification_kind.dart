@@ -16,6 +16,10 @@ enum NotificationKind {
   bookingCompletedClient,
   bookingNoShowClient,
   bookingReminderClient,
+  attendanceInvite,
+  attendanceRulesAck,
+  attendanceDuty,
+  attendanceCorrection,
 }
 
 extension NotificationKindBookingX on NotificationKind {

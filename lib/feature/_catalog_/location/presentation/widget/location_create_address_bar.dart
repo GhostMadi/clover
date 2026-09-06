@@ -94,7 +94,9 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
             Icon(
               AppIcons.locationOn.icon,
               size: 22,
-              color: hasAddress ? context.colors.primary : context.colors.iconMuted,
+              color: hasAddress
+                  ? context.colors.serviceAccent(kResourcesService).icon
+                  : context.colors.iconMuted,
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -152,6 +154,7 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
             prefixIcon: AppIcons.locationOn.icon,
             textInputAction: TextInputAction.next,
             inputFormatters: const [EnglishAddressInputFormatter()],
+            service: kResourcesService,
           ),
           const SizedBox(height: 8),
           AppField(
@@ -159,6 +162,7 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
             hintText: 'ул. Абая, 150, Алматы (необязательно)',
             prefixIcon: AppIcons.translate.icon,
             textInputAction: TextInputAction.done,
+            service: kResourcesService,
           ),
         ],
       ),

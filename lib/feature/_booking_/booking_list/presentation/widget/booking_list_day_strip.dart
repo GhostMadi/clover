@@ -1,6 +1,7 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_list/data/booking_host_inbox.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -21,6 +22,7 @@ class BookingListDayStrip extends StatelessWidget {
     if (days.isEmpty) return const SizedBox.shrink();
 
     final selectedKey = BookingHostInbox.dayKey(selectedDay);
+    final accent = bookingServiceAccent(context.colors);
 
     return SizedBox(
       height: 44,
@@ -37,7 +39,7 @@ class BookingListDayStrip extends StatelessWidget {
           final dayNumber = '${key.day}';
 
           return Material(
-            color: selected ? context.colors.primary : context.colors.surfaceSoft,
+            color: selected ? accent.cta : context.colors.surfaceSoft,
             borderRadius: BorderRadius.circular(16),
             child: InkWell(
               onTap: () {
@@ -55,7 +57,7 @@ class BookingListDayStrip extends StatelessWidget {
                       label,
                       style: AppTextStyle.base(
                         12,
-                        color: selected ? context.colors.white : context.colors.textColor,
+                        color: selected ? accent.ctaForeground : context.colors.textColor,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -63,7 +65,9 @@ class BookingListDayStrip extends StatelessWidget {
                       dayNumber,
                       style: AppTextStyle.base(
                         11,
-                        color: selected ? context.colors.white.withValues(alpha: 0.85) : context.colors.subTextColor,
+                        color: selected
+                            ? accent.ctaForeground.withValues(alpha: 0.85)
+                            : context.colors.subTextColor,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

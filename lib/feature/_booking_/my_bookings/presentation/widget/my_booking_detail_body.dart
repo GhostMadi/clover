@@ -131,7 +131,7 @@ class _HeaderCard extends StatelessWidget {
               color: context.colors.surface,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Text(item.serviceEmoji, style: const TextStyle(fontSize: 28, height: 1)),
+            child: Text(item.serviceEmoji, style: AppTextStyle.emoji(28)),
           ),
           const SizedBox(width: 14),
           Expanded(

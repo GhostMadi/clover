@@ -10,12 +10,25 @@ import 'package:clover/core/shared/app_map/app_map_viewport.dart';
 import 'package:clover/core/theme/app_color_binding.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 export 'app_map_marker.dart';
 export 'app_map_marker_tap.dart';
 export 'app_map_point.dart';
 export 'app_map_viewport.dart';
+
+/// Результат [AppMapController.moveToMyLocation].
+enum AppMapMyLocationResult {
+  /// Камера переехала на текущую позицию.
+  moved,
+
+  /// Нет разрешения на геолокацию.
+  permissionDenied,
+
+  /// Разрешение есть, но позицию пока не удалось получить.
+  unavailable,
+}
 
 /// Управление [AppMap]: зум и переход к текущей геопозиции.
 class AppMapController {
@@ -36,7 +49,9 @@ class AppMapController {
   Future<void> moveTo(AppMapPoint point, {double? zoom}) =>
       _state?.moveTo(point, zoom: zoom) ?? SynchronousFuture(null);
 
-  Future<AppMapPoint?> moveToMyLocation() => _state?.moveToMyLocation() ?? SynchronousFuture(null);
+  /// Переезд к текущей геопозиции. Точку вернёт только при [AppMapMyLocationResult.moved].
+  Future<(AppMapMyLocationResult, AppMapPoint?)> moveToMyLocation() =>
+      _state?.moveToMyLocation() ?? SynchronousFuture((AppMapMyLocationResult.unavailable, null));
 }
 
 /// Переиспользуемая карта на Yandex MapKit.
@@ -82,6 +97,7 @@ class _AppMapState extends State<AppMap> {
   int _markersSyncGeneration = 0;
   Map<String, String> _emojiByMarkerId = const {};
   Map<String, List<String>> _emojisByPlacemarkId = const {};
+  Completer<AppMapPoint?>? _pendingMyLocation;
 
   bool get _isReady => _controller != null;
 
@@ -94,6 +110,10 @@ class _AppMapState extends State<AppMap> {
 
   @override
   void dispose() {
+    final pending = _pendingMyLocation;
+    if (pending != null && !pending.isCompleted) {
+      pending.complete(null);
+    }
     widget.controller?._detach(this);
     super.dispose();
   }
@@ -164,20 +184,65 @@ class _AppMapState extends State<AppMap> {
     await controller.moveCamera(CameraUpdate.zoomOut(), animation: _animation);
   }
 
-  Future<AppMapPoint?> moveToMyLocation() async {
+  Future<(AppMapMyLocationResult, AppMapPoint?)> moveToMyLocation() async {
     final controller = _controller;
-    if (controller == null) return null;
+    if (controller == null) return (AppMapMyLocationResult.unavailable, null);
+
+    final permission = await Permission.locationWhenInUse.request();
+    if (!permission.isGranted) {
+      return (AppMapMyLocationResult.permissionDenied, null);
+    }
+
+    final previous = _pendingMyLocation;
+    if (previous != null && !previous.isCompleted) {
+      previous.complete(null);
+    }
+    final pending = Completer<AppMapPoint?>();
+    _pendingMyLocation = pending;
 
     await controller.toggleUserLayer(visible: true, autoZoomEnabled: true);
 
+    // Сразу после toggle слой ещё может не знать позицию — ждём и поллим.
+    for (var attempt = 0; attempt < 12; attempt++) {
+      final point = await _tryApplyUserCamera(controller);
+      if (point != null) {
+        if (!pending.isCompleted) pending.complete(point);
+        return (AppMapMyLocationResult.moved, point);
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+      if (!mounted) return (AppMapMyLocationResult.unavailable, null);
+    }
+
+    try {
+      final point = await pending.future.timeout(const Duration(seconds: 4));
+      if (point != null) return (AppMapMyLocationResult.moved, point);
+    } on TimeoutException {
+      if (!pending.isCompleted) pending.complete(null);
+    }
+
+    return (AppMapMyLocationResult.unavailable, null);
+  }
+
+  Future<AppMapPoint?> _tryApplyUserCamera(YandexMapController controller) async {
     final position = await controller.getUserCameraPosition();
     if (position == null) return null;
 
-    await controller.moveCamera(CameraUpdate.newCameraPosition(position), animation: _animation);
-
     final point = _fromYandex(position.target);
+    await _moveTo(point, zoom: position.zoom > 0 ? position.zoom : _defaultZoom);
     widget.onPointSelected?.call(point);
     return point;
+  }
+
+  Future<UserLocationView> _onUserLocationAdded(UserLocationView view) async {
+    final controller = _controller;
+    final pending = _pendingMyLocation;
+    if (controller != null && pending != null && !pending.isCompleted) {
+      final point = await _tryApplyUserCamera(controller);
+      if (point != null && !pending.isCompleted) {
+        pending.complete(point);
+      }
+    }
+    return view;
   }
 
   Future<void> _syncMapObjects() async {
@@ -398,6 +463,7 @@ class _AppMapState extends State<AppMap> {
       onMapCreated: _onMapCreated,
       onMapTap: widget.onPointSelected == null ? null : _onMapTap,
       onCameraPositionChanged: widget.onCameraChanged == null ? null : _onCameraPositionChanged,
+      onUserLocationAdded: _onUserLocationAdded,
       mapObjects: _mapObjects,
     );
   }

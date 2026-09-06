@@ -3,11 +3,18 @@ import 'package:flutter/material.dart';
 
 /// Продуктовый сервис с собственным визуальным акцентом (CTA, иконки, мягкие фоны).
 ///
-/// Бренд приложения ([AppPalette.primary]) — зелёный; каждый сервис внутри продукта
-/// получает свой узнаваемый цвет через [AppServiceAccent].
+/// Бренд приложения ([AppPalette.primary]) — зелёный Clover.
+/// На территории сервиса зелёный **уступает** цвету сервиса: «Назад», чипы,
+/// поля, CTA — через [AppServiceAccent] / `service:` у shared-контролов.
 ///
-/// Чтобы сменить цвет сервиса — правь только [serviceAccent] и токены в [AppPalette]
-/// (запись: `functionalSoftYellow` = `#FDF08B`).
+/// | Сервис | Цвет |
+/// |--------|------|
+/// | [AppServiceKind.attendance] | синий |
+/// | [AppServiceKind.booking] | жёлтый `#FDF08B` |
+/// | [AppServiceKind.resources] | сиреневый / фиолет |
+/// | [AppServiceKind.bonus] | оранжевый |
+///
+/// Чтобы сменить цвет сервиса — правь только [serviceAccent] и токены в [AppPalette].
 enum AppServiceKind {
   /// Посещаемость — синий.
   attendance,
@@ -15,9 +22,15 @@ enum AppServiceKind {
   /// Запись — жёлтый (`functionalSoftYellow` / `#FDF08B`).
   booking,
 
+  /// Ресурсы — сиреневый soft + тёмный фиолет на CTA/иконках.
+  resources,
+
   /// Бонусы — оранжевый.
   bonus,
 }
+
+/// Shortcut для территории «Ресурсы».
+const AppServiceKind kResourcesService = AppServiceKind.resources;
 
 /// Цветовой набор сервиса: CTA, обводка кнопки, мягкий фон, иконки.
 class AppServiceAccent {
@@ -49,26 +62,36 @@ extension AppServiceAccentResolver on AppPalette {
   AppServiceAccent serviceAccent(AppServiceKind kind) {
     return switch (kind) {
       AppServiceKind.attendance => AppServiceAccent(
-          cta: functionalSoftBlueIcon,
-          ctaForeground: textInverse,
-          ctaBorder: borderCardBlue,
-          soft: functionalSoftBlue,
-          icon: functionalSoftBlueIcon,
-        ),
+        cta: functionalSoftBlueIcon,
+        ctaForeground: textInverse,
+        ctaBorder: borderCardBlue,
+        soft: functionalSoftBlue,
+        icon: functionalSoftBlueIcon,
+      ),
       AppServiceKind.booking => AppServiceAccent(
-          cta: functionalSoftYellowIcon,
-          ctaForeground: textInverse,
-          ctaBorder: borderCardYellow,
-          soft: functionalSoftYellow,
-          icon: functionalSoftYellowIcon,
-        ),
+        cta: functionalSoftYellow,
+
+        /// Всегда тёмный текст на жёлтом (и в dark theme).
+        ctaForeground: const Color(0xFF1A1D1E),
+        ctaBorder: borderCardYellow,
+        soft: functionalSoftYellow,
+        icon: functionalSoftYellowIcon,
+      ),
+      AppServiceKind.resources => AppServiceAccent(
+        /// Тёмный фиолет как заливка CTA — на нём белый читается (и в dark).
+        cta: const Color(0xFF5C4FA8),
+        ctaForeground: const Color(0xFFFFFFFF),
+        ctaBorder: borderCardLilac,
+        soft: functionalSoftLilac,
+        icon: functionalSoftLilacIcon,
+      ),
       AppServiceKind.bonus => AppServiceAccent(
-          cta: functionalSoftOrangeIcon,
-          ctaForeground: textInverse,
-          ctaBorder: functionalSoftOrange,
-          soft: functionalSoftOrange,
-          icon: functionalSoftOrangeIcon,
-        ),
+        cta: functionalSoftOrangeIcon,
+        ctaForeground: textInverse,
+        ctaBorder: functionalSoftOrange,
+        soft: functionalSoftOrange,
+        icon: functionalSoftOrangeIcon,
+      ),
     };
   }
 }

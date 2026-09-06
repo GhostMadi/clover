@@ -4,32 +4,9 @@ import 'package:clover/feature/_booking_/shared/data/booking_error.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-abstract class BookingStaffRepository {
-  Future<List<BookingServiceExecutor>> listMyStaff({bool activeOnly = true});
-
-  Future<List<BookingStaffProfile>> searchProfiles(
-    String query, {
-    Set<String> excludeProfileIds = const {},
-  });
-
-  Future<BookingServiceExecutor> ensureStaffFromProfile(String profileId);
-
-  Future<BookingServiceExecutor> createStaff({
-    required String displayName,
-    String? username,
-  });
-
-  Future<BookingServiceExecutor> updateStaff({
-    required String id,
-    required String displayName,
-    String? username,
-    bool? isActive,
-  });
-}
-
-@LazySingleton(as: BookingStaffRepository)
-class BookingStaffRepositoryImpl implements BookingStaffRepository {
-  BookingStaffRepositoryImpl(this._client);
+@lazySingleton
+class BookingStaffRepository {
+  BookingStaffRepository(this._client);
 
   final SupabaseClient _client;
 
@@ -43,7 +20,6 @@ class BookingStaffRepositoryImpl implements BookingStaffRepository {
     }
   }
 
-  @override
   Future<List<BookingServiceExecutor>> listMyStaff({bool activeOnly = true}) async {
     final uid = _uid;
     if (uid == null || uid.isEmpty) return const [];
@@ -58,7 +34,6 @@ class BookingStaffRepositoryImpl implements BookingStaffRepository {
     });
   }
 
-  @override
   Future<List<BookingStaffProfile>> searchProfiles(
     String query, {
     Set<String> excludeProfileIds = const {},
@@ -95,7 +70,6 @@ class BookingStaffRepositoryImpl implements BookingStaffRepository {
     });
   }
 
-  @override
   Future<BookingServiceExecutor> ensureStaffFromProfile(String profileId) async {
     final uid = _uid;
     if (uid == null || uid.isEmpty) {
@@ -152,7 +126,6 @@ class BookingStaffRepositoryImpl implements BookingStaffRepository {
     });
   }
 
-  @override
   Future<BookingServiceExecutor> createStaff({
     required String displayName,
     String? username,
@@ -176,7 +149,6 @@ class BookingStaffRepositoryImpl implements BookingStaffRepository {
     });
   }
 
-  @override
   Future<BookingServiceExecutor> updateStaff({
     required String id,
     required String displayName,

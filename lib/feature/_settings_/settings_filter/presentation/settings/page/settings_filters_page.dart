@@ -81,11 +81,13 @@ class _SettingsFiltersPageState extends State<SettingsFiltersPage> {
       value: _cubit,
       child: SettingsScreenShell(
         title: 'Фильтры',
+        service: kResourcesService,
         body: BlocBuilder<SettingsFiltersCubit, SettingsFiltersState>(
           builder: (context, state) {
+            final accent = context.colors.serviceAccent(kResourcesService);
             return state.when(
-              initial: () => const Center(child: CircularProgressIndicator()),
-              loading: () => const Center(child: CircularProgressIndicator()),
+              initial: () => Center(child: CircularProgressIndicator(color: accent.icon)),
+              loading: () => Center(child: CircularProgressIndicator(color: accent.icon)),
               error: (message) => _SettingsFiltersError(message: message, onRetry: _cubit.load),
               loaded: (categories, isMutating) => SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -95,9 +97,9 @@ class _SettingsFiltersPageState extends State<SettingsFiltersPage> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: context.colors.surfaceSoftGreen.withValues(alpha: 0.45),
+                        color: accent.soft,
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: context.colors.borderCardGreen.withValues(alpha: 0.8)),
+                        border: Border.all(color: accent.ctaBorder.withValues(alpha: 0.8)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,6 +125,7 @@ class _SettingsFiltersPageState extends State<SettingsFiltersPage> {
                       text: 'Создать категорию',
                       isExpanded: true,
                       isLoading: isMutating,
+                      service: kResourcesService,
                       onTap: isMutating ? null : _createCategory,
                     ),
                     const SizedBox(height: 20),
@@ -173,7 +176,7 @@ class _SettingsFiltersError extends StatelessWidget {
             style: AppTextStyle.base(14, color: context.colors.subTextColor),
           ),
           const SizedBox(height: 16),
-          AppButton(text: 'Повторить', isExpanded: true, onTap: onRetry),
+          AppButton(text: 'Повторить', isExpanded: true, service: kResourcesService, onTap: onRetry),
         ],
       ),
     );

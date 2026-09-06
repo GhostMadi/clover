@@ -13,11 +13,13 @@ import 'package:clover/core/shared/app_functional_button/app_functional_screen.d
 import 'package:clover/core/shared/app_map/app_map.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
+import 'package:clover/feature/_attendance_/attendance_punch/presentation/cubit/attendance_punch_cubit.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_pending_punch.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_type.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_workplace.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Полноэкранное напоминание «Надо отметиться» (карта + CTA).
 @RoutePage()
@@ -33,6 +35,7 @@ class AttendancePendingPage extends StatefulWidget {
 class _AttendancePendingPageState extends State<AttendancePendingPage> {
   static const _defaultCenter = AppMapPoint(latitude: 43.238949, longitude: 76.889709);
 
+  late final AttendancePunchCubit _cubit;
   final _mapController = AppMapController();
   bool _mapReady = false;
   bool _cameraFitted = false;
@@ -40,9 +43,39 @@ class _AttendancePendingPageState extends State<AttendancePendingPage> {
   @override
   void initState() {
     super.initState();
+    _cubit = sl<AttendancePunchCubit>()..bind(widget.workplaceId);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) setState(() => _mapReady = true);
     });
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  Future<void> _moveToMyLocation() async {
+    final (result, _) = await _mapController.moveToMyLocation();
+    if (!mounted) return;
+
+    switch (result) {
+      case AppMapMyLocationResult.moved:
+        await _cubit.refreshLocation();
+        return;
+      case AppMapMyLocationResult.permissionDenied:
+        AppSnackBar.show(
+          context,
+          message: 'Разрешите доступ к геолокации в настройках',
+          kind: AppSnackBarKind.error,
+        );
+      case AppMapMyLocationResult.unavailable:
+        AppSnackBar.show(
+          context,
+          message: 'Не удалось определить местоположение',
+          kind: AppSnackBarKind.error,
+        );
+    }
   }
 
   double _zoomForRadius(int radiusM) {
@@ -62,7 +95,7 @@ class _AttendancePendingPageState extends State<AttendancePendingPage> {
     await _mapController.moveTo(center, zoom: _zoomForRadius(radiusM));
   }
 
-  void _quickPunch(AttendancePendingPunch pending, {required bool inZone}) {
+  Future<void> _quickPunch(AttendancePendingPunch pending, {required bool inZone}) async {
     if (!inZone) {
       AppSnackBar.show(context, message: 'Вы вне зоны — откройте экран отметки', kind: AppSnackBarKind.info);
       context.router.replace(AttendancePunchRoute(workplaceId: pending.workplaceId));
@@ -72,25 +105,30 @@ class _AttendancePendingPageState extends State<AttendancePendingPage> {
     final type = pending.kind == AttendancePendingKind.clockIn
         ? AttendancePunchType.clockIn
         : AttendancePunchType.clockOut;
-    sl<AttendanceContextStore>().punch(workplaceId: pending.workplaceId, type: type);
-    AppSnackBar.show(context, message: '${type.labelRu} — сохранено', kind: AppSnackBarKind.success);
-    context.router.maybePop();
+    final ok = await _cubit.punch(type);
+    if (!mounted) return;
+    if (ok) {
+      AppSnackBar.show(context, message: '${type.labelRu} — сохранено', kind: AppSnackBarKind.success);
+      context.router.maybePop();
+    } else {
+      AppSnackBar.show(context, message: 'Не удалось сохранить отметку', kind: AppSnackBarKind.error);
+    }
   }
 
   void _snooze() {
-    sl<AttendanceContextStore>().snoozePending();
+    _cubit.snoozePending();
     context.router.maybePop();
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final store = sl<AttendanceContextStore>();
     final floatingInsets = AppFunctionalScreen.floatingInsets(context);
 
-    return ValueListenableBuilder(
-      valueListenable: store.snapshot,
-      builder: (context, snap, _) {
+    return BlocBuilder<AttendancePunchCubit, AttendancePunchState>(
+      bloc: _cubit,
+      builder: (context, state) {
+        final snap = state is AttendancePunchReady ? state.snapshot : sl<AttendanceContextStore>().snapshot.value;
         final pending = snap?.resolvePendingPunch();
         if (snap == null || pending == null || pending.workplaceId != widget.workplaceId) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -102,7 +140,8 @@ class _AttendancePendingPageState extends State<AttendancePendingPage> {
         final workplace = snap.workplaceById(widget.workplaceId);
         final center = _centerFor(workplace);
         final radiusM = workplace?.geofenceRadiusM ?? 150;
-        final inZone = snap.mockInGeofence;
+        final inZone = state is AttendancePunchReady ? state.inZone : false;
+        final locating = state is AttendancePunchReady && state.locating;
 
         if (_mapReady && !_cameraFitted && workplace != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -176,7 +215,10 @@ class _AttendancePendingPageState extends State<AttendancePendingPage> {
                     const SizedBox(height: 8),
                     _MapControlButton(icon: AppIcons.removeRounded.icon, onTap: _mapController.zoomOut),
                     const SizedBox(height: 8),
-                    _MapControlButton(icon: AppIcons.myLocation.icon, onTap: _mapController.moveToMyLocation),
+                    _MapControlButton(
+                      icon: AppIcons.myLocation.icon,
+                      onTap: () => unawaited(_moveToMyLocation()),
+                    ),
                   ],
                 ),
               ),
@@ -187,9 +229,10 @@ class _AttendancePendingPageState extends State<AttendancePendingPage> {
                 child: _FloatingActionsPanel(
                   children: [
                     AttendancePrimaryButton(
-                      text: pending.actionLabel,
+                      text: locating ? 'Определяем GPS…' : pending.actionLabel,
                       isExpanded: true,
-                      onTap: () => _quickPunch(pending, inZone: inZone),
+                      interactive: !locating,
+                      onTap: locating ? () {} : () => _quickPunch(pending, inZone: inZone),
                     ),
                     const SizedBox(height: 10),
                     AppOutlinedButton(

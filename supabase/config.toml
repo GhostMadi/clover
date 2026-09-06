@@ -29,6 +29,10 @@ verify_jwt = false
 [functions.whatsapp_webhook]
 verify_jwt = false
 
+# Push outbox drain (FCM). Auth inside: service_role bearer or PUSH_WORKER_SECRET.
+[functions.drain_push_outbox]
+verify_jwt = false
+
 # Local Auth Hook (optional). Hosted: Authentication → Hooks → Send SMS in Dashboard.
 # To enable locally, set SEND_SMS_HOOK_SECRET=v1,whsec_<base64> in supabase/.env and:
 # [auth.hook.send_sms]

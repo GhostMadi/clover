@@ -2,6 +2,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 
 class BookingServiceCard extends StatelessWidget {
@@ -30,6 +31,7 @@ class BookingServiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final executorsLabel = _executorsLabel;
+    final accent = bookingServiceAccent(context.colors);
 
     return Material(
       color: context.colors.surface,
@@ -64,7 +66,7 @@ class BookingServiceCard extends StatelessWidget {
                       const SizedBox(height: 6),
                       Text(
                         'Исполнители: $executorsLabel',
-                        style: AppTextStyle.base(12, color: context.colors.primary, fontWeight: FontWeight.w600),
+                        style: AppTextStyle.base(12, color: accent.icon, fontWeight: FontWeight.w600),
                       ),
                     ],
                     if (service.description != null && service.description!.isNotEmpty) ...[
@@ -82,7 +84,7 @@ class BookingServiceCard extends StatelessWidget {
               const SizedBox(width: 10),
               Text(
                 service.priceLabel,
-                style: AppTextStyle.base(15, color: context.colors.primary, fontWeight: FontWeight.w800),
+                style: AppTextStyle.base(15, color: accent.icon, fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -99,16 +101,17 @@ class _EmojiBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = bookingServiceAccent(context.colors);
     return Container(
       width: 52,
       height: 52,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: context.colors.surfaceSoftGreen.withValues(alpha: 0.55),
+        color: accent.soft.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: context.colors.borderCardGreen.withValues(alpha: 0.7)),
+        border: Border.all(color: accent.ctaBorder.withValues(alpha: 0.7)),
       ),
-      child: Text(emoji, style: const TextStyle(fontSize: 26, height: 1)),
+      child: Text(emoji, style: AppTextStyle.emoji(26)),
     );
   }
 }

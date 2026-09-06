@@ -3,7 +3,6 @@ import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_executor_pick.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_draft.dart';
-import 'package:clover/feature/_booking_/booking_create/data/repository/booking_staff_repository.dart';
 import 'package:clover/feature/_booking_/booking_create/presentation/cubit/booking_service_editor_cubit.dart';
 import 'package:clover/feature/_booking_/booking_create/presentation/widget/booking_service_form.dart';
 import 'package:clover/feature/_booking_/booking_create/presentation/widget/booking_staff_profile_search_sheet.dart';
@@ -22,7 +21,6 @@ class BookingServiceCreatePage extends StatefulWidget {
 
 class _BookingServiceCreatePageState extends State<BookingServiceCreatePage> {
   late final BookingServiceEditorCubit _cubit;
-  late final BookingStaffRepository _staffRepository;
   final _titleController = TextEditingController();
   final _durationController = TextEditingController(text: '30');
   final _emojiController = TextEditingController();
@@ -39,7 +37,6 @@ class _BookingServiceCreatePageState extends State<BookingServiceCreatePage> {
   void initState() {
     super.initState();
     _cubit = sl<BookingServiceEditorCubit>()..initForCreate();
-    _staffRepository = sl<BookingStaffRepository>();
     _syncDraftFromControllers();
   }
 
@@ -88,7 +85,6 @@ class _BookingServiceCreatePageState extends State<BookingServiceCreatePage> {
   Future<void> _addExecutor() async {
     final profile = await BookingStaffProfileSearchSheet.show(
       context,
-      repository: _staffRepository,
       excludeProfileIds: _excludeProfileIds(),
     );
     if (profile == null || !mounted) return;

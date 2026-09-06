@@ -1,3 +1,4 @@
+import 'package:clover/feature/_attendance_/shared/data/models/attendance_worker.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
@@ -5,30 +6,48 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_workers_mock.dart';
+import 'package:clover/feature/_attendance_/attendance_company_chat/presentation/cubit/attendance_company_chat_cubit.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Mock-чат компании: карточки invite и правил (без Supabase).
+/// Карточки invite и правил компании (Accept/ack через RPC при remote).
 @RoutePage()
-class AttendanceCompanyChatPage extends StatelessWidget {
+class AttendanceCompanyChatPage extends StatefulWidget {
   const AttendanceCompanyChatPage({super.key, required this.workplaceId});
 
   final String workplaceId;
 
   @override
-  Widget build(BuildContext context) {
-    final store = sl<AttendanceContextStore>();
+  State<AttendanceCompanyChatPage> createState() => _AttendanceCompanyChatPageState();
+}
 
-    return ValueListenableBuilder(
-      valueListenable: store.snapshot,
-      builder: (context, snap, _) {
-        final workplace = snap?.workplaceById(workplaceId);
+class _AttendanceCompanyChatPageState extends State<AttendanceCompanyChatPage> {
+  late final AttendanceCompanyChatCubit _cubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit = sl<AttendanceCompanyChatCubit>()..bind(widget.workplaceId);
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AttendanceCompanyChatCubit, AttendanceCompanyChatState>(
+      bloc: _cubit,
+      builder: (context, state) {
+        final loaded = state is AttendanceCompanyChatLoaded ? state : null;
+        final workplace = loaded?.workplace;
         final title = workplace == null ? 'Чат компании' : 'Посещаемость · ${workplace.name}';
-        final pending = snap?.workersFor(workplaceId).where((w) => w.isPending).toList() ?? const [];
-        final membership = snap?.membershipByWorkplace(workplaceId);
+        final pending = loaded?.pendingWorkers ?? const [];
+        final membership = loaded?.membership;
         final needsAck = membership?.needsAck ?? false;
         final configVersion = membership?.configVersion ?? 1;
 
@@ -50,16 +69,18 @@ class AttendanceCompanyChatPage extends StatelessWidget {
                 _InviteCard(
                   workplaceName: workplace?.name ?? 'компанию',
                   worker: worker,
-                  onAccept: () {
-                    store.acceptInvite(workplaceId: workplaceId, workerId: worker.id);
+                  onAccept: () async {
+                    await _cubit.acceptInvite(worker.id);
+                    if (!context.mounted) return;
                     AppSnackBar.show(
                       context,
                       message: '${worker.displayName} принят · в активных и чате',
                       kind: AppSnackBarKind.success,
                     );
                   },
-                  onReject: () {
-                    store.rejectInvite(workplaceId: workplaceId, workerId: worker.id);
+                  onReject: () async {
+                    await _cubit.rejectInvite(worker.id);
+                    if (!context.mounted) return;
                     AppSnackBar.show(
                       context,
                       message: 'Отклонено · вне команды',
@@ -73,8 +94,9 @@ class AttendanceCompanyChatPage extends StatelessWidget {
                 _RulesCard(
                   workplaceName: workplace?.name ?? 'компанию',
                   version: configVersion,
-                  onAck: () {
-                    store.ackConfig(workplaceId);
+                  onAck: () async {
+                    await _cubit.ackConfig();
+                    if (!context.mounted) return;
                     AppSnackBar.show(
                       context,
                       message: 'Правила v$configVersion приняты',

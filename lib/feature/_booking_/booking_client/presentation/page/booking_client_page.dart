@@ -16,6 +16,7 @@ import 'package:clover/feature/_booking_/shared/data/booking_error.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 
 @RoutePage()
 class BookingClientPage extends StatefulWidget {
@@ -119,7 +120,7 @@ class _BookingClientPageState extends State<BookingClientPage> {
           saveLabel: 'Записаться',
           onSaveTap: () => _confirm(state),
           body: state.maybeMap(
-            loading: (_) => const Center(child: CircularProgressIndicator()),
+            loading: (_) => const BookingLoader(),
             error: (s) => Center(child: Text(s.message)),
             orElse: () {
               if (ready == null) return const SizedBox.shrink();
@@ -175,7 +176,7 @@ class _BookingClientPageState extends State<BookingClientPage> {
                         ClientBookingConflictBanner(message: dayUnavailableMessage),
                       ] else if (ready.isLoadingSlots) ...[
                         const SizedBox(height: 20),
-                        const Center(child: CircularProgressIndicator()),
+                        const BookingLoader(),
                       ] else ...[
                         const SizedBox(height: 20),
                         ClientBookingTimeSlots(slots: ready.slots, onSlotTap: _cubit.selectSlot),

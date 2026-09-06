@@ -3,7 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class PostArchiveRepository {
-  /// Архивированные публикации (без привязки к маркеру / ивенту).
+  /// Все архивированные посты пользователя (включая связанные с маркером).
   Future<List<PostModel>> listArchivedPublications(String userId);
 }
 
@@ -24,31 +24,16 @@ class PostArchiveRepositoryImpl implements PostArchiveRepository {
         .eq('user_id', uid)
         .eq('is_archived', true)
         .isFilter('deleted_at', null)
-        .order('updated_at', ascending: false);
+        .order('created_at', ascending: false);
 
-    final markerPostIds = await _markerLinkedPostIds(uid);
     final list = data as List<dynamic>;
     final items = <PostModel>[];
 
     for (final raw in list) {
       if (raw is! Map) continue;
-      final post = PostModel.fromJson(Map<String, dynamic>.from(raw));
-      if (markerPostIds.contains(post.id)) continue;
-      items.add(post);
+      items.add(PostModel.fromJson(Map<String, dynamic>.from(raw)));
     }
 
     return items;
-  }
-
-  Future<Set<String>> _markerLinkedPostIds(String userId) async {
-    final data = await _client.from('marker_posts').select('post_id, posts!inner(user_id)').eq('posts.user_id', userId);
-
-    final ids = <String>{};
-    for (final raw in data as List<dynamic>) {
-      if (raw is! Map) continue;
-      final id = (raw['post_id'] as String?)?.trim();
-      if (id != null && id.isNotEmpty) ids.add(id);
-    }
-    return ids;
   }
 }

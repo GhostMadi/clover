@@ -5,6 +5,8 @@ import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
+import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/app_tab.dart';
 import 'package:clover/feature/_booking_/booking_list/data/booking_host_inbox.dart';
@@ -17,6 +19,7 @@ import 'package:clover/feature/_booking_/booking_list/presentation/widget/bookin
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_now_card.dart';
 import 'package:clover/feature/_booking_/shared/data/models/booking_status.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -30,17 +33,30 @@ class BookingListPage extends StatefulWidget {
 
 class _BookingListPageState extends State<BookingListPage> {
   late final BookingListCubit _cubit;
+  late final TextEditingController _searchController;
+  Timer? _searchDebounce;
 
   @override
   void initState() {
     super.initState();
     _cubit = sl<BookingListCubit>()..load();
+    _searchController = TextEditingController();
   }
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
+    _searchController.dispose();
     _cubit.close();
     super.dispose();
+  }
+
+  void _onSearchChanged(String value) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 350), () {
+      final q = value.trim();
+      unawaited(_cubit.setQuery(q.isEmpty ? null : q));
+    });
   }
 
   Future<void> _openItem(BookingListItem item) async {
@@ -101,7 +117,7 @@ class _BookingListPageState extends State<BookingListPage> {
             error: (s) => Center(child: Text(s.message)),
             orElse: () {
               if (isLoading) {
-                return const Center(child: CircularProgressIndicator());
+                return const BookingLoader();
               }
 
               final tab =
@@ -122,9 +138,23 @@ class _BookingListPageState extends State<BookingListPage> {
                     ),
                     SliverToBoxAdapter(
                       child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                        child: AppField(
+                          controller: _searchController,
+                          hintText: 'Клиент, услуга, телефон…',
+                          prefixIcon: AppIcons.search.icon,
+                          textInputAction: TextInputAction.search,
+                          service: kBookingService,
+                          onChanged: _onSearchChanged,
+                        ),
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: Padding(
                         padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                         child: AppTab(
                           scrollable: true,
+                          service: kBookingService,
                           tabs: [
                             BookingHostInboxTab.inChair.label,
                             BookingHostInboxTab.upcoming.label,
@@ -172,10 +202,7 @@ class _BookingListPageState extends State<BookingListPage> {
 
         return BookingScreenShell(
           title: 'Мои записи',
-          showServices: true,
-          showAnalytics: true,
-          onServicesTap: () => context.router.push(const BookingCreateRoute()),
-          onAnalyticsTap: () => context.router.push(const BookingAnalyticsRoute()),
+          compactBar: true,
           isLoading: isLoading,
           body: buildScrollBody(),
         );

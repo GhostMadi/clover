@@ -11,6 +11,8 @@ enum AttendanceErrorCode {
   locationRequired,
   invalidPunch,
   punchTypeInvalid,
+  notOnDuty,
+  network,
   unknown,
 }
 
@@ -23,12 +25,34 @@ class AttendanceException implements Exception {
   @override
   String toString() => message ?? code.name;
 
+  /// Сетевой сбой / таймаут — кандидат в outbox.
+  bool get isRetriableNetwork {
+    if (code == AttendanceErrorCode.network) return true;
+    final m = (message ?? '').toLowerCase();
+    return m.contains('socket') ||
+        m.contains('network') ||
+        m.contains('timeout') ||
+        m.contains('failed host lookup') ||
+        m.contains('connection') ||
+        m.contains('offline');
+  }
+
   static AttendanceException from(Object error) {
     if (error is AttendanceException) return error;
     if (error is PostgrestException) {
       return AttendanceException(_codeFromPostgres(error), error.message);
     }
-    return AttendanceException(AttendanceErrorCode.unknown, '$error');
+    final text = '$error';
+    final lower = text.toLowerCase();
+    if (lower.contains('socket') ||
+        lower.contains('network') ||
+        lower.contains('timeout') ||
+        lower.contains('failed host lookup') ||
+        lower.contains('connection refused') ||
+        lower.contains('clientexception')) {
+      return AttendanceException(AttendanceErrorCode.network, text);
+    }
+    return AttendanceException(AttendanceErrorCode.unknown, text);
   }
 
   static AttendanceErrorCode _codeFromPostgres(PostgrestException error) {
@@ -41,6 +65,7 @@ class AttendanceException implements Exception {
     }
     if (msg.contains('invalid_punch')) return AttendanceErrorCode.invalidPunch;
     if (msg.contains('punch_type')) return AttendanceErrorCode.punchTypeInvalid;
+    if (msg.contains('not_on_duty')) return AttendanceErrorCode.notOnDuty;
     return switch (error.code) {
       'P0003' => AttendanceErrorCode.notAuthenticated,
       'P0101' => AttendanceErrorCode.invalidArguments,
@@ -52,6 +77,7 @@ class AttendanceException implements Exception {
       'P0107' => AttendanceErrorCode.locationRequired,
       'P0108' => AttendanceErrorCode.invalidPunch,
       'P0109' => AttendanceErrorCode.punchTypeInvalid,
+      'P0110' => AttendanceErrorCode.notOnDuty,
       _ => AttendanceErrorCode.unknown,
     };
   }
@@ -67,6 +93,8 @@ class AttendanceException implements Exception {
         AttendanceErrorCode.locationRequired => 'Нужна геолокация',
         AttendanceErrorCode.invalidPunch => 'Отметка недоступна в этом состоянии смены',
         AttendanceErrorCode.punchTypeInvalid => 'Неверный тип отметки',
+        AttendanceErrorCode.notOnDuty => 'Сегодня не ваше дежурство — отметка недоступна',
+        AttendanceErrorCode.network => 'Нет сети — действие в очереди синхронизации',
         AttendanceErrorCode.unknown => message ?? 'Не удалось выполнить операцию',
       };
 }

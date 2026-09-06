@@ -1,12 +1,14 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_refresh.dart';
-import 'package:clover/feature/_archive_/shared/presentation/widget/archive_post_grid_shimmer.dart';
 import 'package:clover/feature/_archive_/post_archive/presentation/cubit/post_archive_cubit.dart';
+import 'package:clover/feature/_archive_/shared/presentation/widget/archive_post_grid_shimmer.dart';
 import 'package:clover/feature/_post_/post/data/models/post_archive_context.dart';
+import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_grid.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +49,18 @@ class _PostArchivePageState extends State<PostArchivePage> {
     await _cubit.load(uid);
   }
 
+  Future<void> _openItem(PostFeedItem item) async {
+    final refreshed = await context.router.push<bool>(
+      PostRoute(
+        postId: item.post.id,
+        initialPost: item.post,
+        initialMarker: item.marker,
+        archiveContext: item.isEvent ? PostArchiveContext.event : PostArchiveContext.publication,
+      ),
+    );
+    if (refreshed == true && mounted) await _refresh();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
@@ -60,21 +74,19 @@ class _PostArchivePageState extends State<PostArchivePage> {
               return switch (state) {
                 PostArchiveInitial() || PostArchiveLoading() => const ArchivePostGridShimmer(),
                 PostArchiveError(:final message) => _ArchiveError(message: message, onRetry: _refresh),
-                PostArchiveLoaded(:final posts) => SingleChildScrollView(
+                PostArchiveLoaded(:final items) => SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsets.fromLTRB(3, 8, 3, SettingsScreenShell.scrollBottomGap(context)),
                   child: PostGrid(
-                    posts: posts,
+                    posts: [for (final item in items) item.post],
                     emptyMessage: 'Архив публикаций пуст',
-                    onPostTap: (post) async {
-                      final refreshed = await context.router.push<bool>(
-                        PostRoute(
-                          postId: post.id,
-                          initialPost: post,
-                          archiveContext: PostArchiveContext.publication,
-                        ),
-                      );
-                      if (refreshed == true && mounted) await _refresh();
+                    onPostTap: (post) {
+                      for (final item in items) {
+                        if (item.post.id == post.id) {
+                          _openItem(item);
+                          return;
+                        }
+                      }
                     },
                   ),
                 ),
@@ -99,7 +111,11 @@ class _ArchiveError extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          Text(message, textAlign: TextAlign.center, style: TextStyle(color: context.colors.subTextColor)),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: AppTextStyle.base(14, color: context.colors.subTextColor),
+          ),
           const SizedBox(height: 12),
           AppButton(text: 'Повторить', onTap: onRetry),
         ],

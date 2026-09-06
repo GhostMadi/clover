@@ -5,7 +5,9 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/app_switch.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
+import 'package:clover/feature/_attendance_/attendance_workplace_settings/presentation/cubit/attendance_workplace_settings_cubit.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_error.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_outbox.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_custom_punch_config.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_day_time.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_type.dart';
@@ -25,6 +27,7 @@ class AttendancePunchTypesPage extends StatefulWidget {
 }
 
 class _AttendancePunchTypesPageState extends State<AttendancePunchTypesPage> {
+  late final AttendanceWorkplaceSettingsCubit _cubit;
   late bool _clockInEnabled;
   late bool _clockOutEnabled;
   late AttendanceDayTime? _clockInTime;
@@ -34,12 +37,21 @@ class _AttendancePunchTypesPageState extends State<AttendancePunchTypesPage> {
   @override
   void initState() {
     super.initState();
-    final w = sl<AttendanceContextStore>().snapshot.value?.workplaceById(widget.workplaceId);
+    _cubit = sl<AttendanceWorkplaceSettingsCubit>()..bind(widget.workplaceId);
+    final w = _cubit.state is AttendanceWorkplaceSettingsReady
+        ? (_cubit.state as AttendanceWorkplaceSettingsReady).workplace
+        : null;
     _clockInEnabled = w?.clockInEnabled ?? true;
     _clockOutEnabled = w?.clockOutEnabled ?? true;
     _clockInTime = w?.clockInScheduledTime;
     _clockOutTime = w?.clockOutScheduledTime;
     _customPunches = List.of(w?.customPunches ?? const []);
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
   }
 
   bool get _canSave => _clockInEnabled || _clockOutEnabled;
@@ -140,21 +152,33 @@ class _AttendancePunchTypesPageState extends State<AttendancePunchTypesPage> {
     );
   }
 
-  void _save() {
+  Future<void> _save() async {
     if (!_canSave) return;
 
-    sl<AttendanceContextStore>().updatePunchConfig(
-      workplaceId: widget.workplaceId,
-      clockInEnabled: _clockInEnabled,
-      clockOutEnabled: _clockOutEnabled,
-      clockInScheduledTime: _clockInTime,
-      clockOutScheduledTime: _clockOutTime,
-      clearClockInScheduledTime: _clockInTime == null,
-      clearClockOutScheduledTime: _clockOutTime == null,
-      customPunches: _customPunches,
-    );
-    AppSnackBar.show(context, message: 'Сохранено', kind: AppSnackBarKind.success);
-    context.router.maybePop();
+    try {
+      final result = await _cubit.updatePunchConfig(
+        clockInEnabled: _clockInEnabled,
+        clockOutEnabled: _clockOutEnabled,
+        clockInScheduledTime: _clockInTime,
+        clockOutScheduledTime: _clockOutTime,
+        clearClockInScheduledTime: _clockInTime == null,
+        clearClockOutScheduledTime: _clockOutTime == null,
+        customPunches: _customPunches,
+      );
+      if (!mounted) return;
+      AppSnackBar.show(
+        context,
+        message: result == AttendancePersistResult.queued
+            ? 'Сохранено локально, синхронизируется'
+            : 'Сохранено',
+        kind: AppSnackBarKind.success,
+      );
+      context.router.maybePop();
+    } catch (e) {
+      if (!mounted) return;
+      final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить';
+      AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
+    }
   }
 
   Future<void> _addCustomPunch() async {

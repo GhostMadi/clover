@@ -4,9 +4,21 @@ import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
 import 'package:flutter/widgets.dart';
 
-/// Открыть mock-чат компании (правила / ack), не общий inbox.
+/// Открыть групповой чат компании (если есть) или локальный экран правил/ack.
 void openAttendanceCompanyChat(BuildContext context, String workplaceId) {
   sl<AttendanceContextStore>().clearUnreadChat();
+  final snap = sl<AttendanceContextStore>().snapshot.value;
+  final convId = snap?.workplaceById(workplaceId)?.groupConversationId?.trim();
+  if (convId != null && convId.isNotEmpty) {
+    context.router.push(
+      ChatRoute(
+        chatId: convId,
+        username: snap?.workplaceById(workplaceId)?.name ?? 'Посещаемость',
+        isGroup: true,
+      ),
+    );
+    return;
+  }
   context.router.push(AttendanceCompanyChatRoute(workplaceId: workplaceId));
 }
 

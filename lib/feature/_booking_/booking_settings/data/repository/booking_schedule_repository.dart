@@ -6,15 +6,9 @@ import 'package:clover/feature/_booking_/shared/data/models/booking_horizon_kind
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-abstract class BookingScheduleRepository {
-  Future<BookingScheduleSettings> getSettings({String? hostId});
-
-  Future<BookingScheduleSettings> saveMySettings(BookingScheduleSettings settings);
-}
-
-@LazySingleton(as: BookingScheduleRepository)
-class BookingScheduleRepositoryImpl implements BookingScheduleRepository {
-  BookingScheduleRepositoryImpl(this._client);
+@lazySingleton
+class BookingScheduleRepository {
+  BookingScheduleRepository(this._client);
 
   final SupabaseClient _client;
 
@@ -28,7 +22,6 @@ class BookingScheduleRepositoryImpl implements BookingScheduleRepository {
     }
   }
 
-  @override
   Future<BookingScheduleSettings> getSettings({String? hostId}) async {
     final id = (hostId ?? _uid)?.trim();
     if (id == null || id.isEmpty) return BookingScheduleSettings.defaults();
@@ -58,7 +51,6 @@ class BookingScheduleRepositoryImpl implements BookingScheduleRepository {
     });
   }
 
-  @override
   Future<BookingScheduleSettings> saveMySettings(BookingScheduleSettings settings) async {
     final uid = _uid;
     if (uid == null || uid.isEmpty) {
@@ -81,22 +73,25 @@ class BookingScheduleRepositoryImpl implements BookingScheduleRepository {
             '${start.$1.toString().padLeft(2, '0')}:${start.$2.toString().padLeft(2, '0')}:00',
         'default_work_end_time':
             '${end.$1.toString().padLeft(2, '0')}:${end.$2.toString().padLeft(2, '0')}:00',
+        'client_cancel_hours_before': settings.clientCancelHoursBefore,
+        'auto_close_hours_after_visit': settings.autoCloseHoursAfterVisit,
+        'auto_close_target': 'no_show',
       });
 
-      await _client.from('booking_staff_absences').delete().eq('host_id', uid);
-
-      if (settings.executorAbsences.isNotEmpty) {
-        await _client.from('booking_staff_absences').insert([
-          for (final absence in settings.executorAbsences)
-            {
-              'host_id': uid,
-              'staff_id': absence.executorId,
-              'start_date': _dateKey(absence.startDay),
-              'end_date': _dateKey(absence.endDay),
-              if (absence.note != null && absence.note!.trim().isNotEmpty) 'note': absence.note!.trim(),
-            },
-        ]);
-      }
+      await _client.rpc(
+        'replace_booking_staff_absences',
+        params: {
+          'p_absences': [
+            for (final absence in settings.executorAbsences)
+              {
+                'staff_id': absence.executorId,
+                'start_date': _dateKey(absence.startDay),
+                'end_date': _dateKey(absence.endDay),
+                if (absence.note != null && absence.note!.trim().isNotEmpty) 'note': absence.note!.trim(),
+              },
+          ],
+        },
+      );
 
       return getSettings(hostId: uid);
     });
@@ -123,6 +118,8 @@ class BookingScheduleRepositoryImpl implements BookingScheduleRepository {
       workEndHour: end.$1,
       workEndMinute: end.$2,
       executorAbsences: absences,
+      clientCancelHoursBefore: BookingJson.asInt(row['client_cancel_hours_before'], fallback: 0),
+      autoCloseHoursAfterVisit: BookingJson.asInt(row['auto_close_hours_after_visit'], fallback: 0),
     );
   }
 

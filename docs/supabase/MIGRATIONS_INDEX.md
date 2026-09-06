@@ -131,6 +131,11 @@
 | Файл | Назначение |
 |------|------------|
 | `20260901180000_push_device_tokens.sql` | `push_device_tokens` — upsert FCM token per user/device; RLS owner-only. |
+| `20260905220000_push_outbox_drain.sql` | claim/mark RPC for Edge `drain_push_outbox` (FCM HTTP v1). |
+| `20260906010000_booking_no_auto_complete_staff_id.sql` | Auto-close only `no_show` (never completed); `staff_id` in host list. |
+| `20260906020000_booking_push_client_reschedule_attendance_duty_folders.sql` | Booking → `push_outbox`; client reschedule; attendance `duty_only_punch` + folders bootstrap. |
+| `20260906111000_drop_booking_reviews.sql` | Drop unused `booking_reviews` (no in-app reviews). |
+| `20260906120000_replace_booking_staff_absences.sql` | Atomic `replace_booking_staff_absences(jsonb)` — host absences in one txn. |
 
 ### Attendance (посещаемость) — ядро
 
@@ -142,12 +147,17 @@
 | **`20260903120000_attendance_schema.sql`** | Enums, folders/workplaces/memberships/punches/absences/punch_type_defs, PostGIS location, indexes. |
 | **`20260903120100_attendance_rls_grants.sql`** | RLS + GRANT; punches DML только через RPC. |
 | **`20260903120200_attendance_rpc.sql`** | bootstrap, invite/accept/reject/archive/reinvite, ack, punch submit/cancel, absence upsert. |
+| **`20260905130000_attendance_payroll_duty_ot.sql`** | `payroll_rules` / `duty_roster` jsonb, `base_salary_tenge`, OT table + RPC; bootstrap расширен. |
+| **`20260905200000_attendance_chat_push_analytics_correction.sql`** | group chat, CLOVER_CARD invite/rules, notify+push_outbox, analytics/timesheet RPC, punch correction. |
+| **`20260905210000_attendance_chat_card_kinds.sql`** | `chat_message_kind` + `chat_message_attendance_cards`. |
+| **`20260905210100_attendance_rich_chat_reinvite_corrections_list.sql`** | rich post card, reinvite DM+notify, `attendance_list_corrections`, enriched `attendance_card`. |
+| **`20260906130000_booking_attendance_prod_ready.sql`** | Atomic punch types, server payroll preview; booking enriched `service_id`/`staff_id`; availability exclude id для reschedule. |
 
 #### Ключевые особенности:
 *   **0 трафика для неучастников** — нет полезного SELECT без ownership/membership.
 *   **Geofence на сервере** — `ST_DWithin` в `submit_attendance_punch`.
-*   **Outbox** — `client_punch_id` идемпотентность.
-*   **config_version / ack_version** — punch блокируется до ack.
+*   **Outbox** — `client_punch_id` / `client_request_id` идемпотентность.
+*   **config_version / ack_version** — punch блокируется до ack; payroll/duty не бампят config.
 
 ### Чат и сообщения (messages)
 
@@ -211,7 +221,7 @@
 *   **Per-staff schedule** — `booking_staff_schedule` + fallback на account settings.
 *   **Blocked slots** — `booking_blocked_slots` без fake bookings.
 *   **History** — `booking_history` на create/status change.
-*   **Reviews** — schema `booking_reviews`; RPC/UI позже.
+*   **Reviews** — сняты (`20260906111000_drop_booking_reviews.sql`); in-app отзывы не делаем.
 *   **Notifications** — backlog (не v1).
 
 #### Ключевые особенности реализации (Relations):

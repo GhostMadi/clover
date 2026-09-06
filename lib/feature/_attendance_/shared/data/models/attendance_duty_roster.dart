@@ -43,6 +43,35 @@ class AttendanceDutyRoster {
   }
 
   static DateTime _dayKey(DateTime value) => DateTime(value.year, value.month, value.day);
+
+  Map<String, dynamic> toJson() => {
+        'worker_ids': workerIds,
+        'working_weekdays': workingWeekdays.toList()..sort(),
+        if (startDate != null)
+          'start_date':
+              '${startDate!.year.toString().padLeft(4, '0')}-'
+              '${startDate!.month.toString().padLeft(2, '0')}-'
+              '${startDate!.day.toString().padLeft(2, '0')}',
+      };
+
+  static AttendanceDutyRoster fromJson(Map<String, dynamic>? json) {
+    if (json == null || json.isEmpty) return const AttendanceDutyRoster();
+    final idsRaw = json['worker_ids'];
+    final daysRaw = json['working_weekdays'];
+    final ids = idsRaw is List
+        ? [for (final e in idsRaw) e.toString()].where((e) => e.isNotEmpty).toList(growable: false)
+        : const <String>[];
+    final days = daysRaw is List
+        ? {for (final e in daysRaw) if (e is num) e.toInt()}
+        : const {1, 2, 3, 4, 5};
+    final startRaw = json['start_date']?.toString();
+    final start = startRaw == null || startRaw.isEmpty ? null : DateTime.tryParse(startRaw);
+    return AttendanceDutyRoster(
+      workerIds: ids,
+      workingWeekdays: days.isEmpty ? const {1, 2, 3, 4, 5} : days,
+      startDate: start == null ? null : DateTime(start.year, start.month, start.day),
+    );
+  }
 }
 
 extension AttendanceWeekdayX on int {

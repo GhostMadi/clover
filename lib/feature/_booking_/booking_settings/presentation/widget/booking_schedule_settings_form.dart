@@ -1,9 +1,7 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_date_picker.dart';
-import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_multi_selector.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_single_selctor.dart';
@@ -11,8 +9,10 @@ import 'package:clover/feature/_booking_/booking_create/data/models/booking_serv
 import 'package:clover/feature/_booking_/booking_settings/data/models/booking_executor_absence.dart';
 import 'package:clover/feature/_booking_/booking_settings/data/models/booking_schedule_settings.dart';
 import 'package:clover/feature/_booking_/booking_settings/data/models/booking_weekday.dart';
+import 'package:clover/feature/_booking_/booking_settings/presentation/widget/booking_schedule_ops_sections.dart';
 import 'package:clover/feature/_booking_/shared/data/models/booking_horizon_kind.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 
 class BookingScheduleSettingsForm extends StatelessWidget {
@@ -172,6 +172,56 @@ class BookingScheduleSettingsForm extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _SectionCard(
+            title: 'Отмена и незакрытые визиты',
+            subtitle:
+                '«Оказана» ставите только вы. Система сама услугу не закрывает — максимум «Не пришёл».',
+            child: IgnorePointer(
+              ignoring: !enabled,
+              child: Opacity(
+                opacity: enabled ? 1 : 0.55,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    AppSingleSelect<int>(
+                      label: 'Клиент может отменить за',
+                      hint: 'Выберите',
+                      sheetTitle: 'Отмена клиентом',
+                      options: const [
+                        AppSingleSelectOption(value: 0, label: 'До начала визита'),
+                        AppSingleSelectOption(value: 1, label: 'Не позже чем за 1 ч'),
+                        AppSingleSelectOption(value: 2, label: 'Не позже чем за 2 ч'),
+                        AppSingleSelectOption(value: 3, label: 'Не позже чем за 3 ч'),
+                        AppSingleSelectOption(value: 6, label: 'Не позже чем за 6 ч'),
+                        AppSingleSelectOption(value: 12, label: 'Не позже чем за 12 ч'),
+                        AppSingleSelectOption(value: 24, label: 'Не позже чем за 24 ч'),
+                      ],
+                      value: settings.clientCancelHoursBefore,
+                      onChanged: (value) =>
+                          onChanged(settings.copyWith(clientCancelHoursBefore: value)),
+                    ),
+                    const SizedBox(height: 12),
+                    AppSingleSelect<int>(
+                      label: 'Авто «Не пришёл»',
+                      hint: 'Выберите',
+                      sheetTitle: 'Авто «Не пришёл»',
+                      options: const [
+                        AppSingleSelectOption(value: 0, label: 'Выкл — только вручную'),
+                        AppSingleSelectOption(value: 3, label: 'Через 3 ч после конца'),
+                        AppSingleSelectOption(value: 6, label: 'Через 6 ч после конца'),
+                        AppSingleSelectOption(value: 12, label: 'Через 12 ч после конца'),
+                        AppSingleSelectOption(value: 24, label: 'Через 24 ч после конца'),
+                      ],
+                      value: settings.autoCloseHoursAfterVisit,
+                      onChanged: (value) =>
+                          onChanged(settings.copyWith(autoCloseHoursAfterVisit: value)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _SectionCard(
             title: 'Буфер между услугами',
             subtitle: 'Задаётся отдельно для каждой услуги при создании. При редактировании изменить нельзя.',
             child: Container(
@@ -194,6 +244,8 @@ class BookingScheduleSettingsForm extends StatelessWidget {
             enabled: enabled,
             onChanged: (absences) => onChanged(settings.copyWith(executorAbsences: absences)),
           ),
+          const SizedBox(height: 12),
+          BookingScheduleOpsSections(executors: executors, enabled: enabled),
         ],
       ),
     );
@@ -327,7 +379,7 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
                       onChanged: (value) => setState(() => _draftEnd = value),
                     ),
                     const SizedBox(height: 12),
-                    AppField(
+                    BookingField(
                       controller: _noteController,
                       labelText: 'Комментарий',
                       hintText: 'Отпуск, командировка…',
@@ -339,6 +391,7 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
                       children: [
                         Expanded(
                           child: AppOutlinedButton(
+                            service: kBookingService,
                             text: 'Отмена',
                             height: 48,
                             isExpanded: true,
@@ -347,7 +400,7 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: AppButton(
+                          child: BookingPrimaryButton(
                             text: 'Добавить',
                             height: 48,
                             isExpanded: true,
@@ -367,6 +420,7 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
             ),
           ] else
             AppOutlinedButton(
+              service: kBookingService,
               text: 'Добавить период',
               height: 48,
               isExpanded: true,

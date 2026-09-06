@@ -168,6 +168,10 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       'booking_cancelled_client' => NotificationKind.bookingCancelledClient,
       'booking_completed_client' => NotificationKind.bookingCompletedClient,
       'booking_no_show_client' => NotificationKind.bookingNoShowClient,
+      'attendance_invite' => NotificationKind.attendanceInvite,
+      'attendance_rules_ack' => NotificationKind.attendanceRulesAck,
+      'attendance_duty' => NotificationKind.attendanceDuty,
+      'attendance_correction' => NotificationKind.attendanceCorrection,
       _ => NotificationKind.comment,
     };
   }

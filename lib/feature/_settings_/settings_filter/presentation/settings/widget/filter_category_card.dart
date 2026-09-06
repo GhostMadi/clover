@@ -81,16 +81,18 @@ class _FilterValueChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = context.colors.serviceAccent(kResourcesService);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-        color: context.colors.surfaceSoft,
+        color: accent.soft,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.colors.border.withValues(alpha: 0.7)),
+        border: Border.all(color: accent.ctaBorder.withValues(alpha: 0.55)),
       ),
       child: Text(
         label,
-        style: AppTextStyle.base(13, color: context.colors.textColor, fontWeight: FontWeight.w600),
+        style: AppTextStyle.base(13, color: accent.icon, fontWeight: FontWeight.w600),
       ),
     );
   }

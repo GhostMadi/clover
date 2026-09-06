@@ -6,6 +6,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/feature/_attendance_/attendance_analytics/data/attendance_analytics.dart';
+import 'package:clover/feature/_attendance_/attendance_worker/presentation/cubit/attendance_worker_hub_cubit.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_duty_roster.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_membership.dart';
@@ -15,6 +16,7 @@ import 'package:clover/feature/_attendance_/shared/presentation/widget/attendanc
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
 class AttendanceWorkerHubPage extends StatefulWidget {
@@ -25,26 +27,40 @@ class AttendanceWorkerHubPage extends StatefulWidget {
 }
 
 class _AttendanceWorkerHubPageState extends State<AttendanceWorkerHubPage> {
-  late final AttendanceContextStore _store;
+  late final AttendanceWorkerHubCubit _cubit;
 
   @override
   void initState() {
     super.initState();
-    _store = sl<AttendanceContextStore>();
-    _hydrate();
+    _cubit = sl<AttendanceWorkerHubCubit>()..load();
   }
 
-  Future<void> _hydrate() async {
-    await _store.hydrateCurrent();
-    if (mounted) setState(() {});
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: _store.snapshot,
-      builder: (context, snap, _) {
-        final memberships = snap?.memberships ?? const <AttendanceMembership>[];
+    return BlocBuilder<AttendanceWorkerHubCubit, AttendanceWorkerHubState>(
+      bloc: _cubit,
+      builder: (context, state) {
+        if (state is AttendanceWorkerHubInitial || state is AttendanceWorkerHubLoading) {
+          return AttendanceScreenShell(
+            title: 'Посещаемость',
+            body: Center(
+              child: CircularProgressIndicator(
+                color: context.colors.serviceAccent(kAttendanceService).icon,
+              ),
+            ),
+          );
+        }
+
+        final memberships = state is AttendanceWorkerHubLoaded
+            ? state.memberships
+            : const <AttendanceMembership>[];
+        final snap = state is AttendanceWorkerHubLoaded ? state.snapshot : null;
 
         return AttendanceScreenShell(
           title: 'Посещаемость',
@@ -209,6 +225,8 @@ class _WorkerCompanyCard extends StatelessWidget {
             AttendanceDutyTodayBanner(
               roster: dutyRoster!,
               selfWorkerId: selfId,
+              displayNames: snapshot?.profileDisplayNames ?? const {},
+              dutyOnlyPunch: snapshot?.workplaceById(membership.workplaceId)?.dutyOnlyPunch ?? false,
               compact: true,
             ),
           ],

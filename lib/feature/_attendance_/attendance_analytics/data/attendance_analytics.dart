@@ -165,12 +165,14 @@ abstract final class AttendanceAnalytics {
 
     final scheduled = workplace?.clockInScheduledTime;
     var status = AttendanceDayStatus.full;
+    var lateMinutes = 0;
     if (firstIn != null && lastOut == null) {
       status = AttendanceDayStatus.partial;
     } else if (firstIn != null && scheduled != null) {
       final scheduledAt = DateTime(key.year, key.month, key.day, scheduled.hour, scheduled.minute);
       if (firstIn.isAfter(scheduledAt.add(const Duration(minutes: 5)))) {
         status = AttendanceDayStatus.late;
+        lateMinutes = firstIn.difference(scheduledAt).inMinutes;
       }
     }
 
@@ -178,6 +180,7 @@ abstract final class AttendanceAnalytics {
       date: key,
       status: status,
       totalMinutes: minutes,
+      lateMinutes: lateMinutes,
       punches: labels,
     );
   }

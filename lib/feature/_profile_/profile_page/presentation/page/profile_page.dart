@@ -5,6 +5,7 @@ import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_button.dart';
@@ -13,6 +14,10 @@ import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_refresh.dart';
 import 'package:clover/core/shared/app_state.dart';
 import 'package:clover/core/shared/app_tile.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
+import 'package:clover/feature/_attendance_/shared/data/profile_attendance_admin_shortcut_store.dart';
+import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
 import 'package:clover/feature/_cluster_/cluster/presentation/cluster_list_refresh.dart';
 import 'package:clover/feature/_cluster_/cluster/presentation/cubit/clusters_list_cubit.dart';
@@ -21,10 +26,8 @@ import 'package:clover/feature/_cluster_/cluster_create/presentation/cubit/clust
 import 'package:clover/feature/_post_/post/presentation/cubit/post_feed_cubit.dart';
 import 'package:clover/feature/_post_/post_create/presentation/cubit/post_create_upload_cubit.dart';
 import 'package:clover/feature/_post_/post_create/presentation/cubit/post_create_upload_state.dart';
-import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
-import 'package:clover/feature/_attendance_/shared/data/profile_attendance_admin_shortcut_store.dart';
 import 'package:clover/feature/_profile_/profile_page/data/profile_booking_shortcut_store.dart';
+import 'package:clover/feature/_profile_/profile_page/data/profile_resources_shortcut_store.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/widget/body_part/profile_body_part.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/widget/header_part/parts/profile_header_from_profile.dart';
@@ -184,6 +187,7 @@ class _ProfileNewActions extends StatefulWidget {
 class _ProfileNewActionsState extends State<_ProfileNewActions> {
   late final ProfileBookingShortcutStore _bookingShortcutStore;
   late final ProfileAttendanceAdminShortcutStore _attendanceAdminShortcutStore;
+  late final ProfileResourcesShortcutStore _resourcesShortcutStore;
   late final AttendanceContextStore _attendanceStore;
 
   @override
@@ -191,12 +195,14 @@ class _ProfileNewActionsState extends State<_ProfileNewActions> {
     super.initState();
     _bookingShortcutStore = sl<ProfileBookingShortcutStore>();
     _attendanceAdminShortcutStore = sl<ProfileAttendanceAdminShortcutStore>();
+    _resourcesShortcutStore = sl<ProfileResourcesShortcutStore>();
     _attendanceStore = sl<AttendanceContextStore>();
     final uid = Supabase.instance.client.auth.currentUser?.id.trim();
     if (uid != null && uid.isNotEmpty) {
       _bookingShortcutStore.load(uid);
       _attendanceAdminShortcutStore.load(uid);
-      unawaited(_attendanceStore.hydrate(uid));
+      _resourcesShortcutStore.load(uid);
+      unawaited(_attendanceStore.hydrate(uid, force: true));
     }
   }
 
@@ -268,6 +274,7 @@ class _ProfileNewActionsState extends State<_ProfileNewActions> {
             bookingShortcutStore: _bookingShortcutStore,
             attendanceStore: _attendanceStore,
             attendanceAdminShortcutStore: _attendanceAdminShortcutStore,
+            resourcesShortcutStore: _resourcesShortcutStore,
           ),
         ],
       ),
@@ -275,17 +282,21 @@ class _ProfileNewActionsState extends State<_ProfileNewActions> {
   }
 }
 
-/// «Запись» + «Посещаемость» в одной строке; admin — отдельной строкой ниже.
+/// Быстрые кнопки сервисов в профиле.
+///
+/// Если видимых кнопок три и больше — показываем только иконки (в один ряд).
 class _ProfileServiceShortcutsRow extends StatelessWidget {
   const _ProfileServiceShortcutsRow({
     required this.bookingShortcutStore,
     required this.attendanceStore,
     required this.attendanceAdminShortcutStore,
+    required this.resourcesShortcutStore,
   });
 
   final ProfileBookingShortcutStore bookingShortcutStore;
   final AttendanceContextStore attendanceStore;
   final ProfileAttendanceAdminShortcutStore attendanceAdminShortcutStore;
+  final ProfileResourcesShortcutStore resourcesShortcutStore;
 
   @override
   Widget build(BuildContext context) {
@@ -298,56 +309,153 @@ class _ProfileServiceShortcutsRow extends StatelessWidget {
             return ValueListenableBuilder<bool>(
               valueListenable: attendanceAdminShortcutStore.visible,
               builder: (context, showAdminShortcut, _) {
-                final showWorker = attendanceSnap?.showProfileWorkerButton ?? false;
-                final showAdmin = showAdminShortcut && (attendanceSnap?.isAdmin ?? false);
-                if (!showBooking && !showWorker && !showAdmin) {
-                  return const SizedBox.shrink();
-                }
+                return ValueListenableBuilder<bool>(
+                  valueListenable: resourcesShortcutStore.visible,
+                  builder: (context, showResources, _) {
+                    final showWorker = attendanceSnap?.showProfileWorkerButton ?? false;
+                    final showAdmin = showAdminShortcut && (attendanceSnap?.isAdmin ?? false);
+                    if (!showBooking && !showWorker && !showAdmin && !showResources) {
+                      return const SizedBox.shrink();
+                    }
 
-                return Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (showBooking || showWorker)
-                        Row(
-                          children: [
-                            if (showBooking)
-                              Expanded(
-                                child: AppOutlinedButton(
-                                  text: 'Запись',
-                                  isExpanded: true,
-                                  onTap: () => context.router.push(const BookingListRoute()),
+                    final bookingAccent = bookingServiceAccent(context.colors);
+                    final attendanceAccent = attendanceServiceAccent(context.colors);
+                    final resourcesAccent = context.colors.serviceAccent(kResourcesService);
+
+                    final specs = <_ProfileShortcutSpec>[
+                      if (showBooking)
+                        _ProfileShortcutSpec(
+                          label: 'Запись',
+                          icon: AppIcons.calendarMonth.icon,
+                          iconColor: bookingAccent.ctaForeground,
+                          builder: (child) => BookingPrimaryButton(
+                            text: 'Запись',
+                            isExpanded: true,
+                            onTap: () => context.router.push(const BookingListRoute()),
+                            child: child,
+                          ),
+                        ),
+                      if (showAdmin)
+                        _ProfileShortcutSpec(
+                          label: 'Управление',
+                          icon: AppIcons.schedule.icon,
+                          iconColor: attendanceAccent.ctaForeground,
+                          builder: (child) => AttendancePrimaryButton(
+                            text: 'Управление',
+                            isExpanded: true,
+                            onTap: () => context.router.push(const AttendanceHubRoute()),
+                            child: child,
+                          ),
+                        ),
+                      if (showWorker)
+                        _ProfileShortcutSpec(
+                          label: 'Посещаемость',
+                          icon: AppIcons.schedule.icon,
+                          iconColor: attendanceAccent.icon,
+                          builder: (child) => AppOutlinedButton(
+                            text: 'Посещаемость',
+                            service: kAttendanceService,
+                            isExpanded: true,
+                            onTap: () => context.router.push(const AttendanceWorkerHubRoute()),
+                            child: child,
+                          ),
+                        ),
+                      if (showResources)
+                        _ProfileShortcutSpec(
+                          label: 'Ресурсы',
+                          icon: AppIcons.inventory.icon,
+                          iconColor: resourcesAccent.ctaForeground,
+                          builder: (child) => AppButton(
+                            text: 'Ресурсы',
+                            service: kResourcesService,
+                            isExpanded: true,
+                            onTap: () => context.router.push(const SettingsResourcesRoute()),
+                            child: child,
+                          ),
+                        ),
+                    ];
+
+                    final iconOnly = specs.length >= 3;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Row(
+                        children: [
+                          for (var i = 0; i < specs.length; i++) ...[
+                            if (i > 0) const SizedBox(width: 10),
+                            Expanded(
+                              child: specs[i].builder(
+                                _ProfileShortcutContent(
+                                  icon: specs[i].icon,
+                                  label: specs[i].label,
+                                  color: specs[i].iconColor,
+                                  iconOnly: iconOnly,
                                 ),
                               ),
-                            if (showBooking && showWorker) const SizedBox(width: 10),
-                            if (showWorker)
-                              Expanded(
-                                child: AppOutlinedButton(
-                                  text: 'Посещаемость',
-                                  service: kAttendanceService,
-                                  isExpanded: true,
-                                  onTap: () => context.router.push(const AttendanceWorkerHubRoute()),
-                                ),
-                              ),
+                            ),
                           ],
-                        ),
-                      if (showAdmin) ...[
-                        if (showBooking || showWorker) const SizedBox(height: 10),
-                        AttendancePrimaryButton(
-                          text: 'Управление посещаемостью',
-                          isExpanded: true,
-                          onTap: () => context.router.push(const AttendanceHubRoute()),
-                        ),
-                      ],
-                    ],
-                  ),
+                        ],
+                      ),
+                    );
+                  },
                 );
               },
             );
           },
         );
       },
+    );
+  }
+}
+
+class _ProfileShortcutSpec {
+  const _ProfileShortcutSpec({
+    required this.label,
+    required this.icon,
+    required this.iconColor,
+    required this.builder,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color iconColor;
+  final Widget Function(Widget child) builder;
+}
+
+class _ProfileShortcutContent extends StatelessWidget {
+  const _ProfileShortcutContent({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.iconOnly,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final bool iconOnly;
+
+  @override
+  Widget build(BuildContext context) {
+    if (iconOnly) {
+      return Icon(icon, color: color, size: 22);
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: color, size: 20),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyle.base(15, fontWeight: FontWeight.w700, color: color, letterSpacing: 0.2),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -382,4 +490,3 @@ class _ProfileHeaderBlock extends StatelessWidget {
     );
   }
 }
-

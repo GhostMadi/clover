@@ -2,7 +2,7 @@ import 'package:clover/core/storage/domain/repositories/i_app_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
-/// Ярлык «Посещаемость» на профиле для admin (как «Запись»).
+/// Ярлык «Управление посещаемостью» на профиле (настройка в Сервисы → Посещаемость).
 @lazySingleton
 class ProfileAttendanceAdminShortcutStore {
   ProfileAttendanceAdminShortcutStore(this._storage);

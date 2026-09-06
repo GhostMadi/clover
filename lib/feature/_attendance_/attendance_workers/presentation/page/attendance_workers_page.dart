@@ -1,3 +1,4 @@
+import 'package:clover/feature/_attendance_/shared/data/models/attendance_worker.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
@@ -9,17 +10,18 @@ import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/app_tab.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_attendance_/attendance_analytics/data/attendance_analytics.dart';
+import 'package:clover/feature/_attendance_/attendance_workers/presentation/cubit/attendance_workers_cubit.dart';
 import 'package:clover/feature/_attendance_/attendance_workers/presentation/widget/attendance_worker_search_sheet.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_error.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_remote_repository.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_workers_mock.dart';
+import 'package:clover/feature/_attendance_/shared/data/models/attendance_snapshot.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/attendance_company_chat_nav.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:clover/feature/_chat_/chat/data/repository/chat_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
 class AttendanceWorkersPage extends StatefulWidget {
@@ -32,14 +34,27 @@ class AttendanceWorkersPage extends StatefulWidget {
 }
 
 class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
-  final _store = sl<AttendanceContextStore>();
+  late final AttendanceWorkersCubit _cubit;
   int _tabIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    _cubit = sl<AttendanceWorkersCubit>()..bind(widget.workplaceId);
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: _store.snapshot,
-      builder: (context, snap, _) {
+    return BlocBuilder<AttendanceWorkersCubit, AttendanceWorkersState>(
+      bloc: _cubit,
+      builder: (context, state) {
+        final snap = state is AttendanceWorkersLoaded ? state.snapshot : null;
         final workers = snap?.workersFor(widget.workplaceId) ?? const <AttendanceWorkerListItem>[];
 
         final pending = workers.where((w) => w.isPending).toList(growable: false);
@@ -113,15 +128,15 @@ class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
                           return switch (_tabIndex) {
                             1 => _WorkerTile(
                                 worker: worker,
-                                onTap: () => _showPendingWorker(context, worker),
+                                onTap: () => _showPendingWorker(context, worker, snap),
                               ),
                             2 => _WorkerTile(
                                 worker: worker,
-                                onTap: () => _showArchived(context, worker),
+                                onTap: () => _showArchived(context, worker, snap),
                               ),
                             _ => _WorkerTile(
                                 worker: worker,
-                                hoursLabel: _hoursLabel(worker, monthStart, monthEnd),
+                                hoursLabel: _hoursLabel(snap, worker, monthStart, monthEnd),
                                 onTap: () => _onActiveTap(context, worker),
                                 onLongPress: () => _showArchiveWorker(context, worker),
                               ),
@@ -136,8 +151,12 @@ class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
     );
   }
 
-  String? _hoursLabel(AttendanceWorkerListItem worker, DateTime start, DateTime end) {
-    final snap = _store.snapshot.value;
+  String? _hoursLabel(
+    AttendanceSnapshot? snap,
+    AttendanceWorkerListItem worker,
+    DateTime start,
+    DateTime end,
+  ) {
     if (snap == null) return null;
     final analytics = AttendanceAnalytics.worker(
       snapshot: snap,
@@ -202,8 +221,7 @@ class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
           text: 'В архив',
           isExpanded: true,
           onTap: () {
-            _store.setWorkerStatus(
-              workplaceId: widget.workplaceId,
+            _cubit.setWorkerStatus(
               workerId: worker.id,
               status: AttendanceWorkerInviteStatus.archived,
             );
@@ -215,9 +233,12 @@ class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
     );
   }
 
-  Future<void> _showArchived(BuildContext context, AttendanceWorkerListItem worker) {
-    final workplaceName =
-        _store.snapshot.value?.workplaceById(widget.workplaceId)?.name ?? 'компанию';
+  Future<void> _showArchived(
+    BuildContext context,
+    AttendanceWorkerListItem worker,
+    AttendanceSnapshot? snap,
+  ) {
+    final workplaceName = snap?.workplaceById(widget.workplaceId)?.name ?? 'компанию';
 
     return AttendanceBottomSheet.show(
       context: context,
@@ -265,9 +286,12 @@ class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
     await _inviteAndOpenChat(worker);
   }
 
-  Future<void> _showPendingWorker(BuildContext context, AttendanceWorkerListItem worker) {
-    final workplaceName =
-        _store.snapshot.value?.workplaceById(widget.workplaceId)?.name ?? 'компанию';
+  Future<void> _showPendingWorker(
+    BuildContext context,
+    AttendanceWorkerListItem worker,
+    AttendanceSnapshot? snap,
+  ) {
+    final workplaceName = snap?.workplaceById(widget.workplaceId)?.name ?? 'компанию';
 
     return AttendanceBottomSheet.show(
       context: context,
@@ -300,14 +324,9 @@ class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
   }
 
   Future<void> _showAddWorker(BuildContext context) async {
-    final existingIds = (_store.snapshot.value?.workersFor(widget.workplaceId) ?? const [])
-        .map((w) => w.id)
-        .toSet();
-
     final profile = await AttendanceWorkerSearchSheet.show(
       context,
-      repository: sl<AttendanceRemoteRepository>(),
-      excludeProfileIds: existingIds,
+      search: _cubit.searchProfiles,
     );
     if (profile == null || !mounted) return;
 
@@ -323,7 +342,7 @@ class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
 
   Future<void> _inviteAndOpenChat(AttendanceWorkerListItem worker) async {
     try {
-      final dm = await _store.sendChatInvite(workplaceId: widget.workplaceId, candidate: worker);
+      final dm = await _cubit.sendChatInvite(worker);
       if (!mounted) return;
       setState(() => _tabIndex = 1);
       AppSnackBar.show(

@@ -1,42 +1,36 @@
-import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
-import 'package:clover/core/shared/app_button.dart';
-import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_staff_profile.dart';
-import 'package:clover/feature/_booking_/booking_create/data/repository/booking_staff_repository.dart';
+import 'package:clover/feature/_booking_/booking_create/presentation/cubit/booking_staff_search_cubit.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Поиск аккаунта приложения для назначения исполнителем услуги.
 abstract final class BookingStaffProfileSearchSheet {
   static Future<BookingStaffProfile?> show(
     BuildContext context, {
-    required BookingStaffRepository repository,
     Set<String> excludeProfileIds = const {},
   }) {
     return AppBottomSheet.show<BookingStaffProfile>(
+      service: kBookingService,
       context: context,
       title: 'Добавить исполнителя',
       expandBody: true,
       contentPadding: const EdgeInsets.all(16),
       sheetOuterPadding: const EdgeInsets.fromLTRB(16, 48, 16, 12),
       contentBottomSpacing: 16,
-      content: _Body(
-        repository: repository,
-        excludeProfileIds: excludeProfileIds,
-      ),
+      content: _Body(excludeProfileIds: excludeProfileIds),
     );
   }
 }
 
 class _Body extends StatefulWidget {
-  const _Body({
-    required this.repository,
-    required this.excludeProfileIds,
-  });
+  const _Body({required this.excludeProfileIds});
 
-  final BookingStaffRepository repository;
   final Set<String> excludeProfileIds;
 
   @override
@@ -44,99 +38,81 @@ class _Body extends StatefulWidget {
 }
 
 class _BodyState extends State<_Body> {
+  late final BookingStaffSearchCubit _cubit;
   late final TextEditingController _queryController;
-  List<BookingStaffProfile> _results = const [];
-  bool _loading = false;
-  String? _error;
 
   @override
   void initState() {
     super.initState();
+    _cubit = sl<BookingStaffSearchCubit>()..configure(excludeProfileIds: widget.excludeProfileIds);
     _queryController = TextEditingController();
     _queryController.addListener(_onQueryChanged);
-    _search('');
+    _cubit.search('');
   }
 
   @override
   void dispose() {
     _queryController.removeListener(_onQueryChanged);
     _queryController.dispose();
+    _cubit.close();
     super.dispose();
   }
 
-  Future<void> _search(String query) async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final rows = await widget.repository.searchProfiles(
-        query,
-        excludeProfileIds: widget.excludeProfileIds,
-      );
-      if (!mounted) return;
-      setState(() {
-        _results = rows;
-        _loading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = '$e';
-        _results = const [];
-      });
-    }
-  }
-
   void _onQueryChanged() {
-    _search(_queryController.text);
+    _cubit.search(_queryController.text);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        AppField(
-          controller: _queryController,
-          hintText: 'Поиск по никнейму или имени',
-          prefixIcon: AppIcons.searchRounded.icon,
-          textInputAction: TextInputAction.search,
-        ),
-        const SizedBox(height: 16),
-        if (_error != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              _error!,
-              textAlign: TextAlign.center,
-              style: AppTextStyle.base(13, color: context.colors.subTextColor),
-            ),
-          ),
-        Expanded(
-          child: _loading && _results.isEmpty
-              ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
-              : _results.isEmpty
-              ? Center(
+    return BlocProvider.value(
+      value: _cubit,
+      child: BlocBuilder<BookingStaffSearchCubit, BookingStaffSearchState>(
+        builder: (context, state) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              BookingField(
+                controller: _queryController,
+                hintText: 'Поиск по никнейму или имени',
+                prefixIcon: AppIcons.searchRounded.icon,
+                textInputAction: TextInputAction.search,
+              ),
+              const SizedBox(height: 16),
+              if (state.error != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: Text(
-                    'Никого не найдено',
-                    style: AppTextStyle.base(14, color: context.colors.subTextColor),
+                    state.error!,
+                    textAlign: TextAlign.center,
+                    style: AppTextStyle.base(13, color: context.colors.subTextColor),
                   ),
-                )
-              : ListView.separated(
-                  itemCount: _results.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final profile = _results[index];
-                    return _ProfileTile(
-                      profile: profile,
-                      onTap: () => Navigator.of(context).pop(profile),
-                    );
-                  },
                 ),
-        ),
-      ],
+              Expanded(
+                child: state.loading && state.results.isEmpty
+                    ? const BookingLoader(strokeWidth: 2)
+                    : state.results.isEmpty
+                    ? Center(
+                        child: Text(
+                          'Никого не найдено',
+                          style: AppTextStyle.base(14, color: context.colors.subTextColor),
+                        ),
+                      )
+                    : ListView.separated(
+                        itemCount: state.results.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemBuilder: (context, index) {
+                          final profile = state.results[index];
+                          return _ProfileTile(
+                            profile: profile,
+                            onTap: () => Navigator.of(context).pop(profile),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -194,7 +170,7 @@ class _ProfileTile extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            AppButton(
+            BookingPrimaryButton(
               text: 'Добавить',
               height: 40,
               borderRadius: 12,

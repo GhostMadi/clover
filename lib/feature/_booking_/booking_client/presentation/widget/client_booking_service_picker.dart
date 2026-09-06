@@ -2,6 +2,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 
 class ClientBookingServicePicker extends StatelessWidget {
   const ClientBookingServicePicker({
@@ -52,7 +53,7 @@ class _ServiceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? context.colors.surfaceSoftGreen.withValues(alpha: 0.55) : context.colors.surface,
+      color: selected ? bookingServiceAccent(context.colors).soft.withValues(alpha: 0.85) : context.colors.surface,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -62,13 +63,13 @@ class _ServiceTile extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: selected ? context.colors.primary : context.colors.border.withValues(alpha: 0.55),
+              color: selected ? bookingServiceAccent(context.colors).icon : context.colors.border.withValues(alpha: 0.55),
               width: selected ? 1.5 : 1,
             ),
           ),
           child: Row(
             children: [
-              Text(service.emojiText, style: const TextStyle(fontSize: 26, height: 1)),
+              Text(service.emojiText, style: AppTextStyle.emoji(26)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -88,7 +89,7 @@ class _ServiceTile extends StatelessWidget {
               ),
               Text(
                 service.priceLabel,
-                style: AppTextStyle.base(14, color: context.colors.primary, fontWeight: FontWeight.w800),
+                style: AppTextStyle.base(14, color: bookingServiceAccent(context.colors).icon, fontWeight: FontWeight.w800),
               ),
             ],
           ),

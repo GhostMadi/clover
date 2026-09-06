@@ -21,7 +21,9 @@ class AttendanceWorkplace {
     this.payrollRules = const AttendancePayrollRules(),
     this.workerBaseSalaries = const {},
     this.dutyRoster = const AttendanceDutyRoster(),
+    this.dutyOnlyPunch = false,
     this.isAdmin = false,
+    this.groupConversationId,
   });
 
   final String id;
@@ -46,7 +48,11 @@ class AttendanceWorkplace {
   /// Оклад работника, ₸ (ключ — worker id).
   final Map<String, int> workerBaseSalaries;
   final AttendanceDutyRoster dutyRoster;
+
+  /// Если true — punch только у дежурного на сегодня.
+  final bool dutyOnlyPunch;
   final bool isAdmin;
+  final String? groupConversationId;
 
   bool get hasSystemPunch => clockInEnabled || clockOutEnabled;
 
@@ -90,7 +96,9 @@ class AttendanceWorkplace {
     AttendancePayrollRules? payrollRules,
     Map<String, int>? workerBaseSalaries,
     AttendanceDutyRoster? dutyRoster,
+    bool? dutyOnlyPunch,
     bool? isAdmin,
+    String? groupConversationId,
   }) {
     return AttendanceWorkplace(
       id: id,
@@ -109,7 +117,9 @@ class AttendanceWorkplace {
       payrollRules: payrollRules ?? this.payrollRules,
       workerBaseSalaries: workerBaseSalaries ?? this.workerBaseSalaries,
       dutyRoster: dutyRoster ?? this.dutyRoster,
+      dutyOnlyPunch: dutyOnlyPunch ?? this.dutyOnlyPunch,
       isAdmin: isAdmin ?? this.isAdmin,
+      groupConversationId: groupConversationId ?? this.groupConversationId,
     );
   }
 }

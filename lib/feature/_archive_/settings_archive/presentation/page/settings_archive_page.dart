@@ -24,17 +24,10 @@ class SettingsArchivePage extends StatelessWidget {
               children: [
                 AppTile(
                   title: 'Публикации',
-                  subtitle: 'Архивированные посты',
+                  subtitle: 'Архивированные посты и ивенты',
                   icon: AppIcons.gridView.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const PostArchiveRoute()),
-                ),
-                AppTile(
-                  title: 'Ивенты',
-                  subtitle: 'Архивированные события',
-                  icon: AppIcons.event.icon,
-                  showChevron: true,
-                  onTap: () => context.router.push(const EventArchiveRoute()),
                 ),
                 AppTile(
                   title: 'Кластеры',

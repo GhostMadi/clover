@@ -4,6 +4,7 @@ import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_item.dart';
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_action_card.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 
 class BookingListNowCard extends StatelessWidget {
   const BookingListNowCard({
@@ -42,7 +43,7 @@ class BookingListNowCard extends StatelessWidget {
             children: [
               Text(
                 'Сейчас в кресле',
-                style: AppTextStyle.base(13, color: context.colors.primary, fontWeight: FontWeight.w700),
+                style: AppTextStyle.base(13, color: bookingServiceAccent(context.colors).icon, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 10),
               Text(
@@ -53,7 +54,7 @@ class BookingListNowCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   item.clientUsernameLabel,
-                  style: AppTextStyle.base(14, color: context.colors.primary, fontWeight: FontWeight.w600),
+                  style: AppTextStyle.base(14, color: bookingServiceAccent(context.colors).icon, fontWeight: FontWeight.w600),
                 ),
               ],
               const SizedBox(height: 12),

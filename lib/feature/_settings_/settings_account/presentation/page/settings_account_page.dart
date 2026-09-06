@@ -1,23 +1,17 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/auth/cubit/auth_cubit.dart';
-import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_button.dart';
-import 'package:clover/core/shared/app_switch.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/core/theme/app_theme_cubit.dart';
 import 'package:clover/core/theme/app_theme_mode.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
-import 'package:clover/feature/_attendance_/shared/data/profile_attendance_admin_shortcut_store.dart';
-import 'package:clover/feature/_profile_/profile_page/data/profile_booking_shortcut_store.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_tile_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum _SettingsAccountLanguage {
   ru('ru', 'Русский'),
@@ -41,34 +35,13 @@ class SettingsAccountPage extends StatefulWidget {
 class _SettingsAccountPageState extends State<SettingsAccountPage> {
   _SettingsAccountLanguage _language = _SettingsAccountLanguage.ru;
   bool _isLoggingOut = false;
-  late final ProfileBookingShortcutStore _bookingShortcutStore;
-  late final ProfileAttendanceAdminShortcutStore _attendanceAdminShortcutStore;
-  late final AttendanceContextStore _attendanceStore;
-  bool _bookingShortcutLoading = true;
-  bool _attendanceAdminShortcutLoading = true;
-  bool _attendanceAdminEligible = false;
   bool _hasPasswordLoading = true;
   bool? _hasPassword;
 
   @override
   void initState() {
     super.initState();
-    _bookingShortcutStore = sl<ProfileBookingShortcutStore>();
-    _attendanceAdminShortcutStore = sl<ProfileAttendanceAdminShortcutStore>();
-    _attendanceStore = sl<AttendanceContextStore>();
-    _loadBookingShortcut();
-    _loadAttendanceAdminShortcut();
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadHasPassword());
-  }
-
-  Future<void> _loadBookingShortcut() async {
-    final uid = Supabase.instance.client.auth.currentUser?.id.trim();
-    if (uid == null || uid.isEmpty) {
-      if (mounted) setState(() => _bookingShortcutLoading = false);
-      return;
-    }
-    await _bookingShortcutStore.load(uid);
-    if (mounted) setState(() => _bookingShortcutLoading = false);
   }
 
   Future<void> _loadHasPassword() async {
@@ -87,36 +60,6 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
         _hasPasswordLoading = false;
       });
     }
-  }
-
-  Future<void> _loadAttendanceAdminShortcut() async {
-    final uid = Supabase.instance.client.auth.currentUser?.id.trim();
-    if (uid == null || uid.isEmpty) {
-      if (mounted) setState(() => _attendanceAdminShortcutLoading = false);
-      return;
-    }
-    await _attendanceStore.hydrate(uid);
-    await _attendanceAdminShortcutStore.load(uid);
-    if (mounted) {
-      setState(() {
-        _attendanceAdminEligible = _attendanceStore.snapshot.value?.isAdmin ?? false;
-        _attendanceAdminShortcutLoading = false;
-      });
-    }
-  }
-
-  Future<void> _setAttendanceAdminShortcut(bool value) async {
-    final uid = Supabase.instance.client.auth.currentUser?.id.trim();
-    if (uid == null || uid.isEmpty) return;
-    await _attendanceAdminShortcutStore.setVisible(uid, value);
-    if (mounted) setState(() {});
-  }
-
-  Future<void> _setBookingShortcut(bool value) async {
-    final uid = Supabase.instance.client.auth.currentUser?.id.trim();
-    if (uid == null || uid.isEmpty) return;
-    await _bookingShortcutStore.setVisible(uid, value);
-    if (mounted) setState(() {});
   }
 
   Future<void> _pickLanguage() async {
@@ -237,33 +180,6 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SettingsTileSectionTitle('Профиль'),
-            AppTileGroup(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: AppSwitchRow(
-                    title: 'Кнопка «Запись» в профиле',
-                    subtitle: 'Быстрый переход к «Мои записи» под кнопкой «Редактировать»',
-                    value: _bookingShortcutStore.visible.value,
-                    enabled: !_bookingShortcutLoading,
-                    onChanged: _bookingShortcutLoading ? null : _setBookingShortcut,
-                  ),
-                ),
-                if (_attendanceAdminEligible)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: AppSwitchRow(
-                      title: 'Управление посещаемостью в профиле',
-                      subtitle: 'Быстрый переход к компаниям и настройкам',
-                      value: _attendanceAdminShortcutStore.visible.value,
-                      enabled: !_attendanceAdminShortcutLoading,
-                      onChanged: _attendanceAdminShortcutLoading ? null : _setAttendanceAdminShortcut,
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 20),
             const SettingsTileSectionTitle('Общее'),
             AppTileGroup(
               children: [

@@ -70,11 +70,27 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> _moveToMyLocation() async {
-    final point = await _mapController.moveToMyLocation();
-    if (!mounted || point == null) return;
+    final (result, point) = await _mapController.moveToMyLocation();
+    if (!mounted) return;
 
-    _viewport = AppMapViewport(center: point, zoom: _viewport.zoom);
-    _reloadMarkers(force: true);
+    switch (result) {
+      case AppMapMyLocationResult.moved:
+        if (point == null) return;
+        _viewport = AppMapViewport(center: point, zoom: _viewport.zoom);
+        _reloadMarkers(force: true);
+      case AppMapMyLocationResult.permissionDenied:
+        AppSnackBar.show(
+          context,
+          message: 'Разрешите доступ к геолокации в настройках',
+          kind: AppSnackBarKind.error,
+        );
+      case AppMapMyLocationResult.unavailable:
+        AppSnackBar.show(
+          context,
+          message: 'Не удалось определить местоположение',
+          kind: AppSnackBarKind.error,
+        );
+    }
   }
 
   Map<String, MapMarkerItem> _markersById(MapMarkersState state) {

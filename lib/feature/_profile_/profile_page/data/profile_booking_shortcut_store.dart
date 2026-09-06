@@ -2,7 +2,7 @@ import 'package:clover/core/storage/domain/repositories/i_app_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
-/// Показывать ли на профиле быструю кнопку «Запись» (настройка в Аккаунте).
+/// Показывать ли на профиле быструю кнопку «Запись» (настройка в Сервисы → Запись).
 @lazySingleton
 class ProfileBookingShortcutStore {
   ProfileBookingShortcutStore(this._storage);

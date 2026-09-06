@@ -1,6 +1,7 @@
-import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 
 class BookingServicesEmptyState extends StatelessWidget {
@@ -8,6 +9,8 @@ class BookingServicesEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = bookingServiceAccent(context.colors);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
@@ -18,10 +21,10 @@ class BookingServicesEmptyState extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: context.colors.surfaceSoftGreen.withValues(alpha: 0.5),
+                color: accent.soft.withValues(alpha: 0.85),
                 shape: BoxShape.circle,
               ),
-              child: Icon(AppIcons.contentCut.icon, size: 34, color: context.colors.primary.withValues(alpha: 0.85)),
+              child: Icon(AppIcons.contentCut.icon, size: 34, color: accent.icon.withValues(alpha: 0.9)),
             ),
             const SizedBox(height: 16),
             Text(

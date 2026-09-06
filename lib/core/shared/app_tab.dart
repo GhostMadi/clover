@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 /// Сегментированный переключатель вкладок с анимированной подложкой.
 ///
 /// [scrollable]: вкладки берут ширину по тексту и скроллятся по горизонтали.
+/// [service]: мягкий трек + цвет выбранного текста из сервисного акцента.
 class AppTab extends StatelessWidget {
   const AppTab({
     super.key,
@@ -14,6 +15,7 @@ class AppTab extends StatelessWidget {
     required this.currentIndex,
     required this.onTabChanged,
     this.scrollable = false,
+    this.service,
   });
 
   final List<String> tabs;
@@ -23,6 +25,8 @@ class AppTab extends StatelessWidget {
   /// Если `true` — ширина по содержимому + горизонтальный скролл.
   final bool scrollable;
 
+  final AppServiceKind? service;
+
   static const double _outerPadding = 3;
 
   @override
@@ -31,12 +35,17 @@ class AppTab extends StatelessWidget {
 
     final index = currentIndex.clamp(0, tabs.length - 1);
     final colors = context.colors;
+    final accent = service != null ? colors.serviceAccent(service!) : null;
+    final trackColor = accent?.soft ?? colors.surfaceMuted;
+    final selectedColor = accent?.icon ?? colors.textColor;
 
     if (scrollable) {
       return _ScrollableAppTab(
         tabs: tabs,
         currentIndex: index,
         onTabChanged: onTabChanged,
+        trackColor: trackColor,
+        selectedColor: selectedColor,
       );
     }
 
@@ -49,7 +58,7 @@ class AppTab extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(_outerPadding),
           decoration: ShapeDecoration(
-            color: colors.surfaceMuted,
+            color: trackColor,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
           child: Stack(
@@ -70,6 +79,7 @@ class AppTab extends StatelessWidget {
                       label: tabs[i],
                       isSelected: i == index,
                       expand: true,
+                      selectedColor: selectedColor,
                       onTap: () {
                         if (i != index) {
                           HapticFeedback.selectionClick();
@@ -118,11 +128,15 @@ class _ScrollableAppTab extends StatefulWidget {
     required this.tabs,
     required this.currentIndex,
     required this.onTabChanged,
+    required this.trackColor,
+    required this.selectedColor,
   });
 
   final List<String> tabs;
   final int currentIndex;
   final ValueChanged<int> onTabChanged;
+  final Color trackColor;
+  final Color selectedColor;
 
   @override
   State<_ScrollableAppTab> createState() => _ScrollableAppTabState();
@@ -211,13 +225,11 @@ class _ScrollableAppTabState extends State<_ScrollableAppTab> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppTab._outerPadding),
       decoration: ShapeDecoration(
-        color: colors.surfaceMuted,
+        color: widget.trackColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       child: SingleChildScrollView(
@@ -245,6 +257,7 @@ class _ScrollableAppTabState extends State<_ScrollableAppTab> {
                     label: widget.tabs[i],
                     isSelected: i == widget.currentIndex,
                     expand: false,
+                    selectedColor: widget.selectedColor,
                     onTap: () {
                       if (i != widget.currentIndex) {
                         HapticFeedback.selectionClick();
@@ -267,12 +280,14 @@ class _AppTabItem extends StatefulWidget {
     required this.label,
     required this.isSelected,
     required this.onTap,
+    required this.selectedColor,
     this.expand = true,
   });
 
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
+  final Color selectedColor;
   final bool expand;
 
   @override
@@ -327,7 +342,7 @@ class _AppTabItemState extends State<_AppTabItem> with SingleTickerProviderState
             style: AppTextStyle.base(
               14,
               fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: widget.isSelected ? colors.textColor : colors.subTextColor,
+              color: widget.isSelected ? widget.selectedColor : colors.subTextColor,
             ),
             child: Text(
               widget.label,
