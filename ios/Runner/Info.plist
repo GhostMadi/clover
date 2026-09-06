@@ -49,8 +49,12 @@
 	<string>1041927738445-mvr2koskarj7c1rg82avsbmgsk8ih91h.apps.googleusercontent.com</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Приложению требуется доступ к камере для сканирования QR-кодов и съемки фото.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Приложению требуется доступ к вашему местоположению для определения геопозиции.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Нужен доступ к геолокации, чтобы показать ваше местоположение на карте.</string>
+	<string>Приложению требуется доступ к вашему местоположению во время использования.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Нужен доступ к фото, чтобы сохранять изображения в галерею.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
