@@ -1,0 +1,53 @@
+---
+description: Архитектура Next.js в web/ — слои, папки, переиспользование
+globs: web/**/*
+alwaysApply: false
+---
+
+# Clover Web — архитектура
+
+Стек: **Next.js App Router + TypeScript + Tailwind**. Без domain/use-cases слоёв.
+
+## Дерево (цель)
+
+```
+web/src/
+  app/                 # routes: page.tsx, layout.tsx (только композиция)
+  components/          # UI: site-*, legal-*, shared/*
+  lib/                 # клиенты, env, утилиты (не React)
+    supabase/          # browser + server clients (когда появится кабинет)
+  features/<name>/     # фича кабинета: api/data + ui куски фичи
+    components/
+    lib/               # запросы/маппинг этой фичи
+  content/             # MD/MDX или константы legal (по мере роста)
+  styles/              # только если не хватает globals.css
+```
+
+Сейчас (лендинг): `app/` + `components/` достаточно. `features/` — когда появится кабинет.
+
+## Слои
+
+| Слой | Делает | Не делает |
+|------|--------|-----------|
+| `app/**/page` | маршрут, SEO metadata, сборка экрана | fetch-спагетти, сырой SQL |
+| `components/` | UI, презентация | прямые секреты, service_role |
+| `lib/` / `features/*/lib` | Supabase client, маппинг DTO | JSX ради удобства |
+| Server Actions / Route Handlers | мутации с проверкой сессии | дублировать RLS-логику «вместо» политик |
+
+## Переиспользование
+
+- Общий chrome: `components/site-header`, `site-footer`, токены в `globals.css`
+- Повторяемый UI → `components/shared/*` (см. `clover-web-resources`)
+- Bubble-tap кнопок → `components/shared/jelly.tsx` (`useJellyPress` / `JellyPress`) — как `JellyPressController` в Flutter
+- С бэком: **те же** RPC/таблицы/ключи, что мобилка (`docs/supabase/`, `clover-web-harmony`)
+- Справочники: EN key с бэка → подпись на клиенте (как `clover-catalog-l10n`)
+- Не шарь runtime-код с Flutter — только контракт и доки
+- Один экран кабинета ≈ один метод в `features/<x>/lib` (или `lib/`), не N fetch в JSX
+
+## Маршруты
+
+| Тип | Пример |
+|-----|--------|
+| Публичные | `/`, `/privacy`, `/terms` |
+| Кабинет (позже) | `/app/...` за auth |
+| API | минимум; предпочитай Server Actions + RLS |

@@ -1,0 +1,318 @@
+@import "tailwindcss";
+
+/*
+ * Источник истины: lib/core/theme/app_palette.dart
+ * --brand на сайте = primary (зелёный CTA), не поле brand (#B7F5FE).
+ */
+
+:root {
+  --brand: #8bc34a; /* primary */
+  --brand-soft: #c5feb7; /* activeColor */
+  --brand-deep: #8bc34a; /* hover: тот же primary, как в AppButton */
+  --on-brand: #ffffff; /* textInverse */
+
+  --mint: #f2f8ed; /* bgSoftMint */
+  --ink: #1a1d1e; /* textColor */
+  --muted: #6a6a6a; /* subTextColor */
+  --icon-muted: #9e9e9e; /* iconMuted */
+  --surface: #ffffff; /* surface */
+  --surface-muted: #fafafa; /* surfaceMuted */
+  --surface-soft: #f7f7f8; /* surfaceSoft */
+  --surface-soft-green: #f8faf5; /* surfaceSoftGreen */
+  --line: #eeeeee; /* border / divider */
+  --line-soft: #e8e8e8; /* borderSoft */
+  --border-input: #e0e0e0; /* borderInput */
+  --border-card-green: #e0ebd2; /* borderCardGreen */
+  --bg: #ffffff; /* pageBackground */
+  --bg-auth: #0d140a; /* bgColor — только auth */
+  --destructive: #c62828;
+  --error: #e57373;
+  --success-soft: #eff8e7; /* successSoft */
+
+  --svc-booking: #fdf08b; /* functionalSoftYellow */
+  --svc-booking-ink: #9a7b00;
+  --svc-attendance: #e3f0fc;
+  --svc-attendance-ink: #5b9bd5;
+  --svc-resources: #ede9fb;
+  --svc-resources-ink: #5c4fa8;
+  --svc-bonus: #fff3e0;
+  --svc-bonus-ink: #e65100;
+
+  --nav-inactive: #a1aab3; /* bottomBarInactiveIcon */
+  --shimmer-base: #c8c8cc;
+  --shimmer-highlight: #f4f4f6;
+  /* Текст поверх фото / тёмного оверлея — всегда белый */
+  --on-media: #ffffff;
+  --elevate-sm: 0 2px 8px color-mix(in srgb, var(--ink) 4%, transparent);
+  --elevate-md: 0 8px 24px color-mix(in srgb, var(--ink) 12%, transparent);
+  --elevate-lg: 0 12px 32px color-mix(in srgb, var(--ink) 14%, transparent);
+  --elevate-xl: 0 12px 40px color-mix(in srgb, var(--ink) 8%, transparent);
+  --elevate-brand: 0 8px 24px color-mix(in srgb, var(--brand) 28%, transparent);
+  --elevate-brand-sm: 0 4px 12px color-mix(in srgb, var(--brand) 35%, transparent);
+  --focus-ring-brand: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* AppPalette.dark — один в один */
+html[data-theme="dark"] {
+  --brand: #8bc34a;
+  --brand-soft: #7bc96f;
+  --brand-deep: #8bc34a;
+  --on-brand: #0d0d0d;
+
+  --mint: #152016;
+  --ink: #f2f2f2;
+  --muted: #a3a3a3;
+  --icon-muted: #8a8a8a;
+  --surface: #161616;
+  --surface-muted: #121212;
+  --surface-soft: #1c1c1e;
+  --surface-soft-green: #141a12;
+  --line: #2a2a2a;
+  --line-soft: #242424;
+  --border-input: #333333;
+  --border-card-green: #2c3a24;
+  --bg: #0d0d0d;
+  --bg-auth: #0d140a;
+  --destructive: #ef5350;
+  --error: #ef9a9a;
+  --success-soft: #1b2a16;
+
+  --svc-booking: #fdf08b;
+  --svc-booking-ink: #9a7b00;
+  --svc-attendance: #1a2736;
+  --svc-attendance-ink: #7eb6e0;
+  --svc-resources: #221e36;
+  --svc-resources-ink: #c4bbf0;
+  --svc-bonus: #2a1e12;
+  --svc-bonus-ink: #ffb74d;
+
+  --nav-inactive: #7a828a;
+  --shimmer-base: #2c2c2e;
+  --shimmer-highlight: #3a3a3c;
+  --on-media: #ffffff;
+  --elevate-sm: 0 2px 8px color-mix(in srgb, #000 20%, transparent);
+  --elevate-md: 0 8px 24px color-mix(in srgb, #000 35%, transparent);
+  --elevate-lg: 0 12px 32px color-mix(in srgb, #000 40%, transparent);
+  --elevate-xl: 0 12px 40px color-mix(in srgb, #000 30%, transparent);
+  --elevate-brand: 0 8px 24px color-mix(in srgb, var(--brand) 22%, transparent);
+  --elevate-brand-sm: 0 4px 12px color-mix(in srgb, var(--brand) 28%, transparent);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-deep: var(--brand-deep);
+  --color-on-brand: var(--on-brand);
+  --color-mint: var(--mint);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-icon-muted: var(--icon-muted);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-soft: var(--surface-soft);
+  --color-surface-soft-green: var(--surface-soft-green);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-border-input: var(--border-input);
+  --color-border-card-green: var(--border-card-green);
+  --color-bg: var(--bg);
+  --color-bg-auth: var(--bg-auth);
+  --color-destructive: var(--destructive);
+  --color-error: var(--error);
+  --color-success-soft: var(--success-soft);
+  --color-svc-booking: var(--svc-booking);
+  --color-svc-booking-ink: var(--svc-booking-ink);
+  --color-svc-attendance: var(--svc-attendance);
+  --color-svc-attendance-ink: var(--svc-attendance-ink);
+  --color-svc-resources: var(--svc-resources);
+  --color-svc-resources-ink: var(--svc-resources-ink);
+  --color-svc-bonus: var(--svc-bonus);
+  --color-svc-bonus-ink: var(--svc-bonus-ink);
+  --color-nav-inactive: var(--nav-inactive);
+  --color-on-media: var(--on-media);
+  --shadow-elevate-sm: var(--elevate-sm);
+  --shadow-elevate-md: var(--elevate-md);
+  --shadow-elevate-lg: var(--elevate-lg);
+  --shadow-elevate-xl: var(--elevate-xl);
+  --shadow-elevate-brand: var(--elevate-brand);
+  --shadow-elevate-brand-sm: var(--elevate-brand-sm);
+  --font-sans: var(--font-manrope);
+  --font-display: var(--font-sora);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html[data-scroll-behavior="smooth"] {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--brand) 35%, transparent);
+}
+
+/*
+ * Filled CTA на primary: текст = textInverse.
+ * Предпочитай className `text-on-brand`, не `text-white`.
+ */
+.bg-brand.text-on-brand,
+.bg-brand.text-white,
+button.bg-brand.text-white,
+a.bg-brand.text-white,
+span.bg-brand.text-white {
+  color: var(--on-brand) !important;
+}
+
+.bg-brand.text-on-brand svg,
+.bg-brand.text-white svg {
+  color: var(--on-brand) !important;
+  stroke: var(--on-brand) !important;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-glow {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.05);
+  }
+}
+
+.anim-rise {
+  animation: rise 0.9s var(--ease-out) both;
+}
+
+.anim-rise-delay-1 {
+  animation-delay: 0.12s;
+}
+
+.anim-rise-delay-2 {
+  animation-delay: 0.24s;
+}
+
+.anim-rise-delay-3 {
+  animation-delay: 0.36s;
+}
+
+.hero-glow {
+  animation: soft-glow 10s ease-in-out infinite;
+}
+
+/* Лендинг: атмосфера hero из токенов сервисов (не сырой hex в JSX). */
+.hero-atmosphere {
+  background:
+    radial-gradient(
+      ellipse 55% 50% at 92% 0%,
+      color-mix(in srgb, var(--svc-booking) 55%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 40% 45% at 8% 85%,
+      color-mix(in srgb, var(--svc-attendance) 80%, transparent),
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 35% 40% at 70% 70%,
+      color-mix(in srgb, var(--svc-resources) 55%, transparent),
+      transparent 50%
+    ),
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--mint) 70%, var(--surface)) 0%,
+      var(--mint) 40%,
+      color-mix(in srgb, var(--mint) 70%, var(--surface)) 100%
+    );
+}
+
+.auth-atmosphere {
+  background:
+    radial-gradient(
+      ellipse 55% 45% at 15% 40%,
+      color-mix(in srgb, var(--brand) 18%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 40% 35% at 90% 80%,
+      color-mix(in srgb, var(--svc-resources-ink) 12%, transparent),
+      transparent 50%
+    );
+}
+
+@keyframes shimmer-slide {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer-bone {
+  position: relative;
+  overflow: hidden;
+  background: var(--shimmer-base);
+}
+
+.shimmer-bone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--shimmer-highlight) 85%, transparent),
+    transparent
+  );
+  animation: shimmer-slide 1.25s ease-in-out infinite;
+}
+
+.profile-posts-grid {
+  --post-grid-gap: 3px;
+  --post-grid-cols: 12;
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(var(--post-grid-cols), minmax(0, 1fr));
+  grid-auto-rows: calc(
+    (100cqi - (var(--post-grid-cols) - 1) * var(--post-grid-gap)) / var(--post-grid-cols)
+  );
+  gap: var(--post-grid-gap);
+}
+
+@media (min-width: 640px) {
+  .profile-posts-grid {
+    --post-grid-gap: 0.5rem;
+  }
+}

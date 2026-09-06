@@ -1,0 +1,48 @@
+---
+description: Какие npm-пакеты ставить в web/ и какие нет
+globs: web/package.json,web/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Clover Web — стек и пакеты
+
+Перед `npm install <pkg>`: нужен ли пакет, есть ли уже в проекте, совместим ли с Next App Router.
+
+## База (уже / держать)
+
+| Пакет | Зачем |
+|-------|--------|
+| `next` / `react` / `react-dom` | приложение |
+| `typescript` | типы |
+| `tailwindcss` + `@tailwindcss/postcss` | стили |
+| `eslint` + `eslint-config-next` | линт |
+
+## Когда появится кабинет / данные
+
+| Пакет | Зачем |
+|-------|--------|
+| `@supabase/supabase-js` | клиент |
+| `@supabase/ssr` | cookies / RSC-сессия |
+| `zod` | валидация форм и env |
+
+Секреты только `NEXT_PUBLIC_*` для publishable; **service_role на клиент не класть**.
+
+## Иконки / UI
+
+- Предпочтительно: свои SVG / простые компоненты под бренд
+- Допустимо: `lucide-react` (нейтральные иконки)
+- Не ставить по умолчанию: MUI, Ant, Chakra, random “AI dashboard” kits
+- shadcn — только если явно попросили и темы перекрашены под Clover green
+
+## Не тащить без причины
+
+- Redux / Zustand «на всякий» — сначала RSC + лёкальный state
+- axios — обычно хватает `fetch`
+- Prisma / Drizzle — источник правды Postgres через Supabase уже есть
+- i18n-framework — пока тексты ru в коде/MD; ARB-пайплайн мобилки сюда не копировать
+
+## Версии зависимостей
+
+- Ставь через npm в `web/`; коммить `package-lock.json`
+- Не ломай major Next/React без нужды; после апдейта — `npm run build`
+- Не добавляй пакет «как во Flutter» (`flutter_bloc` и т.п.) — другой мир

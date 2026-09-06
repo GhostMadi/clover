@@ -38,8 +38,10 @@
 | Местоположения | [business/locations.md](business/locations.md) |
 | Блокировки (бэк) | [business/blocks.md](business/blocks.md) |
 | Онлайн-запись | [business/booking.md](business/booking.md) |
-| Посещаемость (геозона, смены) | [business/attendance.md](business/attendance.md) |
+| Бронь мест (схема зала) | [business/venue-seating.md](business/venue-seating.md) |
+| Посещаемость (геозона, смены) | [business/attendance.md](business/attendance.md) · хвосты сайта: [website-attendance-gaps.md](business/website-attendance-gaps.md) |
 | Бонусы (лояльность) | [business/bonuses.md](business/bonuses.md) |
+| Сайт (лендинг + legal + кабинет) | [business/website.md](business/website.md) · [gap-plan](business/website-gap-plan.md) |
 | Каталог фич | [business/features-catalog.md](business/features-catalog.md) |
 
 Черновики: [business/_inbox.md](business/_inbox.md) · шаблон: [business/_template.md](business/_template.md)

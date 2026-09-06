@@ -1,0 +1,46 @@
+---
+description: Дизайн сайта Clover — бренд, токены, анти-шаблоны
+globs: web/**/*.{tsx,css}
+alwaysApply: false
+---
+
+# Clover Web — дизайн
+
+Как мобилка: спокойная иерархия, зелёный бренд, без generic AI-glow.
+
+## Токены (источник — `web/src/app/globals.css`)
+
+| Роль | Значение |
+|------|----------|
+| Brand / CTA | `#8BC34A` (`--brand`) |
+| Soft | `#C5FEB7`, mint `#F2F8ED` |
+| Текст | `--ink` `#1A1D1E`, `--muted` `#6A6A6A` |
+| Шрифты | Sora (бренд/заголовки), Manrope (текст) |
+
+Новый цвет / радиус / тень → сначала CSS-переменная, потом использование.
+
+```tsx
+// ❌
+className="bg-purple-600 text-indigo-500"
+style={{ color: '#7C3AED' }}
+
+// ✅
+className="bg-brand text-ink"
+```
+
+## Лендинг / секции
+
+- Первый экран: бренд **Clover** как hero, один заголовок, одна короткая фраза, одна группа CTA
+- Не карточки в hero; не pill-каша и не dashboard-сетка на маркетинге
+- Атмосфера: мягкий зелёный градиент / паттерн, не плоский «белый лист ради минимализма»
+
+## Legal
+
+- Читаемая колонка (`max-w-3xl`), общие обёртки `LegalPage` / `LegalSection`
+- Без декора «ради красоты» на privacy/terms
+
+## Запрещено
+
+- Фиолетовые / indigo AI-градиенты, неон, heavy glow
+- Inter / Roboto как основной display (есть Sora + Manrope)
+- Сырые hex в JSX, если токен уже есть в CSS

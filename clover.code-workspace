@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "name": "clover",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.dart_tool": true,
+      "**/build": true,
+      "ios/Pods": true,
+      "web/node_modules": true,
+      "web/.next": true
+    }
+  }
+}

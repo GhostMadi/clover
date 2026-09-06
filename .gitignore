@@ -43,3 +43,18 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Next.js (web/)
+web/node_modules/
+web/.next/
+web/out/
+web/.vercel/
+web/npm-debug.log*
+
+# Web env
+web/.env*
+!web/.env.example
+
+# Google OAuth secrets (never commit)
+**/client_secret*.json
+**/*apps.googleusercontent.com.json

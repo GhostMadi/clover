@@ -1,0 +1,61 @@
+---
+description: Веб Resources First — токены и shared UI до использования в страницах
+globs: web/**/*.{tsx,css}
+alwaysApply: false
+---
+
+# Clover Web — ресурсы и переиспользование
+
+Аналог `clover-resources` для сайта. Сначала общее место — потом страница/фича.
+
+## Порядок
+
+1. Нужен цвет / отступ / типографика / иконка / контрол
+2. Положить в общее:
+   - цвет/радиус/тень → CSS-переменные + `@theme` в `web/src/app/globals.css`
+   - chrome сайта → `components/site-*`
+   - legal-обёртки → `components/legal-*`
+   - повторяемые контролы → `components/shared/*` (кнопка, поле, алерт)
+   - иконка → свой SVG в `components/icons` или `lucide-react` по `clover-web-stack`
+3. Использовать из фичи / `app/**/page`
+
+## Что шарить
+
+| Что | Куда | Не куда |
+|-----|------|---------|
+| Header / footer | `components/site-*` | копипаста в каждую page |
+| Legal layout | `LegalPage` / `LegalSection` | свой markdown-layout на каждой юр. странице |
+| Кнопка / поле кабинета | `components/shared/*` | уникальный класс в одной фиче «навсегда» |
+| Bubble-tap | `components/shared/jelly.tsx` | копипаста `transform: scale` в каждой кнопке |
+| Запрос к одному RPC | `lib/` или `features/<x>/lib` | fetch прямо в пяти page.tsx |
+| Подпись справочника | маппинг key → label на клиенте | `name_ru` с бэка |
+
+## Связь слоёв (DRY)
+
+```
+docs/business + docs/supabase     ← контракт
+        ↓
+lib/ / features/*/lib             ← клиент, DTO, один метод на экран
+        ↓
+components/ (+ shared)            ← UI
+        ↓
+app/**/page.tsx                   ← только сборка маршрута
+```
+
+Страница не ходит в Supabase напрямую, если уже есть `lib`/feature-метод.  
+Фича не копирует `site-header`.  
+Не дублируй Flutter runtime — только контракт из доков.
+
+## Запрещено
+
+```tsx
+// ❌ новый hex / purple utility в page
+<div className="bg-[#7C3AED]" />
+
+// ❌ второй footer «чуть другой»
+function MyFooter() { ... }
+
+// ✅
+<div className="bg-brand" />
+import { SiteFooter } from "@/components/site-footer";
+```

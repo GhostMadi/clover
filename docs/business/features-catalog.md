@@ -184,6 +184,10 @@ Like / dislike на постах; уведомления автору.
 Бизнес: [booking.md](booking.md)  
 Техника: `lib/feature/_booking_/`, [SPEC_BOOKING_SYSTEM.md](../supabase/SPEC_BOOKING_SYSTEM.md)
 
+### 🔴 Бронь мест (схема зала)
+Хозяин рисует план и помечает **любые** объекты к брони; клиент — **визуал и/или список** → **запрос** (не auto-confirm); admin inbox (доплата вне Clover, гостевая бронь, soft-hold TTL). Без эквайринга.
+Бизнес: [venue-seating.md](venue-seating.md) · код/бэк — ещё нет
+
 ### 🟢 Бонусы
 Начисление и списание настраиваются на услуге; «Мои бонусы» у клиента.  
 Бизнес: [bonuses.md](bonuses.md)  
@@ -191,9 +195,9 @@ Like / dislike на постах; уведомления автору.
 
 ### 🟢 Посещаемость
 Admin + worker: основной цикл + rich chat, corrections, 0-traffic, logout wipe, offline punch, `duty_only_punch`, folders, OT-подсказка.  
-Бэк 🟢 v1.4; Flutter 🟢. Вне скоупа: ARB l10n; push secrets/cron — ops.  
-Бизнес: [attendance.md](attendance.md)  
-Техника: `lib/feature/_attendance_/`, [SPEC_ATTENDANCE_SYSTEM.md](../supabase/SPEC_ATTENDANCE_SYSTEM.md), `supabase/migrations/_attendance/`
+Бэк 🟢 v1.4; Flutter 🟢; веб ✅ admin A0–A7 + worker read-only (без punch).  
+Бизнес: [attendance.md](attendance.md) · веб: [website-gap-plan.md](website-gap-plan.md)  
+Техника: `lib/feature/_attendance_/`, `web/src/features/attendance/`, [SPEC_ATTENDANCE_SYSTEM.md](../supabase/SPEC_ATTENDANCE_SYSTEM.md), `supabase/migrations/_attendance/`
 
 ---
 
@@ -240,6 +244,11 @@ Google-вход · **сессия/выход** · онбординг · нижн
 
 **🔴 Дыра**  
 Phone / WhatsApp OTP в UI · WhatsApp webhook как продуктовый процесс · сон/сброс аккаунта для человека
+
+### 🟡 Сайт (лендинг + кабинет)
+Публичный Next.js в `web/`: лендинг, legal, auth, карта/профиль, создание поста (`/app/posts/new`). Догон мобилки — по фазам.  
+Бизнес: [website.md](website.md) · [website-gap-plan.md](website-gap-plan.md)  
+Техника: `web/`
 
 ---
 
