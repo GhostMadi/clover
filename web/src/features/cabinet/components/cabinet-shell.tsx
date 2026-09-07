@@ -119,16 +119,21 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   useEffect(() => {
+    // Сразу из localStorage (даже до сессии) — тоглы не «пропадают» после F5
+    setResourcesShortcut(readResourcesShortcut());
+    setBookingShortcut(readBookingShortcut());
+    setAttendanceShortcut(readAttendanceShortcut());
+
     let cancelled = false;
     void createClient()
-      .auth.getUser()
+      .auth.getSession()
       .then(({ data }) => {
         if (cancelled) return;
-        const id = data.user?.id ?? null;
+        const id = data.session?.user.id ?? null;
         setUserId(id);
-        setResourcesShortcut(id ? readResourcesShortcut(id) : false);
-        setBookingShortcut(id ? readBookingShortcut(id) : false);
-        setAttendanceShortcut(id ? readAttendanceShortcut(id) : false);
+        setResourcesShortcut(readResourcesShortcut(id));
+        setBookingShortcut(readBookingShortcut(id));
+        setAttendanceShortcut(readAttendanceShortcut(id));
       });
     return () => {
       cancelled = true;
@@ -136,37 +141,30 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!userId) return;
-    const syncResources = () => setResourcesShortcut(readResourcesShortcut(userId));
-    const syncBooking = () => setBookingShortcut(readBookingShortcut(userId));
-    const syncAttendance = () =>
-      setAttendanceShortcut(readAttendanceShortcut(userId));
-    const onResources = (e: Event) => {
-      const detail = (e as CustomEvent<{ userId?: string }>).detail;
-      if (!detail?.userId || detail.userId === userId) syncResources();
+    const syncAll = (uid?: string | null) => {
+      const id = uid ?? userId;
+      setResourcesShortcut(readResourcesShortcut(id));
+      setBookingShortcut(readBookingShortcut(id));
+      setAttendanceShortcut(readAttendanceShortcut(id));
     };
-    const onBooking = (e: Event) => {
-      const detail = (e as CustomEvent<{ userId?: string }>).detail;
-      if (!detail?.userId || detail.userId === userId) syncBooking();
-    };
-    const onAttendance = (e: Event) => {
-      const detail = (e as CustomEvent<{ userId?: string }>).detail;
-      if (!detail?.userId || detail.userId === userId) syncAttendance();
-    };
-    const onStorage = () => {
-      syncResources();
-      syncBooking();
-      syncAttendance();
+    const onResources = () => syncAll();
+    const onBooking = () => syncAll();
+    const onAttendance = () => syncAll();
+    const onStorage = () => syncAll();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") syncAll();
     };
     window.addEventListener(RESOURCES_SHORTCUT_EVENT, onResources);
     window.addEventListener(BOOKING_SHORTCUT_EVENT, onBooking);
     window.addEventListener(ATTENDANCE_SHORTCUT_EVENT, onAttendance);
     window.addEventListener("storage", onStorage);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       window.removeEventListener(RESOURCES_SHORTCUT_EVENT, onResources);
       window.removeEventListener(BOOKING_SHORTCUT_EVENT, onBooking);
       window.removeEventListener(ATTENDANCE_SHORTCUT_EVENT, onAttendance);
       window.removeEventListener("storage", onStorage);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [userId]);
 

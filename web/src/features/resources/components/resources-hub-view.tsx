@@ -16,12 +16,13 @@ export function ResourcesHubView() {
   const [shortcut, setShortcut] = useState(false);
 
   useEffect(() => {
+    setShortcut(readResourcesShortcut());
     void createClient()
       .auth.getSession()
       .then(({ data }) => {
         const id = data.session?.user.id ?? null;
         setUid(id);
-        if (id) setShortcut(readResourcesShortcut(id));
+        setShortcut(readResourcesShortcut(id));
       });
   }, []);
 
@@ -44,16 +45,14 @@ export function ResourcesHubView() {
                 type="button"
                 role="switch"
                 aria-checked={shortcut}
-                disabled={!uid}
                 onClick={() => {
-                  if (!uid) return;
                   const next = !shortcut;
                   setShortcut(next);
                   writeResourcesShortcut(uid, next);
                 }}
                 className={`relative h-7 w-12 shrink-0 rounded-full transition ${
                   shortcut ? "bg-svc-resources-ink" : "bg-line"
-                } disabled:opacity-40`}
+                }`}
               >
                 <span
                   className={`absolute top-0.5 h-6 w-6 rounded-full bg-surface shadow-elevate-sm transition ${

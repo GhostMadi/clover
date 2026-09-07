@@ -63,12 +63,13 @@ export function AttendanceHubView() {
   }, []);
 
   useEffect(() => {
+    setShortcut(readAttendanceShortcut());
     void createClient()
       .auth.getSession()
       .then(({ data }) => {
         const id = data.session?.user.id ?? null;
         setUid(id);
-        if (id) setShortcut(readAttendanceShortcut(id));
+        setShortcut(readAttendanceShortcut(id));
       });
     void reload();
   }, [reload]);
@@ -133,16 +134,14 @@ export function AttendanceHubView() {
                 type="button"
                 role="switch"
                 aria-checked={shortcut}
-                disabled={!uid}
                 onClick={() => {
-                  if (!uid) return;
                   const next = !shortcut;
                   setShortcut(next);
                   writeAttendanceShortcut(uid, next);
                 }}
                 className={`relative h-7 w-12 shrink-0 rounded-full transition ${
                   shortcut ? "bg-svc-attendance-ink" : "bg-line"
-                } disabled:opacity-40`}
+                }`}
               >
                 <span
                   className={`absolute top-0.5 h-6 w-6 rounded-full bg-surface shadow-elevate-sm transition ${

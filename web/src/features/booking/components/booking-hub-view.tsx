@@ -82,12 +82,13 @@ export function BookingHubView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setShortcut(readBookingShortcut());
     void createClient()
       .auth.getSession()
       .then(({ data }) => {
         const id = data.session?.user.id ?? null;
         setUid(id);
-        if (id) setShortcut(readBookingShortcut(id));
+        setShortcut(readBookingShortcut(id));
       });
   }, []);
 
@@ -133,16 +134,14 @@ export function BookingHubView() {
             type="button"
             role="switch"
             aria-checked={shortcut}
-            disabled={!uid}
             onClick={() => {
-              if (!uid) return;
               const next = !shortcut;
               setShortcut(next);
               writeBookingShortcut(uid, next);
             }}
             className={`relative h-7 w-12 shrink-0 rounded-full transition ${
               shortcut ? "bg-svc-booking" : "bg-line"
-            } disabled:opacity-40`}
+            }`}
           >
             <span
               className={`absolute top-0.5 h-6 w-6 rounded-full bg-surface shadow-elevate-sm transition ${

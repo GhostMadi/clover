@@ -4,25 +4,39 @@ const KEY = "clover-web-resources-shortcut";
 
 export const RESOURCES_SHORTCUT_EVENT = "clover:resources-shortcut";
 
-export function readResourcesShortcut(userId: string): boolean {
-  if (typeof window === "undefined" || !userId) return false;
+function parseFlag(raw: string | null): boolean | null {
+  if (raw === null) return null;
+  return raw === "1" || raw === "true";
+}
+
+export function readResourcesShortcut(userId?: string | null): boolean {
+  if (typeof window === "undefined") return false;
   try {
-    const raw = localStorage.getItem(`${KEY}:${userId}`);
-    if (raw === null) return false;
-    return raw === "1" || raw === "true";
+    if (userId) {
+      const scoped = parseFlag(localStorage.getItem(`${KEY}:${userId}`));
+      if (scoped !== null) return scoped;
+    }
+    return parseFlag(localStorage.getItem(KEY)) === true;
   } catch {
     return false;
   }
 }
 
-export function writeResourcesShortcut(userId: string, visible: boolean) {
-  if (typeof window === "undefined" || !userId) return;
+export function writeResourcesShortcut(
+  userId: string | null | undefined,
+  visible: boolean,
+) {
+  if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(`${KEY}:${userId}`, visible ? "1" : "0");
+    const v = visible ? "1" : "0";
+    localStorage.setItem(KEY, v);
+    if (userId) localStorage.setItem(`${KEY}:${userId}`, v);
     window.dispatchEvent(
-      new CustomEvent(RESOURCES_SHORTCUT_EVENT, { detail: { userId, visible } }),
+      new CustomEvent(RESOURCES_SHORTCUT_EVENT, {
+        detail: { userId: userId ?? undefined, visible },
+      }),
     );
   } catch {
-    /* ignore */
+    /* private mode / blocked storage */
   }
 }
