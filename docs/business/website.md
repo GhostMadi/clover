@@ -50,6 +50,14 @@ Env: `web/.env.local` → `NEXT_PUBLIC_SUPABASE_*`.
 
 `client_secret*.json` не в репо и не в `NEXT_PUBLIC_*` — сайт ходит в Google через Supabase.
 
+### Безопасность (веб)
+
+- В Network **своего** браузера токен сессии может быть виден — так работает любой сайт после входа. Чужой сайт его не читает (SameSite + Secure cookie).
+- В `NEXT_PUBLIC_*` только **anon** ключ (публичный). **service_role** на сайт не кладём.
+- Сессия — в cookie через `@supabase/ssr` (PKCE), не в `localStorage`.
+- Данные защищает **RLS** на Supabase, не «скрытие» запросов.
+- Security headers: `next.config.ts` (nosniff, frame deny, HSTS, …).
+
 ## Правила
 
 - Стек сайта: Next.js / React / TypeScript
