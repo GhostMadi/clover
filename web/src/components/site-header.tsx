@@ -1,10 +1,7 @@
 import Link from "next/link";
 import { SITE } from "@/lib/site";
 
-const links = [
-  { href: "/#services", label: "Сервисы" },
-  { href: "/#next", label: "Дальше" },
-];
+const links = [{ href: "/#services", label: "Сервисы" }];
 
 export function SiteHeader() {
   return (
