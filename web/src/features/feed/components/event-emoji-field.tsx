@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-export const EVENT_FILTER_EMOJIS = [
-  "🎉", "🎈", "🎵", "🎤", "🎸", "🎭", "🎬", "🎨", "🏃", "⚽", "🏀", "🎯",
-  "🍕", "☕", "🍻", "💃", "🪩", "📍", "🗺️", "✨", "🔥", "⭐", "🌟", "💫",
-  "🎪", "🎡", "🎢", "🎮", "🌸", "🌿", "🌙", "☀️", "🌈",
-] as const;
+import { EVENT_FILTER_EMOJIS } from "@/features/catalog/lib/event-emojis";
 
 const ALLOWED = new Set<string>(EVENT_FILTER_EMOJIS);
 

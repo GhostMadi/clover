@@ -233,6 +233,95 @@ span.bg-brand.text-white {
   animation: soft-glow 10s ease-in-out infinite;
 }
 
+/* Лендинг: белый холст + маркеры-эмодзи + точечные «вау»-моменты. */
+@keyframes landing-emoji-drift {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -10px;
+  }
+}
+
+@keyframes landing-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px) rotate(-1.5deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+@keyframes landing-cta-pop {
+  0%,
+  100% {
+    box-shadow: var(--elevate-brand);
+  }
+  50% {
+    box-shadow: 0 10px 28px color-mix(in srgb, var(--brand) 42%, transparent);
+  }
+}
+
+.landing-emoji {
+  opacity: 0.28;
+  line-height: 1;
+  filter: grayscale(0.15);
+  animation: landing-emoji-drift 7s ease-in-out infinite;
+}
+
+html[data-theme="dark"] .landing-emoji {
+  opacity: 0.34;
+}
+
+.landing-cta {
+  animation: landing-cta-pop 2.8s ease-in-out 1.2s 2;
+}
+
+.landing-card {
+  animation: landing-card-in 0.75s var(--ease-out) both;
+  transition:
+    transform 0.35s var(--ease-out),
+    box-shadow 0.35s var(--ease-out),
+    border-color 0.25s ease;
+}
+
+.landing-card:hover {
+  transform: translateY(-4px) rotate(-0.6deg);
+  border-color: color-mix(in srgb, var(--brand) 35%, var(--line));
+  box-shadow: var(--elevate-md);
+}
+
+.landing-delay-1 {
+  animation-delay: 0.28s;
+}
+
+.landing-delay-2 {
+  animation-delay: 0.4s;
+}
+
+.landing-delay-3 {
+  animation-delay: 0.52s;
+}
+
+.landing-delay-4 {
+  animation-delay: 0.64s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-emoji,
+  .landing-cta,
+  .landing-card {
+    animation: none !important;
+  }
+
+  .landing-card:hover {
+    transform: none;
+  }
+}
+
 /* Лендинг: атмосфера hero из токенов сервисов (не сырой hex в JSX). */
 .hero-atmosphere {
   background:
