@@ -16,10 +16,13 @@ alwaysApply: false
 
 | Ветка | Что происходит |
 |-------|----------------|
-| `main` | Автодеплой на **production** (`clover.com.kz`) — только проверенный код |
-| `feature/*`, `fix/*`, `dev` | **Preview** URL для проверки |
+| **`web-production`** | Целевая ветка веб-прода / production-ready релизов сайта |
+| `feature/*`, `fix/*`, `dev` | Черновики / preview (если настроено в Vercel) |
+| `main` | Не использовать для прямого пуша веб-прода без явной просьбы |
 
-При работе с git по умолчанию: feature/fix-ветка, не пуш напрямую в `main`, пока пользователь явно не попросил прод.
+При веб-релизах: коммит и `git push origin web-production` (см. `clover-web-git.mdc`).
+
+В Vercel Production Branch должен быть **`web-production`** (Settings → Git).
 
 ## Env (имена в коде и в Vercel)
 

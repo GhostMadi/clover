@@ -12,10 +12,19 @@
 
 | Ветка | Деплой |
 |-------|--------|
-| **`main`** | Production → `clover.com.kz` (только проверенный код) |
-| **`feature/*` / `fix/*` / `dev`** | Preview URL для теста |
+| **`web-production`** | Production-ready веб → `clover.com.kz` (целевая ветка) |
+| **`feature/*` / `fix/*`** | Черновики / Preview (если настроено) |
+| **`main`** | Не пушить веб-прод напрямую без явной просьбы |
 
-Разработку вести в feature-ветках; в `main` — merge после проверки preview.
+В Vercel: **Production Branch** = `web-production`.  
+Правила агента: `.cursor/rules/clover-web-git.mdc`, `.cursor/rules/clover-web-deploy.mdc`.
+
+```bash
+git checkout web-production
+git add …   # без .env
+git commit -m "feat(web): …"
+git push origin web-production
+```
 
 ## Env в Vercel (Production / Preview)
 

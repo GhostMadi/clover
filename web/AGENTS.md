@@ -8,6 +8,8 @@
 
 Не проси пользователя выбирать стек/пакеты: следуй `clover-web-stack` и чеклисту.
 
+Веб-прод: ветка **`web-production`** (`clover-web-git.mdc`) — не пуш веб-релиза в `main` без явной просьбы.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know

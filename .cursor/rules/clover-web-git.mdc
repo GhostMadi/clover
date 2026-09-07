@@ -1,0 +1,25 @@
+---
+description: Git branching — web production → web-production, not main
+globs: web/**/*
+alwaysApply: true
+---
+
+# Git Workflow — Web Production
+
+1. **Production branch for web:** `web-production`  
+   Push сюда production-ready фичи, UI и веб-деплои (не в `main` для веб-релиза).
+
+2. **Команды для prod-push (когда пользователь просит задеплоить / отправить веб):**
+
+```bash
+git branch --show-current
+git checkout web-production   # если ещё не на ней
+# stage только нужные файлы (не .env)
+git add …
+git commit -m "feat(web): <description>"
+git push origin web-production
+```
+
+3. **Не пушить непроверенные веб-изменения напрямую в `main`** при работе над production-релизом сайта.
+
+4. Feature/fix-ветки — по желанию для черновиков; в прод веб идёт через `web-production`.
