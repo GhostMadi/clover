@@ -1,5 +1,7 @@
 /** Локальные prefs кабинета (как ThemeCubit / язык в мобилке). */
 
+import { lsGet, lsSet } from "@/lib/local-storage";
+
 export type WebThemeMode = "light" | "dark";
 export type WebLocaleCode = "ru" | "kk" | "en";
 
@@ -13,39 +15,25 @@ export const WEB_LOCALE_OPTIONS: { code: WebLocaleCode; label: string }[] = [
 ];
 
 export function readTheme(): WebThemeMode {
-  if (typeof window === "undefined") return "light";
-  try {
-    return localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light";
-  } catch {
-    return "light";
-  }
+  return lsGet(THEME_KEY) === "dark" ? "dark" : "light";
 }
 
 export function writeTheme(mode: WebThemeMode) {
-  try {
-    localStorage.setItem(THEME_KEY, mode);
-  } catch {
-    /* ignore */
+  lsSet(THEME_KEY, mode);
+  if (typeof document !== "undefined") {
+    document.documentElement.setAttribute("data-theme", mode);
   }
-  document.documentElement.setAttribute("data-theme", mode);
 }
 
 export function readLocale(): WebLocaleCode {
-  if (typeof window === "undefined") return "ru";
-  try {
-    const raw = localStorage.getItem(LOCALE_KEY);
-    if (raw === "kk" || raw === "en" || raw === "ru") return raw;
-  } catch {
-    /* ignore */
-  }
+  const raw = lsGet(LOCALE_KEY);
+  if (raw === "kk" || raw === "en" || raw === "ru") return raw;
   return "ru";
 }
 
 export function writeLocale(code: WebLocaleCode) {
-  try {
-    localStorage.setItem(LOCALE_KEY, code);
-  } catch {
-    /* ignore */
+  lsSet(LOCALE_KEY, code);
+  if (typeof document !== "undefined") {
+    document.documentElement.setAttribute("lang", code === "kk" ? "kk" : code);
   }
-  document.documentElement.setAttribute("lang", code === "kk" ? "kk" : code);
 }
