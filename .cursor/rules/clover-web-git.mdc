@@ -23,3 +23,5 @@ git push origin web-production
 3. **Не пушить непроверенные веб-изменения напрямую в `main`** при работе над production-релизом сайта.
 
 4. Feature/fix-ветки — по желанию для черновиков; в прод веб идёт через `web-production`.
+
+5. Мобильный прод — ветка **`mobile-production`** (TestFlight), не путать с вебом (см. `clover-mobile-git.mdc`).

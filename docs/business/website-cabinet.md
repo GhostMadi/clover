@@ -19,7 +19,8 @@
 
 Скорость кабинета: middleware гейт через `getSession` (без Auth API на каждый таб), `loading.tsx` скелетон, prefetch вкладок, профиль — `Promise.all` (профиль + посты).
 
-Догон мобилки: [website-gap-plan.md](website-gap-plan.md) — **8a/8b** 🟡; **8d Посещаемость** ✅ (хвосты: [website-attendance-gaps.md](website-attendance-gaps.md)).
+Догон мобилки: [website-gap-plan.md](website-gap-plan.md) — **8a/8b** 🟡; **8d Посещаемость** ✅ (хвосты: [website-attendance-gaps.md](website-attendance-gaps.md)).  
+Дорожная карта сайта: [website-roadmap.md](website-roadmap.md).
 
 ## Яндекс.Карты
 
