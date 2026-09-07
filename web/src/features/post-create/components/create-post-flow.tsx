@@ -565,7 +565,7 @@ export function CreatePostFlow() {
                 <option value="">Не выбрано</option>
                 {locations.map((l) => (
                   <option key={l.id} value={l.id}>
-                    {l.addressPrimary}
+                    {l.addressCyrillic || l.addressPrimary}
                   </option>
                 ))}
               </select>

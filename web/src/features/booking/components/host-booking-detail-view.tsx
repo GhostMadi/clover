@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppButton } from "@/components/shared/app-button";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
+import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
 import {
   BookingDetailShimmer,
   BookingSlotsShimmer,
@@ -121,12 +121,8 @@ export function HostBookingDetailView({ bookingId }: { bookingId: string }) {
   );
 
   return (
-    <SettingsShell
-      title="Запись"
-      backHref="/app/settings/booking/inbox"
-      service="booking"
-    >
-      <div className="space-y-4 px-4 py-5">
+    <BookingWorkspaceShell title="Запись" backHref="/app/settings/booking/inbox">
+      <div className="mx-auto max-w-2xl space-y-4">
         {loading ? (
           <BookingDetailShimmer />
         ) : !item ? (
@@ -298,6 +294,6 @@ export function HostBookingDetailView({ bookingId }: { bookingId: string }) {
           </div>
         ) : null}
       </div>
-    </SettingsShell>
+    </BookingWorkspaceShell>
   );
 }

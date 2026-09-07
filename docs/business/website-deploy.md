@@ -4,26 +4,43 @@
 
 ## В коде
 
-Канонический URL: `web/src/lib/site.ts` → `https://clover.com.kz`.
+- Канонический URL: `web/src/lib/site.ts` → `https://clover.com.kz`
+- Vercel **Root Directory** = `web`
+- Правило агента: `.cursor/rules/clover-web-deploy.mdc`
 
-## Что нужно от тебя (разрешения)
+## Git → Vercel
 
-1. **Vercel** (или другой хостинг) — аккаунт, куда задеплоить `web/`
-   - либо залогинь Cursor/агента в Vercel CLI: `npx vercel login`
-   - либо создай проект вручную и дай доступ
-2. **UniHost DNS** — право менять записи зоны `clover.com.kz`
-   - **не трогать** существующие MX / SPF / DKIM для Resend (почта `welcome@…`)
-   - добавить только A / CNAME для сайта, как скажет Vercel
+| Ветка | Деплой |
+|-------|--------|
+| **`main`** | Production → `clover.com.kz` (только проверенный код) |
+| **`feature/*` / `fix/*` / `dev`** | Preview URL для теста |
 
-## Шаги (когда дашь доступ)
+Разработку вести в feature-ветках; в `main` — merge после проверки preview.
 
-1. `cd web && npx vercel` → привязать GitHub `GhostMadi/clover`, Root Directory = `web`
-2. В Vercel → Domains → добавить `clover.com.kz` (+ `www` → redirect)
-3. В UniHost вставить DNS из Vercel (обычно):
-   - `A` `@` → IP Vercel **или**
-   - `CNAME` `www` → `cname.vercel-dns.com`
-4. Дождаться TLS (минуты–часы)
-5. Проверить: https://clover.com.kz , `/privacy`, `/terms`
+## Env в Vercel (Production / Preview)
+
+Имена **с** `NEXT_PUBLIC_` (как в `web/.env.local` и в коде):
+
+| Key | Пример значения |
+|-----|-----------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL проекта Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon / publishable key |
+| `NEXT_PUBLIC_SITE_URL` | `https://clover.com.kz` (на проде) |
+| `NEXT_PUBLIC_YANDEX_MAPS_API_KEY` | ключ JS API Яндекс.Карт |
+
+Короткие имена без префикса (`SUPABASE_URL` и т.п.) в клиент Next.js **не** подхватятся — не использовать в Vercel, если код читает `NEXT_PUBLIC_*`.
+
+## DNS (UniHost)
+
+1. В Vercel → Project → Domains → `clover.com.kz` (+ `www`)
+2. В UniHost добавить **только** A/CNAME, которые покажет Vercel
+3. **Не трогать** MX / SPF / DKIM для Resend (почта `welcome@…`)
+
+## Проверка после деплоя
+
+- https://clover.com.kz
+- `/privacy`, `/terms`
+- вход `/auth`, кабинет `/app` (с теми же Supabase ключами)
 
 ## Важно
 

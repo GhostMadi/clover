@@ -1,6 +1,6 @@
 "use client";
 
-import { FolderPlus, MapPin, MessageCircle, Plus, User } from "lucide-react";
+import { FolderPlus, MapPin, MessageCircle, Plus, Settings, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
@@ -261,6 +261,14 @@ export function ProfileView({
               >
                 <Plus strokeWidth={2.5} className="text-on-brand" />
               </AppButton>
+              <AppButtonLink
+                href="/app/settings"
+                size="icon"
+                title="Настройки"
+                aria-label="Настройки"
+              >
+                <Settings strokeWidth={2.25} className="text-on-brand" />
+              </AppButtonLink>
             </div>
           )}
         </div>

@@ -1,0 +1,42 @@
+---
+description: Vercel деплой web/ — ветки, env, root directory
+globs: web/**/*
+alwaysApply: false
+---
+
+# Clover Web — деплой (Vercel)
+
+## Где код
+
+- Приложение: папка `web/`
+- Vercel **Root Directory** = `web`
+- Домен: `clover.com.kz` (+ `www`)
+
+## Ветки
+
+| Ветка | Что происходит |
+|-------|----------------|
+| `main` | Автодеплой на **production** (`clover.com.kz`) — только проверенный код |
+| `feature/*`, `fix/*`, `dev` | **Preview** URL для проверки |
+
+При работе с git по умолчанию: feature/fix-ветка, не пуш напрямую в `main`, пока пользователь явно не попросил прод.
+
+## Env (имена в коде и в Vercel)
+
+В Next.js для браузера обязателен префикс `NEXT_PUBLIC_`. В Vercel задавать **точно так**:
+
+```
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+NEXT_PUBLIC_SITE_URL
+NEXT_PUBLIC_YANDEX_MAPS_API_KEY
+```
+
+Локально: `web/.env.local` (не коммитить).  
+На проде: `NEXT_PUBLIC_SITE_URL=https://clover.com.kz`
+
+Не использовать короткие имена без `NEXT_PUBLIC_` в клиентском коде — клиент их не увидит.
+
+## Бэк
+
+Тот же Supabase, что мобилка. Не обходить RLS. DNS домена: не трогать MX/SPF/DKIM почты (см. `docs/business/website-deploy.md`).

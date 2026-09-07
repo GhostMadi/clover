@@ -88,11 +88,13 @@ export function LocationsListView() {
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[15px] font-bold text-ink">
-                        {loc.addressPrimary || "Без адреса"}
+                        {loc.addressCyrillic || loc.addressPrimary || "Без адреса"}
                       </span>
-                      {loc.addressCyrillic ? (
+                      {loc.addressCyrillic &&
+                      loc.addressPrimary &&
+                      loc.addressPrimary !== loc.addressCyrillic ? (
                         <span className="mt-0.5 block truncate text-[12px] text-muted">
-                          {loc.addressCyrillic}
+                          {loc.addressPrimary}
                         </span>
                       ) : null}
                       {geo ? (

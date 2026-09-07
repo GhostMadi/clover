@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppButton } from "@/components/shared/app-button";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
 import { BookingFormShimmer } from "@/features/booking/components/booking-shimmers";
+import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
 import {
   createService,
   getMyService,
@@ -108,12 +108,11 @@ export function ServiceEditView({ mode, serviceId }: Props) {
   };
 
   return (
-    <SettingsShell
+    <BookingWorkspaceShell
       title={mode === "new" ? "Новая услуга" : "Услуга"}
       backHref="/app/settings/booking/services"
-      service="booking"
     >
-      <div className="space-y-4 px-4 py-5">
+      <div className="mx-auto max-w-2xl space-y-4">
         {loading ? (
           <BookingFormShimmer />
         ) : (
@@ -248,7 +247,7 @@ export function ServiceEditView({ mode, serviceId }: Props) {
           </>
         )}
       </div>
-    </SettingsShell>
+    </BookingWorkspaceShell>
   );
 }
 

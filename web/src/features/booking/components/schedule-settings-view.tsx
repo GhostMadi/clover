@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { AppButton } from "@/components/shared/app-button";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
 import { BookingFormShimmer } from "@/features/booking/components/booking-shimmers";
+import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
 import {
   createBlockedSlot,
   deleteBlockedSlot,
@@ -92,8 +92,8 @@ export function ScheduleSettingsView() {
   };
 
   return (
-    <SettingsShell title="Расписание" backHref="/app/settings/booking" service="booking">
-      <div className="space-y-6 px-4 py-5">
+    <BookingWorkspaceShell title="Расписание">
+      <div className="mx-auto max-w-3xl space-y-6">
         {loading ? (
           <BookingFormShimmer />
         ) : (
@@ -411,7 +411,7 @@ export function ScheduleSettingsView() {
           </>
         )}
       </div>
-    </SettingsShell>
+    </BookingWorkspaceShell>
   );
 }
 

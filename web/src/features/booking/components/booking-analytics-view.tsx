@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
 import { BookingAnalyticsShimmer } from "@/features/booking/components/booking-shimmers";
+import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
 import {
   analyticsPeriodDefaults,
   emptyAnalytics,
@@ -38,9 +38,9 @@ export function BookingAnalyticsView() {
   }, [from, to]);
 
   return (
-    <SettingsShell title="Аналитика" backHref="/app/settings/booking" service="booking">
-      <div className="space-y-5 px-4 py-5">
-        <div className="grid grid-cols-2 gap-3">
+    <BookingWorkspaceShell title="Аналитика">
+      <div className="space-y-5">
+        <div className="grid max-w-md grid-cols-2 gap-3">
           <label className="block">
             <span className="mb-1.5 block text-[12px] font-bold uppercase text-muted">С</span>
             <input
@@ -66,7 +66,7 @@ export function BookingAnalyticsView() {
           <BookingAnalyticsShimmer />
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-6">
               <Stat label="Всего" value={String(data.totalBookings)} />
               <Stat label="Выручка" value={formatPriceKzt(data.revenue)} />
               <Stat label="Подтверждено" value={String(data.confirmedBookings)} />
@@ -113,7 +113,7 @@ export function BookingAnalyticsView() {
           </>
         )}
       </div>
-    </SettingsShell>
+    </BookingWorkspaceShell>
   );
 }
 

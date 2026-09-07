@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { AppButton, AppButtonLink } from "@/components/shared/app-button";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
 import { AddStaffModal } from "@/features/booking/components/add-staff-modal";
 import { BookingListShimmer } from "@/features/booking/components/booking-shimmers";
+import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
 import { listMyServices } from "@/features/booking/lib/services-api";
 import { listMyStaff } from "@/features/booking/lib/staff-api";
 import type { BookingService, BookingStaff } from "@/features/booking/lib/booking-model";
@@ -35,10 +35,8 @@ export function ServicesListView() {
   }, []);
 
   return (
-    <SettingsShell
+    <BookingWorkspaceShell
       title="Услуги"
-      backHref="/app/settings/booking"
-      service="booking"
       trailing={
         <AppButtonLink
           href="/app/settings/booking/services/new"
@@ -51,8 +49,10 @@ export function ServicesListView() {
         </AppButtonLink>
       }
     >
-      <div className="space-y-6 px-4 py-5">
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      <div className="space-y-6 md:grid md:grid-cols-2 md:gap-6 md:space-y-0">
+        {error ? (
+          <p className="text-sm text-destructive md:col-span-2">{error}</p>
+        ) : null}
 
         <section>
           <p className="mb-2 text-[12px] font-bold uppercase tracking-wide text-muted">
@@ -132,6 +132,6 @@ export function ServicesListView() {
           reload();
         }}
       />
-    </SettingsShell>
+    </BookingWorkspaceShell>
   );
 }

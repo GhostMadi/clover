@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AppButton } from "@/components/shared/app-button";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
+import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
 import {
   BookingListShimmer,
   BookingSlotsShimmer,
@@ -122,8 +122,8 @@ export function MyBookingsView() {
   const past = items.filter((i) => !upcoming.includes(i));
 
   return (
-    <SettingsShell title="Мои бронирования" backHref="/app/settings/booking" service="booking">
-      <div className="space-y-5 px-4 py-5">
+    <BookingWorkspaceShell title="Мои бронирования">
+      <div className="space-y-5">
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
         {loading ? (
           <BookingListShimmer rows={5} />
@@ -221,7 +221,7 @@ export function MyBookingsView() {
           </div>
         ) : null}
       </div>
-    </SettingsShell>
+    </BookingWorkspaceShell>
   );
 }
 

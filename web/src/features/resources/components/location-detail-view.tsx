@@ -21,8 +21,8 @@ type LocationDetailViewProps = { locationId: string };
 export function LocationDetailView({ locationId }: LocationDetailViewProps) {
   const router = useRouter();
   const [loc, setLoc] = useState<ManagedLocation | null>(null);
-  const [addressPrimary, setAddressPrimary] = useState("");
   const [addressCyrillic, setAddressCyrillic] = useState("");
+  const [addressLatin, setAddressLatin] = useState("");
   const [countryCode, setCountryCode] = useState("");
   const [cityCode, setCityCode] = useState("");
   const [isActive, setIsActive] = useState(true);
@@ -39,8 +39,11 @@ export function LocationDetailView({ locationId }: LocationDetailViewProps) {
           return;
         }
         setLoc(row);
-        setAddressPrimary(row.addressPrimary);
-        setAddressCyrillic(row.addressCyrillic ?? "");
+        const cyr = row.addressCyrillic?.trim() || "";
+        const primary = row.addressPrimary.trim();
+        // Кириллица сверху: колонка cyrillic, иначе старый primary-only
+        setAddressCyrillic(cyr || primary);
+        setAddressLatin(cyr && primary !== cyr ? primary : "");
         setCountryCode(row.countryCode ?? "");
         setCityCode(row.cityCode ?? "");
         setIsActive(row.isActive);
@@ -61,9 +64,9 @@ export function LocationDetailView({ locationId }: LocationDetailViewProps) {
         const clearGeo = !countryCode || !cityCode;
         await updateManagedLocation({
           id: locationId,
-          addressPrimary,
           addressCyrillic,
-          clearAddressCyrillic: !addressCyrillic.trim(),
+          addressLatin,
+          clearAddressLatin: !addressLatin.trim(),
           clearGeoBinding: clearGeo,
           countryCode: clearGeo ? null : countryCode,
           cityCode: clearGeo ? null : cityCode,
@@ -117,18 +120,24 @@ export function LocationDetailView({ locationId }: LocationDetailViewProps) {
               </p>
             ) : null}
             <label className="block">
-              <span className="mb-1.5 block text-sm font-semibold text-ink">Адрес</span>
+              <span className="mb-1.5 block text-sm font-semibold text-ink">
+                Адрес (кириллица)
+              </span>
               <input
-                value={addressPrimary}
-                onChange={(e) => setAddressPrimary(e.target.value)}
+                value={addressCyrillic}
+                onChange={(e) => setAddressCyrillic(e.target.value)}
+                placeholder="ул. Абая, 150, Алматы"
                 className="h-12 w-full rounded-[14px] border border-line bg-surface px-4 text-[15px] text-ink outline-none focus:border-svc-resources-ink"
               />
             </label>
             <label className="block">
-              <span className="mb-1.5 block text-sm font-semibold text-ink">Дополнительно</span>
+              <span className="mb-1.5 block text-sm font-semibold text-ink">
+                Адрес (латиница)
+              </span>
               <input
-                value={addressCyrillic}
-                onChange={(e) => setAddressCyrillic(e.target.value)}
+                value={addressLatin}
+                onChange={(e) => setAddressLatin(e.target.value)}
+                placeholder="Abay ave, 150, Almaty — по желанию"
                 className="h-12 w-full rounded-[14px] border border-line bg-surface px-4 text-[15px] text-ink outline-none focus:border-svc-resources-ink"
               />
             </label>
@@ -179,7 +188,7 @@ export function LocationDetailView({ locationId }: LocationDetailViewProps) {
               type="button"
               service="resources"
               loading={saving}
-              disabled={!addressPrimary.trim() || saving}
+              disabled={!addressCyrillic.trim() || saving}
               onClick={save}
             >
               Сохранить

@@ -64,8 +64,8 @@ export function LocationCreateView() {
   const hostId = useId().replace(/:/g, "");
   const mapRef = useRef<MapHandle | null>(null);
   const [pin, setPin] = useState(ALMATY);
-  const [addressPrimary, setAddressPrimary] = useState("");
   const [addressCyrillic, setAddressCyrillic] = useState("");
+  const [addressLatin, setAddressLatin] = useState("");
   const [countryCode, setCountryCode] = useState("kz");
   const [cityCode, setCityCode] = useState("almaty");
   const [error, setError] = useState<string | null>(null);
@@ -122,8 +122,8 @@ export function LocationCreateView() {
     startTransition(async () => {
       try {
         await createManagedLocation({
-          addressPrimary,
           addressCyrillic,
+          addressLatin,
           latitude: pin.lat,
           longitude: pin.lon,
           countryCode,
@@ -166,20 +166,24 @@ export function LocationCreateView() {
         </div>
 
         <label className="block">
-          <span className="mb-1.5 block text-sm font-semibold text-ink">Адрес</span>
+          <span className="mb-1.5 block text-sm font-semibold text-ink">
+            Адрес (кириллица)
+          </span>
           <input
-            value={addressPrimary}
-            onChange={(e) => setAddressPrimary(e.target.value)}
-            placeholder="Основной адрес"
+            value={addressCyrillic}
+            onChange={(e) => setAddressCyrillic(e.target.value)}
+            placeholder="ул. Абая, 150, Алматы"
             className="h-12 w-full rounded-[14px] border border-line bg-surface px-4 text-[15px] text-ink outline-none focus:border-svc-resources-ink"
           />
         </label>
         <label className="block">
-          <span className="mb-1.5 block text-sm font-semibold text-ink">Дополнительно</span>
+          <span className="mb-1.5 block text-sm font-semibold text-ink">
+            Адрес (латиница)
+          </span>
           <input
-            value={addressCyrillic}
-            onChange={(e) => setAddressCyrillic(e.target.value)}
-            placeholder="По желанию"
+            value={addressLatin}
+            onChange={(e) => setAddressLatin(e.target.value)}
+            placeholder="Abay ave, 150, Almaty — по желанию"
             className="h-12 w-full rounded-[14px] border border-line bg-surface px-4 text-[15px] text-ink outline-none focus:border-svc-resources-ink"
           />
         </label>
@@ -224,7 +228,7 @@ export function LocationCreateView() {
           type="button"
           service="resources"
           loading={saving}
-          disabled={!addressPrimary.trim() || saving}
+          disabled={!addressCyrillic.trim() || saving}
           onClick={submit}
         >
           Сохранить

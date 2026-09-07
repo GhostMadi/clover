@@ -47,8 +47,10 @@ export async function getMyLocation(id: string): Promise<ManagedLocation | null>
 }
 
 export async function createManagedLocation(opts: {
-  addressPrimary: string;
-  addressCyrillic?: string | null;
+  /** Обязательный адрес кириллицей. */
+  addressCyrillic: string;
+  /** Латиница — по желанию; если пусто, в primary уходит кириллица. */
+  addressLatin?: string | null;
   latitude: number;
   longitude: number;
   countryCode?: string | null;
@@ -60,18 +62,19 @@ export async function createManagedLocation(opts: {
   } = await supabase.auth.getSession();
   if (!session?.user.id) throw new Error("Нет сессии");
 
-  const primary = opts.addressPrimary.trim();
-  if (!primary) throw new Error("Укажите адрес");
+  const cyr = opts.addressCyrillic.trim();
+  if (!cyr) throw new Error("Укажите адрес кириллицей");
+  const latin = opts.addressLatin?.trim() || "";
 
   const insert: Record<string, unknown> = {
     owner_id: session.user.id,
-    address_primary: primary,
+    // primary — латиница, если есть; иначе кириллица (колонка NOT NULL / обязательна в продукте)
+    address_primary: latin || cyr,
+    address_cyrillic: cyr,
     latitude: opts.latitude,
     longitude: opts.longitude,
     is_active: true,
   };
-  const cyr = opts.addressCyrillic?.trim();
-  if (cyr) insert.address_cyrillic = cyr;
   if (opts.countryCode && opts.cityCode) {
     insert.country_code = opts.countryCode;
     insert.city_code = opts.cityCode;
@@ -88,9 +91,9 @@ export async function createManagedLocation(opts: {
 
 export async function updateManagedLocation(opts: {
   id: string;
-  addressPrimary?: string;
-  addressCyrillic?: string | null;
-  clearAddressCyrillic?: boolean;
+  addressCyrillic?: string;
+  addressLatin?: string | null;
+  clearAddressLatin?: boolean;
   countryCode?: string | null;
   cityCode?: string | null;
   clearGeoBinding?: boolean;
@@ -98,14 +101,12 @@ export async function updateManagedLocation(opts: {
 }): Promise<ManagedLocation> {
   const supabase = createClient();
   const patch: Record<string, unknown> = {};
-  if (opts.addressPrimary != null) {
-    const t = opts.addressPrimary.trim();
-    if (!t) throw new Error("Укажите адрес");
-    patch.address_primary = t;
-  }
-  if (opts.clearAddressCyrillic) patch.address_cyrillic = null;
-  else if (opts.addressCyrillic !== undefined) {
-    patch.address_cyrillic = opts.addressCyrillic?.trim() || null;
+  if (opts.addressCyrillic != null) {
+    const cyr = opts.addressCyrillic.trim();
+    if (!cyr) throw new Error("Укажите адрес кириллицей");
+    const latin = opts.clearAddressLatin ? "" : opts.addressLatin?.trim() || "";
+    patch.address_cyrillic = cyr;
+    patch.address_primary = latin || cyr;
   }
   if (opts.clearGeoBinding) {
     patch.country_code = null;

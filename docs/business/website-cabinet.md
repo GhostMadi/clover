@@ -15,6 +15,8 @@
 На десктопе — **левый rail** (иконки → подписи по hover); на мобилке — нижний бар + колокольчик в шапке.  
 Карта — edge-to-edge.
 
+**Запись** (`/app/settings/booking`): на десктопе — **workspace** (левый sub-nav + широкая зона до ~1200px), не узкая мобильная колонка; хаб = плитки + превью inbox. На мобилке — чипы-навигация сверху.
+
 Скорость кабинета: middleware гейт через `getSession` (без Auth API на каждый таб), `loading.tsx` скелетон, prefetch вкладок, профиль — `Promise.all` (профиль + посты).
 
 Догон мобилки: [website-gap-plan.md](website-gap-plan.md) — **8a/8b** 🟡; **8d Посещаемость** ✅ (хвосты: [website-attendance-gaps.md](website-attendance-gaps.md)).
