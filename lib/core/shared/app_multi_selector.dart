@@ -8,10 +8,17 @@ import 'package:flutter/material.dart';
 
 /// Элемент списка для [AppMultiSelect].
 class AppMultiSelectOption<T> {
-  const AppMultiSelectOption({required this.value, required this.label});
+  const AppMultiSelectOption({
+    required this.value,
+    required this.label,
+    this.service,
+  });
 
   final T value;
   final String label;
+
+  /// Акцент сервиса (силовые теги и т.п.) — красит строку в шторке.
+  final AppServiceKind? service;
 }
 
 /// Секция с заголовком для [AppMultiSelect].
@@ -291,21 +298,32 @@ class _AppMultiSelectSheetContentState<T> extends State<AppMultiSelectSheetConte
 
   Widget _optionTile(AppMultiSelectOption<T> option, AppPalette colors) {
     final isSelected = _selected.contains(option.value);
-    final checkColor = widget.service != null
-        ? colors.serviceAccent(widget.service!).icon
-        : colors.btnBackground;
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-      title: Text(
-        option.label,
-        style: AppTextStyle.base(
-          16,
-          color: colors.textColor,
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+    final accent = option.service != null ? colors.serviceAccent(option.service!) : null;
+    final checkColor = accent?.icon ??
+        (widget.service != null
+            ? colors.serviceAccent(widget.service!).icon
+            : colors.btnBackground);
+    final titleColor = accent?.icon ?? colors.textColor;
+
+    return Material(
+      color: accent != null && isSelected
+          ? accent.soft
+          : (accent != null ? accent.soft.withValues(alpha: 0.35) : Colors.transparent),
+      borderRadius: BorderRadius.circular(12),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: Text(
+          option.label,
+          style: AppTextStyle.base(
+            16,
+            color: titleColor,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          ),
         ),
+        trailing: isSelected ? Icon(AppIcons.checkRounded.icon, color: checkColor, size: 22) : null,
+        onTap: () => _toggle(option.value),
       ),
-      trailing: isSelected ? Icon(AppIcons.checkRounded.icon, color: checkColor, size: 22) : null,
-      onTap: () => _toggle(option.value),
     );
   }
 

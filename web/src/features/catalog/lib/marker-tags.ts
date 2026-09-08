@@ -1,5 +1,7 @@
 /** Справочник тегов маркера (EN key → RU), как MarkerTagKey + группы. */
 
+import type { AppServiceKind } from "@/lib/service-accent";
+
 export type MarkerTagGroupKey =
   | "who"
   | "type"
@@ -8,7 +10,8 @@ export type MarkerTagGroupKey =
   | "event"
   | "format"
   | "conditions"
-  | "account";
+  | "admin"
+  | "worker";
 
 export type MarkerTagDef = {
   key: string;
@@ -24,8 +27,15 @@ export const MARKER_TAG_GROUPS: { key: MarkerTagGroupKey; label: string }[] = [
   { key: "event", label: "Событие" },
   { key: "format", label: "Формат" },
   { key: "conditions", label: "Условия" },
-  { key: "account", label: "Сервисы" },
+  { key: "admin", label: "Админ" },
+  { key: "worker", label: "Worker" },
 ];
+
+const SERVICE_POWER_GROUPS = new Set<MarkerTagGroupKey>(["admin", "worker"]);
+
+export function isServicePowerGroup(group: MarkerTagGroupKey): boolean {
+  return SERVICE_POWER_GROUPS.has(group);
+}
 
 export const MARKER_TAGS: MarkerTagDef[] = [
   { key: "business", label: "Бизнес", group: "who" },
@@ -102,19 +112,33 @@ export const MARKER_TAGS: MarkerTagDef[] = [
   { key: "newEvent", label: "Новинка", group: "conditions" },
   { key: "popular", label: "Популярное", group: "conditions" },
 
-  { key: "booking", label: "booking", group: "account" },
+  { key: "booking", label: "Принимаю запись", group: "admin" },
+  { key: "bookingCalendar", label: "Календарь заказов", group: "worker" },
 ];
 
 const LABEL_BY_KEY = Object.fromEntries(MARKER_TAGS.map((t) => [t.key, t.label]));
+const TAG_BY_KEY = Object.fromEntries(MARKER_TAGS.map((t) => [t.key, t]));
 
 export function tagLabelRu(key: string): string {
   return LABEL_BY_KEY[key] ?? key;
 }
 
+export function tagByKey(key: string): MarkerTagDef | undefined {
+  return TAG_BY_KEY[key];
+}
+
+/** Сервисный цвет для силовых тегов (как MarkerTagKey.serviceKind). */
+export function tagServiceKind(key: string): AppServiceKind | null {
+  const tag = TAG_BY_KEY[key];
+  if (!tag || !isServicePowerGroup(tag.group)) return null;
+  if (tag.key === "booking" || tag.key === "bookingCalendar") return "booking";
+  return null;
+}
+
 export function tagsForFilter(): MarkerTagDef[] {
-  return MARKER_TAGS.filter((t) => t.group !== "account");
+  return MARKER_TAGS.filter((t) => !isServicePowerGroup(t.group));
 }
 
 export function isKnownTagKey(key: string): boolean {
-  return MARKER_TAGS.some((t) => t.key === key && t.group !== "account");
+  return MARKER_TAGS.some((t) => t.key === key && !isServicePowerGroup(t.group));
 }

@@ -5,6 +5,7 @@ import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/form/chat_time_formatting.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_attachment_bubble.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_attendance_card_bubble.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_booking_staff_card_bubble.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_post_ref_preview.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_reactions_row.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_reply_quote.dart';
@@ -79,6 +80,10 @@ class ChatMessageBubble extends StatelessWidget {
   }) {
     if (message.isAttendanceCard && message.attendanceCard != null) {
       return ChatAttendanceCardBubble(card: message.attendanceCard!, isMine: isMine);
+    }
+
+    if (message.isBookingStaffCard && message.bookingStaffCard != null) {
+      return ChatBookingStaffCardBubble(card: message.bookingStaffCard!, isMine: isMine);
     }
 
     if (message.isPostShare) {

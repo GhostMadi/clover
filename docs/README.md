@@ -24,6 +24,7 @@
 | Навигация / нижний бар | [business/navigation-bars.md](business/navigation-bars.md) |
 | Профиль | [business/profile.md](business/profile.md) |
 | Данные профиля | [business/profile-data.md](business/profile-data.md) |
+| Сила тегов профиля | [business/tag-powers.md](business/tag-powers.md) |
 | Локализация справочников | [business/localization-dictionaries.md](business/localization-dictionaries.md) |
 | Синхронизация справочников | [business/catalog-sync.md](business/catalog-sync.md) |
 | Публикации и ивенты | [business/publications.md](business/publications.md) |
@@ -37,7 +38,7 @@
 | Настройки приложения | [business/settings.md](business/settings.md) |
 | Местоположения | [business/locations.md](business/locations.md) |
 | Блокировки (бэк) | [business/blocks.md](business/blocks.md) |
-| Онлайн-запись | [business/booking.md](business/booking.md) |
+| Онлайн-запись | [business/booking.md](business/booking.md) · план: [booking-staff-plan.md](business/booking-staff-plan.md) · **ТЗ + теги:** [booking-tz.md](business/booking-tz.md) |
 | Бронь мест (схема зала) | [business/venue-seating.md](business/venue-seating.md) |
 | Посещаемость (геозона, смены) | [business/attendance.md](business/attendance.md) · хвосты сайта: [website-attendance-gaps.md](business/website-attendance-gaps.md) |
 | Бонусы (лояльность) | [business/bonuses.md](business/bonuses.md) |

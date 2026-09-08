@@ -2,6 +2,7 @@
 
 **Источник:** `public.profiles` + модель `ProfileNewModel` в приложении.  
 **Связанный процесс:** [profile.md](profile.md)  
+**Сила account-тегов:** [tag-powers.md](tag-powers.md)  
 **Правило локализации:** [localization-dictionaries.md](localization-dictionaries.md)  
 **Синхронизация списков:** [catalog-sync.md](catalog-sync.md)
 
@@ -95,9 +96,14 @@
 | `event` | workshop, concert, … | маркер, фильтр |
 | `format` | indoor, online, … | маркер, фильтр |
 | `conditions` | free, paid, … | маркер, фильтр |
-| `account` | booking | профиль (функция «Записаться») |
+| `admin` | booking | мажорные силы хозяина (нижняя линия профиля) |
+| `worker` | bookingCalendar | доп. функции исполнителя (верхняя линия) |
 
-Тег **`booking`** (`MarkerTagKey.booking`) — «принимаю запись» → на чужом профиле кнопка «Записаться».
+Тег **`booking`** (`MarkerTagGroupKey.admin`) — «принимаю запись» → на чужом профиле кнопка «Записаться»; на своём — нижняя линия → inbox.  
+Тег **`bookingCalendar`** (`MarkerTagGroupKey.worker`) — «календарь заказов» → верхняя линия.  
+Определения **admin / worker**: [tag-powers.md](tag-powers.md) · ТЗ: [booking-tz.md](booking-tz.md).
+
+~~`account`~~ как group_key для сил **снят** → вместо него `admin` / `worker`.
 
 ---
 

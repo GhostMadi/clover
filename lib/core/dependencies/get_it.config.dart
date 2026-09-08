@@ -69,6 +69,12 @@ import '../../feature/_booking_/booking_analytics/data/repository/booking_analyt
     as _i627;
 import '../../feature/_booking_/booking_analytics/presentation/cubit/booking_analytics_cubit.dart'
     as _i74;
+import '../../feature/_booking_/booking_calendar/data/repository/booking_calendar_repository.dart'
+    as _i299;
+import '../../feature/_booking_/booking_calendar/presentation/cubit/booking_calendar_bookings_cubit.dart'
+    as _i497;
+import '../../feature/_booking_/booking_calendar/presentation/cubit/booking_calendar_hosts_cubit.dart'
+    as _i104;
 import '../../feature/_booking_/booking_client/data/repository/booking_client_repository.dart'
     as _i350;
 import '../../feature/_booking_/booking_client/presentation/cubit/booking_client_cubit.dart'
@@ -186,8 +192,6 @@ import '../../feature/_profile_/followers_and_followings/data/repository/followe
     as _i986;
 import '../../feature/_profile_/followers_and_followings/presentation/cubit/followers_and_followings_cubit.dart'
     as _i776;
-import '../../feature/_profile_/profile_page/data/profile_booking_shortcut_store.dart'
-    as _i822;
 import '../../feature/_profile_/profile_page/data/profile_resources_shortcut_store.dart'
     as _i461;
 import '../../feature/_profile_/profile_page/data/repository/profile_repository.dart'
@@ -254,6 +258,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i627.BookingAnalyticsRepository>(
       () => _i627.BookingAnalyticsRepository(gh<_i454.SupabaseClient>()),
+    );
+    gh.lazySingleton<_i299.BookingCalendarRepository>(
+      () => _i299.BookingCalendarRepository(gh<_i454.SupabaseClient>()),
     );
     gh.lazySingleton<_i202.BookingServicesRepository>(
       () => _i202.BookingServicesRepository(gh<_i454.SupabaseClient>()),
@@ -403,9 +410,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i824.PostShareLocalCache>(
       () => _i824.PostShareLocalCache(gh<_i1029.IAppStorage>()),
     );
-    gh.lazySingleton<_i822.ProfileBookingShortcutStore>(
-      () => _i822.ProfileBookingShortcutStore(gh<_i1029.IAppStorage>()),
-    );
     gh.lazySingleton<_i461.ProfileResourcesShortcutStore>(
       () => _i461.ProfileResourcesShortcutStore(gh<_i1029.IAppStorage>()),
     );
@@ -467,6 +471,16 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i74.BookingAnalyticsCubit(
         gh<_i627.BookingAnalyticsRepository>(),
         gh<_i462.BookingStaffRepository>(),
+      ),
+    );
+    gh.factory<_i497.BookingCalendarBookingsCubit>(
+      () => _i497.BookingCalendarBookingsCubit(
+        gh<_i299.BookingCalendarRepository>(),
+      ),
+    );
+    gh.factory<_i104.BookingCalendarHostsCubit>(
+      () => _i104.BookingCalendarHostsCubit(
+        gh<_i299.BookingCalendarRepository>(),
       ),
     );
     gh.factoryParam<

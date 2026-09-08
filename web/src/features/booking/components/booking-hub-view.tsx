@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
 import { BookingListShimmer } from "@/features/booking/components/booking-shimmers";
 import { listHostBookings } from "@/features/booking/lib/bookings-api";
@@ -22,10 +21,6 @@ import {
   hostInboxRange,
   statusLabelRu,
 } from "@/features/booking/lib/booking-format";
-import {
-  readBookingShortcut,
-  writeBookingShortcut,
-} from "@/features/booking/lib/shortcut-prefs";
 
 const TILES = [
   {
@@ -76,21 +71,8 @@ function isUpcoming(b: HostBookingItem, now: number): boolean {
 }
 
 export function BookingHubView() {
-  const [uid, setUid] = useState<string | null>(null);
-  const [shortcut, setShortcut] = useState(false);
   const [items, setItems] = useState<HostBookingItem[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setShortcut(readBookingShortcut());
-    void createClient()
-      .auth.getSession()
-      .then(({ data }) => {
-        const id = data.session?.user.id ?? null;
-        setUid(id);
-        setShortcut(readBookingShortcut(id));
-      });
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -125,33 +107,7 @@ export function BookingHubView() {
   );
 
   return (
-    <BookingWorkspaceShell
-      title="Обзор"
-      trailing={
-        <label className="flex items-center gap-2 text-[12px] font-semibold text-muted">
-          <span className="hidden sm:inline">Кнопка сбоку</span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={shortcut}
-            onClick={() => {
-              const next = !shortcut;
-              setShortcut(next);
-              writeBookingShortcut(uid, next);
-            }}
-            className={`relative h-7 w-12 shrink-0 rounded-full transition ${
-              shortcut ? "bg-svc-booking" : "bg-line"
-            }`}
-          >
-            <span
-              className={`absolute top-0.5 h-6 w-6 rounded-full bg-surface shadow-elevate-sm transition ${
-                shortcut ? "left-[1.35rem]" : "left-0.5"
-              }`}
-            />
-          </button>
-        </label>
-      }
-    >
+    <BookingWorkspaceShell title="Обзор">
       <div className="space-y-6">
         <section>
           <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-muted">

@@ -85,4 +85,13 @@ abstract class ProfileNewModel with _$ProfileNewModel {
 
   /// Включена запись на приём (`booking` в тегах аккаунта).
   bool get hasBookingTag => hasAccountTag(MarkerTagKey.booking);
+
+  /// Календарь заказов, которые дают другие (`bookingCalendar`).
+  bool get hasBookingCalendarTag => hasAccountTag(MarkerTagKey.bookingCalendar);
+
+  /// Есть хотя бы один тег силы «админ».
+  bool get hasAdminPowerTag => tags.any((tag) => tag.keyEnum?.isAdminPower ?? false);
+
+  /// Есть хотя бы один тег силы «worker».
+  bool get hasWorkerPowerTag => tags.any((tag) => tag.keyEnum?.isWorkerPower ?? false);
 }

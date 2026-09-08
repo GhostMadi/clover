@@ -1,4 +1,5 @@
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_attendance_card.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_booking_staff_card.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_attachment.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_post_ref.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_reaction.dart';
@@ -16,6 +17,7 @@ class ChatMessage {
     this.isPending = false,
     this.postRef,
     this.attendanceCard,
+    this.bookingStaffCard,
     this.attachments = const [],
     this.reactions = const [],
     this.myReactions = const [],
@@ -33,6 +35,7 @@ class ChatMessage {
   final bool isPending;
   final ChatMessagePostRef? postRef;
   final ChatAttendanceCard? attendanceCard;
+  final ChatBookingStaffCard? bookingStaffCard;
   final List<ChatMessageAttachment> attachments;
   final List<ChatMessageReaction> reactions;
   final List<String> myReactions;
@@ -42,6 +45,8 @@ class ChatMessage {
   bool get isPostShare => kind == 'post_ref';
 
   bool get isAttendanceCard => attendanceCard != null;
+
+  bool get isBookingStaffCard => bookingStaffCard != null;
 
   bool get isMedia => kind == 'media';
 
@@ -150,6 +155,7 @@ class ChatMessage {
     bool? isPending,
     ChatMessagePostRef? postRef,
     ChatAttendanceCard? attendanceCard,
+    ChatBookingStaffCard? bookingStaffCard,
     List<ChatMessageAttachment>? attachments,
     List<ChatMessageReaction>? reactions,
     List<String>? myReactions,
@@ -169,6 +175,7 @@ class ChatMessage {
       isPending: isPending ?? this.isPending,
       postRef: postRef ?? this.postRef,
       attendanceCard: attendanceCard ?? this.attendanceCard,
+      bookingStaffCard: bookingStaffCard ?? this.bookingStaffCard,
       attachments: attachments ?? this.attachments,
       reactions: reactions ?? this.reactions,
       myReactions: myReactions ?? this.myReactions,

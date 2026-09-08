@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_service_accent.dart';
 import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_group_key.dart';
 
 /// Ключ тега маркера как в `public.marker_tags.key`.
@@ -83,8 +84,11 @@ enum MarkerTagKey {
   newEvent('newEvent', 'Новинка', MarkerTagGroupKey.conditions),
   popular('popular', 'Популярное', MarkerTagGroupKey.conditions),
 
-  // account (теги профиля)
-  booking('booking', 'booking', MarkerTagGroupKey.account);
+  // admin — мажорные силы хозяина точки
+  booking('booking', 'Принимаю запись', MarkerTagGroupKey.admin),
+
+  // worker — доп. функции исполнителя
+  bookingCalendar('bookingCalendar', 'Календарь заказов', MarkerTagGroupKey.worker);
 
   const MarkerTagKey(this.key, this.labelRu, this.groupKey);
 
@@ -105,4 +109,20 @@ enum MarkerTagKey {
     }
     return null;
   }
+
+  /// Тег силы «админ» (мажорный сервис хозяина).
+  bool get isAdminPower => groupKey == MarkerTagGroupKey.admin;
+
+  /// Тег силы «worker» (доп. функции исполнителя).
+  bool get isWorkerPower => groupKey == MarkerTagGroupKey.worker;
+
+  bool get isServicePower => groupKey.isServicePower;
+
+  /// Продуктовый сервис, к которому относится сила (цвет чипа / акцента).
+  ///
+  /// Витринные теги (`who` / `type` / …) → `null` (нейтральный бренд).
+  AppServiceKind? get serviceKind => switch (this) {
+    MarkerTagKey.booking || MarkerTagKey.bookingCalendar => AppServiceKind.booking,
+    _ => null,
+  };
 }

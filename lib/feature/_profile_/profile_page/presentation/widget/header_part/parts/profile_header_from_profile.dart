@@ -7,9 +7,16 @@ import 'package:flutter/material.dart';
 
 /// [ProfileHeaderSection] из [ProfileNewModel] — одна точка маппинга полей.
 class ProfileHeaderFromProfile extends StatelessWidget {
-  const ProfileHeaderFromProfile({super.key, required this.profile});
+  const ProfileHeaderFromProfile({
+    super.key,
+    required this.profile,
+    this.showServicePowerTags = true,
+  });
 
   final ProfileNewModel profile;
+
+  /// Силовые теги (`admin` / `worker`, цвет сервиса) — только на **своём** профиле.
+  final bool showServicePowerTags;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +32,10 @@ class ProfileHeaderFromProfile extends StatelessWidget {
     final rawBio = profile.bio?.trim();
     final bio = rawBio != null && rawBio.isNotEmpty ? rawBio : null;
 
+    final tags = showServicePowerTags
+        ? profile.tags
+        : profile.tags.where((tag) => tag.serviceKind == null).toList(growable: false);
+
     return ProfileHeaderSection(
       coverImageUrl: profile.backgroundUrl,
       avatarImageUrl: profile.avatarUrl,
@@ -36,7 +47,7 @@ class ProfileHeaderFromProfile extends StatelessWidget {
       username: username,
       bio: bio,
       location: locationDisplay,
-      tags: profile.tags,
+      tags: tags,
       onFollowersTap: () {
         context.router.root.push(
           FollowersAndFollowingsRoute(

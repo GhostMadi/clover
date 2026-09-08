@@ -209,6 +209,10 @@
 | Файл | Назначение |
 |------|------------|
 | `20260725120000_marker_tag_booking.sql` | Тег аккаунта `booking` в `marker_tags` (кнопка «Записаться»). |
+| `20260908150000_booking_calendar_tag_and_staff_rpcs.sql` | Тег `bookingCalendar` + `list_my_staff_booking_hosts` / `list_my_staff_bookings_enriched`. Спека: [SPEC_BOOKING_CALENDAR_STAFF.md](SPEC_BOOKING_CALENDAR_STAFF.md) |
+| `20260908160000_marker_tag_admin_worker_groups.sql` | Силовые теги: `group_key` `admin` / `worker` вместо `account`. |
+| `20260908170000_booking_staff_invite_kinds.sql` | `chat_message_kind.booking_staff_invite` + `chat_message_booking_cards`. |
+| `20260908171000_booking_staff_invite_rpc.sql` | `booking_staff_invites` + invite/accept/reject/cancel + `booking_card` в enriched. Спека: [SPEC_BOOKING_STAFF_INVITE.md](SPEC_BOOKING_STAFF_INVITE.md) |
 | **`20260726120000_booking_schema.sql`** | Таблицы booking, EXCLUDE constraints, helpers (`booking_resolve_staff_day_window`, …), `pg_trgm` indexes. |
 | **`20260726120100_booking_rls_grants.sql`** | RLS + GRANT для authenticated. |
 | **`20260726120200_booking_rpc.sql`** | `create_booking`, `get_booking_availability`, enriched lists, status, analytics. |

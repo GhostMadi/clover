@@ -143,7 +143,10 @@ class _GuestHeaderBlock extends StatelessWidget {
         return state.when(
           initial: () => const ProfileHeaderSection.loading(),
           loading: () => const ProfileHeaderSection.loading(),
-          loaded: (profile, _, __) => ProfileHeaderFromProfile(profile: profile),
+          loaded: (profile, _, __) => ProfileHeaderFromProfile(
+            profile: profile,
+            showServicePowerTags: false,
+          ),
           error: (message) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

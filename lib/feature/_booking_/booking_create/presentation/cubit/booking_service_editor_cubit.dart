@@ -79,21 +79,11 @@ class BookingServiceEditorCubit extends Cubit<BookingServiceEditorState> {
   }
 
   Future<List<String>> _resolveStaffIds(BookingServiceDraft draft) async {
-    final ids = <String>[];
-    for (final pick in draft.executors) {
-      final existingStaffId = pick.staffId?.trim();
-      if (existingStaffId != null && existingStaffId.isNotEmpty) {
-        ids.add(existingStaffId);
-        continue;
-      }
-
-      final profileId = pick.profileId?.trim();
-      if (profileId == null || profileId.isEmpty) continue;
-
-      final staff = await _staffRepository.ensureStaffFromProfile(profileId);
-      ids.add(staff.id);
-    }
-    return ids;
+    // Only linked / name-only staff rows — Clover accounts join via invite Accept first.
+    return [
+      for (final pick in draft.executors)
+        if (pick.staffId != null && pick.staffId!.trim().isNotEmpty) pick.staffId!.trim(),
+    ];
   }
 }
 

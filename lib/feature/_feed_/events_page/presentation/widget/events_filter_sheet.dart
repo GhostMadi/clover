@@ -326,7 +326,7 @@ class _EventsFilterContentState extends State<_EventsFilterContent> {
             sheetTitle: 'Теги маркера',
             searchHint: 'Поиск тега',
             values: _selectedTagIds,
-            excludeGroupKeys: const {MarkerTagGroupKey.account},
+            excludeGroupKeys: MarkerTagGroupKey.servicePowerGroups,
             onChanged: (value) => setState(() => _selectedTagIds = value),
           ),
         ],

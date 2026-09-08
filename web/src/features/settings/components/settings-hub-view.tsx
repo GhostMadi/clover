@@ -14,88 +14,106 @@ import Link from "next/link";
 import { serviceTileIcon, type AppServiceKind } from "@/lib/service-accent";
 import { SettingsShell } from "@/features/settings/components/settings-shell";
 
-const SECTIONS: {
-  title: string;
-  items: {
-    href: string;
-    label: string;
-    subtitle: string;
-    icon: typeof Bookmark;
-    service?: AppServiceKind;
-  }[];
-}[] = [
-  {
-    title: "Сервисы",
-    items: [
-      {
-        href: "/app/settings/resources",
-        label: "Ресурсы",
-        subtitle: "Местоположения и фильтры витрины",
-        icon: Layers,
-        service: "resources",
-      },
-      {
-        href: "/app/settings/booking",
-        label: "Запись",
-        subtitle: "Услуги, inbox и мои бронирования",
-        icon: CalendarDays,
-        service: "booking",
-      },
-      {
-        href: "/app/settings/attendance",
-        label: "Посещаемость",
-        subtitle: "Компании (admin) и мои детали (read-only)",
-        icon: Building2,
-        service: "attendance",
-      },
-    ],
-  },
-  {
-    title: "Архивы",
-    items: [
-      {
-        href: "/app/settings/saved",
-        label: "Сохранённые посты",
-        subtitle: "Посты, которые вы сохранили",
-        icon: Bookmark,
-      },
-      {
-        href: "/app/settings/archives/clusters",
-        label: "Кластеры",
-        subtitle: "Архивные коллекции профиля",
-        icon: Folder,
-      },
-    ],
-  },
-  {
-    title: "Аккаунт",
-    items: [
-      {
-        href: "/app/settings/account",
-        label: "Аккаунт",
-        subtitle: "Тема, язык, выход",
-        icon: UserRound,
-      },
-    ],
-  },
-  {
-    title: "О приложении",
-    items: [
-      {
-        href: "/app/settings/about",
-        label: "О приложении",
-        subtitle: "Clover и версия сайта",
-        icon: Info,
-      },
-    ],
-  },
-];
+type HubItem = {
+  href: string;
+  label: string;
+  subtitle: string;
+  icon: typeof Bookmark;
+  service?: AppServiceKind;
+};
 
-export function SettingsHubView() {
+function buildSections(hasBookingTag: boolean): {
+  title: string;
+  items: HubItem[];
+}[] {
+  const serviceItems: HubItem[] = [
+    {
+      href: "/app/settings/resources",
+      label: "Ресурсы",
+      subtitle: "Местоположения и фильтры витрины",
+      icon: Layers,
+      service: "resources",
+    },
+  ];
+  if (hasBookingTag) {
+    serviceItems.push({
+      href: "/app/settings/booking",
+      label: "Запись",
+      subtitle: "Услуги, inbox и расписание хозяина",
+      icon: CalendarDays,
+      service: "booking",
+    });
+  }
+  serviceItems.push({
+    href: "/app/settings/booking/my",
+    label: "Мои бронирования",
+    subtitle: "Где вы клиент — без тега хозяина",
+    icon: CalendarDays,
+    service: "booking",
+  });
+  serviceItems.push({
+    href: "/app/settings/attendance",
+    label: "Посещаемость",
+    subtitle: "Компании (admin) и мои детали (read-only)",
+    icon: Building2,
+    service: "attendance",
+  });
+
+  return [
+    { title: "Сервисы", items: serviceItems },
+    {
+      title: "Архивы",
+      items: [
+        {
+          href: "/app/settings/saved",
+          label: "Сохранённые посты",
+          subtitle: "Посты, которые вы сохранили",
+          icon: Bookmark,
+        },
+        {
+          href: "/app/settings/archives/clusters",
+          label: "Кластеры",
+          subtitle: "Архивные коллекции профиля",
+          icon: Folder,
+        },
+      ],
+    },
+    {
+      title: "Аккаунт",
+      items: [
+        {
+          href: "/app/settings/account",
+          label: "Аккаунт",
+          subtitle: "Тема, язык, выход",
+          icon: UserRound,
+        },
+      ],
+    },
+    {
+      title: "О приложении",
+      items: [
+        {
+          href: "/app/settings/about",
+          label: "О приложении",
+          subtitle: "Clover и версия сайта",
+          icon: Info,
+        },
+      ],
+    },
+  ];
+}
+
+type Props = {
+  hasBookingTag?: boolean;
+};
+
+export function SettingsHubView({ hasBookingTag = false }: Props) {
+  const sections = buildSections(hasBookingTag);
+
   return (
     <SettingsShell title="Настройки" backHref="/app/profile">
       <div className="space-y-6 px-4 py-5">
-        {SECTIONS.map((section) => (
+        {sections.map((section) => (
           <section key={section.title}>
             <p className="mb-2 px-1 text-[12px] font-bold uppercase tracking-wide text-muted">
               {section.title}

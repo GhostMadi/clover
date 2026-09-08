@@ -37,6 +37,12 @@ export type ChatPostRef = {
   coverUrl: string | null;
 };
 
+export type ChatBookingStaffCard = {
+  inviteId: string;
+  hostId: string;
+  hostDisplayName: string;
+};
+
 export type ChatMessage = {
   id: string;
   clientMessageId: string | null;
@@ -49,6 +55,7 @@ export type ChatMessage = {
   isPending?: boolean;
   sendFailed?: boolean;
   postRef: ChatPostRef | null;
+  bookingStaffCard: ChatBookingStaffCard | null;
   attachments: ChatAttachment[];
   editedAt: string | null;
 };
@@ -77,6 +84,8 @@ function previewText(message: Record<string, unknown> | null): string {
       return text || "Приглашение в команду";
     case "attendance_rules":
       return text || "Правила посещаемости";
+    case "booking_staff_invite":
+      return text || "Приглашение в запись";
     case "system":
       return text || "Системное сообщение";
     default:
@@ -86,11 +95,25 @@ function previewText(message: Record<string, unknown> | null): string {
 
 function displayMessageText(
   message: Record<string, unknown>,
-  opts: { kind: string; postRef: ChatPostRef | null; attachmentCount: number },
+  opts: {
+    kind: string;
+    postRef: ChatPostRef | null;
+    bookingStaffCard: ChatBookingStaffCard | null;
+    attachmentCount: number;
+  },
 ): string {
   const text = String(message.text ?? "").trim();
   if (opts.kind === "post_ref" || opts.postRef) {
     return opts.postRef?.caption ?? text;
+  }
+  if (opts.bookingStaffCard) {
+    return (
+      text ||
+      `Приглашение в запись · ${opts.bookingStaffCard.hostDisplayName}`
+    );
+  }
+  if (opts.kind === "booking_staff_invite") {
+    return text || "Приглашение в запись";
   }
   if (opts.kind === "text") return text;
   if (text) return text;
@@ -99,6 +122,20 @@ function displayMessageText(
   }
   if (opts.kind === "system") return "Системное сообщение";
   return text;
+}
+
+function parseBookingStaffCard(
+  raw: unknown,
+): ChatBookingStaffCard | null {
+  const map = asMap(raw);
+  if (!map) return null;
+  if (String(map.card ?? "") !== "booking_staff_invite") return null;
+  const inviteId = String(map.invite_id ?? "").trim();
+  const hostId = String(map.host_id ?? "").trim();
+  if (!inviteId || !hostId) return null;
+  const hostDisplayName =
+    String(map.host_display_name ?? "").trim() || "аккаунт";
+  return { inviteId, hostId, hostDisplayName };
 }
 
 export function publicStorageUrl(bucket: string, path: string): string | null {
@@ -181,6 +218,8 @@ export function parseMessageRow(
       ? postRef
       : null;
 
+  const bookingStaffCard = parseBookingStaffCard(row.booking_card);
+
   const attachmentsRaw = Array.isArray(row.attachments) ? row.attachments : [];
   const attachments: ChatAttachment[] = [];
   for (const raw of attachmentsRaw) {
@@ -207,12 +246,14 @@ export function parseMessageRow(
     text: displayMessageText(message, {
       kind,
       postRef: validPost,
+      bookingStaffCard,
       attachmentCount: attachments.length,
     }),
     sentAt: String(message.created_at ?? new Date().toISOString()),
     isMine: senderId === currentUserId,
     isRead: senderId === currentUserId && message.read_by_peer === true,
     postRef: validPost,
+    bookingStaffCard,
     attachments,
     editedAt: (message.edited_at as string | null | undefined)?.trim() || null,
   };

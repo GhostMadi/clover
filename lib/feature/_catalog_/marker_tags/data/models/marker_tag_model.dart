@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/app_service_accent.dart';
 import 'package:clover/core/shared/app_multi_selector.dart';
 import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_group_key.dart';
 import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_key.dart';
@@ -23,6 +24,9 @@ class MarkerTagModel {
 
   /// Подпись для UI: из enum, иначе сырой key.
   String get labelRu => keyEnum?.labelRu ?? key;
+
+  /// Сервис для цвета силы; `null` у витринных тегов.
+  AppServiceKind? get serviceKind => keyEnum?.serviceKind;
 
   /// Заголовок секции: из enum группы, иначе сырой group_key или «Прочее».
   String get groupLabelRu {
@@ -87,7 +91,13 @@ class MarkerTagModel {
       return AppMultiSelectGroup<String>(
         title: title,
         options: items
-            .map((tag) => AppMultiSelectOption<String>(value: tag.key, label: tag.labelRu))
+            .map(
+              (tag) => AppMultiSelectOption<String>(
+                value: tag.key,
+                label: tag.labelRu,
+                service: tag.serviceKind,
+              ),
+            )
             .toList(growable: false),
       );
     }).toList(growable: false);

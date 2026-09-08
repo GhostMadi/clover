@@ -1,9 +1,10 @@
-import 'package:clover/core/resources/colors.dart';
-import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_model.dart';
+import 'package:clover/feature/_catalog_/marker_tags/presentation/widget/marker_tag_chip.dart';
 import 'package:flutter/material.dart';
 
 /// Теги аккаунта под блоком идентичности в шапке профиля.
+///
+/// Силовые теги (`admin` / `worker`) окрашены цветом сервиса (запись = жёлтый, …).
 class ProfileHeaderAccountTags extends StatelessWidget {
   const ProfileHeaderAccountTags({super.key, required this.tags});
 
@@ -17,18 +18,7 @@ class ProfileHeaderAccountTags extends StatelessWidget {
       spacing: 6,
       runSpacing: 6,
       children: [
-        for (final tag in tags)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: context.colors.primary.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '#${tag.labelRu.toLowerCase()}',
-              style: AppTextStyle.base(11, fontWeight: FontWeight.w700, color: context.colors.primary),
-            ),
-          ),
+        for (final tag in tags) MarkerTagChip(tag: tag),
       ],
     );
   }

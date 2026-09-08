@@ -7,7 +7,12 @@ enum MarkerTagGroupKey {
   event('event', 'Событие', 4),
   format('format', 'Формат', 5),
   conditions('conditions', 'Условия', 6),
-  account('account', 'Аккаунт', 7);
+
+  /// Супер-сила хозяина точки: мажорные сервисы (запись, …).
+  admin('admin', 'Админ', 7),
+
+  /// Супер-сила исполнителя: доп. функции («мне дают», …).
+  worker('worker', 'Worker', 8);
 
   const MarkerTagGroupKey(this.key, this.labelRu, this.sortOrder);
 
@@ -20,9 +25,19 @@ enum MarkerTagGroupKey {
   /// Порядок групп в списке выбора.
   final int sortOrder;
 
+  /// Группы сил сервисов (не фильтры ленты / маркеров).
+  bool get isServicePower => this == admin || this == worker;
+
+  static const Set<MarkerTagGroupKey> servicePowerGroups = {
+    MarkerTagGroupKey.admin,
+    MarkerTagGroupKey.worker,
+  };
+
   static MarkerTagGroupKey? tryParse(String? raw) {
     final normalized = raw?.trim();
     if (normalized == null || normalized.isEmpty) return null;
+    // Legacy: старый group_key `account` → трактуем как admin (мажорные силы).
+    if (normalized == 'account') return MarkerTagGroupKey.admin;
     for (final value in MarkerTagGroupKey.values) {
       if (value.key == normalized) return value;
     }

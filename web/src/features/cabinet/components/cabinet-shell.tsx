@@ -3,7 +3,6 @@
 import {
   Bell,
   Building2,
-  CalendarDays,
   ExternalLink,
   FolderPlus,
   House,
@@ -22,10 +21,6 @@ import {
   ATTENDANCE_SHORTCUT_EVENT,
   readAttendanceShortcut,
 } from "@/features/attendance/lib/shortcut-prefs";
-import {
-  BOOKING_SHORTCUT_EVENT,
-  readBookingShortcut,
-} from "@/features/booking/lib/shortcut-prefs";
 import { countUnreadNotifications } from "@/features/notifications/lib/notifications-api";
 import {
   readResourcesShortcut,
@@ -75,7 +70,6 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
   const [unread, setUnread] = useState(0);
   const [userId, setUserId] = useState<string | null>(null);
   const [resourcesShortcut, setResourcesShortcut] = useState(false);
-  const [bookingShortcut, setBookingShortcut] = useState(false);
   const [attendanceShortcut, setAttendanceShortcut] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const mapFullBleed = pathname.startsWith("/app/map");
@@ -121,7 +115,6 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Сразу из localStorage (даже до сессии) — тоглы не «пропадают» после F5
     setResourcesShortcut(readResourcesShortcut());
-    setBookingShortcut(readBookingShortcut());
     setAttendanceShortcut(readAttendanceShortcut());
 
     let cancelled = false;
@@ -132,7 +125,6 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
         const id = data.session?.user.id ?? null;
         setUserId(id);
         setResourcesShortcut(readResourcesShortcut(id));
-        setBookingShortcut(readBookingShortcut(id));
         setAttendanceShortcut(readAttendanceShortcut(id));
       });
     return () => {
@@ -144,24 +136,20 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
     const syncAll = (uid?: string | null) => {
       const id = uid ?? userId;
       setResourcesShortcut(readResourcesShortcut(id));
-      setBookingShortcut(readBookingShortcut(id));
       setAttendanceShortcut(readAttendanceShortcut(id));
     };
     const onResources = () => syncAll();
-    const onBooking = () => syncAll();
     const onAttendance = () => syncAll();
     const onStorage = () => syncAll();
     const onVisible = () => {
       if (document.visibilityState === "visible") syncAll();
     };
     window.addEventListener(RESOURCES_SHORTCUT_EVENT, onResources);
-    window.addEventListener(BOOKING_SHORTCUT_EVENT, onBooking);
     window.addEventListener(ATTENDANCE_SHORTCUT_EVENT, onAttendance);
     window.addEventListener("storage", onStorage);
     document.addEventListener("visibilitychange", onVisible);
     return () => {
       window.removeEventListener(RESOURCES_SHORTCUT_EVENT, onResources);
-      window.removeEventListener(BOOKING_SHORTCUT_EVENT, onBooking);
       window.removeEventListener(ATTENDANCE_SHORTCUT_EVENT, onAttendance);
       window.removeEventListener("storage", onStorage);
       document.removeEventListener("visibilitychange", onVisible);
@@ -270,31 +258,6 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
                 }`}
               >
                 Ресурсы
-              </span>
-            </Link>
-          ) : null}
-
-          {bookingShortcut ? (
-            <Link
-              href="/app/settings/booking/inbox"
-              prefetch
-              title="Мои записи"
-              className={`mt-1 flex h-12 items-center gap-4 overflow-hidden rounded-[14px] px-3 transition ${
-                bookingActive
-                  ? "bg-svc-booking text-svc-booking-ink"
-                  : "text-svc-booking-ink hover:bg-svc-booking/70"
-              }`}
-            >
-              <CalendarDays
-                className="h-[26px] w-[26px] shrink-0"
-                strokeWidth={bookingActive ? 2.25 : 1.75}
-              />
-              <span
-                className={`truncate text-[15px] opacity-0 transition-opacity duration-200 group-hover/rail:opacity-100 ${
-                  bookingActive ? "font-bold" : "font-semibold"
-                }`}
-              >
-                Запись
               </span>
             </Link>
           ) : null}
@@ -422,8 +385,7 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
       </main>
 
       <div className="fixed inset-x-0 bottom-0 z-40 md:hidden">
-        {onOwnProfile &&
-        (resourcesShortcut || bookingShortcut || attendanceShortcut) ? (
+        {onOwnProfile && (resourcesShortcut || attendanceShortcut) ? (
           <div className="pointer-events-none absolute bottom-[calc(4.25rem+env(safe-area-inset-bottom))] right-3 mb-2 flex flex-col items-end gap-2">
             {attendanceShortcut ? (
               <Link
@@ -438,21 +400,6 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
               >
                 <Building2 className="h-4 w-4" strokeWidth={2} />
                 Посещаемость
-              </Link>
-            ) : null}
-            {bookingShortcut ? (
-              <Link
-                href="/app/settings/booking/inbox"
-                prefetch
-                title="Мои записи"
-                className={`pointer-events-auto inline-flex h-11 items-center gap-2 rounded-[14px] px-3.5 text-[13px] font-bold shadow-elevate-sm ${
-                  bookingActive
-                    ? "bg-svc-booking-ink text-on-media"
-                    : "bg-svc-booking text-svc-booking-ink"
-                }`}
-              >
-                <CalendarDays className="h-4 w-4" strokeWidth={2} />
-                Запись
               </Link>
             ) : null}
             {resourcesShortcut ? (

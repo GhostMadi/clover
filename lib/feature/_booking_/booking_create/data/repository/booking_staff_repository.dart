@@ -1,4 +1,5 @@
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
+import 'package:clover/feature/_booking_/booking_create/data/models/booking_staff_invite.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_staff_profile.dart';
 import 'package:clover/feature/_booking_/shared/data/booking_error.dart';
 import 'package:injectable/injectable.dart';
@@ -31,6 +32,20 @@ class BookingStaffRepository {
       }
       final res = await query.order('sort_order').order('display_name');
       return [for (final row in res) _mapStaff(Map<String, dynamic>.from(row))];
+    });
+  }
+
+  Future<List<BookingStaffInvite>> listPendingInvites() async {
+    final uid = _uid;
+    if (uid == null || uid.isEmpty) return const [];
+
+    return _guard(() async {
+      final res = await _client.rpc('list_booking_staff_invites_pending');
+      if (res is! List) return const [];
+      return [
+        for (final raw in res)
+          if (raw is Map) BookingStaffInvite.fromJson(Map<String, dynamic>.from(raw)),
+      ].where((invite) => invite.id.isNotEmpty).toList();
     });
   }
 
@@ -70,7 +85,8 @@ class BookingStaffRepository {
     });
   }
 
-  Future<BookingServiceExecutor> ensureStaffFromProfile(String profileId) async {
+  /// Invite Clover account via DM. Linked staff is created only after Accept.
+  Future<String> inviteStaff(String profileId) async {
     final uid = _uid;
     if (uid == null || uid.isEmpty) {
       throw const BookingException(BookingErrorCode.notAuthenticated);
@@ -82,47 +98,42 @@ class BookingStaffRepository {
     }
 
     return _guard(() async {
-      final existing = await _client
-          .from('booking_staff')
-          .select()
-          .eq('host_id', uid)
-          .eq('profile_id', id)
-          .maybeSingle();
-
-      if (existing != null) {
-        return _mapStaff(Map<String, dynamic>.from(existing));
+      final res = await _client.rpc('booking_invite_staff', params: {'p_profile_id': id});
+      final inviteId = res?.toString().trim() ?? '';
+      if (inviteId.isEmpty) {
+        throw const BookingException(BookingErrorCode.unknown, 'Не удалось отправить приглашение');
       }
+      return inviteId;
+    });
+  }
 
-      final profile = await _client
-          .from('profiles')
-          .select('id, username, full_name, avatar_url')
-          .eq('id', id)
-          .maybeSingle();
+  Future<void> acceptInvite(String inviteId) async {
+    final id = inviteId.trim();
+    if (id.isEmpty) {
+      throw const BookingException(BookingErrorCode.unknown, 'Нет заявки');
+    }
+    await _guard(() async {
+      await _client.rpc('booking_accept_staff_invite', params: {'p_invite_id': id});
+    });
+  }
 
-      if (profile == null) {
-        throw const BookingException(BookingErrorCode.unknown, 'Аккаунт не найден');
-      }
+  Future<void> rejectInvite(String inviteId) async {
+    final id = inviteId.trim();
+    if (id.isEmpty) {
+      throw const BookingException(BookingErrorCode.unknown, 'Нет заявки');
+    }
+    await _guard(() async {
+      await _client.rpc('booking_reject_staff_invite', params: {'p_invite_id': id});
+    });
+  }
 
-      final map = Map<String, dynamic>.from(profile);
-      final username = map['username']?.toString().trim() ?? '';
-      final fullName = map['full_name']?.toString().trim() ?? '';
-      final displayName = fullName.isNotEmpty ? fullName : (username.isNotEmpty ? username : 'Пользователь');
-
-      final res = await _client
-          .from('booking_staff')
-          .insert({
-            'host_id': uid,
-            'profile_id': id,
-            'display_name': displayName,
-            if (username.isNotEmpty) 'username': username,
-          })
-          .select()
-          .single();
-
-      return _mapStaff(
-        Map<String, dynamic>.from(res),
-        avatarUrl: map['avatar_url']?.toString(),
-      );
+  Future<void> cancelInvite(String inviteId) async {
+    final id = inviteId.trim();
+    if (id.isEmpty) {
+      throw const BookingException(BookingErrorCode.unknown, 'Нет заявки');
+    }
+    await _guard(() async {
+      await _client.rpc('booking_cancel_staff_invite', params: {'p_invite_id': id});
     });
   }
 

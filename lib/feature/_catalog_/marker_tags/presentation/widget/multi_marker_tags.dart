@@ -6,6 +6,7 @@ import 'package:clover/core/shared/app_multi_selector.dart';
 import 'package:clover/feature/_catalog_/marker_tags/data/catalog/marker_tags_catalog.dart';
 import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_group_key.dart';
 import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_model.dart';
+import 'package:clover/feature/_catalog_/marker_tags/presentation/widget/marker_tag_chip.dart';
 import 'package:flutter/material.dart';
 
 /// Множественный выбор тегов из enum-справочника [MarkerTagsCatalog].
@@ -55,15 +56,12 @@ class MultiMarkerTags extends StatelessWidget {
     return values.where(knownKeys.contains).toSet();
   }
 
-  String? _selectedDisplay(List<MarkerTagModel> tags, Set<String> selected) {
-    if (selected.isEmpty) return null;
-
-    final labels = <String>[];
-    for (final tag in tags) {
-      if (selected.contains(tag.key)) labels.add(tag.labelRu);
-    }
-    if (labels.isEmpty) return null;
-    return labels.join(', ');
+  List<MarkerTagModel> _selectedTags(List<MarkerTagModel> tags, Set<String> selected) {
+    if (selected.isEmpty) return const [];
+    return [
+      for (final tag in tags)
+        if (selected.contains(tag.key)) tag,
+    ];
   }
 
   Future<void> _openSheet(BuildContext context, List<MarkerTagModel> tags) async {
@@ -95,8 +93,8 @@ class MultiMarkerTags extends StatelessWidget {
     final tags = _tags;
     final emptyHint = tags.isEmpty ? 'Нет доступных тегов' : hint;
     final selected = _normalizeValues(tags);
-    final display = _selectedDisplay(tags, selected);
-    final hasValue = display != null && display.isNotEmpty;
+    final selectedTags = _selectedTags(tags, selected);
+    final hasValue = selectedTags.isNotEmpty;
     final canOpen = tags.isNotEmpty && enabled;
 
     final field = Material(
@@ -106,29 +104,42 @@ class MultiMarkerTags extends StatelessWidget {
         borderRadius: BorderRadius.circular(_fieldRadius),
         onTap: canOpen ? () => _openSheet(context, tags) : null,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(_fieldRadius),
             border: Border.all(color: context.colors.fieldBorder),
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Text(
-                  hasValue ? display : emptyHint,
-                  style: AppTextStyle.base(
-                    16,
-                    color: hasValue ? context.colors.textColor : context.colors.subTextColor.withValues(alpha: 0.65),
-                    height: 1.25,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                child: hasValue
+                    ? Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          for (final tag in selectedTags) MarkerTagChip(tag: tag),
+                        ],
+                      )
+                    : Text(
+                        emptyHint,
+                        style: AppTextStyle.base(
+                          16,
+                          color: context.colors.subTextColor.withValues(alpha: 0.65),
+                          height: 1.25,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
               ),
-              Icon(
-                AppIcons.arrowDown.icon,
-                color: context.colors.subTextColor.withValues(alpha: 0.55),
-                size: 24,
+              const SizedBox(width: 8),
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Icon(
+                  AppIcons.arrowDown.icon,
+                  color: context.colors.subTextColor.withValues(alpha: 0.55),
+                  size: 24,
+                ),
               ),
             ],
           ),

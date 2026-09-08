@@ -13,6 +13,8 @@ import { ProfileBanner } from "@/features/profile/components/profile-banner";
 import { ProfileBio } from "@/features/profile/components/profile-bio";
 import { ProfileClusters } from "@/features/profile/components/profile-clusters";
 import { ProfilePostsGrid } from "@/features/profile/components/profile-posts-grid";
+import { ProfileAccountTags } from "@/features/profile/components/profile-account-tags";
+import { ProfileServiceShortcuts } from "@/features/profile/components/profile-service-shortcuts";
 import type { ClusterItem } from "@/features/profile/lib/clusters-api";
 import { listProfilePostsClient } from "@/features/profile/lib/posts-client";
 import { formatStat, type Profile } from "@/features/profile/lib/profile-model";
@@ -200,6 +202,11 @@ export function ProfileView({
             </div>
           ) : null}
 
+          <ProfileAccountTags
+            tagKeys={profile.tagKeys}
+            showServicePowerTags={!isGuest}
+          />
+
           {isGuest ? (
             <div className="mt-4 flex max-w-xl flex-col gap-2 sm:mt-5">
               <div className="flex gap-2">
@@ -271,6 +278,8 @@ export function ProfileView({
               </AppButtonLink>
             </div>
           )}
+
+          {!isGuest ? <ProfileServiceShortcuts tagKeys={profile.tagKeys} /> : null}
         </div>
 
         <ProfileClusters

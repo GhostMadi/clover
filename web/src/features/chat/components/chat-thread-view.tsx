@@ -49,9 +49,15 @@ import {
   formatMessageTime,
   MESSAGES_PAGE_SIZE,
   parseMessageRow,
+  type ChatBookingStaffCard,
   type ChatConversation,
   type ChatMessage,
 } from "@/features/chat/lib/chat-model";
+import {
+  acceptStaffInvite,
+  rejectStaffInvite,
+} from "@/features/booking/lib/staff-api";
+import { AppButton } from "@/components/shared/app-button";
 import { createClient } from "@/lib/supabase/client";
 
 type ChatThreadViewProps = {
@@ -102,6 +108,74 @@ function StatusTicks({ message }: { message: ChatMessage }) {
   return <Check className="h-3.5 w-3.5" strokeWidth={2.25} />;
 }
 
+function BookingStaffInviteCard({
+  card,
+  isMine,
+}: {
+  card: ChatBookingStaffCard;
+  isMine: boolean;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [doneLabel, setDoneLabel] = useState<string | null>(null);
+
+  const run = async (action: () => Promise<void>, ok: string) => {
+    if (busy || doneLabel) return;
+    setBusy(true);
+    try {
+      await action();
+      setDoneLabel(ok);
+    } catch {
+      setDoneLabel(null);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="w-full max-w-[78%] rounded-[16px] border border-line bg-surface p-3.5 shadow-sm">
+      <p className="text-[15px] font-bold text-ink">Приглашение в запись</p>
+      <p className="mt-1 text-[13px] text-muted">
+        Стать исполнителем · «{card.hostDisplayName}»
+      </p>
+      {doneLabel ? (
+        <p className="mt-3 text-[13px] font-semibold text-svc-booking-ink">{doneLabel}</p>
+      ) : !isMine ? (
+        <div className="mt-3 space-y-2">
+          <AppButton
+            service="booking"
+            size="row"
+            loading={busy}
+            className="w-full"
+            onClick={() =>
+              void run(
+                () => acceptStaffInvite(card.inviteId),
+                "Вы исполнитель",
+              )
+            }
+          >
+            Принять
+          </AppButton>
+          <AppButton
+            variant="outline"
+            service="booking"
+            size="row"
+            disabled={busy}
+            className="w-full"
+            onClick={() =>
+              void run(
+                () => rejectStaffInvite(card.inviteId),
+                "Приглашение отклонено",
+              )
+            }
+          >
+            Отклонить
+          </AppButton>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function MessageBubble({
   message,
   onRetry,
@@ -112,6 +186,14 @@ function MessageBubble({
   const mine = message.isMine;
   const time = formatMessageTime(message.sentAt);
   const failed = Boolean(message.sendFailed);
+
+  if (message.bookingStaffCard) {
+    return (
+      <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+        <BookingStaffInviteCard card={message.bookingStaffCard} isMine={mine} />
+      </div>
+    );
+  }
 
   if (message.postRef) {
     return (
@@ -562,6 +644,7 @@ export function ChatThreadView({
         isPending: true,
         sendFailed: false,
         postRef: null,
+        bookingStaffCard: null,
         attachments: pendingSnapshot.map((p) => ({
           id: p.id,
           bucket: "chat_media",
@@ -592,6 +675,7 @@ export function ChatThreadView({
       isPending: true,
       sendFailed: false,
       postRef: null,
+      bookingStaffCard: null,
       attachments: [],
       editedAt: null,
     };

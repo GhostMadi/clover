@@ -95,9 +95,14 @@
 Бизнес: [profile.md](profile.md) · [notifications.md](notifications.md)  
 Техника: `_profile_/followers_and_followings/`, `_catalog_/social_graph/`
 
+### 🟡 Сила тегов профиля (глобальный паттерн)
+Account-тег → визуал (кнопки) + какие функции/запросы открывать на клиенте. Список тегов растёт со временем; эталон — `booking`.  
+Бизнес: [tag-powers.md](tag-powers.md) · [profile-data.md](profile-data.md)  
+Техника: `_catalog_/marker_tags/` + гейты в фичах (приводить к одному паттерну)
+
 ### 🟢 Теги (единый справочник)
-Профиль, маркеры, фильтры — один список: `salon`, `business`, `booking`, …  
-Бизнес: profile / profile-data  
+Профиль, маркеры, фильтры — один список ключей: `salon`, `business`, `booking`, …  
+Бизнес: profile / profile-data · силы: [tag-powers.md](tag-powers.md)  
 Техника: `_catalog_/marker_tags/` + `profile_tag_links`, edit через `MultiMarkerTags`
 
 ### 🟢 «Бизнес-профиль» (как отдельный тип)
@@ -179,10 +184,12 @@ Like / dislike на постах; уведомления автору.
 
 ## Запись и бонусы
 
-### 🟢 Онлайн-запись
-Хозяин (тег `booking`) настраивает услуги и расписание; клиент записывается с профиля или с поста; «Мои бронирования»; inbox + перенос; «Оказана» только вручную (без auto-complete).  
-Бизнес: [booking.md](booking.md)  
-Техника: `lib/feature/_booking_/`, [SPEC_BOOKING_SYSTEM.md](../supabase/SPEC_BOOKING_SYSTEM.md)
+### 🟢 Онлайн-запись (+ удобства и календарь «мне дают»)
+Ядро записи **уже есть и остаётся**: хозяин (`booking`), клиент, inbox, визит до «Оказана».
+Дельта: удобство входов через теги / две линии на профиле; тег `bookingCalendar` + экран своих заказов (не иерархия). **ТЗ:** [booking-tz.md](booking-tz.md).
+План сил: [booking-staff-plan.md](booking-staff-plan.md). Invite linked-staff через DM — mobile + web.
+Бизнес: [booking.md](booking.md) · силы тегов: [tag-powers.md](tag-powers.md)
+Техника: `lib/feature/_booking_/`, `web/src/features/booking/`, [SPEC_BOOKING_SYSTEM.md](../supabase/SPEC_BOOKING_SYSTEM.md) · invite: [SPEC_BOOKING_STAFF_INVITE.md](../supabase/SPEC_BOOKING_STAFF_INVITE.md)
 
 ### 🔴 Бронь мест (схема зала)
 Хозяин рисует план и помечает **любые** объекты к брони; клиент — **визуал и/или список** → **запрос** (не auto-confirm); admin inbox (доплата вне Clover, гостевая бронь, soft-hold TTL). Без эквайринга.

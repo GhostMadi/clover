@@ -189,7 +189,7 @@ class BookingServiceForm extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Один сервис — несколько мастеров. Найдите аккаунты из приложения.',
+            'Выберите из команды или пригласите аккаунт Clover (нужен Accept в чате).',
             style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
           ),
           if (selectedExecutors.isNotEmpty) ...[

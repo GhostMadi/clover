@@ -17,6 +17,7 @@ import {
   MARKER_TAG_GROUPS,
   MARKER_TAGS,
   tagLabelRu,
+  tagServiceKind,
 } from "@/features/catalog/lib/marker-tags";
 import {
   saveProfileEdit,
@@ -26,6 +27,7 @@ import {
   usernamePolicy,
   type Profile,
 } from "@/features/profile/lib/profile-model";
+import { SERVICE_ACCENT } from "@/lib/service-accent";
 
 type EditProfileViewProps = {
   profile: Profile;
@@ -326,7 +328,12 @@ export function EditProfileView({ profile }: EditProfileViewProps) {
                   <div className="flex flex-wrap gap-2">
                     {tags.map((tag) => {
                       const on = tagKeys.has(tag.key);
-                      const label = tag.key === "booking" ? "Принимаю запись" : tagLabelRu(tag.key);
+                      const label = tagLabelRu(tag.key);
+                      const service = tagServiceKind(tag.key);
+                      const accent = service ? SERVICE_ACCENT[service] : null;
+                      const selectedCls = accent
+                        ? `${accent.soft} ${accent.icon} ${accent.border} border`
+                        : "bg-brand text-on-brand";
                       return (
                         <button
                           key={tag.key}
@@ -334,7 +341,7 @@ export function EditProfileView({ profile }: EditProfileViewProps) {
                           onClick={() => toggleTag(tag.key)}
                           className={`rounded-full px-3 py-1.5 text-[13px] font-semibold transition ${
                             on
-                              ? "bg-brand text-on-brand"
+                              ? selectedCls
                               : "border border-line bg-bg text-ink hover:bg-mint"
                           }`}
                         >

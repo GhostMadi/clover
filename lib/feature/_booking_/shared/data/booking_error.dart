@@ -6,6 +6,7 @@ enum BookingErrorCode {
   notAvailable,
   invalidService,
   invalidStaff,
+  alreadyStaff,
   outsideSchedule,
   hostDisabled,
   serviceHasFutureBookings,
@@ -45,12 +46,21 @@ class BookingException implements Exception {
     if (message.contains('nothing_to_revert')) {
       return BookingErrorCode.nothingToRevert;
     }
+    if (message.contains('already_staff')) {
+      return BookingErrorCode.alreadyStaff;
+    }
+    if (message.contains('self_booking')) {
+      return BookingErrorCode.forbidden;
+    }
+    if (message.contains('invalid_status')) {
+      return BookingErrorCode.notAvailable;
+    }
     return switch (error.code) {
       'P0003' => BookingErrorCode.notAuthenticated,
       'P0020' => BookingErrorCode.notAvailable,
       'P0021' => BookingErrorCode.slotConflict,
       'P0022' => BookingErrorCode.invalidService,
-      'P0023' => BookingErrorCode.invalidStaff,
+      'P0023' => message.contains('already') ? BookingErrorCode.alreadyStaff : BookingErrorCode.invalidStaff,
       'P0024' => BookingErrorCode.outsideSchedule,
       'P0025' => BookingErrorCode.hostDisabled,
       'P0026' => BookingErrorCode.serviceHasFutureBookings,
@@ -66,6 +76,7 @@ class BookingException implements Exception {
         BookingErrorCode.nothingToRevert => 'Нечего откатывать — нет предыдущего шага',
         BookingErrorCode.invalidService => 'Услуга недоступна',
         BookingErrorCode.invalidStaff => 'Мастер недоступен',
+        BookingErrorCode.alreadyStaff => 'Этот аккаунт уже в исполнителях',
         BookingErrorCode.outsideSchedule => 'Время вне расписания',
         BookingErrorCode.hostDisabled => 'Запись у этого аккаунта недоступна',
         BookingErrorCode.serviceHasFutureBookings =>

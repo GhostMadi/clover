@@ -111,6 +111,13 @@ class _BookingServiceEditPageState extends State<BookingServiceEditPage> {
     setState(() => _draft = _draft.copyWith(executors: hydrated));
   }
 
+  Set<String> _excludeStaffIds() {
+    return {
+      for (final pick in _draft.executors)
+        if (pick.staffId != null && pick.staffId!.trim().isNotEmpty) pick.staffId!.trim(),
+    };
+  }
+
   Set<String> _excludeProfileIds() {
     return {
       for (final pick in _draft.executors)
@@ -119,19 +126,20 @@ class _BookingServiceEditPageState extends State<BookingServiceEditPage> {
   }
 
   Future<void> _addExecutor() async {
-    final profile = await BookingStaffProfileSearchSheet.show(
+    final staff = await BookingStaffProfileSearchSheet.show(
       context,
+      excludeStaffIds: _excludeStaffIds(),
       excludeProfileIds: _excludeProfileIds(),
     );
-    if (profile == null || !mounted) return;
+    if (staff == null || !mounted) return;
 
-    if (_draft.executors.any((pick) => pick.profileId == profile.id)) {
+    if (_draft.executors.any((pick) => pick.staffId == staff.id)) {
       AppSnackBar.show(context, message: 'Этот мастер уже добавлен', kind: AppSnackBarKind.error);
       return;
     }
 
     setState(() {
-      _draft = _draft.copyWith(executors: [..._draft.executors, BookingExecutorPick.fromProfile(profile)]);
+      _draft = _draft.copyWith(executors: [..._draft.executors, BookingExecutorPick.fromStaff(staff)]);
     });
   }
 
