@@ -61,6 +61,10 @@ export default function PrivacyChoicesPage() {
       <LegalSection title="Удаление аккаунта и данных">
         <p>
           Чтобы запросить удаление аккаунта и связанных персональных данных, откройте{" "}
+          <Link className="text-brand underline underline-offset-2" href="/delete-account">
+            инструкцию по удалению аккаунта
+          </Link>{" "}
+          или{" "}
           <Link className="text-brand underline underline-offset-2" href={SITE.supportPath}>
             форму поддержки
           </Link>{" "}

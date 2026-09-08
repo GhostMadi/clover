@@ -14,6 +14,9 @@ export function SiteFooter() {
           <Link href={SITE.supportPath} className="hover:text-ink">
             Поддержка
           </Link>
+          <Link href="/delete-account" className="hover:text-ink">
+            Удаление аккаунта
+          </Link>
           <Link href="/privacy" className="hover:text-ink">
             Конфиденциальность
           </Link>
