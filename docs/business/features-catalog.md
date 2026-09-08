@@ -246,8 +246,8 @@ Google-вход · **сессия/выход** · онбординг · нижн
 Phone / WhatsApp OTP в UI · WhatsApp webhook как продуктовый процесс · сон/сброс аккаунта для человека
 
 ### 🟡 Сайт (лендинг + кабинет)
-Публичный Next.js в `web/`: лендинг, legal, auth, карта/профиль, создание поста (`/app/posts/new`). Догон мобилки — по фазам.  
-Бизнес: [website.md](website.md) · [website-gap-plan.md](website-gap-plan.md)  
+Публичный Next.js в `web/`: лендинг, legal, auth, карта/профиль, создание поста (`/app/posts/new`). Догон мобилки — по фазам.
+Бизнес: [website.md](website.md) · **карта:** [website-roadmap.md](website-roadmap.md) · [website-gap-plan.md](website-gap-plan.md)
 Техника: `web/`
 
 ---

@@ -1,9 +1,11 @@
 # Сайт vs мобилка — план догона
 
 **Статус:** план реализации (порядок согласован)  
-**Связано с:** [website.md](website.md), [website-cabinet.md](website-cabinet.md), [features-catalog.md](features-catalog.md)
+**Связано с:** [website.md](website.md), [website-cabinet.md](website-cabinet.md), [website-roadmap.md](website-roadmap.md), [features-catalog.md](features-catalog.md)
 
 Цель: не клонировать всё приложение сразу. Каждый шаг = тот же бэк/RPC, что мобилка; UI — web-архитектура.
+
+**Ориентир «что уже сделали / куда не заблудиться»:** [website-roadmap.md](website-roadmap.md).
 
 Легенда: ✅ есть · 🟡 частично · ❌ нет · 🔄 в работе
 

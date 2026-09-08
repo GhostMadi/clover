@@ -1,0 +1,31 @@
+---
+description: Git branching — mobile production → mobile-production, not main / web-production
+globs: lib/**/*, android/**/*, ios/**/*, macos/**/*, pubspec.yaml, .github/workflows/**
+alwaysApply: true
+---
+
+# Git Workflow — Mobile Production
+
+1. **Production branch for Flutter / Android / iOS:** `mobile-production`  
+   Сюда — production-ready мобильные фичи и релизы (TestFlight / сторы).  
+   **Не** пушить мобильный прод в `main` и **не** путать с `web-production` (сайт).
+
+2. **Команды для mobile prod-push (когда просят задеплоить / отправить мобилку):**
+
+```bash
+git branch --show-current
+git checkout mobile-production   # если ещё не на ней
+# stage только нужные файлы (не secrets / .env / keystores)
+git add …
+git commit -m "feat(mobile): <description>"
+git push origin mobile-production
+```
+
+3. GitHub Actions (`Deploy to TestFlight`) слушает **`mobile-production`**, не `main`.
+
+4. Веб-релизы — только через `web-production` (см. `clover-web-git.mdc`).  
+   Мобильные — только через `mobile-production`.
+
+5. Feature/fix-ветки — по желанию для черновиков; в прод мобилка идёт через `mobile-production`.
+
+6. Общий trunk — **`main`**; периодический синхрон: см. `clover-git-main.mdc` и `docs/business/git-branches.md`.

@@ -3,7 +3,7 @@ name: Deploy to TestFlight
 on:
   push:
     branches:
-      - main
+      - mobile-production
 
 jobs:
   build-and-deploy:

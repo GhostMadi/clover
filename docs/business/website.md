@@ -1,7 +1,9 @@
 # Сайт Clover (web)
 
-**Статус:** лендинг + legal  
+**Статус:** лендинг + legal + кабинет  
 **Связано с:** мобильное приложение, App Store / TestFlight
+
+> **Дорожная карта (одно место — что сделали / куда идём):** [website-roadmap.md](website-roadmap.md)
 
 ---
 
@@ -30,7 +32,8 @@
 | Не сейчас | дублировать бизнес-логику мобилки на клиенте сайта |
 
 Кабинет: [website-cabinet.md](website-cabinet.md).  
-План догона мобилки: [website-gap-plan.md](website-gap-plan.md).
+План догона мобилки: [website-gap-plan.md](website-gap-plan.md).  
+Дорожная карта / журнал: [website-roadmap.md](website-roadmap.md).
 
 ### Auth (web)
 

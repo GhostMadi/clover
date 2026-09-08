@@ -5,6 +5,16 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Maps provider exceptions to internal [AuthErrorCode].
 abstract final class AuthErrorMapper {
+  /// Refresh token отозван / не найден — локальную сессию нужно сбросить.
+  static bool isInvalidRefreshToken(Object error) {
+    if (error is! AuthException) return false;
+    final message = error.message.toLowerCase();
+    final code = (error.code ?? '').toLowerCase();
+    return code == 'refresh_token_not_found' ||
+        message.contains('refresh_token_not_found') ||
+        message.contains('invalid refresh token');
+  }
+
   static AuthErrorCode resolve(Object error) {
     if (error is AuthFailure) return error.code;
 
@@ -23,6 +33,9 @@ abstract final class AuthErrorMapper {
     }
 
     if (error is AuthException) {
+      if (isInvalidRefreshToken(error)) {
+        return AuthErrorCode.checkAuthFailed;
+      }
       final message = error.message.toLowerCase();
       if (message.contains('rate limit') || message.contains('over_email_send_rate_limit')) {
         return AuthErrorCode.emailOtpRateLimited;
