@@ -21,8 +21,13 @@ export function SettingsAboutView() {
             <dd className="font-semibold text-ink">{SITE.domain}</dd>
           </div>
           <div className="flex items-center justify-between gap-3 border-b border-line py-3">
-            <dt className="text-muted">Связь</dt>
-            <dd className="font-semibold text-ink">{SITE.email}</dd>
+            <dt className="text-muted">Поддержка</dt>
+            <dd className="font-semibold text-ink">
+              <a href={SITE.supportPath} className="text-brand underline underline-offset-2">
+                {SITE.domain}
+                {SITE.supportPath}
+              </a>
+            </dd>
           </div>
         </dl>
         <p className="mt-8 text-[13px] leading-relaxed text-muted">

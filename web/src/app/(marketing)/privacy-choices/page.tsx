@@ -60,11 +60,11 @@ export default function PrivacyChoicesPage() {
 
       <LegalSection title="Удаление аккаунта и данных">
         <p>
-          Чтобы запросить удаление аккаунта и связанных персональных данных, напишите на{" "}
-          <a className="text-brand underline underline-offset-2" href={`mailto:${SITE.email}`}>
-            {SITE.email}
-          </a>{" "}
-          с темой «Удаление аккаунта» и укажите ник или email. Мы обработаем запрос в разумный срок. Отдельные
+          Чтобы запросить удаление аккаунта и связанных персональных данных, откройте{" "}
+          <Link className="text-brand underline underline-offset-2" href={SITE.supportPath}>
+            форму поддержки
+          </Link>{" "}
+          и укажите ник/email и запрос «Удаление аккаунта». Мы обработаем обращение в разумный срок. Отдельные
           данные могут остаться, если этого требует закон (например, споры или безопасность).
         </p>
       </LegalSection>
@@ -79,10 +79,9 @@ export default function PrivacyChoicesPage() {
       <LegalSection title="Вопросы">
         <p>
           Поддержка:{" "}
-          <Link className="text-brand underline underline-offset-2" href="/support">
-            /support
-          </Link>{" "}
-          · {SITE.email}
+          <Link className="text-brand underline underline-offset-2" href={SITE.supportPath}>
+            clover.com.kz/support
+          </Link>
         </p>
       </LegalSection>
     </LegalPage>

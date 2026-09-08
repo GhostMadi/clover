@@ -1,26 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/legal-page";
+import { SupportRequestForm } from "@/features/support/components/support-request-form";
 import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Поддержка",
-  description: "Служба поддержки Clover — как связаться и что указать в обращении.",
+  description: "Служба поддержки Clover — напишите о проблеме на сайте.",
   alternates: { canonical: "/support" },
 };
 
 export default function SupportPage() {
   return (
     <LegalPage title="Поддержка" updated="8 сентября 2026">
-      <LegalSection title="Как связаться">
+      <LegalSection title="Напишите нам">
         <p>
-          Пишите на{" "}
-          <a className="text-brand underline underline-offset-2" href={`mailto:${SITE.email}`}>
-            {SITE.email}
-          </a>
-          . Обычно отвечаем в рабочие дни.
+          Опишите проблему в форме ниже. Мы получим заявку в системе и ответим на указанный контакт. Отдельного
+          почтового ящика поддержки нет — всё через эту страницу.
         </p>
-        <p>В письме укажите: ник или email аккаунта, устройство (iOS / Android), коротко суть проблемы и шаги, как повторить.</p>
+        <div className="mt-5">
+          <SupportRequestForm />
+        </div>
       </LegalSection>
 
       <LegalSection title="Чем можем помочь">

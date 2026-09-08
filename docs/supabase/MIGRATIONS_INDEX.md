@@ -238,3 +238,9 @@
 | `20260730120000_sync_meta_currencies.sql` | Создание `sync_meta` + currencies (currencies позже удалены). |
 | `20260730130000_profiles_embed_sync_meta.sql` | View `profiles_with_sync_meta`, fn `sync_meta_payload()`. |
 | `20260830120000_drop_sync_meta.sql` | **Удаление** `sync_meta`, view и function — клиент на enum catalogs. |
+
+### Support (сайт)
+
+| Файл | Назначение |
+|------|------------|
+| `20260908120000_support_requests.sql` | Таблица `support_requests` + RLS insert-only для формы `/support`. Spec: [SPEC_SUPPORT_REQUESTS.md](SPEC_SUPPORT_REQUESTS.md) |

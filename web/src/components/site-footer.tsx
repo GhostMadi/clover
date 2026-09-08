@@ -8,13 +8,10 @@ export function SiteFooter() {
     <footer className="border-t border-line bg-surface">
       <div className="mx-auto flex max-w-3xl flex-col gap-3 px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
         <p className="text-[12px] text-muted">
-          © {year} {SITE.name} ·{" "}
-          <a href={`mailto:${SITE.email}`} className="hover:text-ink">
-            {SITE.email}
-          </a>
+          © {year} {SITE.name}
         </p>
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-muted">
-          <Link href="/support" className="hover:text-ink">
+          <Link href={SITE.supportPath} className="hover:text-ink">
             Поддержка
           </Link>
           <Link href="/privacy" className="hover:text-ink">

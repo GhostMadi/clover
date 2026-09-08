@@ -3,7 +3,10 @@ export const SITE = {
   name: "Clover",
   domain: "clover.com.kz",
   url: "https://clover.com.kz",
+  /** From транзакционных писем (Resend OTP) — не inbox поддержки. */
   email: "welcome@clover.com.kz",
+  /** Публичная поддержка — форма на сайте. */
+  supportPath: "/support",
   locale: "ru_KZ",
   /** Одна идея продукта для hero / SEO. */
   tagline: "Помощник для бизнеса — сервисы в одном приложении",

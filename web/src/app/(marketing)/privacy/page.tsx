@@ -18,10 +18,10 @@ export default function PrivacyPage() {
           <a className="text-brand underline underline-offset-2" href={SITE.url}>
             {SITE.domain}
           </a>
-          ). По вопросам персональных данных:{" "}
-          <a className="text-brand underline underline-offset-2" href={`mailto:${SITE.email}`}>
-            {SITE.email}
-          </a>
+          ). По вопросам персональных данных — форма на странице{" "}
+          <Link className="text-brand underline underline-offset-2" href={SITE.supportPath}>
+            поддержки
+          </Link>
           .
         </p>
         <p>
@@ -105,10 +105,10 @@ export default function PrivacyPage() {
       <LegalSection title="7. Ваши права">
         <p>
           Вы можете запросить доступ, исправление или удаление данных, связанных с аккаунтом, через приложение
-          (где доступно) или по email{" "}
-          <a className="text-brand underline underline-offset-2" href={`mailto:${SITE.email}`}>
-            {SITE.email}
-          </a>
+          (где доступно) или через{" "}
+          <Link className="text-brand underline underline-offset-2" href={SITE.supportPath}>
+            форму поддержки
+          </Link>
           . Подробные шаги — на странице{" "}
           <Link className="text-brand underline underline-offset-2" href="/privacy-choices">
             параметров конфиденциальности
@@ -133,13 +133,9 @@ export default function PrivacyPage() {
 
       <LegalSection title="10. Контакты">
         <p>
-          Данные и поддержка:{" "}
-          <a className="text-brand underline underline-offset-2" href={`mailto:${SITE.email}`}>
-            {SITE.email}
-          </a>{" "}
-          ·{" "}
-          <Link className="text-brand underline underline-offset-2" href="/support">
-            страница поддержки
+          Поддержка и запросы по данным:{" "}
+          <Link className="text-brand underline underline-offset-2" href={SITE.supportPath}>
+            clover.com.kz/support
           </Link>
         </p>
       </LegalSection>

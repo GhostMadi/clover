@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/legal-page";
 import { SITE } from "@/lib/site";
 
@@ -65,10 +66,10 @@ export default function TermsPage() {
 
       <LegalSection title="8. Контакты">
         <p>
-          Вопросы по условиям:{" "}
-          <a className="text-brand underline underline-offset-2" href={`mailto:${SITE.email}`}>
-            {SITE.email}
-          </a>
+          Вопросы по условиям — через{" "}
+          <Link className="text-brand underline underline-offset-2" href={SITE.supportPath}>
+            форму поддержки
+          </Link>
           .
         </p>
       </LegalSection>

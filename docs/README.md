@@ -45,6 +45,7 @@
 | Деплой сайта (Vercel / `web-production`) | [business/website-deploy.md](business/website-deploy.md) |
 | Деплой мобилки (TestFlight / `mobile-production`) | [business/mobile-deploy.md](business/mobile-deploy.md) |
 | App Store — тексты листинга | [business/app-store-listing.md](business/app-store-listing.md) |
+| Поддержка (форма на сайте) | [business/support.md](business/support.md) |
 | Каталог фич | [business/features-catalog.md](business/features-catalog.md) |
 
 Черновики: [business/_inbox.md](business/_inbox.md) · шаблон: [business/_template.md](business/_template.md)
