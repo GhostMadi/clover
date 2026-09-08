@@ -3,9 +3,10 @@
 import { Check, CheckCheck, MessagesSquare, Search, User, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import {
   createGroupChat,
+  listConversationsPage,
   searchMessages,
   type MessageSearchHit,
 } from "@/features/chat/lib/chat-api";
@@ -13,6 +14,7 @@ import {
   formatChatListTime,
   type ChatConversation,
 } from "@/features/chat/lib/chat-model";
+import { CHAT_UNREAD_CHANGED } from "@/features/chat/lib/chat-unread";
 
 type ChatsListViewProps = {
   initialItems: ChatConversation[];
@@ -21,6 +23,7 @@ type ChatsListViewProps = {
 /** Список диалогов + FTS поиск + создание группы. */
 export function ChatsListView({ initialItems }: ChatsListViewProps) {
   const router = useRouter();
+  const [items, setItems] = useState(initialItems);
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<"chats" | "messages">("chats");
   const [hits, setHits] = useState<MessageSearchHit[]>([]);
@@ -32,15 +35,43 @@ export function ChatsListView({ initialItems }: ChatsListViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
+  const refreshList = useCallback(() => {
+    void listConversationsPage()
+      .then(setItems)
+      .catch(() => {
+        /* keep current */
+      });
+  }, []);
+
+  useEffect(() => {
+    setItems(initialItems);
+  }, [initialItems]);
+
+  useEffect(() => {
+    refreshList();
+    const onUnread = () => refreshList();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refreshList();
+    };
+    window.addEventListener(CHAT_UNREAD_CHANGED, onUnread);
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onUnread);
+    return () => {
+      window.removeEventListener(CHAT_UNREAD_CHANGED, onUnread);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onUnread);
+    };
+  }, [refreshList]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q || scope !== "chats") return initialItems;
-    return initialItems.filter((c) => {
+    if (!q || scope !== "chats") return items;
+    return items.filter((c) => {
       const name = c.title.toLowerCase();
       const preview = c.lastMessageText.toLowerCase();
       return name.includes(q) || preview.includes(q);
     });
-  }, [initialItems, query, scope]);
+  }, [items, query, scope]);
 
   useEffect(() => {
     if (scope !== "messages") return;
@@ -62,7 +93,7 @@ export function ChatsListView({ initialItems }: ChatsListViewProps) {
   const openGroupSheet = () => {
     setGroupOpen(true);
     setError(null);
-    const fromChats = initialItems
+    const fromChats = items
       .filter((c) => c.peer)
       .map((c) => ({ id: c.peer!.id, name: c.peer!.username || c.title }));
     const uniq = new Map(fromChats.map((f) => [f.id, f]));
@@ -162,10 +193,10 @@ export function ChatsListView({ initialItems }: ChatsListViewProps) {
         ) : filtered.length === 0 ? (
           <div className="px-6 py-20 text-center">
             <p className="text-sm font-semibold text-ink">
-              {initialItems.length === 0 ? "Пока нет чатов" : "Чаты не найдены"}
+              {items.length === 0 ? "Пока нет чатов" : "Чаты не найдены"}
             </p>
             <p className="mt-1 text-sm text-muted">
-              {initialItems.length === 0
+              {items.length === 0
                 ? "Начните переписку с чужого профиля или создайте группу"
                 : "Попробуйте другой запрос"}
             </p>

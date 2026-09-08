@@ -9,7 +9,7 @@
 | **Лента** | `/app` | Городская лента + фильтры + пагинация скролла |
 | **Карта** | `/app/map` | Тайлы + маркеры + «моя геолокация» + шторка поста |
 | **Уведомления** | `/app/notifications` | Inbox (`list_notifications_enriched_cursor`) + пагинация; бейдж unread в rail |
-| **Chat** | `/app/chat` | Список DM + тред `/app/chat/[id]` (`list_conversations_enriched` / `list_messages_enriched` / `send_message`) |
+| **Chat** | `/app/chat` | Список DM + тред `/app/chat/[id]`; бейдж unread в rail/нижнем баре (`count_unread_chat_messages`); список обновляется после `mark_conversation_read` |
 | **Profile** | `/app/profile` | Шапка + сетка + edit + **+** → `/app/posts/new` |
 
 На десктопе — **левый rail** (иконки → подписи по hover); на мобилке — нижний бар + колокольчик в шапке.  

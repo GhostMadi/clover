@@ -30,6 +30,7 @@
 | `../20260428120000_mark_conversation_read_monotonic_cursor.sql` | **`mark_conversation_read`**: курсор **`last_read_message_id`** только «вперёд» по шкале сообщений `(created_at, id)`, без отката на старый UUID. |
 | `../20260429120000_ensure_chat_participants_replica_identity_full.sql` | Идемпотентное повторное **`REPLICA IDENTITY FULL`** на **`chat_participants`** (если на окружении пропускали раннюю миграцию). |
 | `../20260429140000_chat_broadcast_peer_read.sql` | Broadcast **`peer_read`** на topic **`chat_thread_<conversation_id>`** после UPDATE строки участника (**`last_read_message_id` / `last_read_at`**) — мгновенное обновление галочек у отправителя (аналог скорости **`message_enriched`**). |
+| `../20260908180000_count_unread_chat_messages.sql` | **`count_unread_chat_messages()`** — сумма unread входящих для бейджа навигации (web cabinet). |
 
 ### Realtime и «прочитано» (галочки у отправителя)
 

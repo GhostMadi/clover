@@ -21,6 +21,10 @@ import {
   ATTENDANCE_SHORTCUT_EVENT,
   readAttendanceShortcut,
 } from "@/features/attendance/lib/shortcut-prefs";
+import {
+  CHAT_UNREAD_CHANGED,
+  countUnreadChatMessages,
+} from "@/features/chat/lib/chat-unread";
 import { countUnreadNotifications } from "@/features/notifications/lib/notifications-api";
 import {
   readResourcesShortcut,
@@ -47,13 +51,14 @@ const links = [
     label: "Уведомления",
     match: (p: string) => p.startsWith("/app/notifications"),
     Icon: Bell,
-    badge: true,
+    badge: "notifications" as const,
   },
   {
     href: "/app/chat",
     label: "Чаты",
     match: (p: string) => p.startsWith("/app/chat"),
     Icon: MessageCircle,
+    badge: "chat" as const,
   },
   {
     href: "/app/profile",
@@ -68,6 +73,7 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [unread, setUnread] = useState(0);
+  const [chatUnread, setChatUnread] = useState(0);
   const [userId, setUserId] = useState<string | null>(null);
   const [resourcesShortcut, setResourcesShortcut] = useState(false);
   const [attendanceShortcut, setAttendanceShortcut] = useState(false);
@@ -170,6 +176,31 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
     };
   }, [pathname]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const refreshChatUnread = () => {
+      void countUnreadChatMessages().then((n) => {
+        if (!cancelled) setChatUnread(n);
+      });
+    };
+    refreshChatUnread();
+    const onUnread = () => refreshChatUnread();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refreshChatUnread();
+    };
+    window.addEventListener(CHAT_UNREAD_CHANGED, onUnread);
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onUnread);
+    const poll = window.setInterval(refreshChatUnread, 45_000);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(CHAT_UNREAD_CHANGED, onUnread);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onUnread);
+      window.clearInterval(poll);
+    };
+  }, [pathname]);
+
   return (
     <div
       className={`flex min-h-dvh flex-col md:flex-row ${
@@ -202,7 +233,14 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
           {links.map((link) => {
             const { href, label, match, Icon } = link;
             const active = match(pathname);
-            const showBadge = "badge" in link && link.badge && unread > 0;
+            const badgeKind = "badge" in link ? link.badge : undefined;
+            const badgeCount =
+              badgeKind === "notifications"
+                ? unread
+                : badgeKind === "chat"
+                  ? chatUnread
+                  : 0;
+            const showBadge = Boolean(badgeKind) && badgeCount > 0;
             return (
               <Link
                 key={href}
@@ -222,7 +260,7 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
                   />
                   {showBadge ? (
                     <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[9px] font-bold text-on-brand">
-                      {unread > 99 ? "99+" : unread}
+                      {badgeCount > 99 ? "99+" : badgeCount}
                     </span>
                   ) : null}
                 </span>
@@ -428,6 +466,8 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
             .map((link) => {
               const { href, label, match, Icon } = link;
               const active = match(pathname);
+              const showChatBadge =
+                "badge" in link && link.badge === "chat" && chatUnread > 0;
               return (
                 <Link
                   key={href}
@@ -437,7 +477,14 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
                     active ? "text-brand" : "text-nav-inactive"
                   }`}
                 >
-                  <Icon className="h-6 w-6" strokeWidth={active ? 2.25 : 1.75} />
+                  <span className="relative">
+                    <Icon className="h-6 w-6" strokeWidth={active ? 2.25 : 1.75} />
+                    {showChatBadge ? (
+                      <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[9px] font-bold text-on-brand">
+                        {chatUnread > 99 ? "99+" : chatUnread}
+                      </span>
+                    ) : null}
+                  </span>
                   <span className={`truncate text-[10px] ${active ? "font-bold" : "font-semibold"}`}>
                     {label}
                   </span>

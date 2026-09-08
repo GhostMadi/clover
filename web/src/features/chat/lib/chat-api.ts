@@ -8,6 +8,7 @@ import {
   type ChatConversation,
   type ChatMessage,
 } from "@/features/chat/lib/chat-model";
+import { notifyChatUnreadChanged } from "@/features/chat/lib/chat-unread";
 import { createClient } from "@/lib/supabase/client";
 
 export async function listConversationsPage(opts?: {
@@ -114,6 +115,7 @@ export async function markConversationRead(
   if (lastMessageId) params.p_last_message_id = lastMessageId;
   const { error } = await supabase.rpc("mark_conversation_read", params);
   if (error) throw error;
+  notifyChatUnreadChanged();
 }
 
 export async function createDm(otherUserId: string): Promise<string> {

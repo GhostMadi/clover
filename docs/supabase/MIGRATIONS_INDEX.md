@@ -182,6 +182,7 @@
 | `20260427130000_chat_participants_grant_select_authenticated.sql` | `GRANT SELECT` для REST peer-курсоров. |
 | `20260428120000_mark_conversation_read_monotonic_cursor.sql` | Монотонный курсор в `mark_conversation_read`. |
 | `20260429140000_chat_broadcast_peer_read.sql` | Broadcast `peer_read` при сдвиге read-курсора (мгновенные галочки у отправителя). |
+| `20260908180000_count_unread_chat_messages.sql` | `count_unread_chat_messages()` — суммарный unread для бейджа кабинета (web). |
 | `20260830250000_chat_reactions_rpc.sql` | `toggle_message_reaction`; колонка `my_reactions` в `list_messages_enriched` / `get_message_enriched`. |
 | `20260830260000_chat_messenger_basics.sql` | `delete_message`, `edit_message` — soft-delete и правка текста своих сообщений. |
 | `20260830270000_chat_attachments_client_message_id.sql` | `send_message_with_attachments` + `p_client_message_id` — reconcile optimistic media/file. |
