@@ -14,8 +14,14 @@ export function SiteFooter() {
           </a>
         </p>
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-muted">
+          <Link href="/support" className="hover:text-ink">
+            Поддержка
+          </Link>
           <Link href="/privacy" className="hover:text-ink">
             Конфиденциальность
+          </Link>
+          <Link href="/privacy-choices" className="hover:text-ink">
+            Параметры данных
           </Link>
           <Link href="/terms" className="hover:text-ink">
             Условия
