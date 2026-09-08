@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clover/core/auth/cubit/auth_state.dart';
 import 'package:clover/core/auth/errors/auth_error_code.dart';
 import 'package:clover/core/auth/errors/auth_error_mapper.dart';
@@ -5,18 +7,33 @@ import 'package:clover/core/auth/errors/auth_failure.dart';
 import 'package:clover/core/auth/repositories/auth_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show AuthChangeEvent;
 
 @injectable
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit(this._repository) : super(const AuthInitial());
+  AuthCubit(this._repository) : super(const AuthInitial()) {
+    _authSub = _repository.authChangeEvents.listen(_onAuthChangeEvent);
+  }
 
   final AuthRepository _repository;
+  StreamSubscription<AuthChangeEvent>? _authSub;
+
+  void _onAuthChangeEvent(AuthChangeEvent event) {
+    if (event != AuthChangeEvent.signedOut) return;
+    if (state is Unauthenticated || state is AuthLoading) return;
+    unawaited(_handleExternalSignOut());
+  }
+
+  Future<void> _handleExternalSignOut() async {
+    await _repository.clearLocalAccountData();
+    if (!isClosed) emit(const Unauthenticated());
+  }
 
   Future<void> checkAuth() async {
     emit(const AuthLoading());
 
     try {
-      if (!await _repository.isAuthenticated()) {
+      if (!await _repository.ensureValidSession()) {
         emit(const Unauthenticated());
         return;
       }
@@ -28,6 +45,11 @@ class AuthCubit extends Cubit<AuthState> {
         emit(const Unauthenticated());
       }
     } catch (error) {
+      if (AuthErrorMapper.isInvalidRefreshToken(error)) {
+        await _repository.forceLocalSignOut();
+        emit(const Unauthenticated());
+        return;
+      }
       emit(AuthError(_resolve(error, fallback: AuthErrorCode.checkAuthFailed)));
     }
   }
@@ -248,5 +270,11 @@ class AuthCubit extends Cubit<AuthState> {
       return fallback;
     }
     return code;
+  }
+
+  @override
+  Future<void> close() async {
+    await _authSub?.cancel();
+    return super.close();
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 
+import 'package:clover/core/auth/errors/auth_error_mapper.dart';
 import 'package:clover/core/config/supabase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -42,7 +43,12 @@ class SupabaseEdgeFunctionsInvoker {
       try {
         final refreshed = await _client.auth.refreshSession();
         session = refreshed.session ?? _client.auth.currentSession;
-      } on AuthException {
+      } on AuthException catch (error) {
+        if (AuthErrorMapper.isInvalidRefreshToken(error)) {
+          try {
+            await _client.auth.signOut(scope: SignOutScope.local);
+          } catch (_) {}
+        }
         throw StateError('Сессия истекла. Войдите снова.');
       }
     }

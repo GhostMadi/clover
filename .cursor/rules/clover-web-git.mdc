@@ -25,3 +25,5 @@ git push origin web-production
 4. Feature/fix-ветки — по желанию для черновиков; в прод веб идёт через `web-production`.
 
 5. Мобильный прод — ветка **`mobile-production`** (TestFlight), не путать с вебом (см. `clover-mobile-git.mdc`).
+
+6. Общий trunk — **`main`**; периодический синхрон: см. `clover-git-main.mdc` и `docs/business/git-branches.md`.

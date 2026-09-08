@@ -27,3 +27,5 @@ git push origin mobile-production
    Мобильные — только через `mobile-production`.
 
 5. Feature/fix-ветки — по желанию для черновиков; в прод мобилка идёт через `mobile-production`.
+
+6. Общий trunk — **`main`**; периодический синхрон: см. `clover-git-main.mdc` и `docs/business/git-branches.md`.

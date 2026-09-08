@@ -30,11 +30,52 @@ class AuthRepository {
   static const otpResendCooldownSeconds = 400;
 
   Future<bool> isAuthenticated() async {
-    if (_supabase.auth.currentSession != null) return true;
-
-    final cachedUserId = await _storage.read<String>(key: AccountStorageKeys.authUserId);
-    return cachedUserId != null && cachedUserId.isNotEmpty;
+    return ensureValidSession();
   }
+
+  /// Проверяет сессию; при `refresh_token_not_found` — локальный выход.
+  Future<bool> ensureValidSession() async {
+    final session = _supabase.auth.currentSession;
+    if (session == null) {
+      final cachedUserId = await _storage.read<String>(key: AccountStorageKeys.authUserId);
+      if (cachedUserId != null && cachedUserId.isNotEmpty) {
+        await _sessionCleanup.clear();
+      }
+      return false;
+    }
+
+    try {
+      await _supabase.auth.refreshSession();
+      return _supabase.auth.currentSession != null;
+    } on AuthException catch (error) {
+      if (AuthErrorMapper.isInvalidRefreshToken(error)) {
+        await forceLocalSignOut();
+        return false;
+      }
+      if (!session.isExpired) return true;
+      rethrow;
+    }
+  }
+
+  Future<void> clearLocalAccountData() async {
+    await _sessionCleanup.clear();
+  }
+
+  Future<void> forceLocalSignOut() async {
+    try {
+      await _pushMessaging.detachForSignOut();
+    } catch (_) {}
+    await _sessionCleanup.clear();
+    try {
+      await _supabase.auth.signOut(scope: SignOutScope.local);
+    } catch (_) {}
+    try {
+      await _googleSignIn.signOut();
+    } catch (_) {}
+  }
+
+  Stream<AuthChangeEvent> get authChangeEvents =>
+      _supabase.auth.onAuthStateChange.map((state) => state.event);
 
   Future<UserModel?> getCurrentUser() async {
     final user = _supabase.auth.currentUser;
