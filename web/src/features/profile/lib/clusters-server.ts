@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { ClusterItem } from "@/features/profile/lib/clusters-api";
+import { toWebMediaSrc } from "@/lib/media-url";
 
 export async function listUserClustersServer(ownerId: string): Promise<ClusterItem[]> {
   const supabase = await createClient();
@@ -16,7 +17,7 @@ export async function listUserClustersServer(ownerId: string): Promise<ClusterIt
       id: String(row.id),
       title: String(row.title ?? "").trim() || "Кластер",
       subtitle: (row.subtitle as string | null)?.trim() || null,
-      coverUrl: (row.cover_url as string | null)?.trim() || null,
+      coverUrl: toWebMediaSrc((row.cover_url as string | null)?.trim() || null) || null,
       postsCount: Number(row.posts_count ?? 0) || 0,
     };
   });

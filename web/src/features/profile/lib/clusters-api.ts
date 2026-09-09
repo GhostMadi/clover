@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { exportCroppedJpeg } from "@/features/post-create/lib/image-crop";
 import type { ImageEditSettings } from "@/features/post-create/lib/image-edit-matrix";
+import { toWebMediaSrc } from "@/lib/media-url";
 import { deleteFromR2, uploadToR2 } from "@/lib/r2-storage";
 
 export const CLUSTER_TITLE_MAX = 120;
@@ -30,7 +31,7 @@ function mapCluster(row: Record<string, unknown>): ClusterItem {
     id: String(row.id),
     title: String(row.title ?? "").trim() || "Кластер",
     subtitle: (row.subtitle as string | null)?.trim() || null,
-    coverUrl: (row.cover_url as string | null)?.trim() || null,
+    coverUrl: toWebMediaSrc((row.cover_url as string | null)?.trim() || null) || null,
     postsCount: Number(row.posts_count ?? 0) || 0,
   };
 }

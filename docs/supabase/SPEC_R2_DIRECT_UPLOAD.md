@@ -91,6 +91,15 @@ AWS SDK JS v3 по умолчанию тащит `x-amz-checksum-crc32` в URL �
 
 CORS на бакете всё ещё полезен (прямой PUT / отладка), но веб больше **не зависит** от него.
 
+## Показ картинок на вебе
+
+Браузер грузит `https://media.clover.com.kz/...` через same-origin rewrite:
+
+- `toWebMediaSrc` → `/media/...`
+- `next.config.ts` rewrite → `https://media.clover.com.kz/...`
+
+Так превью работают, даже если DNS/`media.` в браузере режется (на мобилке native DNS часто ок).
+
 ## Чат
 
 - Upload → R2 folder `chat_media`

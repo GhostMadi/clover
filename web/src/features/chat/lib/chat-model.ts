@@ -1,3 +1,5 @@
+import { toWebMediaSrc } from "@/lib/media-url";
+
 export const CHATS_PAGE_SIZE = 40;
 export const MESSAGES_PAGE_SIZE = 50;
 
@@ -195,7 +197,7 @@ export function parseConversationRow(
     ? {
         id: String(other.id ?? "").trim(),
         username: String(other.username ?? "").trim() || "чат",
-        avatarUrl: (other.avatar_url as string | null | undefined)?.trim() || null,
+        avatarUrl: toWebMediaSrc((other.avatar_url as string | null | undefined)?.trim() || null) || null,
       }
     : null;
   const last = asMap(row.last_message);
@@ -244,7 +246,7 @@ export function parseMessageRow(
         postId: String(postRaw.post_id ?? "").trim(),
         caption: (postRaw.caption as string | null | undefined)?.trim() || null,
         title: (postRaw.title as string | null | undefined)?.trim() || null,
-        coverUrl: (postRaw.cover_url as string | null | undefined)?.trim() || null,
+        coverUrl: toWebMediaSrc((postRaw.cover_url as string | null | undefined)?.trim() || null) || null,
       }
     : null;
   if (postRef && !postRef.postId) {
@@ -273,7 +275,7 @@ export function parseMessageRow(
       path,
       mime: (a.mime as string | null | undefined)?.trim() || null,
       sizeBytes: typeof a.size_bytes === "number" ? a.size_bytes : Number(a.size_bytes) || null,
-      url: publicUrl || publicStorageUrl(bucket, path),
+      url: toWebMediaSrc(publicUrl || publicStorageUrl(bucket, path) || "") || "",
     });
   }
 

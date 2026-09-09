@@ -1,4 +1,5 @@
 import { locationLine } from "@/features/profile/lib/location";
+import { toWebMediaSrc } from "@/lib/media-url";
 
 export type Profile = {
   id: string;
@@ -50,8 +51,8 @@ export function mapProfileRow(
     username: (row.username as string | null) ?? null,
     cityCode,
     countryCode,
-    avatarUrl: (row.avatar_url as string | null) ?? null,
-    backgroundUrl: (row.background_url as string | null) ?? null,
+    avatarUrl: toWebMediaSrc((row.avatar_url as string | null) ?? null) || null,
+    backgroundUrl: toWebMediaSrc((row.background_url as string | null) ?? null) || null,
     bio: (row.bio as string | null) ?? null,
     followersCount: Number(row.followers_count ?? 0),
     followingCount: Number(row.following_count ?? 0),

@@ -29,6 +29,15 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async rewrites() {
+    // Same-origin media proxy → R2 Custom Domain (see web/src/lib/media-url.ts).
+    return [
+      {
+        source: "/media/:path*",
+        destination: "https://media.clover.com.kz/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

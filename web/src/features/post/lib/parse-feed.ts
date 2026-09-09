@@ -1,6 +1,7 @@
 import { cityLabel } from "@/features/catalog/lib/locations";
 import { COUNTRY_OPTIONS } from "@/features/catalog/lib/locations";
 import { tagLabelRu } from "@/features/catalog/lib/marker-tags";
+import { toWebMediaSrc } from "@/lib/media-url";
 
 export type FeedTag = { id: string; key: string; label: string };
 
@@ -86,7 +87,7 @@ export function parseMedia(raw: unknown): FeedPostMedia[] {
     const type = typeof m.type === "string" ? m.type.toLowerCase() : "image";
     if (type === "video") continue;
     if (type !== "image" && m.type != null) continue;
-    const url = String(m.url ?? "").trim();
+    const url = toWebMediaSrc(String(m.url ?? "").trim());
     if (!url) continue;
     out.push({
       id: String(m.id ?? `${url}-${out.length}`),
@@ -220,7 +221,7 @@ export function mapPostRow(
     const u = (author.username as string | null | undefined)?.trim();
     const a = (author.avatar_url as string | null | undefined)?.trim();
     authorUsername = u || null;
-    authorAvatarUrl = a || null;
+    authorAvatarUrl = a ? toWebMediaSrc(a) : null;
   }
 
   const bookingFromJson = parseBookingService(row.booking_service);
