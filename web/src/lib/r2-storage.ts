@@ -3,6 +3,9 @@
 /**
  * Single client entry for Cloudflare R2 uploads/deletes via Edge Functions.
  * Do not call Supabase Storage for new media — use this module.
+ *
+ * Web uploads go through same-origin `/api/r2/upload` (server PUT → R2)
+ * so the browser does not need R2 bucket CORS.
  */
 
 import { createClient } from "@/lib/supabase/client";
@@ -84,7 +87,7 @@ function guessContentType(fileName: string, fallback?: string): string {
   }
 }
 
-/** Upload bytes/File to R2. Throws on failure. */
+/** Upload bytes/File to R2 via same-origin proxy (no browser→R2 CORS). */
 export async function uploadToR2(opts: {
   file: Blob | File;
   fileName: string;
@@ -98,37 +101,40 @@ export async function uploadToR2(opts: {
     opts.contentType || (opts.file instanceof File ? opts.file.type : undefined),
   );
 
-  const signed = await invokeJson<{
-    uploadUrl?: string;
-    publicUrl?: string;
-    fileKey?: string;
-  }>("get-upload-url", {
-    fileName,
-    fileType: contentType,
-    folder,
-  });
+  const form = new FormData();
+  form.set("file", opts.file, fileName);
+  form.set("fileName", fileName);
+  form.set("folder", folder);
+  form.set("contentType", contentType);
 
-  const uploadUrl = String(signed.uploadUrl ?? "").trim();
-  const publicUrl = String(signed.publicUrl ?? "").trim();
-  const fileKey = String(signed.fileKey ?? "").trim();
-  if (!uploadUrl || !publicUrl || !fileKey) {
-    throw new Error("get-upload-url не вернул uploadUrl/publicUrl/fileKey");
+  const res = await fetch("/api/r2/upload", {
+    method: "POST",
+    body: form,
+  });
+  const json = (await res.json().catch(() => null)) as {
+    fileKey?: string;
+    publicUrl?: string;
+    stablePublicUrl?: string;
+    error?: string;
+    detail?: string;
+  } | null;
+
+  if (!res.ok || !json) {
+    throw new Error(json?.detail || json?.error || `R2 upload failed: HTTP ${res.status}`);
   }
 
-  const put = await fetch(uploadUrl, {
-    method: "PUT",
-    headers: { "Content-Type": contentType },
-    body: opts.file,
-  });
-  if (!put.ok) {
-    throw new Error(`R2 upload failed: HTTP ${put.status}`);
+  const publicUrl = String(json.publicUrl ?? json.stablePublicUrl ?? "").trim();
+  const fileKey = String(json.fileKey ?? "").trim();
+  const stablePublicUrl = String(json.stablePublicUrl ?? publicUrl).trim();
+  if (!publicUrl || !fileKey) {
+    throw new Error("upload не вернул publicUrl/fileKey");
   }
 
   const sep = publicUrl.includes("?") ? "&" : "?";
   return {
     fileKey,
     publicUrl: `${publicUrl}${sep}v=${Date.now()}`,
-    stablePublicUrl: publicUrl,
+    stablePublicUrl,
   };
 }
 

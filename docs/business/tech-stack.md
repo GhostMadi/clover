@@ -178,6 +178,7 @@ DNS ──► Cloudflare NS (регистратор: Unihost)
 - [ ] Зона Cloudflare = **Active** (проверить в Dashboard)  
 - [x] Custom Domain R2: `media.clover.com.kz` → bucket `clover-app` (Active, Enabled; объект отдаёт 200)  
 - [x] Secret `R2_PUBLIC_URL=https://media.clover.com.kz`  
+- [ ] **CORS** на bucket `clover-app` для `https://clover.com.kz` / `www` / `localhost:3000` (PUT + Content-Type) — иначе веб: Failed to fetch  
 - [x] DNS: `media.clover.com.kz` резолвится (на Mac — DNS `1.1.1.1` / `8.8.8.8`; роутерский NXDOMAIN возможен)  
 - [ ] Проверка в приложении: пост/аватар открывается по `https://media.clover.com.kz/…`  
 - [ ] Почта: OTP с `welcome@` после смены NS (MX/SPF/DKIM на месте)

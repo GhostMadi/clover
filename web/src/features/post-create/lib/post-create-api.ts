@@ -186,7 +186,7 @@ export async function publishPost(input: PublishPostInput): Promise<PublishPostR
       });
       uploadedUrls.push(uploaded.stablePublicUrl);
 
-      const url = uploaded.publicUrl;
+      const url = uploaded.stablePublicUrl;
       if (!coverUrl) coverUrl = url;
       mediaRows.push({
         post_id: postId,

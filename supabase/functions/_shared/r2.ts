@@ -38,6 +38,9 @@ export function createR2Client(env: R2Env = requireR2Env()): S3Client {
       secretAccessKey: env.secretAccessKey,
     },
     forcePathStyle: true,
+    // AWS SDK ≥3.729 defaults to CRC32 checksums; R2 rejects / browser PUT breaks.
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED",
   });
 }
 
@@ -56,6 +59,15 @@ export async function createPresignedPutUrl(opts: {
   });
   const uploadUrl = await getSignedUrl(s3, command, {
     expiresIn: opts.expiresInSeconds ?? 15 * 60,
+    // Keep checksum headers out of the signed URL — browser only sends Content-Type.
+    unhoistableHeaders: new Set([
+      "x-amz-checksum-crc32",
+      "x-amz-checksum-crc32c",
+      "x-amz-checksum-sha1",
+      "x-amz-checksum-sha256",
+      "x-amz-sdk-checksum-algorithm",
+      "x-amz-checksum-mode",
+    ]),
   });
   return {
     uploadUrl,

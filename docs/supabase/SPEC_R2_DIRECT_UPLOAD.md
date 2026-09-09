@@ -40,14 +40,56 @@ Gateway: `verify_jwt = false`, JWT внутри через `requireSupabaseUser`
 
 Публичный CDN-хост и DNS: [tech-stack.md](../business/tech-stack.md).
 
+## CORS бакета (обязательно для веба)
+
+Браузер с `clover.com.kz` делает **прямой PUT** на `*.r2.cloudflarestorage.com`.  
+Без CORS → в DevTools: **Failed to fetch** (preflight OPTIONS без `Access-Control-Allow-Origin`).
+
+Cloudflare Dashboard → **R2** → bucket **`clover-app`** → **Settings** → **CORS policy**:
+
+```json
+[
+  {
+    "AllowedOrigins": [
+      "https://clover.com.kz",
+      "https://www.clover.com.kz",
+      "http://localhost:3000"
+    ],
+    "AllowedMethods": ["GET", "PUT", "HEAD"],
+    "AllowedHeaders": ["Content-Type", "Content-Length"],
+    "ExposeHeaders": ["ETag", "Location"],
+    "MaxAgeSeconds": 3600
+  }
+]
+```
+
+Проверка:
+
+```bash
+curl -sI -X OPTIONS \
+  "https://<ACCOUNT_ID>.r2.cloudflarestorage.com/clover-app/probe" \
+  -H "Origin: https://www.clover.com.kz" \
+  -H "Access-Control-Request-Method: PUT" \
+  -H "Access-Control-Request-Headers: content-type"
+```
+
+В ответе должны быть `access-control-allow-origin` и `access-control-allow-methods`.
+
+## Presigned URL (SDK)
+
+AWS SDK JS v3 по умолчанию тащит `x-amz-checksum-crc32` в URL — R2 / браузерный PUT ломаются.  
+В `_shared/r2.ts`: `requestChecksumCalculation: WHEN_REQUIRED` + `unhoistableHeaders` для checksum.
+
 ## Клиенты (одно место)
 
 | Платформа | Модуль |
 |-----------|--------|
-| Flutter | `lib/core/storage/r2_storage_service.dart` |
-| Web | `web/src/lib/r2-storage.ts` |
+| Flutter | `lib/core/storage/r2_storage_service.dart` (прямой PUT в R2) |
+| Web | `web/src/lib/r2-storage.ts` → **`/api/r2/upload`** (сервер PUT в R2; без CORS бакета) |
 
 Через них: профиль, посты, кластеры, чат-вложения.
+
+CORS на бакете всё ещё полезен (прямой PUT / отладка), но веб больше **не зависит** от него.
 
 ## Чат
 

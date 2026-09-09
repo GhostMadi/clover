@@ -56,6 +56,7 @@ export function PostsGrid({ posts }: { posts: GridPost[] }) {
               <img
                 src={post.coverUrl}
                 alt={post.title ?? ""}
+                referrerPolicy="no-referrer"
                 className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                 loading="lazy"
               />
