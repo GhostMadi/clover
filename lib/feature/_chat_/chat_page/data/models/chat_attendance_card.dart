@@ -19,6 +19,16 @@ class ChatAttendanceCard {
   bool get isInvite => card == 'attendance_invite';
   bool get isRules => card == 'attendance_rules';
 
+  Map<String, dynamic> toJson() {
+    return {
+      'card': card,
+      'workplace_id': workplaceId,
+      'workplace_name': workplaceName,
+      if (membershipId != null) 'membership_id': membershipId,
+      if (configVersion != null) 'config_version': configVersion,
+    };
+  }
+
   static ChatAttendanceCard? fromRef(Map<String, dynamic>? map) {
     if (map == null || map.isEmpty) return null;
     final card = map['card']?.toString() ?? '';

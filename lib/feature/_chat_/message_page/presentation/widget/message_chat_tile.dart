@@ -1,6 +1,7 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_peer_accent.dart';
 import 'package:clover/feature/_chat_/message_page/data/models/message_chat_preview.dart';
 import 'package:clover/feature/_chat_/message_page/presentation/form/message_chat_time_formatting.dart';
 import 'package:flutter/material.dart';
@@ -20,9 +21,10 @@ class MessageChatTile extends StatelessWidget {
     final lastMessage = chat.lastMessage.trim();
     final timeLabel = MessageChatTimeFormatting.format(chat.lastMessageAt);
     final hasUnread = chat.hasUnread;
+    final accent = ChatPeerAccent.forSeed(context.colors, chat.id.isNotEmpty ? chat.id : username);
 
     return Material(
-      color: hasUnread ? context.colors.surfaceSoftGreen.withValues(alpha: 0.35) : context.colors.pageBackground,
+      color: hasUnread ? accent.fill.withValues(alpha: 0.45) : context.colors.pageBackground,
       child: InkWell(
         onTap: onTap,
         child: Padding(
@@ -30,7 +32,12 @@ class MessageChatTile extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _MessageChatAvatar(username: username, avatarUrl: chat.avatarUrl, isGroup: chat.isGroup),
+              _MessageChatAvatar(
+                username: username,
+                avatarUrl: chat.avatarUrl,
+                isGroup: chat.isGroup,
+                accent: accent,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -55,7 +62,7 @@ class MessageChatTile extends StatelessWidget {
                           timeLabel,
                           style: AppTextStyle.base(
                             12,
-                            color: hasUnread ? context.colors.primary : context.colors.subTextColor,
+                            color: hasUnread ? accent.ink : context.colors.subTextColor,
                             fontWeight: hasUnread ? FontWeight.w600 : FontWeight.w500,
                           ),
                         ),
@@ -79,7 +86,7 @@ class MessageChatTile extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        _MessageReadStatus(chat: chat),
+                        _MessageReadStatus(chat: chat, accent: accent),
                       ],
                     ),
                   ],
@@ -94,11 +101,17 @@ class MessageChatTile extends StatelessWidget {
 }
 
 class _MessageChatAvatar extends StatelessWidget {
-  const _MessageChatAvatar({required this.username, this.avatarUrl, this.isGroup = false});
+  const _MessageChatAvatar({
+    required this.username,
+    required this.accent,
+    this.avatarUrl,
+    this.isGroup = false,
+  });
 
   final String username;
   final String? avatarUrl;
   final bool isGroup;
+  final ChatPeerAccent accent;
 
   @override
   Widget build(BuildContext context) {
@@ -108,19 +121,19 @@ class _MessageChatAvatar extends StatelessWidget {
     if (isGroup && (url == null || url.isEmpty)) {
       return CircleAvatar(
         radius: MessageChatTile._avatarSize / 2,
-        backgroundColor: context.colors.surfaceSoft,
-        child: Icon(AppIcons.groupOutlined.icon, color: context.colors.primary, size: 24),
+        backgroundColor: accent.fill,
+        child: Icon(AppIcons.groupOutlined.icon, color: accent.ink, size: 24),
       );
     }
 
     return CircleAvatar(
       radius: MessageChatTile._avatarSize / 2,
-      backgroundColor: context.colors.surfaceSoft,
+      backgroundColor: accent.fill,
       backgroundImage: url != null && url.isNotEmpty ? NetworkImage(url) : null,
       child: url == null || url.isEmpty
           ? Text(
               initial,
-              style: AppTextStyle.base(18, color: context.colors.primary, fontWeight: FontWeight.w700),
+              style: AppTextStyle.base(18, color: accent.ink, fontWeight: FontWeight.w700),
             )
           : null,
     );
@@ -128,9 +141,10 @@ class _MessageChatAvatar extends StatelessWidget {
 }
 
 class _MessageReadStatus extends StatelessWidget {
-  const _MessageReadStatus({required this.chat});
+  const _MessageReadStatus({required this.chat, required this.accent});
 
   final MessageChatPreview chat;
+  final ChatPeerAccent accent;
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +153,7 @@ class _MessageReadStatus extends StatelessWidget {
         return Container(
           width: 10,
           height: 10,
-          decoration: BoxDecoration(color: context.colors.primary, shape: BoxShape.circle),
+          decoration: BoxDecoration(color: accent.ink, shape: BoxShape.circle),
         );
       }
       return const SizedBox(width: 10, height: 10);

@@ -146,6 +146,10 @@ class AttendancePunchCubit extends Cubit<AttendancePunchState> {
 
     final snap = _store.snapshot.value;
     final membership = snap?.memberships.where((m) => m.workplaceId == workplaceId).firstOrNull;
+    if (membership != null && !membership.hasAttendanceWorkTag) {
+      lastPunchError = const AttendanceException(AttendanceErrorCode.missingAttendanceWorkTag);
+      return false;
+    }
     if (type.isClockIn && membership?.shiftOpen == true) {
       throw const AttendanceException(
         AttendanceErrorCode.invalidPunch,

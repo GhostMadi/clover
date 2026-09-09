@@ -9,6 +9,7 @@ import {
   type ChatMessage,
 } from "@/features/chat/lib/chat-model";
 import { notifyChatUnreadChanged } from "@/features/chat/lib/chat-unread";
+import { uploadToR2 } from "@/lib/r2-storage";
 import { createClient } from "@/lib/supabase/client";
 
 export async function listConversationsPage(opts?: {
@@ -207,38 +208,41 @@ export async function sendAttachments(opts: {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  const token = session?.access_token;
-  if (!token) throw new Error("Требуется вход");
+  if (!session?.user.id) throw new Error("Требуется вход");
 
-  const base = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!base || !anon) throw new Error("Нет конфигурации Supabase");
+  const attachments: Record<string, unknown>[] = [];
+  let allImages = true;
 
-  const form = new FormData();
-  form.set("conversation_id", opts.conversationId);
-  const caption = opts.caption?.trim();
-  if (caption) form.set("caption", caption);
-  if (opts.clientMessageId) form.set("client_message_id", opts.clientMessageId);
   for (const file of opts.files) {
-    form.append("files", file, file.name);
+    const mime = (file.type || "application/octet-stream").trim();
+    if (!mime.toLowerCase().startsWith("image/")) allImages = false;
+    const uploaded = await uploadToR2({
+      file,
+      fileName: file.name || "file.bin",
+      folder: "chat_media",
+      contentType: mime,
+    });
+    attachments.push({
+      bucket: "r2",
+      path: uploaded.fileKey,
+      public_url: uploaded.stablePublicUrl,
+      mime,
+      size_bytes: file.size,
+    });
   }
 
-  const res = await fetch(`${base}/functions/v1/send_chat_attachments`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      apikey: anon,
-    },
-    body: form,
-  });
+  const params: Record<string, unknown> = {
+    p_conversation_id: opts.conversationId,
+    p_kind: allImages ? "media" : "file",
+    p_attachments: attachments,
+  };
+  const caption = opts.caption?.trim();
+  if (caption) params.p_text = caption;
+  if (opts.clientMessageId) params.p_client_message_id = opts.clientMessageId;
 
-  const json = (await res.json().catch(() => null)) as
-    | { message_id?: string; error?: string; detail?: string }
-    | null;
-  if (!res.ok) {
-    throw new Error(json?.detail || json?.error || "Не удалось отправить вложение");
-  }
-  const id = String(json?.message_id ?? "").trim();
+  const { data, error } = await supabase.rpc("send_message_with_attachments", params);
+  if (error) throw new Error(error.message || "Не удалось отправить вложение");
+  const id = String(data ?? "").trim();
   if (!id) throw new Error("Не удалось отправить вложение");
   return id;
 }

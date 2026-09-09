@@ -1,14 +1,13 @@
 import 'dart:math';
+import 'dart:typed_data';
 
-import 'package:clover/core/network/supabase_edge_functions_invoker.dart';
+import 'package:clover/core/storage/r2_storage_service.dart';
 import 'package:clover/feature/_chat_/chat/data/chat_enriched_mapper.dart';
 import 'package:clover/feature/_chat_/chat/data/models/chat_attachment_upload.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_reaction.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_search_hit.dart';
 import 'package:clover/feature/_chat_/message_page/data/models/message_chat_preview.dart';
-import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -75,13 +74,14 @@ abstract class ChatRepository {
 
 @LazySingleton(as: ChatRepository)
 class ChatRepositoryImpl implements ChatRepository {
-  ChatRepositoryImpl(this._client, this._edgeFunctions);
+  ChatRepositoryImpl(this._client, this._r2);
 
   final SupabaseClient _client;
-  final SupabaseEdgeFunctionsInvoker _edgeFunctions;
+  final R2StorageService _r2;
 
   final Map<String, String> _dmConversationByUserId = {};
 
+  static const _folderChatMedia = 'chat_media';
   String? get _currentUserId => _client.auth.currentUser?.id.trim();
 
   @override
@@ -267,45 +267,54 @@ class ChatRepositoryImpl implements ChatRepository {
     if (id.isEmpty) throw const ChatRepositoryException('Некорректный чат');
     if (files.isEmpty) throw const ChatRepositoryException('Нет файлов для отправки');
 
-    final multipartFiles = <http.MultipartFile>[];
+    final attachments = <Map<String, dynamic>>[];
+    var allImages = true;
+
     for (final file in files) {
       if (file.bytes.isEmpty) continue;
-      multipartFiles.add(
-        http.MultipartFile.fromBytes(
-          'files',
-          file.bytes,
-          filename: file.filename,
-          contentType: MediaType.parse(file.mime),
-        ),
+      final mime = file.mime.trim().isEmpty ? 'application/octet-stream' : file.mime.trim();
+      if (!mime.toLowerCase().startsWith('image/')) {
+        allImages = false;
+      }
+      final uploaded = await _r2.uploadBytesDetailed(
+        file.bytes is Uint8List ? file.bytes as Uint8List : Uint8List.fromList(file.bytes),
+        fileName: file.filename,
+        folder: _folderChatMedia,
+        contentType: mime,
       );
+      attachments.add({
+        'bucket': 'r2',
+        'path': uploaded.fileKey,
+        'public_url': uploaded.stablePublicUrl,
+        'mime': mime,
+        'size_bytes': file.bytes.length,
+      });
     }
-    if (multipartFiles.isEmpty) {
+
+    if (attachments.isEmpty) {
       throw const ChatRepositoryException('Не удалось прочитать файлы');
     }
 
-    final body = <String, dynamic>{'conversation_id': id};
+    final params = <String, dynamic>{
+      'p_conversation_id': id,
+      'p_kind': allImages ? 'media' : 'file',
+      'p_attachments': attachments,
+    };
     final trimmedCaption = caption?.trim();
     if (trimmedCaption != null && trimmedCaption.isNotEmpty) {
-      body['caption'] = trimmedCaption;
+      params['p_text'] = trimmedCaption;
     }
     final clientId = clientMessageId?.trim();
     if (clientId != null && clientId.isNotEmpty) {
-      body['client_message_id'] = clientId;
+      params['p_client_message_id'] = clientId;
     }
 
-    final response = await _edgeFunctions.invoke(
-      'send_chat_attachments',
-      body: body,
-      files: multipartFiles,
-    );
-
-    final data = response.data;
-    if (data is Map) {
-      final messageId = data['message_id']?.toString().trim();
-      if (messageId != null && messageId.isNotEmpty) return messageId;
+    final res = await _client.rpc('send_message_with_attachments', params: params);
+    final messageId = res?.toString().trim();
+    if (messageId == null || messageId.isEmpty) {
+      throw const ChatRepositoryException('Не удалось отправить вложение');
     }
-
-    throw const ChatRepositoryException('Не удалось отправить вложение');
+    return messageId;
   }
 
   @override

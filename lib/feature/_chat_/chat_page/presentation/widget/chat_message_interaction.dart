@@ -1,6 +1,7 @@
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_geometry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -83,7 +84,7 @@ class _ChatMessageInteractionState extends State<ChatMessageInteraction> {
     final replyIcon = AppIcons.replyOutlined.icon;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: ChatGeometry.messageGap),
       child: Align(
         alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
         child: Stack(

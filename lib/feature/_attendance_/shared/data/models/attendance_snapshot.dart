@@ -119,6 +119,7 @@ class AttendanceSnapshot {
                   : (id.length > 8 ? '${id.substring(0, 8)}…' : id),
               username: username,
               status: m.status,
+              hasAttendanceWorkTag: m.hasAttendanceWorkTag,
             );
           })
           .toList(growable: false);
@@ -198,7 +199,7 @@ class AttendanceSnapshot {
     }
 
     for (final m in memberships) {
-      if (!m.isActive || m.needsAck) continue;
+      if (!m.isActive || m.needsAck || !m.hasAttendanceWorkTag) continue;
 
       final workplace = workplaceById(m.workplaceId);
       if (workplace == null) continue;

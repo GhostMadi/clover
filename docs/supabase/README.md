@@ -21,6 +21,7 @@
 | [SPEC_POSTS_AND_EVENTS.md](SPEC_POSTS_AND_EVENTS.md) | Публикации, ивенты, enriched RPC |
 | [SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md](SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md) | Соцграф / аккаунт |
 | [SPEC_EMAIL_AUTH.md](SPEC_EMAIL_AUTH.md) | Email OTP: Resend SMTP, DNS clover.com.kz, Flutter |
+| [SPEC_R2_DIRECT_UPLOAD.md](SPEC_R2_DIRECT_UPLOAD.md) | Cloudflare R2: presigned upload (`get-upload-url`) |
 | [SPEC_ATTENDANCE_SYSTEM.md](SPEC_ATTENDANCE_SYSTEM.md) | Посещаемость (ядро: workplace / punch / membership) |
 | [SPEC_RELATIONS_SYSTEM.md](SPEC_RELATIONS_SYSTEM.md) | Relations (legacy) |
 

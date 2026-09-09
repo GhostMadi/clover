@@ -48,6 +48,18 @@ class ChatMessage {
 
   bool get isBookingStaffCard => bookingStaffCard != null;
 
+  /// Kind hints when payload was dropped from an old cache entry.
+  bool get isAttendanceCardKind =>
+      isAttendanceCard || kind == 'attendance_invite' || kind == 'attendance_rules';
+
+  bool get isBookingStaffCardKind => isBookingStaffCard || kind == 'booking_staff_invite';
+
+  bool get needsStructuredCardRepair =>
+      !isPending &&
+      ((isAttendanceCardKind && attendanceCard == null) ||
+          (isBookingStaffCardKind && bookingStaffCard == null) ||
+          (isPostShare && !hasPostPreview));
+
   bool get isMedia => kind == 'media';
 
   bool get isFile => kind == 'file';
@@ -73,6 +85,8 @@ class ChatMessage {
       if (clientMessageId != null) 'client_message_id': clientMessageId,
       'is_pending': isPending,
       if (postRef != null) 'post_ref': postRef!.toJson(),
+      if (attendanceCard != null) 'attendance_card': attendanceCard!.toJson(),
+      if (bookingStaffCard != null) 'booking_card': bookingStaffCard!.toJson(),
       'attachments': attachments.map((item) => item.toJson()).toList(growable: false),
       'reactions': reactions.map((item) => item.toJson()).toList(growable: false),
       'my_reactions': myReactions,
@@ -87,6 +101,19 @@ class ChatMessage {
     if (postRefRaw is Map) {
       final parsed = ChatMessagePostRef.fromJson(Map<String, dynamic>.from(postRefRaw));
       if (parsed.postId.isNotEmpty) postRef = parsed;
+    }
+
+    ChatAttendanceCard? attendanceCard;
+    final attendanceRaw = json['attendance_card'];
+    if (attendanceRaw is Map) {
+      attendanceCard = ChatAttendanceCard.fromRef(Map<String, dynamic>.from(attendanceRaw));
+    }
+    attendanceCard ??= ChatAttendanceCard.tryParse((json['text'] as String?)?.trim());
+
+    ChatBookingStaffCard? bookingStaffCard;
+    final bookingRaw = json['booking_card'];
+    if (bookingRaw is Map) {
+      bookingStaffCard = ChatBookingStaffCard.fromRef(Map<String, dynamic>.from(bookingRaw));
     }
 
     ChatMessageReplyPreview? replyPreview;
@@ -135,7 +162,8 @@ class ChatMessage {
       clientMessageId: (json['client_message_id'] as String?)?.trim(),
       isPending: json['is_pending'] == true,
       postRef: postRef,
-      attendanceCard: ChatAttendanceCard.tryParse((json['text'] as String?)?.trim()),
+      attendanceCard: attendanceCard,
+      bookingStaffCard: bookingStaffCard,
       attachments: attachments,
       reactions: reactions,
       myReactions: myReactions,

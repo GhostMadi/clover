@@ -7,8 +7,13 @@ import { YandexMap } from "@/features/cabinet/components/yandex-map";
 import {
   DEFAULT_MAP_FILTER,
   fetchMapMarkers,
+  mapMarkersCacheKey,
+  readMapMarkersCache,
+  shouldFetchMapViewport,
+  writeMapMarkersCache,
   type MapMarker,
   type MapMarkersFilter,
+  type MapViewport,
 } from "@/features/cabinet/lib/map-markers";
 import { citiesForCountry, COUNTRY_OPTIONS } from "@/features/catalog/lib/locations";
 import { EventEmojiField } from "@/features/feed/components/event-emoji-field";
@@ -35,7 +40,8 @@ export function MapPane() {
   const [locating, setLocating] = useState(false);
   const fetchGen = useRef(0);
   const flyNonce = useRef(0);
-  const viewportRef = useRef({ center: ALMATY, zoom: 12 });
+  const viewportRef = useRef<MapViewport>({ center: ALMATY, zoom: 12 });
+  const lastFetchedRef = useRef<MapViewport | null>(null);
   const filterRef = useRef(filter);
   filterRef.current = filter;
 
@@ -44,27 +50,56 @@ export function MapPane() {
     window.setTimeout(() => setToast(null), 2400);
   }, []);
 
-  const load = useCallback(async (center: { lat: number; lon: number }, zoom: number) => {
-    viewportRef.current = { center, zoom };
-    const gen = ++fetchGen.current;
-    setLoading(true);
-    setError(null);
-    try {
-      const next = await fetchMapMarkers(center, zoom, filterRef.current);
-      if (gen !== fetchGen.current) return;
-      setMarkers(next);
-    } catch {
-      if (gen !== fetchGen.current) return;
-      setError("Не удалось загрузить ивенты");
-      setMarkers([]);
-    } finally {
-      if (gen === fetchGen.current) setLoading(false);
-    }
-  }, []);
+  const load = useCallback(
+    async (
+      center: { lat: number; lon: number },
+      zoom: number,
+      opts?: { force?: boolean },
+    ) => {
+      const next: MapViewport = { center, zoom };
+      viewportRef.current = next;
+
+      const prev = lastFetchedRef.current;
+      if (!opts?.force && prev && !shouldFetchMapViewport(prev, next)) {
+        return;
+      }
+
+      const gen = ++fetchGen.current;
+      const cacheKey = mapMarkersCacheKey(next, filterRef.current);
+      const cached = readMapMarkersCache(cacheKey);
+      if (cached?.length) {
+        setMarkers(cached);
+      }
+      setLoading(true);
+      setError(null);
+      try {
+        const list = await fetchMapMarkers(center, zoom, filterRef.current);
+        if (gen !== fetchGen.current) return;
+        lastFetchedRef.current = next;
+        writeMapMarkersCache(cacheKey, list);
+        setMarkers(list);
+      } catch {
+        if (gen !== fetchGen.current) return;
+        setError("Не удалось загрузить ивенты");
+        // Старые маркеры / кэш оставляем — карта не «моргает» пустотой при сбое.
+      } finally {
+        if (gen === fetchGen.current) setLoading(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
-    void load(viewportRef.current.center, viewportRef.current.zoom);
+    lastFetchedRef.current = null;
+    void load(viewportRef.current.center, viewportRef.current.zoom, { force: true });
   }, [filter, load]);
+
+  const onViewportChange = useCallback(
+    (center: { lat: number; lon: number }, zoom: number) => {
+      void load(center, zoom);
+    },
+    [load],
+  );
 
   const onMarkerClick = useCallback(
     (marker: MapMarker) => {
@@ -93,7 +128,7 @@ export function MapPane() {
           nonce: ++flyNonce.current,
         };
         setFlyTo(next);
-        void load({ lat: next.lat, lon: next.lon }, next.zoom);
+        void load({ lat: next.lat, lon: next.lon }, next.zoom, { force: true });
         setLocating(false);
       },
       () => {
@@ -118,7 +153,7 @@ export function MapPane() {
         center={ALMATY}
         zoom={12}
         markers={markers}
-        onViewportChange={load}
+        onViewportChange={onViewportChange}
         onMarkerClick={onMarkerClick}
         flyTo={flyTo}
       />

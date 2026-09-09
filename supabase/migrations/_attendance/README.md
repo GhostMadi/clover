@@ -22,6 +22,9 @@
 | `../20260905200000_attendance_chat_push_analytics_correction.sql` | group chat, cards, notify/push_outbox, analytics/timesheet, correction |
 | `../20260905210000_attendance_chat_card_kinds.sql` | enum kinds + `chat_message_attendance_cards` |
 | `../20260905210100_attendance_rich_chat_reinvite_corrections_list.sql` | rich cards, reinvite parity, list corrections, enriched payload |
+| `../20260906020000_booking_push_client_reschedule_attendance_duty_folders.sql` | duty_only_punch + folders bootstrap |
+| `../20260906130000_booking_attendance_prod_ready.sql` | Atomic punch types, server payroll preview |
+| `../20260908194706_attendance_tag_powers_impl.sql` | Теги `attendance` / `attendanceWork`; гейты create/invite/update/punch; bootstrap `has_attendance_work_tag` |
 
 ### Таблицы
 

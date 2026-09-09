@@ -12,6 +12,8 @@ enum AttendanceErrorCode {
   invalidPunch,
   punchTypeInvalid,
   notOnDuty,
+  missingAttendanceTag,
+  missingAttendanceWorkTag,
   network,
   unknown,
 }
@@ -66,6 +68,12 @@ class AttendanceException implements Exception {
     if (msg.contains('invalid_punch')) return AttendanceErrorCode.invalidPunch;
     if (msg.contains('punch_type')) return AttendanceErrorCode.punchTypeInvalid;
     if (msg.contains('not_on_duty')) return AttendanceErrorCode.notOnDuty;
+    if (msg.contains('missing_attendance_work_tag')) {
+      return AttendanceErrorCode.missingAttendanceWorkTag;
+    }
+    if (msg.contains('missing_attendance_tag')) {
+      return AttendanceErrorCode.missingAttendanceTag;
+    }
     return switch (error.code) {
       'P0003' => AttendanceErrorCode.notAuthenticated,
       'P0101' => AttendanceErrorCode.invalidArguments,
@@ -78,6 +86,8 @@ class AttendanceException implements Exception {
       'P0108' => AttendanceErrorCode.invalidPunch,
       'P0109' => AttendanceErrorCode.punchTypeInvalid,
       'P0110' => AttendanceErrorCode.notOnDuty,
+      'P0111' => AttendanceErrorCode.missingAttendanceTag,
+      'P0112' => AttendanceErrorCode.missingAttendanceWorkTag,
       _ => AttendanceErrorCode.unknown,
     };
   }
@@ -94,6 +104,10 @@ class AttendanceException implements Exception {
         AttendanceErrorCode.invalidPunch => 'Отметка недоступна в этом состоянии смены',
         AttendanceErrorCode.punchTypeInvalid => 'Неверный тип отметки',
         AttendanceErrorCode.notOnDuty => 'Сегодня не ваше дежурство — отметка недоступна',
+        AttendanceErrorCode.missingAttendanceTag =>
+          'Включите тег «Веду посещаемость» в профиле',
+        AttendanceErrorCode.missingAttendanceWorkTag =>
+          'Включите тег «Мои отметки» в профиле',
         AttendanceErrorCode.network => 'Нет сети — действие в очереди синхронизации',
         AttendanceErrorCode.unknown => message ?? 'Не удалось выполнить операцию',
       };

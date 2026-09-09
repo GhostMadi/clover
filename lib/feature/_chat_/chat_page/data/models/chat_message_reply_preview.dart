@@ -1,10 +1,5 @@
 class ChatMessageReplyPreview {
-  const ChatMessageReplyPreview({
-    required this.id,
-    this.text,
-    this.kind = 'text',
-    this.senderId,
-  });
+  const ChatMessageReplyPreview({required this.id, this.text, this.kind = 'text', this.senderId});
 
   final String id;
   final String? text;

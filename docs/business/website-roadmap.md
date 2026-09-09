@@ -59,7 +59,7 @@
 ### 2026-09 — кабинет / запись / prefs (рядом)
 
 - Запись: desktop **workspace** (широкая зона + sub-nav), хаб = плитки + превью inbox.
-- Ярлыки сбоку (booking / attendance / resources): prefs через общий `local-storage` helper — не слетают после refresh.
+- Ярлыки сбоку (booking / attendance / resources): по силовым тегам профиля (`tagKeys`), не prefs.
 - Локации: сначала адрес на кириллице, латиница опционально ниже.
 - Auth: OAuth `code` на `/` → редирект в `/auth/callback`; cookie + security headers.
 

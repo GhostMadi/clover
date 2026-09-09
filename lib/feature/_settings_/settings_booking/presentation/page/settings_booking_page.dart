@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
-import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
@@ -26,20 +25,6 @@ class SettingsBookingPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SettingsTileSectionTitle('Профиль'),
-            AppTileGroup(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-                  child: Text(
-                    'Кнопка «Запись» на нижней линии профиля появляется, '
-                    'когда в «Редактировать профиль» включён тег «Принимаю запись».',
-                    style: AppTextStyle.base(14, color: context.colors.subTextColor),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
             const SettingsTileSectionTitle('Сервис'),
             AppTileGroup(
               children: [

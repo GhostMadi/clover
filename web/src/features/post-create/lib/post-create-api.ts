@@ -8,6 +8,7 @@ import {
   type SavedLocation,
 } from "@/features/post-create/lib/post-create-model";
 import { setPostProfileFilters } from "@/features/resources/lib/profile-filters-api";
+import { deleteFromR2, uploadToR2 } from "@/lib/r2-storage";
 
 export type PublishPostInput = {
   photos: DraftPhoto[];
@@ -104,7 +105,7 @@ export async function publishPost(input: PublishPostInput): Promise<PublishPostR
   report(4);
 
   let markerId: string | null = null;
-  const uploadedPaths: string[] = [];
+  const uploadedUrls: string[] = [];
   let postId: string | null = null;
 
   try {
@@ -176,16 +177,16 @@ export async function publishPost(input: PublishPostInput): Promise<PublishPostR
       });
       const mediaId = newMediaId();
       const fileName = `${mediaId}${aspectStorageMarker(photo.aspect)}.jpg`;
-      const storagePath = `posts/${postId}/${fileName}`;
 
-      const { error: upErr } = await supabase.storage
-        .from("post_media")
-        .upload(storagePath, jpeg, { upsert: true, contentType: "image/jpeg" });
-      if (upErr) throw upErr;
-      uploadedPaths.push(storagePath);
+      const uploaded = await uploadToR2({
+        file: jpeg,
+        fileName,
+        folder: `post_media/${postId}`,
+        contentType: "image/jpeg",
+      });
+      uploadedUrls.push(uploaded.stablePublicUrl);
 
-      const { data: pub } = supabase.storage.from("post_media").getPublicUrl(storagePath);
-      const url = `${pub.publicUrl}?v=${Date.now()}`;
+      const url = uploaded.publicUrl;
       if (!coverUrl) coverUrl = url;
       mediaRows.push({
         post_id: postId,
@@ -215,12 +216,8 @@ export async function publishPost(input: PublishPostInput): Promise<PublishPostR
     report(100);
     return { postId, markerId };
   } catch (e) {
-    if (uploadedPaths.length) {
-      try {
-        await supabase.storage.from("post_media").remove(uploadedPaths);
-      } catch {
-        /* ignore */
-      }
+    if (uploadedUrls.length) {
+      await deleteFromR2({ urls: uploadedUrls });
     }
     if (postId) {
       try {

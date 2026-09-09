@@ -1,6 +1,9 @@
 # Деплой сайта clover.com.kz
 
-Домен уже куплен и используется для почты (Resend / UniHost). Сайт вешаем на **тот же** `clover.com.kz`.
+Домен куплен у **Unihost.kz**; DNS-зона — в **Cloudflare**; сайт — на **Vercel**.  
+Почта (Resend / `welcome@`) идёт через DNS-записи в Cloudflare — **не ломать** MX/SPF/DKIM.
+
+Карта стека: [tech-stack.md](tech-stack.md).
 
 ## В коде
 
@@ -39,18 +42,39 @@ git push origin web-production
 
 Короткие имена без префикса (`SUPABASE_URL` и т.п.) в клиент Next.js **не** подхватятся — не использовать в Vercel, если код читает `NEXT_PUBLIC_*`.
 
-## DNS (UniHost)
+### Админка сайта (только сервер, без `NEXT_PUBLIC_`)
 
-1. В Vercel → Project → Domains → `clover.com.kz` (+ `www`)
-2. В UniHost добавить **только** A/CNAME, которые покажет Vercel
-3. **Не трогать** MX / SPF / DKIM для Resend (почта `welcome@…`)
+См. [website-admin.md](website-admin.md). Значения **не** коммитить.
+
+| Key | Назначение |
+|-----|------------|
+| `ADMIN_EMAIL` | Email входа в `/admin` |
+| `ADMIN_PASSWORD` | Пароль входа |
+| `ADMIN_SESSION_SECRET` | Длинный случайный секрет подписи cookie сессии |
+
+Локально: `web/.env.local`. На проде — Vercel → Environment Variables (Production).
+
+## DNS
+
+| Роль | Кто |
+|------|-----|
+| Регистратор | Unihost.kz |
+| NS | Cloudflare: `cruz.ns.cloudflare.com`, `gabe.ns.cloudflare.com` |
+| Сайт | записи на Vercel **в зоне Cloudflare** |
+| Медиа | после Active: R2 Custom Domain `media.clover.com.kz` |
+
+1. Vercel → Domains → `clover.com.kz` (+ `www`) — добавить/проверить записи **в Cloudflare DNS**.  
+2. **Не удалять** MX / SPF / DKIM для Resend.  
+3. Медиа: см. чеклист в [tech-stack.md](tech-stack.md).
 
 ## Проверка после деплоя
 
 - https://clover.com.kz
 - `/privacy`, `/terms`
 - вход `/auth`, кабинет `/app` (с теми же Supabase ключами)
+- админка `/admin` (после env `ADMIN_*`)
+- после R2 Custom Domain: объект открывается с `https://media.clover.com.kz/…`
 
 ## Важно
 
-Почта на домене уже работает — при смене DNS не удаляй записи Resend из `docs/supabase/SPEC_EMAIL_AUTH.md`.
+Почта на домене уже работала до смены NS — после пропагации проверить OTP с `welcome@clover.com.kz`. Детали SMTP: `docs/supabase/SPEC_EMAIL_AUTH.md`.

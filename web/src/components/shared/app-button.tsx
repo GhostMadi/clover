@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { useJellyPress } from "@/components/shared/jelly";
-import { serviceCtaClasses, type AppServiceKind } from "@/lib/service-accent";
+import { serviceCtaClasses, serviceOutlineClasses, type AppServiceKind } from "@/lib/service-accent";
 
 type Variant = "primary" | "outline" | "ghost" | "google";
 type Size = "default" | "icon" | "row";
@@ -57,7 +57,9 @@ function classes(
   const baseVariant =
     service && variant === "primary"
       ? serviceCtaClasses(service)
-      : variants[variant];
+      : service && variant === "outline"
+        ? serviceOutlineClasses(service)
+        : variants[variant];
   const iconOnCta =
     size === "icon" && variant === "primary"
       ? service === "booking"

@@ -172,6 +172,11 @@ Like / dislike на постах; уведомления автору.
 Бизнес: [chats.md](chats.md)  
 Техника: `_chat_/message_page/`, `_chat_/chat_page/`, `_chat_/chat/`
 
+### 🟡 Фон чата (смайлики)
+Локальный wallpaper: иконка в шапке → набор смайликов → разброс на фоне (только у себя).  
+Бизнес: [chat-emoji-wallpaper.md](chat-emoji-wallpaper.md)  
+Техника: `_chat_/chat_page/` wallpaper widgets + local store
+
 ### 🟢 Подписки (follow)
 См. [Подписчики и подписки](#-подписчики-и-подписки) выше.
 
@@ -200,10 +205,10 @@ Like / dislike на постах; уведомления автору.
 Бизнес: [bonuses.md](bonuses.md)  
 Техника: `lib/feature/_bonus_/`, `supabase/migrations/_bonus/FLOW.md`
 
-### 🟢 Посещаемость
-Admin + worker: основной цикл + rich chat, corrections, 0-traffic, logout wipe, offline punch, `duty_only_punch`, folders, OT-подсказка.  
-Бэк 🟢 v1.4; Flutter 🟢; веб ✅ admin A0–A7 + worker read-only (без punch).  
-Бизнес: [attendance.md](attendance.md) · веб: [website-gap-plan.md](website-gap-plan.md)  
+### 🟡 Посещаемость (+ слой тегов)
+Ядро admin + worker уже есть. Дельта: теги `attendance` / `attendanceWork`, гейты create/punch, inactive без worker-тега, без prefs-ярлыка. **ТЗ:** [attendance-tz.md](attendance-tz.md).  
+Бэк ядра 🟢; Flutter / веб ядро 🟢; слой тегов — по ТЗ.  
+Бизнес: [attendance.md](attendance.md) · силы: [tag-powers.md](tag-powers.md) · веб: [website-gap-plan.md](website-gap-plan.md)  
 Техника: `lib/feature/_attendance_/`, `web/src/features/attendance/`, [SPEC_ATTENDANCE_SYSTEM.md](../supabase/SPEC_ATTENDANCE_SYSTEM.md), `supabase/migrations/_attendance/`
 
 ---
@@ -236,8 +241,8 @@ Enum + catalog: страны, города, теги без sync с бэка.
 
 ### 🟢 Локации пользователя
 Сохранённые места для постов и ивентов.  
-Бизнес: [locations.md](locations.md)  
-Техника: `lib/feature/_catalog_/location/`
+Бизнес: [locations.md](locations.md) · гайд ресурсов: [resources-guide.md](resources-guide.md) · гайд всех сервисов: [services-guide.md](services-guide.md)  
+Техника: `lib/feature/_catalog_/location/` · хаб `settings_resources` (+ web)
 
 ---
 
@@ -256,6 +261,11 @@ Phone / WhatsApp OTP в UI · WhatsApp webhook как продуктовый п�
 Публичный Next.js в `web/`: лендинг, legal, auth, карта/профиль, создание поста (`/app/posts/new`). Догон мобилки — по фазам.
 Бизнес: [website.md](website.md) · **карта:** [website-roadmap.md](website-roadmap.md) · [website-gap-plan.md](website-gap-plan.md)
 Техника: `web/`
+
+### 🟢 Админка сайта (скрытый вход)
+15 тапов по «©» в футере → `/admin` (email+пароль из server env) → `/admin/home`.
+Бизнес: [website-admin.md](website-admin.md)
+Техника: `web/src/app/admin/`, `web/src/lib/admin-auth.ts`, `web/src/app/api/admin/`
 
 ---
 

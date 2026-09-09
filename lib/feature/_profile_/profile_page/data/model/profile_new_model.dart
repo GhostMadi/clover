@@ -89,6 +89,15 @@ abstract class ProfileNewModel with _$ProfileNewModel {
   /// Календарь заказов, которые дают другие (`bookingCalendar`).
   bool get hasBookingCalendarTag => hasAccountTag(MarkerTagKey.bookingCalendar);
 
+  /// Admin посещаемости (`attendance`).
+  bool get hasAttendanceTag => hasAccountTag(MarkerTagKey.attendance);
+
+  /// Worker посещаемости / punch (`attendanceWork`).
+  bool get hasAttendanceWorkTag => hasAccountTag(MarkerTagKey.attendanceWork);
+
+  /// Admin ресурсы (`resources`) — местоположения и фильтры.
+  bool get hasResourcesTag => hasAccountTag(MarkerTagKey.resources);
+
   /// Есть хотя бы один тег силы «админ».
   bool get hasAdminPowerTag => tags.any((tag) => tag.keyEnum?.isAdminPower ?? false);
 

@@ -8,6 +8,7 @@ import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/image_select/app_image_selector_page.dart';
 import 'package:clover/feature/_chat_/chat/data/chat_image_compress.dart';
 import 'package:clover/feature/_chat_/chat/data/models/chat_attachment_upload.dart';
+import 'package:clover/feature/_chat_/chat_page/data/chat_emoji_wallpaper_store.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_search_hit.dart';
 import 'package:clover/feature/_chat_/chat/presentation/widget/chat_forward_sheet.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
@@ -16,9 +17,13 @@ import 'package:clover/feature/_chat_/chat_page/presentation/utils/chat_message_
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_composer.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_composer_attachments_preview.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_date_section_header.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_emoji_wallpaper_layer.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_emoji_wallpaper_sheet.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_geometry.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_message_actions_sheet.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_message_bubble.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_message_interaction.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_peer_accent.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_reaction_bar.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_reply_quote.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_send_flight.dart';
@@ -56,6 +61,7 @@ class _ChatPageState extends State<ChatPage> {
   bool _searchLoading = false;
   List<ChatSearchHit> _searchHits = const [];
   ChatMessage? _reactionTarget;
+  List<String> _wallpaperEmojis = const [];
 
   @override
   void initState() {
@@ -70,7 +76,27 @@ class _ChatPageState extends State<ChatPage> {
     _composerController = TextEditingController();
     _searchController = TextEditingController();
     _scrollController = ScrollController()..addListener(_onScroll);
+    _loadWallpaper();
   }
+
+  Future<void> _loadWallpaper() async {
+    final emojis = await sl<ChatEmojiWallpaperStore>().read(_accentSeed);
+    if (!mounted) return;
+    setState(() => _wallpaperEmojis = emojis);
+  }
+
+  Future<void> _openWallpaperSheet() async {
+    final next = await ChatEmojiWallpaperSheet.show(
+      context,
+      initialEmojis: _wallpaperEmojis,
+      seed: _accentSeed,
+    );
+    if (!mounted || next == null) return;
+    await sl<ChatEmojiWallpaperStore>().write(_accentSeed, next);
+    if (!mounted) return;
+    setState(() => _wallpaperEmojis = next);
+  }
+
 
   void _onScroll() {
     if (!_scrollController.hasClients) return;
@@ -105,6 +131,14 @@ class _ChatPageState extends State<ChatPage> {
     if (raw.isEmpty) return widget.isGroup ? 'Группа' : '@user';
     if (widget.isGroup) return raw;
     return raw.startsWith('@') ? raw : '@$raw';
+  }
+
+  String get _accentSeed {
+    final chatId = widget.chatId?.trim();
+    if (chatId != null && chatId.isNotEmpty) return chatId;
+    final other = widget.otherUserId?.trim();
+    if (other != null && other.isNotEmpty) return other;
+    return _title;
   }
 
   void _sendMessage() {
@@ -408,17 +442,22 @@ class _ChatPageState extends State<ChatPage> {
             surfaceTintColor: Colors.transparent,
             elevation: 0,
             scrolledUnderElevation: 0,
+            toolbarHeight: 52,
+            leadingWidth: 44,
             leading: IconButton(
-              icon: Icon(AppIcons.arrowBackRounded.icon),
+              icon: Icon(AppIcons.arrowBackRounded.icon, size: 22),
               color: context.colors.textColor,
               onPressed: () => context.router.maybePop(),
             ),
+            titleSpacing: 0,
             title: Row(
               children: [
-                if (widget.isGroup) ...[
-                  Icon(AppIcons.groupOutlined.icon, size: 18, color: context.colors.primary),
-                  const SizedBox(width: 6),
-                ],
+                _ChatHeaderAvatar(
+                  title: _title,
+                  isGroup: widget.isGroup,
+                  accent: ChatPeerAccent.forSeed(context.colors, _accentSeed),
+                ),
+                const SizedBox(width: 8),
                 Expanded(
                   child: BlocBuilder<ChatThreadCubit, ChatThreadState>(
                     buildWhen: (prev, next) {
@@ -431,18 +470,21 @@ class _ChatPageState extends State<ChatPage> {
                       final isTyping = state is ChatThreadLoaded && state.peerIsTyping;
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             _title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTextStyle.base(17, color: context.colors.textColor, fontWeight: FontWeight.w700),
+                            style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w700),
                           ),
-                          if (isTyping)
+                          if (isTyping) ...[
+                            const SizedBox(height: 2),
                             Text(
                               'печатает…',
-                              style: AppTextStyle.base(12, color: context.colors.subTextColor),
+                              style: AppTextStyle.base(12, color: context.colors.subTextColor, height: 1.1),
                             ),
+                          ],
                         ],
                       );
                     },
@@ -452,7 +494,13 @@ class _ChatPageState extends State<ChatPage> {
             ),
             actions: [
               IconButton(
-                icon: Icon(_searchMode ? AppIcons.close.icon : AppIcons.searchRounded.icon),
+                icon: Icon(AppIcons.editPalette.icon, size: 22),
+                color: context.colors.textColor,
+                tooltip: 'Фон чата',
+                onPressed: _openWallpaperSheet,
+              ),
+              IconButton(
+                icon: Icon(_searchMode ? AppIcons.close.icon : AppIcons.searchRounded.icon, size: 22),
                 color: context.colors.textColor,
                 onPressed: _toggleSearchMode,
               ),
@@ -535,6 +583,13 @@ class _ChatPageState extends State<ChatPage> {
                       ) =>
                         Stack(
                         children: [
+                          if (_wallpaperEmojis.isNotEmpty)
+                            Positioned.fill(
+                              child: ChatEmojiWallpaperLayer(
+                                emojis: _wallpaperEmojis,
+                                seed: _accentSeed,
+                              ),
+                            ),
                           if (isLoadingOlder)
                             Positioned(
                               top: 8,
@@ -576,7 +631,12 @@ class _ChatPageState extends State<ChatPage> {
 
                                 return ListView.builder(
                                   controller: _scrollController,
-                                  padding: EdgeInsets.fromLTRB(16, 8, 16, MediaQuery.paddingOf(context).bottom + 100),
+                                  padding: EdgeInsets.fromLTRB(
+                                    ChatGeometry.listHorizontalPadding,
+                                    6,
+                                    ChatGeometry.listHorizontalPadding,
+                                    MediaQuery.paddingOf(context).bottom + 88,
+                                  ),
                                   itemCount: itemCount,
                                   itemBuilder: (context, index) {
                                     if (ChatMessageDateGrouping.isHeaderIndex(sections, index)) {
@@ -598,6 +658,7 @@ class _ChatPageState extends State<ChatPage> {
                                         onSwipeReply: message.isPending ? null : () => _onSwipeReply(message),
                                         child: ChatMessageBubble(
                                           message: message,
+                                          peerAccent: ChatPeerAccent.forSeed(context.colors, _accentSeed),
                                           onReactionToggle: (emoji) => _cubit.toggleReaction(message.id, emoji),
                                         ),
                                       ),
@@ -638,6 +699,7 @@ class _ChatPageState extends State<ChatPage> {
                                   isSending: isSending || isOpeningConversation,
                                   hasAttachments: pendingAttachments.isNotEmpty,
                                   onChanged: (_) => _cubit.notifyTyping(),
+                                  accent: ChatPeerAccent.forSeed(context.colors, _accentSeed),
                                 ),
                               ],
                             ),
@@ -696,6 +758,41 @@ class _ChatThreadErrorView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ChatHeaderAvatar extends StatelessWidget {
+  const _ChatHeaderAvatar({
+    required this.title,
+    required this.isGroup,
+    required this.accent,
+  });
+
+  final String title;
+  final bool isGroup;
+  final ChatPeerAccent accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final letter = title.replaceAll('@', '').trim();
+    final initial = letter.isEmpty ? '?' : letter.characters.first.toUpperCase();
+
+    return Container(
+      width: 36,
+      height: 36,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: accent.fill,
+        shape: BoxShape.circle,
+        border: Border.all(color: (accent.border ?? context.colors.border).withValues(alpha: 0.7)),
+      ),
+      child: isGroup
+          ? Icon(AppIcons.groupOutlined.icon, size: 18, color: accent.ink)
+          : Text(
+              initial,
+              style: AppTextStyle.base(14, color: accent.ink, fontWeight: FontWeight.w700),
+            ),
     );
   }
 }

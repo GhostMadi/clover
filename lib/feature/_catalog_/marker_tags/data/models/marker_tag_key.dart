@@ -86,9 +86,12 @@ enum MarkerTagKey {
 
   // admin — мажорные силы хозяина точки
   booking('booking', 'Принимаю запись', MarkerTagGroupKey.admin),
+  attendance('attendance', 'Веду посещаемость', MarkerTagGroupKey.admin),
+  resources('resources', 'Веду ресурсы', MarkerTagGroupKey.admin),
 
   // worker — доп. функции исполнителя
-  bookingCalendar('bookingCalendar', 'Календарь заказов', MarkerTagGroupKey.worker);
+  bookingCalendar('bookingCalendar', 'Календарь заказов', MarkerTagGroupKey.worker),
+  attendanceWork('attendanceWork', 'Мои отметки', MarkerTagGroupKey.worker);
 
   const MarkerTagKey(this.key, this.labelRu, this.groupKey);
 
@@ -123,6 +126,8 @@ enum MarkerTagKey {
   /// Витринные теги (`who` / `type` / …) → `null` (нейтральный бренд).
   AppServiceKind? get serviceKind => switch (this) {
     MarkerTagKey.booking || MarkerTagKey.bookingCalendar => AppServiceKind.booking,
+    MarkerTagKey.attendance || MarkerTagKey.attendanceWork => AppServiceKind.attendance,
+    MarkerTagKey.resources => AppServiceKind.resources,
     _ => null,
   };
 }

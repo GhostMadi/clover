@@ -113,6 +113,7 @@ class _ProfileFeedFilterSectionState extends State<ProfileFeedFilterSection> {
                 tabs: widget.tabs,
                 currentIndex: widget.currentTabIndex,
                 onTabChanged: widget.onTabChanged,
+                height: ProfileFilterButton.size,
               ),
             ),
             if (showFilterButton) ...[

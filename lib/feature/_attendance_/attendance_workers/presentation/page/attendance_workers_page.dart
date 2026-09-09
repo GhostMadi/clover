@@ -388,7 +388,7 @@ class _WorkerTile extends StatelessWidget {
         child: AppTile(
           title: worker.displayName,
           subtitle:
-              '${worker.username} · ${worker.status.labelRu}${hoursLabel != null ? ' · $hoursLabel' : ''}',
+              '${worker.username} · ${worker.isTagInactive ? 'Неактивен' : worker.status.labelRu}${hoursLabel != null ? ' · $hoursLabel' : ''}',
           icon: AppIcons.badge.icon,
           iconColor: accent.icon,
           iconBackgroundColor: accent.soft,

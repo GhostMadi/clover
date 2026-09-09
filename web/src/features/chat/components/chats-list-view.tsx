@@ -14,6 +14,7 @@ import {
   formatChatListTime,
   type ChatConversation,
 } from "@/features/chat/lib/chat-model";
+import { chatAccentForSeed } from "@/features/chat/lib/chat-accent";
 import { CHAT_UNREAD_CHANGED } from "@/features/chat/lib/chat-unread";
 
 type ChatsListViewProps = {
@@ -205,15 +206,18 @@ export function ChatsListView({ initialItems }: ChatsListViewProps) {
           <ul>
             {filtered.map((chat) => {
               const unread = chat.unreadCount > 0;
+              const accent = chatAccentForSeed(chat.id || chat.title);
               return (
                 <li key={chat.id}>
                   <Link
                     href={`/app/chat/${chat.id}`}
-                    className={`flex gap-3 px-4 py-3 transition hover:bg-mint/50 ${
-                      unread ? "bg-mint/35" : "bg-surface"
+                    className={`flex gap-3 px-4 py-3 transition hover:opacity-90 ${
+                      unread ? accent.fill : "bg-surface"
                     }`}
                   >
-                    <div className="h-[52px] w-[52px] shrink-0 overflow-hidden rounded-full border border-line bg-mint">
+                    <div
+                      className={`h-[52px] w-[52px] shrink-0 overflow-hidden rounded-full border ${accent.fill} ${accent.border}`}
+                    >
                       {chat.avatarUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -222,11 +226,11 @@ export function ChatsListView({ initialItems }: ChatsListViewProps) {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <span className="flex h-full w-full items-center justify-center">
+                        <span className={`flex h-full w-full items-center justify-center ${accent.ink}`}>
                           {chat.isGroup ? (
-                            <Users className="h-6 w-6 text-muted" strokeWidth={1.5} />
+                            <Users className="h-6 w-6" strokeWidth={1.5} />
                           ) : (
-                            <User className="h-6 w-6 text-muted" strokeWidth={1.5} />
+                            <User className="h-6 w-6" strokeWidth={1.5} />
                           )}
                         </span>
                       )}
@@ -242,9 +246,7 @@ export function ChatsListView({ initialItems }: ChatsListViewProps) {
                         </p>
                         <span
                           className={`shrink-0 text-[12px] ${
-                            unread
-                              ? "font-semibold text-brand"
-                              : "font-medium text-muted"
+                            unread ? `font-semibold ${accent.ink}` : "font-medium text-muted"
                           }`}
                         >
                           {formatChatListTime(chat.lastMessageAt)}

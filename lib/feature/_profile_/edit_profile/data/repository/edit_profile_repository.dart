@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:clover/core/shared/image_select/app_image_edit_exporter.dart';
 import 'package:clover/core/shared/image_select/models/app_image_editor_result.dart';
+import 'package:clover/core/storage/r2_storage_service.dart';
 import 'package:clover/feature/_catalog_/marker_tags/data/repository/marker_tags_repository.dart';
 import 'package:clover/feature/_profile_/edit_profile/data/models/edit_profile_error.dart';
 import 'package:clover/feature/_profile_/edit_profile/data/models/edit_profile_save_input.dart';
@@ -19,14 +20,20 @@ abstract class EditProfileRepository {
 
 @LazySingleton(as: EditProfileRepository)
 class EditProfileRepositoryImpl implements EditProfileRepository {
-  EditProfileRepositoryImpl(this._client, this._profileRepository, this._markerTagsRepository);
+  EditProfileRepositoryImpl(
+    this._client,
+    this._profileRepository,
+    this._markerTagsRepository,
+    this._r2,
+  );
 
   final SupabaseClient _client;
   final ProfileNewRepository _profileRepository;
   final MarkerTagsRepository _markerTagsRepository;
+  final R2StorageService _r2;
 
-  static const _bucketAvatars = 'avatars';
-  static const _bucketBackgrounds = 'profile_backgrounds';
+  static const _folderAvatars = 'avatars';
+  static const _folderBackgrounds = 'profile_backgrounds';
 
   @override
   Future<ProfileNewModel> updateProfile(EditProfileSaveInput input) async {
@@ -40,10 +47,10 @@ class EditProfileRepositoryImpl implements EditProfileRepository {
     };
 
     if (input.avatarPreview != null) {
-      payload['avatar_url'] = await _uploadAvatar(uid: uid, preview: input.avatarPreview!);
+      payload['avatar_url'] = await _uploadAvatar(preview: input.avatarPreview!);
     }
     if (input.backgroundPreview != null) {
-      payload['background_url'] = await _uploadBackground(uid: uid, preview: input.backgroundPreview!);
+      payload['background_url'] = await _uploadBackground(preview: input.backgroundPreview!);
     }
 
     try {
@@ -148,36 +155,37 @@ class EditProfileRepositoryImpl implements EditProfileRepository {
   }
 
   Future<String> _uploadAvatar({
-    required String uid,
     required AppImageEditorResult preview,
   }) async {
     final bytes = await _exportPreviewBytes(preview);
-    final path = '$uid/avatar.jpg';
-    await _uploadBytes(bucket: _bucketAvatars, path: path, bytes: bytes);
-    return _publicUrl(bucket: _bucketAvatars, path: path);
+    final compressed = await FlutterImageCompress.compressWithList(bytes, quality: 88);
+    try {
+      return await _r2.uploadBytes(
+        compressed,
+        fileName: 'avatar.jpg',
+        folder: _folderAvatars,
+        contentType: 'image/jpeg',
+      );
+    } catch (_) {
+      throw EditProfileError('Не удалось загрузить аватар');
+    }
   }
 
   Future<String> _uploadBackground({
-    required String uid,
     required AppImageEditorResult preview,
   }) async {
     final bytes = await _exportPreviewBytes(preview);
-    final path = '$uid/background.jpg';
-    await _uploadBytes(bucket: _bucketBackgrounds, path: path, bytes: bytes);
-    return _publicUrl(bucket: _bucketBackgrounds, path: path);
-  }
-
-  Future<void> _uploadBytes({
-    required String bucket,
-    required String path,
-    required Uint8List bytes,
-  }) async {
     final compressed = await FlutterImageCompress.compressWithList(bytes, quality: 88);
-    await _client.storage.from(bucket).uploadBinary(
-          path,
-          compressed,
-          fileOptions: const FileOptions(upsert: true, contentType: 'image/jpeg'),
-        );
+    try {
+      return await _r2.uploadBytes(
+        compressed,
+        fileName: 'background.jpg',
+        folder: _folderBackgrounds,
+        contentType: 'image/jpeg',
+      );
+    } catch (_) {
+      throw EditProfileError('Не удалось загрузить фон профиля');
+    }
   }
 
   Future<Uint8List> _exportPreviewBytes(AppImageEditorResult preview) async {
@@ -192,10 +200,5 @@ class EditProfileRepositoryImpl implements EditProfileRepository {
       imageWidth: preview.asset.width,
       imageHeight: preview.asset.height,
     );
-  }
-
-  String _publicUrl({required String bucket, required String path}) {
-    final base = _client.storage.from(bucket).getPublicUrl(path);
-    return '$base?v=${DateTime.now().millisecondsSinceEpoch}';
   }
 }

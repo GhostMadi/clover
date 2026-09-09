@@ -195,6 +195,7 @@ Staff в каталоге хозяина (имя или ник) — **данны
 | Клиентский список | Без тега; явный вход на mobile и web |
 | Плотность кнопок | ≤2 icon+text; ≥3 icon only; по линии |
 | Раскладка | Верх = работник; низ = админ точки |
+| Паритет с посещаемостью | Тот же паттерн тегов: create/host-write без `booking` forbidden (RPC + UI), как `attendance` / `attendanceWork` в [attendance-tz.md](attendance-tz.md) |
 | Паритет | Mobile = web по смыслу |
 | Правда UI vs бэк | Фронт режет UI/запросы; RLS всё равно |
 

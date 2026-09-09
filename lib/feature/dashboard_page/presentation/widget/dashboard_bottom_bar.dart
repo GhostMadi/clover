@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 /// Навбар всегда по центру.
 /// На Home: фильтр слева, уведомления справа; на Profile: «ещё» справа.
 ///
-/// Навбар — простой [AppNavBar] в [AnimatedPositioned]-слоте.
+/// Навбар — bubble [AppNavBar] со скользящим индикатором в [AnimatedPositioned]-слоте.
 class DashboardBottomBar extends StatelessWidget {
   const DashboardBottomBar({
     super.key,

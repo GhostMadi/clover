@@ -25,7 +25,9 @@ extension AppStorageJsonExtensions on IAppStorage {
     required List<T> value,
     required Object? Function(T item) toJson,
   }) {
-    return write<List<dynamic>>(key: key, value: value.map(toJson).toList());
+    // Explicit List<dynamic> — иначе List<Map> не матчится в StorageValueCodec.
+    final encoded = <dynamic>[for (final item in value) toJson(item)];
+    return write<List<dynamic>>(key: key, value: encoded);
   }
 
   Future<List<T>?> readList<T>({required String key, required T Function(Object? json) fromJson}) async {

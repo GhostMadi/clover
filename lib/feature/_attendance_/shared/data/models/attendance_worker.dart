@@ -25,12 +25,16 @@ class AttendanceWorkerListItem {
     required this.displayName,
     required this.username,
     required this.status,
+    this.hasAttendanceWorkTag = false,
   });
 
   final String id;
   final String displayName;
   final String username;
   final AttendanceWorkerInviteStatus status;
+
+  /// Тег `attendanceWork` на профиле работника (bootstrap).
+  final bool hasAttendanceWorkTag;
 
   bool get isAccepted => status == AttendanceWorkerInviteStatus.accepted;
 
@@ -40,12 +44,19 @@ class AttendanceWorkerListItem {
 
   bool get isDeclined => status == AttendanceWorkerInviteStatus.declined;
 
-  AttendanceWorkerListItem copyWith({AttendanceWorkerInviteStatus? status}) {
+  /// Accepted, но без worker-тега — punch недоступен.
+  bool get isTagInactive => isAccepted && !hasAttendanceWorkTag;
+
+  AttendanceWorkerListItem copyWith({
+    AttendanceWorkerInviteStatus? status,
+    bool? hasAttendanceWorkTag,
+  }) {
     return AttendanceWorkerListItem(
       id: id,
       displayName: displayName,
       username: username,
       status: status ?? this.status,
+      hasAttendanceWorkTag: hasAttendanceWorkTag ?? this.hasAttendanceWorkTag,
     );
   }
 }

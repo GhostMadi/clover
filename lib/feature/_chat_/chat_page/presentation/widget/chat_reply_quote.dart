@@ -3,6 +3,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_reply_preview.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_geometry.dart';
 import 'package:flutter/material.dart';
 
 class ChatReplyQuote extends StatelessWidget {
@@ -20,18 +21,38 @@ class ChatReplyQuote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 6),
-      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
       decoration: BoxDecoration(
         color: accentColor.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(10),
-        border: Border(left: BorderSide(color: accentColor, width: 3)),
+        borderRadius: BorderRadius.circular(ChatGeometry.replyRadius),
+        border: Border(
+          left: BorderSide(color: accentColor, width: ChatGeometry.replyAccentWidth),
+        ),
       ),
-      child: Text(
-        preview.previewText,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        style: AppTextStyle.base(13, color: textColor.withValues(alpha: 0.92), height: 1.25),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Ответ',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyle.base(
+              12,
+              color: accentColor,
+              fontWeight: FontWeight.w700,
+              height: 1.15,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            preview.previewText,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyle.base(13, color: textColor.withValues(alpha: 0.9), height: 1.2),
+          ),
+        ],
       ),
     );
   }
@@ -76,15 +97,24 @@ class ChatComposerContextBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 6),
-      padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+      margin: EdgeInsets.fromLTRB(ChatGeometry.listHorizontalPadding, 0, ChatGeometry.listHorizontalPadding, 6),
+      padding: const EdgeInsets.fromLTRB(10, 8, 4, 8),
       decoration: BoxDecoration(
         color: context.colors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: context.colors.border.withValues(alpha: 0.75)),
+        borderRadius: BorderRadius.circular(ChatGeometry.replyRadius),
+        border: Border.all(color: context.colors.border.withValues(alpha: 0.65)),
       ),
       child: Row(
         children: [
+          Container(
+            width: ChatGeometry.replyAccentWidth,
+            height: 36,
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: context.colors.primary,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,13 +128,14 @@ class ChatComposerContextBar extends StatelessWidget {
                   subtitle,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyle.base(14, color: context.colors.textColor),
+                  style: AppTextStyle.base(13, color: context.colors.textColor),
                 ),
               ],
             ),
           ),
           IconButton(
             onPressed: onClose,
+            visualDensity: VisualDensity.compact,
             icon: Icon(AppIcons.close.icon, color: context.colors.iconMuted, size: 20),
           ),
         ],

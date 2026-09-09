@@ -1,5 +1,6 @@
 "use client";
 
+import { uploadToR2 } from "@/lib/r2-storage";
 import { createClient } from "@/lib/supabase/client";
 
 export type EditProfilePayload = {
@@ -17,20 +18,18 @@ function nullableTrim(value: string | null | undefined): string | null {
   return t ? t : null;
 }
 
-async function uploadJpeg(
-  bucket: "avatars" | "profile_backgrounds",
-  path: string,
+async function uploadProfileImage(
+  folder: "avatars" | "profile_backgrounds",
+  fileName: string,
   file: File,
 ): Promise<string> {
-  const supabase = createClient();
-  const { error } = await supabase.storage.from(bucket).upload(path, file, {
-    upsert: true,
+  const uploaded = await uploadToR2({
+    file,
+    fileName,
+    folder,
     contentType: file.type || "image/jpeg",
   });
-  if (error) throw error;
-  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-  // cache-bust
-  return `${data.publicUrl}?t=${Date.now()}`;
+  return uploaded.publicUrl;
 }
 
 async function resolveTagIds(keys: string[]): Promise<string[]> {
@@ -108,12 +107,16 @@ export async function saveProfileEdit(payload: EditProfilePayload): Promise<void
   };
 
   if (payload.avatarFile) {
-    update.avatar_url = await uploadJpeg("avatars", `${uid}/avatar.jpg`, payload.avatarFile);
+    update.avatar_url = await uploadProfileImage(
+      "avatars",
+      "avatar.jpg",
+      payload.avatarFile,
+    );
   }
   if (payload.backgroundFile) {
-    update.background_url = await uploadJpeg(
+    update.background_url = await uploadProfileImage(
       "profile_backgrounds",
-      `${uid}/background.jpg`,
+      "background.jpg",
       payload.backgroundFile,
     );
   }

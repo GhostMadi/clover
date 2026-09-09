@@ -12,6 +12,14 @@ export default async function SettingsPage() {
 
   const profile = await getCurrentProfile();
   const hasBookingTag = Boolean(profile?.tagKeys.includes("booking"));
+  const hasAttendanceTag = Boolean(profile?.tagKeys.includes("attendance"));
+  const hasResourcesTag = Boolean(profile?.tagKeys.includes("resources"));
 
-  return <SettingsHubView hasBookingTag={hasBookingTag} />;
+  return (
+    <SettingsHubView
+      hasBookingTag={hasBookingTag}
+      hasAttendanceTag={hasAttendanceTag}
+      hasResourcesTag={hasResourcesTag}
+    />
+  );
 }

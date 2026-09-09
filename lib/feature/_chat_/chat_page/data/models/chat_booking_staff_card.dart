@@ -1,14 +1,19 @@
 /// Structured booking staff invite card from chat (`booking_card` JSON).
 class ChatBookingStaffCard {
-  const ChatBookingStaffCard({
-    required this.inviteId,
-    required this.hostId,
-    required this.hostDisplayName,
-  });
+  const ChatBookingStaffCard({required this.inviteId, required this.hostId, required this.hostDisplayName});
 
   final String inviteId;
   final String hostId;
   final String hostDisplayName;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'card': 'booking_staff_invite',
+      'invite_id': inviteId,
+      'host_id': hostId,
+      'host_display_name': hostDisplayName,
+    };
+  }
 
   static ChatBookingStaffCard? fromRef(Map<String, dynamic>? map) {
     if (map == null || map.isEmpty) return null;

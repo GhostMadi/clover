@@ -4,6 +4,7 @@ enum AttendancePunchBlockReason {
   gpsDisabled,
   noPrimaryPunchType,
   notOnDuty,
+  missingAttendanceWorkTag,
 }
 
 extension AttendancePunchBlockReasonX on AttendancePunchBlockReason {
@@ -13,6 +14,7 @@ extension AttendancePunchBlockReasonX on AttendancePunchBlockReason {
         AttendancePunchBlockReason.gpsDisabled => 'Геолокация выключена',
         AttendancePunchBlockReason.noPrimaryPunchType => 'Отметки не настроены',
         AttendancePunchBlockReason.notOnDuty => 'Сегодня не ваше дежурство',
+        AttendancePunchBlockReason.missingAttendanceWorkTag => 'Нужен тег «Мои отметки»',
       };
 
   String get detailRu => switch (this) {
@@ -26,5 +28,7 @@ extension AttendancePunchBlockReasonX on AttendancePunchBlockReason {
           'Админ не включил «Пришёл» и «Ушёл». Используйте свои отметки, если они есть.',
         AttendancePunchBlockReason.notOnDuty =>
           'В этой компании отметка разрешена только дежурному на сегодня.',
+        AttendancePunchBlockReason.missingAttendanceWorkTag =>
+          'Включите тег «Мои отметки» в редактировании профиля.',
       };
 }

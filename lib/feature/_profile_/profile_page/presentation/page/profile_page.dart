@@ -15,7 +15,6 @@ import 'package:clover/core/shared/app_refresh.dart';
 import 'package:clover/core/shared/app_state.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
-import 'package:clover/feature/_attendance_/shared/data/profile_attendance_admin_shortcut_store.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
@@ -26,7 +25,6 @@ import 'package:clover/feature/_cluster_/cluster_create/presentation/cubit/clust
 import 'package:clover/feature/_post_/post/presentation/cubit/post_feed_cubit.dart';
 import 'package:clover/feature/_post_/post_create/presentation/cubit/post_create_upload_cubit.dart';
 import 'package:clover/feature/_post_/post_create/presentation/cubit/post_create_upload_state.dart';
-import 'package:clover/feature/_profile_/profile_page/data/profile_resources_shortcut_store.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/widget/body_part/profile_body_part.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/widget/header_part/parts/profile_header_from_profile.dart';
@@ -184,20 +182,14 @@ class _ProfileNewActions extends StatefulWidget {
 }
 
 class _ProfileNewActionsState extends State<_ProfileNewActions> {
-  late final ProfileAttendanceAdminShortcutStore _attendanceAdminShortcutStore;
-  late final ProfileResourcesShortcutStore _resourcesShortcutStore;
   late final AttendanceContextStore _attendanceStore;
 
   @override
   void initState() {
     super.initState();
-    _attendanceAdminShortcutStore = sl<ProfileAttendanceAdminShortcutStore>();
-    _resourcesShortcutStore = sl<ProfileResourcesShortcutStore>();
     _attendanceStore = sl<AttendanceContextStore>();
     final uid = Supabase.instance.client.auth.currentUser?.id.trim();
     if (uid != null && uid.isNotEmpty) {
-      _attendanceAdminShortcutStore.load(uid);
-      _resourcesShortcutStore.load(uid);
       unawaited(_attendanceStore.hydrate(uid, force: true));
     }
   }
@@ -266,11 +258,7 @@ class _ProfileNewActionsState extends State<_ProfileNewActions> {
               ),
             ],
           ),
-          _ProfileServiceShortcutsBlock(
-            attendanceStore: _attendanceStore,
-            attendanceAdminShortcutStore: _attendanceAdminShortcutStore,
-            resourcesShortcutStore: _resourcesShortcutStore,
-          ),
+          const _ProfileServiceShortcutsBlock(),
         ],
       ),
     );
@@ -281,15 +269,7 @@ class _ProfileNewActionsState extends State<_ProfileNewActions> {
 ///
 /// В линии ≤2 → иконка+текст; ≥3 → только иконка.
 class _ProfileServiceShortcutsBlock extends StatelessWidget {
-  const _ProfileServiceShortcutsBlock({
-    required this.attendanceStore,
-    required this.attendanceAdminShortcutStore,
-    required this.resourcesShortcutStore,
-  });
-
-  final AttendanceContextStore attendanceStore;
-  final ProfileAttendanceAdminShortcutStore attendanceAdminShortcutStore;
-  final ProfileResourcesShortcutStore resourcesShortcutStore;
+  const _ProfileServiceShortcutsBlock();
 
   @override
   Widget build(BuildContext context) {
@@ -298,113 +278,96 @@ class _ProfileServiceShortcutsBlock extends StatelessWidget {
         final profile = profileState.mapOrNull(loaded: (s) => s.profile);
         final showBooking = profile?.hasBookingTag ?? false;
         final showBookingCalendar = profile?.hasBookingCalendarTag ?? false;
+        final showAdminAttendance = profile?.hasAttendanceTag ?? false;
+        final showWorkerAttendance = profile?.hasAttendanceWorkTag ?? false;
+        final showResources = profile?.hasResourcesTag ?? false;
 
-        return ValueListenableBuilder(
-          valueListenable: attendanceStore.snapshot,
-          builder: (context, attendanceSnap, _) {
-            return ValueListenableBuilder<bool>(
-              valueListenable: attendanceAdminShortcutStore.visible,
-              builder: (context, showAdminShortcut, _) {
-                return ValueListenableBuilder<bool>(
-                  valueListenable: resourcesShortcutStore.visible,
-                  builder: (context, showResources, _) {
-                    final showWorkerAttendance = attendanceSnap?.showProfileWorkerButton ?? false;
-                    final showAdminAttendance =
-                        showAdminShortcut && (attendanceSnap?.isAdmin ?? false);
+        final bookingAccent = bookingServiceAccent(context.colors);
+        final attendanceAccent = attendanceServiceAccent(context.colors);
+        final resourcesAccent = context.colors.serviceAccent(kResourcesService);
 
-                    final bookingAccent = bookingServiceAccent(context.colors);
-                    final attendanceAccent = attendanceServiceAccent(context.colors);
-                    final resourcesAccent = context.colors.serviceAccent(kResourcesService);
+        final workerSpecs = <_ProfileShortcutSpec>[
+          if (showBookingCalendar)
+            _ProfileShortcutSpec(
+              label: 'Календарь',
+              icon: AppIcons.calendarToday.icon,
+              iconColor: bookingAccent.icon,
+              builder: (child) => AppOutlinedButton(
+                text: 'Календарь',
+                service: kBookingService,
+                isExpanded: true,
+                onTap: () => context.router.push(const BookingCalendarRoute()),
+                child: child,
+              ),
+            ),
+          if (showWorkerAttendance)
+            _ProfileShortcutSpec(
+              label: 'Посещаемость',
+              icon: AppIcons.schedule.icon,
+              iconColor: attendanceAccent.icon,
+              builder: (child) => AppOutlinedButton(
+                text: 'Посещаемость',
+                service: kAttendanceService,
+                isExpanded: true,
+                onTap: () => context.router.push(const AttendanceWorkerHubRoute()),
+                child: child,
+              ),
+            ),
+        ];
 
-                    final workerSpecs = <_ProfileShortcutSpec>[
-                      if (showBookingCalendar)
-                        _ProfileShortcutSpec(
-                          label: 'Календарь',
-                          icon: AppIcons.calendarToday.icon,
-                          iconColor: bookingAccent.icon,
-                          builder: (child) => AppOutlinedButton(
-                            text: 'Календарь',
-                            service: kBookingService,
-                            isExpanded: true,
-                            onTap: () => context.router.push(const BookingCalendarRoute()),
-                            child: child,
-                          ),
-                        ),
-                      if (showWorkerAttendance)
-                        _ProfileShortcutSpec(
-                          label: 'Посещаемость',
-                          icon: AppIcons.schedule.icon,
-                          iconColor: attendanceAccent.icon,
-                          builder: (child) => AppOutlinedButton(
-                            text: 'Посещаемость',
-                            service: kAttendanceService,
-                            isExpanded: true,
-                            onTap: () => context.router.push(const AttendanceWorkerHubRoute()),
-                            child: child,
-                          ),
-                        ),
-                    ];
+        final adminSpecs = <_ProfileShortcutSpec>[
+          if (showBooking)
+            _ProfileShortcutSpec(
+              label: 'Запись',
+              icon: AppIcons.calendarMonth.icon,
+              iconColor: bookingAccent.ctaForeground,
+              builder: (child) => BookingPrimaryButton(
+                text: 'Запись',
+                isExpanded: true,
+                onTap: () => context.router.push(const BookingListRoute()),
+                child: child,
+              ),
+            ),
+          if (showAdminAttendance)
+            _ProfileShortcutSpec(
+              label: 'Управление',
+              icon: AppIcons.schedule.icon,
+              iconColor: attendanceAccent.ctaForeground,
+              builder: (child) => AttendancePrimaryButton(
+                text: 'Управление',
+                isExpanded: true,
+                onTap: () => context.router.push(const AttendanceHubRoute()),
+                child: child,
+              ),
+            ),
+          if (showResources)
+            _ProfileShortcutSpec(
+              label: 'Ресурсы',
+              icon: AppIcons.inventory.icon,
+              iconColor: resourcesAccent.ctaForeground,
+              builder: (child) => AppButton(
+                text: 'Ресурсы',
+                service: kResourcesService,
+                isExpanded: true,
+                onTap: () => context.router.push(const SettingsResourcesRoute()),
+                child: child,
+              ),
+            ),
+        ];
 
-                    final adminSpecs = <_ProfileShortcutSpec>[
-                      if (showBooking)
-                        _ProfileShortcutSpec(
-                          label: 'Запись',
-                          icon: AppIcons.calendarMonth.icon,
-                          iconColor: bookingAccent.ctaForeground,
-                          builder: (child) => BookingPrimaryButton(
-                            text: 'Запись',
-                            isExpanded: true,
-                            onTap: () => context.router.push(const BookingListRoute()),
-                            child: child,
-                          ),
-                        ),
-                      if (showAdminAttendance)
-                        _ProfileShortcutSpec(
-                          label: 'Управление',
-                          icon: AppIcons.schedule.icon,
-                          iconColor: attendanceAccent.ctaForeground,
-                          builder: (child) => AttendancePrimaryButton(
-                            text: 'Управление',
-                            isExpanded: true,
-                            onTap: () => context.router.push(const AttendanceHubRoute()),
-                            child: child,
-                          ),
-                        ),
-                      if (showResources)
-                        _ProfileShortcutSpec(
-                          label: 'Ресурсы',
-                          icon: AppIcons.inventory.icon,
-                          iconColor: resourcesAccent.ctaForeground,
-                          builder: (child) => AppButton(
-                            text: 'Ресурсы',
-                            service: kResourcesService,
-                            isExpanded: true,
-                            onTap: () => context.router.push(const SettingsResourcesRoute()),
-                            child: child,
-                          ),
-                        ),
-                    ];
+        if (workerSpecs.isEmpty && adminSpecs.isEmpty) {
+          return const SizedBox.shrink();
+        }
 
-                    if (workerSpecs.isEmpty && adminSpecs.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Column(
-                        children: [
-                          if (workerSpecs.isNotEmpty) _ProfileShortcutLine(specs: workerSpecs),
-                          if (workerSpecs.isNotEmpty && adminSpecs.isNotEmpty)
-                            const SizedBox(height: 10),
-                          if (adminSpecs.isNotEmpty) _ProfileShortcutLine(specs: adminSpecs),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
-            );
-          },
+        return Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Column(
+            children: [
+              if (workerSpecs.isNotEmpty) _ProfileShortcutLine(specs: workerSpecs),
+              if (workerSpecs.isNotEmpty && adminSpecs.isNotEmpty) const SizedBox(height: 10),
+              if (adminSpecs.isNotEmpty) _ProfileShortcutLine(specs: adminSpecs),
+            ],
+          ),
         );
       },
     );

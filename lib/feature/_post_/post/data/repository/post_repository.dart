@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:clover/core/storage/r2_storage_service.dart';
 import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 import 'package:clover/feature/_post_/post/data/models/post_model.dart';
 import 'package:clover/feature/_post_/post/data/repository/post_feed_enriched_parser.dart';
@@ -8,10 +9,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 @lazySingleton
 class PostRepository {
-  PostRepository(this._client, this._localCache);
+  PostRepository(this._client, this._localCache, this._r2);
 
   final SupabaseClient _client;
   final PostLocalCache _localCache;
+  final R2StorageService _r2;
 
   static const Duration _memoryTtl = Duration(minutes: 10);
   final Map<String, ({PostModel post, DateTime storedAt})> _memory = {};
@@ -432,6 +434,8 @@ class PostRepository {
     final post = cachedPost ?? getCachedPostById(id);
     final mediaUrls = post?.sortedMedia.map((m) => m.url).where((u) => u.trim().isNotEmpty) ?? const [];
 
+    // R2 first (owner-scoped). Legacy Supabase Storage cleaned by delete_owned_post RPC.
+    await _r2.deleteObjects(urls: mediaUrls);
     await _deletePostStorageViaApi(id, mediaUrls);
     await _client.rpc('delete_owned_post', params: {'p_post_id': id});
 

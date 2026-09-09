@@ -4,7 +4,7 @@
 **Для кого:** продукт / бизнес / дизайн  
 **Не про:** SQL, RPC, cubit’ы, имена файлов Dart  
 
-Связано: [settings.md](settings.md) · [chats.md](chats.md) · [navigation-bars.md](navigation-bars.md) · [locations.md](locations.md) · [booking.md](booking.md) (отдельный сервис) · [features-catalog.md](features-catalog.md) · бэк: [SPEC_ATTENDANCE_SYSTEM.md](../supabase/SPEC_ATTENDANCE_SYSTEM.md)
+Связано: [settings.md](settings.md) · [chats.md](chats.md) · [navigation-bars.md](navigation-bars.md) · [locations.md](locations.md) · [booking.md](booking.md) (отдельный сервис) · [tag-powers.md](tag-powers.md) · **ТЗ тегов:** [attendance-tz.md](attendance-tz.md) · [features-catalog.md](features-catalog.md) · бэк: [SPEC_ATTENDANCE_SYSTEM.md](../supabase/SPEC_ATTENDANCE_SYSTEM.md)
 
 ---
 
@@ -21,8 +21,11 @@
 | Кто | Что видит в UI | Запросы attendance |
 |-----|----------------|--------------------|
 | Не участвует | Нет кнопок, нет sheet, нет badge «по attendance» | **0** |
-| Worker (принял invite) | Профиль → «Посещаемость» | Bootstrap **только** если локально есть membership / флаг участия |
-| Admin | Настройки → Сервисы → Посещаемость (+ опциональный ярлык) | Только при входе в сервис / по событию (invite, punch, ack) |
+| Worker (тег `attendanceWork` + membership) | Профиль → верхняя «Посещаемость» | Bootstrap **только** если локально есть membership / флаг участия |
+| Membership без `attendanceWork` | Нет punch / нет worker-кнопки; у админа — **«Неактивен»** | Bootstrap по делу (админ смотрит команду) |
+| Admin (тег `attendance`) | Настройки → Сервисы → Посещаемость + нижняя «Управление» | Только при входе в сервис / по событию (invite, punch, ack) |
+
+**Теги:** `attendance` (admin) + `attendanceWork` (worker). Create company / punch — строго с тегом (фронт + бэк). Детали: [attendance-tz.md](attendance-tz.md).
 
 **Правило:** UI всегда читает **локальный snapshot**. Сеть — редко и по делу.  
 Не участник **никогда** не «пингует» attendance API «на всякий случай».
@@ -35,8 +38,8 @@
 
 | Роль | Кто | Делает |
 |------|-----|--------|
-| **Admin** | Владелец компании | Компании, геозона, типы отметок, работники, дежурные, отсутствия, переработка, зарплата, табель, аналитика |
-| **Worker** | Принял invite | Отметки, свои детали, история; принимает правила в чате |
+| **Admin** | Владелец компании + тег `attendance` | Компании, геозона, типы отметок, работники, дежурные, отсутствия, переработка, зарплата, табель, аналитика |
+| **Worker** | Принял invite + тег `attendanceWork` | Отметки, свои детали, история; принимает правила в чате |
 
 | Сущность | Смысл |
 |----------|--------|

@@ -45,13 +45,17 @@ class ChatLocalCache {
     final cid = conversationId.trim();
     if (uid.isEmpty || cid.isEmpty) return null;
 
-    return _storage.readList<ChatMessage>(
-      key: _threadKey(uid, cid),
-      fromJson: (json) {
-        if (json is! Map) throw FormatException('Expected map');
-        return ChatMessage.fromJson(Map<String, dynamic>.from(json));
-      },
-    );
+    try {
+      return await _storage.readList<ChatMessage>(
+        key: _threadKey(uid, cid),
+        fromJson: (json) {
+          if (json is! Map) throw FormatException('Expected map');
+          return ChatMessage.fromJson(Map<String, dynamic>.from(json));
+        },
+      );
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> writeMessages(String userId, String conversationId, List<ChatMessage> messages) async {
@@ -59,11 +63,15 @@ class ChatLocalCache {
     final cid = conversationId.trim();
     if (uid.isEmpty || cid.isEmpty) return;
 
-    await _storage.writeList(
-      key: _threadKey(uid, cid),
-      value: messages,
-      toJson: (message) => message.toJson(),
-    );
+    try {
+      await _storage.writeList(
+        key: _threadKey(uid, cid),
+        value: messages,
+        toJson: (message) => message.toJson(),
+      );
+    } catch (_) {
+      // Offline UI не должен падать из‑за кэша.
+    }
   }
 
   Future<void> clearConversations(String userId) async {

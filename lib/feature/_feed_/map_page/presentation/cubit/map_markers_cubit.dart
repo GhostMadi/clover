@@ -1,18 +1,20 @@
 import 'package:clover/core/shared/app_map/app_map_marker.dart';
 import 'package:clover/core/shared/app_map/app_map_viewport.dart';
 import 'package:clover/feature/_feed_/events_page/data/models/events_filter.dart';
+import 'package:clover/feature/_feed_/map_page/data/map_markers_local_cache.dart';
 import 'package:clover/feature/_feed_/map_page/data/map_viewport_query.dart';
 import 'package:clover/feature/_feed_/map_page/data/models/map_marker_item.dart';
 import 'package:clover/feature/_feed_/map_page/data/repository/map_markers_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
-/// Маркеры в viewport — без пагинации (как 2ГИС: всё видимое, кластеры на карте).
+/// Маркеры в viewport: disk cache → RPC (stale-while-revalidate), без пагинации.
 @injectable
 class MapMarkersCubit extends Cubit<MapMarkersState> {
-  MapMarkersCubit(this._repository) : super(const MapMarkersState.initial());
+  MapMarkersCubit(this._repository, this._localCache) : super(const MapMarkersState.initial());
 
   final MapMarkersRepository _repository;
+  final MapMarkersLocalCache _localCache;
 
   int _loadGeneration = 0;
   AppMapViewport? _lastFetchedViewport;
@@ -47,14 +49,33 @@ class MapMarkersCubit extends Cubit<MapMarkersState> {
 
     final generation = ++_loadGeneration;
     final previousMarkers = state.mapMarkers;
-
-    emit(
-      state.copyWith(
-        isLoading: true,
-        errorMessage: null,
-        mapMarkers: previousMarkers,
-      ),
+    final cacheKey = _localCache.keyFor(
+      center: viewport.center,
+      zoom: viewport.zoom,
+      filter: filter,
     );
+
+    final cached = await _localCache.read(cacheKey);
+    if (isClosed || generation != _loadGeneration) return;
+
+    if (cached != null && cached.isNotEmpty) {
+      emit(
+        MapMarkersState.loaded(
+          markers: cached,
+          mapMarkers: _toMapMarkers(cached),
+          isFromCache: true,
+          isLoading: true,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          isLoading: true,
+          errorMessage: null,
+          mapMarkers: previousMarkers,
+        ),
+      );
+    }
 
     try {
       final page = await _repository.fetchPage(
@@ -68,30 +89,38 @@ class MapMarkersCubit extends Cubit<MapMarkersState> {
       if (isClosed || generation != _loadGeneration) return;
 
       _lastFetchedViewport = viewport;
+      await _localCache.write(cacheKey, page.items);
+
+      if (isClosed || generation != _loadGeneration) return;
 
       emit(
         MapMarkersState.loaded(
           markers: page.items,
-          mapMarkers: [
-            for (final item in page.items)
-              AppMapMarker(
-                id: item.id,
-                point: item.point,
-                emoji: item.textEmoji,
-              ),
-          ],
+          mapMarkers: _toMapMarkers(page.items),
         ),
       );
     } catch (error) {
       if (isClosed || generation != _loadGeneration) return;
+      final keep = state.mapMarkers.isNotEmpty ? state.mapMarkers : previousMarkers;
       emit(
         state.copyWith(
           isLoading: false,
           errorMessage: error.toString(),
-          mapMarkers: previousMarkers,
+          mapMarkers: keep,
         ),
       );
     }
+  }
+
+  static List<AppMapMarker> _toMapMarkers(List<MapMarkerItem> items) {
+    return [
+      for (final item in items)
+        AppMapMarker(
+          id: item.id,
+          point: item.point,
+          emoji: item.textEmoji,
+        ),
+    ];
   }
 }
 
@@ -101,6 +130,7 @@ class MapMarkersState {
     this.markers = const [],
     this.mapMarkers = const [],
     this.errorMessage,
+    this.isFromCache = false,
   });
 
   const MapMarkersState.initial() : this._(isLoading: false);
@@ -108,28 +138,34 @@ class MapMarkersState {
   const MapMarkersState.loaded({
     required List<MapMarkerItem> markers,
     required List<AppMapMarker> mapMarkers,
+    bool isFromCache = false,
+    bool isLoading = false,
   }) : this._(
-          isLoading: false,
+          isLoading: isLoading,
           markers: markers,
           mapMarkers: mapMarkers,
+          isFromCache: isFromCache,
         );
 
   final bool isLoading;
   final List<MapMarkerItem> markers;
   final List<AppMapMarker> mapMarkers;
   final String? errorMessage;
+  final bool isFromCache;
 
   MapMarkersState copyWith({
     bool? isLoading,
     List<MapMarkerItem>? markers,
     List<AppMapMarker>? mapMarkers,
     String? errorMessage,
+    bool? isFromCache,
   }) {
     return MapMarkersState._(
       isLoading: isLoading ?? this.isLoading,
       markers: markers ?? this.markers,
       mapMarkers: mapMarkers ?? this.mapMarkers,
       errorMessage: errorMessage,
+      isFromCache: isFromCache ?? this.isFromCache,
     );
   }
 }

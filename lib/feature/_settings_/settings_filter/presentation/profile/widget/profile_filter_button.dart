@@ -24,7 +24,7 @@ class ProfileFilterButton extends StatelessWidget {
     final accent = context.colors.serviceAccent(kResourcesService);
 
     return Material(
-      color: _isActive ? accent.soft.withValues(alpha: 0.85) : context.colors.surface,
+      color: accent.soft,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: isLoading ? null : onTap,
@@ -34,11 +34,7 @@ class ProfileFilterButton extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: _isActive
-                  ? accent.ctaBorder.withValues(alpha: 0.75)
-                  : context.colors.border.withValues(alpha: 0.55),
-            ),
+            border: Border.all(color: accent.ctaBorder),
           ),
           child: isLoading
               ? Padding(
@@ -51,7 +47,7 @@ class ProfileFilterButton extends StatelessWidget {
                     Icon(
                       AppIcons.tune.icon,
                       size: 22,
-                      color: _isActive ? accent.icon : context.colors.iconMuted,
+                      color: accent.icon,
                     ),
                     if (_isActive)
                       Positioned(

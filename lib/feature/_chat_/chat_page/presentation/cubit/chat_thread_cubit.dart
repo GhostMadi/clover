@@ -52,13 +52,18 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
 
       _conversationId = conversationId;
 
-      final cached = await _localCache.readMessages(uid, conversationId);
+      final cached = await _readCachedMessages(uid, conversationId);
       if (isClosed) return;
 
       if (cached != null && cached.isNotEmpty) {
-        final repairedCache = await _repairPostShareMessages(cached);
-        if (isClosed) return;
-        emit(ChatThreadState.loaded(messages: repairedCache, isFromCache: true, isRefreshing: true));
+        // Cache first — без сетевого repair, синк ниже.
+        emit(
+          ChatThreadState.loaded(
+            messages: cached,
+            isFromCache: true,
+            isRefreshing: true,
+          ),
+        );
         _subscribe(conversationId);
       } else {
         emit(const ChatThreadState.loaded(messages: [], isRefreshing: true));
@@ -88,13 +93,18 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
 
     _conversationId = id;
 
-    final cached = await _localCache.readMessages(uid, id);
+    final cached = await _readCachedMessages(uid, id);
     if (isClosed) return;
 
     if (cached != null && cached.isNotEmpty) {
-      final repairedCache = await _repairPostShareMessages(cached);
-      if (isClosed) return;
-      emit(ChatThreadState.loaded(messages: repairedCache, isFromCache: true));
+      // Сразу кэш на экран, бэк — в фоне.
+      emit(
+        ChatThreadState.loaded(
+          messages: cached,
+          isFromCache: true,
+          isRefreshing: true,
+        ),
+      );
       _subscribe(id);
     } else {
       emit(const ChatThreadState.loaded(messages: [], isRefreshing: true));
@@ -514,7 +524,8 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
       final remote = await _repository.listMessages(id);
       if (isClosed) return;
 
-      final repairedRemote = await _repairPostShareMessages(remote);
+      // Repair только дыр в payload (параллельно), не блокирует показ кэша.
+      final repairedRemote = await _repairStructuredMessages(remote);
       if (isClosed) return;
 
       final current = state;
@@ -532,6 +543,7 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
           replyToMessage: current is ChatThreadLoaded ? current.replyToMessage : null,
           editingMessage: current is ChatThreadLoaded ? current.editingMessage : null,
           peerIsTyping: current is ChatThreadLoaded ? current.peerIsTyping : false,
+          pendingAttachments: current is ChatThreadLoaded ? current.pendingAttachments : const [],
         ),
       );
       await _persistMessages(uid, id, messages);
@@ -552,16 +564,29 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
     }
   }
 
-  Future<List<ChatMessage>> _repairPostShareMessages(List<ChatMessage> messages) async {
-    final repaired = <ChatMessage>[];
-    for (final message in messages) {
-      if (message.isPostShare && !message.hasPostPreview && !message.isPending) {
-        final enriched = await _repository.getMessageEnriched(message.id);
-        repaired.add(enriched ?? message);
-      } else {
-        repaired.add(message);
-      }
+  Future<List<ChatMessage>?> _readCachedMessages(String userId, String conversationId) async {
+    try {
+      return await _localCache.readMessages(userId, conversationId);
+    } catch (_) {
+      return null;
     }
+  }
+
+  Future<List<ChatMessage>> _repairStructuredMessages(List<ChatMessage> messages) async {
+    final needRepair = <int>[];
+    for (var i = 0; i < messages.length; i++) {
+      if (messages[i].needsStructuredCardRepair) needRepair.add(i);
+    }
+    if (needRepair.isEmpty) return messages;
+
+    final repaired = List<ChatMessage>.from(messages);
+    await Future.wait(
+      needRepair.map((index) async {
+        final message = messages[index];
+        final enriched = await _repository.getMessageEnriched(message.id);
+        if (enriched != null) repaired[index] = enriched;
+      }),
+    );
     return repaired;
   }
 

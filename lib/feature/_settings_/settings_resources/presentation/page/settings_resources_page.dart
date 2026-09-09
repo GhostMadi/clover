@@ -1,52 +1,18 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
-import 'package:clover/core/shared/app_switch.dart';
 import 'package:clover/core/shared/app_tile.dart';
-import 'package:clover/feature/_profile_/profile_page/data/profile_resources_shortcut_store.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_tile_section.dart';
+import 'package:clover/feature/_settings_/settings_resources/data/resources_guide_catalog.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Акцент сервиса «Ресурсы» — сиреневый soft + фиолетовые иконки.
+/// Настройки «Ресурсы». Кнопка в профиле — по тегу `resources`, не prefs.
 @RoutePage()
-class SettingsResourcesPage extends StatefulWidget {
+class SettingsResourcesPage extends StatelessWidget {
   const SettingsResourcesPage({super.key});
-
-  @override
-  State<SettingsResourcesPage> createState() => _SettingsResourcesPageState();
-}
-
-class _SettingsResourcesPageState extends State<SettingsResourcesPage> {
-  late final ProfileResourcesShortcutStore _shortcutStore;
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _shortcutStore = sl<ProfileResourcesShortcutStore>();
-    _loadShortcut();
-  }
-
-  Future<void> _loadShortcut() async {
-    final uid = Supabase.instance.client.auth.currentUser?.id.trim();
-    if (uid == null || uid.isEmpty) {
-      if (mounted) setState(() => _loading = false);
-      return;
-    }
-    await _shortcutStore.load(uid);
-    if (mounted) setState(() => _loading = false);
-  }
-
-  Future<void> _setShortcut(bool value) async {
-    final uid = Supabase.instance.client.auth.currentUser?.id.trim();
-    if (uid == null || uid.isEmpty) return;
-    await _shortcutStore.setVisible(uid, value);
-    if (mounted) setState(() {});
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,29 +26,12 @@ class _SettingsResourcesPageState extends State<SettingsResourcesPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SettingsTileSectionTitle('Профиль'),
-            AppTileGroup(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: AppSwitchRow(
-                    title: 'Кнопка «Ресурсы» в профиле',
-                    subtitle: 'Быстрый переход к справочникам под кнопкой «Редактировать»',
-                    value: _shortcutStore.visible.value,
-                    enabled: !_loading,
-                    onChanged: _loading ? null : _setShortcut,
-                    service: kResourcesService,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
             const SettingsTileSectionTitle('Справочники'),
             AppTileGroup(
               children: [
                 AppTile(
                   title: 'Местоположения',
-                  subtitle: 'Адреса, точки на карте, зоны доставки',
+                  subtitle: 'Адреса и точки на карте для постов',
                   icon: AppIcons.locationOn.icon,
                   iconColor: accent.icon,
                   iconBackgroundColor: accent.soft,
@@ -91,7 +40,7 @@ class _SettingsResourcesPageState extends State<SettingsResourcesPage> {
                 ),
                 AppTile(
                   title: 'Фильтры',
-                  subtitle: 'Категории и значения для фильтрации',
+                  subtitle: 'Категории витрины профиля',
                   icon: AppIcons.tune.icon,
                   iconColor: accent.icon,
                   iconBackgroundColor: accent.soft,
@@ -100,8 +49,108 @@ class _SettingsResourcesPageState extends State<SettingsResourcesPage> {
                 ),
               ],
             ),
+            const SizedBox(height: 24),
+            const SettingsTileSectionTitle('Гайд'),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final wide = constraints.maxWidth >= 420;
+                final cards = ResourcesGuideCatalog.all
+                    .map(
+                      (item) => _ResourcesGuideCard(
+                        content: item,
+                        accent: accent,
+                        onTap: () => context.router.push(
+                          SettingsResourcesGuideRoute(topicKey: item.topic.key),
+                        ),
+                      ),
+                    )
+                    .toList(growable: false);
+
+                if (wide) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (var i = 0; i < cards.length; i++) ...[
+                        if (i > 0) const SizedBox(width: 10),
+                        Expanded(child: cards[i]),
+                      ],
+                    ],
+                  );
+                }
+
+                return Column(
+                  children: [
+                    for (var i = 0; i < cards.length; i++) ...[
+                      if (i > 0) const SizedBox(height: 10),
+                      cards[i],
+                    ],
+                  ],
+                );
+              },
+            ),
             SizedBox(height: SettingsScreenShell.scrollBottomGap(context)),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ResourcesGuideCard extends StatelessWidget {
+  const _ResourcesGuideCard({
+    required this.content,
+    required this.accent,
+    required this.onTap,
+  });
+
+  final ResourcesGuideContent content;
+  final AppServiceAccent accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Material(
+      color: colors.surface,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: colors.borderSoft),
+          ),
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: accent.soft,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(content.cardIcon, color: accent.icon, size: 22),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                content.cardTitle,
+                style: AppTextStyle.base(
+                  15,
+                  color: colors.textColor,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                content.cardSubtitle,
+                style: AppTextStyle.base(12, color: colors.subTextColor, height: 1.35),
+              ),
+            ],
+          ),
         ),
       ),
     );

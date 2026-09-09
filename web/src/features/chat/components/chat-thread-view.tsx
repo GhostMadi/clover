@@ -7,6 +7,7 @@ import {
   Clock,
   FileText,
   Image as ImageIcon,
+  Palette,
   Paperclip,
   Plus,
   RotateCcw,
@@ -49,10 +50,23 @@ import {
   formatMessageTime,
   MESSAGES_PAGE_SIZE,
   parseMessageRow,
+  type ChatAttendanceCard,
   type ChatBookingStaffCard,
   type ChatConversation,
   type ChatMessage,
 } from "@/features/chat/lib/chat-model";
+import { CHAT_MINE_ACCENT, chatAccentForSeed, type ChatAccentClasses } from "@/features/chat/lib/chat-accent";
+import {
+  buildEmojiScatter,
+  normalizeWallpaperEmojis,
+  readWallpaperEmojis,
+  writeWallpaperEmojis,
+} from "@/features/chat/lib/chat-emoji-wallpaper";
+import {
+  acceptAttendanceInvite,
+  ackAttendanceConfig,
+  rejectAttendanceInvite,
+} from "@/features/attendance/lib/attendance-api";
 import {
   acceptStaffInvite,
   rejectStaffInvite,
@@ -106,6 +120,101 @@ function StatusTicks({ message }: { message: ChatMessage }) {
     return <CheckCheck className="h-3.5 w-3.5" strokeWidth={2.25} />;
   }
   return <Check className="h-3.5 w-3.5" strokeWidth={2.25} />;
+}
+
+function AttendanceInviteCard({
+  card,
+  isMine,
+}: {
+  card: ChatAttendanceCard;
+  isMine: boolean;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [doneLabel, setDoneLabel] = useState<string | null>(null);
+  const isInvite = card.card === "attendance_invite";
+
+  const run = async (action: () => Promise<void>, ok: string) => {
+    if (busy || doneLabel) return;
+    setBusy(true);
+    try {
+      await action();
+      setDoneLabel(ok);
+    } catch {
+      setDoneLabel(null);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="w-full max-w-[78%] rounded-[16px] border border-line bg-surface p-3.5 shadow-sm">
+      <p className="text-[15px] font-bold text-ink">
+        {isInvite ? "Приглашение в команду" : "Правила компании"}
+      </p>
+      <p className="mt-1 text-[13px] text-muted">
+        {isInvite
+          ? `Стать частью «${card.workplaceName}»`
+          : `«${card.workplaceName}» · v${card.configVersion ?? 1}`}
+      </p>
+      {doneLabel ? (
+        <p className="mt-3 text-[13px] font-semibold text-svc-attendance-ink">{doneLabel}</p>
+      ) : !isMine ? (
+        <div className="mt-3 space-y-2">
+          {isInvite ? (
+            <>
+              <AppButton
+                service="attendance"
+                size="row"
+                loading={busy}
+                className="w-full"
+                disabled={!card.membershipId}
+                onClick={() => {
+                  if (!card.membershipId) return;
+                  void run(
+                    () => acceptAttendanceInvite(card.membershipId!),
+                    "Вы в команде",
+                  );
+                }}
+              >
+                Принять
+              </AppButton>
+              <AppButton
+                variant="outline"
+                service="attendance"
+                size="row"
+                disabled={busy || !card.membershipId}
+                className="w-full"
+                onClick={() => {
+                  if (!card.membershipId) return;
+                  void run(
+                    () => rejectAttendanceInvite(card.membershipId!),
+                    "Приглашение отклонено",
+                  );
+                }}
+              >
+                Отклонить
+              </AppButton>
+            </>
+          ) : (
+            <AppButton
+              service="attendance"
+              size="row"
+              loading={busy}
+              className="w-full"
+              onClick={() =>
+                void run(
+                  () => ackAttendanceConfig(card.workplaceId),
+                  "Правила приняты",
+                )
+              }
+            >
+              Принять правила
+            </AppButton>
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 function BookingStaffInviteCard({
@@ -178,14 +287,45 @@ function BookingStaffInviteCard({
 
 function MessageBubble({
   message,
+  peerAccent,
   onRetry,
 }: {
   message: ChatMessage;
+  peerAccent: ChatAccentClasses;
   onRetry?: (message: ChatMessage) => void;
 }) {
   const mine = message.isMine;
   const time = formatMessageTime(message.sentAt);
   const failed = Boolean(message.sendFailed);
+  const accent = mine ? CHAT_MINE_ACCENT : peerAccent;
+
+  if (message.attendanceCard) {
+    return (
+      <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+        <AttendanceInviteCard card={message.attendanceCard} isMine={mine} />
+      </div>
+    );
+  }
+
+  if (
+    message.kind === "attendance_invite" ||
+    message.kind === "attendance_rules"
+  ) {
+    return (
+      <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+        <div className="w-full max-w-[78%] rounded-[16px] border border-line bg-surface p-3.5 shadow-sm">
+          <p className="text-[15px] font-bold text-ink">
+            {message.kind === "attendance_rules"
+              ? "Правила компании"
+              : "Приглашение в команду"}
+          </p>
+          {message.text ? (
+            <p className="mt-1 text-[13px] text-muted">{message.text}</p>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
 
   if (message.bookingStaffCard) {
     return (
@@ -195,12 +335,25 @@ function MessageBubble({
     );
   }
 
+  if (message.kind === "booking_staff_invite") {
+    return (
+      <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+        <div className="w-full max-w-[78%] rounded-[16px] border border-line bg-surface p-3.5 shadow-sm">
+          <p className="text-[15px] font-bold text-ink">Приглашение в запись</p>
+          {message.text ? (
+            <p className="mt-1 text-[13px] text-muted">{message.text}</p>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
   if (message.postRef) {
     return (
       <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
         <div
-          className={`max-w-[78%] overflow-hidden rounded-[20px] border border-line ${
-            mine ? "rounded-br-lg bg-brand text-on-brand" : "rounded-bl-lg bg-surface text-ink"
+          className={`max-w-[78%] overflow-hidden rounded-[17px] border ${accent.fill} ${accent.border} ${accent.onFill} ${
+            mine ? "rounded-br-[6px]" : "rounded-bl-[6px]"
           } ${failed ? "ring-2 ring-destructive/40" : ""}`}
         >
           <Link href={`/app/posts/${message.postRef.postId}`} className="block">
@@ -212,24 +365,18 @@ function MessageBubble({
                 className="aspect-[4/3] w-full object-cover"
               />
             ) : (
-              <div className={`flex h-28 items-center justify-center ${mine ? "bg-black/10" : "bg-mint"}`}>
-                <ImageIcon className={`h-7 w-7 ${mine ? "text-on-brand/80" : "text-muted"}`} />
+              <div className={`flex h-28 items-center justify-center ${accent.fill}`}>
+                <ImageIcon className={`h-7 w-7 ${accent.ink}`} />
               </div>
             )}
             <div className="px-3 py-2">
-              <p className={`text-[12px] font-bold ${mine ? "text-on-brand/90" : "text-brand"}`}>
-                Пост
-              </p>
+              <p className={`text-[12px] font-bold ${accent.ink}`}>Пост</p>
               <p className="mt-0.5 line-clamp-2 text-[13px]">
                 {message.postRef.caption || message.postRef.title || message.text || "Открыть"}
               </p>
             </div>
           </Link>
-          <div
-            className={`flex items-center justify-end gap-1 px-3 pb-2 text-[11px] ${
-              mine ? "text-on-brand/80" : "text-muted"
-            }`}
-          >
+          <div className={`flex items-center justify-end gap-1 px-3 pb-2 text-[11px] ${accent.meta}`}>
             <span>{time}</span>
             <StatusTicks message={message} />
           </div>
@@ -244,10 +391,8 @@ function MessageBubble({
   return (
     <div className={`flex flex-col gap-1 ${mine ? "items-end" : "items-start"}`}>
       <div
-        className={`max-w-[78%] rounded-[20px] px-3.5 py-2.5 shadow-sm ${
-          mine
-            ? "rounded-br-lg bg-brand text-on-brand"
-            : "rounded-bl-lg border border-line bg-surface text-ink"
+        className={`max-w-[78%] rounded-[17px] border px-3 py-2.5 shadow-sm ${accent.fill} ${accent.border} ${accent.onFill} ${
+          mine ? "rounded-br-[6px]" : "rounded-bl-[6px]"
         } ${failed ? "ring-2 ring-destructive/40" : ""}`}
       >
         {images.length === 1 && images[0]?.url ? (
@@ -285,7 +430,7 @@ function MessageBubble({
                       target="_blank"
                       rel="noreferrer"
                       className={`flex items-center gap-2 rounded-xl px-2 py-1.5 ${
-                        mine ? "bg-black/10" : "bg-bg"
+                        mine ? "bg-black/5" : "bg-bg/60"
                       }`}
                     >
                       <FileText className="h-4 w-4 shrink-0" strokeWidth={2} />
@@ -293,7 +438,7 @@ function MessageBubble({
                         {name}
                       </span>
                       {a.sizeBytes ? (
-                        <span className={`text-[11px] ${mine ? "text-on-brand/75" : "text-muted"}`}>
+                        <span className={`text-[11px] ${accent.meta}`}>
                           {formatFileSize(a.sizeBytes)}
                         </span>
                       ) : null}
@@ -312,9 +457,7 @@ function MessageBubble({
           </p>
         ) : null}
         <div
-          className={`mt-1 flex items-center justify-end gap-1 text-[11px] ${
-            mine ? "text-on-brand/80" : "text-muted"
-          }`}
+          className={`mt-1 flex items-center justify-end gap-1 text-[11px] ${accent.meta}`}
         >
           {message.editedAt ? <span>изм.</span> : null}
           <span>{time}</span>
@@ -354,6 +497,9 @@ export function ChatThreadView({
   const [threadSearchOpen, setThreadSearchOpen] = useState(false);
   const [threadQuery, setThreadQuery] = useState("");
   const [threadHits, setThreadHits] = useState<MessageSearchHit[]>([]);
+  const [wallpaperEmojis, setWallpaperEmojis] = useState<string[]>([]);
+  const [wallpaperOpen, setWallpaperOpen] = useState(false);
+  const [wallpaperDraft, setWallpaperDraft] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const loadLock = useRef(false);
@@ -379,9 +525,21 @@ export function ChatThreadView({
       ? conversation.title
       : `@${conversation.title}`
     : "Чат";
+  const peerAccent = useMemo(
+    () => chatAccentForSeed(conversationId || title),
+    [conversationId, title],
+  );
+  const wallpaperScatter = useMemo(
+    () => buildEmojiScatter(wallpaperEmojis, conversationId || title),
+    [wallpaperEmojis, conversationId, title],
+  );
   const peerHref = conversation?.peer?.id
     ? `/app/u/${conversation.peer.id}`
     : null;
+
+  useEffect(() => {
+    setWallpaperEmojis(readWallpaperEmojis(conversationId));
+  }, [conversationId]);
 
   useEffect(() => {
     if (!threadSearchOpen) return;
@@ -645,6 +803,7 @@ export function ChatThreadView({
         sendFailed: false,
         postRef: null,
         bookingStaffCard: null,
+        attendanceCard: null,
         attachments: pendingSnapshot.map((p) => ({
           id: p.id,
           bucket: "chat_media",
@@ -676,6 +835,7 @@ export function ChatThreadView({
       sendFailed: false,
       postRef: null,
       bookingStaffCard: null,
+      attendanceCard: null,
       attachments: [],
       editedAt: null,
     };
@@ -721,7 +881,7 @@ export function ChatThreadView({
 
   return (
     <div className="flex h-[calc(100dvh-3rem-4.25rem)] flex-col bg-bg md:h-dvh">
-      <header className="flex h-12 shrink-0 items-center gap-2 border-b border-line bg-surface/95 px-2 backdrop-blur-md">
+      <header className="flex h-[52px] shrink-0 items-center gap-1.5 border-b border-line bg-surface/95 px-2 backdrop-blur-md">
         <button
           type="button"
           onClick={() => router.push("/app/chat")}
@@ -731,22 +891,36 @@ export function ChatThreadView({
           <ArrowLeft className="h-5 w-5" strokeWidth={2} />
         </button>
         {peerHref ? (
-          <Link href={peerHref} className="flex min-w-0 flex-1 items-center gap-2.5">
-            <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-line bg-mint">
+          <Link href={peerHref} className="flex min-w-0 flex-1 items-center gap-2">
+            <div className={`h-9 w-9 shrink-0 overflow-hidden rounded-full border ${peerAccent.fill} ${peerAccent.border}`}>
               {conversation?.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={conversation.avatarUrl} alt="" className="h-full w-full object-cover" />
               ) : (
-                <span className="flex h-full w-full items-center justify-center">
-                  <User className="h-4 w-4 text-muted" />
+                <span className={`flex h-full w-full items-center justify-center ${peerAccent.ink}`}>
+                  <User className="h-4 w-4" />
                 </span>
               )}
             </div>
-            <span className="truncate text-[15px] font-bold text-ink">{title}</span>
+            <div className="min-w-0 flex flex-col gap-0.5">
+              <span className="truncate text-[16px] font-bold leading-tight text-ink">{title}</span>
+            </div>
           </Link>
         ) : (
-          <span className="min-w-0 flex-1 truncate text-[15px] font-bold text-ink">{title}</span>
+          <span className="min-w-0 flex-1 truncate text-[16px] font-bold text-ink">{title}</span>
         )}
+        <button
+          type="button"
+          onClick={() => {
+            setWallpaperDraft(wallpaperEmojis.join(""));
+            setWallpaperOpen(true);
+          }}
+          className="flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-bg"
+          aria-label="Фон чата"
+          title="Фон чата"
+        >
+          <Palette className="h-5 w-5" strokeWidth={2} />
+        </button>
         <button
           type="button"
           onClick={() => setThreadSearchOpen((v) => !v)}
@@ -782,9 +956,30 @@ export function ChatThreadView({
       <div
         ref={scrollerRef}
         onScroll={onScroll}
-        className="min-h-0 flex-1 overflow-y-auto px-3 py-3"
+        className="relative min-h-0 flex-1 overflow-y-auto px-2.5 py-2"
       >
-        <div className="mx-auto flex w-full max-w-[640px] flex-col gap-3">
+        {wallpaperScatter.length > 0 ? (
+          <div
+            className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.34]"
+            aria-hidden
+          >
+            {wallpaperScatter.map((item, i) => (
+              <span
+                key={`${item.emoji}-${i}`}
+                className="absolute select-none"
+                style={{
+                  left: `${item.left}%`,
+                  top: `${item.top}%`,
+                  fontSize: item.size,
+                  transform: `translate(-50%, -50%) rotate(${item.rotate}deg)`,
+                }}
+              >
+                {item.emoji}
+              </span>
+            ))}
+          </div>
+        ) : null}
+        <div className="relative mx-auto flex w-full max-w-[640px] flex-col gap-1.5">
           {loadingOlder ? (
             <p className="py-2 text-center text-xs text-muted">Загрузка…</p>
           ) : null}
@@ -795,7 +990,7 @@ export function ChatThreadView({
             </div>
           ) : null}
           {grouped.map((g) => (
-            <div key={g.day} className="flex flex-col gap-2.5">
+            <div key={g.day} className="flex flex-col gap-1.5">
               <div className="flex justify-center py-1">
                 <span className="rounded-full bg-surface/90 px-3 py-1 text-[11px] font-semibold text-muted shadow-sm">
                   {formatMessageDayLabel(g.items[0]?.sentAt ?? "")}
@@ -805,6 +1000,7 @@ export function ChatThreadView({
                 <MessageBubble
                   key={m.clientMessageId || m.id}
                   message={m}
+                  peerAccent={peerAccent}
                   onRetry={m.sendFailed ? retryFailed : undefined}
                 />
               ))}
@@ -893,7 +1089,7 @@ export function ChatThreadView({
               }}
               disabled={pending.length >= CHAT_MAX_FILES_PER_MESSAGE}
               title="Прикрепить файл"
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-mint text-brand transition hover:bg-brand-soft disabled:opacity-40"
+              className={`flex h-11 w-11 items-center justify-center rounded-full border transition disabled:opacity-40 ${peerAccent.fill} ${peerAccent.border} ${peerAccent.ink}`}
               aria-label="Прикрепить файл"
               aria-expanded={attachMenu}
             >
@@ -949,7 +1145,7 @@ export function ChatThreadView({
             }}
             rows={1}
             placeholder={pending.length > 0 ? "Подпись к файлу…" : "Сообщение"}
-            className="max-h-32 min-h-11 flex-1 resize-none rounded-[18px] border border-line bg-bg px-4 py-2.5 text-[15px] text-ink outline-none placeholder:text-muted focus:border-brand"
+            className="max-h-32 min-h-11 flex-1 resize-none rounded-[26px] border border-line bg-surface px-4 py-2.5 text-[15px] text-ink outline-none placeholder:text-muted focus:border-brand"
           />
           <button
             type="button"
@@ -963,6 +1159,86 @@ export function ChatThreadView({
           </button>
         </div>
       </div>
+
+      {wallpaperOpen ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-3 sm:items-center">
+          <div
+            role="dialog"
+            aria-label="Фон чата"
+            className="w-full max-w-md rounded-[20px] border border-line bg-surface p-4 shadow-elevate-lg"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-[16px] font-bold text-ink">Фон чата</p>
+              <button
+                type="button"
+                onClick={() => setWallpaperOpen(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-bg"
+                aria-label="Закрыть"
+              >
+                <X className="h-5 w-5" strokeWidth={2} />
+              </button>
+            </div>
+            <p className="mb-3 text-[13px] text-muted">
+              Вставь смайлики — они появятся на фоне в разных местах
+            </p>
+            <div className="relative mb-3 h-24 overflow-hidden rounded-[12px] border border-line bg-bg">
+              {normalizeWallpaperEmojis(wallpaperDraft).length === 0 ? (
+                <p className="flex h-full items-center justify-center text-[13px] text-muted">Превью фона</p>
+              ) : (
+                buildEmojiScatter(
+                  normalizeWallpaperEmojis(wallpaperDraft),
+                  conversationId || title,
+                  16,
+                ).map((item, i) => (
+                  <span
+                    key={`preview-${item.emoji}-${i}`}
+                    className="absolute select-none opacity-50"
+                    style={{
+                      left: `${item.left}%`,
+                      top: `${item.top}%`,
+                      fontSize: item.size * 0.85,
+                      transform: `translate(-50%, -50%) rotate(${item.rotate}deg)`,
+                    }}
+                  >
+                    {item.emoji}
+                  </span>
+                ))
+              )}
+            </div>
+            <input
+              value={wallpaperDraft}
+              onChange={(e) => setWallpaperDraft(e.target.value)}
+              placeholder="Например 🍀✨💬"
+              className="mb-3 h-11 w-full rounded-[14px] border border-line bg-bg px-3 text-[16px] text-ink outline-none focus:border-brand"
+            />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  writeWallpaperEmojis(conversationId, []);
+                  setWallpaperEmojis([]);
+                  setWallpaperOpen(false);
+                }}
+                className="h-11 flex-1 rounded-[14px] border border-line text-[14px] font-semibold text-ink"
+              >
+                Убрать
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const next = normalizeWallpaperEmojis(wallpaperDraft);
+                  writeWallpaperEmojis(conversationId, next);
+                  setWallpaperEmojis(next);
+                  setWallpaperOpen(false);
+                }}
+                className="h-11 flex-1 rounded-[14px] bg-brand text-[14px] font-bold text-on-brand"
+              >
+                Сохранить
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

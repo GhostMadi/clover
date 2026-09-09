@@ -72,6 +72,7 @@ class _AttendancePunchPageState extends State<AttendancePunchPage> {
             ? null
             : _resolveBlock(
                 needsAck: membership.needsAck,
+                hasAttendanceWorkTag: membership.hasAttendanceWorkTag,
                 gpsOn: gpsOn,
                 inZone: inZone,
                 primaryType: primaryType,
@@ -196,12 +197,14 @@ class _AttendancePunchPageState extends State<AttendancePunchPage> {
 
   AttendancePunchBlockReason? _resolveBlock({
     required bool needsAck,
+    required bool hasAttendanceWorkTag,
     required bool gpsOn,
     required bool inZone,
     required AttendancePunchType? primaryType,
     required bool dutyOnlyPunch,
     required bool onDutyToday,
   }) {
+    if (!hasAttendanceWorkTag) return AttendancePunchBlockReason.missingAttendanceWorkTag;
     if (needsAck) return AttendancePunchBlockReason.needsAck;
     if (dutyOnlyPunch && !onDutyToday) return AttendancePunchBlockReason.notOnDuty;
     if (!gpsOn) return AttendancePunchBlockReason.gpsDisabled;

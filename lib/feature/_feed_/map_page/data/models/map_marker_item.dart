@@ -40,6 +40,18 @@ class MapMarkerItem {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'text_emoji': textEmoji,
+    'lat': lat,
+    'lng': lng,
+    if (postId != null) 'post_id': postId,
+    if (countryCode != null) 'country_code': countryCode,
+    if (cityCode != null) 'city_code': cityCode,
+    if (eventTime != null) 'event_time': eventTime!.toIso8601String(),
+    if (status != null) 'status': status,
+  };
+
   static DateTime? _parseDate(Object? raw) {
     if (raw == null) return null;
     return DateTime.tryParse(raw.toString())?.toUtc();

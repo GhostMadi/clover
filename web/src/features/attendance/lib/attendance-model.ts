@@ -91,6 +91,8 @@ export type AttendanceMembershipLite = {
   needsAck: boolean;
   ackVersion: number;
   configVersion: number;
+  /** Тег `attendanceWork` на профиле — без него punch недоступен. */
+  hasAttendanceWorkTag: boolean;
 };
 
 export type AttendancePunchRecord = {
@@ -367,6 +369,10 @@ export function mapMembershipLite(
       (status === "active" && ack < config),
     ackVersion: ack,
     configVersion: config,
+    hasAttendanceWorkTag:
+      raw.has_attendance_work_tag === undefined
+        ? false
+        : Boolean(raw.has_attendance_work_tag),
   };
 }
 

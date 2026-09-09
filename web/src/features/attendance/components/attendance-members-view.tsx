@@ -206,7 +206,9 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
                       <p className="truncate text-[12px] text-muted">
                         {m.username}
                         {tab === "active"
-                          ? ` · ${m.baseSalaryTenge.toLocaleString("ru-RU")} ₸`
+                          ? !m.hasAttendanceWorkTag
+                            ? " · Неактивен"
+                            : ` · ${m.baseSalaryTenge.toLocaleString("ru-RU")} ₸`
                           : ""}
                       </p>
                     </div>

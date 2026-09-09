@@ -128,8 +128,11 @@ abstract final class ChatEnrichedMapper {
       final path = map['path']?.toString().trim() ?? '';
       if (path.isEmpty) continue;
 
-      String? url;
-      if (storageClient != null) {
+      String? url = (map['public_url'] as String?)?.trim();
+      if (url == null || url.isEmpty) {
+        url = (map['url'] as String?)?.trim();
+      }
+      if ((url == null || url.isEmpty) && storageClient != null && bucket != 'r2') {
         url = storageClient.storage.from(bucket).getPublicUrl(path);
       }
 

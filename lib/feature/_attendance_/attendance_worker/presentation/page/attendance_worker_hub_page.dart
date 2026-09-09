@@ -248,10 +248,18 @@ class _WorkerCompanyCard extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 12),
+          if (!membership.hasAttendanceWorkTag)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                'Чтобы отметиться, включите тег «Мои отметки» в профиле.',
+                style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
+              ),
+            ),
           AttendancePrimaryButton(
             text: 'Отметиться',
             isExpanded: true,
-            onTap: membership.needsAck
+            onTap: membership.needsAck || !membership.hasAttendanceWorkTag
                 ? null
                 : () => context.router.push(AttendancePunchRoute(workplaceId: membership.workplaceId)),
           ),

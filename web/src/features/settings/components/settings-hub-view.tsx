@@ -22,19 +22,15 @@ type HubItem = {
   service?: AppServiceKind;
 };
 
-function buildSections(hasBookingTag: boolean): {
+function buildSections(
+  hasBookingTag: boolean,
+  hasAttendanceTag: boolean,
+  hasResourcesTag: boolean,
+): {
   title: string;
   items: HubItem[];
 }[] {
-  const serviceItems: HubItem[] = [
-    {
-      href: "/app/settings/resources",
-      label: "Ресурсы",
-      subtitle: "Местоположения и фильтры витрины",
-      icon: Layers,
-      service: "resources",
-    },
-  ];
+  const serviceItems: HubItem[] = [];
   if (hasBookingTag) {
     serviceItems.push({
       href: "/app/settings/booking",
@@ -44,19 +40,36 @@ function buildSections(hasBookingTag: boolean): {
       service: "booking",
     });
   }
+  if (hasAttendanceTag) {
+    serviceItems.push({
+      href: "/app/settings/attendance",
+      label: "Посещаемость",
+      subtitle: "Компании, геозона и работники",
+      icon: Building2,
+      service: "attendance",
+    });
+  }
+  if (hasResourcesTag) {
+    serviceItems.push({
+      href: "/app/settings/resources",
+      label: "Ресурсы",
+      subtitle: "Местоположения и фильтры витрины",
+      icon: Layers,
+      service: "resources",
+    });
+  }
+  serviceItems.push({
+    href: "/app/settings/guide",
+    label: "Гайд",
+    subtitle: "Запись, посещаемость и ресурсы",
+    icon: Info,
+  });
   serviceItems.push({
     href: "/app/settings/booking/my",
     label: "Мои бронирования",
     subtitle: "Где вы клиент — без тега хозяина",
     icon: CalendarDays,
     service: "booking",
-  });
-  serviceItems.push({
-    href: "/app/settings/attendance",
-    label: "Посещаемость",
-    subtitle: "Компании (admin) и мои детали (read-only)",
-    icon: Building2,
-    service: "attendance",
   });
 
   return [
@@ -105,10 +118,16 @@ function buildSections(hasBookingTag: boolean): {
 
 type Props = {
   hasBookingTag?: boolean;
+  hasAttendanceTag?: boolean;
+  hasResourcesTag?: boolean;
 };
 
-export function SettingsHubView({ hasBookingTag = false }: Props) {
-  const sections = buildSections(hasBookingTag);
+export function SettingsHubView({
+  hasBookingTag = false,
+  hasAttendanceTag = false,
+  hasResourcesTag = false,
+}: Props) {
+  const sections = buildSections(hasBookingTag, hasAttendanceTag, hasResourcesTag);
 
   return (
     <SettingsShell title="Настройки" backHref="/app/profile">
@@ -130,7 +149,7 @@ export function SettingsHubView({ hasBookingTag = false }: Props) {
                         ? "hover:bg-svc-attendance/40"
                         : "hover:bg-bg";
                 return (
-                  <li key={item.href} className="border-b border-line last:border-0">
+                  <li key={`${item.href}:${item.label}`} className="border-b border-line last:border-0">
                     <Link
                       href={item.href}
                       className={`flex items-center gap-3 px-3.5 py-3.5 transition ${hover}`}

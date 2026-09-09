@@ -1,6 +1,6 @@
-import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:clover/core/storage/r2_storage_service.dart';
 import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:injectable/injectable.dart';
@@ -13,17 +13,13 @@ abstract class ClusterRepository {
   /// Архивные кластеры владельца, по updated_at desc (последние изменения сверху).
   Future<List<ClusterModel>> listArchivedByOwnerId(String ownerId);
 
-  /// Создание кластера текущим пользователем; при [coverBytes] — загрузка в Storage, затем [cover_url].
-  ///
-  /// Бакет `cluster_covers` должен существовать в проекте Supabase (публичное чтение, загрузка для authenticated).
+  /// Создание кластера текущим пользователем; при [coverBytes] — загрузка в R2, затем [cover_url].
   Future<ClusterModel> createCluster({required String title, String? subtitle, Uint8List? coverBytes});
 
-  /// Обновить обложку: при [coverBytes] — overwrite по фиксированному path; при `null` — удалить объект и очистить `cover_url`.
+  /// Обновить обложку: при [coverBytes] — upload в R2; при `null` — очистить `cover_url`.
   Future<ClusterModel> updateClusterCover({required String clusterId, Uint8List? coverBytes});
 
-  /// Удалить кластер и его обложку в Storage (без Edge).
-  ///
-  /// Важно: чтобы не «забивать» Storage, удаляем объект **до** удаления строки в БД.
+  /// Удалить кластер (объект R2 пока не чистим — URL остаётся orphan).
   Future<void> deleteCluster({required String clusterId});
 
   /// Архивировать кластер (is_archived = true). Для восстановления можно будет сделать отдельный метод.
@@ -35,11 +31,12 @@ abstract class ClusterRepository {
 
 @LazySingleton(as: ClusterRepository)
 class ClusterRepositoryImpl implements ClusterRepository {
-  ClusterRepositoryImpl(this._client);
+  ClusterRepositoryImpl(this._client, this._r2);
 
   final SupabaseClient _client;
+  final R2StorageService _r2;
 
-  static const _bucketClusterCovers = 'cluster_covers';
+  static const _folderClusterCovers = 'cluster_covers';
 
   @override
   Future<List<ClusterModel>> listActiveByOwnerId(String ownerId) async {
@@ -126,11 +123,7 @@ class ClusterRepositoryImpl implements ClusterRepository {
       throw ArgumentError('Пустой clusterId');
     }
 
-    final path = _clusterCoverPath(ownerId: uid, clusterId: id);
-
     if (coverBytes == null || coverBytes.isEmpty) {
-      // Cleanup object first to avoid stale files.
-      await _client.storage.from(_bucketClusterCovers).remove([path]);
       final updated = await _client
           .from('clusters')
           .update({'cover_url': null})
@@ -141,14 +134,12 @@ class ClusterRepositoryImpl implements ClusterRepository {
     }
 
     final compressed = await FlutterImageCompress.compressWithList(coverBytes);
-    await _client.storage
-        .from(_bucketClusterCovers)
-        .uploadBinary(
-          path,
-          compressed,
-          fileOptions: const FileOptions(upsert: true, contentType: 'image/jpeg'),
-        );
-    final coverUrl = _publicUrlWithVersion(path: path);
+    final coverUrl = await _r2.uploadBytes(
+      compressed,
+      fileName: 'cover.jpg',
+      folder: '$_folderClusterCovers/$id',
+      contentType: 'image/jpeg',
+    );
     final updated = await _client
         .from('clusters')
         .update({'cover_url': coverUrl})
@@ -169,14 +160,10 @@ class ClusterRepositoryImpl implements ClusterRepository {
       throw ArgumentError('Пустой clusterId');
     }
 
-    final path = _clusterCoverPath(ownerId: uid, clusterId: id);
-    // Try delete cover first to prevent Storage bloat.
-    // If object doesn't exist, Storage API can throw; ignore only 404-like errors if they bubble up as generic.
-    try {
-      await _client.storage.from(_bucketClusterCovers).remove([path]);
-    } catch (_) {
-      // Без Edge нет 100% гарантии; но лучше не удалять строку, если Storage отвалился.
-      rethrow;
+    final row = await _client.from('clusters').select('cover_url').eq('id', id).maybeSingle();
+    final coverUrl = (row?['cover_url'] as String?)?.trim();
+    if (coverUrl != null && coverUrl.isNotEmpty) {
+      await _r2.deleteObjects(urls: [coverUrl]);
     }
 
     await _client.from('clusters').delete().eq('id', id);
@@ -220,15 +207,5 @@ class ClusterRepositoryImpl implements ClusterRepository {
         .select()
         .single();
     return ClusterModel.fromJson(Map<String, dynamic>.from(updated));
-  }
-
-  String _clusterCoverPath({required String ownerId, required String clusterId}) {
-    return '$ownerId/$clusterId/cover.jpg';
-  }
-
-  String _publicUrlWithVersion({required String path}) {
-    final base = _client.storage.from(_bucketClusterCovers).getPublicUrl(path);
-    final v = DateTime.now().millisecondsSinceEpoch;
-    return '$base?v=$v';
   }
 }

@@ -20,9 +20,11 @@ abstract final class AccountStorageKeys {
     'post_all_feed_',
     'chat_conversations_',
     'chat_thread_',
+    'chat_wallpaper_',
     'post_share_following_',
     'post_share_frequent_',
     'post_comments_',
+    'map_markers_',
   ];
 
   /// Префиксы справочников/ресурсов — не трогаем при logout.

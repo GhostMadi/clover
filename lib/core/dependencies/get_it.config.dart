@@ -55,8 +55,6 @@ import '../../feature/_attendance_/shared/data/attendance_context_store.dart'
 import '../../feature/_attendance_/shared/data/attendance_outbox.dart' as _i352;
 import '../../feature/_attendance_/shared/data/attendance_remote_repository.dart'
     as _i75;
-import '../../feature/_attendance_/shared/data/profile_attendance_admin_shortcut_store.dart'
-    as _i274;
 import '../../feature/_bonus_/bonus_history/data/repository/bonus_history_repository.dart'
     as _i1054;
 import '../../feature/_bonus_/bonus_history/presentation/cubit/bonus_history_cubit.dart'
@@ -130,6 +128,8 @@ import '../../feature/_chat_/chat/data/repository/chat_local_cache.dart'
     as _i325;
 import '../../feature/_chat_/chat/data/repository/chat_repository.dart'
     as _i233;
+import '../../feature/_chat_/chat_page/data/chat_emoji_wallpaper_store.dart'
+    as _i96;
 import '../../feature/_chat_/chat_page/presentation/cubit/chat_thread_cubit.dart'
     as _i719;
 import '../../feature/_chat_/message_page/presentation/cubit/message_list_cubit.dart'
@@ -150,6 +150,8 @@ import '../../feature/_feed_/events_page/data/repository/events_feed_repository.
     as _i885;
 import '../../feature/_feed_/events_page/presentation/cubit/events_feed_cubit.dart'
     as _i359;
+import '../../feature/_feed_/map_page/data/map_markers_local_cache.dart'
+    as _i186;
 import '../../feature/_feed_/map_page/data/repository/map_markers_repository.dart'
     as _i232;
 import '../../feature/_feed_/map_page/presentation/cubit/map_markers_cubit.dart'
@@ -192,8 +194,6 @@ import '../../feature/_profile_/followers_and_followings/data/repository/followe
     as _i986;
 import '../../feature/_profile_/followers_and_followings/presentation/cubit/followers_and_followings_cubit.dart'
     as _i776;
-import '../../feature/_profile_/profile_page/data/profile_resources_shortcut_store.dart'
-    as _i461;
 import '../../feature/_profile_/profile_page/data/repository/profile_repository.dart'
     as _i57;
 import '../../feature/_profile_/profile_page/presentation/cubit/guest_profile_cubit.dart'
@@ -226,6 +226,7 @@ import '../session/account_session_cleanup.dart' as _i191;
 import '../session/app_session.dart' as _i819;
 import '../storage/data/repositories/isar_app_storage_impl.dart' as _i814;
 import '../storage/domain/repositories/i_app_storage.dart' as _i1029;
+import '../storage/r2_storage_service.dart' as _i573;
 import '../theme/app_theme_cubit.dart' as _i678;
 import '../theme/app_theme_store.dart' as _i980;
 import 'module.dart' as _i946;
@@ -241,9 +242,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i454.SupabaseClient>(() => appModule.supabaseClient);
     gh.lazySingleton<_i116.GoogleSignIn>(() => appModule.googleSignIn);
     gh.lazySingleton<_i1029.IAppStorage>(() => _i814.IsarAppStorageImpl());
-    gh.lazySingleton<_i347.ClusterRepository>(
-      () => _i347.ClusterRepositoryImpl(gh<_i454.SupabaseClient>()),
-    );
     gh.lazySingleton<_i460.SupabaseEdgeFunctionsInvoker>(
       () => _i460.SupabaseEdgeFunctionsInvoker(gh<_i454.SupabaseClient>()),
     );
@@ -313,6 +311,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i462.BookingStaffRepository>(),
       ),
     );
+    gh.lazySingleton<_i573.R2StorageService>(
+      () => _i573.R2StorageService(gh<_i460.SupabaseEdgeFunctionsInvoker>()),
+    );
     gh.lazySingleton<_i858.FilterRepository>(
       () => _i858.FilterRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
@@ -324,12 +325,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i57.ProfileNewRepository>(
       () => _i57.ProfileNewRepositoryImpl(gh<_i454.SupabaseClient>()),
-    );
-    gh.lazySingleton<_i233.ChatRepository>(
-      () => _i233.ChatRepositoryImpl(
-        gh<_i454.SupabaseClient>(),
-        gh<_i460.SupabaseEdgeFunctionsInvoker>(),
-      ),
     );
     gh.lazySingleton<_i381.PostArchiveRepository>(
       () => _i381.PostArchiveRepositoryImpl(gh<_i454.SupabaseClient>()),
@@ -344,8 +339,20 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i361.BookingScheduleRepository>(),
       ),
     );
+    gh.lazySingleton<_i233.ChatRepository>(
+      () => _i233.ChatRepositoryImpl(
+        gh<_i454.SupabaseClient>(),
+        gh<_i573.R2StorageService>(),
+      ),
+    );
     gh.lazySingleton<_i1031.MyBonusesRepository>(
       () => _i1031.MyBonusesRepositoryImpl(gh<_i454.SupabaseClient>()),
+    );
+    gh.lazySingleton<_i347.ClusterRepository>(
+      () => _i347.ClusterRepositoryImpl(
+        gh<_i454.SupabaseClient>(),
+        gh<_i573.R2StorageService>(),
+      ),
     );
     gh.lazySingleton<_i232.MapMarkersRepository>(
       () => _i232.MapMarkersRepositoryImpl(gh<_i454.SupabaseClient>()),
@@ -364,6 +371,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i194.NotificationsRepository>(
       () => _i194.NotificationsRepositoryImpl(gh<_i454.SupabaseClient>()),
+    );
+    gh.lazySingleton<_i317.PostCreateRepository>(
+      () => _i317.PostCreateRepository(
+        gh<_i454.SupabaseClient>(),
+        gh<_i858.FilterRepository>(),
+        gh<_i34.MarkerTagsRepository>(),
+        gh<_i573.R2StorageService>(),
+      ),
     );
     gh.lazySingleton<_i138.NotificationsUnreadCubit>(
       () => _i138.NotificationsUnreadCubit(gh<_i194.NotificationsRepository>()),
@@ -389,17 +404,20 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i980.AppThemeStore>(
       () => _i980.AppThemeStore(gh<_i1029.IAppStorage>()),
     );
-    gh.lazySingleton<_i274.ProfileAttendanceAdminShortcutStore>(
-      () => _i274.ProfileAttendanceAdminShortcutStore(gh<_i1029.IAppStorage>()),
-    );
     gh.lazySingleton<_i984.BookingLocalCache>(
       () => _i984.BookingLocalCache(gh<_i1029.IAppStorage>()),
     );
     gh.lazySingleton<_i325.ChatLocalCache>(
       () => _i325.ChatLocalCache(gh<_i1029.IAppStorage>()),
     );
+    gh.lazySingleton<_i96.ChatEmojiWallpaperStore>(
+      () => _i96.ChatEmojiWallpaperStore(gh<_i1029.IAppStorage>()),
+    );
     gh.lazySingleton<_i566.EventsFilterLocationStore>(
       () => _i566.EventsFilterLocationStore(gh<_i1029.IAppStorage>()),
+    );
+    gh.lazySingleton<_i186.MapMarkersLocalCache>(
+      () => _i186.MapMarkersLocalCache(gh<_i1029.IAppStorage>()),
     );
     gh.lazySingleton<_i737.PostLocalCache>(
       () => _i737.PostLocalCache(gh<_i1029.IAppStorage>()),
@@ -409,9 +427,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i824.PostShareLocalCache>(
       () => _i824.PostShareLocalCache(gh<_i1029.IAppStorage>()),
-    );
-    gh.lazySingleton<_i461.ProfileResourcesShortcutStore>(
-      () => _i461.ProfileResourcesShortcutStore(gh<_i1029.IAppStorage>()),
     );
     gh.lazySingleton<_i501.DashboardHomeModeStore>(
       () => _i501.DashboardHomeModeStore(gh<_i1029.IAppStorage>()),
@@ -425,24 +440,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i75.AttendanceRemoteRepository>(),
       ),
     );
-    gh.lazySingleton<_i317.PostCreateRepository>(
-      () => _i317.PostCreateRepository(
-        gh<_i454.SupabaseClient>(),
-        gh<_i858.FilterRepository>(),
-        gh<_i34.MarkerTagsRepository>(),
-      ),
-    );
     gh.lazySingleton<_i220.ClusterCreateRepository>(
       () => _i220.ClusterCreateRepositoryImpl(gh<_i347.ClusterRepository>()),
     );
     gh.lazySingleton<_i678.AppThemeCubit>(
       () => _i678.AppThemeCubit(gh<_i980.AppThemeStore>()),
-    );
-    gh.lazySingleton<_i984.PostRepository>(
-      () => _i984.PostRepository(
-        gh<_i454.SupabaseClient>(),
-        gh<_i737.PostLocalCache>(),
-      ),
     );
     gh.factory<_i719.ChatThreadCubit>(
       () => _i719.ChatThreadCubit(
@@ -456,12 +458,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i233.ChatRepository>(),
         gh<_i325.ChatLocalCache>(),
         gh<_i454.SupabaseClient>(),
-      ),
-    );
-    gh.lazySingleton<_i885.EventsFeedRepository>(
-      () => _i885.EventsFeedRepositoryImpl(
-        gh<_i454.SupabaseClient>(),
-        gh<_i984.PostRepository>(),
       ),
     );
     gh.singleton<_i95.ProfileCubit>(
@@ -548,19 +544,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i138.NotificationsUnreadCubit>(),
       ),
     );
-    gh.factory<_i1010.MapMarkersCubit>(
-      () => _i1010.MapMarkersCubit(gh<_i232.MapMarkersRepository>()),
-    );
     gh.factory<_i978.BookingClientCubit>(
       () => _i978.BookingClientCubit(gh<_i350.BookingClientRepository>()),
     );
     gh.factory<_i635.BookingRescheduleCubit>(
       () => _i635.BookingRescheduleCubit(gh<_i350.BookingClientRepository>()),
     );
-    gh.factory<_i213.PostDetailCubit>(
-      () => _i213.PostDetailCubit(
-        gh<_i984.PostRepository>(),
-        gh<_i469.SocialGraphRepository>(),
+    gh.lazySingleton<_i252.EditProfileRepository>(
+      () => _i252.EditProfileRepositoryImpl(
+        gh<_i454.SupabaseClient>(),
+        gh<_i57.ProfileNewRepository>(),
+        gh<_i34.MarkerTagsRepository>(),
+        gh<_i573.R2StorageService>(),
       ),
     );
     gh.factory<_i671.PostShareRecipientsCubit>(
@@ -579,17 +574,10 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i454.SupabaseClient>(),
       ),
     );
-    gh.factory<_i656.PostFeedCubit>(
-      () => _i656.PostFeedCubit(
-        gh<_i984.PostRepository>(),
-        gh<_i737.PostLocalCache>(),
-      ),
-    );
-    gh.lazySingleton<_i252.EditProfileRepository>(
-      () => _i252.EditProfileRepositoryImpl(
-        gh<_i454.SupabaseClient>(),
-        gh<_i57.ProfileNewRepository>(),
-        gh<_i34.MarkerTagsRepository>(),
+    gh.factory<_i1010.MapMarkersCubit>(
+      () => _i1010.MapMarkersCubit(
+        gh<_i232.MapMarkersRepository>(),
+        gh<_i186.MapMarkersLocalCache>(),
       ),
     );
     gh.factory<_i685.PostCommentsCubit>(
@@ -601,14 +589,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i16.ClusterCreateUploadCubit>(
       () => _i16.ClusterCreateUploadCubit(gh<_i220.ClusterCreateRepository>()),
-    );
-    gh.factory<_i359.EventsFeedCubit>(
-      () => _i359.EventsFeedCubit(
-        gh<_i885.EventsFeedRepository>(),
-        gh<_i984.PostRepository>(),
-        gh<_i469.SocialGraphRepository>(),
-        gh<_i454.SupabaseClient>(),
-      ),
     );
     gh.factory<_i776.FollowersAndFollowingsCubit>(
       () => _i776.FollowersAndFollowingsCubit(
@@ -624,6 +604,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1029.IAppStorage>(),
         gh<_i75.AttendanceRemoteRepository>(),
         gh<_i352.AttendanceOutbox>(),
+      ),
+    );
+    gh.lazySingleton<_i984.PostRepository>(
+      () => _i984.PostRepository(
+        gh<_i454.SupabaseClient>(),
+        gh<_i737.PostLocalCache>(),
+        gh<_i573.R2StorageService>(),
       ),
     );
     gh.factory<_i314.BookingListCubit>(
@@ -669,6 +656,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i75.AttendanceRemoteRepository>(),
       ),
     );
+    gh.lazySingleton<_i885.EventsFeedRepository>(
+      () => _i885.EventsFeedRepositoryImpl(
+        gh<_i454.SupabaseClient>(),
+        gh<_i984.PostRepository>(),
+      ),
+    );
     gh.factory<_i72.AttendanceWorkersCubit>(
       () => _i72.AttendanceWorkersCubit(
         gh<_i865.AttendanceContextStore>(),
@@ -678,6 +671,18 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i905.AttendanceWorkerHubCubit>(
       () => _i905.AttendanceWorkerHubCubit(gh<_i865.AttendanceContextStore>()),
+    );
+    gh.factory<_i213.PostDetailCubit>(
+      () => _i213.PostDetailCubit(
+        gh<_i984.PostRepository>(),
+        gh<_i469.SocialGraphRepository>(),
+      ),
+    );
+    gh.factory<_i656.PostFeedCubit>(
+      () => _i656.PostFeedCubit(
+        gh<_i984.PostRepository>(),
+        gh<_i737.PostLocalCache>(),
+      ),
     );
     gh.lazySingleton<_i964.AuthRepository>(
       () => _i964.AuthRepository(
@@ -728,6 +733,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i865.AttendanceContextStore>(),
         gh<_i75.AttendanceRemoteRepository>(),
         gh<_i522.AttendanceAnalyticsLoader>(),
+      ),
+    );
+    gh.factory<_i359.EventsFeedCubit>(
+      () => _i359.EventsFeedCubit(
+        gh<_i885.EventsFeedRepository>(),
+        gh<_i984.PostRepository>(),
+        gh<_i469.SocialGraphRepository>(),
+        gh<_i454.SupabaseClient>(),
       ),
     );
     gh.factory<_i575.AuthCubit>(

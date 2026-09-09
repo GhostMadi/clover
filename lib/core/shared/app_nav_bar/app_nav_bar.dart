@@ -3,8 +3,9 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_nav_bar/app_nav_bar_item.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-/// Простой floating tab bar дашборда (без liquid glass).
+/// Плавающий bubble-навбар дашборда со скользящим индикатором выбранной вкладки.
 ///
 /// Позицию (лево / центр / право) задаёт родитель через [AnimatedPositioned].
 class AppNavBar extends StatelessWidget {
@@ -35,6 +36,7 @@ class AppNavBar extends StatelessWidget {
   static const double _figmaLabelGap = 4;
   static const double _figmaFloatingBottom = 18;
   static const double _figmaFloatingHorizontal = 72;
+  static const double _innerPadding = 4;
 
   static EdgeInsets dashboardFloatingInsets(BuildContext context) {
     return EdgeInsets.fromLTRB(
@@ -71,40 +73,88 @@ class AppNavBar extends StatelessWidget {
         context.heightByContext(_figmaLabelFont).clamp(9.0, 14.0);
     final labelGap = context.heightByContext(_figmaLabelGap);
     final radius = barHeight / 2;
+    final index = currentIndex.clamp(0, items.length - 1);
 
-    final inactive = isDark ? colors.iconMuted : colors.black;
+    final inactive = isDark ? colors.iconMuted : colors.black.withValues(alpha: 0.72);
     final active = colors.primary;
-    final bg = backgroundColor ??
-        (isDark
-            ? colors.surface.withValues(alpha: 0.96)
-            : colors.white.withValues(alpha: 0.96));
+    final track = backgroundColor ??
+        (isDark ? colors.surfaceMuted : colors.surfaceMuted.withValues(alpha: 0.96));
 
     final bar = Material(
-      color: bg,
-      elevation: 8,
-      shadowColor: colors.shadowDark.withValues(alpha: 0.18),
+      color: track,
+      elevation: 10,
+      shadowColor: colors.shadowDark.withValues(alpha: isDark ? 0.45 : 0.16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radius),
       ),
       clipBehavior: Clip.antiAlias,
+      // Без ink-слоя: иначе при тапе мигает квадратный splash поверх bubble.
+      type: MaterialType.canvas,
       child: SizedBox(
         height: barHeight,
-        child: Row(
-          children: [
-            for (var i = 0; i < items.length; i++)
-              Expanded(
-                child: _NavTab(
-                  item: items[i],
-                  selected: i == currentIndex,
-                  activeColor: active,
-                  inactiveColor: inactive,
-                  iconSize: iconSize,
-                  labelFont: labelFont,
-                  labelGap: labelGap,
-                  onTap: () => onTap(i),
-                ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final innerW = constraints.maxWidth - _innerPadding * 2;
+            final tabW = innerW / items.length;
+            final indicatorRadius = (barHeight - _innerPadding * 2) / 2;
+
+            return Padding(
+              padding: const EdgeInsets.all(_innerPadding),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  AnimatedPositioned(
+                    duration: _animationDuration,
+                    curve: _animationCurve,
+                    left: index * tabW,
+                    width: tabW,
+                    top: 0,
+                    bottom: 0,
+                    child: DecoratedBox(
+                      decoration: ShapeDecoration(
+                        color: isDark ? colors.surfaceSoft : colors.surface,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(indicatorRadius),
+                        ),
+                        shadows: [
+                          BoxShadow(
+                            color: colors.shadowDark.withValues(
+                              alpha: isDark ? 0.35 : 0.1,
+                            ),
+                            blurRadius: isDark ? 6 : 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (var i = 0; i < items.length; i++)
+                        Expanded(
+                          child: _NavTab(
+                            item: items[i],
+                            selected: i == index,
+                            activeColor: active,
+                            inactiveColor: inactive,
+                            iconSize: iconSize,
+                            labelFont: labelFont,
+                            labelGap: labelGap,
+                            onTap: () {
+                              if (i != index) {
+                                HapticFeedback.selectionClick();
+                              }
+                              onTap(i);
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -137,17 +187,21 @@ class _NavTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? activeColor : inactiveColor.withValues(alpha: 0.75);
+    final color = selected ? activeColor : inactiveColor;
     final label = item.label;
     final behind = item.behindIcon;
 
-    return InkWell(
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (behind == null)
-            _TabIconWithBadge(showBadge: item.showBadge, child: Icon(item.icon, size: iconSize, color: color))
+            _TabIconWithBadge(
+              showBadge: item.showBadge,
+              child: Icon(item.icon, size: iconSize, color: color),
+            )
           else
             _StackedNavIcon(
               front: item.icon,
@@ -165,7 +219,7 @@ class _NavTab extends StatelessWidget {
               style: AppTextStyle.base(
                 labelFont,
                 color: color,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
           ],
@@ -228,7 +282,6 @@ class _StackedNavIcon extends StatelessWidget {
     final colors = context.colors;
     final isDark = colors.brightness == Brightness.dark;
 
-    // Badge читается как «плашка», не как бледный слой иконки.
     final badgeSize = (size * 0.78).clamp(14.0, 20.0);
     final badgeIconSize = badgeSize * 0.62;
     final box = size + badgeSize * 0.42;
@@ -236,12 +289,9 @@ class _StackedNavIcon extends StatelessWidget {
     final badgeBg = selected
         ? colors.primary
         : (isDark ? colors.surfaceSoft : colors.white);
-    final badgeFg = selected
-        ? colors.white
-        : color.withValues(alpha: 0.9);
-    final badgeBorder = selected
-        ? colors.pageBackground
-        : color.withValues(alpha: 0.28);
+    final badgeFg = selected ? colors.white : color.withValues(alpha: 0.9);
+    final badgeBorder =
+        selected ? colors.pageBackground : color.withValues(alpha: 0.28);
 
     return SizedBox(
       width: box,

@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { exportCroppedJpeg } from "@/features/post-create/lib/image-crop";
 import type { ImageEditSettings } from "@/features/post-create/lib/image-edit-matrix";
+import { deleteFromR2, uploadToR2 } from "@/lib/r2-storage";
 
 export const CLUSTER_TITLE_MAX = 120;
 export const CLUSTER_SUBTITLE_MAX = 500;
@@ -78,11 +79,10 @@ async function nextSortOrder(uid: string): Promise<number> {
 }
 
 async function uploadCover(
-  uid: string,
+  _uid: string,
   clusterId: string,
   cover: ClusterCoverDraft,
 ): Promise<string> {
-  const supabase = createClient();
   const jpeg = await exportCroppedJpeg({
     file: cover.file,
     aspect: "1x1",
@@ -91,13 +91,13 @@ async function uploadCover(
     offsetY: cover.offsetY,
     edit: cover.edit,
   });
-  const path = `${uid}/${clusterId}/cover.jpg`;
-  const { error: upErr } = await supabase.storage
-    .from("cluster_covers")
-    .upload(path, jpeg, { upsert: true, contentType: "image/jpeg" });
-  if (upErr) throw upErr;
-  const { data: pub } = supabase.storage.from("cluster_covers").getPublicUrl(path);
-  return `${pub.publicUrl}?v=${Date.now()}`;
+  const uploaded = await uploadToR2({
+    file: jpeg,
+    fileName: "cover.jpg",
+    folder: `cluster_covers/${clusterId}`,
+    contentType: "image/jpeg",
+  });
+  return uploaded.publicUrl;
 }
 
 export async function createCluster(opts: {
@@ -180,14 +180,16 @@ export async function deleteCluster(clusterId: string): Promise<void> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  const uid = session?.user.id;
-  if (!uid) throw new Error("Нет сессии");
+  if (!session?.user.id) throw new Error("Нет сессии");
 
-  const path = `${uid}/${clusterId}/cover.jpg`;
-  try {
-    await supabase.storage.from("cluster_covers").remove([path]);
-  } catch {
-    /* ignore missing */
+  const { data: row } = await supabase
+    .from("clusters")
+    .select("cover_url")
+    .eq("id", clusterId)
+    .maybeSingle();
+  const coverUrl = String((row as { cover_url?: string } | null)?.cover_url ?? "").trim();
+  if (coverUrl) {
+    await deleteFromR2({ urls: [coverUrl] });
   }
   const { error } = await supabase.from("clusters").delete().eq("id", clusterId);
   if (error) throw error;

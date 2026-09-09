@@ -61,7 +61,14 @@ class _AppOutlinedButtonState extends State<AppOutlinedButton> with SingleTicker
   Widget build(BuildContext context) {
     final colors = context.colors;
     final serviceAccent = widget.service != null ? colors.serviceAccent(widget.service!) : null;
-    final backgroundColor = _isEnabled ? (serviceAccent?.soft ?? colors.surface) : colors.surfaceMuted;
+    // Если soft совпадает с CTA (как у booking), заливка читается как primary —
+    // для outline берём surface, цвет сервиса оставляем на border / тексте.
+    final softFill = serviceAccent?.soft;
+    final useSurfaceFill =
+        softFill == null || (serviceAccent != null && softFill == serviceAccent.cta);
+    final backgroundColor = !_isEnabled
+        ? colors.surfaceMuted
+        : (useSurfaceFill ? colors.surface : softFill);
     final borderColor = _isEnabled ? (serviceAccent?.icon ?? colors.borderInput) : colors.border;
     final textColor = _isEnabled ? (serviceAccent?.icon ?? colors.textColor) : colors.subTextColor;
     final loaderColor = serviceAccent?.icon ?? colors.primary;

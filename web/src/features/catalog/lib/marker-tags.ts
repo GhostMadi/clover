@@ -113,7 +113,10 @@ export const MARKER_TAGS: MarkerTagDef[] = [
   { key: "popular", label: "Популярное", group: "conditions" },
 
   { key: "booking", label: "Принимаю запись", group: "admin" },
+  { key: "attendance", label: "Веду посещаемость", group: "admin" },
+  { key: "resources", label: "Веду ресурсы", group: "admin" },
   { key: "bookingCalendar", label: "Календарь заказов", group: "worker" },
+  { key: "attendanceWork", label: "Мои отметки", group: "worker" },
 ];
 
 const LABEL_BY_KEY = Object.fromEntries(MARKER_TAGS.map((t) => [t.key, t.label]));
@@ -132,6 +135,8 @@ export function tagServiceKind(key: string): AppServiceKind | null {
   const tag = TAG_BY_KEY[key];
   if (!tag || !isServicePowerGroup(tag.group)) return null;
   if (tag.key === "booking" || tag.key === "bookingCalendar") return "booking";
+  if (tag.key === "attendance" || tag.key === "attendanceWork") return "attendance";
+  if (tag.key === "resources") return "resources";
   return null;
 }
 

@@ -45,7 +45,7 @@ class ChatMessageAttachment {
       path: (json['path'] as String?)?.trim() ?? '',
       mime: (json['mime'] as String?)?.trim(),
       sizeBytes: (json['size_bytes'] as num?)?.toInt(),
-      url: (json['url'] as String?)?.trim(),
+      url: (json['public_url'] as String?)?.trim() ?? (json['url'] as String?)?.trim(),
     );
   }
 }

@@ -38,6 +38,28 @@
   --svc-bonus: #fff3e0;
   --svc-bonus-ink: #e65100;
 
+  /* Chat candy bubbles — всегда light softs (жвачка/мультик), даже в dark */
+  --chat-candy-blue: #e3f0fc;
+  --chat-candy-blue-ink: #5b9bd5;
+  --chat-candy-orange: #fff3e0;
+  --chat-candy-orange-ink: #e65100;
+  --chat-candy-lilac: #ede9fb;
+  --chat-candy-lilac-ink: #5c4fa8;
+  --chat-candy-yellow: #fdf08b;
+  --chat-candy-yellow-ink: #9a7b00;
+  --chat-candy-rose: #ffebee;
+  --chat-candy-rose-ink: #e57373;
+  --chat-candy-cyan: #b7f5fe;
+  --chat-candy-cyan-ink: #039be5;
+  --chat-candy-mint: #f2f8ed;
+  --chat-candy-mint-ink: #8bc34a;
+  --chat-candy-lime: #c5feb7;
+  --chat-candy-mine: #eff8e7;
+  --chat-candy-on: #1a1d1e;
+  --chat-candy-meta: #6a6a6a;
+  --chat-candy-border-green: #e0ebd2;
+  --chat-candy-border-blue: #c8ddf5;
+
   --nav-inactive: #a1aab3; /* bottomBarInactiveIcon */
   --shimmer-base: #c8c8cc;
   --shimmer-highlight: #f4f4f6;

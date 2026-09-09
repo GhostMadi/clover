@@ -18,6 +18,7 @@
 | Процесс | Файл |
 |---------|------|
 | **Чеклист новой фичи (жизненный цикл)** | [business/_feature-lifecycle-checklist.md](business/_feature-lifecycle-checklist.md) |
+| **Стек и сервисы (хосты, Vercel, Supabase, R2…)** | [business/tech-stack.md](business/tech-stack.md) |
 | Аутентификация (логин / регистрация / пароль) | [business/authentication.md](business/authentication.md) |
 | Email OTP и транзакционная почта | [business/email-authentication.md](business/email-authentication.md) |
 | Онбординг | [business/onboarding.md](business/onboarding.md) |
@@ -34,15 +35,19 @@
 | Архивы | [business/archives.md](business/archives.md) |
 | Кластеры (коллекции) | [business/clusters.md](business/clusters.md) |
 | Чаты и сообщения | [business/chats.md](business/chats.md) |
+| Фон чата (смайлики) | [business/chat-emoji-wallpaper.md](business/chat-emoji-wallpaper.md) |
 | Уведомления (in-app) | [business/notifications.md](business/notifications.md) |
 | Настройки приложения | [business/settings.md](business/settings.md) |
+| Гайд сервисов | [business/services-guide.md](business/services-guide.md) |
+| Гайд сервиса «Ресурсы» | [business/resources-guide.md](business/resources-guide.md) |
 | Местоположения | [business/locations.md](business/locations.md) |
 | Блокировки (бэк) | [business/blocks.md](business/blocks.md) |
 | Онлайн-запись | [business/booking.md](business/booking.md) · план: [booking-staff-plan.md](business/booking-staff-plan.md) · **ТЗ + теги:** [booking-tz.md](business/booking-tz.md) |
 | Бронь мест (схема зала) | [business/venue-seating.md](business/venue-seating.md) |
-| Посещаемость (геозона, смены) | [business/attendance.md](business/attendance.md) · хвосты сайта: [website-attendance-gaps.md](business/website-attendance-gaps.md) |
+| Посещаемость (геозона, смены) | [business/attendance.md](business/attendance.md) · **ТЗ + теги:** [attendance-tz.md](business/attendance-tz.md) · хвосты сайта: [website-attendance-gaps.md](business/website-attendance-gaps.md) |
 | Бонусы (лояльность) | [business/bonuses.md](business/bonuses.md) |
 | Сайт (лендинг + legal + кабинет) | [business/website.md](business/website.md) · **дорожная карта:** [website-roadmap.md](business/website-roadmap.md) · [gap-plan](business/website-gap-plan.md) |
+| Админка сайта (скрытый вход) | [business/website-admin.md](business/website-admin.md) |
 | Деплой сайта (Vercel / `web-production`) | [business/website-deploy.md](business/website-deploy.md) |
 | Деплой мобилки (TestFlight / `mobile-production`) | [business/mobile-deploy.md](business/mobile-deploy.md) |
 | Ветки Git (`main` / mobile / web) | [business/git-branches.md](business/git-branches.md) |

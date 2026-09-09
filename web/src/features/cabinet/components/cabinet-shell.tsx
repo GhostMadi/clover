@@ -18,18 +18,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  ATTENDANCE_SHORTCUT_EVENT,
-  readAttendanceShortcut,
-} from "@/features/attendance/lib/shortcut-prefs";
-import {
   CHAT_UNREAD_CHANGED,
   countUnreadChatMessages,
 } from "@/features/chat/lib/chat-unread";
 import { countUnreadNotifications } from "@/features/notifications/lib/notifications-api";
-import {
-  readResourcesShortcut,
-  RESOURCES_SHORTCUT_EVENT,
-} from "@/features/resources/lib/shortcut-prefs";
 import { createClient } from "@/lib/supabase/client";
 import { SITE } from "@/lib/site";
 
@@ -104,6 +96,13 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
   const onOwnProfile =
     pathname === "/app/profile" || pathname.startsWith("/app/profile/");
 
+  const mobileLinks = links.filter((l) => l.href !== "/app/notifications");
+  const mobileActiveIndex = Math.max(
+    0,
+    mobileLinks.findIndex((l) => l.match(pathname)),
+  );
+  const mobileTabCount = mobileLinks.length || 1;
+
   useEffect(() => {
     for (const link of links) {
       router.prefetch(link.href);
@@ -119,19 +118,33 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   useEffect(() => {
-    // Сразу из localStorage (даже до сессии) — тоглы не «пропадают» после F5
-    setResourcesShortcut(readResourcesShortcut());
-    setAttendanceShortcut(readAttendanceShortcut());
-
     let cancelled = false;
     void createClient()
       .auth.getSession()
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         if (cancelled) return;
         const id = data.session?.user.id ?? null;
         setUserId(id);
-        setResourcesShortcut(readResourcesShortcut(id));
-        setAttendanceShortcut(readAttendanceShortcut(id));
+        if (!id) {
+          setResourcesShortcut(false);
+          setAttendanceShortcut(false);
+          return;
+        }
+        const supabase = createClient();
+        const [resourcesRes, attendanceRes] = await Promise.all([
+          supabase.rpc("profile_has_marker_tag", {
+            p_profile_id: id,
+            p_tag_key: "resources",
+          }),
+          supabase.rpc("profile_has_marker_tag", {
+            p_profile_id: id,
+            p_tag_key: "attendance",
+          }),
+        ]);
+        if (!cancelled) {
+          setResourcesShortcut(Boolean(resourcesRes.data));
+          setAttendanceShortcut(Boolean(attendanceRes.data));
+        }
       });
     return () => {
       cancelled = true;
@@ -139,26 +152,36 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const syncAll = (uid?: string | null) => {
-      const id = uid ?? userId;
-      setResourcesShortcut(readResourcesShortcut(id));
-      setAttendanceShortcut(readAttendanceShortcut(id));
+    let cancelled = false;
+    const refreshTags = () => {
+      if (!userId) return;
+      void (async () => {
+        const supabase = createClient();
+        const [resourcesRes, attendanceRes] = await Promise.all([
+          supabase.rpc("profile_has_marker_tag", {
+            p_profile_id: userId,
+            p_tag_key: "resources",
+          }),
+          supabase.rpc("profile_has_marker_tag", {
+            p_profile_id: userId,
+            p_tag_key: "attendance",
+          }),
+        ]);
+        if (!cancelled) {
+          setResourcesShortcut(Boolean(resourcesRes.data));
+          setAttendanceShortcut(Boolean(attendanceRes.data));
+        }
+      })();
     };
-    const onResources = () => syncAll();
-    const onAttendance = () => syncAll();
-    const onStorage = () => syncAll();
     const onVisible = () => {
-      if (document.visibilityState === "visible") syncAll();
+      if (document.visibilityState === "visible") refreshTags();
     };
-    window.addEventListener(RESOURCES_SHORTCUT_EVENT, onResources);
-    window.addEventListener(ATTENDANCE_SHORTCUT_EVENT, onAttendance);
-    window.addEventListener("storage", onStorage);
     document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", refreshTags);
     return () => {
-      window.removeEventListener(RESOURCES_SHORTCUT_EVENT, onResources);
-      window.removeEventListener(ATTENDANCE_SHORTCUT_EVENT, onAttendance);
-      window.removeEventListener("storage", onStorage);
+      cancelled = true;
       document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", refreshTags);
     };
   }, [userId]);
 
@@ -302,7 +325,7 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
 
           {attendanceShortcut ? (
             <Link
-              href="/app/attendance"
+              href="/app/settings/attendance"
               prefetch
               title="Посещаемость"
               className={`mt-1 flex h-12 items-center gap-4 overflow-hidden rounded-[14px] px-3 transition ${
@@ -413,7 +436,7 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
       </header>
 
       <main
-        className={`min-w-0 flex-1 pb-[4.25rem] md:pb-0 md:pl-[4.5rem] ${
+        className={`min-w-0 flex-1 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0 md:pl-[4.5rem] ${
           mapFullBleed || feedFullBleed
             ? "w-full p-0"
             : "mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8"
@@ -422,12 +445,12 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 md:hidden">
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:hidden">
         {onOwnProfile && (resourcesShortcut || attendanceShortcut) ? (
-          <div className="pointer-events-none absolute bottom-[calc(4.25rem+env(safe-area-inset-bottom))] right-3 mb-2 flex flex-col items-end gap-2">
+          <div className="mb-2 flex flex-col items-end gap-2">
             {attendanceShortcut ? (
               <Link
-                href="/app/attendance"
+                href="/app/settings/attendance"
                 prefetch
                 title="Посещаемость"
                 className={`pointer-events-auto inline-flex h-11 items-center gap-2 rounded-[14px] px-3.5 text-[13px] font-bold shadow-elevate-sm ${
@@ -458,39 +481,45 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
           </div>
         ) : null}
         <nav
-          className="flex h-[4.25rem] items-center justify-around border-t border-line bg-surface/95 px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-md"
+          className="pointer-events-auto relative mx-auto flex h-16 max-w-md items-stretch rounded-full bg-surface-muted/95 p-1 shadow-elevate-md backdrop-blur-md"
           aria-label="Разделы"
         >
-          {links
-            .filter((l) => l.href !== "/app/notifications")
-            .map((link) => {
-              const { href, label, match, Icon } = link;
-              const active = match(pathname);
-              const showChatBadge =
-                "badge" in link && link.badge === "chat" && chatUnread > 0;
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  prefetch
-                  className={`flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-[12px] px-1 py-1.5 ${
-                    active ? "text-brand" : "text-nav-inactive"
-                  }`}
-                >
-                  <span className="relative">
-                    <Icon className="h-6 w-6" strokeWidth={active ? 2.25 : 1.75} />
-                    {showChatBadge ? (
-                      <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[9px] font-bold text-on-brand">
-                        {chatUnread > 99 ? "99+" : chatUnread}
-                      </span>
-                    ) : null}
-                  </span>
-                  <span className={`truncate text-[10px] ${active ? "font-bold" : "font-semibold"}`}>
-                    {label}
-                  </span>
-                </Link>
-              );
-            })}
+          <span
+            aria-hidden
+            className="absolute inset-y-1 rounded-full bg-surface shadow-elevate-sm transition-[left] duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+            style={{
+              width: `calc((100% - 0.5rem) / ${mobileTabCount})`,
+              left: `calc(0.25rem + ${mobileActiveIndex} * ((100% - 0.5rem) / ${mobileTabCount}))`,
+            }}
+          />
+          {mobileLinks.map((link, i) => {
+            const { href, label, Icon } = link;
+            const active = i === mobileActiveIndex;
+            const showChatBadge =
+              "badge" in link && link.badge === "chat" && chatUnread > 0;
+            return (
+              <Link
+                key={href}
+                href={href}
+                prefetch
+                className={`relative z-[1] flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-full px-1 ${
+                  active ? "text-brand" : "text-nav-inactive"
+                }`}
+              >
+                <span className="relative">
+                  <Icon className="h-5 w-5" strokeWidth={active ? 2.25 : 1.75} />
+                  {showChatBadge ? (
+                    <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[9px] font-bold text-on-brand">
+                      {chatUnread > 99 ? "99+" : chatUnread}
+                    </span>
+                  ) : null}
+                </span>
+                <span className={`truncate text-[10px] ${active ? "font-bold" : "font-semibold"}`}>
+                  {label}
+                </span>
+              </Link>
+            );
+          })}
         </nav>
       </div>
 

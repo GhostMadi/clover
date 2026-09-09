@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CalendarRange } from "lucide-react";
+import { Building2, CalendarDays, CalendarRange, Clock3, Layers } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AppButtonLink } from "@/components/shared/app-button";
 import type { AppServiceKind } from "@/lib/service-accent";
@@ -62,7 +62,7 @@ type Props = {
 
 /**
  * Две линии быстрых входов на своём профиле:
- * верх — worker (`bookingCalendar`), низ — admin (`booking`).
+ * верх — worker (`bookingCalendar`, `attendanceWork`), низ — admin (`booking`, `attendance`, `resources`).
  * ≤2 в линии → иконка+текст; ≥3 → только иконка + title.
  */
 export function ProfileServiceShortcuts({ tagKeys }: Props) {
@@ -79,6 +79,16 @@ export function ProfileServiceShortcuts({ tagKeys }: Props) {
       variant: "outline",
     });
   }
+  if (keys.has("attendanceWork")) {
+    worker.push({
+      key: "attendanceWork",
+      href: "/app/attendance",
+      label: "Посещаемость",
+      Icon: Clock3,
+      service: "attendance",
+      variant: "outline",
+    });
+  }
 
   const admin: ShortcutSpec[] = [];
   if (keys.has("booking")) {
@@ -88,6 +98,26 @@ export function ProfileServiceShortcuts({ tagKeys }: Props) {
       label: "Запись",
       Icon: CalendarDays,
       service: "booking",
+      variant: "primary",
+    });
+  }
+  if (keys.has("attendance")) {
+    admin.push({
+      key: "attendance",
+      href: "/app/settings/attendance",
+      label: "Управление",
+      Icon: Building2,
+      service: "attendance",
+      variant: "primary",
+    });
+  }
+  if (keys.has("resources")) {
+    admin.push({
+      key: "resources",
+      href: "/app/settings/resources",
+      label: "Ресурсы",
+      Icon: Layers,
+      service: "resources",
       variant: "primary",
     });
   }

@@ -623,6 +623,7 @@ abstract final class AttendanceBootstrapMapper {
             shiftOpen: m['shift_open'] as bool? ?? false,
             ackVersion: (m['ack_version'] as num?)?.toInt() ?? 0,
             configVersion: (m['config_version'] as num?)?.toInt() ?? 1,
+            hasAttendanceWorkTag: m['has_attendance_work_tag'] as bool? ?? false,
           ),
         )
         .where((m) => m.status != AttendanceWorkerInviteStatus.declined)

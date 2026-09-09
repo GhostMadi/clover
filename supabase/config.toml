@@ -9,6 +9,14 @@ shadow_port = 54320
 [functions.create_post]
 verify_jwt = false
 
+# Presigned R2 upload URL. JWT checked in-function via requireSupabaseUser.
+[functions.get-upload-url]
+verify_jwt = false
+
+# Delete R2 objects by URL/key (owner-scoped). JWT checked in-function.
+[functions.delete-r2-objects]
+verify_jwt = false
+
 [functions.upload_post_media_poster]
 verify_jwt = false
 

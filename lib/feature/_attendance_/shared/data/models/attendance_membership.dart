@@ -11,6 +11,7 @@ class AttendanceMembership {
     this.shiftOpen = false,
     this.ackVersion = 1,
     this.configVersion = 1,
+    this.hasAttendanceWorkTag = false,
     this.lastPunchLabel,
     this.lastPunchAt,
   });
@@ -23,6 +24,7 @@ class AttendanceMembership {
   final bool shiftOpen;
   final int ackVersion;
   final int configVersion;
+  final bool hasAttendanceWorkTag;
   final String? lastPunchLabel;
   final DateTime? lastPunchAt;
 
@@ -39,6 +41,7 @@ class AttendanceMembership {
     bool? shiftOpen,
     int? ackVersion,
     int? configVersion,
+    bool? hasAttendanceWorkTag,
     String? lastPunchLabel,
     DateTime? lastPunchAt,
     bool clearLastPunch = false,
@@ -52,6 +55,7 @@ class AttendanceMembership {
       shiftOpen: shiftOpen ?? this.shiftOpen,
       ackVersion: ackVersion ?? this.ackVersion,
       configVersion: configVersion ?? this.configVersion,
+      hasAttendanceWorkTag: hasAttendanceWorkTag ?? this.hasAttendanceWorkTag,
       lastPunchLabel: clearLastPunch ? null : (lastPunchLabel ?? this.lastPunchLabel),
       lastPunchAt: clearLastPunch ? null : (lastPunchAt ?? this.lastPunchAt),
     );

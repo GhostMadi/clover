@@ -6,21 +6,19 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/core/shared/app_switch.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_attendance_/attendance_hub/presentation/cubit/attendance_hub_cubit.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_snapshot.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_workplace.dart';
-import 'package:clover/feature/_attendance_/shared/data/profile_attendance_admin_shortcut_store.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_tile_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Настройки «Посещаемость»: тогл ярлыка + сразу список компаний (без промежуточного «Управление»).
+/// Настройки «Посещаемость»: список компаний (вход только с тегом `attendance`).
 @RoutePage()
 class SettingsAttendancePage extends StatefulWidget {
   const SettingsAttendancePage({super.key});
@@ -30,19 +28,17 @@ class SettingsAttendancePage extends StatefulWidget {
 }
 
 class _SettingsAttendancePageState extends State<SettingsAttendancePage> {
-  late final ProfileAttendanceAdminShortcutStore _adminShortcutStore;
   late final AttendanceContextStore _attendanceStore;
   late final AttendanceHubCubit _hubCubit;
-  bool _shortcutLoading = true;
   bool _isWorker = false;
 
   @override
   void initState() {
     super.initState();
-    _adminShortcutStore = sl<ProfileAttendanceAdminShortcutStore>();
     _attendanceStore = sl<AttendanceContextStore>();
     _hubCubit = sl<AttendanceHubCubit>()..load();
-    _loadShortcut();
+    final snap = _attendanceStore.snapshot.value;
+    _isWorker = snap?.showProfileWorkerButton ?? false;
   }
 
   @override
@@ -51,30 +47,18 @@ class _SettingsAttendancePageState extends State<SettingsAttendancePage> {
     super.dispose();
   }
 
-  Future<void> _loadShortcut() async {
-    final uid = Supabase.instance.client.auth.currentUser?.id.trim();
-    if (uid == null || uid.isEmpty) {
-      if (mounted) setState(() => _shortcutLoading = false);
+  Future<void> _createWorkplace({String? folderId}) async {
+    final hasTag =
+        sl<ProfileCubit>().state.mapOrNull(loaded: (s) => s.profile.hasAttendanceTag) ?? false;
+    if (!hasTag) {
+      AppSnackBar.show(
+        context,
+        message: 'Включите тег «Веду посещаемость» в профиле',
+        kind: AppSnackBarKind.error,
+      );
       return;
     }
-    await _adminShortcutStore.load(uid);
-    final snap = _attendanceStore.snapshot.value;
-    if (mounted) {
-      setState(() {
-        _isWorker = snap?.showProfileWorkerButton ?? false;
-        _shortcutLoading = false;
-      });
-    }
-  }
 
-  Future<void> _setAdminShortcut(bool value) async {
-    final uid = Supabase.instance.client.auth.currentUser?.id.trim();
-    if (uid == null || uid.isEmpty) return;
-    await _adminShortcutStore.setVisible(uid, value);
-    if (mounted) setState(() {});
-  }
-
-  Future<void> _createWorkplace({String? folderId}) async {
     final nameController = TextEditingController(text: 'Компания');
     try {
       final name = await AttendanceBottomSheet.show<String>(
@@ -170,23 +154,6 @@ class _SettingsAttendancePageState extends State<SettingsAttendancePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SettingsTileSectionTitle('Профиль'),
-                AppTileGroup(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: AppSwitchRow(
-                        title: 'Кнопка в профиле',
-                        subtitle: 'Быстрый переход к компаниям',
-                        value: _adminShortcutStore.visible.value,
-                        enabled: !_shortcutLoading,
-                        onChanged: _shortcutLoading ? null : _setAdminShortcut,
-                        service: kAttendanceService,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
                 Row(
                   children: [
                     Expanded(

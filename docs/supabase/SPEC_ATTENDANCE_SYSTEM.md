@@ -10,9 +10,22 @@
 
 | Роль | Кто | Доступ |
 |------|-----|--------|
-| **Owner (admin)** | `attendance_workplaces.owner_id = auth.uid()` | CRUD компании, invite, absences, settings, payroll/duty/salary, approve OT |
-| **Member (worker)** | `attendance_memberships` status `active` | punch, ack, свои данные, заявка OT |
+| **Owner (admin)** | `owner_id` + тег профиля **`attendance`** | CRUD компании, invite, absences, settings, payroll/duty/salary, approve OT |
+| **Member (worker)** | membership `active` + тег **`attendanceWork`** для punch | punch (mobile), ack, свои данные, заявка OT |
 | **Не участник** | нет membership / ownership | **нет** полезного SELECT (0 трафика) |
+
+### Tag powers (дельта)
+
+Процесс: [`docs/business/attendance-tz.md`](../business/attendance-tz.md).
+
+| Правило | RPC / payload |
+|---------|----------------|
+| Create / invite / update settings | требуют `attendance` (`missing_attendance_tag` / `P0111`) |
+| `submit_attendance_punch` | требует `attendanceWork` (`missing_attendance_work_tag` / `P0112`) |
+| Bootstrap memberships | поле `has_attendance_work_tag` (для UI «Неактивен») |
+| Helper | `profile_has_marker_tag(profile_id, key)` |
+
+Punch UI — **только мобилка**; сайт = admin + worker read.
 
 ### Принципы
 
@@ -125,6 +138,9 @@ profiles
 | `P0107` | location_required |
 | `P0108` | invalid_punch / shift_state |
 | `P0109` | punch_type_invalid |
+| `P0110` | not_on_duty |
+| `P0111` | missing_attendance_tag |
+| `P0112` | missing_attendance_work_tag |
 
 Idempotent `client_punch_id` / `client_request_id`: повтор → тот же id (без ошибки).
 
@@ -143,6 +159,7 @@ Idempotent `client_punch_id` / `client_request_id`: повтор → тот же
 | `20260905210100_attendance_rich_chat_reinvite_corrections_list.sql` | rich post card, reinvite DM+notify, list corrections, enriched `attendance_card` |
 | `20260906020000_booking_push_client_reschedule_attendance_duty_folders.sql` | `duty_only_punch` + folders bootstrap |
 | `20260906130000_booking_attendance_prod_ready.sql` | `attendance_replace_punch_types`, `attendance_payroll_preview`, availability `p_exclude_booking_id`, `service_id` in booking lists |
+| `20260908194706_attendance_tag_powers_impl.sql` | теги `attendance` / `attendanceWork`; гейты create/invite/update/punch; bootstrap `has_attendance_work_tag` |
 
 ---
 

@@ -6,17 +6,15 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/core/shared/app_switch.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_attendance_/attendance_hub/presentation/cubit/attendance_hub_cubit.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_snapshot.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_workplace.dart';
-import 'package:clover/feature/_attendance_/shared/data/profile_attendance_admin_shortcut_store.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
+import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 @RoutePage()
 class AttendanceHubPage extends StatefulWidget {
@@ -28,32 +26,11 @@ class AttendanceHubPage extends StatefulWidget {
 
 class _AttendanceHubPageState extends State<AttendanceHubPage> {
   late final AttendanceHubCubit _cubit;
-  late final ProfileAttendanceAdminShortcutStore _shortcutStore;
-  bool _shortcutLoading = true;
 
   @override
   void initState() {
     super.initState();
     _cubit = sl<AttendanceHubCubit>()..load();
-    _shortcutStore = sl<ProfileAttendanceAdminShortcutStore>();
-    _loadShortcut();
-  }
-
-  Future<void> _loadShortcut() async {
-    final uid = Supabase.instance.client.auth.currentUser?.id.trim();
-    if (uid == null || uid.isEmpty) {
-      if (mounted) setState(() => _shortcutLoading = false);
-      return;
-    }
-    await _shortcutStore.load(uid);
-    if (mounted) setState(() => _shortcutLoading = false);
-  }
-
-  Future<void> _setShortcut(bool value) async {
-    final uid = Supabase.instance.client.auth.currentUser?.id.trim();
-    if (uid == null || uid.isEmpty) return;
-    await _shortcutStore.setVisible(uid, value);
-    if (mounted) setState(() {});
   }
 
   @override
@@ -63,6 +40,17 @@ class _AttendanceHubPageState extends State<AttendanceHubPage> {
   }
 
   Future<void> _createWorkplace({String? folderId}) async {
+    final hasTag =
+        sl<ProfileCubit>().state.mapOrNull(loaded: (s) => s.profile.hasAttendanceTag) ?? false;
+    if (!hasTag) {
+      AppSnackBar.show(
+        context,
+        message: 'Включите тег «Веду посещаемость» в профиле',
+        kind: AppSnackBarKind.error,
+      );
+      return;
+    }
+
     final nameController = TextEditingController(text: 'Компания');
     try {
       final name = await AttendanceBottomSheet.show<String>(
@@ -153,12 +141,7 @@ class _AttendanceHubPageState extends State<AttendanceHubPage> {
         if (state is AttendanceHubError) {
           return AttendanceScreenShell(
             title: 'Посещаемость',
-            body: _EmptyAdminBody(
-              onRefresh: _cubit.load,
-              shortcutLoading: _shortcutLoading,
-              shortcutValue: _shortcutStore.visible.value,
-              onShortcutChanged: _setShortcut,
-            ),
+            body: _EmptyAdminBody(onRefresh: _cubit.load),
           );
         }
 
@@ -170,17 +153,9 @@ class _AttendanceHubPageState extends State<AttendanceHubPage> {
           showAdd: true,
           onAddTap: () => _createWorkplace(),
           body: workplaces.isEmpty && loaded.snapshot.folders.isEmpty
-              ? _EmptyAdminBody(
-                  onRefresh: _cubit.load,
-                  shortcutLoading: _shortcutLoading,
-                  shortcutValue: _shortcutStore.visible.value,
-                  onShortcutChanged: _setShortcut,
-                )
+              ? _EmptyAdminBody(onRefresh: _cubit.load)
               : _AdminHubBody(
                   snapshot: loaded.snapshot,
-                  shortcutLoading: _shortcutLoading,
-                  shortcutValue: _shortcutStore.visible.value,
-                  onShortcutChanged: _setShortcut,
                   onCreateFolder: _createFolder,
                   onCreateInFolder: (folderId) => _createWorkplace(folderId: folderId),
                   onMove: (workplaceId, folderId) async {
@@ -201,17 +176,9 @@ class _AttendanceHubPageState extends State<AttendanceHubPage> {
 }
 
 class _EmptyAdminBody extends StatelessWidget {
-  const _EmptyAdminBody({
-    required this.onRefresh,
-    required this.shortcutLoading,
-    required this.shortcutValue,
-    required this.onShortcutChanged,
-  });
+  const _EmptyAdminBody({required this.onRefresh});
 
   final VoidCallback onRefresh;
-  final bool shortcutLoading;
-  final bool shortcutValue;
-  final ValueChanged<bool> onShortcutChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -221,24 +188,8 @@ class _EmptyAdminBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AppTileGroup(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: AppSwitchRow(
-                  title: 'Кнопка в профиле',
-                  subtitle: 'Быстрый переход к компаниям',
-                  value: shortcutValue,
-                  enabled: !shortcutLoading,
-                  onChanged: shortcutLoading ? null : onShortcutChanged,
-                  service: kAttendanceService,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
           Text(
-            'Создайте компанию: геозона, работники и отметки.',
+            'Создайте компанию: геозона, работники и отметки. Кнопка на профиле — тег «Веду посещаемость».',
             style: AppTextStyle.base(15, color: colors.subTextColor),
           ),
           const SizedBox(height: 20),
@@ -257,18 +208,12 @@ class _EmptyAdminBody extends StatelessWidget {
 class _AdminHubBody extends StatelessWidget {
   const _AdminHubBody({
     required this.snapshot,
-    required this.shortcutLoading,
-    required this.shortcutValue,
-    required this.onShortcutChanged,
     required this.onCreateFolder,
     required this.onCreateInFolder,
     required this.onMove,
   });
 
   final AttendanceSnapshot snapshot;
-  final bool shortcutLoading;
-  final bool shortcutValue;
-  final ValueChanged<bool> onShortcutChanged;
   final VoidCallback onCreateFolder;
   final ValueChanged<String> onCreateInFolder;
   final Future<void> Function(String workplaceId, String? folderId) onMove;
@@ -285,22 +230,6 @@ class _AdminHubBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AppTileGroup(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: AppSwitchRow(
-                  title: 'Кнопка в профиле',
-                  subtitle: 'Быстрый переход к компаниям',
-                  value: shortcutValue,
-                  enabled: !shortcutLoading,
-                  onChanged: shortcutLoading ? null : onShortcutChanged,
-                  service: kAttendanceService,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
           Row(
             children: [
               Expanded(

@@ -4,6 +4,7 @@ import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_chat_/chat/data/models/chat_attachment_upload.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_geometry.dart';
 import 'package:flutter/material.dart';
 
 /// Превью выбранных вложений над композером (до отправки).
@@ -22,11 +23,11 @@ class ChatComposerAttachmentsPreview extends StatelessWidget {
     if (attachments.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(14, 0, 14, 8),
-      padding: const EdgeInsets.fromLTRB(10, 10, 6, 10),
+      margin: EdgeInsets.fromLTRB(ChatGeometry.listHorizontalPadding, 0, ChatGeometry.listHorizontalPadding, 6),
+      padding: const EdgeInsets.fromLTRB(8, 8, 4, 8),
       decoration: BoxDecoration(
         color: context.colors.surface.withValues(alpha: 0.96),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(ChatGeometry.replyRadius),
         border: Border.all(color: context.colors.border.withValues(alpha: 0.65)),
       ),
       child: SizedBox(

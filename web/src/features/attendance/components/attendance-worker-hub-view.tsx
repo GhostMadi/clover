@@ -20,6 +20,7 @@ import {
   type AttendanceWorkplace,
 } from "@/features/attendance/lib/attendance-model";
 import { SettingsShell } from "@/features/settings/components/settings-shell";
+import { createClient } from "@/lib/supabase/client";
 import { serviceTileIcon } from "@/lib/service-accent";
 import { Building2 } from "lucide-react";
 
@@ -27,6 +28,7 @@ export function AttendanceWorkerHubView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<WorkerHubData | null>(null);
+  const [hasAttendanceTag, setHasAttendanceTag] = useState(false);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -42,6 +44,21 @@ export function AttendanceWorkerHubView() {
 
   useEffect(() => {
     void reload();
+    void createClient()
+      .auth.getSession()
+      .then(async ({ data: sessionData }) => {
+        const id = sessionData.session?.user.id;
+        if (!id) {
+          setHasAttendanceTag(false);
+          return;
+        }
+        const supabase = createClient();
+        const { data: hasTag } = await supabase.rpc("profile_has_marker_tag", {
+          p_profile_id: id,
+          p_tag_key: "attendance",
+        });
+        setHasAttendanceTag(Boolean(hasTag));
+      });
   }, [reload]);
 
   if (loading) {
@@ -114,9 +131,11 @@ export function AttendanceWorkerHubView() {
           </ul>
         )}
 
-        <AppButtonLink href="/app/settings/attendance" variant="outline">
-          Управление компаниями (admin)
-        </AppButtonLink>
+        {hasAttendanceTag ? (
+          <AppButtonLink href="/app/settings/attendance" variant="outline">
+            Управление компаниями (admin)
+          </AppButtonLink>
+        ) : null}
       </div>
     </SettingsShell>
   );

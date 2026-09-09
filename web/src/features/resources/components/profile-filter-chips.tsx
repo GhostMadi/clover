@@ -101,10 +101,14 @@ export function ProfileFilterChips({
 
   return (
     <div className="mb-3 sm:mb-4">
-      <div className="flex min-h-11 items-center justify-between gap-3">
-        <p className="min-w-0 flex-1 text-sm font-semibold leading-none text-ink sm:text-base">
-          {title}
-        </p>
+      <div className="flex h-11 items-center justify-between gap-3">
+        <div className="flex h-11 min-w-0 flex-1 items-center rounded-[14px] bg-bg p-[3px]">
+          <div className="flex h-full min-w-0 flex-1 items-center justify-center rounded-[11px] bg-surface shadow-[0_2px_4px_color-mix(in_srgb,var(--ink)_10%,transparent)]">
+            <p className="truncate text-sm font-bold leading-none text-ink sm:text-base">
+              {title}
+            </p>
+          </div>
+        </div>
         {showButton ? (
           <button
             type="button"
@@ -112,11 +116,7 @@ export function ProfileFilterChips({
             onClick={openSheet}
             title="Фильтры"
             aria-label={active ? `Фильтры, выбрано ${selectedKeys.size}` : "Фильтры"}
-            className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border transition disabled:opacity-50 ${
-              active
-                ? "border-svc-resources-ink/50 bg-svc-resources text-svc-resources-ink"
-                : "border-line bg-surface text-muted hover:bg-bg hover:text-ink"
-            }`}
+            className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-svc-resources-ink/40 bg-svc-resources text-svc-resources-ink transition hover:brightness-[0.98] disabled:opacity-50"
           >
             {loading ? (
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-svc-resources-ink border-r-transparent" />

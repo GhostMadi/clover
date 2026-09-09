@@ -43,6 +43,14 @@ export type ChatBookingStaffCard = {
   hostDisplayName: string;
 };
 
+export type ChatAttendanceCard = {
+  card: "attendance_invite" | "attendance_rules";
+  workplaceId: string;
+  workplaceName: string;
+  membershipId: string | null;
+  configVersion: number | null;
+};
+
 export type ChatMessage = {
   id: string;
   clientMessageId: string | null;
@@ -56,6 +64,7 @@ export type ChatMessage = {
   sendFailed?: boolean;
   postRef: ChatPostRef | null;
   bookingStaffCard: ChatBookingStaffCard | null;
+  attendanceCard: ChatAttendanceCard | null;
   attachments: ChatAttachment[];
   editedAt: string | null;
 };
@@ -99,12 +108,18 @@ function displayMessageText(
     kind: string;
     postRef: ChatPostRef | null;
     bookingStaffCard: ChatBookingStaffCard | null;
+    attendanceCard: ChatAttendanceCard | null;
     attachmentCount: number;
   },
 ): string {
   const text = String(message.text ?? "").trim();
   if (opts.kind === "post_ref" || opts.postRef) {
     return opts.postRef?.caption ?? text;
+  }
+  if (opts.attendanceCard) {
+    return opts.attendanceCard.card === "attendance_invite"
+      ? `Приглашение · ${opts.attendanceCard.workplaceName}`
+      : `Правила · ${opts.attendanceCard.workplaceName}`;
   }
   if (opts.bookingStaffCard) {
     return (
@@ -115,6 +130,8 @@ function displayMessageText(
   if (opts.kind === "booking_staff_invite") {
     return text || "Приглашение в запись";
   }
+  if (opts.kind === "attendance_invite") return text || "Приглашение в команду";
+  if (opts.kind === "attendance_rules") return text || "Правила посещаемости";
   if (opts.kind === "text") return text;
   if (text) return text;
   if (opts.kind === "media" || opts.kind === "file") {
@@ -138,9 +155,29 @@ function parseBookingStaffCard(
   return { inviteId, hostId, hostDisplayName };
 }
 
+function parseAttendanceCard(raw: unknown): ChatAttendanceCard | null {
+  const map = asMap(raw);
+  if (!map) return null;
+  const card = String(map.card ?? "").trim();
+  if (card !== "attendance_invite" && card !== "attendance_rules") return null;
+  const workplaceId = String(map.workplace_id ?? "").trim();
+  if (!workplaceId) return null;
+  return {
+    card,
+    workplaceId,
+    workplaceName: String(map.workplace_name ?? "").trim() || "компания",
+    membershipId: String(map.membership_id ?? "").trim() || null,
+    configVersion:
+      typeof map.config_version === "number"
+        ? Math.trunc(map.config_version)
+        : Number.parseInt(String(map.config_version ?? ""), 10) || null,
+  };
+}
+
 export function publicStorageUrl(bucket: string, path: string): string | null {
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
   if (!base || !bucket || !path) return null;
+  if (bucket === "r2") return null;
   return `${base}/storage/v1/object/public/${bucket}/${path}`;
 }
 
@@ -219,6 +256,7 @@ export function parseMessageRow(
       : null;
 
   const bookingStaffCard = parseBookingStaffCard(row.booking_card);
+  const attendanceCard = parseAttendanceCard(row.attendance_card);
 
   const attachmentsRaw = Array.isArray(row.attachments) ? row.attachments : [];
   const attachments: ChatAttachment[] = [];
@@ -228,13 +266,14 @@ export function parseMessageRow(
     const path = String(a.path ?? "").trim();
     if (!path) continue;
     const bucket = String(a.bucket ?? "chat_media").trim() || "chat_media";
+    const publicUrl = String(a.public_url ?? a.url ?? "").trim();
     attachments.push({
       id: String(a.id ?? "").trim(),
       bucket,
       path,
       mime: (a.mime as string | null | undefined)?.trim() || null,
       sizeBytes: typeof a.size_bytes === "number" ? a.size_bytes : Number(a.size_bytes) || null,
-      url: publicStorageUrl(bucket, path),
+      url: publicUrl || publicStorageUrl(bucket, path),
     });
   }
 
@@ -247,6 +286,7 @@ export function parseMessageRow(
       kind,
       postRef: validPost,
       bookingStaffCard,
+      attendanceCard,
       attachmentCount: attachments.length,
     }),
     sentAt: String(message.created_at ?? new Date().toISOString()),
@@ -254,6 +294,7 @@ export function parseMessageRow(
     isRead: senderId === currentUserId && message.read_by_peer === true,
     postRef: validPost,
     bookingStaffCard,
+    attendanceCard,
     attachments,
     editedAt: (message.edited_at as string | null | undefined)?.trim() || null,
   };

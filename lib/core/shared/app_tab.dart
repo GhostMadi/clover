@@ -16,6 +16,7 @@ class AppTab extends StatelessWidget {
     required this.onTabChanged,
     this.scrollable = false,
     this.service,
+    this.height,
   });
 
   final List<String> tabs;
@@ -26,6 +27,9 @@ class AppTab extends StatelessWidget {
   final bool scrollable;
 
   final AppServiceKind? service;
+
+  /// Фиксированная высота всего контрола (включая трек). `null` — по контенту.
+  final double? height;
 
   static const double _outerPadding = 3;
 
@@ -46,6 +50,7 @@ class AppTab extends StatelessWidget {
         onTabChanged: onTabChanged,
         trackColor: trackColor,
         selectedColor: selectedColor,
+        height: height,
       );
     }
 
@@ -53,15 +58,18 @@ class AppTab extends StatelessWidget {
       builder: (context, constraints) {
         final totalWidth = constraints.maxWidth - _outerPadding * 2;
         final tabWidth = totalWidth / tabs.length;
+        final fillHeight = height != null;
 
         return Container(
           width: double.infinity,
+          height: height,
           padding: const EdgeInsets.all(_outerPadding),
           decoration: ShapeDecoration(
             color: trackColor,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
           child: Stack(
+            fit: fillHeight ? StackFit.expand : StackFit.loose,
             children: [
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 250),
@@ -73,12 +81,15 @@ class AppTab extends StatelessWidget {
                 child: const _TabIndicator(),
               ),
               Row(
+                crossAxisAlignment:
+                    fillHeight ? CrossAxisAlignment.stretch : CrossAxisAlignment.center,
                 children: List.generate(tabs.length, (i) {
                   return Expanded(
                     child: _AppTabItem(
                       label: tabs[i],
                       isSelected: i == index,
                       expand: true,
+                      fillHeight: fillHeight,
                       selectedColor: selectedColor,
                       onTap: () {
                         if (i != index) {
@@ -130,6 +141,7 @@ class _ScrollableAppTab extends StatefulWidget {
     required this.onTabChanged,
     required this.trackColor,
     required this.selectedColor,
+    this.height,
   });
 
   final List<String> tabs;
@@ -137,6 +149,7 @@ class _ScrollableAppTab extends StatefulWidget {
   final ValueChanged<int> onTabChanged;
   final Color trackColor;
   final Color selectedColor;
+  final double? height;
 
   @override
   State<_ScrollableAppTab> createState() => _ScrollableAppTabState();
@@ -225,8 +238,11 @@ class _ScrollableAppTabState extends State<_ScrollableAppTab> {
 
   @override
   Widget build(BuildContext context) {
+    final fillHeight = widget.height != null;
+
     return Container(
       width: double.infinity,
+      height: widget.height,
       padding: const EdgeInsets.all(AppTab._outerPadding),
       decoration: ShapeDecoration(
         color: widget.trackColor,
@@ -237,6 +253,7 @@ class _ScrollableAppTabState extends State<_ScrollableAppTab> {
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         child: Stack(
+          fit: fillHeight ? StackFit.expand : StackFit.loose,
           children: [
             if (_hasMeasured && _indicatorWidth > 0)
               AnimatedPositioned(
@@ -250,6 +267,8 @@ class _ScrollableAppTabState extends State<_ScrollableAppTab> {
               ),
             Row(
               key: _rowKey,
+              crossAxisAlignment:
+                  fillHeight ? CrossAxisAlignment.stretch : CrossAxisAlignment.center,
               children: List.generate(widget.tabs.length, (i) {
                 return KeyedSubtree(
                   key: _keys[i],
@@ -257,6 +276,7 @@ class _ScrollableAppTabState extends State<_ScrollableAppTab> {
                     label: widget.tabs[i],
                     isSelected: i == widget.currentIndex,
                     expand: false,
+                    fillHeight: fillHeight,
                     selectedColor: widget.selectedColor,
                     onTap: () {
                       if (i != widget.currentIndex) {
@@ -282,6 +302,7 @@ class _AppTabItem extends StatefulWidget {
     required this.onTap,
     required this.selectedColor,
     this.expand = true,
+    this.fillHeight = false,
   });
 
   final String label;
@@ -289,6 +310,7 @@ class _AppTabItem extends StatefulWidget {
   final VoidCallback onTap;
   final Color selectedColor;
   final bool expand;
+  final bool fillHeight;
 
   @override
   State<_AppTabItem> createState() => _AppTabItemState();
@@ -333,23 +355,26 @@ class _AppTabItemState extends State<_AppTabItem> with SingleTickerProviderState
         behavior: HitTestBehavior.opaque,
         child: Padding(
           padding: EdgeInsets.symmetric(
-            vertical: 8,
+            vertical: widget.fillHeight ? 0 : 8,
             horizontal: widget.expand ? 0 : 14,
           ),
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOut,
-            style: AppTextStyle.base(
-              14,
-              fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: widget.isSelected ? widget.selectedColor : colors.subTextColor,
-            ),
-            child: Text(
-              widget.label,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              softWrap: false,
-              overflow: widget.expand ? TextOverflow.ellipsis : TextOverflow.visible,
+          child: Align(
+            alignment: Alignment.center,
+            child: AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+              style: AppTextStyle.base(
+                14,
+                fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: widget.isSelected ? widget.selectedColor : colors.subTextColor,
+              ),
+              child: Text(
+                widget.label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                softWrap: false,
+                overflow: widget.expand ? TextOverflow.ellipsis : TextOverflow.visible,
+              ),
             ),
           ),
         ),

@@ -35,8 +35,17 @@ NEXT_PUBLIC_SITE_URL
 NEXT_PUBLIC_YANDEX_MAPS_API_KEY
 ```
 
+Серверные (админка сайта, **без** `NEXT_PUBLIC_`):
+
+```
+ADMIN_EMAIL
+ADMIN_PASSWORD
+ADMIN_SESSION_SECRET
+```
+
 Локально: `web/.env.local` (не коммитить).  
-На проде: `NEXT_PUBLIC_SITE_URL=https://clover.com.kz`
+На проде: `NEXT_PUBLIC_SITE_URL=https://clover.com.kz`  
+Шаблон ключей админки: `web/admin.env.example`.
 
 Не использовать короткие имена без `NEXT_PUBLIC_` в клиентском коде — клиент их не увидит.
 

@@ -56,3 +56,9 @@ export function serviceCtaClasses(kind: AppServiceKind): string {
   const a = SERVICE_ACCENT[kind];
   return `${a.cta} ${a.ctaFg} hover:opacity-90 disabled:opacity-50 shadow-elevate-md`;
 }
+
+/** Outline CTA сервиса: surface + цветная обводка / текст (как Flutter AppOutlinedButton). */
+export function serviceOutlineClasses(kind: AppServiceKind): string {
+  const a = SERVICE_ACCENT[kind];
+  return `border ${a.border} bg-surface ${a.icon} hover:bg-surface-soft disabled:opacity-50`;
+}

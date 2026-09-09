@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:clover/core/shared/image_select/app_image_edit_exporter.dart';
+import 'package:clover/core/storage/r2_storage_service.dart';
 import 'package:clover/feature/_catalog_/marker_tags/data/repository/marker_tags_repository.dart';
 import 'package:clover/feature/_post_/post_create/data/model/post_create_request.dart';
 import 'package:clover/feature/_settings_/settings_filter/data/repository/filter_repository.dart';
@@ -12,13 +13,19 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// Публикация поста: обычная или ивент (marker + post при [PostCreateRequest.isEvent]).
 @lazySingleton
 class PostCreateRepository {
-  PostCreateRepository(this._client, this._filterRepository, this._markerTagsRepository);
+  PostCreateRepository(
+    this._client,
+    this._filterRepository,
+    this._markerTagsRepository,
+    this._r2,
+  );
 
   final SupabaseClient _client;
   final FilterRepository _filterRepository;
   final MarkerTagsRepository _markerTagsRepository;
+  final R2StorageService _r2;
 
-  static const _bucketPostMedia = 'post_media';
+  static const _folderPostMedia = 'post_media';
 
   Future<PostCreateResult> publish({
     required PostCreateRequest request,
@@ -194,7 +201,6 @@ class PostCreateRepository {
       final item = media[i];
       final mediaId = _newMediaId();
       final fileName = '$mediaId${item.aspectRatio.storageMarker}.jpg';
-      final storagePath = 'posts/$postId/$fileName';
 
       final bytes = await AppImageEditExporter.exportJpegBytes(
         sourceFile: item.sourceFile,
@@ -204,14 +210,14 @@ class PostCreateRepository {
       );
       final compressed = await FlutterImageCompress.compressWithList(bytes, quality: 88);
 
-      await _client.storage.from(_bucketPostMedia).uploadBinary(
-            storagePath,
-            compressed,
-            fileOptions: const FileOptions(upsert: true, contentType: 'image/jpeg'),
-          );
+      final publicUrl = await _r2.uploadBytes(
+        compressed,
+        fileName: fileName,
+        folder: '$_folderPostMedia/$postId',
+        contentType: 'image/jpeg',
+      );
 
-      uploadedPaths.add(storagePath);
-      final publicUrl = _publicUrl(storagePath);
+      uploadedPaths.add(publicUrl);
       coverUrl ??= captureCoverUrl ? publicUrl : null;
 
       mediaRows.add({
@@ -304,21 +310,11 @@ class PostCreateRepository {
     return '$hours hours $minutes minutes';
   }
 
-  String _publicUrl(String path) {
-    final base = _client.storage.from(_bucketPostMedia).getPublicUrl(path);
-    return '$base?v=${DateTime.now().millisecondsSinceEpoch}';
-  }
-
   Future<void> _rollbackPostOnly({
     required String postId,
     required List<String> storagePaths,
   }) async {
-    if (storagePaths.isNotEmpty) {
-      try {
-        await _client.storage.from(_bucketPostMedia).remove(storagePaths);
-      } catch (_) {}
-    }
-
+    // R2 cleanup for orphan objects is not wired yet; drop DB row first.
     try {
       await _client.from('posts').delete().eq('id', postId);
     } catch (_) {}
@@ -329,12 +325,6 @@ class PostCreateRepository {
     String? postId,
     required List<String> storagePaths,
   }) async {
-    if (storagePaths.isNotEmpty) {
-      try {
-        await _client.storage.from(_bucketPostMedia).remove(storagePaths);
-      } catch (_) {}
-    }
-
     if (postId != null && postId.isNotEmpty) {
       try {
         await _client.from('posts').delete().eq('id', postId);

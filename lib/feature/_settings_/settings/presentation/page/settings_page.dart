@@ -29,45 +29,64 @@ class SettingsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SettingsTileSectionTitle('Сервисы'),
             BlocBuilder<ProfileCubit, ProfileState>(
               bloc: sl<ProfileCubit>(),
               builder: (context, state) {
                 final hasBooking = state.mapOrNull(loaded: (s) => s.profile.hasBookingTag) ?? false;
-                return AppTileGroup(
+                final hasAttendance =
+                    state.mapOrNull(loaded: (s) => s.profile.hasAttendanceTag) ?? false;
+                final hasResources =
+                    state.mapOrNull(loaded: (s) => s.profile.hasResourcesTag) ?? false;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (hasBooking)
-                      AppTile(
-                        title: 'Запись',
-                        subtitle: 'Услуги, inbox и расписание',
-                        icon: AppIcons.calendarMonth.icon,
-                        iconColor: booking.icon,
-                        iconBackgroundColor: booking.soft,
-                        showChevron: true,
-                        onTap: () => context.router.push(const SettingsBookingRoute()),
-                      ),
-                    AppTile(
-                      title: 'Посещаемость',
-                      subtitle: 'Кнопка в профиле и настройки сервиса',
-                      icon: AppIcons.schedule.icon,
-                      iconColor: attendance.icon,
-                      iconBackgroundColor: attendance.soft,
-                      showChevron: true,
-                      onTap: () => context.router.push(const SettingsAttendanceRoute()),
+                    const SettingsTileSectionTitle('Сервисы'),
+                    AppTileGroup(
+                      children: [
+                        if (hasBooking)
+                          AppTile(
+                            title: 'Запись',
+                            subtitle: 'Услуги, inbox и расписание',
+                            icon: AppIcons.calendarMonth.icon,
+                            iconColor: booking.icon,
+                            iconBackgroundColor: booking.soft,
+                            showChevron: true,
+                            onTap: () => context.router.push(const SettingsBookingRoute()),
+                          ),
+                        if (hasAttendance)
+                          AppTile(
+                            title: 'Посещаемость',
+                            subtitle: 'Компании, геозона и работники',
+                            icon: AppIcons.schedule.icon,
+                            iconColor: attendance.icon,
+                            iconBackgroundColor: attendance.soft,
+                            showChevron: true,
+                            onTap: () => context.router.push(const SettingsAttendanceRoute()),
+                          ),
+                        if (hasResources)
+                          AppTile(
+                            title: 'Ресурсы',
+                            subtitle: 'Местоположения и фильтры',
+                            icon: AppIcons.inventory.icon,
+                            iconColor: resources.icon,
+                            iconBackgroundColor: resources.soft,
+                            showChevron: true,
+                            onTap: () => context.router.push(const SettingsResourcesRoute()),
+                          ),
+                        AppTile(
+                          title: 'Гайд',
+                          subtitle: 'Запись, посещаемость и ресурсы',
+                          icon: AppIcons.infoOutline.icon,
+                          showChevron: true,
+                          onTap: () => context.router.push(const SettingsGuideRoute()),
+                        ),
+                      ],
                     ),
-                    AppTile(
-                      title: 'Ресурсы',
-                      icon: AppIcons.inventory.icon,
-                      iconColor: resources.icon,
-                      iconBackgroundColor: resources.soft,
-                      showChevron: true,
-                      onTap: () => context.router.push(const SettingsResourcesRoute()),
-                    ),
+                    const SizedBox(height: 20),
                   ],
                 );
               },
             ),
-            const SizedBox(height: 20),
             const SettingsTileSectionTitle('Архивы'),
             AppTileGroup(
               children: [

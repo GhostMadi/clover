@@ -16,10 +16,6 @@ import type {
   AttendanceFolder,
   AttendanceWorkplace,
 } from "@/features/attendance/lib/attendance-model";
-import {
-  readAttendanceShortcut,
-  writeAttendanceShortcut,
-} from "@/features/attendance/lib/shortcut-prefs";
 import { SettingsShell } from "@/features/settings/components/settings-shell";
 import { createClient } from "@/lib/supabase/client";
 import { serviceTileIcon } from "@/lib/service-accent";
@@ -36,8 +32,7 @@ type HubState =
         };
 
 export function AttendanceHubView() {
-  const [uid, setUid] = useState<string | null>(null);
-  const [shortcut, setShortcut] = useState(false);
+  const [hasAttendanceTag, setHasAttendanceTag] = useState(false);
   const [hub, setHub] = useState<HubState>({ status: "loading" });
   const [createOpen, setCreateOpen] = useState(false);
   const [folderOpen, setFolderOpen] = useState(false);
@@ -63,13 +58,20 @@ export function AttendanceHubView() {
   }, []);
 
   useEffect(() => {
-    setShortcut(readAttendanceShortcut());
     void createClient()
       .auth.getSession()
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         const id = data.session?.user.id ?? null;
-        setUid(id);
-        setShortcut(readAttendanceShortcut(id));
+        if (!id) {
+          setHasAttendanceTag(false);
+          return;
+        }
+        const supabase = createClient();
+        const { data: hasTag } = await supabase.rpc("profile_has_marker_tag", {
+          p_profile_id: id,
+          p_tag_key: "attendance",
+        });
+        setHasAttendanceTag(Boolean(hasTag));
       });
     void reload();
   }, [reload]);
@@ -116,43 +118,6 @@ export function AttendanceHubView() {
       }
     >
       <div className="space-y-6 px-4 py-5">
-        <section>
-          <p className="mb-2 px-1 text-[12px] font-bold uppercase tracking-wide text-muted">
-            Навигация
-          </p>
-          <div className="rounded-[16px] border border-line bg-surface px-3.5 py-3.5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0 flex-1">
-                <p className="text-[15px] font-bold text-ink">
-                  Кнопка «Посещаемость» сбоку
-                </p>
-                <p className="mt-0.5 text-[12px] text-muted">
-                  Открывает «Моя посещаемость»; admin-компании — в Настройках
-                </p>
-              </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={shortcut}
-                onClick={() => {
-                  const next = !shortcut;
-                  setShortcut(next);
-                  writeAttendanceShortcut(uid, next);
-                }}
-                className={`relative h-7 w-12 shrink-0 rounded-full transition ${
-                  shortcut ? "bg-svc-attendance-ink" : "bg-line"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-6 w-6 rounded-full bg-surface shadow-elevate-sm transition ${
-                    shortcut ? "left-[1.35rem]" : "left-0.5"
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-        </section>
-
         {hub.status === "loading" ? (
           <AttendanceListShimmer />
         ) : hub.status === "error" ? (
@@ -289,6 +254,9 @@ export function AttendanceHubView() {
         initialValue="Компания"
         onClose={() => setCreateOpen(false)}
         onSubmit={async (name) => {
+          if (!hasAttendanceTag) {
+            throw new Error("Включите тег «Веду посещаемость» в профиле");
+          }
           await createWorkplace({ name, folderId: createFolderId });
           await reload();
         }}

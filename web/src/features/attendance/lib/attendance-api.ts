@@ -344,6 +344,30 @@ export async function listWorkplaceMembers(
   return memberships.filter((m) => m.workplaceId === workplaceId);
 }
 
+export async function acceptAttendanceInvite(membershipId: string): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.rpc("attendance_accept_invite", {
+    p_membership_id: membershipId,
+  });
+  if (error) throw error;
+}
+
+export async function rejectAttendanceInvite(membershipId: string): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.rpc("attendance_reject_invite", {
+    p_membership_id: membershipId,
+  });
+  if (error) throw error;
+}
+
+export async function ackAttendanceConfig(workplaceId: string): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.rpc("attendance_ack_config", {
+    p_workplace_id: workplaceId,
+  });
+  if (error) throw error;
+}
+
 export async function inviteMember(params: {
   workplaceId: string;
   profileId: string;

@@ -183,6 +183,7 @@
 | `20260428120000_mark_conversation_read_monotonic_cursor.sql` | Монотонный курсор в `mark_conversation_read`. |
 | `20260429140000_chat_broadcast_peer_read.sql` | Broadcast `peer_read` при сдвиге read-курсора (мгновенные галочки у отправителя). |
 | `20260908180000_count_unread_chat_messages.sql` | `count_unread_chat_messages()` — суммарный unread для бейджа кабинета (web). |
+| `20260908190000_chat_attachments_r2_public_url.sql` | `chat_message_attachments.public_url` + RPC attachments bucket `r2`. |
 | `20260830250000_chat_reactions_rpc.sql` | `toggle_message_reaction`; колонка `my_reactions` в `list_messages_enriched` / `get_message_enriched`. |
 | `20260830260000_chat_messenger_basics.sql` | `delete_message`, `edit_message` — soft-delete и правка текста своих сообщений. |
 | `20260830270000_chat_attachments_client_message_id.sql` | `send_message_with_attachments` + `p_client_message_id` — reconcile optimistic media/file. |
@@ -212,6 +213,8 @@
 | `20260725120000_marker_tag_booking.sql` | Тег аккаунта `booking` в `marker_tags` (кнопка «Записаться»). |
 | `20260908150000_booking_calendar_tag_and_staff_rpcs.sql` | Тег `bookingCalendar` + `list_my_staff_booking_hosts` / `list_my_staff_bookings_enriched`. Спека: [SPEC_BOOKING_CALENDAR_STAFF.md](SPEC_BOOKING_CALENDAR_STAFF.md) |
 | `20260908160000_marker_tag_admin_worker_groups.sql` | Силовые теги: `group_key` `admin` / `worker` вместо `account`. |
+| `20260908194706_attendance_tag_powers_impl.sql` | Теги `attendance` / `attendanceWork`; гейты create/invite/update/punch; bootstrap `has_attendance_work_tag`. |
+| `20260909033323_resources_marker_tag.sql` | Admin-тег `resources` в `marker_tags` (местоположения / фильтры). |
 | `20260908170000_booking_staff_invite_kinds.sql` | `chat_message_kind.booking_staff_invite` + `chat_message_booking_cards`. |
 | `20260908171000_booking_staff_invite_rpc.sql` | `booking_staff_invites` + invite/accept/reject/cancel + `booking_card` в enriched. Спека: [SPEC_BOOKING_STAFF_INVITE.md](SPEC_BOOKING_STAFF_INVITE.md) |
 | **`20260726120000_booking_schema.sql`** | Таблицы booking, EXCLUDE constraints, helpers (`booking_resolve_staff_day_window`, …), `pg_trgm` indexes. |
