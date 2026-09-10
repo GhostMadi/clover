@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
@@ -26,7 +28,7 @@ class MessagePage extends StatefulWidget {
   State<MessagePage> createState() => _MessagePageState();
 }
 
-class _MessagePageState extends State<MessagePage> {
+class _MessagePageState extends State<MessagePage> with WidgetsBindingObserver {
   late final MessageListCubit _cubit;
   late final ChatRepository _chatRepository;
   late final TextEditingController _searchController;
@@ -38,6 +40,7 @@ class _MessagePageState extends State<MessagePage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _cubit = sl<MessageListCubit>()..load();
     _chatRepository = sl<ChatRepository>();
     _searchController = TextEditingController();
@@ -45,9 +48,33 @@ class _MessagePageState extends State<MessagePage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _searchController.dispose();
     _cubit.close();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(_cubit.softRefresh());
+    }
+  }
+
+  Future<void> _openChat({
+    required String chatId,
+    required String username,
+    bool isGroup = false,
+  }) async {
+    await context.router.push(
+      ChatRoute(
+        chatId: chatId,
+        username: username,
+        isGroup: isGroup,
+      ),
+    );
+    if (!mounted) return;
+    unawaited(_cubit.softRefresh());
   }
 
   List<MessageChatPreview> _filterChats(List<MessageChatPreview> chats) {
@@ -163,10 +190,7 @@ class _MessagePageState extends State<MessagePage> {
               Expanded(
                 child: BlocBuilder<MessageListCubit, MessageListState>(
                   builder: (context, state) {
-                    final isLoading = switch (state) {
-                      MessageListInitial() || MessageListLoading() => true,
-                      _ => false,
-                    };
+                    final isLoading = state is MessageListLoading;
                     final errorMessage = switch (state) {
                       MessageListError(:final message) => message,
                       _ => null,
@@ -188,7 +212,6 @@ class _MessagePageState extends State<MessagePage> {
                               chats: filteredChats,
                               allChats: loaded.chats,
                               hasAnyChats: loaded.chats.isNotEmpty,
-                              isRefreshing: loaded.isRefreshing,
                             ),
                     );
                   },
@@ -205,7 +228,6 @@ class _MessagePageState extends State<MessagePage> {
     required List<MessageChatPreview> chats,
     required List<MessageChatPreview> allChats,
     required bool hasAnyChats,
-    required bool isRefreshing,
   }) {
     final showMessageHits = _query.trim().length >= 2;
 
@@ -251,101 +273,84 @@ class _MessagePageState extends State<MessagePage> {
 
     return AppRefresh(
       onRefresh: _cubit.refresh,
-      child: Stack(
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.only(bottom: AppNavBar.scrollBottomClearance(context)),
         children: [
-          ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.only(bottom: AppNavBar.scrollBottomClearance(context)),
-            children: [
-              if (showMessageHits) ...[
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                  child: Text(
-                    'В сообщениях',
-                    style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
+          if (showMessageHits) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              child: Text(
+                'В сообщениях',
+                style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
+              ),
+            ),
+            if (_messageSearchLoading)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primary),
                   ),
                 ),
-                if (_messageSearchLoading)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Center(
-                      child: SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primary),
-                      ),
-                    ),
-                  )
-                else if (_messageHits.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                    child: Text(
-                      'Совпадений в тексте сообщений нет',
-                      style: AppTextStyle.base(13, color: context.colors.subTextColor),
-                    ),
-                  )
-                else
-                  ...[
-                    for (final hit in _messageHits.take(20))
-                      _MessageSearchTile(
-                        hit: hit,
-                        chat: _chatById(allChats, hit.conversationId),
-                        onTap: () {
-                          final chat = _chatById(allChats, hit.conversationId);
-                          context.router.push(
-                            ChatRoute(
-                              chatId: hit.conversationId,
-                              username: chat?.username ?? hit.senderUsername ?? 'Чат',
-                              isGroup: chat?.isGroup ?? false,
-                            ),
-                          );
-                        },
-                      ),
-                  ],
-                if (chats.isNotEmpty) ...[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                    child: Text(
-                      'Чаты',
-                      style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ],
-              ],
-              for (var index = 0; index < chats.length; index++) ...[
-                MessageChatTile(
-                  chat: chats[index],
-                  onTap: () => context.router.push(
-                    ChatRoute(
-                      chatId: chats[index].id,
-                      username: chats[index].username,
-                      isGroup: chats[index].isGroup,
-                    ),
-                  ),
+              )
+            else if (_messageHits.isEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: Text(
+                  'Совпадений в тексте сообщений нет',
+                  style: AppTextStyle.base(13, color: context.colors.subTextColor),
                 ),
-                if (index < chats.length - 1)
-                  Divider(
-                    height: 1,
-                    thickness: 1,
-                    color: context.colors.border.withValues(alpha: 0.65),
-                    indent: 80,
+              )
+            else
+              ...[
+                for (final hit in _messageHits.take(20))
+                  _MessageSearchTile(
+                    hit: hit,
+                    chat: _chatById(allChats, hit.conversationId),
+                    onTap: () {
+                      final chat = _chatById(allChats, hit.conversationId);
+                      unawaited(
+                        _openChat(
+                          chatId: hit.conversationId,
+                          username: chat?.username ?? hit.senderUsername ?? 'Чат',
+                          isGroup: chat?.isGroup ?? false,
+                        ),
+                      );
+                    },
                   ),
               ],
+            if (chats.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Text(
+                  'Чаты',
+                  style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
+                ),
+              ),
             ],
-          ),
-          if (isRefreshing)
-            Positioned(
-              top: 8,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primary),
+          ],
+          for (var index = 0; index < chats.length; index++) ...[
+            MessageChatTile(
+              chat: chats[index],
+              onTap: () => unawaited(
+                _openChat(
+                  chatId: chats[index].id,
+                  username: chats[index].username,
+                  isGroup: chats[index].isGroup,
                 ),
               ),
             ),
+            if (index < chats.length - 1)
+              Divider(
+                height: 1,
+                thickness: 1,
+                color: context.colors.border.withValues(alpha: 0.65),
+                indent: 80,
+              ),
+          ],
         ],
       ),
     );

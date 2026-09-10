@@ -1,5 +1,8 @@
 import Flutter
 import UIKit
+import UserNotifications
+import FirebaseCore
+import FirebaseMessaging
 import YandexMapsMobile
 
 @main
@@ -10,10 +13,34 @@ import YandexMapsMobile
   ) -> Bool {
     YMKMapKit.setLocale("ru_RU")
     YMKMapKit.setApiKey("2f22c733-43bd-48eb-a2ae-5d66aebfd4ef")
+
+    if FirebaseApp.app() == nil {
+      FirebaseApp.configure()
+    }
+
+    UNUserNotificationCenter.current().delegate = self
+    application.registerForRemoteNotifications()
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+  }
+
+  override func application(
+    _ application: UIApplication,
+    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+  ) {
+    Messaging.messaging().apnsToken = deviceToken
+    super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
+  }
+
+  override func application(
+    _ application: UIApplication,
+    didFailToRegisterForRemoteNotificationsWithError error: Error
+  ) {
+    NSLog("[Push] APNs fail · %@", error.localizedDescription)
+    super.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
   }
 }

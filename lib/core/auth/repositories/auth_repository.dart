@@ -33,7 +33,10 @@ class AuthRepository {
     return ensureValidSession();
   }
 
-  /// Проверяет сессию; при `refresh_token_not_found` — локальный выход.
+  /// Запас до истечения access token: refresh только если близко к концу / уже истёк.
+  static const _sessionRefreshSkew = Duration(seconds: 120);
+
+  /// Проверяет сессию; при живом JWT — без сети; при `refresh_token_not_found` — локальный выход.
   Future<bool> ensureValidSession() async {
     final session = _supabase.auth.currentSession;
     if (session == null) {
@@ -42,6 +45,10 @@ class AuthRepository {
         await _sessionCleanup.clear();
       }
       return false;
+    }
+
+    if (!_needsSessionRefresh(session)) {
+      return true;
     }
 
     try {
@@ -55,6 +62,14 @@ class AuthRepository {
       if (!session.isExpired) return true;
       rethrow;
     }
+  }
+
+  bool _needsSessionRefresh(Session session) {
+    if (session.isExpired) return true;
+    final expiresAt = session.expiresAt;
+    if (expiresAt == null) return false;
+    final expiresUtc = DateTime.fromMillisecondsSinceEpoch(expiresAt * 1000, isUtc: true);
+    return DateTime.now().toUtc().isAfter(expiresUtc.subtract(_sessionRefreshSkew));
   }
 
   Future<void> clearLocalAccountData() async {

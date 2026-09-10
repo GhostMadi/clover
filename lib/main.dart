@@ -41,7 +41,9 @@ Future<void> main() async {
         };
       }
 
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      }
       await Supabase.initialize(
         url: SupabaseConfig.url,
         anonKey: SupabaseConfig.anonKey,

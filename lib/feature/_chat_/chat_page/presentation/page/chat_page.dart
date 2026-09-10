@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_field.dart';
@@ -8,10 +8,10 @@ import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/image_select/app_image_selector_page.dart';
 import 'package:clover/feature/_chat_/chat/data/chat_image_compress.dart';
 import 'package:clover/feature/_chat_/chat/data/models/chat_attachment_upload.dart';
-import 'package:clover/feature/_chat_/chat_page/data/chat_emoji_wallpaper_store.dart';
-import 'package:clover/feature/_chat_/chat_page/data/models/chat_search_hit.dart';
 import 'package:clover/feature/_chat_/chat/presentation/widget/chat_forward_sheet.dart';
+import 'package:clover/feature/_chat_/chat_page/data/chat_emoji_wallpaper_store.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
+import 'package:clover/feature/_chat_/chat_page/data/models/chat_search_hit.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/cubit/chat_thread_cubit.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/utils/chat_message_date_grouping.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_composer.dart';
@@ -20,27 +20,21 @@ import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_date_se
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_emoji_wallpaper_layer.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_emoji_wallpaper_sheet.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_geometry.dart';
-import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_message_actions_sheet.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_message_bubble.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_message_context_menu.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_message_interaction.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_peer_accent.dart';
-import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_reaction_bar.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_reply_quote.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_send_flight.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 @RoutePage()
 class ChatPage extends StatefulWidget {
-  const ChatPage({
-    super.key,
-    this.chatId,
-    this.otherUserId,
-    required this.username,
-    this.isGroup = false,
-  });
+  const ChatPage({super.key, this.chatId, this.otherUserId, required this.username, this.isGroup = false});
 
   final String? chatId;
   final String? otherUserId;
@@ -60,8 +54,8 @@ class _ChatPageState extends State<ChatPage> {
   bool _searchMode = false;
   bool _searchLoading = false;
   List<ChatSearchHit> _searchHits = const [];
-  ChatMessage? _reactionTarget;
   List<String> _wallpaperEmojis = const [];
+  bool _contextMenuOpen = false;
 
   @override
   void initState() {
@@ -96,7 +90,6 @@ class _ChatPageState extends State<ChatPage> {
     if (!mounted) return;
     setState(() => _wallpaperEmojis = next);
   }
-
 
   void _onScroll() {
     if (!_scrollController.hasClients) return;
@@ -161,10 +154,7 @@ class _ChatPageState extends State<ChatPage> {
     final shouldScrollToLatest = !_isNearLatestMessages();
 
     if (attachments.isNotEmpty) {
-      _cubit.sendAttachments(
-        attachments,
-        caption: text.isEmpty ? null : text,
-      );
+      _cubit.sendAttachments(attachments, caption: text.isEmpty ? null : text);
     } else {
       _cubit.sendMessage(text);
     }
@@ -226,11 +216,7 @@ class _ChatPageState extends State<ChatPage> {
         0.0,
         _scrollController.position.maxScrollExtent,
       );
-      _scrollController.animateTo(
-        offset,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-      );
+      _scrollController.animateTo(offset, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
     });
   }
 
@@ -264,36 +250,52 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  void _dismissReactionBar() {
-    if (_reactionTarget == null) return;
-    setState(() => _reactionTarget = null);
-  }
+  Future<void> _showMessageContextMenu(ChatMessage message, Rect messageRect) async {
+    if (_contextMenuOpen || message.isPending) return;
+    _contextMenuOpen = true;
+    FocusManager.instance.primaryFocus?.unfocus();
 
-  void _showReactionBar(ChatMessage message) {
-    setState(() => _reactionTarget = message);
-  }
+    final result = await ChatMessageContextMenu.show(
+      context: context,
+      messageRect: messageRect,
+      message: message,
+      messageBubble: ChatMessageBubble(
+        message: message,
+        peerAccent: ChatPeerAccent.forSeed(context.colors, _accentSeed),
+      ),
+    );
+    _contextMenuOpen = false;
+    if (!mounted || result == null) return;
 
-  Future<void> _onReactionEmoji(String emoji) async {
-    final target = _reactionTarget;
-    if (target == null || emoji.trim().isEmpty) return;
-    _dismissReactionBar();
-    await _cubit.toggleReaction(target.id, emoji.trim());
+    final emoji = result.emoji?.trim();
+    if (emoji != null && emoji.isNotEmpty) {
+      await _cubit.toggleReaction(message.id, emoji);
+      return;
+    }
+
+    final action = result.action;
+    if (action == null) return;
+    await _handleMessageAction(message, action);
   }
 
   void _onSwipeReply(ChatMessage message) {
-    _dismissReactionBar();
     _cubit.setReplyTo(message);
   }
 
-  Future<void> _handleMessageMore(ChatMessage message) async {
-    if (message.isPending) return;
-
-    final action = await ChatMessageActionsSheet.show(context, message: message);
-    if (!mounted || action == null) return;
-
+  Future<void> _handleMessageAction(ChatMessage message, ChatMessageAction action) async {
     switch (action) {
+      case ChatMessageAction.reply:
+        _cubit.setReplyTo(message);
       case ChatMessageAction.forward:
         await ChatForwardSheet.show(context, message: message);
+      case ChatMessageAction.copy:
+        final text = message.text.trim();
+        if (text.isEmpty) return;
+        await Clipboard.setData(ClipboardData(text: text));
+        if (!mounted) return;
+        AppSnackBar.show(context, message: 'Скопировано', kind: AppSnackBarKind.success);
+      case ChatMessageAction.star:
+        AppSnackBar.show(context, message: 'Избранные для сообщений — скоро');
       case ChatMessageAction.edit:
         _cubit.setEditingMessage(message);
         _composerController.text = message.text;
@@ -341,12 +343,7 @@ class _ChatPageState extends State<ChatPage> {
 
       final title = await asset.titleAsync;
       final filename = title.trim().isNotEmpty ? title.trim() : 'photo.jpg';
-      uploads.add(
-        await ChatImageCompress.prepareUpload(
-          bytes: bytes,
-          filename: filename,
-        ),
-      );
+      uploads.add(await ChatImageCompress.prepareUpload(bytes: bytes, filename: filename));
     }
 
     if (uploads.isEmpty) {
@@ -359,10 +356,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _pickDocument() async {
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      withData: true,
-    );
+    final result = await FilePicker.platform.pickFiles(allowMultiple: true, withData: true);
     if (result == null || result.files.isEmpty) return;
 
     final uploads = <ChatAttachmentUpload>[];
@@ -415,8 +409,11 @@ class _ChatPageState extends State<ChatPage> {
             return prev.editingMessage?.id != next.editingMessage?.id;
           }
           if (next is! ChatThreadLoaded || next.messages.isEmpty) return false;
-          if (prev is! ChatThreadLoaded) return true;
-          return next.messages.length != prev.messages.length && !next.isLoadingOlder;
+          if (prev is! ChatThreadLoaded || prev.messages.isEmpty) return true;
+          // Новые сообщения внизу — не дёргать при тихой подмене кэша → remote.
+          if (next.isLoadingOlder) return false;
+          if (next.isFromCache) return true;
+          return next.messages.length > prev.messages.length;
         },
         listener: (context, state) {
           if (state is ChatThreadLoaded && state.sendError != null) {
@@ -432,11 +429,13 @@ class _ChatPageState extends State<ChatPage> {
             return;
           }
           if (state is ChatThreadLoaded && state.messages.isNotEmpty) {
-            _scrollToBottom(animated: state.isFromCache == false);
+            // Кэш / первая отрисовка — без анимации; новые сообщения — мягко.
+            _scrollToBottom(animated: !state.isFromCache);
           }
         },
         child: Scaffold(
           backgroundColor: context.colors.pageBackground,
+          resizeToAvoidBottomInset: false,
           appBar: AppBar(
             backgroundColor: context.colors.pageBackground,
             surfaceTintColor: Colors.transparent,
@@ -476,7 +475,11 @@ class _ChatPageState extends State<ChatPage> {
                             _title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w700),
+                            style: AppTextStyle.base(
+                              16,
+                              color: context.colors.textColor,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                           if (isTyping) ...[
                             const SizedBox(height: 2),
@@ -574,7 +577,6 @@ class _ChatPageState extends State<ChatPage> {
                       ChatThreadLoaded(
                         :final messages,
                         :final isSending,
-                        :final isRefreshing,
                         :final isOpeningConversation,
                         :final replyToMessage,
                         :final editingMessage,
@@ -582,140 +584,134 @@ class _ChatPageState extends State<ChatPage> {
                         :final pendingAttachments,
                       ) =>
                         Stack(
-                        children: [
-                          if (_wallpaperEmojis.isNotEmpty)
-                            Positioned.fill(
-                              child: ChatEmojiWallpaperLayer(
-                                emojis: _wallpaperEmojis,
-                                seed: _accentSeed,
+                          children: [
+                            if (_wallpaperEmojis.isNotEmpty)
+                              Positioned.fill(
+                                child: ChatEmojiWallpaperLayer(emojis: _wallpaperEmojis, seed: _accentSeed),
                               ),
-                            ),
-                          if (isLoadingOlder)
-                            Positioned(
-                              top: 8,
-                              left: 0,
-                              right: 0,
-                              child: Center(
-                                child: SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primary),
-                                ),
-                              ),
-                            ),
-                          if (isRefreshing || isOpeningConversation)
-                            Positioned(
-                              top: 8,
-                              left: 0,
-                              right: 0,
-                              child: Center(
-                                child: SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primary),
-                                ),
-                              ),
-                            ),
-                          if (messages.isEmpty)
-                            Center(
-                              child: Text(
-                                isOpeningConversation ? 'Открываем чат…' : 'Напишите первое сообщение',
-                                style: AppTextStyle.base(15, color: context.colors.subTextColor),
-                              ),
-                            )
-                          else
-                            Builder(
-                              builder: (context) {
-                                final sections = ChatMessageDateGrouping.group(messages);
-                                final itemCount = ChatMessageDateGrouping.listItemCount(sections);
-
-                                return ListView.builder(
-                                  controller: _scrollController,
-                                  padding: EdgeInsets.fromLTRB(
-                                    ChatGeometry.listHorizontalPadding,
-                                    6,
-                                    ChatGeometry.listHorizontalPadding,
-                                    MediaQuery.paddingOf(context).bottom + 88,
+                            if (isLoadingOlder)
+                              Positioned(
+                                top: 8,
+                                left: 0,
+                                right: 0,
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: context.colors.primary,
+                                    ),
                                   ),
-                                  itemCount: itemCount,
-                                  itemBuilder: (context, index) {
-                                    if (ChatMessageDateGrouping.isHeaderIndex(sections, index)) {
-                                      final title = ChatMessageDateGrouping.headerTitleAt(sections, index);
-                                      if (title == null) return const SizedBox.shrink();
-                                      return ChatDateSectionHeader(title: title);
-                                    }
+                                ),
+                              ),
+                            if (messages.isEmpty)
+                              GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                                child: Center(
+                                  child: Text(
+                                    isOpeningConversation ? 'Открываем чат…' : 'Напишите первое сообщение',
+                                    style: AppTextStyle.base(15, color: context.colors.subTextColor),
+                                  ),
+                                ),
+                              )
+                            else
+                              Builder(
+                                builder: (context) {
+                                  final sections = ChatMessageDateGrouping.group(messages);
+                                  final itemCount = ChatMessageDateGrouping.listItemCount(sections);
 
-                                    final message = ChatMessageDateGrouping.messageAt(sections, index);
-                                    if (message == null) return const SizedBox.shrink();
-                                    final messageKey = message.clientMessageId ?? message.id;
-                                    return ChatMessageEntrance(
-                                      key: ValueKey('entrance_$messageKey'),
-                                      animate: message.isMine && message.isPending,
-                                      child: ChatMessageInteraction(
-                                        message: message,
-                                        onLongPressReaction:
-                                            message.isPending ? null : () => _showReactionBar(message),
-                                        onSwipeReply: message.isPending ? null : () => _onSwipeReply(message),
-                                        child: ChatMessageBubble(
-                                          message: message,
-                                          peerAccent: ChatPeerAccent.forSeed(context.colors, _accentSeed),
-                                          onReactionToggle: (emoji) => _cubit.toggleReaction(message.id, emoji),
-                                        ),
+                                  return GestureDetector(
+                                    // translucent: не перехватывает тап по фото/кнопкам в пузырях
+                                    behavior: HitTestBehavior.translucent,
+                                    onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                                    child: ListView.builder(
+                                      controller: _scrollController,
+                                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                                      padding: EdgeInsets.fromLTRB(
+                                        ChatGeometry.listHorizontalPadding,
+                                        6,
+                                        ChatGeometry.listHorizontalPadding,
+                                        MediaQuery.paddingOf(context).bottom + 88,
                                       ),
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          Positioned(
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (replyToMessage != null)
-                                  ChatComposerContextBar.reply(
-                                    message: replyToMessage,
-                                    onClose: _cubit.clearComposerContext,
+                                      itemCount: itemCount,
+                                      itemBuilder: (context, index) {
+                                        if (ChatMessageDateGrouping.isHeaderIndex(sections, index)) {
+                                          final title = ChatMessageDateGrouping.headerTitleAt(
+                                            sections,
+                                            index,
+                                          );
+                                          if (title == null) return const SizedBox.shrink();
+                                          return ChatDateSectionHeader(title: title);
+                                        }
+
+                                        final message = ChatMessageDateGrouping.messageAt(sections, index);
+                                        if (message == null) return const SizedBox.shrink();
+                                        final messageKey = message.clientMessageId ?? message.id;
+                                        return ChatMessageEntrance(
+                                          key: ValueKey('entrance_$messageKey'),
+                                          animate: message.isMine && message.isPending,
+                                          child: ChatMessageInteraction(
+                                            message: message,
+                                            onLongPress: message.isPending
+                                                ? null
+                                                : (rect) => _showMessageContextMenu(message, rect),
+                                            onSwipeReply: message.isPending
+                                                ? null
+                                                : () => _onSwipeReply(message),
+                                            child: ChatMessageBubble(
+                                              message: message,
+                                              peerAccent: ChatPeerAccent.forSeed(context.colors, _accentSeed),
+                                              onReactionToggle: (emoji) =>
+                                                  _cubit.toggleReaction(message.id, emoji),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                            Positioned(
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (replyToMessage != null)
+                                    ChatComposerContextBar.reply(
+                                      message: replyToMessage,
+                                      onClose: _cubit.clearComposerContext,
+                                    ),
+                                  if (editingMessage != null)
+                                    ChatComposerContextBar.edit(
+                                      message: editingMessage,
+                                      onClose: () {
+                                        _cubit.clearComposerContext();
+                                        _composerController.clear();
+                                      },
+                                    ),
+                                  if (pendingAttachments.isNotEmpty)
+                                    ChatComposerAttachmentsPreview(
+                                      attachments: pendingAttachments,
+                                      onRemove: _cubit.removePendingAttachmentAt,
+                                    ),
+                                  ChatComposer(
+                                    controller: _composerController,
+                                    onSend: _sendMessage,
+                                    onAttachmentSelected: _onAttachmentSelected,
+                                    isSending: isSending || isOpeningConversation,
+                                    hasAttachments: pendingAttachments.isNotEmpty,
+                                    onChanged: (_) => _cubit.notifyTyping(),
+                                    accent: ChatPeerAccent.forSeed(context.colors, _accentSeed),
                                   ),
-                                if (editingMessage != null)
-                                  ChatComposerContextBar.edit(
-                                    message: editingMessage,
-                                    onClose: () {
-                                      _cubit.clearComposerContext();
-                                      _composerController.clear();
-                                    },
-                                  ),
-                                if (pendingAttachments.isNotEmpty)
-                                  ChatComposerAttachmentsPreview(
-                                    attachments: pendingAttachments,
-                                    onRemove: _cubit.removePendingAttachmentAt,
-                                  ),
-                                ChatComposer(
-                                  controller: _composerController,
-                                  onSend: _sendMessage,
-                                  onAttachmentSelected: _onAttachmentSelected,
-                                  isSending: isSending || isOpeningConversation,
-                                  hasAttachments: pendingAttachments.isNotEmpty,
-                                  onChanged: (_) => _cubit.notifyTyping(),
-                                  accent: ChatPeerAccent.forSeed(context.colors, _accentSeed),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          if (_reactionTarget != null)
-                            ChatReactionOverlay(
-                              message: _reactionTarget!,
-                              onDismiss: _dismissReactionBar,
-                              onEmojiSelected: _onReactionEmoji,
-                              onMore: () => _handleMessageMore(_reactionTarget!),
-                              bottomInset: 118 +
-                                  ((replyToMessage != null || editingMessage != null) ? 58 : 0) +
-                                  (pendingAttachments.isNotEmpty ? 96 : 0),
-                            ),
-                        ],
-                      ),
+                          ],
+                        ),
                     },
                   ),
                 ],
@@ -763,11 +759,7 @@ class _ChatThreadErrorView extends StatelessWidget {
 }
 
 class _ChatHeaderAvatar extends StatelessWidget {
-  const _ChatHeaderAvatar({
-    required this.title,
-    required this.isGroup,
-    required this.accent,
-  });
+  const _ChatHeaderAvatar({required this.title, required this.isGroup, required this.accent});
 
   final String title;
   final bool isGroup;

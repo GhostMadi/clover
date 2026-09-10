@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/resources.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_nav_bar/app_nav_bar.dart';
 import 'package:clover/core/shared/app_refresh.dart';
@@ -113,11 +114,15 @@ class _EventsPageState extends State<EventsPage> {
                   physics: AlwaysScrollableScrollPhysics(),
                   slivers: [
                     SliverAppBar(
-                      title: Text(
-                        'События',
-                        style: AppTextStyle.base(20, color: context.colors.textColor, fontWeight: FontWeight.w500),
+                      titleSpacing: 16,
+                      title: Row(
+                        children: [
+                          Image.asset(AppImages.logo, height: 28, width: 28),
+                          const SizedBox(width: 8),
+                          _CloverBrandWord(colors: context.colors),
+                        ],
                       ),
-                      centerTitle: true,
+                      centerTitle: false,
                       floating: true,
                       snap: true,
                       pinned: false,
@@ -192,3 +197,34 @@ class _EventsPageState extends State<EventsPage> {
   }
 }
 
+/// «Clover» — зелёный бренд + цвета сервисов по буквам.
+class _CloverBrandWord extends StatelessWidget {
+  const _CloverBrandWord({required this.colors});
+
+  final AppPalette colors;
+
+  @override
+  Widget build(BuildContext context) {
+    const word = 'Clover';
+    final letterColors = <Color>[
+      colors.primary,
+      colors.serviceAccent(AppServiceKind.attendance).icon,
+      colors.serviceAccent(AppServiceKind.booking).icon,
+      colors.serviceAccent(AppServiceKind.resources).icon,
+      colors.serviceAccent(AppServiceKind.bonus).icon,
+      colors.primary,
+    ];
+
+    return Text.rich(
+      TextSpan(
+        children: [
+          for (var i = 0; i < word.length; i++)
+            TextSpan(
+              text: word[i],
+              style: AppTextStyle.base(20, color: letterColors[i], fontWeight: FontWeight.w700),
+            ),
+        ],
+      ),
+    );
+  }
+}

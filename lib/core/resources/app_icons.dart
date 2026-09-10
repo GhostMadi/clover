@@ -86,6 +86,7 @@ enum AppIcons {
   archive(iconAndroid: Icons.archive_outlined, iconIos: CupertinoIcons.archivebox),
   unarchive(iconAndroid: Icons.unarchive_outlined, iconIos: CupertinoIcons.tray_arrow_up_fill),
   imageOutlined(iconAndroid: Icons.image_outlined, iconIos: CupertinoIcons.photo),
+  download(iconAndroid: Icons.download_rounded, iconIos: CupertinoIcons.arrow_down_to_line),
   notificationsOutlined(iconAndroid: Icons.notifications_outlined, iconIos: CupertinoIcons.bell),
   filterList(iconAndroid: Icons.filter_list_rounded, iconIos: CupertinoIcons.line_horizontal_3_decrease),
   logout(iconAndroid: Icons.logout_rounded, iconIos: CupertinoIcons.square_arrow_right),

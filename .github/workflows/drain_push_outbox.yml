@@ -1,0 +1,30 @@
+# Drain FCM push_outbox every 2 minutes (and on manual run).
+# Secrets (repo): SUPABASE_URL, PUSH_WORKER_SECRET
+# Spec: docs/supabase/SPEC_PUSH_FCM.md
+
+name: Drain push outbox
+
+on:
+  schedule:
+    - cron: "*/2 * * * *"
+  workflow_dispatch:
+
+jobs:
+  drain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Call drain_push_outbox
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          PUSH_WORKER_SECRET: ${{ secrets.PUSH_WORKER_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${PUSH_WORKER_SECRET:-}" ]; then
+            echo "Missing SUPABASE_URL or PUSH_WORKER_SECRET in repo secrets"
+            exit 1
+          fi
+          curl -fsS -X POST "${SUPABASE_URL%/}/functions/v1/drain_push_outbox" \
+            -H "x-push-worker-secret: ${PUSH_WORKER_SECRET}" \
+            -H "Content-Type: application/json" \
+            -d '{"limit":40}'

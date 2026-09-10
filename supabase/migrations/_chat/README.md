@@ -31,6 +31,8 @@
 | `../20260429120000_ensure_chat_participants_replica_identity_full.sql` | Идемпотентное повторное **`REPLICA IDENTITY FULL`** на **`chat_participants`** (если на окружении пропускали раннюю миграцию). |
 | `../20260429140000_chat_broadcast_peer_read.sql` | Broadcast **`peer_read`** на topic **`chat_thread_<conversation_id>`** после UPDATE строки участника (**`last_read_message_id` / `last_read_at`**) — мгновенное обновление галочек у отправителя (аналог скорости **`message_enriched`**). |
 | `../20260908180000_count_unread_chat_messages.sql` | **`count_unread_chat_messages()`** — сумма unread входящих для бейджа навигации (web cabinet). |
+| `../20260909180806_chat_inbox_broadcast_push.sql` | После INSERT: **`inbox_changed`** на topic **`chat_inbox_<user_id>`** каждому участнику + строка **`push_outbox`** (`kind=chat_message`) для peers; после peer-read — тоже **`inbox_changed`** для галочек в списке. Spec: `docs/supabase/SPEC_CHAT_INBOX_PUSH.md`. |
+| `../20260910200000_chat_media_broadcast_after_attachments.sql` | Media/file: **`message_enriched`** только после вложений (иначе пустой bubble → прыжок). |
 
 ### Realtime и «прочитано» (галочки у отправителя)
 
@@ -39,8 +41,9 @@
 | Механизм | Назначение |
 |----------|------------|
 | **Postgres Changes** (`postgres_changes`) | Таблицы из publication **`supabase_realtime`** (см. `../20260423180000_chat_realtime_publication.sql`): новые сообщения, реакции, вложения, **UPDATE** в **`chat_participants`**. На UPDATE в части WAL в `new` может не быть `conversation_id` — клиент подписан **без** server-side фильтра по диалогу и сам отсекает чужие строки после **merge old+new**. |
-| **Broadcast `message_enriched`** | Триггер после INSERT в **`chat_messages`** (`../20260425120000_chat_broadcast_message_enriched.sql`): тот же JSON, что **`get_message_enriched`**, доставляется без ожидания репликации списков. |
+| **Broadcast `message_enriched`** | Триггер после INSERT в **`chat_messages`** для text/post/…; для **media/file** — из **`send_message_with_attachments` после** записи `chat_message_attachments` (`../20260910200000_chat_media_broadcast_after_attachments.sql`), чтобы в payload уже были URL. |
 | **Broadcast `peer_read`** | Триггер после UPDATE в **`chat_participants`**, когда сдвигается курсор прочитанного (`../20260429140000_chat_broadcast_peer_read.sql`). Payload: **`conversation_id`**, **`user_id`** (кто прочитал), **`last_read_message_id`**, **`last_read_at`**. Отправитель сопоставляет это с локальными исходящими и включает **`read_by_peer`**. |
+| **Broadcast `inbox_changed`** | Personal topic **`chat_inbox_<user_id>`** (`../20260909180806_chat_inbox_broadcast_push.sql`): список чатов и бейдж обновляются без открытия треда. |
 
 **REST (не Realtime):** начальные курсоры собеседников при открытии треда — **`GET`** по **`chat_participants`** (нужны GRANT + политика SELECT). RPC **`mark_conversation_read`** обновляет только строку **текущего** пользователя; собеседник видит результат через **`postgres_changes`** и/или **`peer_read`**.
 
@@ -51,6 +54,8 @@
 - URL проекта и anon key — `lib/core/config/supabase_config.dart` (должен совпадать с Dashboard и с `project-ref` после `supabase link`).
 - Edge Function **`send_chat_attachments`** — см. `supabase/functions/send_chat_attachments/` и секцию deploy в корневом `supabase/README.md`.
 - Тред чата: **`ChatThreadCubit`** — `onPostgresChanges` по **`chat_messages`** / **`chat_participants`**, **`onBroadcast`** для **`message_enriched`** и **`peer_read`**; диагностика по имени лога **`ChatRead`** (`lib/feature/chat/debug/chat_read_receipt_debug_log.dart`).
+- Список / бейдж: **`MessageListCubit`** + **`ChatUnreadCubit`** подписаны на **`chat_inbox_<uid>`** → soft-refresh списка и `count_unread_chat_messages`.
+- Push: FCM из **`push_outbox`** (`kind=chat_message`) → **`ChatPushOpenBus`** → баннер / открытие **`ChatRoute`**.
 
 ### См. также
 

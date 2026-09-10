@@ -2,19 +2,21 @@ import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-/// Instagram-style панель реакций у нижнего края.
+/// Панель быстрых реакций (emoji + «+»).
 class ChatReactionBar extends StatelessWidget {
   const ChatReactionBar({
     super.key,
     required this.message,
     required this.onEmojiSelected,
-    this.onMore,
+    this.onAddEmoji,
+    @Deprecated('Use onAddEmoji') this.onMore,
   });
 
   final ChatMessage message;
   final ValueChanged<String> onEmojiSelected;
+  final VoidCallback? onAddEmoji;
+  @Deprecated('Use onAddEmoji')
   final VoidCallback? onMore;
 
   static const quickEmojis = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
@@ -22,14 +24,15 @@ class ChatReactionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final addTap = onAddEmoji ?? onMore;
 
     return Material(
-      color: Colors.transparent,
+      color: const Color(0x00000000),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
           color: colors.surface,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(30),
           border: Border.all(color: colors.border.withValues(alpha: 0.65)),
           boxShadow: [
             BoxShadow(
@@ -41,6 +44,7 @@ class ChatReactionBar extends StatelessWidget {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             for (final emoji in quickEmojis)
               _EmojiChip(
@@ -48,14 +52,14 @@ class ChatReactionBar extends StatelessWidget {
                 selected: message.myReactions.contains(emoji),
                 onTap: () => onEmojiSelected(emoji),
               ),
-            if (onMore != null) ...[
+            if (addTap != null) ...[
               Container(
                 width: 1,
                 height: 28,
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 color: colors.border.withValues(alpha: 0.7),
               ),
-              _MoreChip(onTap: onMore!),
+              _AddChip(onTap: addTap),
             ],
           ],
         ),
@@ -80,7 +84,7 @@ class _EmojiChip extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: Material(
-        color: selected ? context.colors.primary.withValues(alpha: 0.12) : Colors.transparent,
+        color: selected ? context.colors.primary.withValues(alpha: 0.12) : const Color(0x00000000),
         borderRadius: BorderRadius.circular(18),
         child: InkWell(
           onTap: onTap,
@@ -98,8 +102,8 @@ class _EmojiChip extends StatelessWidget {
   }
 }
 
-class _MoreChip extends StatelessWidget {
-  const _MoreChip({required this.onTap});
+class _AddChip extends StatelessWidget {
+  const _AddChip({required this.onTap});
 
   final VoidCallback onTap;
 
@@ -114,64 +118,13 @@ class _MoreChip extends StatelessWidget {
         child: SizedBox(
           width: 44,
           height: 44,
-          child: Icon(AppIcons.more.icon, color: context.colors.iconMuted, size: 22),
+          child: Icon(AppIcons.add.icon, color: context.colors.iconMuted, size: 22),
         ),
       ),
     );
   }
 }
 
-/// Long-press → реакции снизу; tap вне — закрыть.
-class ChatReactionOverlay extends StatelessWidget {
-  const ChatReactionOverlay({
-    super.key,
-    required this.message,
-    required this.onDismiss,
-    required this.onEmojiSelected,
-    this.onMore,
-    this.bottomInset = 96,
-  });
-
-  final ChatMessage message;
-  final VoidCallback onDismiss;
-  final ValueChanged<String> onEmojiSelected;
-  final VoidCallback? onMore;
-  final double bottomInset;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: onDismiss,
-            child: Container(color: Colors.black.withValues(alpha: 0.08)),
-          ),
-        ),
-        Positioned(
-          left: 16,
-          right: 16,
-          bottom: bottomInset + MediaQuery.paddingOf(context).bottom,
-          child: ChatReactionBar(
-            message: message,
-            onEmojiSelected: (emoji) {
-              HapticFeedback.selectionClick();
-              onEmojiSelected(emoji);
-            },
-            onMore: onMore,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 abstract final class ChatReactionPicker {
   static const quickEmojis = ChatReactionBar.quickEmojis;
-
-  @Deprecated('Use ChatReactionOverlay on long press')
-  static Future<String?> show(BuildContext context) async {
-    return null;
-  }
 }

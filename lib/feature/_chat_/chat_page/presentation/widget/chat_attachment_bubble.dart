@@ -4,6 +4,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_attachment.dart';
+import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_photo_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -62,7 +63,7 @@ class ChatAttachmentBubble extends StatelessWidget {
                   child: message.isPending
                       ? const _PendingAttachments()
                       : message.isMedia
-                      ? _MediaGrid(attachments: attachments, isMine: isMine)
+                      ? _MediaGrid(attachments: attachments)
                       : _FileList(attachments: attachments, textColor: textColor, metaColor: metaColor),
                 ),
                 if (caption.isNotEmpty)
@@ -109,22 +110,28 @@ class _PendingAttachments extends StatelessWidget {
 }
 
 class _MediaGrid extends StatelessWidget {
-  const _MediaGrid({required this.attachments, required this.isMine});
+  const _MediaGrid({required this.attachments});
 
   final List<ChatMessageAttachment> attachments;
-  final bool isMine;
 
   static const double _gap = 3;
   static const double _radius = 10;
 
+  void _open(BuildContext context, int index) {
+    ChatPhotoViewer.open(context, attachments: attachments, initialIndex: index);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (attachments.isEmpty) {
-      return _PlaceholderMedia(isMine: isMine);
+      return const _PlaceholderMedia();
     }
 
     if (attachments.length == 1) {
-      return _SingleImage(attachment: attachments.first);
+      return _SingleImage(
+        attachment: attachments.first,
+        onTap: () => _open(context, 0),
+      );
     }
 
     final items = attachments.take(4).toList(growable: false);
@@ -142,9 +149,9 @@ class _MediaGrid extends StatelessWidget {
             height: cell,
             child: Row(
               children: [
-                Expanded(child: _gridCell(items[0])),
+                Expanded(child: _gridCell(context, items[0], 0)),
                 const SizedBox(width: _gap),
-                Expanded(child: _gridCell(items[1])),
+                Expanded(child: _gridCell(context, items[1], 1)),
               ],
             ),
           );
@@ -156,9 +163,9 @@ class _MediaGrid extends StatelessWidget {
             height: cell,
             child: Row(
               children: [
-                Expanded(child: _gridCell(items[0])),
+                Expanded(child: _gridCell(context, items[0], 0)),
                 const SizedBox(width: _gap),
-                Expanded(child: _gridCell(items[1])),
+                Expanded(child: _gridCell(context, items[1], 1)),
               ],
             ),
           ),
@@ -171,7 +178,7 @@ class _MediaGrid extends StatelessWidget {
               height: cell,
               child: Row(
                 children: [
-                  Expanded(child: _gridCell(items[2])),
+                  Expanded(child: _gridCell(context, items[2], 2)),
                   const SizedBox(width: _gap),
                   const Expanded(child: SizedBox.shrink()),
                 ],
@@ -185,9 +192,9 @@ class _MediaGrid extends StatelessWidget {
               height: cell,
               child: Row(
                 children: [
-                  Expanded(child: _gridCell(items[2])),
+                  Expanded(child: _gridCell(context, items[2], 2)),
                   const SizedBox(width: _gap),
-                  Expanded(child: _gridCell(items[3])),
+                  Expanded(child: _gridCell(context, items[3], 3)),
                 ],
               ),
             ),
@@ -202,18 +209,26 @@ class _MediaGrid extends StatelessWidget {
     );
   }
 
-  Widget _gridCell(ChatMessageAttachment attachment) {
+  Widget _gridCell(BuildContext context, ChatMessageAttachment attachment, int index) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(_radius),
-      child: _AttachmentImage(attachment: attachment, fit: BoxFit.cover),
+      child: Material(
+        color: const Color(0x00000000),
+        child: InkWell(
+          onTap: () => _open(context, index),
+          child: _AttachmentImage(attachment: attachment, fit: BoxFit.cover),
+        ),
+      ),
     );
   }
 }
 
+/// Одно фото в чате: max 260×320, cover — как было.
 class _SingleImage extends StatelessWidget {
-  const _SingleImage({required this.attachment});
+  const _SingleImage({required this.attachment, required this.onTap});
 
   final ChatMessageAttachment attachment;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +236,13 @@ class _SingleImage extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 260, maxHeight: 320),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
-        child: _AttachmentImage(attachment: attachment, fit: BoxFit.cover),
+        child: Material(
+          color: const Color(0x00000000),
+          child: InkWell(
+            onTap: onTap,
+            child: _AttachmentImage(attachment: attachment, fit: BoxFit.cover),
+          ),
+        ),
       ),
     );
   }
@@ -237,33 +258,37 @@ class _AttachmentImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final url = attachment.url?.trim();
     if (url == null || url.isEmpty) {
-      return _PlaceholderMedia(isMine: true);
+      return const _PlaceholderMedia();
     }
 
-    return CachedNetworkImage(
-      imageUrl: url,
-      fit: fit,
-      width: double.infinity,
-      height: double.infinity,
-      placeholder: (_, __) => ColoredBox(
-        color: context.colors.surfaceSoft,
-        child: Center(
-          child: SizedBox(
-            width: 22,
-            height: 22,
-            child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primary),
+    return Hero(
+      tag: ChatPhotoViewer.heroTag(attachment),
+      child: Material(
+        type: MaterialType.transparency,
+        child: CachedNetworkImage(
+          imageUrl: url,
+          fit: fit,
+          width: double.infinity,
+          height: double.infinity,
+          placeholder: (_, __) => ColoredBox(
+            color: context.colors.surfaceSoft,
+            child: Center(
+              child: SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primary),
+              ),
+            ),
           ),
+          errorWidget: (_, __, ___) => const _PlaceholderMedia(),
         ),
       ),
-      errorWidget: (_, __, ___) => _PlaceholderMedia(isMine: true),
     );
   }
 }
 
 class _PlaceholderMedia extends StatelessWidget {
-  const _PlaceholderMedia({required this.isMine});
-
-  final bool isMine;
+  const _PlaceholderMedia();
 
   @override
   Widget build(BuildContext context) {

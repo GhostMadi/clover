@@ -14,6 +14,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 abstract class ChatRepository {
   Future<List<MessageChatPreview>> listConversations({int limit = 50, int offset = 0});
 
+  /// Total unread inbound messages for the current user (nav Chat badge).
+  Future<int> countUnreadMessages();
+
   Future<List<ChatMessage>> listMessages(
     String conversationId, {
     int limit = 50,
@@ -109,6 +112,16 @@ class ChatRepositoryImpl implements ChatRepository {
       if (preview != null) previews.add(preview);
     }
     return previews;
+  }
+
+  @override
+  Future<int> countUnreadMessages() async {
+    final uid = _currentUserId;
+    if (uid == null || uid.isEmpty) return 0;
+    final res = await _client.rpc('count_unread_chat_messages');
+    if (res is int) return res;
+    if (res is num) return res.toInt();
+    return int.tryParse('$res') ?? 0;
   }
 
   @override

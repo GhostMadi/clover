@@ -5,19 +5,19 @@ import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_geometr
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// Свайп в сторону ответа + long-press для реакций.
+/// Свайп в сторону ответа + long-press → контекстное меню.
 class ChatMessageInteraction extends StatefulWidget {
   const ChatMessageInteraction({
     super.key,
     required this.message,
     required this.child,
-    this.onLongPressReaction,
+    this.onLongPress,
     this.onSwipeReply,
   });
 
   final ChatMessage message;
   final Widget child;
-  final VoidCallback? onLongPressReaction;
+  final ValueChanged<Rect>? onLongPress;
   final VoidCallback? onSwipeReply;
 
   static const double _replyTriggerDx = 56;
@@ -27,6 +27,7 @@ class ChatMessageInteraction extends StatefulWidget {
 }
 
 class _ChatMessageInteractionState extends State<ChatMessageInteraction> {
+  final GlobalKey _bubbleKey = GlobalKey();
   double _dragDx = 0;
   bool _replyTriggered = false;
 
@@ -73,9 +74,12 @@ class _ChatMessageInteractionState extends State<ChatMessageInteraction> {
   }
 
   void _onLongPress() {
-    if (!_canInteract) return;
+    if (!_canInteract || widget.onLongPress == null) return;
+    final box = _bubbleKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final rect = box.localToGlobal(Offset.zero) & box.size;
     HapticFeedback.mediumImpact();
-    widget.onLongPressReaction?.call();
+    widget.onLongPress!(rect);
   }
 
   @override
@@ -106,7 +110,10 @@ class _ChatMessageInteractionState extends State<ChatMessageInteraction> {
               onLongPress: _onLongPress,
               child: Transform.translate(
                 offset: Offset(_effectiveDx, 0),
-                child: widget.child,
+                child: KeyedSubtree(
+                  key: _bubbleKey,
+                  child: widget.child,
+                ),
               ),
             ),
           ],

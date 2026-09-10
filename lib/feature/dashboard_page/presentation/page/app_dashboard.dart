@@ -5,6 +5,9 @@ import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_nav_bar/app_tab_reselect_tap_logic.dart';
+import 'package:clover/core/shared/app_snack_bar.dart';
+import 'package:clover/feature/_chat_/chat/presentation/chat_push_open_bus.dart';
+import 'package:clover/feature/_chat_/chat/presentation/cubit/chat_unread_cubit.dart';
 import 'package:clover/feature/_feed_/events_page/data/events_filter_location_store.dart';
 import 'package:clover/feature/_feed_/events_page/data/models/events_content_kind.dart';
 import 'package:clover/feature/_feed_/events_page/data/models/events_filter.dart';
@@ -37,7 +40,11 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
   late final DashboardHomeModeCubit _homeModeCubit;
   late final AppTabReselectTapLogic _tabReselectLogic;
   late final NotificationsUnreadCubit _notificationsUnreadCubit;
+  late final ChatUnreadCubit _chatUnreadCubit;
+  late final ChatPushOpenBus _chatPushOpenBus;
   late final AttendanceContextStore _attendanceStore;
+
+  StreamSubscription<ChatPushOpenRequest>? _chatPushSub;
 
   EventsFilter _eventsFilter = const EventsFilter();
   EventsFilter _mapFilter = const EventsFilter(contentKind: EventsContentKind.eventsOnly);
@@ -50,14 +57,20 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
     WidgetsBinding.instance.addObserver(this);
     _homeModeCubit = sl<DashboardHomeModeCubit>();
     _notificationsUnreadCubit = sl<NotificationsUnreadCubit>();
+    _chatUnreadCubit = sl<ChatUnreadCubit>();
+    _chatPushOpenBus = sl<ChatPushOpenBus>();
     _attendanceStore = sl<AttendanceContextStore>();
     _tabReselectLogic = AppTabReselectTapLogic();
+    // Баннер/open-from-push: слушатель до async bootstrap, иначе события теряются.
+    _bindChatPushOpen();
+    unawaited(_chatUnreadCubit.start());
     unawaited(_bootstrap());
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    unawaited(_chatPushSub?.cancel());
     _tabReselectLogic.dispose();
     _homeModeCubit.close();
     super.dispose();
@@ -68,6 +81,7 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
     if (state == AppLifecycleState.resumed) {
       _pendingSheetShown = false;
       _maybeShowAttendancePendingSheet();
+      unawaited(_chatUnreadCubit.refresh());
     }
   }
 
@@ -75,10 +89,6 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
     final saved = await sl<EventsFilterLocationStore>().read();
     await _homeModeCubit.load();
     unawaited(_notificationsUnreadCubit.refresh());
-    final uid = Supabase.instance.client.auth.currentUser?.id.trim();
-    if (uid != null && uid.isNotEmpty) {
-      await _attendanceStore.hydrate(uid);
-    }
     if (!mounted) return;
 
     setState(() {
@@ -88,7 +98,61 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
         _mapFilter = _mapFilter.copyWith(countryCode: saved.countryCode, cityCode: saved.cityCode);
       }
     });
-    _maybeShowAttendancePendingSheet();
+
+    // Attendance — сеть; не держим весь дашборд на лоадере.
+    final uid = Supabase.instance.client.auth.currentUser?.id.trim();
+    if (uid != null && uid.isNotEmpty) {
+      unawaited(
+        _attendanceStore.hydrate(uid).then((_) {
+          if (mounted) _maybeShowAttendancePendingSheet();
+        }),
+      );
+    }
+  }
+
+  void _bindChatPushOpen() {
+    unawaited(_chatPushSub?.cancel());
+    _chatPushSub = _chatPushOpenBus.stream.listen(_onChatPushOpen);
+
+    final pending = _chatPushOpenBus.takePending();
+    if (pending != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _onChatPushOpen(pending);
+      });
+    }
+  }
+
+  void _onChatPushOpen(ChatPushOpenRequest request) {
+    if (!mounted) return;
+    if (request.autoOpen) {
+      unawaited(_openChatFromPush(request));
+      return;
+    }
+
+    final preview = (request.preview ?? '').trim();
+    AppSnackBar.show(
+      context,
+      title: request.peerUsername ?? 'Чат',
+      message: preview.isEmpty ? 'Новое сообщение' : preview,
+      kind: AppSnackBarKind.chat,
+      placement: AppSnackBarPlacement.top,
+      duration: const Duration(seconds: 5),
+      onTap: () => unawaited(_openChatFromPush(request)),
+    );
+  }
+
+  Future<void> _openChatFromPush(ChatPushOpenRequest request) async {
+    if (!mounted) return;
+    await context.router.push(
+      ChatRoute(
+        chatId: request.conversationId,
+        username: request.peerUsername ?? 'Чат',
+        isGroup: request.isGroup,
+      ),
+    );
+    if (!mounted) return;
+    unawaited(_chatUnreadCubit.refresh());
   }
 
   void _maybeShowAttendancePendingSheet() {
@@ -152,62 +216,72 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
       value: _homeModeCubit,
       child: BlocProvider.value(
         value: _notificationsUnreadCubit,
-        child: AutoTabsRouter(
-          routes: DashboardTabConfig.routes,
-          builder: (context, child) {
-            final tabsRouter = AutoTabsRouter.of(context);
-            final activeIndex = tabsRouter.activeIndex;
-            final homeMode = context.watch<DashboardHomeModeCubit>().state;
+        child: BlocProvider.value(
+          value: _chatUnreadCubit,
+          child: AutoTabsRouter(
+            routes: DashboardTabConfig.routes,
+            builder: (context, child) {
+              final tabsRouter = AutoTabsRouter.of(context);
+              final activeIndex = tabsRouter.activeIndex;
+              final homeMode = context.watch<DashboardHomeModeCubit>().state;
 
-            // Обычный Scaffold + Stack: позиция навбара — наша логика.
-            return EventsFeedFilterScope(
-              filter: _eventsFilter,
-              child: MapMarkersFilterScope(
-                filter: _mapFilter,
-                child: Scaffold(
-                  extendBody: true,
-                  resizeToAvoidBottomInset: true,
-                  backgroundColor: context.colors.pageBackground,
-                  body: Stack(
-                    fit: StackFit.expand,
-                    clipBehavior: Clip.none,
-                    children: [
-                      Positioned.fill(child: child),
-                      BlocBuilder<NotificationsUnreadCubit, int>(
-                        builder: (context, unreadCount) {
-                          return ValueListenableBuilder(
-                            valueListenable: _attendanceStore.snapshot,
-                            builder: (context, attendanceSnap, _) {
-                              final chatBadge =
-                                  unreadCount > 0 || (attendanceSnap?.mockUnreadAttendanceChat ?? false);
-                              return DashboardBottomBar(
-                                currentIndex: activeIndex,
-                                items: DashboardTabConfig.navItemsFor(homeMode, showChatBadge: chatBadge),
-                            onTabTap: (index) => _handleTabTap(tabsRouter, index),
-                            onHomeTab: DashboardTabConfig.showHomeTabAccessories(activeIndex),
-                            showHomeTabFilter: DashboardTabConfig.showHomeTabFilter(activeIndex),
-                            showHomeTabNotifications: DashboardTabConfig.showHomeTabNotifications(
-                              activeIndex,
-                            ),
-                            showProfileAccessories: activeIndex == DashboardTabConfig.profileTabIndex,
-                            showFilterBadge: homeMode == DashboardHomeMode.map
-                                ? _mapFilter.hasSelection
-                                : _eventsFilter.hasSelection,
-                            showNotificationsBadge: unreadCount > 0,
-                            onFilterTap: () => unawaited(_openHomeFilter(homeMode)),
-                            onNotificationsTap: () => unawaited(_openNotifications()),
-                            onProfileMoreTap: _openProfileMore,
-                          );
-                            },
-                          );
-                        },
-                      ),
-                    ],
+              // Обычный Scaffold + Stack: позиция навбара — наша логика.
+              return EventsFeedFilterScope(
+                filter: _eventsFilter,
+                child: MapMarkersFilterScope(
+                  filter: _mapFilter,
+                  child: Scaffold(
+                    extendBody: true,
+                    resizeToAvoidBottomInset: true,
+                    backgroundColor: context.colors.pageBackground,
+                    body: Stack(
+                      fit: StackFit.expand,
+                      clipBehavior: Clip.none,
+                      children: [
+                        Positioned.fill(child: child),
+                        BlocBuilder<NotificationsUnreadCubit, int>(
+                          builder: (context, notificationsUnread) {
+                            return BlocBuilder<ChatUnreadCubit, int>(
+                              builder: (context, chatUnread) {
+                                return ValueListenableBuilder(
+                                  valueListenable: _attendanceStore.snapshot,
+                                  builder: (context, attendanceSnap, _) {
+                                    final chatBadge = chatUnread > 0 ||
+                                        (attendanceSnap?.mockUnreadAttendanceChat ?? false);
+                                    return DashboardBottomBar(
+                                      currentIndex: activeIndex,
+                                      items: DashboardTabConfig.navItemsFor(
+                                        homeMode,
+                                        showChatBadge: chatBadge,
+                                      ),
+                                      onTabTap: (index) => _handleTabTap(tabsRouter, index),
+                                      onHomeTab: DashboardTabConfig.showHomeTabAccessories(activeIndex),
+                                      showHomeTabFilter: DashboardTabConfig.showHomeTabFilter(activeIndex),
+                                      showHomeTabNotifications:
+                                          DashboardTabConfig.showHomeTabNotifications(activeIndex),
+                                      showProfileAccessories:
+                                          activeIndex == DashboardTabConfig.profileTabIndex,
+                                      showFilterBadge: homeMode == DashboardHomeMode.map
+                                          ? _mapFilter.hasSelection
+                                          : _eventsFilter.hasSelection,
+                                      showNotificationsBadge: notificationsUnread > 0,
+                                      onFilterTap: () => unawaited(_openHomeFilter(homeMode)),
+                                      onNotificationsTap: () => unawaited(_openNotifications()),
+                                      onProfileMoreTap: _openProfileMore,
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

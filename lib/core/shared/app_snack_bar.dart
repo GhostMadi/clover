@@ -8,7 +8,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
-enum AppSnackBarKind { info, success, error }
+enum AppSnackBarKind { info, success, error, chat }
 
 enum AppSnackBarPlacement { top, center }
 
@@ -17,6 +17,7 @@ enum AppSnackBarPlacement { top, center }
 /// - Появляется через [Overlay] с плавным slide + fade + soft scale
 /// - Закрывается по таймеру, тапу или свайпу
 /// - Drag с резиновой натяжкой и spring-возвратом
+/// - [AppSnackBarKind.chat] — заметный баннер входящего сообщения (Instagram-style)
 abstract final class AppSnackBar {
   static OverlayEntry? _entry;
   static Timer? _timer;
@@ -48,6 +49,9 @@ abstract final class AppSnackBar {
     hide(animated: false);
 
     final overlay = Overlay.of(context, rootOverlay: true);
+    final resolvedDuration = kind == AppSnackBarKind.chat && duration == const Duration(seconds: 3)
+        ? const Duration(seconds: 5)
+        : duration;
 
     _entry = OverlayEntry(
       builder: (ctx) {
@@ -71,7 +75,7 @@ abstract final class AppSnackBar {
               _timer = null;
             } else if (_entry != null) {
               _timer?.cancel();
-              _timer = Timer(duration, () => hide(animated: true));
+              _timer = Timer(resolvedDuration, () => hide(animated: true));
             }
           },
         );
@@ -79,7 +83,7 @@ abstract final class AppSnackBar {
     );
     overlay.insert(_entry!);
 
-    _timer = Timer(duration, () => hide(animated: true));
+    _timer = Timer(resolvedDuration, () => hide(animated: true));
   }
 }
 
@@ -225,11 +229,19 @@ class _AppTopSnackState extends State<_AppTopSnack> with TickerProviderStateMixi
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final isChat = widget.kind == AppSnackBarKind.chat;
     final (accent, icon) = switch (widget.kind) {
       AppSnackBarKind.success => (colors.primary, AppIcons.checkCircleOutline.icon),
       AppSnackBarKind.error => (colors.destructive, AppIcons.errorOutline.icon),
       AppSnackBarKind.info => (colors.primary, AppIcons.infoOutline.icon),
+      AppSnackBarKind.chat => (colors.primary, AppIcons.chat.icon),
     };
+
+    final radius = BorderRadius.circular(isChat ? 18 : 999);
+    final horizontalPad = isChat ? 14.0 : 12.0;
+    final verticalPad = isChat ? 14.0 : 10.0;
+    final iconSize = isChat ? 22.0 : 16.0;
+    final iconBox = isChat ? 40.0 : 26.0;
 
     return Positioned.fill(
       child: IgnorePointer(
@@ -243,8 +255,8 @@ class _AppTopSnackState extends State<_AppTopSnack> with TickerProviderStateMixi
               animation: Listenable.merge([_appearT, _drag]),
               builder: (context, child) {
                 final t = _appearT.value;
-                final slideIn = (1.0 - t) * -56.0;
-                final scale = 0.92 + (0.08 * t);
+                final slideIn = (1.0 - t) * (isChat ? -72.0 : -56.0);
+                final scale = (isChat ? 0.94 : 0.92) + ((isChat ? 0.06 : 0.08) * t);
                 return Opacity(
                   opacity: t.clamp(0.0, 1.0),
                   child: Transform.translate(
@@ -254,7 +266,7 @@ class _AppTopSnackState extends State<_AppTopSnack> with TickerProviderStateMixi
                 );
               },
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                padding: EdgeInsets.fromLTRB(isChat ? 14 : 12, isChat ? 10 : 8, isChat ? 14 : 12, 0),
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
@@ -270,43 +282,53 @@ class _AppTopSnackState extends State<_AppTopSnack> with TickerProviderStateMixi
                     _onDragEnd(DragEndDetails(primaryVelocity: 0));
                   },
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 520),
+                    constraints: BoxConstraints(maxWidth: isChat ? 560 : 520),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: radius,
                       child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                        filter: ImageFilter.blur(sigmaX: isChat ? 18 : 12, sigmaY: isChat ? 18 : 12),
                         child: Material(
                           type: MaterialType.transparency,
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              color: colors.surface.withValues(alpha: 0.94),
-                              borderRadius: BorderRadius.circular(999),
-                              border: Border.all(color: colors.borderSoft.withValues(alpha: 0.9)),
+                              color: colors.surface.withValues(alpha: isChat ? 0.98 : 0.94),
+                              borderRadius: radius,
+                              border: Border.all(
+                                color: isChat
+                                    ? colors.primary.withValues(alpha: 0.28)
+                                    : colors.borderSoft.withValues(alpha: 0.9),
+                                width: isChat ? 1.5 : 1,
+                              ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: colors.shadowDark.withValues(alpha: 0.12),
-                                  blurRadius: 24,
-                                  offset: const Offset(0, 10),
+                                  color: colors.shadowDark.withValues(alpha: isChat ? 0.22 : 0.12),
+                                  blurRadius: isChat ? 32 : 24,
+                                  offset: Offset(0, isChat ? 14 : 10),
                                 ),
+                                if (isChat)
+                                  BoxShadow(
+                                    color: colors.primary.withValues(alpha: 0.12),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 6),
+                                  ),
                               ],
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              padding: EdgeInsets.symmetric(horizontal: horizontalPad, vertical: verticalPad),
                               child: Row(
-                                mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Container(
-                                    width: 26,
-                                    height: 26,
+                                    width: iconBox,
+                                    height: iconBox,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: accent.withValues(alpha: 0.14),
+                                      color: accent.withValues(alpha: isChat ? 0.18 : 0.14),
                                     ),
-                                    child: Icon(icon, size: 16, color: accent),
+                                    child: Icon(icon, size: iconSize, color: accent),
                                   ),
-                                  const SizedBox(width: 10),
-                                  Flexible(
+                                  SizedBox(width: isChat ? 12 : 10),
+                                  Expanded(
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,26 +339,35 @@ class _AppTopSnackState extends State<_AppTopSnack> with TickerProviderStateMixi
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: AppTextStyle.base(
-                                              13,
+                                              isChat ? 15 : 13,
                                               color: colors.textColor,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
-                                          const SizedBox(height: 2),
+                                          SizedBox(height: isChat ? 3 : 2),
                                         ],
                                         Text(
                                           widget.message,
-                                          maxLines: widget.title == null ? 2 : 1,
+                                          maxLines: isChat ? 2 : (widget.title == null ? 2 : 1),
                                           overflow: TextOverflow.ellipsis,
                                           style: AppTextStyle.base(
-                                            13,
-                                            color: colors.textColor.withValues(alpha: 0.92),
+                                            isChat ? 14 : 13,
+                                            color: colors.subTextColor,
                                             height: 1.25,
+                                            fontWeight: isChat ? FontWeight.w500 : FontWeight.w400,
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
+                                  if (isChat) ...[
+                                    const SizedBox(width: 8),
+                                    Icon(
+                                      AppIcons.chevronRight.icon,
+                                      size: 20,
+                                      color: colors.iconMuted,
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),

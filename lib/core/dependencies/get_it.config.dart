@@ -128,6 +128,14 @@ import '../../feature/_chat_/chat/data/repository/chat_local_cache.dart'
     as _i325;
 import '../../feature/_chat_/chat/data/repository/chat_repository.dart'
     as _i233;
+import '../../feature/_chat_/chat/data/repository/chat_thread_cache_sync.dart'
+    as _i297;
+import '../../feature/_chat_/chat/presentation/chat_active_thread.dart'
+    as _i782;
+import '../../feature/_chat_/chat/presentation/chat_push_open_bus.dart'
+    as _i171;
+import '../../feature/_chat_/chat/presentation/cubit/chat_unread_cubit.dart'
+    as _i832;
 import '../../feature/_chat_/chat_page/data/chat_emoji_wallpaper_store.dart'
     as _i96;
 import '../../feature/_chat_/chat_page/presentation/cubit/chat_thread_cubit.dart'
@@ -241,6 +249,8 @@ extension GetItInjectableX on _i174.GetIt {
     final appModule = _$AppModule();
     gh.lazySingleton<_i454.SupabaseClient>(() => appModule.supabaseClient);
     gh.lazySingleton<_i116.GoogleSignIn>(() => appModule.googleSignIn);
+    gh.lazySingleton<_i782.ChatActiveThread>(() => _i782.ChatActiveThread());
+    gh.lazySingleton<_i171.ChatPushOpenBus>(() => _i171.ChatPushOpenBus());
     gh.lazySingleton<_i1029.IAppStorage>(() => _i814.IsarAppStorageImpl());
     gh.lazySingleton<_i460.SupabaseEdgeFunctionsInvoker>(
       () => _i460.SupabaseEdgeFunctionsInvoker(gh<_i454.SupabaseClient>()),
@@ -281,18 +291,19 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i324.BookingDeepLinkRepository>(
       () => _i324.BookingDeepLinkRepository(gh<_i454.SupabaseClient>()),
     );
-    gh.lazySingleton<_i86.AppPushMessagingService>(
-      () => _i86.AppPushMessagingService(
-        gh<_i454.SupabaseClient>(),
-        gh<_i516.PushDeviceTokenRepository>(),
-      ),
-    );
     gh.lazySingleton<_i15.SavedPostsRepository>(
       () => _i15.SavedPostsRepositoryImpl(gh<_i454.SupabaseClient>()),
     );
     gh.factory<_i1009.AttendanceCorrectionsCubit>(
       () => _i1009.AttendanceCorrectionsCubit(
         gh<_i75.AttendanceRemoteRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i86.AppPushMessagingService>(
+      () => _i86.AppPushMessagingService(
+        gh<_i454.SupabaseClient>(),
+        gh<_i516.PushDeviceTokenRepository>(),
+        gh<_i171.ChatPushOpenBus>(),
       ),
     );
     gh.lazySingleton<_i34.MarkerTagsRepository>(
@@ -451,10 +462,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i233.ChatRepository>(),
         gh<_i325.ChatLocalCache>(),
         gh<_i454.SupabaseClient>(),
+        gh<_i782.ChatActiveThread>(),
       ),
     );
-    gh.factory<_i122.MessageListCubit>(
-      () => _i122.MessageListCubit(
+    gh.lazySingleton<_i297.ChatThreadCacheSync>(
+      () => _i297.ChatThreadCacheSync(
         gh<_i233.ChatRepository>(),
         gh<_i325.ChatLocalCache>(),
         gh<_i454.SupabaseClient>(),
@@ -656,6 +668,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i75.AttendanceRemoteRepository>(),
       ),
     );
+    gh.lazySingleton<_i832.ChatUnreadCubit>(
+      () => _i832.ChatUnreadCubit(
+        gh<_i233.ChatRepository>(),
+        gh<_i454.SupabaseClient>(),
+        gh<_i171.ChatPushOpenBus>(),
+        gh<_i782.ChatActiveThread>(),
+        gh<_i297.ChatThreadCacheSync>(),
+      ),
+    );
     gh.lazySingleton<_i885.EventsFeedRepository>(
       () => _i885.EventsFeedRepositoryImpl(
         gh<_i454.SupabaseClient>(),
@@ -745,6 +766,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i575.AuthCubit>(
       () => _i575.AuthCubit(gh<_i964.AuthRepository>()),
+    );
+    gh.factory<_i122.MessageListCubit>(
+      () => _i122.MessageListCubit(
+        gh<_i233.ChatRepository>(),
+        gh<_i325.ChatLocalCache>(),
+        gh<_i454.SupabaseClient>(),
+        gh<_i832.ChatUnreadCubit>(),
+      ),
     );
     gh.factory<_i604.AttendanceAnalyticsCubit>(
       () => _i604.AttendanceAnalyticsCubit(

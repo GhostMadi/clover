@@ -94,16 +94,20 @@ curl -X POST "$SUPABASE_URL/functions/v1/drain_push_outbox" \
   -d '{"limit":40}'
 ```
 
-Варианты расписания: GitHub Action / внешний cron / Supabase Scheduled Functions (если доступно на плане).  
+Варианты расписания: **GitHub Action** [`.github/workflows/drain_push_outbox.yml`](../../.github/workflows/drain_push_outbox.yml) (cron `*/2`) / внешний cron / Supabase Scheduled Functions.  
+Repo secrets: `SUPABASE_URL`, `PUSH_WORKER_SECRET` (значение = Edge secret).  
 Не класть service account / `PUSH_WORKER_SECRET` в git или в SQL миграции.
 
 ---
 
 ## 3. iOS setup (manual)
 
-1. Xcode → Runner → Signing & Capabilities → **Push Notifications**
-2. Upload APNs key in Firebase Console → Project Settings → Cloud Messaging
+1. Xcode → Runner → Signing & Capabilities → **Push Notifications**  
+   Entitlements: Debug/Release → `aps-environment=development`; Profile/TestFlight → `production` (`Runner.entitlements` / `RunnerRelease.entitlements` / `RunnerProfile.entitlements`).
+2. Upload APNs **.p8** key in Firebase Console → Project Settings → Cloud Messaging
 3. `UIBackgroundModes` → `remote-notification` (Info.plist)
+4. Проверка push: **реальный iPhone** (Debug). Симулятор часто даёт `FCM token empty (APNs not ready)`.
+5. В логе должно быть: `[Push] FCM upserted · ios · …` — иначе строки в `push_device_tokens` нет и drain некому слать.
 
 ---
 

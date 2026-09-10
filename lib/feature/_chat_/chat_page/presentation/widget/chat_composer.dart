@@ -134,6 +134,7 @@ class _ChatComposerState extends State<ChatComposer> {
                 textInputAction: TextInputAction.newline,
                 style: AppTextStyle.base(16, color: context.colors.textColor, height: 1.35),
                 cursorColor: context.colors.fieldCursor,
+                onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                 decoration: InputDecoration(
                   hintText: 'Сообщение',
                   hintStyle: AppTextStyle.base(16, color: context.colors.subTextColor),

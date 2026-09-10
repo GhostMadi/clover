@@ -4,6 +4,7 @@ import 'package:clover/feature/_chat_/chat/data/chat_enriched_mapper.dart';
 import 'package:clover/feature/_chat_/chat/data/models/chat_attachment_upload.dart';
 import 'package:clover/feature/_chat_/chat/data/repository/chat_local_cache.dart';
 import 'package:clover/feature/_chat_/chat/data/repository/chat_repository.dart';
+import 'package:clover/feature/_chat_/chat/presentation/chat_active_thread.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_reply_preview.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_search_hit.dart';
@@ -13,11 +14,17 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 @injectable
 class ChatThreadCubit extends Cubit<ChatThreadState> {
-  ChatThreadCubit(this._repository, this._localCache, this._client) : super(const ChatThreadState.initial());
+  ChatThreadCubit(
+    this._repository,
+    this._localCache,
+    this._client,
+    this._activeThread,
+  ) : super(const ChatThreadState.initial());
 
   final ChatRepository _repository;
   final ChatLocalCache _localCache;
   final SupabaseClient _client;
+  final ChatActiveThread _activeThread;
 
   RealtimeChannel? _channel;
   String? _conversationId;
@@ -44,32 +51,32 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
       return;
     }
 
-    emit(const ChatThreadState.loaded(messages: [], isOpeningConversation: true));
+    emit(const ChatThreadState.loading());
 
     try {
       final conversationId = await _repository.createDm(peerId);
       if (isClosed) return;
 
       _conversationId = conversationId;
+      _activeThread.enter(conversationId);
 
       final cached = await _readCachedMessages(uid, conversationId);
       if (isClosed) return;
 
-      if (cached != null && cached.isNotEmpty) {
-        // Cache first — без сетевого repair, синк ниже.
+      final watermark = await _localCache.readWatermark(uid, conversationId);
+      final paintCache = _shouldPaintCacheFirst(cached, watermark);
+
+      if (paintCache) {
         emit(
           ChatThreadState.loaded(
-            messages: cached,
+            messages: cached!,
             isFromCache: true,
-            isRefreshing: true,
           ),
         );
         _subscribe(conversationId);
-      } else {
-        emit(const ChatThreadState.loaded(messages: [], isRefreshing: true));
       }
 
-      await _fetchRemote(resetSubscription: cached == null || cached.isEmpty);
+      await _fetchRemote(resetSubscription: !paintCache);
     } catch (error) {
       if (isClosed) return;
       emit(ChatThreadState.error(_messageFor(error)));
@@ -92,25 +99,35 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
     }
 
     _conversationId = id;
+    _activeThread.enter(id);
 
     final cached = await _readCachedMessages(uid, id);
     if (isClosed) return;
 
-    if (cached != null && cached.isNotEmpty) {
-      // Сразу кэш на экран, бэк — в фоне.
+    final watermark = await _localCache.readWatermark(uid, id);
+    final paintCache = _shouldPaintCacheFirst(cached, watermark);
+
+    if (paintCache) {
+      // Кэш согласован с watermark (inbox sync) — сразу; remote тихо в фоне.
       emit(
         ChatThreadState.loaded(
-          messages: cached,
+          messages: cached!,
           isFromCache: true,
-          isRefreshing: true,
         ),
       );
       _subscribe(id);
     } else {
-      emit(const ChatThreadState.loaded(messages: [], isRefreshing: true));
+      emit(const ChatThreadState.loading());
     }
 
-    await _fetchRemote(resetSubscription: cached == null || cached.isEmpty);
+    await _fetchRemote(resetSubscription: !paintCache);
+  }
+
+  /// Рисовать кэш без лоадера, если голова покрывает watermark (или watermark ещё нет, но кэш не пуст).
+  bool _shouldPaintCacheFirst(List<ChatMessage>? cached, ChatThreadWatermark? watermark) {
+    if (cached == null || cached.isEmpty) return false;
+    if (watermark == null || !watermark.isValid) return true;
+    return cached.any((m) => m.id == watermark.messageId);
   }
 
   Future<void> sendAttachments(List<ChatAttachmentUpload> files, {String? caption}) async {
@@ -508,8 +525,9 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
     if (id == null) return;
 
     final cur = state;
-    if (cur is ChatThreadLoaded) {
-      emit(cur.copyWith(isRefreshing: true, clearSendError: true));
+    // Лоадер только если на экране ещё нечего показать.
+    if (cur is! ChatThreadLoaded || cur.messages.isEmpty) {
+      emit(const ChatThreadState.loading());
     }
 
     await _fetchRemote(resetSubscription: false);
@@ -689,36 +707,47 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
     if (data is! Map) return;
 
     final row = Map<String, dynamic>.from(data);
-    final message = ChatEnrichedMapper.toChatMessage(row, currentUserId: uid, storageClient: _client);
+    var message = ChatEnrichedMapper.toChatMessage(row, currentUserId: uid, storageClient: _client);
     if (message == null) return;
 
+    // Legacy race: media/file без attachments → дотянуть enriched с URL.
+    if ((message.isMedia || message.isFile) && !message.hasAttachments) {
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+      if (isClosed) return;
+      final repaired = await _repository.getMessageEnriched(message.id);
+      if (repaired != null) {
+        message = repaired;
+      }
+    }
+
+    final incoming = message;
     final cur = state;
     if (cur is! ChatThreadLoaded) return;
 
-    final clientId = message.clientMessageId;
+    final clientId = incoming.clientMessageId;
     var existingIndex = cur.messages.indexWhere(
       (item) =>
-          item.id == message.id ||
+          item.id == incoming.id ||
           (clientId != null &&
               clientId.isNotEmpty &&
               (item.clientMessageId == clientId || item.id == clientId)),
     );
 
     // Fallback until client_message_id is on attachment RPC: replace own pending media/file.
-    if (existingIndex < 0 && message.isMine && (message.isMedia || message.isFile)) {
+    if (existingIndex < 0 && incoming.isMine && (incoming.isMedia || incoming.isFile)) {
       existingIndex = cur.messages.lastIndexWhere(
-        (item) => item.isPending && item.isMine && item.kind == message.kind,
+        (item) => item.isPending && item.isMine && item.kind == incoming.kind,
       );
     }
 
     final nextMessages = [...cur.messages];
     if (existingIndex >= 0) {
-      nextMessages[existingIndex] = message.copyWith(
+      nextMessages[existingIndex] = incoming.copyWith(
         isPending: false,
-        clientMessageId: message.clientMessageId ?? cur.messages[existingIndex].clientMessageId,
+        clientMessageId: incoming.clientMessageId ?? cur.messages[existingIndex].clientMessageId,
       );
     } else {
-      nextMessages.add(message);
+      nextMessages.add(incoming);
     }
 
     nextMessages.sort(_compareMessages);
@@ -726,7 +755,7 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
     emit(cur.copyWith(messages: nextMessages));
     await _persistMessages(uid, conversationId, nextMessages);
 
-    if (!message.isMine) {
+    if (!incoming.isMine) {
       _markRead(nextMessages);
     }
   }
@@ -780,6 +809,7 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
     _peerTypingTimer?.cancel();
     _channel?.unsubscribe();
     _channel = null;
+    _activeThread.leave(_conversationId);
     return super.close();
   }
 }
