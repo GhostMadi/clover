@@ -8,8 +8,9 @@ type Props = { params: Promise<{ id: string }> };
 export default async function AttendanceWorkerDetailPage({ params }: Props) {
   const supabase = await createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) redirect("/auth");
 
   const profile = await getCurrentProfile();

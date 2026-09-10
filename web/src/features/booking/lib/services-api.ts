@@ -31,8 +31,9 @@ export type ServiceDraft = {
 export async function listMyServices(): Promise<BookingService[]> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) return [];
   const { data, error } = await supabase
     .from("booking_services")
@@ -65,8 +66,9 @@ export async function listHostCatalog(hostId: string): Promise<BookingCatalogIte
 export async function getMyService(id: string): Promise<BookingService | null> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) return null;
   const { data, error } = await supabase
     .from("booking_services")
@@ -111,8 +113,9 @@ function draftRow(draft: ServiceDraft, hostId: string) {
 export async function createService(draft: ServiceDraft): Promise<BookingService> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) throw new Error("Войдите в аккаунт");
   const { data, error } = await supabase
     .from("booking_services")
@@ -128,8 +131,9 @@ export async function createService(draft: ServiceDraft): Promise<BookingService
 export async function updateService(id: string, draft: ServiceDraft): Promise<BookingService> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) throw new Error("Войдите в аккаунт");
 
   if (!draft.isActive) {

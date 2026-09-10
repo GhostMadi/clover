@@ -6,8 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 export default async function SettingsPage() {
   const supabase = await createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) redirect("/auth");
 
   const profile = await getCurrentProfile();

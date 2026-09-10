@@ -23,8 +23,9 @@ export function SupportRequestForm() {
     try {
       const supabase = createClient();
       const {
-        data: { user },
-      } = await supabase.auth.getUser();
+        data: { session },
+      } = await supabase.auth.getSession();
+      const user = session?.user ?? null;
       const { error: insertError } = await supabase.from("support_requests").insert({
         contact: c,
         message: m,

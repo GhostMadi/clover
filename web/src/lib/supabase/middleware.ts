@@ -1,10 +1,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  ensureValidSession,
+  userFromSession,
+} from "@/lib/supabase/auth-session";
 import { supabaseCookieOptions } from "@/lib/supabase/cookie-options";
 
 /**
- * Гейт кабинета без сетевого `getUser()` на каждый клик по табу.
- * Сессия читается из cookie (быстро). Жёсткая проверка — на страницах через getUser.
+ * Гейт кабинета без сетевого `getUser()` на каждый клик.
+ * Сессия из cookie; refresh только если JWT почти истёк (как мобилка).
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -34,11 +38,8 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // getSession = локально из cookie; не ждём Auth API на каждый /app/*
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const user = session?.user ?? null;
+  const session = await ensureValidSession(supabase);
+  const user = userFromSession(session);
 
   const path = request.nextUrl.pathname;
   const isAuthArea = path.startsWith("/auth");

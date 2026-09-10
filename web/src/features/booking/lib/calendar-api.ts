@@ -84,8 +84,9 @@ function mapItem(row: Record<string, unknown>): BookingCalendarItem {
 export async function listCalendarHosts(): Promise<BookingCalendarHost[]> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) return [];
   const { data, error } = await supabase.rpc("list_my_staff_booking_hosts");
   if (error) throw error;
@@ -103,8 +104,9 @@ export async function listCalendarBookings(opts: {
 }): Promise<BookingCalendarItem[]> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) return [];
 
   const params: Record<string, unknown> = {

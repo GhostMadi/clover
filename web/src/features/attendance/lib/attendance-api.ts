@@ -49,8 +49,9 @@ export type BootstrapParsed = {
 export async function fetchBootstrap(): Promise<BootstrapParsed> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) {
     return {
       folders: [],
@@ -424,8 +425,9 @@ export async function searchAttendanceProfiles(
 ): Promise<AttendanceProfileHit[]> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) return [];
 
   const q = query.trim().replace(/^@+/, "");

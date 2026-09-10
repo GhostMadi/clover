@@ -12,8 +12,9 @@ export default async function UserSocialPage({ params, searchParams }: PageProps
   const { tab } = await searchParams;
   const supabase = await createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) redirect("/auth");
 
   const mode = tab === "following" ? "following" : "followers";

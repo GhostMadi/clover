@@ -4,8 +4,9 @@ import { createClient } from "@/lib/supabase/client";
 export async function listMyStaff(activeOnly = true): Promise<BookingStaff[]> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) return [];
   let q = supabase
     .from("booking_staff")
@@ -20,8 +21,9 @@ export async function listMyStaff(activeOnly = true): Promise<BookingStaff[]> {
 export async function createStaffByName(displayName: string): Promise<BookingStaff> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) throw new Error("Войдите в аккаунт");
   const name = displayName.trim();
   if (!name) throw new Error("Укажите имя мастера");
@@ -104,8 +106,9 @@ export function staffInviteErrorMessage(error: unknown, fallback = "Не уда�
 export async function searchStaffProfiles(query: string): Promise<StaffProfileHit[]> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) return [];
   const q = query.trim();
   let builder = supabase
@@ -130,8 +133,9 @@ export async function searchStaffProfiles(query: string): Promise<StaffProfileHi
 export async function inviteStaff(profileId: string): Promise<string> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) throw new Error("Войдите в аккаунт");
   const id = profileId.trim();
   if (!id) throw new Error("Не выбран аккаунт");
@@ -147,8 +151,9 @@ export async function inviteStaff(profileId: string): Promise<string> {
 export async function listPendingStaffInvites(): Promise<BookingStaffInvite[]> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) return [];
   const { data, error } = await supabase.rpc("list_booking_staff_invites_pending");
   if (error) throw error;
@@ -191,8 +196,9 @@ export async function rejectStaffInvite(inviteId: string): Promise<void> {
 export async function setStaffActive(staffId: string, isActive: boolean): Promise<void> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) throw new Error("Войдите в аккаунт");
   const { error } = await supabase
     .from("booking_staff")

@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import type { User } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { supabaseCookieOptions } from "@/lib/supabase/cookie-options";
 
@@ -29,4 +30,16 @@ export async function createClient() {
       },
     },
   );
+}
+
+/**
+ * Текущий пользователь из cookie (без Auth API).
+ * Refresh при необходимости делает middleware (`ensureValidSession`).
+ */
+export async function getAuthUser(): Promise<User | null> {
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return session?.user ?? null;
 }

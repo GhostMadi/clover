@@ -140,8 +140,9 @@ function mapSettings(
 export async function getScheduleSettings(hostId?: string): Promise<BookingScheduleSettings> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   const id = (hostId ?? user?.id)?.trim();
   if (!id) return defaultScheduleSettings();
 
@@ -165,8 +166,9 @@ export async function saveMyScheduleSettings(
 ): Promise<BookingScheduleSettings> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) throw new Error("Войдите в аккаунт");
 
   const start = settings.workStart.length === 5 ? `${settings.workStart}:00` : settings.workStart;
@@ -203,8 +205,9 @@ export async function saveMyScheduleSettings(
 export async function listBlockedSlots(from: Date, to: Date): Promise<BookingBlockedSlot[]> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) return [];
   const { data, error } = await supabase
     .from("booking_blocked_slots")
@@ -231,8 +234,9 @@ export async function createBlockedSlot(params: {
 }): Promise<void> {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
   if (!user) throw new Error("Войдите в аккаунт");
   const { error } = await supabase.from("booking_blocked_slots").insert({
     host_id: user.id,

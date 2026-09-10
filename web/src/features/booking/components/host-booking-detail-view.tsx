@@ -75,8 +75,9 @@ export function HostBookingDetailView({ bookingId }: { bookingId: string }) {
     void (async () => {
       const { createClient } = await import("@/lib/supabase/client");
       const {
-        data: { user },
-      } = await createClient().auth.getUser();
+        data: { session },
+      } = await createClient().auth.getSession();
+      const user = session?.user ?? null;
       if (!user || !item.serviceId || !item.staffId) return;
       try {
         const res = await getBookingAvailability({

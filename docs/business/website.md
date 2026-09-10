@@ -40,6 +40,8 @@
 Те же методы, что мобилка: ник/email+пароль (`auth_resolve_login_email`), регистрация/сброс email OTP, Google OAuth (на вебе — redirect, в приложении — native idToken).  
 Env: `web/.env.local` → `NEXT_PUBLIC_SUPABASE_*`.
 
+**Сессия / JWT (как мобилка):** access token живёт по настройке Auth (`jwt_expiry`, сейчас ~сутки). Middleware и кабинет читают сессию из cookie; `refreshSession` — только если до expiry ≤ ~2 мин, не на каждый заход в `/app`.
+
 **Google Web client** («Clover Web Client»):
 
 | Поле | Значение |
