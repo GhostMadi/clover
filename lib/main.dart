@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:clover/core/auth/cubit/auth_cubit.dart';
+import 'package:clover/core/config/sentry.dart';
 import 'package:clover/core/config/supabase.dart';
 import 'package:clover/core/debug/app_log.dart';
 import 'package:clover/core/debug/app_shake_logger_config.dart';
@@ -21,25 +22,44 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 import 'firebase_options.dart';
 
 Future<void> main() async {
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = SentryConfig.resolvedDsn;
+      options.environment = kReleaseMode ? 'production' : 'debug';
+      // Прод: не 100% трейсов — экономим квоту free-тира.
+      options.tracesSampleRate = kReleaseMode ? 0.2 : 1.0;
+      options.sendDefaultPii = false;
+    },
+    appRunner: _bootstrapAndRun,
+  );
+}
+
+Future<void> _bootstrapAndRun() async {
   await runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-      if (AppShakeLoggerConfig.enabled) {
-        FlutterError.onError = (details) {
+
+      FlutterError.onError = (details) {
+        if (AppShakeLoggerConfig.enabled) {
           appTalker.handle(details.exception, details.stack, 'FlutterError');
-          FlutterError.presentError(details);
-        };
-        PlatformDispatcher.instance.onError = (error, stack) {
+        }
+        Sentry.captureException(details.exception, stackTrace: details.stack);
+        FlutterError.presentError(details);
+      };
+      PlatformDispatcher.instance.onError = (error, stack) {
+        if (AppShakeLoggerConfig.enabled) {
           appTalker.handle(error, stack, 'Platform');
-          return true;
-        };
-      }
+        }
+        Sentry.captureException(error, stackTrace: stack);
+        return true;
+      };
 
       if (Firebase.apps.isEmpty) {
         await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -60,10 +80,13 @@ Future<void> main() async {
         AppLog.i('Clover started', tag: 'App');
       }
 
-      runApp(const MyApp());
+      runApp(SentryWidget(child: const MyApp()));
     },
     (error, stack) {
-      appTalker.handle(error, stack, 'Zone');
+      if (AppShakeLoggerConfig.enabled) {
+        appTalker.handle(error, stack, 'Zone');
+      }
+      Sentry.captureException(error, stackTrace: stack);
     },
     zoneSpecification: AppShakeLoggerConfig.enabled
         ? ZoneSpecification(
@@ -119,7 +142,10 @@ class _MyAppViewState extends State<_MyAppView> {
 
     return MaterialApp.router(
       routerConfig: _appRouter.config(
-        navigatorObservers: () => [if (AppShakeLoggerConfig.enabled) TalkerRouteObserver(appTalker)],
+        navigatorObservers: () => [
+          SentryNavigatorObserver(),
+          if (AppShakeLoggerConfig.enabled) TalkerRouteObserver(appTalker),
+        ],
       ),
       title: 'Clover',
       debugShowCheckedModeBanner: false,

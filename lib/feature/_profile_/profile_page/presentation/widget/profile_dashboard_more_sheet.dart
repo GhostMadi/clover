@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/debug/app_shake_logger_config.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
@@ -28,6 +29,15 @@ abstract final class ProfileDashboardMoreSheet {
               context.router.push(const MyBonusesRoute());
             },
           ),
+          if (AppShakeLoggerConfig.enabled)
+            AppTile(
+              icon: AppIcons.errorOutline.icon,
+              title: 'Тест Sentry',
+              onTap: () {
+                Navigator.of(context).pop();
+                throw StateError('Sentry test from Flutter');
+              },
+            ),
         ],
       ),
     );

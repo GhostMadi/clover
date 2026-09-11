@@ -58,3 +58,5 @@ web/.env*
 # Google OAuth secrets (never commit)
 **/client_secret*.json
 **/*apps.googleusercontent.com.json
+
+sentry.properties
