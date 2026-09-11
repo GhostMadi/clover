@@ -48,9 +48,9 @@ git push origin web-production
 
 | Key | Назначение |
 |-----|------------|
-| `ADMIN_EMAIL` | Email входа в `/admin` |
-| `ADMIN_PASSWORD` | Пароль входа |
-| `ADMIN_SESSION_SECRET` | Длинный случайный секрет подписи cookie сессии |
+| `ADMIN_SESSION_SECRET` | Секрет подписи cookie админки (**обязателен**) |
+
+Админ = обычный аккаунт с `profiles.is_site_admin` (см. [website-admin.md](website-admin.md)).
 
 Локально: `web/.env.local`. На проде — Vercel → Environment Variables (Production).
 

@@ -36,10 +36,21 @@
 
 ## Безопасность (продукт)
 
-- Логин и пароль **не** публикуются в коде и не в `NEXT_PUBLIC_*`.
-- Секреты только в env сервера / Vercel: `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`.
+- Админ сайта = **обычный пользователь** с флагом `profiles.is_site_admin`.
+- Вход на `/admin`: email/пароль этого аккаунта (Supabase Auth). Без флага — 403.
+- В env нужен `ADMIN_SESSION_SECRET` (cookie). `ADMIN_EMAIL` / `ADMIN_PASSWORD` не используются.
 - Жест «15 тапов» — слабый слой скрытия, не замена пароля.
-- Пароль периодически менять в Vercel env (и локально в `web/.env.local`).
+
+### Назначить существующий аккаунт админом
+
+Кнопки на `/admin` больше нет. Флаг вручную:
+
+```sql
+update public.profiles set is_site_admin = true where email = 'твой@email.com';
+```
+
+Снять: `update public.profiles set is_site_admin = false where …;`  
+Вход: `/admin` → email/пароль этого аккаунта.
 
 ---
 

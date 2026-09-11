@@ -11,7 +11,7 @@ export default async function AdminLoginPage() {
       <div>
         <p className="text-[13px] font-semibold text-brand">Clover</p>
         <h1 className="mt-1 text-[24px] font-bold tracking-tight text-ink">Админка</h1>
-        <p className="mt-2 text-[14px] text-muted">Вход только для оператора сайта.</p>
+        <p className="mt-2 text-[14px] text-muted">Вход для аккаунта с флагом site admin.</p>
       </div>
       <AdminLoginForm />
     </main>

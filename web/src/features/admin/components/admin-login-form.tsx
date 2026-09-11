@@ -1,11 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { AppButton } from "@/components/shared/app-button";
 
 export function AdminLoginForm() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -26,8 +24,7 @@ export function AdminLoginForm() {
         setError(data.error ?? "Не удалось войти");
         return;
       }
-      router.replace("/admin/home");
-      router.refresh();
+      window.location.assign("/admin/home");
     } catch {
       setError("Сеть недоступна");
     } finally {
@@ -38,7 +35,7 @@ export function AdminLoginForm() {
   return (
     <form onSubmit={onSubmit} className="flex w-full max-w-sm flex-col gap-3">
       <label className="flex flex-col gap-1.5">
-        <span className="text-[12px] font-semibold text-muted">Email</span>
+        <span className="text-[12px] font-semibold text-muted">Email аккаунта Clover</span>
         <input
           type="email"
           autoComplete="username"
@@ -54,6 +51,7 @@ export function AdminLoginForm() {
           type="password"
           autoComplete="current-password"
           required
+          minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="h-11 rounded-[14px] border border-line bg-surface px-3.5 text-[15px] text-ink outline-none focus:border-brand"

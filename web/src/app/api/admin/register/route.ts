@@ -4,13 +4,24 @@ import {
   adminSessionCookieOptions,
   assertAdminSessionSecret,
   createAdminSessionToken,
+  isAdminRegisterAllowed,
 } from "@/lib/admin-auth";
 import { createAdminAuthClient } from "@/lib/supabase/admin-auth-client";
 
 const MIN_PASSWORD = 8;
 
-/** Вход существующим пользователем — только если profiles.is_site_admin. */
+/**
+ * Существующий пользователь → profiles.is_site_admin = true (только если админов ещё нет).
+ * Новый Auth-аккаунт не создаём.
+ */
 export async function POST(request: Request) {
+  if (!isAdminRegisterAllowed()) {
+    return NextResponse.json(
+      { error: "Назначение админа выключено (ADMIN_ALLOW_REGISTER=0)" },
+      { status: 403 },
+    );
+  }
+
   if (!assertAdminSessionSecret()) {
     return NextResponse.json(
       { error: "Админка не настроена (нет ADMIN_SESSION_SECRET)" },
@@ -43,25 +54,35 @@ export async function POST(request: Request) {
       const msg = (error?.message ?? "").toLowerCase();
       if (code === "email_not_confirmed" || msg.includes("email not confirmed")) {
         return NextResponse.json(
-          { error: "Email не подтверждён в Auth. Подтверди в Dashboard → Users." },
+          { error: "Email не подтверждён. Подтверди в Dashboard → Authentication → Users." },
           { status: 401 },
         );
       }
-      return NextResponse.json({ error: "Неверный email или пароль" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Неверный email или пароль обычного аккаунта Clover" },
+        { status: 401 },
+      );
     }
 
-    const { data: isAdmin, error: flagError } = await supabase.rpc("is_site_admin");
-    if (flagError) {
-      return NextResponse.json({ error: flagError.message }, { status: 500 });
-    }
-    if (!isAdmin) {
-      return NextResponse.json(
-        {
-          error:
-            "Этот аккаунт не отмечен как админ сайта. Нажми «Сделать админом» (один раз, пока админов нет).",
-        },
-        { status: 403 },
-      );
+    const { error: promoteError } = await supabase.rpc("promote_self_to_site_admin");
+    if (promoteError) {
+      const msg = promoteError.message.toLowerCase();
+      if (msg.includes("site_admin_exists")) {
+        return NextResponse.json(
+          {
+            error:
+              "Админ сайта уже назначен. Войди тем аккаунтом или сбрось флаг в SQL: profiles.is_site_admin.",
+          },
+          { status: 409 },
+        );
+      }
+      if (msg.includes("profile_missing")) {
+        return NextResponse.json(
+          { error: "Профиль не найден. Сначала зайди в кабинет /app хотя бы раз." },
+          { status: 400 },
+        );
+      }
+      return NextResponse.json({ error: promoteError.message }, { status: 400 });
     }
 
     const token = createAdminSessionToken(email);
@@ -70,7 +91,7 @@ export async function POST(request: Request) {
     return response;
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Ошибка входа" },
+      { error: e instanceof Error ? e.message : "Ошибка назначения" },
       { status: 500 },
     );
   }

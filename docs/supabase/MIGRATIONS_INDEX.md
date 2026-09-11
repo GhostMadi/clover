@@ -186,6 +186,7 @@
 | `20260909180806_chat_inbox_broadcast_push.sql` | Inbox broadcast `inbox_changed` на `chat_inbox_<userId>` + `push_outbox` kind `chat_message` для входящих DM. Spec: `SPEC_CHAT_INBOX_PUSH.md`. |
 | `20260910160000_chat_inbox_sender_username.sql` | В `inbox_changed` добавлен `sender_username` для in-app баннера. |
 | `20260910200000_chat_media_broadcast_after_attachments.sql` | `message_enriched` для media/file — **после** insert вложений (без пустого placeholder/прыжка). |
+| `20260910223000_profiles_is_site_admin.sql` | `profiles.is_site_admin` + RPC `promote_self_to_site_admin` / `is_site_admin` для входа в `/admin`. |
 | `20260908190000_chat_attachments_r2_public_url.sql` | `chat_message_attachments.public_url` + RPC attachments bucket `r2`. |
 | `20260830250000_chat_reactions_rpc.sql` | `toggle_message_reaction`; колонка `my_reactions` в `list_messages_enriched` / `get_message_enriched`. |
 | `20260830260000_chat_messenger_basics.sql` | `delete_message`, `edit_message` — soft-delete и правка текста своих сообщений. |
