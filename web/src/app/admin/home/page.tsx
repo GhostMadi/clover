@@ -30,16 +30,19 @@ export default async function AdminHomePage() {
 
       <section className="grid gap-3 sm:grid-cols-2">
         <Link
+          href="/admin/honest"
+          className="rounded-[16px] border border-brand/40 bg-mint/30 p-4 transition hover:border-brand"
+        >
+          <h3 className="text-[15px] font-bold text-ink">Честный тест</h3>
+          <p className="mt-1 text-[13px] text-muted">Ответы и фото (временно)</p>
+        </Link>
+        <Link
           href="/app"
           className="rounded-[16px] border border-line bg-surface p-4 transition hover:border-brand/40"
         >
           <h3 className="text-[15px] font-bold text-ink">Кабинет</h3>
           <p className="mt-1 text-[13px] text-muted">Открыть обычный /app под этим же аккаунтом</p>
         </Link>
-        <div className="rounded-[16px] border border-line bg-surface p-4">
-          <h3 className="text-[15px] font-bold text-ink">Инструменты</h3>
-          <p className="mt-1 text-[13px] text-muted">Модерация и служебные экраны — следующим шагом</p>
-        </div>
       </section>
     </main>
   );

@@ -59,7 +59,8 @@ update public.profiles set is_site_admin = true where email = 'твой@email.co
 | URL | Что |
 |-----|-----|
 | `/admin` | Логин |
-| `/admin/home` | Домашняя админки (пока заглушка-хаб) |
+| `/admin/home` | Домашняя админки (хаб) |
+| `/admin/honest` | Временно: ответы «Честного теста» ([honest-quiz.md](honest-quiz.md)) |
 
 ---
 
