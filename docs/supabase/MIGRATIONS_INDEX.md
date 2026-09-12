@@ -188,6 +188,7 @@
 | `20260910200000_chat_media_broadcast_after_attachments.sql` | `message_enriched` для media/file — **после** insert вложений (без пустого placeholder/прыжка). |
 | `20260910223000_profiles_is_site_admin.sql` | `profiles.is_site_admin` + RPC `promote_self_to_site_admin` / `is_site_admin` для входа в `/admin`. |
 | `20260912150000_honest_quiz.sql` | TEMP romantic quiz runs + admin RPCs. Spec: [SPEC_HONEST_QUIZ.md](SPEC_HONEST_QUIZ.md) |
+| `20260912160000_honest_quiz_admin_site_admin.sql` | Admin list/get gated by `is_site_admin` (no secret) |
 | `20260908190000_chat_attachments_r2_public_url.sql` | `chat_message_attachments.public_url` + RPC attachments bucket `r2`. |
 | `20260830250000_chat_reactions_rpc.sql` | `toggle_message_reaction`; колонка `my_reactions` в `list_messages_enriched` / `get_message_enriched`. |
 | `20260830260000_chat_messenger_basics.sql` | `delete_message`, `edit_message` — soft-delete и правка текста своих сообщений. |

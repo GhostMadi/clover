@@ -3,7 +3,6 @@
 import { createClient } from "@/lib/supabase/client";
 
 const TOKEN_KEY = "clover-honest-quiz-token";
-export const HONEST_QUIZ_ADMIN_SECRET_DEFAULT = "clover-honest-temp-2026";
 
 export function getOrCreateClientToken(): string {
   if (typeof window === "undefined") return "";
@@ -62,11 +61,9 @@ export type HonestRunDetail = HonestRunSummary & {
   photoDataUrl: string | null;
 };
 
-export async function adminListRuns(secret: string): Promise<HonestRunSummary[]> {
+export async function adminListRuns(): Promise<HonestRunSummary[]> {
   const supabase = createClient();
-  const { data, error } = await supabase.rpc("honest_quiz_admin_list", {
-    p_secret: secret,
-  });
+  const { data, error } = await supabase.rpc("honest_quiz_admin_list");
   if (error) throw new Error(error.message);
   const rows = Array.isArray(data) ? data : [];
   return rows.map((raw) => {
@@ -83,13 +80,9 @@ export async function adminListRuns(secret: string): Promise<HonestRunSummary[]>
   }).filter((x) => x.id);
 }
 
-export async function adminGetRun(
-  secret: string,
-  id: string,
-): Promise<HonestRunDetail | null> {
+export async function adminGetRun(id: string): Promise<HonestRunDetail | null> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("honest_quiz_admin_get", {
-    p_secret: secret,
     p_id: id,
   });
   if (error) throw new Error(error.message);
