@@ -268,6 +268,11 @@ Phone / WhatsApp OTP в UI · WhatsApp webhook как продуктовый п�
 Бизнес: [website-admin.md](website-admin.md)
 Техника: `web/src/app/admin/`, `web/src/lib/admin-auth.ts`, `web/src/app/api/admin/`
 
+### 🟡 Честный тест (временно, не продукт)
+Мини-игра `/honest` + ответы в `/admin/honest`. Убрать после использования.  
+Бизнес: [honest-quiz.md](honest-quiz.md)  
+Техника: `web/src/features/honest-quiz/` · [SPEC_HONEST_QUIZ.md](../supabase/SPEC_HONEST_QUIZ.md)
+
 ---
 
 ## Как обновлять

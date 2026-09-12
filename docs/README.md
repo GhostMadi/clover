@@ -54,6 +54,7 @@
 | App Store — тексты листинга | [business/app-store-listing.md](business/app-store-listing.md) |
 | App Store — privacy labels | [business/app-store-privacy-labels.md](business/app-store-privacy-labels.md) |
 | Поддержка (форма на сайте) | [business/support.md](business/support.md) |
+| Честный тест (временно) | [business/honest-quiz.md](business/honest-quiz.md) |
 | Каталог фич | [business/features-catalog.md](business/features-catalog.md) |
 
 Черновики: [business/_inbox.md](business/_inbox.md) · шаблон: [business/_template.md](business/_template.md)
