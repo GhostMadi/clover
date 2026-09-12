@@ -42,17 +42,14 @@ git push origin web-production
 
 Короткие имена без префикса (`SUPABASE_URL` и т.п.) в клиент Next.js **не** подхватятся — не использовать в Vercel, если код читает `NEXT_PUBLIC_*`.
 
-### Админка сайта (только сервер, без `NEXT_PUBLIC_`)
+### Админка сайта
 
-См. [website-admin.md](website-admin.md). Значения **не** коммитить.
+См. [website-admin.md](website-admin.md).
 
-| Key | Назначение |
-|-----|------------|
-| `ADMIN_SESSION_SECRET` | Секрет подписи cookie админки (**обязателен**) |
+Вход: **email + пароль** аккаунта с `profiles.is_site_admin`.  
+Отдельный `ADMIN_SESSION_SECRET` **не нужен**.
 
-Админ = обычный аккаунт с `profiles.is_site_admin` (см. [website-admin.md](website-admin.md)).
-
-Локально: `web/.env.local`. На проде — Vercel → Environment Variables (Production).
+Локально для кабинета: `web/.env.local` с `NEXT_PUBLIC_SUPABASE_*`. На проде — те же ключи в Vercel.
 
 ## DNS
 

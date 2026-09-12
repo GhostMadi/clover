@@ -1,23 +1,16 @@
 import { NextResponse } from "next/server";
-import {
-  ADMIN_SESSION_COOKIE,
-  adminSessionCookieOptions,
-  assertAdminSessionSecret,
-  createAdminSessionToken,
-} from "@/lib/admin-auth";
-import { createAdminAuthClient } from "@/lib/supabase/admin-auth-client";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { supabaseCookieOptions } from "@/lib/supabase/cookie-options";
 
 const MIN_PASSWORD = 8;
 
-/** Вход существующим пользователем — только если profiles.is_site_admin. */
+/**
+ * Вход email+пароль аккаунта Clover.
+ * Пускает только если profiles.is_site_admin.
+ * Сессия — обычные Supabase Auth cookies (без ADMIN_SESSION_SECRET).
+ */
 export async function POST(request: Request) {
-  if (!assertAdminSessionSecret()) {
-    return NextResponse.json(
-      { error: "Админка не настроена (нет ADMIN_SESSION_SECRET)" },
-      { status: 503 },
-    );
-  }
-
   let body: { email?: string; password?: string };
   try {
     body = (await request.json()) as { email?: string; password?: string };
@@ -35,8 +28,34 @@ export async function POST(request: Request) {
     );
   }
 
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  if (!url || !anon) {
+    return NextResponse.json({ error: "Нет конфигурации Supabase" }, { status: 500 });
+  }
+
   try {
-    const supabase = createAdminAuthClient();
+    const cookieStore = await cookies();
+    const supabase = createServerClient(url, anon, {
+      cookieOptions: supabaseCookieOptions,
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, { ...supabaseCookieOptions, ...options });
+          });
+        },
+      },
+      auth: {
+        flowType: "pkce",
+        detectSessionInUrl: false,
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    });
+
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error || !data.user) {
       const code = (error as { code?: string } | null)?.code ?? "";
@@ -52,22 +71,21 @@ export async function POST(request: Request) {
 
     const { data: isAdmin, error: flagError } = await supabase.rpc("is_site_admin");
     if (flagError) {
+      await supabase.auth.signOut();
       return NextResponse.json({ error: flagError.message }, { status: 500 });
     }
     if (!isAdmin) {
+      await supabase.auth.signOut();
       return NextResponse.json(
         {
           error:
-            "Этот аккаунт не отмечен как админ сайта. Нажми «Сделать админом» (один раз, пока админов нет).",
+            "Этот аккаунт не админ сайта. В SQL: update profiles set is_site_admin = true where email = '…'",
         },
         { status: 403 },
       );
     }
 
-    const token = createAdminSessionToken(email);
-    const response = NextResponse.json({ ok: true, userId: data.user.id });
-    response.cookies.set(ADMIN_SESSION_COOKIE, token, adminSessionCookieOptions());
-    return response;
+    return NextResponse.json({ ok: true, userId: data.user.id });
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Ошибка входа" },
