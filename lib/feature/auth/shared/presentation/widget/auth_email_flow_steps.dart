@@ -77,7 +77,7 @@ class AuthOtpStep extends StatefulWidget {
     required this.isLoading,
     required this.onResend,
     required this.onVerify,
-    this.resendCooldown = const Duration(seconds: AuthRepository.otpResendCooldownSeconds),
+    this.resendCooldown = Duration.zero,
   });
 
   final String email;
@@ -87,6 +87,7 @@ class AuthOtpStep extends StatefulWidget {
   /// `null` — ок; иначе код ошибки (шаг OTP не сбрасываем).
   final Future<AuthErrorCode?> Function() onResend;
   final VoidCallback onVerify;
+  /// Optional optimistic lock before [AuthCubit.emailOtpRetryAfterSeconds] bootstrap.
   final Duration resendCooldown;
 
   @override

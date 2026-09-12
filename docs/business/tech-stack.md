@@ -83,10 +83,10 @@
 | **Cloudflare R2** | Bucket `clover-app` | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ENDPOINT`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL` | [SPEC_R2](../supabase/SPEC_R2_DIRECT_UPLOAD.md) |
 | **Vercel** | Хостинг Next.js | `NEXT_PUBLIC_*` | [website-deploy.md](website-deploy.md) |
 | **Unihost.kz** | Регистратор домена (не DNS) | панель регистратора | — |
-| **Resend** | SMTP / email OTP | Supabase Custom SMTP | [email-authentication.md](email-authentication.md) |
+| **Resend** | Email OTP (Hook → REST API) | Edge secrets `RESEND_API_KEY`; Auth Send Email Hook | [email-authentication.md](email-authentication.md) · [SPEC_EMAIL_AUTH](../supabase/SPEC_EMAIL_AUTH.md) |
 | **Google** | Sign-In | Google Cloud + Supabase Auth | [website.md](website.md) |
 | **Firebase / FCM** | Push | Firebase + Edge drain | [SPEC_PUSH_FCM.md](../supabase/SPEC_PUSH_FCM.md) |
-| **Yandex Maps** | Карта | ключ моб / `NEXT_PUBLIC_YANDEX_MAPS_API_KEY` | [website-cabinet.md](website-cabinet.md) |
+| **Mapbox** | Карта (моб Mapbox Maps SDK / веб GL JS) | моб `MapboxConfig` + secret `SDK_REGISTRY_TOKEN` / `~/.netrc`; веб `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` | [website-cabinet.md](website-cabinet.md) · [mapbox.md](mapbox.md) |
 | **Meta WhatsApp** | SMS hook + webhook | Edge Secrets | supabase functions |
 | **Apple / ASC** | TestFlight | GitHub Actions secrets | [mobile-deploy.md](mobile-deploy.md) |
 | **GitHub** | Репо + CI | Actions secrets | `.github/workflows/` |
@@ -114,7 +114,7 @@
 | Медиа | `R2StorageService` → Edge |
 | Auth | Google + Phone/WhatsApp OTP + Email OTP |
 | Push | Firebase Messaging |
-| Карты | Yandex MapKit |
+| Карты | Mapbox Maps SDK (`mapbox_maps_flutter`) |
 | Прод | `mobile-production` |
 
 ---
@@ -128,7 +128,7 @@
 | Backend | тот же Supabase |
 | Медиа | `web/src/lib/r2-storage.ts` → Edge |
 | Auth | Supabase Auth |
-| Карты | Yandex JS API |
+| Карты | Mapbox GL JS |
 | Прод | `web-production` → Vercel |
 
 ---
@@ -157,7 +157,7 @@
     │                ▲                      │
     │                └── R2_* secrets       └── публично: media.clover.com.kz
     │
-    ├─ Email OTP ──► Supabase Auth ──► Resend
+    ├─ Email OTP ──► Auth Hook ──► Edge send_email_hook ──► Resend REST
     │
     └─ (моб) Push ──► FCM ◄── drain_push_outbox
 ```

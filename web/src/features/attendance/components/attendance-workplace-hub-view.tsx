@@ -20,8 +20,13 @@ import {
   renameWorkplace,
 } from "@/features/attendance/lib/attendance-api";
 import type { AttendanceWorkplace } from "@/features/attendance/lib/attendance-model";
+import {
+  readAttendanceWorkplaceCache,
+  writeAttendanceWorkplaceCache,
+} from "@/features/attendance/lib/attendance-prefs";
 import { SettingsShell } from "@/features/settings/components/settings-shell";
 import { serviceTileIcon } from "@/lib/service-accent";
+import { getSessionUserId } from "@/lib/run-service-swr";
 
 const SECTIONS = [
   {
@@ -72,12 +77,14 @@ export function AttendanceWorkplaceHubView({
   const [error, setError] = useState<string | null>(null);
   const [renameOpen, setRenameOpen] = useState(false);
 
-  const reload = useCallback(async () => {
-    setLoading(true);
+  const reload = useCallback(async (opts?: { soft?: boolean }) => {
+    if (!opts?.soft) setLoading(true);
     setError(null);
     try {
+      const uid = await getSessionUserId();
       const w = await getAdminWorkplace(workplaceId);
       setWorkplace(w);
+      if (w) writeAttendanceWorkplaceCache(uid, workplaceId, w);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Не удалось загрузить");
     } finally {
@@ -86,8 +93,18 @@ export function AttendanceWorkplaceHubView({
   }, [workplaceId]);
 
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    void (async () => {
+      const uid = await getSessionUserId();
+      const cached = readAttendanceWorkplaceCache(uid, workplaceId);
+      if (cached) {
+        setWorkplace(cached);
+        setLoading(false);
+        await reload({ soft: true });
+      } else {
+        await reload();
+      }
+    })();
+  }, [reload, workplaceId]);
 
   if (loading) {
     return (

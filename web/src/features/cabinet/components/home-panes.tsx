@@ -3,7 +3,7 @@
 import { LocateFixed, SlidersHorizontal, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MapMarkerPostSheet } from "@/features/cabinet/components/map-marker-post-sheet";
-import { YandexMap } from "@/features/cabinet/components/yandex-map";
+import { MapboxMap } from "@/features/cabinet/components/mapbox-map";
 import {
   DEFAULT_MAP_FILTER,
   fetchMapMarkers,
@@ -148,7 +148,7 @@ export function MapPane() {
 
   return (
     <div className="relative h-[calc(100dvh-3rem-4.25rem)] w-full overflow-hidden bg-mint md:h-dvh">
-      <YandexMap
+      <MapboxMap
         className="absolute inset-0 h-full w-full"
         center={ALMATY}
         zoom={12}

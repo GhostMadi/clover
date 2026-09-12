@@ -22,22 +22,46 @@ class BookingScheduleRepository {
     }
   }
 
-  Future<BookingScheduleSettings> getSettings({String? hostId}) async {
+  Future<BookingScheduleSettings> getSettings({String? hostId, String? pointId}) async {
     final id = (hostId ?? _uid)?.trim();
     if (id == null || id.isEmpty) return BookingScheduleSettings.defaults();
 
     return _guard(() async {
-      final settingsRow = await _client
-          .from('booking_schedule_settings')
-          .select()
-          .eq('host_id', id)
-          .maybeSingle();
+      var resolvedPointId = pointId?.trim();
+      if (resolvedPointId == null || resolvedPointId.isEmpty) {
+        final pointRaw = await _client.rpc(
+          'booking_default_point_id',
+          params: {'p_host_id': id},
+        );
+        resolvedPointId = pointRaw?.toString();
+      }
 
-      final absencesRes = await _client
-          .from('booking_staff_absences')
-          .select()
-          .eq('host_id', id)
-          .order('start_date');
+      final Map<String, dynamic>? settingsRow;
+      if (resolvedPointId != null && resolvedPointId.isNotEmpty) {
+        settingsRow = await _client
+            .from('booking_schedule_settings')
+            .select()
+            .eq('point_id', resolvedPointId)
+            .maybeSingle();
+      } else {
+        settingsRow = await _client
+            .from('booking_schedule_settings')
+            .select()
+            .eq('host_id', id)
+            .limit(1)
+            .maybeSingle();
+      }
+
+      final absencesQuery = resolvedPointId != null && resolvedPointId.isNotEmpty
+          ? _client
+              .from('booking_staff_absences')
+              .select()
+              .eq('host_id', id)
+              .eq('point_id', resolvedPointId)
+              .order('start_date')
+          : _client.from('booking_staff_absences').select().eq('host_id', id).order('start_date');
+
+      final absencesRes = await absencesQuery;
 
       final absences = [
         for (final row in absencesRes) _mapAbsence(Map<String, dynamic>.from(row)),
@@ -51,18 +75,30 @@ class BookingScheduleRepository {
     });
   }
 
-  Future<BookingScheduleSettings> saveMySettings(BookingScheduleSettings settings) async {
+  Future<BookingScheduleSettings> saveMySettings(
+    BookingScheduleSettings settings, {
+    String? pointId,
+  }) async {
     final uid = _uid;
     if (uid == null || uid.isEmpty) {
       throw const BookingException(BookingErrorCode.notAuthenticated);
     }
 
     return _guard(() async {
+      var resolvedPointId = pointId?.trim();
+      if (resolvedPointId == null || resolvedPointId.isEmpty) {
+        resolvedPointId = await _client.rpc('booking_ensure_default_point') as String?;
+      }
+      if (resolvedPointId == null || resolvedPointId.isEmpty) {
+        throw const BookingException(BookingErrorCode.unknown);
+      }
+
       final start = (settings.workStartHour, settings.workStartMinute);
       final end = (settings.workEndHour, settings.workEndMinute);
 
       await _client.from('booking_schedule_settings').upsert({
         'host_id': uid,
+        'point_id': resolvedPointId,
         'rest_weekdays': settings.restWeekdays.toList(),
         'horizon_kind': settings.horizonKind.dbValue,
         'max_booking_days_ahead': settings.maxBookingDaysAhead,
@@ -81,6 +117,7 @@ class BookingScheduleRepository {
       await _client.rpc(
         'replace_booking_staff_absences',
         params: {
+          'p_point_id': resolvedPointId,
           'p_absences': [
             for (final absence in settings.executorAbsences)
               {
@@ -93,7 +130,7 @@ class BookingScheduleRepository {
         },
       );
 
-      return getSettings(hostId: uid);
+      return getSettings(hostId: uid, pointId: resolvedPointId);
     });
   }
 

@@ -68,12 +68,12 @@ DM + вложения + FTS («В сообщениях» + поиск в тре�
 `/app/notifications` + колокольчик в rail (бейдж unread). RPC `list_notifications_enriched_cursor` + пагинация скролла + `mark_notifications_read`. Deep-link на пост/профиль — частично.
 
 ### 8 — Бизнес-сервисы
-- **8a Ресурсы** (сирень): хаб → местоположения + фильтры витрины + ярлык сбоку + чипы на витрине + привязка в посте — 🟡
-- **8b Запись** (жёлтый): хаб, клиентский flow, мои бронирования, услуги/мастера, расписание, inbox, аналитика, CTA с профиля/поста, ярлык сбоку — 🟡
+- **8a Ресурсы** (сирень): хаб → местоположения + фильтры + гайд; desktop ServiceWorkspaceShell + list/preview — 🟢 · [website-host-desktop.md](website-host-desktop.md)
+- **8b Запись** (жёлтый): workspace хозяина, inbox master–detail, rail ярлык — 🟢 · догон клиентских B1–B5/B7 — 🟡
 - **8c Бонусы** — поля на услуге уже есть; полный клиентский UX лояльности позже · ❌  
   Продукт: [bonuses.md](bonuses.md)
-- **8d Посещаемость** (синий) — **только admin на вебе**; worker/punch остаётся на мобилке · план ниже · ✅  
-  Продукт: [attendance.md](attendance.md) · бэк: [SPEC_ATTENDANCE_SYSTEM.md](../supabase/SPEC_ATTENDANCE_SYSTEM.md)
+- **8d Посещаемость** (синий) — admin workspace + «Сегодня»; worker/punch на мобилке · ✅  
+  Продукт: [attendance.md](attendance.md) · бэк: [SPEC_ATTENDANCE_SYSTEM.md](../supabase/SPEC_ATTENDANCE_SYSTEM.md) · десктоп: [website-host-desktop.md](website-host-desktop.md)
 
 ---
 
@@ -81,20 +81,23 @@ DM + вложения + FTS («В сообщениях» + поиск в тре�
 
 **Продукт:** [booking.md](booking.md) · **бэк:** [SPEC_BOOKING_SYSTEM.md](../supabase/SPEC_BOOKING_SYSTEM.md) · мобилка: `lib/feature/_booking_/`
 
-Тот же контракт/RPC, что Flutter. UI — `web/src/features/booking/` + routes под `/app/…`. Акцент `service="booking"`. Ярлык **сбоку** (rail / accessory).
+Тот же контракт/RPC, что Flutter. UI — `web/src/features/booking/` + routes под `/app/…`. Акцент `service="booking"`. Ярлык **сбоку** (rail / accessory).  
+Десктоп хозяина: [website-host-desktop.md](website-host-desktop.md).
 
 ### Фазы
 
 | Фаза | Что | Статус |
 |------|-----|--------|
-| **B0** Каркас | Settings → Запись, ярлык сбоку | 🟡 |
+| **B0** Каркас | Settings → Запись, ярлык сбоку | 🟢 |
 | **B1** Клиент: запись | `/app/u/[id]/book` | 🟡 |
 | **B2** Клиент: пост | CTA на услуге в посте | 🟡 |
 | **B3** Клиент: мои | `/app/settings/booking/my` | 🟡 |
 | **B4** Хозяин: каталог | услуги + мастера | 🟡 |
 | **B5** Хозяин: расписание | горизонт, отсутствия, блокировки | 🟡 |
-| **B6** Хозяин: inbox | вкладки + деталь статусов | 🟡 |
+| **B6** Хозяин: inbox | вкладки + master–detail на десктопе | 🟢 |
 | **B7** Аналитика | `/app/settings/booking/analytics` | 🟡 |
+| **B8** Desktop workspace | ServiceWorkspaceShell, шире формы | 🟢 |
+| **B9** Точки хозяина | `/points`, `/p/[pointId]/…` — [booking-points.md](booking-points.md) | 🟢 web + mobile |
 
 Привязка услуги в compose поста — ✅. Бонусы (полный UX) — 8c; посещаемость — 8d.
 
@@ -139,6 +142,8 @@ Admin на вебе + worker на телефоне (один аккаунт) —
 | Фаза | Что | Статус |
 |------|-----|--------|
 | **A0–A7** | Хаб, компания, настройки, работники, смены, табель, аналитика, ЗП | ✅ |
+| **A8** Desktop workspace | ServiceWorkspaceShell + экран «Сегодня» | 🟢 |
+| **A9** Entry + cache | last/first company, селектор, `/companies` | 🟢 |
 
 ### Фазы worker read-only (W0–W1)
 

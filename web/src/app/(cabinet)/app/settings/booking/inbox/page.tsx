@@ -1,5 +1,5 @@
-import { HostInboxView } from "@/features/booking/components/host-inbox-view";
+import { BookingLegacyRedirect } from "@/features/booking/components/booking-legacy-redirect";
 
-export default function BookingInboxPage() {
-  return <HostInboxView />;
+export default function LegacyBookingInboxPage() {
+  return <BookingLegacyRedirect suffix="/inbox" />;
 }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { AppButtonLink } from "@/components/shared/app-button";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
+import { ResourcesWorkspaceShell } from "@/features/resources/components/resources-workspace-shell";
 import type { ResourcesGuideContent } from "@/features/resources/lib/resources-guide";
 
 type Props = {
@@ -11,8 +11,8 @@ type Props = {
 
 export function ResourcesGuideView({ content }: Props) {
   return (
-    <SettingsShell title={content.pageTitle} service="resources" backHref="/app/settings/resources">
-      <div className="space-y-4 px-4 py-5">
+    <ResourcesWorkspaceShell title={content.pageTitle} backHref="/app/settings/resources">
+      <div className="space-y-4">
         <div className="rounded-[16px] bg-svc-resources px-4 py-4">
           <p className="text-[15px] leading-snug text-ink">{content.lead}</p>
         </div>
@@ -35,7 +35,7 @@ export function ResourcesGuideView({ content }: Props) {
         </ol>
 
         {content.ctaLabel && content.ctaHref ? (
-          <AppButtonLink href={content.ctaHref} service="resources" size="row" className="w-full">
+          <AppButtonLink href={content.ctaHref} size="row" className="w-full">
             {content.ctaLabel}
           </AppButtonLink>
         ) : (
@@ -47,6 +47,6 @@ export function ResourcesGuideView({ content }: Props) {
           </Link>
         )}
       </div>
-    </SettingsShell>
+    </ResourcesWorkspaceShell>
   );
 }

@@ -6,6 +6,7 @@ import { FormEvent, useState } from "react";
 import { GoogleIcon } from "@/components/icons/google-icon";
 import { AppButton } from "@/components/shared/app-button";
 import { AppField } from "@/components/shared/app-field";
+import { AuthOtpStep } from "@/features/auth/components/auth-otp-step";
 import {
   sendRegisterOtp,
   signInWithGoogle,
@@ -120,19 +121,14 @@ export default function RegisterPage() {
       ) : null}
 
       {step === "otp" ? (
-        <form onSubmit={onOtp} className="space-y-3.5">
-          <AppField
-            label="Код из письма"
-            hint="6 цифр"
-            inputMode="numeric"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            disabled={loading}
-          />
-          <AppButton type="submit" loading={loading}>
-            Подтвердить
-          </AppButton>
-        </form>
+        <AuthOtpStep
+          email={email.trim().toLowerCase()}
+          otp={otp}
+          onOtpChange={setOtp}
+          loading={loading}
+          onVerify={onOtp}
+          onResend={() => sendRegisterOtp(email)}
+        />
       ) : null}
 
       {step === "password" ? (

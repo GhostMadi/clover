@@ -18,12 +18,14 @@ import 'package:flutter/material.dart';
 class BookingScheduleSettingsForm extends StatelessWidget {
   const BookingScheduleSettingsForm({
     super.key,
+    required this.pointId,
     required this.settings,
     required this.executors,
     required this.onChanged,
     this.enabled = true,
   });
 
+  final String pointId;
   final BookingScheduleSettings settings;
   final List<BookingServiceExecutor> executors;
   final ValueChanged<BookingScheduleSettings> onChanged;
@@ -245,7 +247,11 @@ class BookingScheduleSettingsForm extends StatelessWidget {
             onChanged: (absences) => onChanged(settings.copyWith(executorAbsences: absences)),
           ),
           const SizedBox(height: 12),
-          BookingScheduleOpsSections(executors: executors, enabled: enabled),
+          BookingScheduleOpsSections(
+            pointId: pointId,
+            executors: executors,
+            enabled: enabled,
+          ),
         ],
       ),
     );

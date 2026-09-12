@@ -48,14 +48,20 @@ class BookingOpsRepository {
     }
   }
 
-  Future<List<BookingBlockedSlot>> listBlockedSlots({required DateTime from, required DateTime to}) {
+  Future<List<BookingBlockedSlot>> listBlockedSlots({
+    required DateTime from,
+    required DateTime to,
+    required String pointId,
+  }) {
     return _guard(() async {
       final uid = _client.auth.currentUser?.id;
-      if (uid == null) return const [];
+      final pid = pointId.trim();
+      if (uid == null || pid.isEmpty) return const [];
       final res = await _client
           .from('booking_blocked_slots')
           .select('id, staff_id, starts_at, ends_at, reason')
           .eq('host_id', uid)
+          .eq('point_id', pid)
           .gte('starts_at', from.toUtc().toIso8601String())
           .lte('starts_at', to.toUtc().toIso8601String())
           .order('starts_at');
@@ -74,6 +80,7 @@ class BookingOpsRepository {
   }
 
   Future<void> createBlockedSlot({
+    required String pointId,
     required String staffId,
     required DateTime startsAt,
     required DateTime endsAt,
@@ -81,9 +88,12 @@ class BookingOpsRepository {
   }) {
     return _guard(() async {
       final uid = _client.auth.currentUser?.id;
+      final pid = pointId.trim();
       if (uid == null) throw const BookingException(BookingErrorCode.unknown, 'Войдите в аккаунт');
+      if (pid.isEmpty) throw const BookingException(BookingErrorCode.unknown, 'Нет точки');
       await _client.from('booking_blocked_slots').insert({
         'host_id': uid,
+        'point_id': pid,
         'staff_id': staffId,
         'starts_at': startsAt.toUtc().toIso8601String(),
         'ends_at': endsAt.toUtc().toIso8601String(),

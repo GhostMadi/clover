@@ -1,45 +1,79 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { AppButton, AppButtonLink } from "@/components/shared/app-button";
 import { AddStaffModal } from "@/features/booking/components/add-staff-modal";
 import { BookingListShimmer } from "@/features/booking/components/booking-shimmers";
+import {
+  bookingPointBase,
+  readBookingServicesCache,
+  writeBookingServicesCache,
+} from "@/features/booking/lib/booking-prefs";
 import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
 import { listMyServices } from "@/features/booking/lib/services-api";
 import { listMyStaff } from "@/features/booking/lib/staff-api";
 import type { BookingService, BookingStaff } from "@/features/booking/lib/booking-model";
 import { formatPriceKzt } from "@/features/booking/lib/booking-format";
+import { createClient } from "@/lib/supabase/client";
 
-export function ServicesListView() {
+export function ServicesListView({ pointId }: { pointId: string }) {
   const [services, setServices] = useState<BookingService[]>([]);
   const [staff, setStaff] = useState<BookingStaff[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
 
-  const reload = () => {
-    setLoading(true);
-    void Promise.all([listMyServices(), listMyStaff(false)])
-      .then(([s, st]) => {
-        setServices(s);
-        setStaff(st);
-      })
-      .catch((e: unknown) => setError(e instanceof Error ? e.message : "Ошибка"))
-      .finally(() => setLoading(false));
-  };
+  const reload = useCallback(async (opts?: { soft?: boolean }) => {
+    if (!opts?.soft) setLoading(true);
+    setError(null);
+    try {
+      const {
+        data: { session },
+      } = await createClient().auth.getSession();
+      const uid = session?.user.id ?? null;
+      const [s, st] = await Promise.all([listMyServices(pointId), listMyStaff(false)]);
+      setServices(s);
+      setStaff(st);
+      writeBookingServicesCache(uid, pointId, { services: s, staff: st });
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Ошибка");
+    } finally {
+      setLoading(false);
+    }
+  }, [pointId]);
 
   useEffect(() => {
-    reload();
-  }, []);
+    let cancelled = false;
+    void (async () => {
+      const {
+        data: { session },
+      } = await createClient().auth.getSession();
+      if (cancelled) return;
+      const uid = session?.user.id ?? null;
+      const cached = readBookingServicesCache(uid, pointId);
+      if (cached) {
+        setServices(cached.services);
+        setStaff(cached.staff);
+        setLoading(false);
+        await reload({ soft: true });
+      } else {
+        await reload();
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [pointId, reload]);
 
   return (
     <BookingWorkspaceShell
+      pointId={pointId}
       title="Услуги"
       trailing={
         <AppButtonLink
-          href="/app/settings/booking/services/new"
+          href={`${bookingPointBase(pointId)}/services/new`}
           size="icon"
           service="booking"
           title="Новая услуга"
@@ -67,7 +101,7 @@ export function ServicesListView() {
               {services.map((s, i) => (
                 <li key={s.id} className={i > 0 ? "border-t border-line" : ""}>
                   <Link
-                    href={`/app/settings/booking/services/${s.id}`}
+                    href={`${bookingPointBase(pointId)}/services/${s.id}`}
                     className="flex items-center gap-3 px-3.5 py-3.5 transition hover:bg-svc-booking/40"
                   >
                     <span className="text-xl">{s.emojiText}</span>

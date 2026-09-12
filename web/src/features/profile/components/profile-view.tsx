@@ -1,9 +1,9 @@
 "use client";
 
-import { FolderPlus, MapPin, MessageCircle, Plus, Settings, User } from "lucide-react";
+import { FolderPlus, MapPin, MessageCircle, MoreHorizontal, Plus, Settings, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { AppButton, AppButtonLink } from "@/components/shared/app-button";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
 import { followUser, unfollowUser } from "@/features/catalog/lib/social-api";
@@ -68,6 +68,8 @@ export function ProfileView({
   const [busy, setBusy] = useState(false);
   const [chatBusy, setChatBusy] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
   const [selectedClusterId, setSelectedClusterId] = useState<string | null>(null);
   const [filterKeys, setFilterKeys] = useState<Set<string>>(new Set());
   const [gridPosts, setGridPosts] = useState(posts);
@@ -77,6 +79,15 @@ export function ProfileView({
   useEffect(() => {
     setGridPosts(posts);
   }, [posts]);
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!moreRef.current?.contains(e.target as Node)) setMoreOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [moreOpen]);
 
   useEffect(() => {
     let cancelled = false;
@@ -268,14 +279,36 @@ export function ProfileView({
               >
                 <Plus strokeWidth={2.5} className="text-on-brand" />
               </AppButton>
-              <AppButtonLink
-                href="/app/settings"
-                size="icon"
-                title="Настройки"
-                aria-label="Настройки"
-              >
-                <Settings strokeWidth={2.25} className="text-on-brand" />
-              </AppButtonLink>
+              <div ref={moreRef} className="relative">
+                <AppButton
+                  size="icon"
+                  title="Ещё"
+                  aria-label="Ещё"
+                  aria-expanded={moreOpen}
+                  onClick={() => setMoreOpen((v) => !v)}
+                >
+                  <MoreHorizontal strokeWidth={2.25} className="text-on-brand" />
+                </AppButton>
+                {moreOpen ? (
+                  <div className="absolute right-0 z-20 mt-1.5 w-56 overflow-hidden rounded-[14px] border border-line bg-surface shadow-elevate-xl">
+                    <Link
+                      href="/app/settings/booking/my"
+                      onClick={() => setMoreOpen(false)}
+                      className="block px-3.5 py-3 text-[14px] font-semibold text-ink transition hover:bg-mint"
+                    >
+                      Мои бронирования
+                    </Link>
+                    <Link
+                      href="/app/settings"
+                      onClick={() => setMoreOpen(false)}
+                      className="flex items-center gap-2 border-t border-line px-3.5 py-3 text-[14px] font-semibold text-ink transition hover:bg-mint"
+                    >
+                      <Settings className="h-4 w-4 text-muted" strokeWidth={2} />
+                      Настройки
+                    </Link>
+                  </div>
+                ) : null}
+              </div>
             </div>
           )}
 

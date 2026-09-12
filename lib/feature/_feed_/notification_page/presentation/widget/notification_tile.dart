@@ -15,11 +15,17 @@ class NotificationTile extends StatefulWidget {
     required this.item,
     this.onFollowToggle,
     this.onTap,
+    this.onLoginConfirm,
+    this.onLoginRevoke,
+    this.onLoginChangePassword,
   });
 
   final NotificationItem item;
   final ValueChanged<NotificationItem>? onFollowToggle;
   final VoidCallback? onTap;
+  final VoidCallback? onLoginConfirm;
+  final VoidCallback? onLoginRevoke;
+  final VoidCallback? onLoginChangePassword;
 
   @override
   State<NotificationTile> createState() => _NotificationTileState();
@@ -89,6 +95,48 @@ class _NotificationTileState extends State<NotificationTile> {
                       timeLabel,
                       style: AppTextStyle.base(12, color: context.colors.subTextColor.withValues(alpha: 0.85)),
                     ),
+                    if (item.showLoginActions) ...[
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (item.loginActions.contains('confirm') || item.loginActions.isEmpty)
+                            AppButton(
+                              text: 'Это я',
+                              height: 32,
+                              borderRadius: 10,
+                              onTap: widget.onLoginConfirm,
+                            ),
+                          if (item.loginActions.contains('revoke') || item.loginActions.isEmpty)
+                            AppOutlinedButton(
+                              text: 'Прервать',
+                              height: 32,
+                              borderRadius: 10,
+                              onTap: widget.onLoginRevoke,
+                            ),
+                          if (item.loginActions.contains('change_password') ||
+                              item.loginActions.isEmpty)
+                            AppOutlinedButton(
+                              text: 'Сменить пароль',
+                              height: 32,
+                              borderRadius: 10,
+                              onTap: widget.onLoginChangePassword,
+                            ),
+                        ],
+                      ),
+                    ] else if (item.kind == NotificationKind.accountLogin &&
+                        item.loginResolved != null) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        switch (item.loginResolved) {
+                          'confirmed' => 'Отмечено: это вы',
+                          'revoked' || 'revoked_others' => 'Сессия прервана',
+                          _ => 'Обработано',
+                        },
+                        style: AppTextStyle.base(12, color: context.colors.subTextColor),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -183,6 +231,14 @@ class _NotificationTileState extends State<NotificationTile> {
       ],
       NotificationKind.attendanceCorrection => [
         regular('Запрос на исправление отметки'),
+      ],
+      NotificationKind.accountLogin => [
+        regular('Вход в аккаунт с '),
+        bold(
+          item.loginWhere?.trim().isNotEmpty == true
+              ? item.loginWhere!
+              : 'нового устройства',
+        ),
       ],
     };
   }

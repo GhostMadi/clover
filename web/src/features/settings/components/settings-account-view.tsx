@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { AppButton } from "@/components/shared/app-button";
 import { signOut } from "@/features/auth/lib/auth-api";
-import { deleteAccount } from "@/features/settings/lib/account-api";
+import { deleteAccount, listMyLoginEvents, type LoginEvent } from "@/features/settings/lib/account-api";
 import {
   readLocale,
   readTheme,
@@ -57,10 +57,14 @@ export function SettingsAccountView() {
   const [error, setError] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [deleting, startDelete] = useTransition();
+  const [logins, setLogins] = useState<LoginEvent[]>([]);
 
   useEffect(() => {
     setTheme(readTheme());
     setLocale(readLocale());
+    void listMyLoginEvents(8)
+      .then(setLogins)
+      .catch(() => setLogins([]));
   }, []);
 
   const onTheme = (mode: WebThemeMode) => {
@@ -139,6 +143,59 @@ export function SettingsAccountView() {
                 Сохраняется на этом устройстве. Полный перевод интерфейса — позже.
               </p>
             </div>
+          </div>
+        </section>
+
+        <section>
+          <p className="mb-2 px-1 text-[12px] font-bold uppercase tracking-wide text-muted">
+            Недавние входы
+          </p>
+          <div className="rounded-[16px] border border-line px-3.5 py-3">
+            {logins.length === 0 ? (
+              <p className="py-2 text-[13px] text-muted">Пока нет записей</p>
+            ) : (
+              <ul className="divide-y divide-line">
+                {logins.map((e) => {
+                  const where =
+                    e.deviceLabel ||
+                    (e.client === "web"
+                      ? "Веб"
+                      : e.platform === "ios"
+                        ? "iOS"
+                        : e.platform === "android"
+                          ? "Android"
+                          : e.client);
+                  const when = e.createdAt
+                    ? new Date(e.createdAt).toLocaleString("ru-RU", {
+                        day: "numeric",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : "";
+                  return (
+                    <li key={e.id} className="flex items-center justify-between gap-3 py-2.5">
+                      <span className="min-w-0 truncate text-[13px] font-semibold text-ink">
+                        {where}
+                        <span className="ml-2 text-[11px] font-medium text-muted">
+                          {e.role === "primary" ? "главный" : "гость"}
+                          {e.status === "revoked"
+                            ? " · прерван"
+                            : e.status === "confirmed"
+                              ? " · ок"
+                              : ""}
+                        </span>
+                      </span>
+                      <span className="shrink-0 text-[11px] text-muted">{when}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            <p className="mt-2 text-[11px] leading-snug text-muted">
+              Первый вход — главный. Остальные устройства — гости: в колокольчике можно
+              подтвердить («это я»), прервать сессию или сменить пароль.
+            </p>
           </div>
         </section>
 

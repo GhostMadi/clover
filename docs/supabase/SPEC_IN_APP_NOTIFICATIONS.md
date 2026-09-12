@@ -112,6 +112,14 @@ Visit / client reminder keys **deleted** when booking leaves `confirmed` or reac
 | `mark_notifications_read(ids?)` | Mark read |
 | `count_unread_notifications()` | Dashboard badge |
 
+### Account login
+
+| kind | Когда |
+|------|--------|
+| `account_login` | `report_account_login` после гостевого входа (self-notify; primary/guest) |
+
+Spec: [SPEC_ACCOUNT_LOGIN_EVENTS.md](SPEC_ACCOUNT_LOGIN_EVENTS.md)
+
 ---
 
 ## 6. Flutter

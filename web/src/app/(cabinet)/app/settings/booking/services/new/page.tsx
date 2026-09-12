@@ -1,5 +1,5 @@
-import { ServiceEditView } from "@/features/booking/components/service-edit-view";
+import { BookingLegacyRedirect } from "@/features/booking/components/booking-legacy-redirect";
 
-export default function BookingServiceNewPage() {
-  return <ServiceEditView mode="new" />;
+export default function LegacyBookingServicesNewPage() {
+  return <BookingLegacyRedirect suffix="/services/new" />;
 }

@@ -20,6 +20,10 @@ class NotificationItem {
     this.bookingStartsAt,
     this.bonusEarnAmount,
     this.bookingReminderMinutesBefore,
+    this.loginWhere,
+    this.loginEventId,
+    this.loginResolved,
+    this.loginActions = const [],
   });
 
   final String id;
@@ -39,11 +43,26 @@ class NotificationItem {
   final DateTime? bookingStartsAt;
   final int? bonusEarnAmount;
   final int? bookingReminderMinutesBefore;
+  /// Human-readable place for [NotificationKind.accountLogin].
+  final String? loginWhere;
+  final String? loginEventId;
+  /// EN: confirmed | revoked | revoked_others
+  final String? loginResolved;
+  /// EN: confirm | revoke | change_password
+  final List<String> loginActions;
+
+  bool get showLoginActions =>
+      kind == NotificationKind.accountLogin &&
+      loginEventId != null &&
+      loginEventId!.isNotEmpty &&
+      (loginResolved == null || loginResolved!.isEmpty);
 
   NotificationItem copyWith({
     bool? isFollowingActor,
     bool? isUnread,
     NotificationKind? kind,
+    String? loginResolved,
+    bool clearLoginResolved = false,
   }) {
     return NotificationItem(
       id: id,
@@ -63,6 +82,10 @@ class NotificationItem {
       bookingStartsAt: bookingStartsAt,
       bonusEarnAmount: bonusEarnAmount,
       bookingReminderMinutesBefore: bookingReminderMinutesBefore,
+      loginWhere: loginWhere,
+      loginEventId: loginEventId,
+      loginResolved: clearLoginResolved ? null : (loginResolved ?? this.loginResolved),
+      loginActions: loginActions,
     );
   }
 }

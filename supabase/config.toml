@@ -33,6 +33,10 @@ verify_jwt = false
 [functions.send_sms_hook]
 verify_jwt = false
 
+# Auth Send Email Hook — Resend + hourly OTP limit (max 3 / email).
+[functions.send_email_hook]
+verify_jwt = false
+
 # Meta WhatsApp Cloud API inbound webhook (NOT Auth Send SMS Hook).
 [functions.whatsapp_webhook]
 verify_jwt = false
@@ -41,10 +45,15 @@ verify_jwt = false
 [functions.drain_push_outbox]
 verify_jwt = false
 
-# Local Auth Hook (optional). Hosted: Authentication → Hooks → Send SMS in Dashboard.
-# To enable locally, set SEND_SMS_HOOK_SECRET=v1,whsec_<base64> in supabase/.env and:
+# Local Auth Hook (optional). Hosted: Authentication → Hooks in Dashboard.
+# Send Email (OTP gate): enable send_email_hook + SEND_EMAIL_HOOK_SECRET + RESEND_API_KEY.
+# Send SMS: set SEND_SMS_HOOK_SECRET=v1,whsec_<base64> in supabase/.env and:
 # [auth.hook.send_sms]
 # enabled = true
 # uri = "http://host.docker.internal:54321/functions/v1/send_sms_hook"
 # secrets = "env(SEND_SMS_HOOK_SECRET)"
+# [auth.hook.send_email]
+# enabled = true
+# uri = "http://host.docker.internal:54321/functions/v1/send_email_hook"
+# secrets = "env(SEND_EMAIL_HOOK_SECRET)"
 

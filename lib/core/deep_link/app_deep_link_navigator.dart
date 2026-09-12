@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/deep_link/app_deep_link_intent.dart';
 import 'package:clover/core/router/app_router.gr.dart';
+import 'package:clover/feature/_booking_/booking_points/data/booking_point_nav.dart';
 import 'package:clover/feature/_booking_/shared/data/repository/booking_deep_link_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -63,7 +64,8 @@ class AppDeepLinkNavigator {
         if (bookingId != null && bookingId.isNotEmpty) {
           await openBookingById(router, bookingId);
         } else {
-          await router.push(const BookingListRoute());
+          final pointId = await resolveBookingPointIdForNav();
+          await router.push(BookingListRoute(pointId: pointId));
         }
 
       case AppDeepLinkNotificationsIntent():
@@ -76,7 +78,8 @@ class AppDeepLinkNavigator {
 
       case AppDeepLinkHostSetupIntent():
         await _openDashboard(router);
-        await router.push(const BookingListRoute());
+        final pointId = await resolveBookingPointIdForNav();
+        await router.push(BookingListRoute(pointId: pointId));
 
       case AppDeepLinkDashboardTabIntent(:final tab):
         await _openDashboard(router, tab: tab);

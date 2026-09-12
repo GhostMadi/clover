@@ -324,7 +324,7 @@ class _ProfileServiceShortcutsBlock extends StatelessWidget {
               builder: (child) => BookingPrimaryButton(
                 text: 'Запись',
                 isExpanded: true,
-                onTap: () => context.router.push(const BookingListRoute()),
+                onTap: () => context.router.push(const SettingsBookingRoute()),
                 child: child,
               ),
             ),

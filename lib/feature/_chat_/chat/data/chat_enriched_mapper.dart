@@ -221,7 +221,8 @@ abstract final class ChatEnrichedMapper {
     final text = message['text']?.toString().trim();
 
     return switch (kind) {
-      'media' || 'file' => text?.isNotEmpty == true ? text! : '',
+      'media' => text?.isNotEmpty == true ? text! : 'Фото',
+      'file' => text?.isNotEmpty == true ? text! : 'Файл',
       'post_ref' => 'Пост',
       'attendance_invite' => text?.isNotEmpty == true ? text! : 'Приглашение в команду',
       'attendance_rules' => text?.isNotEmpty == true ? text! : 'Правила посещаемости',

@@ -1,4 +1,5 @@
 import 'package:clover/core/session/app_session.dart';
+import 'package:clover/feature/_booking_/booking_create/data/repository/booking_services_repository.dart';
 import 'package:clover/feature/_booking_/booking_list/data/booking_host_inbox.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_date_range.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_item.dart';
@@ -6,26 +7,30 @@ import 'package:clover/feature/_booking_/booking_list/data/repository/booking_ho
 import 'package:clover/feature/_booking_/shared/data/booking_local_cache.dart';
 import 'package:clover/feature/_booking_/shared/data/models/booking_status.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
-
-part 'booking_list_cubit.freezed.dart';
 
 @injectable
 class BookingListCubit extends Cubit<BookingListState> {
-  BookingListCubit(this._repository, this._cache, this._session) : super(const BookingListState.initial());
+  BookingListCubit(this._repository, this._services, this._cache, this._session)
+      : super(const BookingListState.initial());
 
   final BookingHostListRepository _repository;
+  final BookingServicesRepository _services;
   final BookingLocalCache _cache;
   final AppSession _session;
 
   String? _lastQuery;
+  String? _pointId;
+  Set<String> _serviceIds = {};
   final Set<String> _updatingIds = {};
 
-  Future<void> load({BookingListDateRange? period, String? query}) async {
+  Future<void> load({BookingListDateRange? period, String? query, String? pointId}) async {
     if (isClosed) return;
     final range = period ?? BookingListDateRange.hostInbox();
     _lastQuery = query;
+    if (pointId != null) {
+      _pointId = pointId.trim().isEmpty ? null : pointId.trim();
+    }
 
     final previous = state.mapOrNull(loaded: (s) => s);
     final tab = previous?.mainTabIndex ?? BookingHostInboxTab.upcoming.index;
@@ -33,7 +38,12 @@ class BookingListCubit extends Cubit<BookingListState> {
 
     final uid = _session.userId;
     if (uid != null && uid.isNotEmpty) {
-      final cached = await _cache.readHostBookings(uid, range, query: query);
+      final cached = await _cache.readHostBookings(
+        uid,
+        range,
+        query: query,
+        pointId: _pointId,
+      );
       if (isClosed) return;
       if (cached != null && cached.isNotEmpty) {
         emit(
@@ -167,13 +177,31 @@ class BookingListCubit extends Cubit<BookingListState> {
     DateTime? upcomingDay,
   }) async {
     try {
-      final items = await _repository.listBookings(
+      final pid = _pointId;
+      if (pid != null && pid.isNotEmpty) {
+        final services = await _services.listMyServices(pointId: pid);
+        _serviceIds = {
+          for (final s in services)
+            if (s.id.trim().isNotEmpty) s.id.trim(),
+        };
+      } else {
+        _serviceIds = {};
+      }
+
+      final raw = await _repository.listBookings(
         from: range.start,
         to: range.end.add(const Duration(days: 1)).subtract(const Duration(seconds: 1)),
         query: query,
         limit: 100,
       );
       if (isClosed) return;
+
+      final items = _serviceIds.isEmpty
+          ? raw
+          : [
+              for (final item in raw)
+                if (item.serviceId != null && _serviceIds.contains(item.serviceId)) item,
+            ];
 
       final day = upcomingDay ?? BookingHostInbox.dayKey(DateTime.now());
 
@@ -192,7 +220,7 @@ class BookingListCubit extends Cubit<BookingListState> {
 
       final uid = _session.userId;
       if (uid != null && uid.isNotEmpty) {
-        await _cache.writeHostBookings(uid, range, items, query: query);
+        await _cache.writeHostBookings(uid, range, items, query: query, pointId: _pointId);
       }
     } catch (e) {
       if (isClosed) return;
@@ -206,26 +234,119 @@ class BookingListCubit extends Cubit<BookingListState> {
   }
 }
 
-@freezed
-class BookingListState with _$BookingListState {
-  const factory BookingListState.initial() = _Initial;
+sealed class BookingListState {
+  const BookingListState();
+
+  const factory BookingListState.initial() = BookingListInitial;
   const factory BookingListState.loading({
     required BookingListDateRange period,
     String? query,
-  }) = _Loading;
+  }) = BookingListLoading;
   const factory BookingListState.loaded({
     required BookingListDateRange period,
     String? query,
     required List<BookingListItem> items,
-    @Default(1) int mainTabIndex, // BookingHostInboxTab.upcoming
+    int mainTabIndex,
     DateTime? upcomingDay,
-    @Default(false) bool isFromCache,
-    @Default(false) bool isRefreshing,
-    @Default(<String>{}) Set<String> updatingIds,
+    bool isFromCache,
+    bool isRefreshing,
+    Set<String> updatingIds,
   }) = BookingListLoaded;
   const factory BookingListState.error({
     required BookingListDateRange period,
     String? query,
     required String message,
-  }) = _Error;
+  }) = BookingListError;
+
+  T? mapOrNull<T>({
+    T Function(BookingListLoaded s)? loaded,
+    T Function(BookingListLoading s)? loading,
+    T Function(BookingListError s)? error,
+  }) {
+    final self = this;
+    if (self is BookingListLoaded && loaded != null) return loaded(self);
+    if (self is BookingListLoading && loading != null) return loading(self);
+    if (self is BookingListError && error != null) return error(self);
+    return null;
+  }
+
+  T maybeMap<T>({
+    required T Function() orElse,
+    T Function(BookingListLoaded s)? loaded,
+    T Function(BookingListLoading s)? loading,
+    T Function(BookingListError s)? error,
+  }) {
+    final self = this;
+    if (self is BookingListLoaded && loaded != null) return loaded(self);
+    if (self is BookingListLoading && loading != null) return loading(self);
+    if (self is BookingListError && error != null) return error(self);
+    return orElse();
+  }
+}
+
+final class BookingListInitial extends BookingListState {
+  const BookingListInitial();
+}
+
+final class BookingListLoading extends BookingListState {
+  const BookingListLoading({required this.period, this.query});
+
+  final BookingListDateRange period;
+  final String? query;
+}
+
+final class BookingListLoaded extends BookingListState {
+  const BookingListLoaded({
+    required this.period,
+    this.query,
+    required this.items,
+    this.mainTabIndex = 1,
+    this.upcomingDay,
+    this.isFromCache = false,
+    this.isRefreshing = false,
+    this.updatingIds = const {},
+  });
+
+  final BookingListDateRange period;
+  final String? query;
+  final List<BookingListItem> items;
+  final int mainTabIndex;
+  final DateTime? upcomingDay;
+  final bool isFromCache;
+  final bool isRefreshing;
+  final Set<String> updatingIds;
+
+  BookingListLoaded copyWith({
+    BookingListDateRange? period,
+    String? query,
+    List<BookingListItem>? items,
+    int? mainTabIndex,
+    DateTime? upcomingDay,
+    bool? isFromCache,
+    bool? isRefreshing,
+    Set<String>? updatingIds,
+  }) {
+    return BookingListLoaded(
+      period: period ?? this.period,
+      query: query ?? this.query,
+      items: items ?? this.items,
+      mainTabIndex: mainTabIndex ?? this.mainTabIndex,
+      upcomingDay: upcomingDay ?? this.upcomingDay,
+      isFromCache: isFromCache ?? this.isFromCache,
+      isRefreshing: isRefreshing ?? this.isRefreshing,
+      updatingIds: updatingIds ?? this.updatingIds,
+    );
+  }
+}
+
+final class BookingListError extends BookingListState {
+  const BookingListError({
+    required this.period,
+    this.query,
+    required this.message,
+  });
+
+  final BookingListDateRange period;
+  final String? query;
+  final String message;
 }

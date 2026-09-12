@@ -15,15 +15,18 @@
 На десктопе — **левый rail** (иконки → подписи по hover); на мобилке — нижний бар + колокольчик в шапке.  
 Карта — edge-to-edge.
 
-**Запись** (`/app/settings/booking`): на десктопе — **workspace** (левый sub-nav + широкая зона до ~1200px), не узкая мобильная колонка; хаб = плитки + превью inbox. На мобилке — чипы-навигация сверху.
+**Запись / Посещаемость / Ресурсы** — на десктопе **ServiceWorkspaceShell** (sub-nav + зона ~1400px): [website-host-desktop.md](website-host-desktop.md).  
+Запись: inbox master–detail. Посещаемость: экран «Сегодня» по компании. Ресурсы: локации + превью карты. На мобилке — чипы сверху.
 
 Скорость кабинета: middleware гейт через `getSession` (без Auth API на каждый таб), `loading.tsx` скелетон, prefetch вкладок, профиль — `Promise.all` (профиль + посты).
 
-Догон мобилки: [website-gap-plan.md](website-gap-plan.md) — **8a/8b** 🟡; **8d Посещаемость** ✅ (хвосты: [website-attendance-gaps.md](website-attendance-gaps.md)).  
+Догон мобилки: [website-gap-plan.md](website-gap-plan.md) — **8a/8b** desktop 🟢 (клиентские хвосты 🟡); **8d** ✅ (хвосты: [website-attendance-gaps.md](website-attendance-gaps.md)).  
 Дорожная карта сайта: [website-roadmap.md](website-roadmap.md).
 
-## Яндекс.Карты
+## Mapbox
 
-- Ключ из мобилки: `YandexMapKitConfig.apiKey` → `NEXT_PUBLIC_YANDEX_MAPS_API_KEY`
+- Веб: `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` (public token `clover`) + стиль `mapbox://styles/mapbox/streets-v12`
+- Мобилка: `MapboxConfig.accessToken` (public token `clover_flutter`) через `MapboxOptions.setAccessToken` в `main.dart`
 - Маркеры: RPC `list_markers_map` (центр + zoom → радиус как в мобилке)
-- Если JS API отклонит MapKit-ключ — в кабинете Яндекса создай отдельный ключ **JavaScript API** с HTTP-реферерами `localhost:3000` и `clover.com.kz`
+- Секрет с `DOWNLOADS:READ` — только локально / CI (`~/.netrc`, `SDK_REGISTRY_TOKEN`), см. [mapbox.md](mapbox.md)
+- URL-ограничения веб-токена: `localhost:3000`, `clover.com.kz`, `www.clover.com.kz`

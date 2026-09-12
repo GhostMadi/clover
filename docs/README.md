@@ -19,6 +19,7 @@
 |---------|------|
 | **Чеклист новой фичи (жизненный цикл)** | [business/_feature-lifecycle-checklist.md](business/_feature-lifecycle-checklist.md) |
 | **Стек и сервисы (хосты, Vercel, Supabase, R2…)** | [business/tech-stack.md](business/tech-stack.md) |
+| **Mapbox (токены / сборка карт)** | [business/mapbox.md](business/mapbox.md) |
 | Аутентификация (логин / регистрация / пароль) | [business/authentication.md](business/authentication.md) |
 | Email OTP и транзакционная почта | [business/email-authentication.md](business/email-authentication.md) |
 | Онбординг | [business/onboarding.md](business/onboarding.md) |

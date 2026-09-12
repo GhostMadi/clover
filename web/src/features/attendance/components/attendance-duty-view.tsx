@@ -21,7 +21,12 @@ import {
   type AttendanceOvertime,
   type AttendanceWorkplace,
 } from "@/features/attendance/lib/attendance-model";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
+import { AttendanceWorkspaceShell } from "@/features/attendance/components/attendance-workspace-shell";
+import {
+  readAttendanceDutyCache,
+  writeAttendanceDutyCache,
+} from "@/features/attendance/lib/attendance-prefs";
+import { getSessionUserId } from "@/lib/run-service-swr";
 
 type ActiveMember = { id: string; name: string };
 
@@ -47,10 +52,11 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
   const [absBusy, setAbsBusy] = useState(false);
   const [absError, setAbsError] = useState<string | null>(null);
 
-  const reload = useCallback(async () => {
-    setLoading(true);
+  const reload = useCallback(async (opts?: { soft?: boolean }) => {
+    if (!opts?.soft) setLoading(true);
     setError(null);
     try {
+      const uid = await getSessionUserId();
       const w = await getAdminWorkplace(workplaceId);
       if (!w) {
         setError("Компания не найдена или нет прав admin");
@@ -62,19 +68,28 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
       );
       const ids = active.map((m) => m.profileId);
       const lab = await loadProfileLabels(ids);
+      const nextMembers = active.map((m) => ({
+        id: m.profileId,
+        name: lab.get(m.profileId)?.name ?? m.profileId.slice(0, 8),
+      }));
+      const nextAbs = boot.absences.filter((a) => a.workplaceId === workplaceId);
+      const nextOt = boot.overtimeEntries.filter((o) => o.workplaceId === workplaceId);
+      const labelsObj: Record<string, { name: string; username: string }> = {};
+      for (const [k, v] of lab) labelsObj[k] = v;
       setLabels(lab);
-      setMembers(
-        active.map((m) => ({
-          id: m.profileId,
-          name: lab.get(m.profileId)?.name ?? m.profileId.slice(0, 8),
-        })),
-      );
+      setMembers(nextMembers);
       setWorkplace(w);
       setRoster(w.dutyRoster);
-      setAbsences(boot.absences.filter((a) => a.workplaceId === workplaceId));
-      setOvertime(
-        boot.overtimeEntries.filter((o) => o.workplaceId === workplaceId),
-      );
+      setAbsences(nextAbs);
+      setOvertime(nextOt);
+      writeAttendanceDutyCache(uid, workplaceId, {
+        workplace: w,
+        roster: w.dutyRoster,
+        members: nextMembers,
+        labels: labelsObj,
+        absences: nextAbs,
+        overtime: nextOt,
+      });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Не удалось загрузить");
     } finally {
@@ -83,8 +98,23 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
   }, [workplaceId]);
 
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    void (async () => {
+      const uid = await getSessionUserId();
+      const cached = readAttendanceDutyCache(uid, workplaceId);
+      if (cached) {
+        setWorkplace(cached.workplace);
+        setRoster(cached.roster);
+        setMembers(cached.members);
+        setAbsences(cached.absences);
+        setOvertime(cached.overtime);
+        setLabels(new Map(Object.entries(cached.labels)));
+        setLoading(false);
+        await reload({ soft: true });
+      } else {
+        await reload();
+      }
+    })();
+  }, [reload, workplaceId]);
 
   const todayOnDuty = useMemo(() => {
     if (!roster) return [];
@@ -96,24 +126,24 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
 
   if (loading) {
     return (
-      <SettingsShell title="Смены и учёт" backHref={back} service="attendance">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Смены и учёт">
         <div className="px-4 py-5">
           <AttendanceListShimmer rows={6} />
         </div>
-      </SettingsShell>
+      </AttendanceWorkspaceShell>
     );
   }
 
   if (error || !workplace || !roster) {
     return (
-      <SettingsShell title="Смены и учёт" backHref={back} service="attendance">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Смены и учёт">
         <div className="space-y-3 px-4 py-5">
           <p className="text-[14px] text-error">{error ?? "Нет данных"}</p>
           <AppButtonLink href={back} service="attendance">
             Назад
           </AppButtonLink>
         </div>
-      </SettingsShell>
+      </AttendanceWorkspaceShell>
     );
   }
 
@@ -157,7 +187,7 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
   };
 
   return (
-    <SettingsShell title="Смены и учёт" backHref={back} service="attendance">
+    <AttendanceWorkspaceShell workplaceId={workplaceId} title="Смены и учёт">
       <div className="space-y-6 px-4 py-5 pb-10">
         <section className="rounded-[16px] border border-line bg-surface px-3.5 py-3.5">
           <p className="text-[12px] font-bold uppercase tracking-wide text-muted">
@@ -472,6 +502,6 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
           ) : null}
         </section>
       </div>
-    </SettingsShell>
+    </AttendanceWorkspaceShell>
   );
 }

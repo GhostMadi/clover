@@ -4,7 +4,10 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_functional_button/app_functional_screen.dart';
 import 'package:clover/core/shared/app_functional_button/functional_button_item.dart';
+import 'package:clover/feature/_booking_/booking_points/data/booking_points_prefs.dart';
+import 'package:clover/feature/_booking_/booking_points/presentation/widget/booking_point_switcher_sheet.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
+import 'package:clover/core/dependencies/get_it.dart';
 import 'package:flutter/material.dart';
 
 /// Оболочка экранов записи: заголовок + левитирующая нижняя панель [AppFunctionalScreen].
@@ -13,6 +16,8 @@ class BookingScreenShell extends StatelessWidget {
     super.key,
     required this.title,
     required this.body,
+    this.pointId,
+    this.onPointChanged,
     this.compactBar = false,
     this.isLoading = false,
     this.showAnalytics = false,
@@ -40,6 +45,9 @@ class BookingScreenShell extends StatelessWidget {
 
   final String title;
   final Widget body;
+  /// When set, app bar title becomes a point switcher (like web).
+  final String? pointId;
+  final ValueChanged<String>? onPointChanged;
   final bool compactBar;
   final bool isLoading;
   final bool showAnalytics;
@@ -67,9 +75,24 @@ class BookingScreenShell extends StatelessWidget {
   static double scrollBottomGap(BuildContext context) =>
       AppFunctionalScreen.scrollBottomClearance(context) + 24;
 
+  Future<void> _openPointSwitcher(BuildContext context) async {
+    final id = pointId?.trim();
+    if (id == null || id.isEmpty || onPointChanged == null) return;
+    final picked = await showBookingPointSwitcherSheet(
+      context: context,
+      currentPointId: id,
+    );
+    if (picked == null || picked.id == id) return;
+    await sl<BookingPointsPrefs>().writeLastPointId(picked.id);
+    onPointChanged!(picked.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     final accent = bookingServiceAccent(context.colors);
+    final switchable = pointId != null &&
+        pointId!.trim().isNotEmpty &&
+        onPointChanged != null;
 
     return AppFunctionalScreen(
       collapsed: compactBar,
@@ -166,7 +189,12 @@ class BookingScreenShell extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _BookingTopBar(title: title, accent: accent),
+          _BookingTopBar(
+            title: title,
+            accent: accent,
+            switchable: switchable,
+            onTitleTap: switchable ? () => _openPointSwitcher(context) : null,
+          ),
           Expanded(child: body),
         ],
       ),
@@ -175,10 +203,17 @@ class BookingScreenShell extends StatelessWidget {
 }
 
 class _BookingTopBar extends StatelessWidget {
-  const _BookingTopBar({required this.title, required this.accent});
+  const _BookingTopBar({
+    required this.title,
+    required this.accent,
+    required this.switchable,
+    this.onTitleTap,
+  });
 
   final String title;
   final AppServiceAccent accent;
+  final bool switchable;
+  final VoidCallback? onTitleTap;
 
   @override
   Widget build(BuildContext context) {
@@ -193,12 +228,47 @@ class _BookingTopBar extends StatelessWidget {
             SizedBox(
               height: kToolbarHeight,
               child: Center(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyle.base(17, color: context.colors.textColor, fontWeight: FontWeight.w600),
-                ),
+                child: switchable
+                    ? InkWell(
+                        onTap: onTitleTap,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyle.base(
+                                    17,
+                                    color: context.colors.textColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                AppIcons.arrowDown.icon,
+                                size: 20,
+                                color: accent.icon,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyle.base(
+                          17,
+                          color: context.colors.textColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
             ),
           ],

@@ -16,14 +16,13 @@
 
 ## Вход и старт
 
-### 🟡 Аутентификация (целевая модель)
-**План:** логин ник/email + пароль; регистрация OTP (почта/SMS) → пароль или Google/Apple; установка/сброс пароля.  
-**Сейчас в UI:** логин ник/email+пароль, регистрация email OTP (только новым), сброс пароля, Google.  
+### 🟢 Аутентификация (целевая модель email)
+**План / сейчас:** логин ник/email + пароль; регистрация email OTP → пароль; сброс пароля; Google. SMS/Apple — later.  
 Бизнес: [authentication.md](authentication.md)  
-Техника: `lib/feature/auth/`, `lib/core/auth/` · миграция `20260831100000_auth_login_helpers.sql`
+Техника: `lib/feature/auth/`, `lib/core/auth/`, `web/src/features/auth/` · [SPEC_EMAIL_AUTH.md](../supabase/SPEC_EMAIL_AUTH.md)
 
-### 🟡 Email OTP / транзакционная почта (Resend)
-Доставка OTP с **welcome@clover.com.kz** (домен **Verified**). Для регистрации и сброса пароля, не как основной логин.  
+### 🟢 Email OTP / транзакционная почта (Resend)
+Доставка OTP с **welcome@clover.com.kz** через **Send Email Hook → Edge → Resend REST**; лимит **3 / email / час**. Не основной логин.  
 Бизнес: [email-authentication.md](email-authentication.md)  
 Техника: [../supabase/SPEC_EMAIL_AUTH.md](../supabase/SPEC_EMAIL_AUTH.md)
 

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { BookingHubView } from "@/features/booking/components/booking-hub-view";
+import { BookingEntryRedirect } from "@/features/booking/components/booking-entry-redirect";
 import { getCurrentProfile } from "@/features/profile/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 
@@ -8,13 +8,12 @@ export default async function BookingSettingsPage() {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  const user = session?.user ?? null;
-  if (!user) redirect("/auth");
+  if (!session?.user) redirect("/auth");
 
   const profile = await getCurrentProfile();
   if (!profile?.tagKeys.includes("booking")) {
-    redirect("/app/settings/booking/my");
+    redirect("/app/settings");
   }
 
-  return <BookingHubView />;
+  return <BookingEntryRedirect />;
 }

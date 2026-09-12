@@ -1,8 +1,8 @@
-import { AttendanceWorkplaceHubView } from "@/features/attendance/components/attendance-workplace-hub-view";
+import { AttendanceTodayView } from "@/features/attendance/components/attendance-today-view";
 
 type Props = { params: Promise<{ id: string }> };
 
 export default async function AttendanceWorkplacePage({ params }: Props) {
   const { id } = await params;
-  return <AttendanceWorkplaceHubView workplaceId={id} />;
+  return <AttendanceTodayView workplaceId={id} />;
 }

@@ -1,10 +1,8 @@
-import { ServiceEditView } from "@/features/booking/components/service-edit-view";
+import { BookingLegacyRedirect } from "@/features/booking/components/booking-legacy-redirect";
 
-export default async function BookingServiceEditPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+type Props = { params: Promise<{ id: string }> };
+
+export default async function LegacyBookingServiceEditPage({ params }: Props) {
   const { id } = await params;
-  return <ServiceEditView mode="edit" serviceId={id} />;
+  return <BookingLegacyRedirect suffix={`/services/${id}`} />;
 }

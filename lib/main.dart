@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:clover/core/auth/cubit/auth_cubit.dart';
+import 'package:clover/core/config/mapbox.dart';
 import 'package:clover/core/config/sentry.dart';
 import 'package:clover/core/config/supabase.dart';
 import 'package:clover/core/debug/app_log.dart';
@@ -22,6 +23,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:talker_flutter/talker_flutter.dart';
@@ -29,22 +31,19 @@ import 'package:talker_flutter/talker_flutter.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = SentryConfig.resolvedDsn;
-      options.environment = kReleaseMode ? 'production' : 'debug';
-      // Прод: не 100% трейсов — экономим квоту free-тира.
-      options.tracesSampleRate = kReleaseMode ? 0.2 : 1.0;
-      options.sendDefaultPii = false;
-    },
-    appRunner: _bootstrapAndRun,
-  );
-}
-
-Future<void> _bootstrapAndRun() async {
+  // Одна зона для ensureInitialized + runApp (иначе Zone mismatch с Sentry appRunner).
   await runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      MapboxOptions.setAccessToken(MapboxConfig.accessToken);
+
+      await SentryFlutter.init((options) {
+        options.dsn = SentryConfig.resolvedDsn;
+        options.environment = kReleaseMode ? 'production' : 'debug';
+        // Прод: не 100% трейсов — экономим квоту free-тира.
+        options.tracesSampleRate = kReleaseMode ? 0.2 : 1.0;
+        options.sendDefaultPii = false;
+      });
 
       FlutterError.onError = (details) {
         if (AppShakeLoggerConfig.enabled) {

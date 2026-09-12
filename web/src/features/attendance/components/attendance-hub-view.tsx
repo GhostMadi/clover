@@ -1,8 +1,9 @@
 "use client";
 
-import { Building2, ChevronRight, FolderPlus, Plus } from "lucide-react";
+import { Building2, ChevronRight, FolderPlus, LayoutGrid, Plus } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppButton } from "@/components/shared/app-button";
 import { AttendanceNameModal } from "@/features/attendance/components/attendance-name-modal";
 import { AttendanceListShimmer } from "@/features/attendance/components/attendance-shimmers";
@@ -16,9 +17,15 @@ import type {
   AttendanceFolder,
   AttendanceWorkplace,
 } from "@/features/attendance/lib/attendance-model";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
+import {
+  readAttendanceHubFullCache,
+  writeAttendanceHubFullCache,
+  writeLastAttendanceWorkplaceId,
+} from "@/features/attendance/lib/attendance-prefs";
+import { ServiceWorkspaceShell } from "@/features/shared/components/service-workspace-shell";
 import { createClient } from "@/lib/supabase/client";
 import { serviceTileIcon } from "@/lib/service-accent";
+import { getSessionUserId } from "@/lib/run-service-swr";
 
 type HubState =
   | { status: "loading" }
@@ -32,18 +39,40 @@ type HubState =
         };
 
 export function AttendanceHubView() {
+  const router = useRouter();
   const [hasAttendanceTag, setHasAttendanceTag] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [hub, setHub] = useState<HubState>({ status: "loading" });
   const [createOpen, setCreateOpen] = useState(false);
   const [folderOpen, setFolderOpen] = useState(false);
   const [createFolderId, setCreateFolderId] = useState<string | null>(null);
 
-  const reload = useCallback(async () => {
-    setHub({ status: "loading" });
-    try {
-      const data = await loadAttendanceAdminHub();
+  const applyHub = useCallback(
+    (data: {
+      folders: AttendanceFolder[];
+      adminWorkplaces: AttendanceWorkplace[];
+      isWorkerOnly: boolean;
+      hasWorkerMembership: boolean;
+    }) => {
       setHub({
         status: "ready",
+        folders: data.folders,
+        adminWorkplaces: data.adminWorkplaces,
+        isWorkerOnly: data.isWorkerOnly,
+        hasWorkerMembership: data.hasWorkerMembership,
+      });
+    },
+    [],
+  );
+
+  const reload = useCallback(async (opts?: { soft?: boolean }) => {
+    if (!opts?.soft) setHub({ status: "loading" });
+    try {
+      const data = await loadAttendanceAdminHub();
+      applyHub(data);
+      const uid = await getSessionUserId();
+      setUserId(uid);
+      writeAttendanceHubFullCache(uid, {
         folders: data.folders,
         adminWorkplaces: data.adminWorkplaces,
         isWorkerOnly: data.isWorkerOnly,
@@ -55,7 +84,7 @@ export function AttendanceHubView() {
         message: e instanceof Error ? e.message : "Не удалось загрузить",
       });
     }
-  }, []);
+  }, [applyHub]);
 
   useEffect(() => {
     void createClient()
@@ -73,8 +102,18 @@ export function AttendanceHubView() {
         });
         setHasAttendanceTag(Boolean(hasTag));
       });
-    void reload();
-  }, [reload]);
+    void (async () => {
+      const uid = await getSessionUserId();
+      setUserId(uid);
+      const cached = readAttendanceHubFullCache(uid);
+      if (cached) {
+        applyHub(cached);
+        await reload({ soft: true });
+      } else {
+        await reload();
+      }
+    })();
+  }, [applyHub, reload]);
 
   const grouped = useMemo(() => {
     if (hub.status !== "ready") return null;
@@ -99,9 +138,20 @@ export function AttendanceHubView() {
     hub.folders.length === 0;
 
   return (
-    <SettingsShell
-      title="Посещаемость"
+    <ServiceWorkspaceShell
       service="attendance"
+      brandTitle="Посещаемость"
+      title="Компании"
+      hubPath="/app/settings/attendance/companies"
+      hubBackHref="/app/settings"
+      nav={[
+        {
+          href: "/app/settings/attendance/companies",
+          label: "Компании",
+          match: (p) => p.startsWith("/app/settings/attendance/companies"),
+          Icon: LayoutGrid,
+        },
+      ]}
       trailing={
         <button
           type="button"
@@ -117,7 +167,7 @@ export function AttendanceHubView() {
         </button>
       }
     >
-      <div className="space-y-6 px-4 py-5">
+      <div className="space-y-6">
         {hub.status === "loading" ? (
           <AttendanceListShimmer />
         ) : hub.status === "error" ? (
@@ -224,6 +274,7 @@ export function AttendanceHubView() {
                           items={items}
                           folders={grouped.folders}
                           onMoved={() => void reload()}
+                          userId={userId}
                         />
                       )}
                     </div>
@@ -238,6 +289,7 @@ export function AttendanceHubView() {
                     items={grouped?.byFolder.get(null) ?? []}
                     folders={grouped?.folders ?? []}
                     onMoved={() => void reload()}
+                    userId={userId}
                   />
                 </div>
               </section>
@@ -257,8 +309,10 @@ export function AttendanceHubView() {
           if (!hasAttendanceTag) {
             throw new Error("Включите тег «Веду посещаемость» в профиле");
           }
-          await createWorkplace({ name, folderId: createFolderId });
+          const id = await createWorkplace({ name, folderId: createFolderId });
+          writeLastAttendanceWorkplaceId(userId, id);
           await reload();
+          router.push(`/app/settings/attendance/w/${id}`);
         }}
       />
       <AttendanceNameModal
@@ -272,7 +326,7 @@ export function AttendanceHubView() {
           await reload();
         }}
       />
-    </SettingsShell>
+    </ServiceWorkspaceShell>
   );
 }
 
@@ -280,10 +334,12 @@ function WorkplaceList({
   items,
   folders,
   onMoved,
+  userId,
 }: {
   items: AttendanceWorkplace[];
   folders: AttendanceFolder[];
   onMoved: () => void;
+  userId: string | null;
 }) {
   if (items.length === 0) return null;
   return (
@@ -293,6 +349,7 @@ function WorkplaceList({
           <div className="flex items-stretch">
             <Link
               href={`/app/settings/attendance/w/${w.id}`}
+              onClick={() => writeLastAttendanceWorkplaceId(userId, w.id)}
               className="flex min-w-0 flex-1 items-center gap-3 px-3.5 py-3.5 transition hover:bg-svc-attendance/40"
             >
               <span className={serviceTileIcon("attendance")}>

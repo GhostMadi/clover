@@ -1,5 +1,5 @@
-import { ScheduleSettingsView } from "@/features/booking/components/schedule-settings-view";
+import { BookingLegacyRedirect } from "@/features/booking/components/booking-legacy-redirect";
 
-export default function BookingSchedulePage() {
-  return <ScheduleSettingsView />;
+export default function LegacyBookingSchedulePage() {
+  return <BookingLegacyRedirect suffix="/settings/schedule" />;
 }

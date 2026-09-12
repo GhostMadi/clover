@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AppButton } from "@/components/shared/app-button";
 import { BookingFormShimmer } from "@/features/booking/components/booking-shimmers";
 import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
+import { bookingPointBase } from "@/features/booking/lib/booking-prefs";
 import {
   createService,
   getMyService,
@@ -14,7 +15,7 @@ import {
 import { listMyStaff } from "@/features/booking/lib/staff-api";
 import type { BookingStaff } from "@/features/booking/lib/booking-model";
 
-type Props = { mode: "new" | "edit"; serviceId?: string };
+type Props = { pointId: string; mode: "new" | "edit"; serviceId?: string };
 
 const emptyDraft = (): ServiceDraft => ({
   title: "",
@@ -30,7 +31,7 @@ const emptyDraft = (): ServiceDraft => ({
   staffIds: [],
 });
 
-export function ServiceEditView({ mode, serviceId }: Props) {
+export function ServiceEditView({ pointId, mode, serviceId }: Props) {
   const router = useRouter();
   const [draft, setDraft] = useState<ServiceDraft>(emptyDraft);
   const [staff, setStaff] = useState<BookingStaff[]>([]);
@@ -97,9 +98,9 @@ export function ServiceEditView({ mode, serviceId }: Props) {
     setSaving(true);
     setError(null);
     try {
-      if (mode === "new") await createService(draft);
+      if (mode === "new") await createService(draft, pointId);
       else if (serviceId) await updateService(serviceId, draft);
-      router.push("/app/settings/booking/services");
+      router.push(`${bookingPointBase(pointId)}/services`);
       router.refresh();
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Не удалось сохранить");
@@ -109,142 +110,181 @@ export function ServiceEditView({ mode, serviceId }: Props) {
 
   return (
     <BookingWorkspaceShell
+      pointId={pointId}
       title={mode === "new" ? "Новая услуга" : "Услуга"}
-      backHref="/app/settings/booking/services"
+      backHref={`${bookingPointBase(pointId)}/services`}
     >
-      <div className="mx-auto max-w-2xl space-y-4">
+      <div className="mx-auto max-w-5xl space-y-4">
         {loading ? (
           <BookingFormShimmer />
         ) : (
-          <>
-            <Field label="Название">
-              <input
-                value={draft.title}
-                onChange={(e) => set("title", e.target.value)}
-                className={inputCls}
-              />
-            </Field>
-            <Field label="Emoji">
-              <input
-                value={draft.emojiText}
-                onChange={(e) => set("emojiText", e.target.value.slice(0, 8))}
-                className={inputCls}
-              />
-            </Field>
-            <Field label="Описание">
-              <textarea
-                value={draft.description}
-                onChange={(e) => set("description", e.target.value)}
-                rows={3}
-                className={`${inputCls} h-auto py-3`}
-              />
-            </Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Длительность, мин">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
+            <div className="space-y-4">
+              <Field label="Название">
                 <input
-                  type="number"
-                  min={5}
-                  value={draft.durationMinutes}
-                  onChange={(e) => set("durationMinutes", Number(e.target.value) || 0)}
+                  value={draft.title}
+                  onChange={(e) => set("title", e.target.value)}
                   className={inputCls}
                 />
               </Field>
-              <Field label="Буфер после, мин">
-                <input
-                  type="number"
-                  min={0}
-                  value={draft.bufferAfterMinutes}
-                  onChange={(e) => set("bufferAfterMinutes", Number(e.target.value) || 0)}
-                  className={inputCls}
-                />
-              </Field>
-              <Field label="Цена, ₸">
-                <input
-                  type="number"
-                  min={0}
-                  value={draft.price}
-                  onChange={(e) => set("price", Number(e.target.value) || 0)}
-                  className={inputCls}
-                />
-              </Field>
-              <Field label="Участников max">
-                <input
-                  type="number"
-                  min={1}
-                  value={draft.maxParticipants}
-                  onChange={(e) => set("maxParticipants", Number(e.target.value) || 1)}
-                  className={inputCls}
-                />
-              </Field>
-              <Field label="Бонусы % оплаты">
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={draft.bonusPayPercent}
-                  onChange={(e) => set("bonusPayPercent", Number(e.target.value) || 0)}
-                  className={inputCls}
-                />
-              </Field>
-              <Field label="Начисление бонусов">
-                <input
-                  type="number"
-                  min={0}
-                  value={draft.bonusEarnAmount}
-                  onChange={(e) => set("bonusEarnAmount", Number(e.target.value) || 0)}
-                  className={inputCls}
-                />
-              </Field>
+              <div className="grid gap-3 sm:grid-cols-[120px_1fr]">
+                <Field label="Emoji">
+                  <input
+                    value={draft.emojiText}
+                    onChange={(e) => set("emojiText", e.target.value.slice(0, 8))}
+                    className={inputCls}
+                  />
+                </Field>
+                <Field label="Описание">
+                  <textarea
+                    value={draft.description}
+                    onChange={(e) => set("description", e.target.value)}
+                    rows={3}
+                    className={`${inputCls} h-auto py-3`}
+                  />
+                </Field>
+              </div>
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+                <Field label="Длительность, мин">
+                  <input
+                    type="number"
+                    min={5}
+                    value={draft.durationMinutes}
+                    onChange={(e) => set("durationMinutes", Number(e.target.value) || 0)}
+                    className={inputCls}
+                  />
+                </Field>
+                <Field label="Буфер после, мин">
+                  <input
+                    type="number"
+                    min={0}
+                    value={draft.bufferAfterMinutes}
+                    onChange={(e) =>
+                      set("bufferAfterMinutes", Number(e.target.value) || 0)
+                    }
+                    className={inputCls}
+                  />
+                </Field>
+                <Field label="Цена, ₸">
+                  <input
+                    type="number"
+                    min={0}
+                    value={draft.price}
+                    onChange={(e) => set("price", Number(e.target.value) || 0)}
+                    className={inputCls}
+                  />
+                </Field>
+                <Field label="Участников max">
+                  <input
+                    type="number"
+                    min={1}
+                    value={draft.maxParticipants}
+                    onChange={(e) => set("maxParticipants", Number(e.target.value) || 1)}
+                    className={inputCls}
+                  />
+                </Field>
+                <Field label="Бонусы % оплаты">
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={draft.bonusPayPercent}
+                    onChange={(e) => set("bonusPayPercent", Number(e.target.value) || 0)}
+                    className={inputCls}
+                  />
+                </Field>
+                <Field label="Начисление бонусов">
+                  <input
+                    type="number"
+                    min={0}
+                    value={draft.bonusEarnAmount}
+                    onChange={(e) => set("bonusEarnAmount", Number(e.target.value) || 0)}
+                    className={inputCls}
+                  />
+                </Field>
+              </div>
+
+              <div>
+                <p className="mb-2 text-[12px] font-bold uppercase tracking-wide text-muted">
+                  Мастера
+                </p>
+                {staff.length === 0 ? (
+                  <p className="text-sm text-muted">
+                    Сначала добавьте мастера на экране списка услуг.
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {staff.map((s) => {
+                      const on = draft.staffIds.includes(s.id);
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => toggleStaff(s.id)}
+                          className={`rounded-full px-3 py-1.5 text-[13px] font-semibold ${
+                            on
+                              ? "bg-svc-booking-ink text-on-media"
+                              : "border border-line bg-surface"
+                          }`}
+                        >
+                          {s.displayName}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {mode === "edit" ? (
+                <label className="flex items-center justify-between rounded-[14px] border border-line bg-surface px-3.5 py-3">
+                  <span className="text-[14px] font-semibold text-ink">Активна</span>
+                  <input
+                    type="checkbox"
+                    checked={draft.isActive}
+                    onChange={(e) => set("isActive", e.target.checked)}
+                  />
+                </label>
+              ) : null}
+
+              {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
+              <AppButton service="booking" loading={saving} onClick={() => void save()}>
+                Сохранить
+              </AppButton>
             </div>
 
-            <div>
-              <p className="mb-2 text-[12px] font-bold uppercase tracking-wide text-muted">
-                Мастера
+            <aside className="rounded-[16px] border border-line bg-surface p-4 lg:sticky lg:top-4">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-muted">
+                Превью
               </p>
-              {staff.length === 0 ? (
-                <p className="text-sm text-muted">
-                  Сначала добавьте мастера на экране списка услуг.
+              <p className="mt-3 text-[22px] font-bold text-ink">
+                {draft.emojiText || "✂️"} {draft.title.trim() || "Без названия"}
+              </p>
+              {(draft.description ?? "").trim() ? (
+                <p className="mt-2 whitespace-pre-wrap text-[13px] text-muted">
+                  {draft.description}
                 </p>
               ) : (
-                <div className="flex flex-wrap gap-2">
-                  {staff.map((s) => {
-                    const on = draft.staffIds.includes(s.id);
-                    return (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => toggleStaff(s.id)}
-                        className={`rounded-full px-3 py-1.5 text-[13px] font-semibold ${
-                          on
-                            ? "bg-svc-booking-ink text-on-media"
-                            : "border border-line bg-surface"
-                        }`}
-                      >
-                        {s.displayName}
-                      </button>
-                    );
-                  })}
-                </div>
+                <p className="mt-2 text-[13px] text-muted">Описание появится здесь</p>
               )}
-            </div>
-
-            {mode === "edit" ? (
-              <label className="flex items-center justify-between rounded-[14px] border border-line bg-surface px-3.5 py-3">
-                <span className="text-[14px] font-semibold text-ink">Активна</span>
-                <input
-                  type="checkbox"
-                  checked={draft.isActive}
-                  onChange={(e) => set("isActive", e.target.checked)}
-                />
-              </label>
-            ) : null}
-
-            {error ? <p className="text-sm text-destructive">{error}</p> : null}
-
-            <AppButton service="booking" loading={saving} onClick={() => void save()}>
-              Сохранить
-            </AppButton>
-          </>
+              <dl className="mt-4 space-y-2 text-[13px]">
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted">Длительность</dt>
+                  <dd className="font-semibold text-ink">{draft.durationMinutes} мин</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted">Цена</dt>
+                  <dd className="font-semibold text-ink">
+                    {draft.price.toLocaleString("ru-RU")} ₸
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted">Мастера</dt>
+                  <dd className="font-semibold text-ink">{draft.staffIds.length}</dd>
+                </div>
+              </dl>
+            </aside>
+          </div>
         )}
       </div>
     </BookingWorkspaceShell>

@@ -35,15 +35,18 @@ Unique: `(user_id, token)`.
 
 ### Queue
 
-`attendance_notify` (и другие продюсеры) пишут in-app `notifications` **и** строку в **`push_outbox`**.
+`attendance_notify` / `booking_enqueue_push` / chat broadcast пишут in-app `notifications` **и** строку в **`push_outbox`**.
 
 | Column | Purpose |
 |--------|---------|
 | `user_id` | Recipient |
-| `kind` / `title` / `body` | Push notification |
-| `payload` | jsonb → FCM `data` (string values) |
+| `kind` | EN event key (`booking_created_host`, `attendance_invite`, `chat_message`, …) |
+| `title` / `body` | **EN keys** (not locale). Drain localizes for FCM tray. |
+| `payload` | Dynamic fields (`service_title`, `workplace_name`, `starts_at`, …) → FCM `data` |
 | `sent_at` | null = pending |
 | `attempts` / `last_error` | retry / diagnostics |
+
+Миграция EN keys: `20260912080000_push_outbox_booking_attendance_en_keys.sql` (+ chat preview earlier).
 
 Клиент **не** читает/пишет `push_outbox` (только service_role).
 

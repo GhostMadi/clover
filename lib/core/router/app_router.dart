@@ -27,6 +27,7 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: SettingsResourcesRoute.page),
         AutoRoute(page: SettingsResourcesGuideRoute.page),
         AutoRoute(page: SettingsBookingRoute.page),
+        AutoRoute(page: BookingPointHubRoute.page),
         AutoRoute(page: SettingsAttendanceRoute.page),
         AutoRoute(page: SettingsFiltersRoute.page),
         AutoRoute(page: BookingListRoute.page),

@@ -62,12 +62,14 @@ class BookingAnalyticsRepository {
     required DateTime start,
     required DateTime end,
     String? staffId,
+    String? pointId,
   }) async {
     return _guard(() async {
       final res = await _client.rpc('get_booking_analytics', params: {
         'p_from': _dateKey(start),
         'p_to': _dateKey(end),
         'p_staff_id': staffId,
+        if (pointId != null && pointId.trim().isNotEmpty) 'p_point_id': pointId.trim(),
       });
 
       if (res is! Map) {

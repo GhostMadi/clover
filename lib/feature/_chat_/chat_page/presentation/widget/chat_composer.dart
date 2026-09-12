@@ -84,7 +84,9 @@ class _ChatComposerState extends State<ChatComposer> {
         ChatComposer._horizontalMargin,
         4,
         ChatComposer._horizontalMargin,
-        bottomInset > 0 ? 6 : ChatComposer._bottomMargin + bottomSafe,
+        bottomInset > 0
+            ? bottomInset + 6
+            : ChatComposer._bottomMargin + bottomSafe,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,

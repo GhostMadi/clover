@@ -65,7 +65,7 @@ abstract final class AttendancePayrollCalc {
         .where((a) => a.workplaceId == workplace.id && a.workerId == worker.id)
         .toList();
     final hasFormalAbsence = formalAbsences.isNotEmpty;
-    final absenceKinds = formalAbsences.map((a) => a.kind.labelRu).toSet().join(', ');
+    final absenceKinds = formalAbsences.map((a) => a.kind.key).toSet().join(',');
 
     final analytics = AttendanceAnalytics.worker(
       snapshot: snapshot,
@@ -97,40 +97,45 @@ abstract final class AttendancePayrollCalc {
 
     final lines = <AttendancePayrollLineItem>[
       if (rules.lateDeductsPay && lateMinutesTotal > 0)
-        AttendancePayrollLineItem(
-          label: 'Опоздания',
-          detail: '${rules.lateDeductPerMinute} ₸ × $lateMinutesTotal мин · $lateDays дн.',
-          amount: rules.lateDeductPerMinute * lateMinutesTotal,
-          kind: AttendancePayrollLineKind.deduction,
-        ),
+        AttendancePayrollLineItem.fromJson({
+          'label': 'late',
+          'detail': '${rules.lateDeductPerMinute}|$lateMinutesTotal|$lateDays',
+          'amount': -(rules.lateDeductPerMinute * lateMinutesTotal),
+          'kind': 'deduction',
+        }),
       if (rules.absenceDeductsPay && absentDays > 0)
-        AttendancePayrollLineItem(
-          label: 'Пропуск смены',
-          detail: '${rules.absenceDeductPerDay} ₸ × $absentDays дн.',
-          amount: rules.absenceDeductPerDay * absentDays,
-          kind: AttendancePayrollLineKind.deduction,
-        ),
+        AttendancePayrollLineItem.fromJson({
+          'label': 'missed_shift',
+          'detail': '${rules.absenceDeductPerDay}|$absentDays',
+          'amount': -(rules.absenceDeductPerDay * absentDays),
+          'kind': 'deduction',
+        }),
       if (hasFormalAbsence)
-        AttendancePayrollLineItem(
-          label: 'Отсутствие оформлено',
-          detail: '$absenceKinds — не штраф за пропуск',
-          amount: 0,
-          kind: AttendancePayrollLineKind.base,
-        ),
+        AttendancePayrollLineItem.fromJson({
+          'label': 'absence_recorded',
+          'detail': absenceKinds,
+          'amount': 0,
+          'kind': 'base',
+        }),
       if (rules.partialDayDeductsPay && partialDays > 0)
-        AttendancePayrollLineItem(
-          label: 'Неполный день',
-          detail: '${rules.partialDayDeductPercent}% от дневной ставки · $partialDays',
-          amount: (baseSalary ~/ 22 * rules.partialDayDeductPercent / 100 * partialDays).round(),
-          kind: AttendancePayrollLineKind.deduction,
-        ),
+        AttendancePayrollLineItem.fromJson({
+          'label': 'partial_day',
+          'detail': '${rules.partialDayDeductPercent}|$partialDays',
+          'amount': -(baseSalary ~/
+                  22 *
+                  rules.partialDayDeductPercent /
+                  100 *
+                  partialDays)
+              .round(),
+          'kind': 'deduction',
+        }),
       if (rules.overtimeAddsPay && otHours > 0)
-        AttendancePayrollLineItem(
-          label: 'Переработка (утверждено)',
-          detail: '${rules.overtimeBonusPerHour} ₸ × $otHours ч',
-          amount: rules.overtimeBonusPerHour * otHours,
-          kind: AttendancePayrollLineKind.bonus,
-        ),
+        AttendancePayrollLineItem.fromJson({
+          'label': 'overtime_approved',
+          'detail': '${rules.overtimeBonusPerHour}|$otHours',
+          'amount': rules.overtimeBonusPerHour * otHours,
+          'kind': 'bonus',
+        }),
     ];
 
     return AttendanceWorkerPayroll(

@@ -19,11 +19,12 @@ class BookingAnalyticsCubit extends Cubit<BookingAnalyticsState> {
     required DateTime start,
     required DateTime end,
     String? staffId,
+    String? pointId,
   }) async {
     emit(BookingAnalyticsState.loading(start: start, end: end, staffId: staffId));
     try {
       final results = await Future.wait([
-        _repository.load(start: start, end: end, staffId: staffId),
+        _repository.load(start: start, end: end, staffId: staffId, pointId: pointId),
         _staffRepository.listMyStaff(),
       ]);
       if (isClosed) return;

@@ -3,6 +3,7 @@
 import {
   Bell,
   Building2,
+  CalendarDays,
   ExternalLink,
   FolderPlus,
   House,
@@ -19,9 +20,15 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   CHAT_UNREAD_CHANGED,
+  bindChatInboxRealtime,
   countUnreadChatMessages,
 } from "@/features/chat/lib/chat-unread";
 import { countUnreadNotifications } from "@/features/notifications/lib/notifications-api";
+import { readLastAttendanceWorkplaceId } from "@/features/attendance/lib/attendance-prefs";
+import {
+  bookingPointBase,
+  readLastBookingPointId,
+} from "@/features/booking/lib/booking-prefs";
 import { createClient } from "@/lib/supabase/client";
 import { SITE } from "@/lib/site";
 
@@ -68,7 +75,10 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
   const [chatUnread, setChatUnread] = useState(0);
   const [userId, setUserId] = useState<string | null>(null);
   const [resourcesShortcut, setResourcesShortcut] = useState(false);
+  const [bookingShortcut, setBookingShortcut] = useState(false);
+  const [bookingHref, setBookingHref] = useState("/app/settings/booking");
   const [attendanceShortcut, setAttendanceShortcut] = useState(false);
+  const [attendanceHref, setAttendanceHref] = useState("/app/settings/attendance");
   const [addOpen, setAddOpen] = useState(false);
   const mapFullBleed = pathname.startsWith("/app/map");
   const feedFullBleed =
@@ -114,8 +124,17 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
     router.prefetch("/app/settings/booking/inbox");
     router.prefetch("/app/settings/booking");
     router.prefetch("/app/settings/attendance");
+    router.prefetch("/app/settings/attendance/companies");
     router.prefetch("/app/attendance");
   }, [router]);
+
+  useEffect(() => {
+    if (!userId) return;
+    const last = readLastAttendanceWorkplaceId(userId);
+    if (last) {
+      router.prefetch(`/app/settings/attendance/w/${last}`);
+    }
+  }, [router, userId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -127,14 +146,19 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
         setUserId(id);
         if (!id) {
           setResourcesShortcut(false);
+          setBookingShortcut(false);
           setAttendanceShortcut(false);
           return;
         }
         const supabase = createClient();
-        const [resourcesRes, attendanceRes] = await Promise.all([
+        const [resourcesRes, bookingRes, attendanceRes] = await Promise.all([
           supabase.rpc("profile_has_marker_tag", {
             p_profile_id: id,
             p_tag_key: "resources",
+          }),
+          supabase.rpc("profile_has_marker_tag", {
+            p_profile_id: id,
+            p_tag_key: "booking",
           }),
           supabase.rpc("profile_has_marker_tag", {
             p_profile_id: id,
@@ -143,7 +167,20 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
         ]);
         if (!cancelled) {
           setResourcesShortcut(Boolean(resourcesRes.data));
+          setBookingShortcut(Boolean(bookingRes.data));
           setAttendanceShortcut(Boolean(attendanceRes.data));
+          const lastBooking = readLastBookingPointId(id);
+          setBookingHref(
+            lastBooking
+              ? `${bookingPointBase(lastBooking)}/inbox`
+              : "/app/settings/booking",
+          );
+          const last = readLastAttendanceWorkplaceId(id);
+          setAttendanceHref(
+            last
+              ? `/app/settings/attendance/w/${last}`
+              : "/app/settings/attendance",
+          );
         }
       });
     return () => {
@@ -157,10 +194,14 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
       if (!userId) return;
       void (async () => {
         const supabase = createClient();
-        const [resourcesRes, attendanceRes] = await Promise.all([
+        const [resourcesRes, bookingRes, attendanceRes] = await Promise.all([
           supabase.rpc("profile_has_marker_tag", {
             p_profile_id: userId,
             p_tag_key: "resources",
+          }),
+          supabase.rpc("profile_has_marker_tag", {
+            p_profile_id: userId,
+            p_tag_key: "booking",
           }),
           supabase.rpc("profile_has_marker_tag", {
             p_profile_id: userId,
@@ -169,7 +210,20 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
         ]);
         if (!cancelled) {
           setResourcesShortcut(Boolean(resourcesRes.data));
+          setBookingShortcut(Boolean(bookingRes.data));
           setAttendanceShortcut(Boolean(attendanceRes.data));
+          const lastBooking = readLastBookingPointId(userId);
+          setBookingHref(
+            lastBooking
+              ? `${bookingPointBase(lastBooking)}/inbox`
+              : "/app/settings/booking",
+          );
+          const last = readLastAttendanceWorkplaceId(userId);
+          setAttendanceHref(
+            last
+              ? `/app/settings/attendance/w/${last}`
+              : "/app/settings/attendance",
+          );
         }
       })();
     };
@@ -200,6 +254,10 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   useEffect(() => {
+    return bindChatInboxRealtime();
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     const refreshChatUnread = () => {
       void countUnreadChatMessages().then((n) => {
@@ -214,7 +272,8 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
     window.addEventListener(CHAT_UNREAD_CHANGED, onUnread);
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("focus", onUnread);
-    const poll = window.setInterval(refreshChatUnread, 45_000);
+    // Backup if realtime drops; primary path is chat_inbox_* broadcast.
+    const poll = window.setInterval(refreshChatUnread, 120_000);
     return () => {
       cancelled = true;
       window.removeEventListener(CHAT_UNREAD_CHANGED, onUnread);
@@ -323,9 +382,34 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
             </Link>
           ) : null}
 
+          {bookingShortcut ? (
+            <Link
+              href={bookingHref}
+              prefetch
+              title="Запись"
+              className={`mt-1 flex h-12 items-center gap-4 overflow-hidden rounded-[14px] px-3 transition ${
+                bookingActive
+                  ? "bg-svc-booking text-svc-booking-ink"
+                  : "text-svc-booking-ink hover:bg-svc-booking/70"
+              }`}
+            >
+              <CalendarDays
+                className="h-[26px] w-[26px] shrink-0"
+                strokeWidth={bookingActive ? 2.25 : 1.75}
+              />
+              <span
+                className={`truncate text-[15px] opacity-0 transition-opacity duration-200 group-hover/rail:opacity-100 ${
+                  bookingActive ? "font-bold" : "font-semibold"
+                }`}
+              >
+                Запись
+              </span>
+            </Link>
+          ) : null}
+
           {attendanceShortcut ? (
             <Link
-              href="/app/settings/attendance"
+              href={attendanceHref}
               prefetch
               title="Посещаемость"
               className={`mt-1 flex h-12 items-center gap-4 overflow-hidden rounded-[14px] px-3 transition ${
@@ -446,11 +530,12 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
       </main>
 
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:hidden">
-        {onOwnProfile && (resourcesShortcut || attendanceShortcut) ? (
+        {onOwnProfile &&
+        (resourcesShortcut || bookingShortcut || attendanceShortcut) ? (
           <div className="mb-2 flex flex-col items-end gap-2">
             {attendanceShortcut ? (
               <Link
-                href="/app/settings/attendance"
+                href={attendanceHref}
                 prefetch
                 title="Посещаемость"
                 className={`pointer-events-auto inline-flex h-11 items-center gap-2 rounded-[14px] px-3.5 text-[13px] font-bold shadow-elevate-sm ${
@@ -461,6 +546,21 @@ export function CabinetShell({ children }: { children: React.ReactNode }) {
               >
                 <Building2 className="h-4 w-4" strokeWidth={2} />
                 Посещаемость
+              </Link>
+            ) : null}
+            {bookingShortcut ? (
+              <Link
+                href={bookingHref}
+                prefetch
+                title="Запись"
+                className={`pointer-events-auto inline-flex h-11 items-center gap-2 rounded-[14px] px-3.5 text-[13px] font-bold shadow-elevate-sm ${
+                  bookingActive
+                    ? "bg-svc-booking-ink text-on-media"
+                    : "bg-svc-booking text-svc-booking-ink"
+                }`}
+              >
+                <CalendarDays className="h-4 w-4" strokeWidth={2} />
+                Запись
               </Link>
             ) : null}
             {resourcesShortcut ? (

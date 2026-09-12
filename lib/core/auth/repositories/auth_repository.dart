@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io' show Platform;
+
 import 'package:clover/core/auth/errors/auth_error_code.dart';
 import 'package:clover/core/auth/errors/auth_error_mapper.dart';
 import 'package:clover/core/auth/errors/auth_failure.dart';
@@ -27,7 +30,8 @@ class AuthRepository {
   final AppPushMessagingService _pushMessaging;
 
   static const minPasswordLength = 8;
-  static const otpResendCooldownSeconds = 400;
+  /// Max OTP emails per address per rolling hour (server: Auth Send Email Hook).
+  static const otpMaxPerHour = 3;
 
   Future<bool> isAuthenticated() async {
     return ensureValidSession();
@@ -127,6 +131,7 @@ class AuthRepository {
     }
 
     await _persistSession(user);
+    await _reportAccountLogin();
     return UserModel.fromSupabaseUser(user);
   }
 
@@ -156,6 +161,7 @@ class AuthRepository {
       await _persistSession(user);
       await _ensurePasswordSetMetadata(user);
       await _cacheHasPassword(user.id);
+      await _reportAccountLogin();
       return UserModel.fromSupabaseUser(user);
     } on AuthException catch (error) {
       throw AuthFailure(AuthErrorMapper.resolve(error));
@@ -223,15 +229,16 @@ class AuthRepository {
       throw const AuthFailure(AuthErrorCode.emailAlreadyRegistered);
     }
 
-    await _claimEmailOtpSend(trimmed);
+    await _assertEmailOtpAllowed(trimmed);
 
     try {
       await _supabase.auth.signInWithOtp(
         email: trimmed,
         shouldCreateUser: true,
       );
+      await _refreshLocalOtpCooldown(trimmed);
     } on AuthException catch (error) {
-      throw AuthFailure(AuthErrorMapper.resolve(error));
+      throw await _failureFromAuthException(error, email: trimmed);
     } catch (error) {
       if (error is AuthFailure) rethrow;
       throw AuthFailure(AuthErrorMapper.resolve(error));
@@ -284,15 +291,16 @@ class AuthRepository {
       throw const AuthFailure(AuthErrorCode.emailNotRegistered);
     }
 
-    await _claimEmailOtpSend(trimmed);
+    await _assertEmailOtpAllowed(trimmed);
 
     try {
       await _supabase.auth.signInWithOtp(
         email: trimmed,
         shouldCreateUser: false,
       );
+      await _refreshLocalOtpCooldown(trimmed);
     } on AuthException catch (error) {
-      throw AuthFailure(AuthErrorMapper.resolve(error));
+      throw await _failureFromAuthException(error, email: trimmed);
     } catch (error) {
       if (error is AuthFailure) rethrow;
       throw AuthFailure(AuthErrorMapper.resolve(error));
@@ -311,7 +319,7 @@ class AuthRepository {
         'auth_email_otp_retry_after',
         params: {
           'p_email': trimmed,
-          'p_cooldown_seconds': otpResendCooldownSeconds,
+          'p_max_per_hour': otpMaxPerHour,
         },
       );
       if (result is int) {
@@ -330,21 +338,42 @@ class AuthRepository {
     return left < 0 ? 0 : left;
   }
 
-  Future<void> _claimEmailOtpSend(String email) async {
-    final localLeft = await _localOtpRetryAfter(email);
-    if (localLeft > 0) {
+  /// Soft UX gate; real record happens in Auth Send Email Hook (`service_role`).
+  Future<void> _assertEmailOtpAllowed(String email) async {
+    final left = await emailOtpRetryAfterSeconds(email);
+    if (left > 0) {
       throw AuthFailure(
         AuthErrorCode.emailOtpRateLimited,
-        retryAfterSeconds: localLeft,
+        retryAfterSeconds: left,
       );
     }
+  }
 
+  Future<AuthFailure> _failureFromAuthException(
+    AuthException error, {
+    required String email,
+  }) async {
+    final code = AuthErrorMapper.resolve(error);
+    if (code != AuthErrorCode.emailOtpRateLimited) {
+      return AuthFailure(code);
+    }
+    await _refreshLocalOtpCooldown(email);
+    final fromMessage = AuthErrorMapper.retryAfterSecondsFromMessage(error.message);
+    final left = await emailOtpRetryAfterSeconds(email);
+    final wait = left > 0 ? left : (fromMessage ?? 0);
+    return AuthFailure(
+      AuthErrorCode.emailOtpRateLimited,
+      retryAfterSeconds: wait > 0 ? wait : null,
+    );
+  }
+
+  Future<void> _refreshLocalOtpCooldown(String email) async {
     try {
       final result = await _supabase.rpc(
-        'auth_claim_email_otp_send',
+        'auth_email_otp_retry_after',
         params: {
           'p_email': email,
-          'p_cooldown_seconds': otpResendCooldownSeconds,
+          'p_max_per_hour': otpMaxPerHour,
         },
       );
       final wait = result is int
@@ -352,44 +381,31 @@ class AuthRepository {
           : result is num
               ? result.toInt()
               : 0;
-      if (wait > 0) {
-        await _syncLocalOtpCooldown(email, remainingSeconds: wait);
-        throw AuthFailure(
-          AuthErrorCode.emailOtpRateLimited,
-          retryAfterSeconds: wait,
-        );
-      }
-      await _writeLocalOtpSentNow(email);
-    } on AuthFailure {
-      rethrow;
+      await _syncLocalOtpCooldown(email, remainingSeconds: wait < 0 ? 0 : wait);
     } catch (_) {
-      // RPC ещё не задеплоен / сеть: локальный кулдаун уже проверен выше.
-      await _writeLocalOtpSentNow(email);
+      // ignore — UI still works without local cache
     }
   }
 
   Future<int> _localOtpRetryAfter(String email) async {
-    final raw = await _storage.read<int>(key: AccountStorageKeys.otpCooldown(email));
-    if (raw == null) return 0;
-    final elapsedMs = DateTime.now().millisecondsSinceEpoch - raw;
-    final leftMs = otpResendCooldownSeconds * 1000 - elapsedMs;
+    final unlockAt = await _storage.read<int>(key: AccountStorageKeys.otpCooldown(email));
+    if (unlockAt == null || unlockAt <= 0) return 0;
+    final leftMs = unlockAt - DateTime.now().millisecondsSinceEpoch;
     if (leftMs <= 0) return 0;
     return (leftMs / 1000).ceil();
   }
 
-  Future<void> _writeLocalOtpSentNow(String email) async {
-    await _storage.write<int>(
-      key: AccountStorageKeys.otpCooldown(email),
-      value: DateTime.now().millisecondsSinceEpoch,
-    );
-  }
-
   Future<void> _syncLocalOtpCooldown(String email, {required int remainingSeconds}) async {
-    final sentAt = DateTime.now().millisecondsSinceEpoch -
-        ((otpResendCooldownSeconds - remainingSeconds) * 1000);
+    if (remainingSeconds <= 0) {
+      await _storage.write<int>(
+        key: AccountStorageKeys.otpCooldown(email),
+        value: 0,
+      );
+      return;
+    }
     await _storage.write<int>(
       key: AccountStorageKeys.otpCooldown(email),
-      value: sentAt < 0 ? 0 : sentAt,
+      value: DateTime.now().millisecondsSinceEpoch + remainingSeconds * 1000,
     );
   }
 
@@ -450,6 +466,7 @@ class AuthRepository {
       }
       await _persistSession(user);
       await _cacheHasPassword(user.id);
+      await _reportAccountLogin();
       return UserModel.fromSupabaseUser(user);
     } on AuthException catch (error) {
       throw AuthFailure(
@@ -477,6 +494,49 @@ class AuthRepository {
 
   Future<void> _persistSession(User user) async {
     await _storage.write<String>(key: AccountStorageKeys.authUserId, value: user.id);
+  }
+
+  /// Primary/guest journal; guest → account_login notify on other devices.
+  Future<void> _reportAccountLogin() async {
+    try {
+      final platform = Platform.isIOS
+          ? 'ios'
+          : Platform.isAndroid
+              ? 'android'
+              : 'unknown';
+      final sessionId = _sessionIdFromAccessToken(
+        _supabase.auth.currentSession?.accessToken,
+      );
+      await _supabase.rpc(
+        'report_account_login',
+        params: {
+          'p_client': 'mobile',
+          'p_platform': platform,
+          'p_device_label': null,
+          'p_session_id': sessionId,
+        },
+      );
+    } catch (_) {
+      // ignore — login already succeeded
+    }
+  }
+
+  static String? _sessionIdFromAccessToken(String? token) {
+    if (token == null || token.isEmpty) return null;
+    final parts = token.split('.');
+    if (parts.length < 2) return null;
+    try {
+      var payload = parts[1].replaceAll('-', '+').replaceAll('_', '/');
+      final rem = payload.length % 4;
+      if (rem > 0) payload += '=' * (4 - rem);
+      final map = jsonDecode(utf8.decode(base64.decode(payload)));
+      if (map is! Map) return null;
+      final id = map['session_id']?.toString().trim();
+      if (id == null || id.isEmpty) return null;
+      return id;
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Legacy password accounts: stamp metadata so register OTP stays blocked.

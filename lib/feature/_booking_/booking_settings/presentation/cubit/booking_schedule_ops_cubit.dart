@@ -10,10 +10,13 @@ class BookingScheduleOpsCubit extends Cubit<BookingScheduleOpsState> {
   final BookingOpsRepository _ops;
   List<BookingServiceExecutor> _executors = const [];
 
-  Future<void> bind(List<BookingServiceExecutor> executors) async {
+  Future<void> bind(List<BookingServiceExecutor> executors, {required String pointId}) async {
+    _pointId = pointId.trim();
     _executors = executors;
     await Future.wait([_loadBlocked(), _loadScheduleForFirst()]);
   }
+
+  String _pointId = '';
 
   Future<void> _loadBlocked() async {
     emit(state.copyWith(loadingBlocked: true));
@@ -23,6 +26,7 @@ class BookingScheduleOpsCubit extends Cubit<BookingScheduleOpsState> {
       final list = await _ops.listBlockedSlots(
         from: from,
         to: from.add(const Duration(days: 60)),
+        pointId: _pointId,
       );
       emit(state.copyWith(blocked: list, loadingBlocked: false));
     } catch (_) {
@@ -53,6 +57,7 @@ class BookingScheduleOpsCubit extends Cubit<BookingScheduleOpsState> {
     String? reason,
   }) async {
     await _ops.createBlockedSlot(
+      pointId: _pointId,
       staffId: staffId,
       startsAt: startsAt,
       endsAt: endsAt,

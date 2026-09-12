@@ -16,9 +16,12 @@
 
 ## RLS
 
-- **INSERT** — `anon` + `authenticated`
+- **INSERT** — `anon` + `authenticated`  
+- Rate-limit: max **5** заявок с одного `contact` за час (`20260912121000_support_requests_rate_limit.sql`)  
 - **SELECT / UPDATE / DELETE** — нет для клиентских ролей (Dashboard / service_role / будущая админка)
+
+**Сознательно позже:** админка на сайте.
 
 ## Migration
 
-`supabase/migrations/20260908120000_support_requests.sql`
+`supabase/migrations/20260908120000_support_requests.sql` · rate-limit `20260912121000_…`

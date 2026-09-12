@@ -10,7 +10,7 @@ alwaysApply: true
 ## Фронт — всегда так
 
 1. Процесс / UI-док: `docs/business/` и при необходимости `docs/code/ui/` — **сначала документация, потом код**
-2. Бэк + док: `docs/supabase/` + миграции в `supabase/migrations/`
+2. **Бэк:** строго по `clover-backend-feature` (точка входа) → `docs/supabase/` + `supabase/migrations/`
 3. Фича: `data/models` + `data/repository(ies)` (concrete) → cubit → page + widgets
 4. Ресурсы + shared: `context.colors` / `AppTextStyle` / `AppIcons`; переиспользуемые контролы в `core/shared` (adaptive)
 5. Route + `@injectable` (где принято) + codegen

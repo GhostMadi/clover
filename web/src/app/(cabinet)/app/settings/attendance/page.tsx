@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
-import { AttendanceHubView } from "@/features/attendance/components/attendance-hub-view";
+import { AttendanceEntryRedirect } from "@/features/attendance/components/attendance-entry-redirect";
 import { getCurrentProfile } from "@/features/profile/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 
+/** Вход в посещаемость → last/first компания (кэш). */
 export default async function AttendanceSettingsPage() {
   const supabase = await createClient();
   const {
@@ -16,5 +17,5 @@ export default async function AttendanceSettingsPage() {
     redirect("/app/settings");
   }
 
-  return <AttendanceHubView />;
+  return <AttendanceEntryRedirect />;
 }

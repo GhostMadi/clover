@@ -17,8 +17,13 @@ import {
   type AttendanceProfileHit,
 } from "@/features/attendance/lib/attendance-api";
 import type { AttendanceMembershipLite } from "@/features/attendance/lib/attendance-model";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
+import {
+  readAttendanceMembersCache,
+  writeAttendanceMembersCache,
+} from "@/features/attendance/lib/attendance-prefs";
+import { AttendanceWorkspaceShell } from "@/features/attendance/components/attendance-workspace-shell";
 import { createClient } from "@/lib/supabase/client";
+import { getSessionUserId } from "@/lib/run-service-swr";
 
 type Tab = "active" | "pending" | "archived";
 
@@ -43,10 +48,11 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
   const [salaryMember, setSalaryMember] = useState<MemberRow | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  const reload = useCallback(async () => {
-    setLoading(true);
+  const reload = useCallback(async (opts?: { soft?: boolean }) => {
+    if (!opts?.soft) setLoading(true);
     setError(null);
     try {
+      const uid = await getSessionUserId();
       const workplace = await getAdminWorkplace(workplaceId);
       if (!workplace) {
         setError("Компания не найдена или нет прав admin");
@@ -77,16 +83,16 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
           });
         }
       }
-      setMembers(
-        list.map((m) => {
-          const label = labels.get(m.profileId);
-          return {
-            ...m,
-            displayName: label?.name ?? m.profileId.slice(0, 8),
-            username: label?.username ?? m.profileId.slice(0, 8),
-          };
-        }),
-      );
+      const next = list.map((m) => {
+        const label = labels.get(m.profileId);
+        return {
+          ...m,
+          displayName: label?.name ?? m.profileId.slice(0, 8),
+          username: label?.username ?? m.profileId.slice(0, 8),
+        };
+      });
+      setMembers(next);
+      writeAttendanceMembersCache(uid, workplaceId, next);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Не удалось загрузить");
     } finally {
@@ -95,8 +101,18 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
   }, [workplaceId]);
 
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    void (async () => {
+      const uid = await getSessionUserId();
+      const cached = readAttendanceMembersCache(uid, workplaceId);
+      if (cached?.members?.length) {
+        setMembers(cached.members);
+        setLoading(false);
+        await reload({ soft: true });
+      } else {
+        await reload();
+      }
+    })();
+  }, [reload, workplaceId]);
 
   const counts = useMemo(() => {
     let active = 0;
@@ -115,32 +131,31 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
 
   if (loading) {
     return (
-      <SettingsShell title="Работники" backHref={back} service="attendance">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Работники">
         <div className="px-4 py-5">
           <AttendanceListShimmer rows={6} />
         </div>
-      </SettingsShell>
+      </AttendanceWorkspaceShell>
     );
   }
 
   if (error) {
     return (
-      <SettingsShell title="Работники" backHref={back} service="attendance">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Работники">
         <div className="space-y-3 px-4 py-5">
           <p className="text-[14px] text-error">{error}</p>
           <AppButtonLink href={back} service="attendance">
             Назад
           </AppButtonLink>
         </div>
-      </SettingsShell>
+      </AttendanceWorkspaceShell>
     );
   }
 
   return (
-    <SettingsShell
+    <AttendanceWorkspaceShell
+      workplaceId={workplaceId}
       title="Работники"
-      backHref={back}
-      service="attendance"
       trailing={
         <button
           type="button"
@@ -299,7 +314,7 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
           await reload();
         }}
       />
-    </SettingsShell>
+    </AttendanceWorkspaceShell>
   );
 }
 

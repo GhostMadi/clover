@@ -18,7 +18,8 @@ export type NotificationKind =
   | "attendanceInvite"
   | "attendanceRulesAck"
   | "attendanceDuty"
-  | "attendanceCorrection";
+  | "attendanceCorrection"
+  | "accountLogin";
 
 export type NotificationActor = {
   id: string;
@@ -44,7 +45,21 @@ export type AppNotification = {
   bookingStartsAt: string | null;
   bonusEarnAmount: number | null;
   bookingReminderMinutesBefore: number | null;
+  loginWhere: string | null;
+  loginEventId: string | null;
+  /** EN: confirmed | revoked | revoked_others */
+  loginResolved: string | null;
+  /** EN: confirm | revoke | change_password */
+  loginActions: string[];
 };
+
+export function showLoginActions(item: AppNotification): boolean {
+  return (
+    item.kind === "accountLogin" &&
+    !!item.loginEventId &&
+    !item.loginResolved
+  );
+}
 
 export const NOTIFICATIONS_PAGE_SIZE = 24;
 
@@ -90,6 +105,8 @@ function parseKind(kindRaw: string, isFollowingActor: boolean): NotificationKind
       return "attendanceDuty";
     case "attendance_correction":
       return "attendanceCorrection";
+    case "account_login":
+      return "accountLogin";
     default:
       return "comment";
   }
@@ -137,6 +154,26 @@ export function parseNotificationRow(row: Record<string, unknown>): AppNotificat
         ? Number(reminderRaw) || null
         : null;
 
+  const device = (payload.device_label as string | null | undefined)?.trim() || null;
+  const client = (payload.client as string | null | undefined)?.trim() || null;
+  const platform = (payload.platform as string | null | undefined)?.trim() || null;
+  let loginWhere = device;
+  if (!loginWhere) {
+    if (client === "web") loginWhere = "веб";
+    else if (platform === "ios") loginWhere = "iOS";
+    else if (platform === "android") loginWhere = "Android";
+    else if (client === "mobile") loginWhere = "телефона";
+  }
+
+  const loginEventId =
+    (payload.login_event_id as string | null | undefined)?.trim() || null;
+  const loginResolved =
+    (payload.resolved as string | null | undefined)?.trim() || null;
+  const actionsRaw = payload.actions;
+  const loginActions: string[] = Array.isArray(actionsRaw)
+    ? actionsRaw.map((a) => String(a).trim()).filter(Boolean)
+    : [];
+
   return {
     id,
     kind,
@@ -155,6 +192,10 @@ export function parseNotificationRow(row: Record<string, unknown>): AppNotificat
     bookingStartsAt: payload.starts_at ? String(payload.starts_at) : null,
     bonusEarnAmount: bonus && bonus > 0 ? bonus : null,
     bookingReminderMinutesBefore: reminder && reminder > 0 ? reminder : null,
+    loginWhere,
+    loginEventId,
+    loginResolved,
+    loginActions,
   };
 }
 
@@ -206,6 +247,8 @@ export function notificationMessage(item: AppNotification): string {
       return "Обновлён список дежурных";
     case "attendanceCorrection":
       return "Запрос на исправление отметки";
+    case "accountLogin":
+      return `Вход в аккаунт с ${item.loginWhere?.trim() || "нового устройства"}`;
     default:
       return `${name} · уведомление`;
   }

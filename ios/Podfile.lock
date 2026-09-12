@@ -148,6 +148,18 @@ PODS:
   - Mantle (2.2.0):
     - Mantle/extobjc (= 2.2.0)
   - Mantle/extobjc (2.2.0)
+  - mapbox_maps_flutter (2.30.1):
+    - Flutter
+    - MapboxMaps (= 11.30.1)
+    - Turf (= 4.0.0)
+  - MapboxCommon (24.30.1):
+    - Turf (= 4.0.0)
+  - MapboxCoreMaps (11.30.1):
+    - MapboxCommon (= 24.30.1)
+  - MapboxMaps (11.30.1):
+    - MapboxCommon (= 24.30.1)
+    - MapboxCoreMaps (= 11.30.1)
+    - Turf (= 4.0.0)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
@@ -186,12 +198,9 @@ PODS:
     - Flutter
     - FlutterMacOS
   - SwiftyGif (5.4.5)
+  - Turf (4.0.0)
   - url_launcher_ios (0.0.1):
     - Flutter
-  - yandex_mapkit (0.0.1):
-    - Flutter
-    - YandexMapsMobile (= 4.22.0-lite)
-  - YandexMapsMobile (4.22.0-lite)
 
 DEPENDENCIES:
   - app_links (from `.symlinks/plugins/app_links/ios`)
@@ -203,6 +212,7 @@ DEPENDENCIES:
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/darwin`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
   - isar_community_flutter_libs (from `.symlinks/plugins/isar_community_flutter_libs/ios`)
+  - mapbox_maps_flutter (from `.symlinks/plugins/mapbox_maps_flutter/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
@@ -213,7 +223,6 @@ DEPENDENCIES:
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
-  - yandex_mapkit (from `.symlinks/plugins/yandex_mapkit/ios`)
 
 SPEC REPOS:
   trunk:
@@ -233,13 +242,16 @@ SPEC REPOS:
     - GTMSessionFetcher
     - libwebp
     - Mantle
+    - MapboxCommon
+    - MapboxCoreMaps
+    - MapboxMaps
     - nanopb
     - PromisesObjC
     - SDWebImage
     - SDWebImageWebPCoder
     - Sentry
     - SwiftyGif
-    - YandexMapsMobile
+    - Turf
 
 EXTERNAL SOURCES:
   app_links:
@@ -260,6 +272,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/google_sign_in_ios/darwin"
   isar_community_flutter_libs:
     :path: ".symlinks/plugins/isar_community_flutter_libs/ios"
+  mapbox_maps_flutter:
+    :path: ".symlinks/plugins/mapbox_maps_flutter/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
@@ -280,8 +294,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqflite_darwin/darwin"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
-  yandex_mapkit:
-    :path: ".symlinks/plugins/yandex_mapkit/ios"
 
 SPEC CHECKSUMS:
   app_links: 3dbc685f76b1693c66a6d9dd1e9ab6f73d97dc0a
@@ -309,6 +321,10 @@ SPEC CHECKSUMS:
   isar_community_flutter_libs: bede843185a61a05ff364a05c9b23209523f7e0d
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   Mantle: c5aa8794a29a022dfbbfc9799af95f477a69b62d
+  mapbox_maps_flutter: cc36fc4019bf8956dcefd4f5aa3cf453208cd330
+  MapboxCommon: f037b4d9f870b0f3a5235fdfa7102abe84bf7f1b
+  MapboxCoreMaps: cb92ad6a9f5de342e1cfbc3f0a0319b0c04ba253
+  MapboxMaps: 3f6a646d99ac1634779bdb4393740ba17d1d8dd4
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
@@ -324,10 +340,9 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
+  Turf: c9eb11a65d96af58cac523460fd40fec5061b081
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
-  yandex_mapkit: bac34ca1bdf97e87252a8c6d09a95b1fe39ba103
-  YandexMapsMobile: c73844c6096bbb240d1491adc511c2ef4a88d88d
 
-PODFILE CHECKSUM: d411662159ff00295bd3494f722f10c7f93269f3
+PODFILE CHECKSUM: cf1528690e545f450f867aeb1619f8062b7a42aa
 
 COCOAPODS: 1.16.2

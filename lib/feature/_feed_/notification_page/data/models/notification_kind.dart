@@ -20,6 +20,7 @@ enum NotificationKind {
   attendanceRulesAck,
   attendanceDuty,
   attendanceCorrection,
+  accountLogin,
 }
 
 extension NotificationKindBookingX on NotificationKind {

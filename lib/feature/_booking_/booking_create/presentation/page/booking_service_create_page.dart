@@ -13,7 +13,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
 class BookingServiceCreatePage extends StatefulWidget {
-  const BookingServiceCreatePage({super.key});
+  const BookingServiceCreatePage({super.key, required this.pointId});
+
+  final String pointId;
 
   @override
   State<BookingServiceCreatePage> createState() => _BookingServiceCreatePageState();
@@ -119,7 +121,7 @@ class _BookingServiceCreatePageState extends State<BookingServiceCreatePage> {
 
   Future<void> _submit() async {
     if (!_draft.isValid) return;
-    final service = await _cubit.create(_draft);
+    final service = await _cubit.create(_draft, pointId: widget.pointId);
     if (!mounted || service == null) {
       final message = _cubit.state.maybeMap(error: (s) => s.message, orElse: () => null);
       if (message != null && mounted) {

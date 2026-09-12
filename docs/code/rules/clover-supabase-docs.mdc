@@ -29,3 +29,5 @@ SQL / functions / config — в корневом `supabase/`. Не в `docs/busi
 
 - класть `service_role` / secret / verify token в эти файлы
 - дублировать продуктовые сценарии вместо ссылки на `docs/business/`
+
+Цикл без мусора (RLS↔RPC, EN-ключи, INDEX): см. `clover-supabase-cycle` и [`_backend-audit-plan.md`](../../supabase/_backend-audit-plan.md).

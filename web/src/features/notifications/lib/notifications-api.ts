@@ -50,3 +50,19 @@ export async function markNotificationsRead(ids?: string[]): Promise<void> {
   const { error } = await supabase.rpc("mark_notifications_read", params);
   if (error) throw error;
 }
+
+export async function confirmAccountLogin(loginEventId: string): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.rpc("confirm_account_login", {
+    p_event_id: loginEventId,
+  });
+  if (error) throw error;
+}
+
+export async function revokeAccountLogin(loginEventId: string): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.rpc("revoke_account_login", {
+    p_event_id: loginEventId,
+  });
+  if (error) throw error;
+}

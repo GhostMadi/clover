@@ -14,6 +14,7 @@ import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_i
 import 'package:clover/feature/_booking_/booking_list/presentation/cubit/booking_list_cubit.dart';
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_archive_body.dart';
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_card.dart';
+import 'package:clover/feature/_booking_/booking_points/data/repository/booking_points_repository.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_month_calendar.dart';
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_empty_state.dart';
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_now_card.dart';
@@ -25,7 +26,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
 class BookingListPage extends StatefulWidget {
-  const BookingListPage({super.key});
+  const BookingListPage({super.key, required this.pointId});
+
+  final String pointId;
 
   @override
   State<BookingListPage> createState() => _BookingListPageState();
@@ -35,12 +38,24 @@ class _BookingListPageState extends State<BookingListPage> {
   late final BookingListCubit _cubit;
   late final TextEditingController _searchController;
   Timer? _searchDebounce;
+  String _title = 'Мои записи';
 
   @override
   void initState() {
     super.initState();
-    _cubit = sl<BookingListCubit>()..load();
+    _cubit = sl<BookingListCubit>()..load(pointId: widget.pointId);
     _searchController = TextEditingController();
+    _resolveTitle();
+  }
+
+  Future<void> _resolveTitle() async {
+    final point = await sl<BookingPointsRepository>().getPoint(widget.pointId);
+    if (!mounted || point == null) return;
+    setState(() => _title = point.name);
+  }
+
+  void _onPointChanged(String nextId) {
+    context.router.replace(BookingListRoute(pointId: nextId));
   }
 
   @override
@@ -201,7 +216,9 @@ class _BookingListPageState extends State<BookingListPage> {
         }
 
         return BookingScreenShell(
-          title: 'Мои записи',
+          title: _title,
+          pointId: widget.pointId,
+          onPointChanged: _onPointChanged,
           compactBar: true,
           isLoading: isLoading,
           body: buildScrollBody(),

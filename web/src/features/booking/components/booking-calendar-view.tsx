@@ -2,7 +2,7 @@
 
 import { ChevronLeft, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
-import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
+import { BookingClientShell } from "@/features/booking/components/booking-workspace-shell";
 import { BookingListShimmer } from "@/features/booking/components/booking-shimmers";
 import {
   listCalendarBookings,
@@ -77,12 +77,12 @@ export function BookingCalendarView() {
   const selectedHost = hosts.find((h) => h.hostId === selectedHostId) ?? null;
 
   return (
-    <BookingWorkspaceShell
+    <BookingClientShell
       title={selectedHost ? selectedHost.hostDisplayName || "Календарь" : "Календарь"}
       backHref="/app/settings"
-      hideNav
-      trailing={
-        selectedHostId ? (
+    >
+      <div className="space-y-4">
+        {selectedHostId ? (
           <button
             type="button"
             onClick={() => setSelectedHostId(null)}
@@ -91,10 +91,7 @@ export function BookingCalendarView() {
             <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
             Источники
           </button>
-        ) : null
-      }
-    >
-      <div className="space-y-4">
+        ) : null}
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
         {!selectedHostId ? (
@@ -182,6 +179,6 @@ export function BookingCalendarView() {
           </ul>
         )}
       </div>
-    </BookingWorkspaceShell>
+    </BookingClientShell>
   );
 }

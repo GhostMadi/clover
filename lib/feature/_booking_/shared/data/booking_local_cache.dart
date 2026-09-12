@@ -23,12 +23,18 @@ class BookingLocalCache {
   String _myBookingsKey(String userId, BookingListDateRange range) =>
       'booking_my_bookings_${userId.trim()}_${_periodKey(range)}';
 
-  String _hostBookingsKey(String userId, BookingListDateRange range, String? query) {
+  String _hostBookingsKey(String userId, BookingListDateRange range, String? query, {String? pointId}) {
     final q = (query ?? '').trim().toLowerCase();
-    return 'booking_host_bookings_${userId.trim()}_${_periodKey(range)}_$q';
+    final pid = (pointId ?? '').trim();
+    final pointPart = pid.isEmpty ? '' : '_$pid';
+    return 'booking_host_bookings_${userId.trim()}_${_periodKey(range)}_$q$pointPart';
   }
 
-  String _myServicesKey(String userId) => 'booking_my_services_${userId.trim()}';
+  String _myServicesKey(String userId, {String? pointId}) {
+    final pid = pointId?.trim();
+    if (pid == null || pid.isEmpty) return 'booking_my_services_${userId.trim()}';
+    return 'booking_my_services_${userId.trim()}_$pid';
+  }
 
   String _myStaffKey(String userId) => 'booking_my_staff_${userId.trim()}';
 
@@ -47,9 +53,10 @@ class BookingLocalCache {
     String userId,
     BookingListDateRange range, {
     String? query,
+    String? pointId,
   }) {
     return _readList(
-      _hostBookingsKey(userId, range, query),
+      _hostBookingsKey(userId, range, query, pointId: pointId),
       BookingListItem.fromJson,
     );
   }
@@ -59,20 +66,21 @@ class BookingLocalCache {
     BookingListDateRange range,
     List<BookingListItem> items, {
     String? query,
+    String? pointId,
   }) {
     return _writeList(
-      _hostBookingsKey(userId, range, query),
+      _hostBookingsKey(userId, range, query, pointId: pointId),
       items,
       (e) => e.toJson(),
     );
   }
 
-  Future<List<BookingService>?> readMyServices(String userId) {
-    return _readList(_myServicesKey(userId), BookingService.fromJson);
+  Future<List<BookingService>?> readMyServices(String userId, {String? pointId}) {
+    return _readList(_myServicesKey(userId, pointId: pointId), BookingService.fromJson);
   }
 
-  Future<void> writeMyServices(String userId, List<BookingService> items) {
-    return _writeList(_myServicesKey(userId), items, (e) => e.toJson());
+  Future<void> writeMyServices(String userId, List<BookingService> items, {String? pointId}) {
+    return _writeList(_myServicesKey(userId, pointId: pointId), items, (e) => e.toJson());
   }
 
   Future<List<BookingServiceExecutor>?> readMyStaff(String userId) {

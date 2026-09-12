@@ -28,6 +28,18 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Configure Mapbox downloads
+        env:
+          SDK_REGISTRY_TOKEN: ${{ secrets.SDK_REGISTRY_TOKEN }}
+        run: |
+          if [ -z "${SDK_REGISTRY_TOKEN:-}" ]; then
+            echo "SDK_REGISTRY_TOKEN secret is required for Mapbox iOS/Android SDK downloads"
+            exit 1
+          fi
+          printf 'machine api.mapbox.com\nlogin mapbox\npassword %s\n' "$SDK_REGISTRY_TOKEN" > "$HOME/.netrc"
+          chmod 600 "$HOME/.netrc"
+          echo "SDK_REGISTRY_TOKEN=$SDK_REGISTRY_TOKEN" >> android/gradle.properties
+
       - name: Install Apple Certificate and Provisioning Profile
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
@@ -65,11 +77,19 @@ jobs:
           cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PP_UUID.mobileprovision"
 
       - name: Build IPA
+        env:
+          MAPBOX_ACCESS_TOKEN: ${{ secrets.MAPBOX_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
 
+          if [ -z "${MAPBOX_ACCESS_TOKEN:-}" ]; then
+            echo "MAPBOX_ACCESS_TOKEN secret is required (public token clover_flutter)"
+            exit 1
+          fi
+
           # 1) Archive без codesign — иначе Flutter/Xcode тянет Automatic Development.
-          flutter build ipa --release --no-codesign
+          flutter build ipa --release --no-codesign \
+            --dart-define=MAPBOX_ACCESS_TOKEN="$MAPBOX_ACCESS_TOKEN"
 
           ARCHIVE_PATH="build/ios/archive/Runner.xcarchive"
           if [ ! -d "$ARCHIVE_PATH" ]; then

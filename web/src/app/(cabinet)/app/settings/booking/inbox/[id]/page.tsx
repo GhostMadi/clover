@@ -1,10 +1,8 @@
-import { HostBookingDetailView } from "@/features/booking/components/host-booking-detail-view";
+import { BookingLegacyRedirect } from "@/features/booking/components/booking-legacy-redirect";
 
-export default async function BookingInboxDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+type Props = { params: Promise<{ id: string }> };
+
+export default async function LegacyBookingInboxDetailPage({ params }: Props) {
   const { id } = await params;
-  return <HostBookingDetailView bookingId={id} />;
+  return <BookingLegacyRedirect suffix={`/inbox/${id}`} />;
 }

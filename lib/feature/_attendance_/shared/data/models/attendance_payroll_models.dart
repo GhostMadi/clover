@@ -110,15 +110,89 @@ class AttendancePayrollLineItem {
   factory AttendancePayrollLineItem.fromJson(Map<String, dynamic> json) {
     final kind = AttendancePayrollLineKind.fromKey(json['kind']?.toString());
     final rawAmount = (json['amount'] as num?)?.toInt() ?? 0;
+    final code = json['label']?.toString() ?? '';
+    final detailRaw = json['detail']?.toString();
     return AttendancePayrollLineItem(
-      label: json['label']?.toString() ?? '',
-      detail: json['detail']?.toString(),
+      label: _payrollLineLabelRu(code),
+      detail: detailRaw == null ? null : _payrollLineDetailRu(code, detailRaw),
       amount: kind == AttendancePayrollLineKind.deduction
           ? rawAmount.abs()
           : rawAmount,
       kind: kind,
     );
   }
+}
+
+String _payrollLineLabelRu(String code) => switch (code) {
+  'late' => 'Опоздания',
+  'missed_shift' => 'Пропуск смены',
+  'absence_recorded' => 'Отсутствие оформлено',
+  'partial_day' => 'Неполный день',
+  'overtime_approved' => 'Переработка (утверждено)',
+  // Legacy RU from older RPC / offline
+  'Опоздания' ||
+  'Пропуск смены' ||
+  'Отсутствие оформлено' ||
+  'Неполный день' ||
+  'Переработка (утверждено)' => code,
+  _ => code,
+};
+
+String _payrollLineDetailRu(String code, String detail) {
+  final parts = detail.split('|');
+  switch (code) {
+    case 'late':
+      if (parts.length >= 3) {
+        return '${parts[0]} ₸ × ${parts[1]} мин · ${parts[2]} дн.';
+      }
+    case 'missed_shift':
+      if (parts.length >= 2) {
+        return '${parts[0]} ₸ × ${parts[1]} дн.';
+      }
+    case 'absence_recorded':
+      final kinds = detail
+          .split(',')
+          .map((k) => switch (k.trim()) {
+            'day_off' => 'Выходной',
+            'vacation' => 'Отпуск',
+            'sick' => 'Больничный',
+            final other => other,
+          })
+          .where((e) => e.isNotEmpty)
+          .join(', ');
+      return kinds.isEmpty ? detail : '$kinds — не штраф за пропуск';
+    case 'partial_day':
+      if (parts.length >= 2) {
+        return '${parts[0]}% от дневной ставки · ${parts[1]}';
+      }
+    case 'overtime_approved':
+      if (parts.length >= 2) {
+        return '${parts[0]} ₸ × ${parts[1]} ч';
+      }
+  }
+  return detail;
+}
+
+String attendancePayrollPeriodLabelRu(String periodKey) {
+  final m = RegExp(r'^(\d{4})-(\d{2})$').firstMatch(periodKey.trim());
+  if (m == null) return periodKey;
+  const months = [
+    'Январь',
+    'Февраль',
+    'Март',
+    'Апрель',
+    'Май',
+    'Июнь',
+    'Июль',
+    'Август',
+    'Сентябрь',
+    'Октябрь',
+    'Ноябрь',
+    'Декабрь',
+  ];
+  final month = int.tryParse(m.group(2)!) ?? 0;
+  if (month < 1 || month > 12) return periodKey;
+  return '${months[month - 1]} ${m.group(1)}';
 }
 
 enum AttendancePayrollLineKind {
@@ -221,7 +295,9 @@ class AttendancePayrollTeamSummary {
         ? Map<String, dynamic>.from(teamRaw)
         : const <String, dynamic>{};
     return AttendancePayrollTeamSummary(
-      periodLabel: json['period_label']?.toString() ?? '',
+      periodLabel: attendancePayrollPeriodLabelRu(
+        json['period_label']?.toString() ?? '',
+      ),
       workerCount: rows.length,
       totalBase:
           (team['base_total'] as num?)?.toInt() ??
