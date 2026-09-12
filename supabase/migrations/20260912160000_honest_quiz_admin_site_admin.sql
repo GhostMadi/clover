@@ -1,4 +1,5 @@
 -- Honest quiz admin: gate by is_site_admin (no p_secret).
+-- Product: docs/business/honest-quiz.md
 
 create or replace function public.honest_quiz_admin_list()
 returns setof jsonb
@@ -76,4 +77,5 @@ revoke all on function public.honest_quiz_admin_get(uuid) from public;
 grant execute on function public.honest_quiz_admin_get(uuid) to authenticated;
 
 drop function if exists public.honest_quiz_admin_get(text, uuid);
+
 drop function if exists public._honest_quiz_admin_ok(text);

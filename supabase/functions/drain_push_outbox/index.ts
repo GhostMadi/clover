@@ -19,6 +19,138 @@ type OutboxRow = {
   attempts: number;
 };
 
+/** EN placeholder keys from Postgres → RU for OS notification tray (app is RU-first). */
+function strPayload(payload: Record<string, unknown>, key: string): string {
+  const v = payload[key];
+  return typeof v === "string" ? v.trim() : v != null ? String(v).trim() : "";
+}
+
+function formatStartsAt(payload: Record<string, unknown>): string {
+  const raw = strPayload(payload, "starts_at");
+  if (!raw) return "";
+  const d = new Date(raw);
+  if (Number.isNaN(d.getTime())) return raw;
+  const dd = String(d.getUTCDate()).padStart(2, "0");
+  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const hh = String(d.getUTCHours()).padStart(2, "0");
+  const mi = String(d.getUTCMinutes()).padStart(2, "0");
+  return `${dd}.${mm} ${hh}:${mi}`;
+}
+
+function localizePushTitle(title: string, kind: string): string {
+  const key = (title || "").trim().toLowerCase();
+  const byKey: Record<string, string> = {
+    new_booking: "Новая запись",
+    booking_confirmed: "Запись подтверждена",
+    booking_cancelled: "Запись отменена",
+    visit_completed: "Визит завершён",
+    no_show: "Неявка",
+    booking_rescheduled: "Запись перенесена",
+    new_login: "Новый вход",
+    team_invite: "Приглашение в команду",
+    company_rules: "Новые правила компании",
+    duty: "Дежурство",
+    punch_correction: "Исправление отметки",
+    photo: "Фото",
+    file: "Файл",
+    post: "Пост",
+    message: "Сообщение",
+    system: "Системное",
+  };
+  if (byKey[key]) return byKey[key];
+
+  const byKind: Record<string, string> = {
+    booking_created_host: byKey.new_booking,
+    booking_booked_client: byKey.booking_confirmed,
+    booking_cancelled_host: byKey.booking_cancelled,
+    booking_cancelled_client: byKey.booking_cancelled,
+    booking_completed_client: byKey.visit_completed,
+    booking_no_show_client: byKey.no_show,
+    booking_rescheduled: byKey.booking_rescheduled,
+    attendance_invite: byKey.team_invite,
+    attendance_rules_ack: byKey.company_rules,
+    attendance_duty: byKey.duty,
+    attendance_correction: byKey.punch_correction,
+    account_login: byKey.new_login,
+  };
+  if (byKind[kind]) return byKind[kind];
+
+  return (title || "").trim() || "Clover";
+}
+
+function localizePushBody(
+  body: string,
+  kind: string,
+  payload: Record<string, unknown>,
+): string {
+  const raw = (body ?? "").trim();
+  const key = String(payload.preview_key ?? raw).trim().toLowerCase();
+  const service = strPayload(payload, "service_title") || "услугу";
+  const workplace = strPayload(payload, "workplace_name") || "компании";
+  const when = formatStartsAt(payload);
+
+  const byKey: Record<string, string> = {
+    photo: "Фото",
+    file: "Файл",
+    post: "Пост",
+    message: "Сообщение",
+    system: "Системное",
+    client_booked: `Клиент записался на «${service}»`,
+    you_are_booked: `Вы записаны на «${service}»`,
+    client_cancelled: `Клиент отменил «${service}»`,
+    host_cancelled: `Хозяин отменил «${service}»`,
+    marked_completed: `«${service}» отмечена как оказанная`,
+    marked_no_show: "Запись отмечена как «не пришёл»",
+    new_time: when ? `Новое время: ${when}` : "Время записи изменено",
+    invited_to_workplace: `Вас пригласили в «${workplace}»`,
+    accept_rules: `Примите правила «${workplace}»`,
+    duty_roster_updated: `Обновлён список дежурных в «${workplace}»`,
+    correction_requested: `Работник просит исправить отметку в «${workplace}»`,
+    correction_approved: "Запрос на исправление утверждён",
+    correction_rejected: "Запрос на исправление отклонён",
+    login_from_device: (() => {
+      const client = strPayload(payload, "client");
+      const platform = strPayload(payload, "platform");
+      const device = strPayload(payload, "device_label");
+      const where =
+        device ||
+        (client === "web"
+          ? "веб"
+          : platform === "ios"
+            ? "iOS"
+            : platform === "android"
+              ? "Android"
+              : "устройства");
+      return `Вход в аккаунт с ${where}`;
+    })(),
+  };
+  if (byKey[key]) return byKey[key];
+
+  const messageKind = String(payload.message_kind ?? payload.kind ?? kind ?? "").trim();
+  if (messageKind === "media") return byKey.photo;
+  if (messageKind === "file") return byKey.file;
+  if (messageKind === "post_ref") return byKey.post;
+
+  const byKindBody: Record<string, string> = {
+    booking_created_host: byKey.client_booked,
+    booking_booked_client: byKey.you_are_booked,
+    booking_cancelled_host: byKey.client_cancelled,
+    booking_cancelled_client: byKey.host_cancelled,
+    booking_completed_client: byKey.marked_completed,
+    booking_no_show_client: byKey.marked_no_show,
+    booking_rescheduled: byKey.new_time,
+    attendance_invite: byKey.invited_to_workplace,
+    attendance_rules_ack: byKey.accept_rules,
+    attendance_duty: byKey.duty_roster_updated,
+    attendance_correction: byKey.correction_requested,
+    account_login: byKey.login_from_device,
+  };
+  if (byKindBody[kind] && !/[а-яёА-ЯЁ]/.test(raw)) return byKindBody[kind];
+
+  // Legacy RU rows from before EN-keys migration — pass through.
+  return raw || "Сообщение";
+}
+
 function unauthorized(detail: string): Response {
   return new Response(JSON.stringify({ error: "Unauthorized", detail }), {
     status: 401,
@@ -118,8 +250,8 @@ Deno.serve(async (req) => {
           sa,
           accessToken,
           token,
-          title: row.title,
-          body: row.body,
+          title: localizePushTitle(row.title, row.kind),
+          body: localizePushBody(row.body, row.kind, payload),
           kind: row.kind,
           payload,
         });

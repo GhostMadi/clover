@@ -26,17 +26,17 @@ class BookingServicesRepository {
       'staff_id, booking_staff(id, display_name, username, profile_id, is_active)';
 
   static const _serviceSelect =
-      'id, host_id, title, emoji_text, description, duration_minutes, buffer_after_minutes, '
+      'id, host_id, point_id, title, emoji_text, description, duration_minutes, buffer_after_minutes, '
       'price, max_participants, default_staff_id, is_active, sort_order, bonus_pay_percent, '
       'bonus_earn_amount';
 
   static const _myServiceSelect =
-      'id, host_id, title, emoji_text, description, duration_minutes, buffer_after_minutes, '
+      'id, host_id, point_id, title, emoji_text, description, duration_minutes, buffer_after_minutes, '
       'price, max_participants, default_staff_id, is_active, sort_order, bonus_pay_percent, '
       'bonus_earn_amount, booking_service_staff($_staffLinkSelect)';
 
   static const _catalogSelect =
-      'id, host_id, title, emoji_text, description, duration_minutes, buffer_after_minutes, '
+      'id, host_id, point_id, title, emoji_text, description, duration_minutes, buffer_after_minutes, '
       'price, max_participants, default_staff_id, is_active, sort_order, bonus_pay_percent, '
       'bonus_earn_amount, booking_service_staff($_staffLinkSelect)';
 
@@ -50,17 +50,20 @@ class BookingServicesRepository {
     }
   }
 
-  Future<List<BookingService>> listMyServices() async {
+  Future<List<BookingService>> listMyServices({String? pointId}) async {
     final uid = _uid;
     if (uid == null || uid.isEmpty) return const [];
 
     return _guard(() async {
-      final res = await _client
+      var q = _client
           .from('booking_services')
           .select(_myServiceSelect)
-          .eq('host_id', uid)
-          .order('sort_order')
-          .order('title');
+          .eq('host_id', uid);
+      final pid = pointId?.trim();
+      if (pid != null && pid.isNotEmpty) {
+        q = q.eq('point_id', pid);
+      }
+      final res = await q.order('sort_order').order('title');
       return [for (final row in res) _mapService(Map<String, dynamic>.from(row))];
     });
   }
@@ -88,17 +91,30 @@ class BookingServicesRepository {
     });
   }
 
-  Future<BookingService> createService(BookingServiceDraft draft, {List<String>? staffIds}) async {
+  Future<BookingService> createService(
+    BookingServiceDraft draft, {
+    List<String>? staffIds,
+    String? pointId,
+  }) async {
     final uid = _uid;
     if (uid == null || uid.isEmpty) {
       throw const BookingException(BookingErrorCode.notAuthenticated);
     }
 
     return _guard(() async {
+      var resolvedPointId = pointId?.trim();
+      if (resolvedPointId == null || resolvedPointId.isEmpty) {
+        resolvedPointId = await _client.rpc('booking_ensure_default_point') as String?;
+      }
       final ids = staffIds ?? _staffIdsFromDraft(draft);
       final res = await _client
           .from('booking_services')
-          .insert(_draftToRow(draft, hostId: uid, defaultStaffId: ids.firstOrNull))
+          .insert(_draftToRow(
+            draft,
+            hostId: uid,
+            defaultStaffId: ids.firstOrNull,
+            pointId: resolvedPointId,
+          ))
           .select(_serviceSelect)
           .single();
       final service = _mapService(Map<String, dynamic>.from(res));
@@ -165,10 +181,12 @@ class BookingServicesRepository {
     BookingServiceDraft draft, {
     required String hostId,
     String? defaultStaffId,
+    String? pointId,
   }) {
     final desc = draft.description.trim();
     return {
       'host_id': hostId,
+      if (pointId != null && pointId.isNotEmpty) 'point_id': pointId,
       'title': draft.title.trim(),
       'emoji_text': draft.emojiText.trim(),
       'duration_minutes': draft.durationMinutes,
@@ -187,6 +205,7 @@ class BookingServicesRepository {
     final links = row['booking_service_staff'];
     final executorIds = _executorIdsFromLinks(links);
     final defaultId = BookingJson.asString(row['default_staff_id']);
+    final pointRaw = row['point_id']?.toString().trim();
 
     return BookingService(
       id: row['id']?.toString() ?? '',
@@ -203,6 +222,7 @@ class BookingServicesRepository {
       isActive: BookingJson.asBool(row['is_active'], fallback: true),
       bonusPayPercent: BookingJson.asInt(row['bonus_pay_percent']).clamp(0, 100),
       bonusEarnAmount: BookingJson.asInt(row['bonus_earn_amount']).clamp(0, 1 << 30),
+      pointId: (pointRaw == null || pointRaw.isEmpty) ? null : pointRaw,
     );
   }
 

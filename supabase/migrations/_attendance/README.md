@@ -54,4 +54,6 @@
 
 ### Вне ядра
 
-FCM drain: Edge `drain_push_outbox` (+ secrets/cron). Duty-only punch — later.
+FCM drain: Edge `drain_push_outbox` (+ secrets/cron). `duty_only_punch` — shipped (колонка + RPC).
+
+Audit: `../20260911185500_attendance_audit_rls_payroll_keys.sql` — workplaces/memberships DML только через RPC; payroll preview EN keys.

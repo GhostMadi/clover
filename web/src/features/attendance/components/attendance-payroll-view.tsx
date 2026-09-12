@@ -15,7 +15,12 @@ import {
   type AttendancePayrollRules,
   type AttendanceWorkplace,
 } from "@/features/attendance/lib/attendance-model";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
+import {
+  readAttendancePayrollCache,
+  writeAttendancePayrollCache,
+} from "@/features/attendance/lib/attendance-prefs";
+import { AttendanceWorkspaceShell } from "@/features/attendance/components/attendance-workspace-shell";
+import { getSessionUserId } from "@/lib/run-service-swr";
 
 function money(n: number): string {
   return `${Math.round(n).toLocaleString("ru-RU")} ₸`;
@@ -32,10 +37,11 @@ export function AttendancePayrollView({ workplaceId }: { workplaceId: string }) 
   const [saving, setSaving] = useState(false);
   const [previewBusy, setPreviewBusy] = useState(false);
 
-  const reload = useCallback(async () => {
-    setLoading(true);
+  const reload = useCallback(async (opts?: { soft?: boolean }) => {
+    if (!opts?.soft) setLoading(true);
     setError(null);
     try {
+      const uid = await getSessionUserId();
       const w = await getAdminWorkplace(workplaceId);
       if (!w) {
         setError("Компания не найдена или нет прав admin");
@@ -50,6 +56,13 @@ export function AttendancePayrollView({ workplaceId }: { workplaceId: string }) 
         rules: w.payrollRules,
       });
       setPreview(p);
+      writeAttendancePayrollCache(uid, workplaceId, {
+        periodStart: period.start,
+        periodEnd: period.end,
+        workplace: w,
+        rules: w.payrollRules,
+        preview: p,
+      });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Не удалось загрузить");
     } finally {
@@ -58,29 +71,46 @@ export function AttendancePayrollView({ workplaceId }: { workplaceId: string }) 
   }, [workplaceId, period.start, period.end]);
 
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    void (async () => {
+      const uid = await getSessionUserId();
+      const cached = readAttendancePayrollCache(
+        uid,
+        workplaceId,
+        period.start,
+        period.end,
+      );
+      if (cached) {
+        setWorkplace(cached.workplace);
+        setRules(cached.rules);
+        setPreview(cached.preview);
+        setLoading(false);
+        await reload({ soft: true });
+      } else {
+        await reload();
+      }
+    })();
+  }, [reload, workplaceId, period.start, period.end]);
 
   if (loading || !rules) {
     return (
-      <SettingsShell title="Зарплата" backHref={back} service="attendance">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Зарплата">
         <div className="px-4 py-5">
           <AttendanceListShimmer rows={6} />
         </div>
-      </SettingsShell>
+      </AttendanceWorkspaceShell>
     );
   }
 
   if (error || !workplace) {
     return (
-      <SettingsShell title="Зарплата" backHref={back} service="attendance">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Зарплата">
         <div className="space-y-3 px-4 py-5">
           <p className="text-[14px] text-error">{error ?? "Нет данных"}</p>
           <AppButtonLink href={back} service="attendance">
             Назад
           </AppButtonLink>
         </div>
-      </SettingsShell>
+      </AttendanceWorkspaceShell>
     );
   }
 
@@ -103,7 +133,7 @@ export function AttendancePayrollView({ workplaceId }: { workplaceId: string }) 
   };
 
   return (
-    <SettingsShell title="Зарплата" backHref={back} service="attendance">
+    <AttendanceWorkspaceShell workplaceId={workplaceId} title="Зарплата">
       <div className="space-y-6 px-4 py-5 pb-10">
         {preview ? (
           <section className="space-y-3">
@@ -260,7 +290,7 @@ export function AttendancePayrollView({ workplaceId }: { workplaceId: string }) 
           </p>
         )}
       </div>
-    </SettingsShell>
+    </AttendanceWorkspaceShell>
   );
 }
 

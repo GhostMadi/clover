@@ -36,43 +36,51 @@ Production-ready backend для модуля **Запись** (`lib/feature/book
 
 ```
 profiles (host)
+  ├── booking_points
+  │     └── booking_schedule_settings (1 row per point, PK = point_id)
   ├── booking_staff
   │     ├── booking_staff_schedule (weekday 1–7)
   │     ├── booking_staff_absences
   │     └── booking_blocked_slots
-  ├── booking_services
+  ├── booking_services (point_id → booking_points)
   │     └── booking_service_staff (M2M)
-  ├── booking_schedule_settings (1 row)
   └── bookings ← client profiles
         └── booking_history
 ```
 
 ~~`booking_reviews`~~ сняты (`20260906111000`); in-app отзывы не делаем.
+
+Точки: [booking-points.md](booking-points.md) · продукт [booking-points.md](../business/booking-points.md).
+
 ### Key constraints
 
 - `bookings`: EXCLUDE overlap on `staff_id` + time range (pending/confirmed)
 - `booking_blocked_slots`: EXCLUDE overlap on `staff_id` + time range
 - `booking_services`: trigger blocks `is_active=false` if future active bookings exist
+- `booking_schedule_settings`: PK `point_id`; `host_id` для RLS; триггер на insert точки
 - `client_notes`: max 300 chars
 
 ---
 
 ## 3. Schedule resolution
 
-Function: `booking_resolve_staff_day_window(staff_id, day)`
+Function: `booking_resolve_staff_day_window(staff_id, day, point_id default null)`
 
 | Priority | Source |
 |----------|--------|
 | 1 | Staff absence on date → not working |
 | 2 | `booking_staff_schedule` row for ISO weekday |
-| 3 | Account `rest_weekdays` → not working |
-| 4 | Account `default_work_start_time` / `default_work_end_time` |
+| 3 | Point `rest_weekdays` → not working |
+| 4 | Point `default_work_start_time` / `default_work_end_time` |
 
-Horizon: `booking_last_bookable_day(host_id)` from `booking_schedule_settings`.
+Settings row: `booking_schedule_settings_for_point(point_id)`  
+или `booking_schedule_settings_for_service(service_id)` (из `booking_services.point_id`).
 
-Timezone: `booking_schedule_settings.timezone` (default `Asia/Almaty`).
+`booking_schedule_settings_for_host(host_id)` — fallback на **первую** активную точку (legacy / мобилка без UI точек).
 
-Slot step: `slot_step_minutes` ∈ {15, 30, 60}.
+Horizon: `booking_last_bookable_day_for_point(point_id)`; legacy `booking_last_bookable_day(host_id)` → default point.
+
+Timezone / slot step: из строки настроек точки (`timezone`, `slot_step_minutes` ∈ {15, 30, 60}).
 
 ---
 

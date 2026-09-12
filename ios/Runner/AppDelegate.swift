@@ -3,7 +3,6 @@ import UIKit
 import UserNotifications
 import FirebaseCore
 import FirebaseMessaging
-import YandexMapsMobile
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -11,9 +10,6 @@ import YandexMapsMobile
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    YMKMapKit.setLocale("ru_RU")
-    YMKMapKit.setApiKey("2f22c733-43bd-48eb-a2ae-5d66aebfd4ef")
-
     if FirebaseApp.app() == nil {
       FirebaseApp.configure()
     }

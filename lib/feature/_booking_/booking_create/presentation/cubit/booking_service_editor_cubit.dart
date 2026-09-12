@@ -33,11 +33,15 @@ class BookingServiceEditorCubit extends Cubit<BookingServiceEditorState> {
     }
   }
 
-  Future<BookingService?> create(BookingServiceDraft draft) async {
+  Future<BookingService?> create(BookingServiceDraft draft, {String? pointId}) async {
     emit(const BookingServiceEditorState.submitting());
     try {
       final staffIds = await _resolveStaffIds(draft);
-      final service = await _servicesRepository.createService(draft, staffIds: staffIds);
+      final service = await _servicesRepository.createService(
+        draft,
+        staffIds: staffIds,
+        pointId: pointId,
+      );
       if (isClosed) return null;
       emit(BookingServiceEditorState.success(service));
       return service;

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { AppButton } from "@/components/shared/app-button";
 import { AppField } from "@/components/shared/app-field";
+import { AuthOtpStep } from "@/features/auth/components/auth-otp-step";
 import { sendForgotOtp, updatePassword, verifyEmailOtp } from "@/features/auth/lib/auth-api";
 import { AUTH_MESSAGES, MIN_PASSWORD_LENGTH } from "@/features/auth/lib/messages";
 
@@ -93,18 +94,14 @@ export default function ForgotPasswordPage() {
       ) : null}
 
       {step === "otp" ? (
-        <form onSubmit={onOtp} className="space-y-3.5">
-          <AppField
-            label="Код из письма"
-            inputMode="numeric"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            disabled={loading}
-          />
-          <AppButton type="submit" loading={loading}>
-            Подтвердить
-          </AppButton>
-        </form>
+        <AuthOtpStep
+          email={email.trim().toLowerCase()}
+          otp={otp}
+          onOtpChange={setOtp}
+          loading={loading}
+          onVerify={onOtp}
+          onResend={() => sendForgotOtp(email)}
+        />
       ) : null}
 
       {step === "password" ? (

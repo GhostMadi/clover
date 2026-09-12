@@ -134,6 +134,84 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     }
   }
 
+  Future<void> confirmLogin(NotificationItem item) async {
+    final eventId = item.loginEventId?.trim();
+    if (eventId == null || eventId.isEmpty) return;
+    final cur = state;
+    if (cur is! NotificationsLoaded) return;
+
+    emit(
+      cur.copyWith(
+        items: [
+          for (final n in cur.items)
+            if (n.id == item.id) n.copyWith(loginResolved: 'confirmed') else n,
+        ],
+      ),
+    );
+
+    try {
+      await _repository.confirmAccountLogin(eventId);
+    } catch (_) {
+      if (isClosed) return;
+      final rollback = state;
+      if (rollback is NotificationsLoaded) {
+        emit(
+          rollback.copyWith(
+            items: [
+              for (final n in rollback.items)
+                if (n.id == item.id)
+                  n.copyWith(
+                    clearLoginResolved: item.loginResolved == null,
+                    loginResolved: item.loginResolved,
+                  )
+                else
+                  n,
+            ],
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> revokeLogin(NotificationItem item) async {
+    final eventId = item.loginEventId?.trim();
+    if (eventId == null || eventId.isEmpty) return;
+    final cur = state;
+    if (cur is! NotificationsLoaded) return;
+
+    emit(
+      cur.copyWith(
+        items: [
+          for (final n in cur.items)
+            if (n.id == item.id) n.copyWith(loginResolved: 'revoked') else n,
+        ],
+      ),
+    );
+
+    try {
+      await _repository.revokeAccountLogin(eventId);
+    } catch (_) {
+      if (isClosed) return;
+      final rollback = state;
+      if (rollback is NotificationsLoaded) {
+        emit(
+          rollback.copyWith(
+            items: [
+              for (final n in rollback.items)
+                if (n.id == item.id)
+                  n.copyWith(
+                    clearLoginResolved: item.loginResolved == null,
+                    loginResolved: item.loginResolved,
+                  )
+                else
+                  n,
+            ],
+          ),
+        );
+      }
+    }
+  }
+
   static List<NotificationItem> _updateFollowState(
     List<NotificationItem> items,
     String id, {

@@ -95,6 +95,12 @@ import '../../feature/_booking_/booking_list/presentation/cubit/booking_list_cub
     as _i314;
 import '../../feature/_booking_/booking_list/presentation/cubit/booking_list_detail_cubit.dart'
     as _i788;
+import '../../feature/_booking_/booking_points/data/booking_points_prefs.dart'
+    as _i1024;
+import '../../feature/_booking_/booking_points/data/repository/booking_points_repository.dart'
+    as _i21;
+import '../../feature/_booking_/booking_points/presentation/cubit/booking_points_cubit.dart'
+    as _i744;
 import '../../feature/_booking_/booking_settings/data/repository/booking_ops_repository.dart'
     as _i239;
 import '../../feature/_booking_/booking_settings/data/repository/booking_schedule_repository.dart'
@@ -279,6 +285,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i152.BookingHostListRepository>(
       () => _i152.BookingHostListRepository(gh<_i454.SupabaseClient>()),
     );
+    gh.lazySingleton<_i21.BookingPointsRepository>(
+      () => _i21.BookingPointsRepository(gh<_i454.SupabaseClient>()),
+    );
     gh.lazySingleton<_i239.BookingOpsRepository>(
       () => _i239.BookingOpsRepository(gh<_i454.SupabaseClient>()),
     );
@@ -401,6 +410,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i633.BookingScheduleSettingsCubit(
         gh<_i361.BookingScheduleRepository>(),
         gh<_i462.BookingStaffRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i1024.BookingPointsPrefs>(
+      () => _i1024.BookingPointsPrefs(
+        gh<_i1029.IAppStorage>(),
+        gh<_i819.AppSession>(),
       ),
     );
     gh.factory<_i350.ArchivedClustersCubit>(
@@ -556,6 +571,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i138.NotificationsUnreadCubit>(),
       ),
     );
+    gh.factory<_i744.BookingPointsCubit>(
+      () => _i744.BookingPointsCubit(
+        gh<_i21.BookingPointsRepository>(),
+        gh<_i1024.BookingPointsPrefs>(),
+      ),
+    );
     gh.factory<_i978.BookingClientCubit>(
       () => _i978.BookingClientCubit(gh<_i350.BookingClientRepository>()),
     );
@@ -592,6 +613,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i186.MapMarkersLocalCache>(),
       ),
     );
+    gh.factory<_i314.BookingListCubit>(
+      () => _i314.BookingListCubit(
+        gh<_i152.BookingHostListRepository>(),
+        gh<_i202.BookingServicesRepository>(),
+        gh<_i984.BookingLocalCache>(),
+        gh<_i819.AppSession>(),
+      ),
+    );
     gh.factory<_i685.PostCommentsCubit>(
       () => _i685.PostCommentsCubit(
         gh<_i454.PostCommentRepository>(),
@@ -623,13 +652,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i454.SupabaseClient>(),
         gh<_i737.PostLocalCache>(),
         gh<_i573.R2StorageService>(),
-      ),
-    );
-    gh.factory<_i314.BookingListCubit>(
-      () => _i314.BookingListCubit(
-        gh<_i152.BookingHostListRepository>(),
-        gh<_i984.BookingLocalCache>(),
-        gh<_i819.AppSession>(),
       ),
     );
     gh.lazySingleton<_i191.AccountSessionCleanup>(

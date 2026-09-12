@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/feature/_booking_/booking_analytics/data/models/booking_analytics_user.dart';
 import 'package:clover/feature/_booking_/booking_analytics/presentation/cubit/booking_analytics_cubit.dart';
 import 'package:clover/feature/_booking_/booking_analytics/presentation/widget/booking_analytics_period_picker.dart';
@@ -9,13 +10,16 @@ import 'package:clover/feature/_booking_/booking_analytics/presentation/widget/b
 import 'package:clover/feature/_booking_/booking_analytics/presentation/widget/booking_analytics_summary_section.dart';
 import 'package:clover/feature/_booking_/booking_analytics/presentation/widget/booking_analytics_top_staff_section.dart';
 import 'package:clover/feature/_booking_/booking_analytics/presentation/widget/booking_analytics_user_picker.dart';
+import 'package:clover/feature/_booking_/booking_points/data/repository/booking_points_repository.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
 class BookingAnalyticsPage extends StatefulWidget {
-  const BookingAnalyticsPage({super.key});
+  const BookingAnalyticsPage({super.key, required this.pointId});
+
+  final String pointId;
 
   @override
   State<BookingAnalyticsPage> createState() => _BookingAnalyticsPageState();
@@ -26,18 +30,30 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage> {
   late DateTime _start;
   late DateTime _end;
   String? _selectedUserId;
+  String _title = 'Аналитика';
 
   @override
   void initState() {
     super.initState();
     _cubit = sl<BookingAnalyticsCubit>();
     _applyMonthPreset();
+    _resolveTitle();
   }
 
   @override
   void dispose() {
     _cubit.close();
     super.dispose();
+  }
+
+  Future<void> _resolveTitle() async {
+    final point = await sl<BookingPointsRepository>().getPoint(widget.pointId);
+    if (!mounted || point == null) return;
+    setState(() => _title = point.name);
+  }
+
+  void _onPointChanged(String nextId) {
+    context.router.replace(BookingAnalyticsRoute(pointId: nextId));
   }
 
   void _applyWeekPreset() {
@@ -60,7 +76,12 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage> {
   }
 
   void _reload() {
-    _cubit.load(start: _start, end: _end, staffId: _selectedUserId);
+    _cubit.load(
+      start: _start,
+      end: _end,
+      staffId: _selectedUserId,
+      pointId: widget.pointId,
+    );
   }
 
   void _onStartChanged(DateTime value) {
@@ -110,7 +131,9 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage> {
         final userLabel = selectedUser == null ? null : 'Исполнитель: ${selectedUser.displayName}';
 
         return BookingScreenShell(
-          title: 'Аналитика',
+          title: _title,
+          pointId: widget.pointId,
+          onPointChanged: _onPointChanged,
           compactBar: true,
           isLoading: isLoading,
           body: state.maybeMap(

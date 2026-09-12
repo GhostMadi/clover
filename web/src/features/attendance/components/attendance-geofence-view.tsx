@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { AppButton } from "@/components/shared/app-button";
 import { AppButtonLink } from "@/components/shared/app-button";
 import { AttendanceListShimmer } from "@/features/attendance/components/attendance-shimmers";
@@ -10,68 +10,15 @@ import {
   updateGeofence,
 } from "@/features/attendance/lib/attendance-api";
 import { hasGeofenceCenter } from "@/features/attendance/lib/attendance-model";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
+import {
+  readAttendanceWorkplaceCache,
+  writeAttendanceWorkplaceCache,
+} from "@/features/attendance/lib/attendance-prefs";
+import { AttendanceWorkspaceShell } from "@/features/attendance/components/attendance-workspace-shell";
+import { MapboxPinMap } from "@/features/maps/mapbox-pin-map";
+import { getSessionUserId } from "@/lib/run-service-swr";
 
 const ALMATY = { lat: 43.238949, lon: 76.889709 };
-
-type MapHandle = {
-  destroy: () => void;
-  setCenter: (coords: number[], zoom?: number, opts?: object) => void;
-  events: {
-    add: (name: string, cb: (e: { get: (k: string) => number[] }) => void) => void;
-  };
-  geoObjects: { removeAll: () => void; add: (obj: unknown) => void };
-};
-
-type YmapsNs = {
-  ready: (cb: () => void) => void;
-  Map: new (el: HTMLElement, opts: object) => MapHandle;
-  Placemark: new (coords: number[], props?: object, opts?: object) => unknown;
-  Circle: new (
-    geometry: [number[], number],
-    props?: object,
-    opts?: object,
-  ) => unknown;
-};
-
-function getYmaps(): YmapsNs | undefined {
-  return (window as unknown as { ymaps?: YmapsNs }).ymaps;
-}
-
-function loadYmaps(apiKey: string): Promise<YmapsNs> {
-  const existing = getYmaps();
-  if (existing) {
-    return new Promise((resolve) => existing.ready(() => resolve(existing)));
-  }
-  const scriptExisting = document.querySelector<HTMLScriptElement>(
-    "script[data-yandex-maps]",
-  );
-  if (scriptExisting) {
-    return new Promise((resolve, reject) => {
-      scriptExisting.addEventListener("load", () => {
-        const y = getYmaps();
-        if (!y) reject(new Error("Карта не загрузилась"));
-        else y.ready(() => resolve(y));
-      });
-      scriptExisting.addEventListener("error", () =>
-        reject(new Error("Карта не загрузилась")),
-      );
-    });
-  }
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.dataset.yandexMaps = "1";
-    script.src = `https://api-maps.yandex.ru/2.1/?apikey=${encodeURIComponent(apiKey)}&lang=ru_RU`;
-    script.async = true;
-    script.onload = () => {
-      const y = getYmaps();
-      if (!y) reject(new Error("Карта не загрузилась"));
-      else y.ready(() => resolve(y));
-    };
-    script.onerror = () => reject(new Error("Карта не загрузилась"));
-    document.head.appendChild(script);
-  });
-}
 
 function zoomForRadius(radiusM: number): number {
   if (radiusM <= 75) return 16.5;
@@ -82,8 +29,6 @@ function zoomForRadius(radiusM: number): number {
 export function AttendanceGeofenceView({ workplaceId }: { workplaceId: string }) {
   const router = useRouter();
   const hostId = useId().replace(/:/g, "");
-  const mapRef = useRef<MapHandle | null>(null);
-  const ymapsRef = useRef<YmapsNs | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
@@ -95,139 +40,43 @@ export function AttendanceGeofenceView({ workplaceId }: { workplaceId: string })
 
   useEffect(() => {
     let cancelled = false;
-    void getAdminWorkplace(workplaceId)
-      .then((w) => {
-        if (cancelled) return;
-        if (!w) {
-          setLoadError("Компания не найдена или нет прав admin");
-          setLoading(false);
-          return;
-        }
+    void (async () => {
+      const uid = await getSessionUserId();
+      if (cancelled) return;
+      const apply = (w: NonNullable<Awaited<ReturnType<typeof getAdminWorkplace>>>) => {
         if (hasGeofenceCenter(w)) {
           setPin({ lat: w.latitude!, lon: w.longitude! });
         }
         setRadius(w.geofenceRadiusM || 150);
+      };
+      const cached = readAttendanceWorkplaceCache(uid, workplaceId);
+      if (cached) {
+        apply(cached);
         setLoading(false);
-      })
-      .catch((e: unknown) => {
+      }
+      try {
+        const w = await getAdminWorkplace(workplaceId);
         if (cancelled) return;
-        setLoadError(e instanceof Error ? e.message : "Не удалось загрузить");
+        if (!w) {
+          if (!cached) setLoadError("Компания не найдена или нет прав admin");
+          setLoading(false);
+          return;
+        }
+        apply(w);
+        writeAttendanceWorkplaceCache(uid, workplaceId, w);
         setLoading(false);
-      });
+      } catch (e: unknown) {
+        if (cancelled) return;
+        if (!cached) {
+          setLoadError(e instanceof Error ? e.message : "Не удалось загрузить");
+        }
+        setLoading(false);
+      }
+    })();
     return () => {
       cancelled = true;
     };
   }, [workplaceId]);
-
-  useEffect(() => {
-    if (loading || loadError) return;
-    const key = process.env.NEXT_PUBLIC_YANDEX_MAPS_API_KEY?.trim();
-    if (!key) {
-      setMapError("Нет ключа карты");
-      return;
-    }
-    let cancelled = false;
-    void loadYmaps(key)
-      .then((ymaps) => {
-        if (cancelled) return;
-        ymapsRef.current = ymaps;
-        const el = document.getElementById(`att-geo-${hostId}`);
-        if (!el) return;
-        const map = new ymaps.Map(el, {
-          center: [pin.lat, pin.lon],
-          zoom: zoomForRadius(radius),
-          controls: ["zoomControl", "geolocationControl"],
-        });
-        mapRef.current = map;
-
-        const paint = (lat: number, lon: number, r: number) => {
-          map.geoObjects.removeAll();
-          map.geoObjects.add(
-            new ymaps.Circle(
-              [[lat, lon], r],
-              {},
-              {
-                fillColor: "#5b9bd533",
-                strokeColor: "#5b9bd5",
-                strokeWidth: 2,
-              },
-            ),
-          );
-          map.geoObjects.add(
-            new ymaps.Placemark(
-              [lat, lon],
-              {},
-              { preset: "islands#blueDotIcon" },
-            ),
-          );
-          map.setCenter([lat, lon], zoomForRadius(r), { duration: 200 });
-        };
-
-        paint(pin.lat, pin.lon, radius);
-        map.events.add("click", (e) => {
-          const coords = e.get("coords");
-          const next = { lat: coords[0], lon: coords[1] };
-          setPin(next);
-          paint(next.lat, next.lon, radius);
-        });
-      })
-      .catch((e: unknown) =>
-        setMapError(e instanceof Error ? e.message : "Карта недоступна"),
-      );
-
-    return () => {
-      cancelled = true;
-      mapRef.current?.destroy();
-      mapRef.current = null;
-    };
-    // init map once after workplace load
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, loadError, hostId]);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    const ymaps = ymapsRef.current;
-    if (!map || !ymaps) return;
-    map.geoObjects.removeAll();
-    map.geoObjects.add(
-      new ymaps.Circle(
-        [[pin.lat, pin.lon], radius],
-        {},
-        {
-          fillColor: "#5b9bd533",
-          strokeColor: "#5b9bd5",
-          strokeWidth: 2,
-        },
-      ),
-    );
-    map.geoObjects.add(
-      new ymaps.Placemark([pin.lat, pin.lon], {}, { preset: "islands#blueDotIcon" }),
-    );
-    map.setCenter([pin.lat, pin.lon], zoomForRadius(radius), { duration: 150 });
-  }, [pin, radius]);
-
-  if (loading) {
-    return (
-      <SettingsShell title="Геозона" backHref={back} service="attendance">
-        <div className="px-4 py-5">
-          <AttendanceListShimmer rows={3} />
-        </div>
-      </SettingsShell>
-    );
-  }
-
-  if (loadError) {
-    return (
-      <SettingsShell title="Геозона" backHref={back} service="attendance">
-        <div className="space-y-3 px-4 py-5">
-          <p className="text-[14px] text-error">{loadError}</p>
-          <AppButtonLink href={back} service="attendance">
-            Назад
-          </AppButtonLink>
-        </div>
-      </SettingsShell>
-    );
-  }
 
   const save = async () => {
     setSaving(true);
@@ -247,8 +96,31 @@ export function AttendanceGeofenceView({ workplaceId }: { workplaceId: string })
     }
   };
 
+  if (loading) {
+    return (
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Геозона">
+        <div className="px-4 py-5">
+          <AttendanceListShimmer rows={3} />
+        </div>
+      </AttendanceWorkspaceShell>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Геозона">
+        <div className="space-y-3 px-4 py-5">
+          <p className="text-[14px] text-error">{loadError}</p>
+          <AppButtonLink href={back} service="attendance">
+            Назад
+          </AppButtonLink>
+        </div>
+      </AttendanceWorkspaceShell>
+    );
+  }
+
   return (
-    <SettingsShell title="Геозона" backHref={back} service="attendance">
+    <AttendanceWorkspaceShell workplaceId={workplaceId} title="Геозона">
       <div className="flex flex-col gap-4 px-4 py-4 pb-10">
         <p className="text-[13px] text-muted">
           Тапните карту, чтобы поставить центр. Радиус — зона, где можно
@@ -260,9 +132,15 @@ export function AttendanceGeofenceView({ workplaceId }: { workplaceId: string })
             {mapError}
           </p>
         ) : (
-          <div
-            id={`att-geo-${hostId}`}
+          <MapboxPinMap
+            hostId={hostId}
             className="h-[280px] w-full overflow-hidden rounded-[16px] border border-line bg-mint"
+            initialCenter={pin}
+            zoom={zoomForRadius(radius)}
+            pin={pin}
+            geofenceRadiusM={radius}
+            onPinChange={setPin}
+            onReadyError={setMapError}
           />
         )}
 
@@ -303,6 +181,6 @@ export function AttendanceGeofenceView({ workplaceId }: { workplaceId: string })
           Сохранить
         </AppButton>
       </div>
-    </SettingsShell>
+    </AttendanceWorkspaceShell>
   );
 }

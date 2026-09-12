@@ -20,10 +20,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class BookingScheduleOpsSections extends StatefulWidget {
   const BookingScheduleOpsSections({
     super.key,
+    required this.pointId,
     required this.executors,
     this.enabled = true,
   });
 
+  final String pointId;
   final List<BookingServiceExecutor> executors;
   final bool enabled;
 
@@ -37,7 +39,7 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
   @override
   void initState() {
     super.initState();
-    _cubit = sl<BookingScheduleOpsCubit>()..bind(widget.executors);
+    _cubit = sl<BookingScheduleOpsCubit>()..bind(widget.executors, pointId: widget.pointId);
   }
 
   @override

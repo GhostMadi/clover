@@ -2,7 +2,7 @@
 
 import {
   BarChart3,
-  CalendarDays,
+  BookOpen,
   ChevronRight,
   ClipboardList,
   Scissors,
@@ -11,8 +11,14 @@ import {
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
+import {
+  bookingPointBase,
+  readBookingInboxCache,
+  writeBookingInboxCache,
+} from "@/features/booking/lib/booking-prefs";
 import { BookingListShimmer } from "@/features/booking/components/booking-shimmers";
 import { listHostBookings } from "@/features/booking/lib/bookings-api";
+import { listServiceIdsForPoint } from "@/features/booking/lib/services-api";
 import type { HostBookingItem } from "@/features/booking/lib/booking-model";
 import {
   endsAt,
@@ -21,39 +27,44 @@ import {
   hostInboxRange,
   statusLabelRu,
 } from "@/features/booking/lib/booking-format";
+import { createClient } from "@/lib/supabase/client";
 
-const TILES = [
-  {
-    href: "/app/settings/booking/inbox",
-    label: "Мои записи",
-    subtitle: "Inbox: визиты и статусы",
-    icon: ClipboardList,
-  },
-  {
-    href: "/app/settings/booking/services",
-    label: "Услуги",
-    subtitle: "Каталог, мастера, бонусы",
-    icon: Scissors,
-  },
-  {
-    href: "/app/settings/booking/schedule",
-    label: "Расписание",
-    subtitle: "Часы, отсутствия, блокировки",
-    icon: Settings2,
-  },
-  {
-    href: "/app/settings/booking/analytics",
-    label: "Аналитика",
-    subtitle: "Сводка за период",
-    icon: BarChart3,
-  },
-  {
-    href: "/app/settings/booking/my",
-    label: "Мои бронирования",
-    subtitle: "Где вы клиент",
-    icon: CalendarDays,
-  },
-] as const;
+function tiles(pointId: string) {
+  const base = bookingPointBase(pointId);
+  return [
+    {
+      href: `${base}/inbox`,
+      label: "Мои записи",
+      subtitle: "Inbox: визиты и статусы",
+      icon: ClipboardList,
+    },
+    {
+      href: `${base}/services`,
+      label: "Услуги",
+      subtitle: "Каталог, мастера, бонусы",
+      icon: Scissors,
+    },
+    {
+      href: `${base}/analytics`,
+      label: "Аналитика",
+      subtitle: "Сводка за период",
+      icon: BarChart3,
+    },
+    {
+      href: `${base}/settings`,
+      label: "Настройки",
+      subtitle: "Расписание и правила точки",
+      icon: Settings2,
+    },
+    {
+      href: `${base}/guide`,
+      label: "Гайд",
+      subtitle: "Что такое запись — идея сервиса",
+      icon: BookOpen,
+    },
+  ] as const;
+}
+
 
 function isInChair(b: HostBookingItem, now: number): boolean {
   if (b.status === "client_arrived" || b.status === "in_progress") return true;
@@ -70,27 +81,46 @@ function isUpcoming(b: HostBookingItem, now: number): boolean {
   );
 }
 
-export function BookingHubView() {
+export function BookingHubView({ pointId }: { pointId: string }) {
   const [items, setItems] = useState<HostBookingItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    const { from, to } = hostInboxRange();
-    void listHostBookings({ from, to })
-      .then((list) => {
-        if (!cancelled) setItems(list);
-      })
-      .catch(() => {
-        if (!cancelled) setItems([]);
-      })
-      .finally(() => {
+    void (async () => {
+      const range = hostInboxRange();
+      const {
+        data: { session },
+      } = await createClient().auth.getSession();
+      if (cancelled) return;
+      const uid = session?.user.id ?? null;
+      const cached = readBookingInboxCache(uid, pointId, range);
+      if (cached) {
+        setItems(cached);
+        setLoading(false);
+      }
+
+      try {
+        const list = await listHostBookings({ from: range.from, to: range.to });
+        if (cancelled) return;
+        const ids = await listServiceIdsForPoint(pointId);
+        const withPoint =
+          ids.size > 0
+            ? list.filter((b) => b.serviceId != null && ids.has(b.serviceId))
+            : [];
+        if (cancelled) return;
+        setItems(withPoint);
+        writeBookingInboxCache(uid, pointId, range, withPoint);
+      } catch {
+        if (!cancelled && !cached) setItems([]);
+      } finally {
         if (!cancelled) setLoading(false);
-      });
+      }
+    })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [pointId]);
 
   const now = Date.now();
   const inChair = useMemo(
@@ -107,14 +137,14 @@ export function BookingHubView() {
   );
 
   return (
-    <BookingWorkspaceShell title="Обзор">
+    <BookingWorkspaceShell pointId={pointId} title="Обзор">
       <div className="space-y-6">
         <section>
           <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-muted">
             Разделы
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {TILES.map((item) => {
+            {tiles(pointId).map((item) => {
               const Icon = item.icon;
               return (
                 <Link
@@ -143,7 +173,7 @@ export function BookingHubView() {
             <div className="mb-3 flex items-center justify-between gap-2">
               <h2 className="text-[14px] font-bold text-ink">Сейчас в кресле</h2>
               <Link
-                href="/app/settings/booking/inbox"
+                href={`${bookingPointBase(pointId)}/inbox`}
                 className="text-[12px] font-bold text-svc-booking-ink hover:underline"
               >
                 Весь inbox
@@ -158,7 +188,7 @@ export function BookingHubView() {
                 {inChair.map((item) => (
                   <li key={item.id}>
                     <Link
-                      href={`/app/settings/booking/inbox/${item.id}`}
+                      href={`${bookingPointBase(pointId)}/inbox/${item.id}`}
                       className="block rounded-[12px] bg-svc-booking/50 px-3 py-2.5 transition hover:bg-svc-booking"
                     >
                       <p className="text-[14px] font-bold text-ink">
@@ -188,7 +218,7 @@ export function BookingHubView() {
                 {upcoming.map((item) => (
                   <li key={item.id}>
                     <Link
-                      href={`/app/settings/booking/inbox/${item.id}`}
+                      href={`${bookingPointBase(pointId)}/inbox/${item.id}`}
                       className="flex items-start justify-between gap-3 py-2.5 transition hover:bg-svc-booking/25"
                     >
                       <div className="min-w-0">

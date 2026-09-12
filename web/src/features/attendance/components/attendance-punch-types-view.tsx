@@ -12,7 +12,12 @@ import {
   savePunchConfig,
 } from "@/features/attendance/lib/attendance-api";
 import type { AttendanceCustomPunch } from "@/features/attendance/lib/attendance-model";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
+import {
+  readAttendanceWorkplaceCache,
+  writeAttendanceWorkplaceCache,
+} from "@/features/attendance/lib/attendance-prefs";
+import { AttendanceWorkspaceShell } from "@/features/attendance/components/attendance-workspace-shell";
+import { getSessionUserId } from "@/lib/run-service-swr";
 
 type DraftPunch = {
   id?: string;
@@ -45,14 +50,10 @@ export function AttendancePunchTypesView({
 
   useEffect(() => {
     let cancelled = false;
-    void getAdminWorkplace(workplaceId)
-      .then((w) => {
-        if (cancelled) return;
-        if (!w) {
-          setLoadError("Компания не найдена или нет прав admin");
-          setLoading(false);
-          return;
-        }
+    void (async () => {
+      const uid = await getSessionUserId();
+      if (cancelled) return;
+      const apply = (w: NonNullable<Awaited<ReturnType<typeof getAdminWorkplace>>>) => {
         setClockInEnabled(w.clockInEnabled);
         setClockOutEnabled(w.clockOutEnabled);
         setClockInScheduled(w.clockInScheduled);
@@ -64,13 +65,31 @@ export function AttendancePunchTypesView({
             scheduledTime: p.scheduledTime,
           })),
         );
+      };
+      const cached = readAttendanceWorkplaceCache(uid, workplaceId);
+      if (cached) {
+        apply(cached);
         setLoading(false);
-      })
-      .catch((e: unknown) => {
+      }
+      try {
+        const w = await getAdminWorkplace(workplaceId);
         if (cancelled) return;
-        setLoadError(e instanceof Error ? e.message : "Не удалось загрузить");
+        if (!w) {
+          if (!cached) setLoadError("Компания не найдена или нет прав admin");
+          setLoading(false);
+          return;
+        }
+        apply(w);
+        writeAttendanceWorkplaceCache(uid, workplaceId, w);
         setLoading(false);
-      });
+      } catch (e: unknown) {
+        if (cancelled) return;
+        if (!cached) {
+          setLoadError(e instanceof Error ? e.message : "Не удалось загрузить");
+        }
+        setLoading(false);
+      }
+    })();
     return () => {
       cancelled = true;
     };
@@ -101,32 +120,31 @@ export function AttendancePunchTypesView({
 
   if (loading) {
     return (
-      <SettingsShell title="Типы отметок" backHref={back} service="attendance">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Типы отметок">
         <div className="px-4 py-5">
           <AttendanceListShimmer rows={5} />
         </div>
-      </SettingsShell>
+      </AttendanceWorkspaceShell>
     );
   }
 
   if (loadError) {
     return (
-      <SettingsShell title="Типы отметок" backHref={back} service="attendance">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Типы отметок">
         <div className="space-y-3 px-4 py-5">
           <p className="text-[14px] text-error">{loadError}</p>
           <AppButtonLink href={back} service="attendance">
             Назад
           </AppButtonLink>
         </div>
-      </SettingsShell>
+      </AttendanceWorkspaceShell>
     );
   }
 
   return (
-    <SettingsShell
+    <AttendanceWorkspaceShell
+      workplaceId={workplaceId}
       title="Типы отметок"
-      backHref={back}
-      service="attendance"
       trailing={
         <button
           type="button"
@@ -256,7 +274,7 @@ export function AttendancePunchTypesView({
           setCustom((prev) => [...prev, { label, scheduledTime: null }]);
         }}
       />
-    </SettingsShell>
+    </AttendanceWorkspaceShell>
   );
 }
 

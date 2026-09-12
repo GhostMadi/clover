@@ -14,8 +14,13 @@ import {
   punchTypesSubtitle,
   type AttendanceWorkplace,
 } from "@/features/attendance/lib/attendance-model";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
+import {
+  readAttendanceWorkplaceCache,
+  writeAttendanceWorkplaceCache,
+} from "@/features/attendance/lib/attendance-prefs";
+import { AttendanceWorkspaceShell } from "@/features/attendance/components/attendance-workspace-shell";
 import { serviceTileIcon } from "@/lib/service-accent";
+import { getSessionUserId } from "@/lib/run-service-swr";
 
 export function AttendanceSettingsHubView({
   workplaceId,
@@ -27,11 +32,14 @@ export function AttendanceSettingsHubView({
   const [error, setError] = useState<string | null>(null);
   const [dutyBusy, setDutyBusy] = useState(false);
 
-  const reload = useCallback(async () => {
-    setLoading(true);
+  const reload = useCallback(async (opts?: { soft?: boolean }) => {
+    if (!opts?.soft) setLoading(true);
     setError(null);
     try {
-      setWorkplace(await getAdminWorkplace(workplaceId));
+      const uid = await getSessionUserId();
+      const w = await getAdminWorkplace(workplaceId);
+      setWorkplace(w);
+      if (w) writeAttendanceWorkplaceCache(uid, workplaceId, w);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Не удалось загрузить");
     } finally {
@@ -40,24 +48,34 @@ export function AttendanceSettingsHubView({
   }, [workplaceId]);
 
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    void (async () => {
+      const uid = await getSessionUserId();
+      const cached = readAttendanceWorkplaceCache(uid, workplaceId);
+      if (cached) {
+        setWorkplace(cached);
+        setLoading(false);
+        await reload({ soft: true });
+      } else {
+        await reload();
+      }
+    })();
+  }, [reload, workplaceId]);
 
   const base = `/app/settings/attendance/w/${workplaceId}`;
 
   if (loading) {
     return (
-      <SettingsShell title="Настройки" backHref={base} service="attendance">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Настройки">
         <div className="px-4 py-5">
           <AttendanceListShimmer rows={4} />
         </div>
-      </SettingsShell>
+      </AttendanceWorkspaceShell>
     );
   }
 
   if (error || !workplace) {
     return (
-      <SettingsShell title="Настройки" backHref={base} service="attendance">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Настройки">
         <div className="space-y-3 px-4 py-5">
           <p className="text-[14px] text-error">
             {error ?? "Компания не найдена или нет прав admin"}
@@ -66,12 +84,12 @@ export function AttendanceSettingsHubView({
             Назад
           </AppButtonLink>
         </div>
-      </SettingsShell>
+      </AttendanceWorkspaceShell>
     );
   }
 
   return (
-    <SettingsShell title="Настройки" backHref={base} service="attendance">
+    <AttendanceWorkspaceShell workplaceId={workplaceId} title="Настройки">
       <div className="space-y-6 px-4 py-5">
         <div>
           <p className="text-[18px] font-bold text-ink">{workplace.name}</p>
@@ -162,6 +180,6 @@ export function AttendanceSettingsHubView({
           </div>
         </div>
       </div>
-    </SettingsShell>
+    </AttendanceWorkspaceShell>
   );
 }

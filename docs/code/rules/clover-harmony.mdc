@@ -33,3 +33,5 @@ alwaysApply: true
 2. Таблица / RLS / док — в `docs/supabase/` + `supabase/migrations/`
 3. Модель + repo + cubit — как соседние фичи, без исключений
 4. Не разъезжаются имена и списки enum / catalog
+
+Цикл без мусора (RPC/RLS, EN в ответах, INDEX): `clover-supabase-cycle`.

@@ -1,5 +1,5 @@
-import { BookingAnalyticsView } from "@/features/booking/components/booking-analytics-view";
+import { BookingLegacyRedirect } from "@/features/booking/components/booking-legacy-redirect";
 
-export default function BookingAnalyticsPage() {
-  return <BookingAnalyticsView />;
+export default function LegacyBookingAnalyticsPage() {
+  return <BookingLegacyRedirect suffix="/analytics" />;
 }

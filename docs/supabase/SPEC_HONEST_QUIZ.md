@@ -8,12 +8,26 @@
 
 | | |
 |--|--|
-| `honest_quiz_runs` | Один проход: `client_token`, `answers` jsonb, `photo_data_url`, `finished`, `user_agent` |
-| RLS | нет прямого DML; только RPC |
-| `honest_quiz_upsert(...)` | anon+auth |
-| `honest_quiz_admin_list()` | только `is_site_admin` |
-| `honest_quiz_admin_get(p_id)` | только `is_site_admin` |
+| `honest_quiz_runs` | Один проход: `client_token`, `answers` jsonb, `photo_data_url` (data URL, optional), `finished`, `user_agent`, timestamps |
+| RLS | нет прямого DML у anon/auth; только RPC |
+| `honest_quiz_upsert(...)` | anon+auth: создать/обновить свой run по `client_token` |
+| `honest_quiz_admin_list()` | список runs — только `is_site_admin` |
+| `honest_quiz_admin_get(p_id)` | один run с фото — только `is_site_admin` |
+
+## answers keys (EN)
+
+```json
+{
+  "q1": "yes",
+  "q2": "yes",
+  "q3": "send",
+  "q1_no_attempts": 3,
+  "q2_no_attempts": 5,
+  "q3_no_attempts": 4
+}
+```
 
 ## Admin
 
-Вход `/admin` = email+пароль + `profiles.is_site_admin`. Ответы: `/admin/honest`.
+Вход в `/admin` email+пароль аккаунта с `profiles.is_site_admin`.  
+Ответы: `/admin/honest`. Отдельный secret env **не нужен**.

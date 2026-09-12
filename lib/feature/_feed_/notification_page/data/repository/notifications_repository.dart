@@ -14,6 +14,10 @@ abstract class NotificationsRepository {
   Future<void> markRead({List<String>? ids});
 
   Future<int> countUnread();
+
+  Future<void> confirmAccountLogin(String loginEventId);
+
+  Future<void> revokeAccountLogin(String loginEventId);
 }
 
 @LazySingleton(as: NotificationsRepository)
@@ -61,6 +65,16 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     if (res is int) return res;
     if (res is num) return res.toInt();
     return 0;
+  }
+
+  @override
+  Future<void> confirmAccountLogin(String loginEventId) async {
+    await _client.rpc('confirm_account_login', params: {'p_event_id': loginEventId});
+  }
+
+  @override
+  Future<void> revokeAccountLogin(String loginEventId) async {
+    await _client.rpc('revoke_account_login', params: {'p_event_id': loginEventId});
   }
 
   static List<NotificationItem> _parseRows(dynamic res) {
@@ -111,6 +125,18 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     final reminderMinutes =
         reminderRaw is num ? reminderRaw.toInt() : int.tryParse('$reminderRaw');
 
+    final loginWhere = _loginWhereFromPayload(payload);
+    final loginEventId = (payload['login_event_id'] as String?)?.trim();
+    final loginResolved = (payload['resolved'] as String?)?.trim();
+    final actionsRaw = payload['actions'];
+    final loginActions = <String>[];
+    if (actionsRaw is List) {
+      for (final a in actionsRaw) {
+        final s = a?.toString().trim();
+        if (s != null && s.isNotEmpty) loginActions.add(s);
+      }
+    }
+
     return NotificationItem(
       id: id,
       kind: kind,
@@ -130,7 +156,23 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       bonusEarnAmount: bonusEarnAmount != null && bonusEarnAmount > 0 ? bonusEarnAmount : null,
       bookingReminderMinutesBefore:
           reminderMinutes != null && reminderMinutes > 0 ? reminderMinutes : null,
+      loginWhere: loginWhere,
+      loginEventId: loginEventId != null && loginEventId.isNotEmpty ? loginEventId : null,
+      loginResolved: loginResolved != null && loginResolved.isNotEmpty ? loginResolved : null,
+      loginActions: loginActions,
     );
+  }
+
+  static String? _loginWhereFromPayload(Map<String, dynamic> payload) {
+    final device = (payload['device_label'] as String?)?.trim();
+    if (device != null && device.isNotEmpty) return device;
+    final client = (payload['client'] as String?)?.trim();
+    final platform = (payload['platform'] as String?)?.trim();
+    if (client == 'web') return 'веб';
+    if (platform == 'ios') return 'iOS';
+    if (platform == 'android') return 'Android';
+    if (client == 'mobile') return 'телефона';
+    return null;
   }
 
   static NotificationActor? _parseActor(dynamic raw) {
@@ -172,6 +214,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       'attendance_rules_ack' => NotificationKind.attendanceRulesAck,
       'attendance_duty' => NotificationKind.attendanceDuty,
       'attendance_correction' => NotificationKind.attendanceCorrection,
+      'account_login' => NotificationKind.accountLogin,
       _ => NotificationKind.comment,
     };
   }

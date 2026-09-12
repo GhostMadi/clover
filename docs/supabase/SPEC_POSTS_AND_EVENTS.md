@@ -64,6 +64,20 @@
 - RLS + RPC фильтруют `profiles.account_state <> 'hibernate'`, `content_visible`, `is_archived`, `deleted_at`.
 - Карта: `list_markers_map` — маркеры с `post_id is not null`.
 
+## Реакции
+
+| RPC | Правило |
+|-----|---------|
+| `set_post_reaction` / `set_comment_reaction` | SECURITY DEFINER; set kind только на reactable пост (свой или видимый); clear всегда |
+| DML | `post_reactions` / `comment_reactions` — **RPC-only** (revoke insert/update/delete у `authenticated`) |
+
+Миграция: `20260911210000_post_reactions_visibility_rpc_only.sql`.
+
+## Медиа
+
+- Live create: **R2** direct upload ([SPEC_R2_DIRECT_UPLOAD.md](SPEC_R2_DIRECT_UPLOAD.md)); legacy Storage bucket `post_media` — старые объекты / Edge `create_post`.
+- Ивенты: связь пост↔маркер также через `marker_posts` (M2M) в дополнение к `posts.marker_id`.
+
 ---
 
 ## Связанные файлы (Flutter)

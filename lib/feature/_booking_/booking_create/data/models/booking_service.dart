@@ -13,6 +13,7 @@ class BookingService {
     this.isActive = true,
     this.bonusPayPercent = 0,
     this.bonusEarnAmount = 0,
+    this.pointId,
   });
 
   final String id;
@@ -31,6 +32,9 @@ class BookingService {
 
   /// Сколько бонусов клиент получит за завершённый визит.
   final int bonusEarnAmount;
+
+  /// Точка хозяина (`booking_points`); null — legacy / ещё не привязана.
+  final String? pointId;
 
   String? get executorId => executorIds.isEmpty ? null : executorIds.first;
 
@@ -66,6 +70,8 @@ class BookingService {
     bool? isActive,
     int? bonusPayPercent,
     int? bonusEarnAmount,
+    String? pointId,
+    bool clearPointId = false,
   }) {
     return BookingService(
       id: id,
@@ -80,6 +86,7 @@ class BookingService {
       isActive: isActive ?? this.isActive,
       bonusPayPercent: bonusPayPercent ?? this.bonusPayPercent,
       bonusEarnAmount: bonusEarnAmount ?? this.bonusEarnAmount,
+      pointId: clearPointId ? null : (pointId ?? this.pointId),
     );
   }
 
@@ -106,21 +113,23 @@ class BookingService {
       isActive: json['is_active'] == true || json['is_active'] == null,
       bonusPayPercent: (json['bonus_pay_percent'] as num?)?.toInt() ?? 0,
       bonusEarnAmount: (json['bonus_earn_amount'] as num?)?.toInt() ?? 0,
+      pointId: json['point_id']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'title': title,
-    'duration_minutes': durationMinutes,
-    'emoji_text': emojiText,
-    'price': price,
-    'max_participants': maxParticipants,
-    'buffer_after_minutes': bufferAfterMinutes,
-    'description': description,
-    'executor_ids': executorIds,
-    'is_active': isActive,
-    'bonus_pay_percent': bonusPayPercent,
-    'bonus_earn_amount': bonusEarnAmount,
-  };
+        'id': id,
+        'title': title,
+        'duration_minutes': durationMinutes,
+        'emoji_text': emojiText,
+        'price': price,
+        'max_participants': maxParticipants,
+        'buffer_after_minutes': bufferAfterMinutes,
+        'description': description,
+        'executor_ids': executorIds,
+        'is_active': isActive,
+        'bonus_pay_percent': bonusPayPercent,
+        'bonus_earn_amount': bonusEarnAmount,
+        'point_id': pointId,
+      };
 }

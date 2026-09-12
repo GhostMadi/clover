@@ -14,7 +14,14 @@ import {
   updateManagedLocation,
   type ManagedLocation,
 } from "@/features/resources/lib/locations-api";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
+import {
+  readResourcesLocationCache,
+  writeResourcesLocationCache,
+  writeResourcesLocationsCache,
+  readResourcesLocationsCache,
+} from "@/features/resources/lib/resources-prefs";
+import { ResourcesWorkspaceShell } from "@/features/resources/components/resources-workspace-shell";
+import { getSessionUserId } from "@/lib/run-service-swr";
 
 type LocationDetailViewProps = { locationId: string };
 
@@ -31,27 +38,56 @@ export function LocationDetailView({ locationId }: LocationDetailViewProps) {
   const [saving, setSaving] = useState(false);
   const [, startTransition] = useTransition();
 
+  const applyLoc = (row: ManagedLocation) => {
+    setLoc(row);
+    const cyr = row.addressCyrillic?.trim() || "";
+    const primary = row.addressPrimary.trim();
+    setAddressCyrillic(cyr || primary);
+    setAddressLatin(cyr && primary !== cyr ? primary : "");
+    setCountryCode(row.countryCode ?? "");
+    setCityCode(row.cityCode ?? "");
+    setIsActive(row.isActive);
+  };
+
   useEffect(() => {
-    void getMyLocation(locationId)
-      .then((row) => {
+    let cancelled = false;
+    void (async () => {
+      const uid = await getSessionUserId();
+      if (cancelled) return;
+      const cached = readResourcesLocationCache(uid, locationId);
+      if (cached) {
+        applyLoc(cached);
+        setLoading(false);
+      }
+      try {
+        const row = await getMyLocation(locationId);
+        if (cancelled) return;
         if (!row) {
-          setError("Место не найдено");
+          if (!cached) setError("Место не найдено");
+          setLoading(false);
           return;
         }
-        setLoc(row);
-        const cyr = row.addressCyrillic?.trim() || "";
-        const primary = row.addressPrimary.trim();
-        // Кириллица сверху: колонка cyrillic, иначе старый primary-only
-        setAddressCyrillic(cyr || primary);
-        setAddressLatin(cyr && primary !== cyr ? primary : "");
-        setCountryCode(row.countryCode ?? "");
-        setCityCode(row.cityCode ?? "");
-        setIsActive(row.isActive);
-      })
-      .catch((e: unknown) =>
-        setError(e instanceof Error ? e.message : "Ошибка загрузки"),
-      )
-      .finally(() => setLoading(false));
+        applyLoc(row);
+        writeResourcesLocationCache(uid, row);
+        const list = readResourcesLocationsCache(uid);
+        if (list) {
+          writeResourcesLocationsCache(
+            uid,
+            list.map((l) => (l.id === row.id ? row : l)),
+          );
+        }
+        setLoading(false);
+      } catch (e: unknown) {
+        if (cancelled) return;
+        if (!cached) {
+          setError(e instanceof Error ? e.message : "Ошибка загрузки");
+        }
+        setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [locationId]);
 
   const cities = countryCode ? citiesForCountry(countryCode) : [];
@@ -97,12 +133,11 @@ export function LocationDetailView({ locationId }: LocationDetailViewProps) {
   };
 
   return (
-    <SettingsShell
+    <ResourcesWorkspaceShell
       title="Местоположение"
       backHref="/app/settings/resources/locations"
-      service="resources"
     >
-      <div className="flex flex-col gap-4 px-4 py-4 pb-10">
+      <div className="mx-auto flex max-w-3xl flex-col gap-4 lg:grid lg:max-w-5xl lg:grid-cols-2 lg:gap-6">
         {loading ? (
           <p className="py-16 text-center text-sm text-muted">Загрузка…</p>
         ) : null}
@@ -186,7 +221,7 @@ export function LocationDetailView({ locationId }: LocationDetailViewProps) {
             />
             <AppButton
               type="button"
-              service="resources"
+             
               loading={saving}
               disabled={!addressCyrillic.trim() || saving}
               onClick={save}
@@ -205,6 +240,6 @@ export function LocationDetailView({ locationId }: LocationDetailViewProps) {
           </>
         ) : null}
       </div>
-    </SettingsShell>
+    </ResourcesWorkspaceShell>
   );
 }

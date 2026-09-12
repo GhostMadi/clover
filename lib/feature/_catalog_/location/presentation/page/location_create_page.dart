@@ -62,9 +62,11 @@ class _LocationCreatePageState extends State<LocationCreatePage> {
     setState(() => _submitting = true);
 
     try {
+      // Контракт = web/resources: primary = латиница (или кириллица, если латиницы нет);
+      // address_cyrillic = обязательный кириллический адрес (docs/business/locations.md).
       await _repository.create(
-        addressPrimary: cyrillic,
-        addressCyrillic: secondary.isEmpty ? null : secondary,
+        addressPrimary: secondary.isEmpty ? cyrillic : secondary,
+        addressCyrillic: cyrillic,
         latitude: _selectedPoint!.latitude,
         longitude: _selectedPoint!.longitude,
       );

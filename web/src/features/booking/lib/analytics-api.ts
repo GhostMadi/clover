@@ -5,6 +5,7 @@ export async function getBookingAnalytics(params: {
   from: string;
   to: string;
   staffId?: string;
+  pointId?: string;
 }): Promise<BookingAnalytics> {
   const supabase = createClient();
   const body: Record<string, unknown> = {
@@ -12,6 +13,7 @@ export async function getBookingAnalytics(params: {
     p_to: params.to,
   };
   if (params.staffId?.trim()) body.p_staff_id = params.staffId.trim();
+  if (params.pointId?.trim()) body.p_point_id = params.pointId.trim();
   const { data, error } = await supabase.rpc("get_booking_analytics", body);
   if (error) throw error;
   const map = (data && typeof data === "object" ? data : {}) as Record<string, unknown>;

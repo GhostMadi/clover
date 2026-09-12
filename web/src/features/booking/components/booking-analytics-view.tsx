@@ -8,10 +8,15 @@ import {
   emptyAnalytics,
   getBookingAnalytics,
 } from "@/features/booking/lib/analytics-api";
+import {
+  readBookingAnalyticsCache,
+  writeBookingAnalyticsCache,
+} from "@/features/booking/lib/booking-prefs";
 import type { BookingAnalytics } from "@/features/booking/lib/booking-model";
 import { formatPriceKzt } from "@/features/booking/lib/booking-format";
+import { createClient } from "@/lib/supabase/client";
 
-export function BookingAnalyticsView() {
+export function BookingAnalyticsView({ pointId }: { pointId: string }) {
   const defaults = analyticsPeriodDefaults();
   const [from, setFrom] = useState(defaults.from);
   const [to, setTo] = useState(defaults.to);
@@ -21,24 +26,39 @@ export function BookingAnalyticsView() {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    void getBookingAnalytics({ from, to })
-      .then((res) => {
-        if (!cancelled) setData(res);
-      })
-      .catch((e: unknown) => {
+    void (async () => {
+      const {
+        data: { session },
+      } = await createClient().auth.getSession();
+      if (cancelled) return;
+      const uid = session?.user.id ?? null;
+      const cached = readBookingAnalyticsCache(uid, from, to, pointId);
+      if (cached) {
+        setData(cached);
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
+
+      try {
+        const res = await getBookingAnalytics({ from, to, pointId });
+        if (cancelled) return;
+        setData(res);
+        setError(null);
+        writeBookingAnalyticsCache(uid, from, to, res, pointId);
+      } catch (e: unknown) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Ошибка");
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) setLoading(false);
-      });
+      }
+    })();
     return () => {
       cancelled = true;
     };
-  }, [from, to]);
+  }, [from, to, pointId]);
 
   return (
-    <BookingWorkspaceShell title="Аналитика">
+    <BookingWorkspaceShell pointId={pointId} title="Аналитика">
       <div className="space-y-5">
         <div className="grid max-w-md grid-cols-2 gap-3">
           <label className="block">

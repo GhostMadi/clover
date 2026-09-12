@@ -1,6 +1,7 @@
 "use client";
 
-import { Folder, MoreHorizontal, X } from "lucide-react";
+import { Archive, Folder, MoreHorizontal, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import {
   getPostClusterId,
@@ -8,19 +9,23 @@ import {
   setPostCluster,
   type ClusterItem,
 } from "@/features/profile/lib/clusters-api";
+import { archiveOwnedPost, deleteOwnedPost } from "@/features/post/lib/post-owner-api";
 
 type PostClusterMenuProps = {
   postId: string;
   ownerId: string;
+  markerId?: string | null;
 };
 
-/** Меню автора: привязать / отвязать пост от кластера. */
-export function PostClusterMenu({ postId, ownerId }: PostClusterMenuProps) {
+/** Меню автора: кластер, архив, удаление. */
+export function PostClusterMenu({ postId, ownerId, markerId }: PostClusterMenuProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [picker, setPicker] = useState(false);
   const [clusters, setClusters] = useState<ClusterItem[]>([]);
   const [clusterId, setClusterId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const [, startTransition] = useTransition();
 
   useEffect(() => {
@@ -73,6 +78,41 @@ export function PostClusterMenu({ postId, ownerId }: PostClusterMenuProps) {
     });
   };
 
+  const onArchive = () => {
+    setOpen(false);
+    if (busy) return;
+    setBusy(true);
+    startTransition(async () => {
+      try {
+        await archiveOwnedPost({ postId, markerId });
+        router.push("/app/profile");
+        router.refresh();
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Не удалось архивировать");
+        setBusy(false);
+      }
+    });
+  };
+
+  const onDelete = () => {
+    setOpen(false);
+    if (busy) return;
+    if (typeof window !== "undefined" && !window.confirm("Удалить публикацию безвозвратно?")) {
+      return;
+    }
+    setBusy(true);
+    startTransition(async () => {
+      try {
+        await deleteOwnedPost(postId);
+        router.push("/app/profile");
+        router.refresh();
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Не удалось удалить");
+        setBusy(false);
+      }
+    });
+  };
+
   return (
     <>
       <div className="relative">
@@ -81,6 +121,7 @@ export function PostClusterMenu({ postId, ownerId }: PostClusterMenuProps) {
           onClick={() => setOpen((v) => !v)}
           className="flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-bg"
           aria-label="Ещё"
+          disabled={busy}
         >
           <MoreHorizontal className="h-5 w-5" strokeWidth={2} />
         </button>
@@ -103,9 +144,31 @@ export function PostClusterMenu({ postId, ownerId }: PostClusterMenuProps) {
                 Отвязать от кластера
               </button>
             ) : null}
+            <button
+              type="button"
+              onClick={onArchive}
+              className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-[13px] font-semibold text-ink hover:bg-bg"
+            >
+              <Archive className="h-4 w-4 text-muted" />
+              Архивировать
+            </button>
+            <button
+              type="button"
+              onClick={onDelete}
+              className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-[13px] font-semibold text-destructive hover:bg-bg"
+            >
+              <Trash2 className="h-4 w-4" />
+              Удалить
+            </button>
           </div>
         ) : null}
       </div>
+
+      {error && !picker ? (
+        <p className="absolute right-3 top-12 z-30 max-w-[220px] rounded-[10px] bg-surface px-2 py-1 text-[12px] font-semibold text-destructive shadow">
+          {error}
+        </p>
+      ) : null}
 
       {picker ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">

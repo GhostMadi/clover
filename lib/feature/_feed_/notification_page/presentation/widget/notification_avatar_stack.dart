@@ -123,6 +123,11 @@ class _ReactionBadge extends StatelessWidget {
         context.colors.primary,
         context.colors.white,
       ),
+      NotificationKind.accountLogin => (
+        AppIcons.lock.icon,
+        context.colors.infoSoft,
+        context.colors.primary,
+      ),
     };
 
     return Container(

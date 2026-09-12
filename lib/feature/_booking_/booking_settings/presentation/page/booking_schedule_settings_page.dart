@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
+import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
 import 'package:clover/feature/_booking_/booking_settings/data/models/booking_schedule_settings.dart';
 import 'package:clover/feature/_booking_/booking_settings/presentation/cubit/booking_schedule_settings_cubit.dart';
@@ -12,7 +13,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
 class BookingScheduleSettingsPage extends StatefulWidget {
-  const BookingScheduleSettingsPage({super.key});
+  const BookingScheduleSettingsPage({super.key, required this.pointId});
+
+  final String pointId;
 
   @override
   State<BookingScheduleSettingsPage> createState() => _BookingScheduleSettingsPageState();
@@ -25,7 +28,7 @@ class _BookingScheduleSettingsPageState extends State<BookingScheduleSettingsPag
   @override
   void initState() {
     super.initState();
-    _cubit = sl<BookingScheduleSettingsCubit>()..load();
+    _cubit = sl<BookingScheduleSettingsCubit>()..load(pointId: widget.pointId);
   }
 
   @override
@@ -55,30 +58,33 @@ class _BookingScheduleSettingsPageState extends State<BookingScheduleSettingsPag
       builder: (context, state) {
         final isSubmitting = state.maybeMap(submitting: (_) => true, orElse: () => false);
         final isLoading = state.maybeMap(loading: (_) => true, orElse: () => false);
-        final settings = _settings ?? state.maybeMap(loaded: (s) => s.settings, orElse: () => null);
-        final staff = state.maybeMap(loaded: (s) => s.staff, orElse: () => const <BookingServiceExecutor>[]);
+        final loaded = state is BookingScheduleSettingsLoaded ? state : null;
+        final settings = _settings ?? loaded?.settings;
+        final staff = loaded?.staff ?? const <BookingServiceExecutor>[];
 
         return BookingScreenShell(
           title: 'Настройки записи',
+          pointId: widget.pointId,
+          onPointChanged: (nextId) {
+            context.router.replace(BookingScheduleSettingsRoute(pointId: nextId));
+          },
           compactBar: true,
           isLoading: isSubmitting || isLoading,
           showSave: true,
           canSave: settings?.isValid == true && !isSubmitting,
           onSaveTap: _save,
-          body: state.maybeMap(
-            error: (s) => Center(child: Text(s.message)),
-            orElse: () {
-              if (settings == null) {
-                return const BookingLoader();
-              }
-              return BookingScheduleSettingsForm(
-                settings: settings,
-                executors: staff,
-                enabled: !isSubmitting,
-                onChanged: (value) => setState(() => _settings = value),
-              );
-            },
-          ),
+          body: switch (state) {
+            BookingScheduleSettingsError(:final message) => Center(child: Text(message)),
+            _ => settings == null
+                ? const BookingLoader()
+                : BookingScheduleSettingsForm(
+                    pointId: widget.pointId,
+                    settings: settings,
+                    executors: staff,
+                    enabled: !isSubmitting,
+                    onChanged: (value) => setState(() => _settings = value),
+                  ),
+          },
         );
       },
     );

@@ -28,8 +28,14 @@ export async function listMyLocations(): Promise<SavedLocation[]> {
   });
 }
 
+/**
+ * Быстрый create из композера поста (если снова включим).
+ * Тот же контракт, что resources: кириллица обязательна → address_cyrillic;
+ * primary = латиница или кириллица.
+ */
 export async function createLocationQuick(opts: {
-  addressPrimary: string;
+  addressCyrillic: string;
+  addressLatin?: string | null;
   latitude: number;
   longitude: number;
   countryCode?: string | null;
@@ -41,9 +47,14 @@ export async function createLocationQuick(opts: {
   } = await supabase.auth.getSession();
   if (!session?.user.id) throw new Error("Нет сессии");
 
+  const cyr = opts.addressCyrillic.trim();
+  if (!cyr) throw new Error("Укажите адрес кириллицей");
+  const latin = opts.addressLatin?.trim() || "";
+
   const insert: Record<string, unknown> = {
     owner_id: session.user.id,
-    address_primary: opts.addressPrimary.trim(),
+    address_primary: latin || cyr,
+    address_cyrillic: cyr,
     latitude: opts.latitude,
     longitude: opts.longitude,
     is_active: true,

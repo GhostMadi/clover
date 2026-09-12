@@ -137,7 +137,10 @@ function mapSettings(
   };
 }
 
-export async function getScheduleSettings(hostId?: string): Promise<BookingScheduleSettings> {
+export async function getScheduleSettings(
+  hostId?: string,
+  pointId?: string,
+): Promise<BookingScheduleSettings> {
   const supabase = createClient();
   const {
     data: { session },
@@ -146,15 +149,27 @@ export async function getScheduleSettings(hostId?: string): Promise<BookingSched
   const id = (hostId ?? user?.id)?.trim();
   if (!id) return defaultScheduleSettings();
 
+  let point = pointId?.trim() || null;
+  if (!point) {
+    const { data: pid } = await supabase.rpc("booking_default_point_id", {
+      p_host_id: id,
+    });
+    point = typeof pid === "string" ? pid : null;
+  }
+
+  const settingsQuery = point
+    ? supabase.from("booking_schedule_settings").select().eq("point_id", point).maybeSingle()
+    : supabase.from("booking_schedule_settings").select().eq("host_id", id).limit(1).maybeSingle();
+
+  let absencesQuery = supabase
+    .from("booking_staff_absences")
+    .select()
+    .eq("host_id", id)
+    .order("start_date");
+  if (point) absencesQuery = absencesQuery.eq("point_id", point);
+
   const [{ data: settingsRow, error: sErr }, { data: absencesRes, error: aErr }] =
-    await Promise.all([
-      supabase.from("booking_schedule_settings").select().eq("host_id", id).maybeSingle(),
-      supabase
-        .from("booking_staff_absences")
-        .select()
-        .eq("host_id", id)
-        .order("start_date"),
-    ]);
+    await Promise.all([settingsQuery, absencesQuery]);
   if (sErr) throw sErr;
   if (aErr) throw aErr;
   const absences = (absencesRes ?? []).map((r) => mapAbsence(r as Record<string, unknown>));
@@ -163,6 +178,7 @@ export async function getScheduleSettings(hostId?: string): Promise<BookingSched
 
 export async function saveMyScheduleSettings(
   settings: BookingScheduleSettings,
+  pointId: string,
 ): Promise<BookingScheduleSettings> {
   const supabase = createClient();
   const {
@@ -170,12 +186,15 @@ export async function saveMyScheduleSettings(
   } = await supabase.auth.getSession();
   const user = session?.user ?? null;
   if (!user) throw new Error("Войдите в аккаунт");
+  const point = pointId.trim();
+  if (!point) throw new Error("Нет точки");
 
   const start = settings.workStart.length === 5 ? `${settings.workStart}:00` : settings.workStart;
   const end = settings.workEnd.length === 5 ? `${settings.workEnd}:00` : settings.workEnd;
 
   const { error } = await supabase.from("booking_schedule_settings").upsert({
     host_id: user.id,
+    point_id: point,
     rest_weekdays: settings.restWeekdays,
     horizon_kind: settings.horizonKind,
     max_booking_days_ahead: settings.maxBookingDaysAhead,
@@ -190,6 +209,7 @@ export async function saveMyScheduleSettings(
   if (error) throw error;
 
   const { error: absErr } = await supabase.rpc("replace_booking_staff_absences", {
+    p_point_id: point,
     p_absences: settings.absences.map((a) => ({
       staff_id: a.staffId,
       start_date: a.startDate,
@@ -199,20 +219,27 @@ export async function saveMyScheduleSettings(
   });
   if (absErr) throw absErr;
 
-  return getScheduleSettings(user.id);
+  return getScheduleSettings(user.id, point);
 }
 
-export async function listBlockedSlots(from: Date, to: Date): Promise<BookingBlockedSlot[]> {
+export async function listBlockedSlots(
+  from: Date,
+  to: Date,
+  pointId: string,
+): Promise<BookingBlockedSlot[]> {
   const supabase = createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
   const user = session?.user ?? null;
   if (!user) return [];
+  const point = pointId.trim();
+  if (!point) return [];
   const { data, error } = await supabase
     .from("booking_blocked_slots")
     .select("id, staff_id, starts_at, ends_at, reason")
     .eq("host_id", user.id)
+    .eq("point_id", point)
     .gte("starts_at", from.toISOString())
     .lte("starts_at", to.toISOString())
     .order("starts_at");
@@ -227,6 +254,7 @@ export async function listBlockedSlots(from: Date, to: Date): Promise<BookingBlo
 }
 
 export async function createBlockedSlot(params: {
+  pointId: string;
   staffId: string;
   startsAt: string;
   endsAt: string;
@@ -238,8 +266,11 @@ export async function createBlockedSlot(params: {
   } = await supabase.auth.getSession();
   const user = session?.user ?? null;
   if (!user) throw new Error("Войдите в аккаунт");
+  const point = params.pointId.trim();
+  if (!point) throw new Error("Нет точки");
   const { error } = await supabase.from("booking_blocked_slots").insert({
     host_id: user.id,
+    point_id: point,
     staff_id: params.staffId,
     starts_at: new Date(params.startsAt).toISOString(),
     ends_at: new Date(params.endsAt).toISOString(),

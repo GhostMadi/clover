@@ -33,7 +33,7 @@
 | UI-модуль | Роль | Backend |
 |-----------|------|---------|
 | `booking_create` | Host: CRUD услуг | `booking_services`, `booking_service_staff` |
-| `booking_settings` | Host: расписание, выходные, отсутствия | `booking_schedule_settings`, `booking_staff_schedule`, `booking_staff_absences`, `booking_blocked_slots` |
+| `booking_settings` | Точка: расписание, выходные; staff: отсутствия / блоки | `booking_schedule_settings` (per point), `booking_staff_schedule`, `booking_staff_absences`, `booking_blocked_slots` |
 | `booking_list` | Host: входящие записи + поиск | `list_host_bookings_enriched` |
 | `booking_client` | Client: запись к host | `get_booking_availability`, `create_booking` |
 | `my_bookings` | Client: свои записи | `list_my_bookings_enriched` |
@@ -149,14 +149,18 @@ create index booking_service_staff_staff_idx on public.booking_service_staff (st
 
 ---
 
-### 4. `booking_schedule_settings` — defaults аккаунта + горизонт
+### 4. `booking_schedule_settings` — настройки **точки** + горизонт
 
-**Не единственный источник рабочих часов.** Хранит fallback для staff без персонального графика и общие параметры бронирования.
+Одна строка на `booking_points` (как настройки workplace у attendance).  
+Не единственный источник рабочих часов: fallback для staff без `booking_staff_schedule`.
+
+Спека точек: [booking-points.md](booking-points.md). Миграция: `20260911183500_booking_schedule_settings_per_point.sql`.
 
 ```sql
 create table public.booking_schedule_settings (
-  host_id                 uuid primary key references public.profiles(id) on delete cascade,
-  rest_weekdays           int[] not null default '{7}',  -- fallback: ISO 1=пн … 7=вс
+  point_id                uuid primary key references public.booking_points(id) on delete cascade,
+  host_id                 uuid not null references public.profiles(id) on delete cascade,
+  rest_weekdays           int[] not null default '{7}',  -- ISO 1=пн … 7=вс
   horizon_kind            public.booking_horizon_kind not null default 'days_ahead',
   max_booking_days_ahead  int not null default 14 check (max_booking_days_ahead >= 1),
   max_booking_until_date  date,
@@ -165,6 +169,7 @@ create table public.booking_schedule_settings (
   slot_step_minutes       int not null default 30 check (slot_step_minutes in (15, 30, 60)),
   timezone                text not null default 'Asia/Almaty',
   updated_at              timestamptz not null default now(),
+  -- + client_cancel_hours_before, auto_close_* (см. host_freedom / notifications)
 
   check (default_work_end_time > default_work_start_time),
   check (
@@ -174,7 +179,10 @@ create table public.booking_schedule_settings (
 );
 ```
 
-Переименование `work_*` → `default_work_*` явно показывает: это дефолт, не график каждого мастера.
+Хелперы: `booking_schedule_settings_for_point` / `_for_service` / `_for_host` (первая точка).  
+Триггер на insert `booking_points` → дефолтная строка настроек.
+
+`default_work_*` — дефолт точки, не график каждого мастера.
 
 ---
 
@@ -207,15 +215,15 @@ create index booking_staff_schedule_staff_idx on public.booking_staff_schedule (
 #### Резолв рабочего окна на день (функция-хелпер)
 
 ```sql
--- booking_resolve_staff_day_window(p_staff_id, p_day date) returns (is_working, start_time, end_time)
+-- booking_resolve_staff_day_window(p_staff_id, p_day, p_point_id default null)
 --
 -- 1. Если есть строка booking_staff_schedule для (staff_id, weekday(p_day)) → использовать её.
--- 2. Иначе fallback:
---    - если weekday in booking_schedule_settings.rest_weekdays → is_working = false
+-- 2. Иначе fallback на настройки точки (p_point_id или default point host):
+--    - если weekday in rest_weekdays → is_working = false
 --    - иначе default_work_start_time / default_work_end_time
 ```
 
-**v1 UI** (`booking_settings`) может писать только `booking_schedule_settings` — backend уже готов к per-staff. Когда появится UI графика мастера — POST в `booking_staff_schedule` без миграций.
+**v1 UI** пишет `booking_schedule_settings` **на точку**. Backend готов к per-staff через `booking_staff_schedule`.
 
 ---
 
@@ -552,7 +560,7 @@ get_booking_analytics(
 | CRUD staff | `booking_staff` |
 | CRUD services | `booking_services` (деактивация → RPC) |
 | Link staff ↔ service | `booking_service_staff` |
-| Upsert account settings | `booking_schedule_settings` |
+| Upsert point schedule settings | `booking_schedule_settings` (by `point_id`) |
 | CRUD staff schedule | `booking_staff_schedule` |
 | CRUD absences | `replace_booking_staff_absences` (atomic) / read via PostgREST |
 | Availability (create + reschedule) | `get_booking_availability` (+ optional `p_exclude_booking_id`) |

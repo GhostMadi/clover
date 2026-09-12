@@ -8,10 +8,13 @@ import { followUser, unfollowUser } from "@/features/catalog/lib/social-api";
 import {
   listNotificationsPage,
   markNotificationsRead,
+  confirmAccountLogin,
+  revokeAccountLogin,
 } from "@/features/notifications/lib/notifications-api";
 import {
   formatRelativeTime,
   notificationMessage,
+  showLoginActions,
   type AppNotification,
 } from "@/features/notifications/lib/notifications-model";
 
@@ -108,6 +111,26 @@ export function NotificationsView({
     });
   };
 
+  const resolveLogin = (item: AppNotification, resolved: "confirmed" | "revoked") => {
+    const eventId = item.loginEventId;
+    if (!eventId) return;
+    setItems((prev) =>
+      prev.map((n) => (n.id === item.id ? { ...n, loginResolved: resolved } : n)),
+    );
+    startTransition(async () => {
+      try {
+        if (resolved === "confirmed") await confirmAccountLogin(eventId);
+        else await revokeAccountLogin(eventId);
+      } catch {
+        setItems((prev) =>
+          prev.map((n) =>
+            n.id === item.id ? { ...n, loginResolved: item.loginResolved } : n,
+          ),
+        );
+      }
+    });
+  };
+
   return (
     <div className="min-h-[calc(100dvh-3rem-4.25rem)] bg-bg md:min-h-dvh">
       <div className="mx-auto w-full max-w-[520px]">
@@ -149,25 +172,70 @@ export function NotificationsView({
                       )}
                     </button>
 
-                    <button
-                      type="button"
-                      className="min-w-0 flex-1 text-left"
-                      onClick={() => {
-                        if (href) router.push(href);
-                      }}
-                    >
-                      <p className="text-[14px] leading-snug text-ink">
-                        {notificationMessage(item)}
-                      </p>
-                      {item.commentPreview ? (
-                        <p className="mt-1 line-clamp-2 text-[13px] text-muted">
-                          {item.commentPreview}
+                    <div className="min-w-0 flex-1">
+                      <button
+                        type="button"
+                        className="w-full text-left"
+                        onClick={() => {
+                          if (href) router.push(href);
+                        }}
+                      >
+                        <p className="text-[14px] leading-snug text-ink">
+                          {notificationMessage(item)}
+                        </p>
+                        {item.commentPreview ? (
+                          <p className="mt-1 line-clamp-2 text-[13px] text-muted">
+                            {item.commentPreview}
+                          </p>
+                        ) : null}
+                        <p className="mt-1 text-[12px] text-muted">
+                          {formatRelativeTime(item.createdAt)}
+                        </p>
+                      </button>
+                      {showLoginActions(item) ? (
+                        <div className="mt-2.5 flex flex-wrap gap-2">
+                          {(item.loginActions.includes("confirm") ||
+                            item.loginActions.length === 0) && (
+                            <button
+                              type="button"
+                              className="h-8 rounded-[10px] bg-brand px-3 text-[12px] font-bold text-on-brand"
+                              onClick={() => resolveLogin(item, "confirmed")}
+                            >
+                              Это я
+                            </button>
+                          )}
+                          {(item.loginActions.includes("revoke") ||
+                            item.loginActions.length === 0) && (
+                            <button
+                              type="button"
+                              className="h-8 rounded-[10px] border border-line px-3 text-[12px] font-bold text-ink"
+                              onClick={() => resolveLogin(item, "revoked")}
+                            >
+                              Прервать
+                            </button>
+                          )}
+                          {(item.loginActions.includes("change_password") ||
+                            item.loginActions.length === 0) && (
+                            <button
+                              type="button"
+                              className="h-8 rounded-[10px] border border-line px-3 text-[12px] font-bold text-ink"
+                              onClick={() => router.push("/app/settings/account")}
+                            >
+                              Сменить пароль
+                            </button>
+                          )}
+                        </div>
+                      ) : item.kind === "accountLogin" && item.loginResolved ? (
+                        <p className="mt-1.5 text-[12px] text-muted">
+                          {item.loginResolved === "confirmed"
+                            ? "Отмечено: это вы"
+                            : item.loginResolved === "revoked" ||
+                                item.loginResolved === "revoked_others"
+                              ? "Сессия прервана"
+                              : "Обработано"}
                         </p>
                       ) : null}
-                      <p className="mt-1 text-[12px] text-muted">
-                        {formatRelativeTime(item.createdAt)}
-                      </p>
-                    </button>
+                    </div>
 
                     {item.showFollowButton ? (
                       item.isFollowingActor ? (

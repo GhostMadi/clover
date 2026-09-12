@@ -52,7 +52,9 @@ export function PostDetailView({ post, currentUserId }: PostDetailViewProps) {
             <ArrowLeft className="h-5 w-5" strokeWidth={2} />
           </button>
           <p className="min-w-0 flex-1 truncate text-[15px] font-bold text-ink">Публикация</p>
-          {isOwn ? <PostClusterMenu postId={post.id} ownerId={post.userId} /> : null}
+          {isOwn ? (
+            <PostClusterMenu postId={post.id} ownerId={post.userId} markerId={post.markerId} />
+          ) : null}
           {post.userId && !isOwn ? (
             <Link href={profileHref} className="truncate text-[13px] font-semibold text-brand">
               Профиль

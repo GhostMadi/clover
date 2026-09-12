@@ -24,6 +24,11 @@ import {
   mapOverviewPunch,
   type AnalyticsPunch,
 } from "@/features/attendance/lib/attendance-analytics";
+import {
+  payrollLineDetailRu,
+  payrollLineLabelRu,
+  payrollPeriodLabelRu,
+} from "@/features/attendance/lib/payroll-labels";
 import { createClient } from "@/lib/supabase/client";
 
 function asRecordArray(value: unknown): Record<string, unknown>[] {
@@ -607,15 +612,19 @@ export async function payrollPreview(params: {
     username: String(w.username ?? ""),
     baseSalary: Number(w.base_salary) || 0,
     netPay: Number(w.net_pay) || 0,
-    lines: asRecordArray(w.lines).map((l) => ({
-      label: String(l.label ?? ""),
-      detail: String(l.detail ?? ""),
-      amount: Number(l.amount) || 0,
-      kind: String(l.kind ?? ""),
-    })),
+    lines: asRecordArray(w.lines).map((l) => {
+      const code = String(l.label ?? "");
+      const detailRaw = String(l.detail ?? "");
+      return {
+        label: payrollLineLabelRu(code),
+        detail: payrollLineDetailRu(code, detailRaw),
+        amount: Number(l.amount) || 0,
+        kind: String(l.kind ?? ""),
+      };
+    }),
   }));
   return {
-    periodLabel: String(root.period_label ?? ""),
+    periodLabel: payrollPeriodLabelRu(String(root.period_label ?? "")),
     workers,
     team: {
       baseTotal: Number(teamRaw.base_total) || 0,

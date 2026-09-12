@@ -9,7 +9,7 @@ const STAFF_LINK =
   "staff_id, booking_staff(id, display_name, username, profile_id, is_active)";
 
 const SERVICE_SELECT =
-  "id, host_id, title, emoji_text, description, duration_minutes, buffer_after_minutes, price, max_participants, default_staff_id, is_active, sort_order, bonus_pay_percent, bonus_earn_amount";
+  "id, host_id, point_id, title, emoji_text, description, duration_minutes, buffer_after_minutes, price, max_participants, default_staff_id, is_active, sort_order, bonus_pay_percent, bonus_earn_amount";
 
 const MY_SELECT = `${SERVICE_SELECT}, booking_service_staff(${STAFF_LINK})`;
 const CATALOG_SELECT = MY_SELECT;
@@ -28,21 +28,28 @@ export type ServiceDraft = {
   staffIds: string[];
 };
 
-export async function listMyServices(): Promise<BookingService[]> {
+export async function listMyServices(pointId?: string): Promise<BookingService[]> {
   const supabase = createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
   const user = session?.user ?? null;
   if (!user) return [];
-  const { data, error } = await supabase
+  let q = supabase
     .from("booking_services")
     .select(MY_SELECT)
     .eq("host_id", user.id)
     .order("sort_order")
     .order("title");
+  if (pointId) q = q.eq("point_id", pointId);
+  const { data, error } = await q;
   if (error) throw error;
   return (data ?? []).map((row) => mapService(row as Record<string, unknown>));
+}
+
+export async function listServiceIdsForPoint(pointId: string): Promise<Set<string>> {
+  const list = await listMyServices(pointId);
+  return new Set(list.map((s) => s.id));
 }
 
 export async function listHostCatalog(hostId: string): Promise<BookingCatalogItem[]> {
@@ -92,10 +99,11 @@ async function syncStaffLinks(serviceId: string, staffIds: string[]) {
   if (error) throw error;
 }
 
-function draftRow(draft: ServiceDraft, hostId: string) {
+function draftRow(draft: ServiceDraft, hostId: string, pointId?: string) {
   const desc = draft.description?.trim() ?? "";
   return {
     host_id: hostId,
+    point_id: pointId ?? null,
     title: draft.title.trim(),
     emoji_text: draft.emojiText.trim() || "💈",
     duration_minutes: draft.durationMinutes,
@@ -110,7 +118,10 @@ function draftRow(draft: ServiceDraft, hostId: string) {
   } as Record<string, unknown>;
 }
 
-export async function createService(draft: ServiceDraft): Promise<BookingService> {
+export async function createService(
+  draft: ServiceDraft,
+  pointId?: string,
+): Promise<BookingService> {
   const supabase = createClient();
   const {
     data: { session },
@@ -119,7 +130,7 @@ export async function createService(draft: ServiceDraft): Promise<BookingService
   if (!user) throw new Error("Войдите в аккаунт");
   const { data, error } = await supabase
     .from("booking_services")
-    .insert(draftRow(draft, user.id))
+    .insert(draftRow(draft, user.id, pointId))
     .select(SERVICE_SELECT)
     .single();
   if (error) throw error;

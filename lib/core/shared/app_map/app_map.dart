@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:clover/core/config/mapbox.dart';
 import 'package:clover/core/shared/app_map/app_map_cluster_icon_factory.dart';
 import 'package:clover/core/shared/app_map/app_map_marker.dart';
 import 'package:clover/core/shared/app_map/app_map_marker_icon_factory.dart';
@@ -10,8 +12,9 @@ import 'package:clover/core/shared/app_map/app_map_viewport.dart';
 import 'package:clover/core/theme/app_color_binding.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart' as geo;
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 export 'app_map_marker.dart';
 export 'app_map_marker_tap.dart';
@@ -54,7 +57,7 @@ class AppMapController {
       _state?.moveToMyLocation() ?? SynchronousFuture((AppMapMyLocationResult.unavailable, null));
 }
 
-/// Переиспользуемая карта на Yandex MapKit.
+/// Переиспользуемая карта на Mapbox.
 class AppMap extends StatefulWidget {
   const AppMap({
     super.key,
@@ -85,37 +88,46 @@ class AppMap extends StatefulWidget {
 }
 
 class _AppMapState extends State<AppMap> {
-  static const _selectedPlacemarkId = MapObjectId('app_map_selected_point');
-  static const _geofenceCircleId = MapObjectId('app_map_geofence_circle');
-  static const _markersClusterId = MapObjectId('app_map_markers_cluster');
   static const _defaultZoom = 14.0;
-  static const _animation = MapAnimation(type: MapAnimationType.smooth, duration: 0.25);
+  static const _markerIconSize = 0.28;
+  static final _animation = MapAnimationOptions(duration: 250);
 
-  YandexMapController? _controller;
-  BitmapDescriptor? _pinIcon;
-  List<MapObject> _mapObjects = [];
+  MapboxMap? _map;
+  PointAnnotationManager? _pointManager;
+  PolygonAnnotationManager? _polygonManager;
+  Cancelable? _pointTapCancelable;
+  Uint8List? _pinIconBytes;
   int _markersSyncGeneration = 0;
-  Map<String, String> _emojiByMarkerId = const {};
-  Map<String, List<String>> _emojisByPlacemarkId = const {};
-  Completer<AppMapPoint?>? _pendingMyLocation;
+  Map<String, AppMapMarker> _markerById = const {};
+  Map<String, List<AppMapMarker>> _stackByKey = const {};
+  bool? _isDarkStyle;
 
-  bool get _isReady => _controller != null;
+  bool get _isReady => _map != null && _pointManager != null;
 
   @override
   void initState() {
     super.initState();
     widget.controller?._attach(this);
-    _loadPinIcon();
+    unawaited(_loadPinIcon());
   }
 
   @override
   void dispose() {
-    final pending = _pendingMyLocation;
-    if (pending != null && !pending.isCompleted) {
-      pending.complete(null);
-    }
+    _pointTapCancelable?.cancel();
     widget.controller?._detach(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (_isDarkStyle == isDark) return;
+    final hadStyle = _isDarkStyle != null;
+    _isDarkStyle = isDark;
+    if (hadStyle && _map != null) {
+      unawaited(_applyMapStyle(isDark));
+    }
   }
 
   @override
@@ -128,7 +140,7 @@ class _AppMapState extends State<AppMap> {
     if (oldWidget.selectedPoint != widget.selectedPoint ||
         oldWidget.geofenceRadiusM != widget.geofenceRadiusM ||
         !_sameMarkers(oldWidget.markers, widget.markers)) {
-      unawaited(_syncMapObjects());
+      unawaited(_syncAnnotations());
     }
   }
 
@@ -152,216 +164,252 @@ class _AppMapState extends State<AppMap> {
   Future<void> _loadPinIcon() async {
     final bytes = await _createPinImageBytes();
     if (!mounted) return;
-    setState(() {
-      _pinIcon = BitmapDescriptor.fromBytes(bytes);
-    });
-    await _syncMapObjects();
+    _pinIconBytes = bytes;
+    await _syncAnnotations();
   }
 
-  Point _toYandex(AppMapPoint point) => Point(latitude: point.latitude, longitude: point.longitude);
+  Point _toMapbox(AppMapPoint point) => Point(coordinates: Position(point.longitude, point.latitude));
 
-  AppMapPoint _fromYandex(Point point) => AppMapPoint(latitude: point.latitude, longitude: point.longitude);
+  AppMapPoint _fromMapbox(Point point) {
+    final c = point.coordinates;
+    return AppMapPoint(latitude: c.lat.toDouble(), longitude: c.lng.toDouble());
+  }
 
   Future<void> _moveTo(AppMapPoint point, {double? zoom}) async {
-    final controller = _controller;
-    if (controller == null) return;
-
-    await controller.moveCamera(
-      CameraUpdate.newCameraPosition(CameraPosition(target: _toYandex(point), zoom: zoom ?? _defaultZoom)),
-      animation: _animation,
+    final map = _map;
+    if (map == null) return;
+    await map.flyTo(
+      CameraOptions(center: _toMapbox(point), zoom: zoom ?? _defaultZoom),
+      _animation,
     );
   }
 
   Future<void> zoomIn() async {
-    final controller = _controller;
-    if (controller == null) return;
-    await controller.moveCamera(CameraUpdate.zoomIn(), animation: _animation);
+    final map = _map;
+    if (map == null) return;
+    final state = await map.getCameraState();
+    await map.flyTo(CameraOptions(zoom: state.zoom + 1), _animation);
   }
 
   Future<void> zoomOut() async {
-    final controller = _controller;
-    if (controller == null) return;
-    await controller.moveCamera(CameraUpdate.zoomOut(), animation: _animation);
+    final map = _map;
+    if (map == null) return;
+    final state = await map.getCameraState();
+    await map.flyTo(CameraOptions(zoom: state.zoom - 1), _animation);
   }
 
   Future<(AppMapMyLocationResult, AppMapPoint?)> moveToMyLocation() async {
-    final controller = _controller;
-    if (controller == null) return (AppMapMyLocationResult.unavailable, null);
+    final map = _map;
+    if (map == null) return (AppMapMyLocationResult.unavailable, null);
 
     final permission = await Permission.locationWhenInUse.request();
     if (!permission.isGranted) {
       return (AppMapMyLocationResult.permissionDenied, null);
     }
 
-    final previous = _pendingMyLocation;
-    if (previous != null && !previous.isCompleted) {
-      previous.complete(null);
-    }
-    final pending = Completer<AppMapPoint?>();
-    _pendingMyLocation = pending;
-
-    await controller.toggleUserLayer(visible: true, autoZoomEnabled: true);
-
-    // Сразу после toggle слой ещё может не знать позицию — ждём и поллим.
-    for (var attempt = 0; attempt < 12; attempt++) {
-      final point = await _tryApplyUserCamera(controller);
-      if (point != null) {
-        if (!pending.isCompleted) pending.complete(point);
-        return (AppMapMyLocationResult.moved, point);
-      }
-      await Future<void>.delayed(const Duration(milliseconds: 250));
-      if (!mounted) return (AppMapMyLocationResult.unavailable, null);
-    }
+    await map.location.updateSettings(
+      LocationComponentSettings(enabled: true, pulsingEnabled: true),
+    );
 
     try {
-      final point = await pending.future.timeout(const Duration(seconds: 4));
-      if (point != null) return (AppMapMyLocationResult.moved, point);
-    } on TimeoutException {
-      if (!pending.isCompleted) pending.complete(null);
+      final position = await geo.Geolocator.getCurrentPosition(
+        locationSettings: const geo.LocationSettings(
+          accuracy: geo.LocationAccuracy.high,
+          timeLimit: Duration(seconds: 8),
+        ),
+      );
+      final point = AppMapPoint(latitude: position.latitude, longitude: position.longitude);
+      await _moveTo(point, zoom: _defaultZoom);
+      widget.onPointSelected?.call(point);
+      return (AppMapMyLocationResult.moved, point);
+    } on Object {
+      return (AppMapMyLocationResult.unavailable, null);
     }
-
-    return (AppMapMyLocationResult.unavailable, null);
   }
 
-  Future<AppMapPoint?> _tryApplyUserCamera(YandexMapController controller) async {
-    final position = await controller.getUserCameraPosition();
-    if (position == null) return null;
-
-    final point = _fromYandex(position.target);
-    await _moveTo(point, zoom: position.zoom > 0 ? position.zoom : _defaultZoom);
-    widget.onPointSelected?.call(point);
-    return point;
+  Future<void> _onMapCreated(MapboxMap map) async {
+    _map = map;
+    _isDarkStyle ??= Theme.of(context).brightness == Brightness.dark;
+    await _hideMapChrome(map);
+    await _applyLightPreset(map, isDark: _isDarkStyle!);
+    await _setupAnnotationManagers(map);
+    if (widget.onPointSelected != null) {
+      map.addInteraction(
+        TapInteraction.onMap((context) {
+          widget.onPointSelected?.call(_fromMapbox(context.point));
+        }),
+      );
+    }
+    await _syncAnnotations();
   }
 
-  Future<UserLocationView> _onUserLocationAdded(UserLocationView view) async {
-    final controller = _controller;
-    final pending = _pendingMyLocation;
-    if (controller != null && pending != null && !pending.isCompleted) {
-      final point = await _tryApplyUserCamera(controller);
-      if (point != null && !pending.isCompleted) {
-        pending.complete(point);
+  Future<void> _setupAnnotationManagers(MapboxMap map) async {
+    _pointTapCancelable?.cancel();
+    _pointManager = await map.annotations.createPointAnnotationManager();
+    _polygonManager = await map.annotations.createPolygonAnnotationManager();
+    _pointTapCancelable = _pointManager!.tapEvents(onTap: _onPointAnnotationTap);
+  }
+
+  Future<void> _hideMapChrome(MapboxMap map) async {
+    await Future.wait([
+      map.logo.updateSettings(LogoSettings(enabled: false)),
+      map.attribution.updateSettings(AttributionSettings(enabled: false)),
+      map.compass.updateSettings(CompassSettings(enabled: false)),
+      map.scaleBar.updateSettings(ScaleBarSettings(enabled: false)),
+    ]);
+  }
+
+  Future<void> _applyLightPreset(MapboxMap map, {required bool isDark}) async {
+    // Standard basemap: color theme всегда default; ночь = lightPreset night (огни домов).
+    await map.style.setStyleImportConfigProperty('basemap', 'theme', 'default');
+    await map.style.setStyleImportConfigProperty(
+      'basemap',
+      'lightPreset',
+      isDark ? MapboxConfig.lightPresetNight : MapboxConfig.lightPresetDay,
+    );
+  }
+
+  Future<void> _applyMapStyle(bool isDark) async {
+    final map = _map;
+    if (map == null) return;
+    await _applyLightPreset(map, isDark: isDark);
+  }
+
+  void _onPointAnnotationTap(PointAnnotation annotation) {
+    final data = annotation.customData;
+    if (data == null || widget.onMarkerTap == null) return;
+    final kind = data['kind'] as String?;
+    if (kind == 'marker') {
+      final id = data['id'] as String?;
+      final marker = id == null ? null : _markerById[id];
+      if (marker != null) {
+        widget.onMarkerTap!(AppMapMarkerTap(marker: marker));
+      }
+      return;
+    }
+    if (kind == 'stack') {
+      final key = data['key'] as String?;
+      final group = key == null ? null : _stackByKey[key];
+      if (group != null && group.isNotEmpty) {
+        widget.onMarkerTap!(AppMapMarkerTap(marker: group.first, group: group));
       }
     }
-    return view;
   }
 
-  Future<void> _syncMapObjects() async {
-    final generation = ++_markersSyncGeneration;
-    final objects = <MapObject>[];
+  Future<void> _syncAnnotations() async {
+    final pointManager = _pointManager;
+    final polygonManager = _polygonManager;
+    if (pointManager == null || polygonManager == null) return;
 
+    final generation = ++_markersSyncGeneration;
+    final options = <PointAnnotationOptions>[];
     final selectedPoint = widget.selectedPoint;
     final geofenceRadius = widget.geofenceRadiusM;
+
+    await polygonManager.deleteAll();
     if (selectedPoint != null && geofenceRadius != null && geofenceRadius > 0) {
       final p = AppColorBinding.palette;
-      objects.add(
-        CircleMapObject(
-          mapId: _geofenceCircleId,
-          circle: Circle(
-            center: _toYandex(selectedPoint),
-            radius: geofenceRadius,
-          ),
-          isGeodesic: true,
-          zIndex: 0,
-          strokeColor: p.functionalSoftBlueIcon,
-          strokeWidth: 2,
-          fillColor: p.functionalSoftBlue.withValues(alpha: 0.55),
+      await polygonManager.create(
+        PolygonAnnotationOptions(
+          geometry: _geofencePolygon(selectedPoint, geofenceRadius),
+          fillColor: p.functionalSoftBlue.withValues(alpha: 0.55).toARGB32(),
+          fillOutlineColor: p.functionalSoftBlueIcon.toARGB32(),
+          fillOpacity: 0.55,
         ),
       );
     }
 
-    final pinIcon = _pinIcon;
-    if (selectedPoint != null && pinIcon != null) {
-      objects.add(
-        PlacemarkMapObject(
-          mapId: _selectedPlacemarkId,
-          point: _toYandex(selectedPoint),
-          opacity: 1,
-          icon: PlacemarkIcon.single(PlacemarkIconStyle(image: pinIcon)),
+    final pinBytes = _pinIconBytes;
+    if (selectedPoint != null && pinBytes != null) {
+      options.add(
+        PointAnnotationOptions(
+          geometry: _toMapbox(selectedPoint),
+          image: pinBytes,
+          iconSize: _markerIconSize,
+          iconAnchor: IconAnchor.CENTER,
+          customData: const {'kind': 'selected'},
         ),
       );
     }
 
     final markers = widget.markers;
     if (markers.isNotEmpty) {
-      _emojiByMarkerId = {for (final marker in markers) marker.id: marker.emoji};
-      final emojisByPlacemarkId = <String, List<String>>{};
+      _markerById = {for (final marker in markers) marker.id: marker};
+      final groups = _groupMarkersByLocation(markers);
+      _stackByKey = {
+        for (final entry in groups.entries)
+          if (entry.value.length > 1) entry.key: entry.value,
+      };
 
       final uniqueEmojis = markers.map((marker) => marker.emoji).toSet();
-      final iconByEmoji = <String, BitmapDescriptor>{};
-      final stackIconByKey = <String, BitmapDescriptor>{};
+      final iconByEmoji = <String, Uint8List>{};
+      final stackIconByKey = <String, Uint8List>{};
 
       await Future.wait(
         uniqueEmojis.map((emoji) async {
-          final bytes = await AppMapMarkerIconFactory.bytesFor(emoji: emoji);
-          iconByEmoji[emoji] = BitmapDescriptor.fromBytes(bytes);
+          iconByEmoji[emoji] = await AppMapMarkerIconFactory.bytesFor(emoji: emoji);
         }),
       );
-
-      final groups = _groupMarkersByLocation(markers);
       await Future.wait(
         groups.entries.where((entry) => entry.value.length > 1).map((entry) async {
           final emojis = [for (final marker in entry.value) marker.emoji];
-          final bytes = await AppMapClusterIconFactory.bytesFor(emojis: emojis, count: entry.value.length);
-          stackIconByKey[entry.key] = BitmapDescriptor.fromBytes(bytes);
+          stackIconByKey[entry.key] = await AppMapClusterIconFactory.bytesFor(
+            emojis: emojis,
+            count: entry.value.length,
+          );
         }),
       );
 
       if (!mounted || generation != _markersSyncGeneration) return;
 
-      final placemarks = <PlacemarkMapObject>[];
       for (final entry in groups.entries) {
         if (entry.value.length == 1) {
           final marker = entry.value.first;
-          emojisByPlacemarkId['marker_${marker.id}'] = [marker.emoji];
-          placemarks.add(_placemarkForMarker(marker, iconByEmoji[marker.emoji]!));
+          options.add(
+            PointAnnotationOptions(
+              geometry: _toMapbox(marker.point),
+              image: iconByEmoji[marker.emoji]!,
+              iconSize: _markerIconSize,
+              iconAnchor: IconAnchor.CENTER,
+              customData: {'kind': 'marker', 'id': marker.id},
+            ),
+          );
         } else {
-          final stackEmojis = [for (final marker in entry.value) marker.emoji];
-          emojisByPlacemarkId['marker_stack_${entry.key}'] = stackEmojis;
-          placemarks.add(_placemarkForStack(entry.key, entry.value, stackIconByKey[entry.key]!));
+          options.add(
+            PointAnnotationOptions(
+              geometry: _toMapbox(entry.value.first.point),
+              image: stackIconByKey[entry.key]!,
+              iconSize: _markerIconSize,
+              iconAnchor: IconAnchor.CENTER,
+              customData: {'kind': 'stack', 'key': entry.key},
+            ),
+          );
         }
       }
-
-      _emojisByPlacemarkId = emojisByPlacemarkId;
-
-      objects.add(
-        ClusterizedPlacemarkCollection(
-          mapId: _markersClusterId,
-          placemarks: placemarks,
-          radius: 56,
-          minZoom: 15,
-          onClusterAdded: _onClusterAdded,
-        ),
-      );
+    } else {
+      _markerById = const {};
+      _stackByKey = const {};
     }
 
     if (!mounted || generation != _markersSyncGeneration) return;
-    setState(() => _mapObjects = objects);
+    await pointManager.deleteAll();
+    if (options.isNotEmpty) {
+      await pointManager.createMulti(options);
+    }
   }
 
-  Future<Cluster?> _onClusterAdded(ClusterizedPlacemarkCollection self, Cluster cluster) async {
-    final emojis = <String>[];
-    for (final placemark in cluster.placemarks) {
-      final mapped = _emojisByPlacemarkId[placemark.mapId.value];
-      if (mapped != null) {
-        emojis.addAll(mapped);
-        continue;
-      }
-
-      final emoji = _emojiByMarkerId[_markerIdFromMapId(placemark.mapId)];
-      if (emoji != null) emojis.add(emoji);
+  Polygon _geofencePolygon(AppMapPoint center, double radiusM, {int steps = 64}) {
+    final latRad = center.latitude * math.pi / 180;
+    const metersPerDegLat = 111320.0;
+    final metersPerDegLon = 111320.0 * math.cos(latRad);
+    final ring = <Position>[];
+    for (var i = 0; i <= steps; i++) {
+      final a = (i / steps) * math.pi * 2;
+      final dLat = (math.sin(a) * radiusM) / metersPerDegLat;
+      final dLon = (math.cos(a) * radiusM) / metersPerDegLon;
+      ring.add(Position(center.longitude + dLon, center.latitude + dLat));
     }
-
-    final bytes = await AppMapClusterIconFactory.bytesFor(emojis: emojis, count: cluster.size);
-    return cluster.copyWith(
-      appearance: cluster.appearance.copyWith(
-        icon: PlacemarkIcon.single(
-          PlacemarkIconStyle(
-            image: BitmapDescriptor.fromBytes(bytes),
-            anchor: AppMapClusterIconFactory.anchor,
-          ),
-        ),
-      ),
-    );
+    return Polygon(coordinates: [ring]);
   }
 
   Map<String, List<AppMapMarker>> _groupMarkersByLocation(List<AppMapMarker> markers) {
@@ -377,94 +425,31 @@ class _AppMapState extends State<AppMap> {
     return '${point.latitude.toStringAsFixed(6)}_${point.longitude.toStringAsFixed(6)}';
   }
 
-  String _markerIdFromMapId(MapObjectId mapId) {
-    final value = mapId.value;
-    if (value.startsWith('marker_stack_')) return value.substring('marker_stack_'.length);
-    if (value.startsWith('marker_')) return value.substring('marker_'.length);
-    return value;
-  }
-
-  PlacemarkMapObject _placemarkForMarker(AppMapMarker marker, BitmapDescriptor icon) {
-    return PlacemarkMapObject(
-      mapId: MapObjectId('marker_${marker.id}'),
-      point: _toYandex(marker.point),
-      opacity: 1,
-      consumeTapEvents: true,
-      onTap: widget.onMarkerTap == null
-          ? null
-          : (_, __) => widget.onMarkerTap!(AppMapMarkerTap(marker: marker)),
-      icon: PlacemarkIcon.single(
-        PlacemarkIconStyle(
-          image: icon,
-          scale: AppMapMarkerIconFactory.mapScale,
-          anchor: AppMapMarkerIconFactory.anchor,
-        ),
-      ),
-    );
-  }
-
-  PlacemarkMapObject _placemarkForStack(
-    String locationKey,
-    List<AppMapMarker> markers,
-    BitmapDescriptor icon,
-  ) {
-    final point = markers.first.point;
-    final primary = markers.first;
-
-    return PlacemarkMapObject(
-      mapId: MapObjectId('marker_stack_$locationKey'),
-      point: _toYandex(point),
-      opacity: 1,
-      consumeTapEvents: true,
-      onTap: widget.onMarkerTap == null
-          ? null
-          : (_, __) => widget.onMarkerTap!(AppMapMarkerTap(marker: primary, group: markers)),
-      icon: PlacemarkIcon.single(
-        PlacemarkIconStyle(
-          image: icon,
-          scale: AppMapMarkerIconFactory.mapScale,
-          anchor: AppMapClusterIconFactory.anchor,
-        ),
-      ),
-    );
-  }
-
-  void _onMapTap(Point point) {
-    widget.onPointSelected?.call(_fromYandex(point));
-  }
-
-  void _onCameraPositionChanged(CameraPosition position, CameraUpdateReason reason, bool finished) {
-    widget.onCameraChanged?.call(
-      AppMapViewport(center: _fromYandex(position.target), zoom: position.zoom),
-      finished: finished,
-    );
-  }
-
-  Future<void> _onMapCreated(YandexMapController controller) async {
-    _controller = controller;
-    await controller.setMapStyle('');
-    await _moveTo(widget.initialCenter);
-    await _syncMapObjects();
+  void _emitCamera({required bool finished}) {
+    final map = _map;
+    if (map == null || widget.onCameraChanged == null) return;
+    unawaited(() async {
+      final state = await map.getCameraState();
+      final center = _fromMapbox(state.center);
+      widget.onCameraChanged!(
+        AppMapViewport(center: center, zoom: state.zoom),
+        finished: finished,
+      );
+    }());
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return YandexMap(
-      mapType: MapType.map,
-      nightModeEnabled: isDark,
-      mode2DEnabled: false,
-      rotateGesturesEnabled: true,
-      tiltGesturesEnabled: true,
-      scrollGesturesEnabled: true,
-      zoomGesturesEnabled: true,
-      fastTapEnabled: true,
+    return MapWidget(
+      key: const ValueKey('app_map_mapbox'),
+      styleUri: MapboxConfig.styleStandard,
+      viewport: CameraViewportState(
+        center: _toMapbox(widget.initialCenter),
+        zoom: _defaultZoom,
+      ),
       onMapCreated: _onMapCreated,
-      onMapTap: widget.onPointSelected == null ? null : _onMapTap,
-      onCameraPositionChanged: widget.onCameraChanged == null ? null : _onCameraPositionChanged,
-      onUserLocationAdded: _onUserLocationAdded,
-      mapObjects: _mapObjects,
+      onCameraChangeListener: widget.onCameraChanged == null ? null : (_) => _emitCamera(finished: false),
+      onMapIdleListener: widget.onCameraChanged == null ? null : (_) => _emitCamera(finished: true),
     );
   }
 

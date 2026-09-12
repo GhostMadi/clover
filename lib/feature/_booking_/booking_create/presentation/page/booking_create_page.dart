@@ -13,7 +13,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
 class BookingCreatePage extends StatefulWidget {
-  const BookingCreatePage({super.key});
+  const BookingCreatePage({super.key, required this.pointId});
+
+  final String pointId;
 
   @override
   State<BookingCreatePage> createState() => _BookingCreatePageState();
@@ -25,7 +27,7 @@ class _BookingCreatePageState extends State<BookingCreatePage> {
   @override
   void initState() {
     super.initState();
-    _cubit = sl<BookingServicesCubit>()..load();
+    _cubit = sl<BookingServicesCubit>()..load(pointId: widget.pointId);
   }
 
   @override
@@ -35,7 +37,9 @@ class _BookingCreatePageState extends State<BookingCreatePage> {
   }
 
   Future<void> _openCreate() async {
-    final created = await context.router.push<BookingService>(const BookingServiceCreateRoute());
+    final created = await context.router.push<BookingService>(
+      BookingServiceCreateRoute(pointId: widget.pointId),
+    );
     if (created != null && mounted) {
       await _cubit.refresh();
     }
@@ -49,7 +53,9 @@ class _BookingCreatePageState extends State<BookingCreatePage> {
   }
 
   Future<void> _openSettings() async {
-    final saved = await context.router.push<bool>(const BookingScheduleSettingsRoute());
+    final saved = await context.router.push<bool>(
+      BookingScheduleSettingsRoute(pointId: widget.pointId),
+    );
     if (saved == true && mounted) {
       await _cubit.refresh();
     }
@@ -115,6 +121,10 @@ class _BookingCreatePageState extends State<BookingCreatePage> {
 
         return BookingScreenShell(
           title: 'Мои услуги',
+          pointId: widget.pointId,
+          onPointChanged: (nextId) {
+            context.router.replace(BookingCreateRoute(pointId: nextId));
+          },
           compactBar: true,
           isLoading: isLoading || isRefreshing,
           showSettings: true,

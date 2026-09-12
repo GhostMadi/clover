@@ -6,6 +6,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_refresh.dart';
+import 'package:clover/feature/_booking_/booking_points/data/booking_point_nav.dart';
 import 'package:clover/feature/_feed_/notification_page/data/models/notification_item.dart';
 import 'package:clover/feature/_feed_/notification_page/data/models/notification_kind.dart';
 import 'package:clover/feature/_feed_/notification_page/presentation/cubit/notifications_cubit.dart';
@@ -74,7 +75,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
 
     if (item.kind.isBookingHostInbox) {
-      await context.router.push(const BookingListRoute());
+      final pointId = await resolveBookingPointIdForNav();
+      if (!mounted) return;
+      await context.router.push(BookingListRoute(pointId: pointId));
       return;
     }
 
@@ -129,6 +132,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   onRefresh: _cubit.refresh,
                   onOpen: _openNotification,
                   onFollowToggle: _cubit.toggleFollow,
+                  onLoginConfirm: _cubit.confirmLogin,
+                  onLoginRevoke: _cubit.revokeLogin,
                 ),
               };
             },
@@ -148,6 +153,8 @@ class _LoadedBody extends StatelessWidget {
     required this.onRefresh,
     required this.onOpen,
     required this.onFollowToggle,
+    required this.onLoginConfirm,
+    required this.onLoginRevoke,
   });
 
   final List<NotificationItem> items;
@@ -157,6 +164,8 @@ class _LoadedBody extends StatelessWidget {
   final Future<void> Function() onRefresh;
   final Future<void> Function(NotificationItem item) onOpen;
   final Future<void> Function(NotificationItem item) onFollowToggle;
+  final Future<void> Function(NotificationItem item) onLoginConfirm;
+  final Future<void> Function(NotificationItem item) onLoginRevoke;
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +205,15 @@ class _LoadedBody extends StatelessWidget {
         itemBuilder: (context, index) {
           final contentCount = _listItemCount(sections);
           if (index < contentCount) {
-            return _buildListItem(context, sections, index, onOpen, onFollowToggle);
+            return _buildListItem(
+              context,
+              sections,
+              index,
+              onOpen,
+              onFollowToggle,
+              onLoginConfirm,
+              onLoginRevoke,
+            );
           }
 
           if (isLoadingMore && index == contentCount) {
@@ -235,6 +252,8 @@ class _LoadedBody extends StatelessWidget {
     int index,
     Future<void> Function(NotificationItem item) onOpen,
     Future<void> Function(NotificationItem item) onFollowToggle,
+    Future<void> Function(NotificationItem item) onLoginConfirm,
+    Future<void> Function(NotificationItem item) onLoginRevoke,
   ) {
     var cursor = 0;
     for (final (section, sectionItems) in sections) {
@@ -257,6 +276,11 @@ class _LoadedBody extends StatelessWidget {
                     ? () => onOpen(item)
                     : null,
                 onFollowToggle: item.showFollowButton ? (_) => onFollowToggle(item) : null,
+                onLoginConfirm: item.showLoginActions ? () => onLoginConfirm(item) : null,
+                onLoginRevoke: item.showLoginActions ? () => onLoginRevoke(item) : null,
+                onLoginChangePassword: item.showLoginActions
+                    ? () => context.router.push(const SettingsPasswordRoute())
+                    : null,
               ),
               if (showDivider) Divider(height: 1, thickness: 1, color: context.colors.divider),
             ],

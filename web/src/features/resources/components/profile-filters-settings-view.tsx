@@ -3,14 +3,18 @@
 import { Plus, SlidersHorizontal, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { AppButton } from "@/components/shared/app-button";
-import { createClient } from "@/lib/supabase/client";
 import {
   deleteProfileFilterCategory,
   listProfileFilterCategories,
   upsertProfileFilterCategory,
   type ProfileFilterCategory,
 } from "@/features/resources/lib/profile-filters-api";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
+import {
+  readResourcesProfileFiltersCache,
+  writeResourcesProfileFiltersCache,
+} from "@/features/resources/lib/resources-prefs";
+import { ResourcesWorkspaceShell } from "@/features/resources/components/resources-workspace-shell";
+import { getSessionUserId } from "@/lib/run-service-swr";
 
 export function ProfileFiltersSettingsView() {
   const [uid, setUid] = useState<string | null>(null);
@@ -24,25 +28,37 @@ export function ProfileFiltersSettingsView() {
   const [saving, setSaving] = useState(false);
   const [, startTransition] = useTransition();
 
-  const load = useCallback((profileId: string) => {
-    setLoading(true);
-    void listProfileFilterCategories(profileId)
-      .then(setItems)
-      .catch((e: unknown) =>
-        setError(e instanceof Error ? e.message : "Не удалось загрузить"),
-      )
-      .finally(() => setLoading(false));
+  const load = useCallback(async (profileId: string, opts?: { soft?: boolean }) => {
+    if (!opts?.soft) setLoading(true);
+    setError(null);
+    try {
+      const list = await listProfileFilterCategories(profileId);
+      setItems(list);
+      writeResourcesProfileFiltersCache(profileId, list);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Не удалось загрузить");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    void createClient()
-      .auth.getSession()
-      .then(({ data }) => {
-        const id = data.session?.user.id ?? null;
-        setUid(id);
-        if (id) load(id);
-        else setLoading(false);
-      });
+    void (async () => {
+      const id = await getSessionUserId();
+      setUid(id);
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+      const cached = readResourcesProfileFiltersCache(id);
+      if (cached) {
+        setItems(cached);
+        setLoading(false);
+        await load(id, { soft: true });
+      } else {
+        await load(id);
+      }
+    })();
   }, [load]);
 
   const openCreate = () => {
@@ -109,10 +125,9 @@ export function ProfileFiltersSettingsView() {
   const formOpen = creating || Boolean(editing);
 
   return (
-    <SettingsShell
+    <ResourcesWorkspaceShell
       title="Фильтры"
       backHref="/app/settings/resources"
-      service="resources"
       trailing={
         !formOpen ? (
           <button
@@ -126,7 +141,7 @@ export function ProfileFiltersSettingsView() {
         ) : null
       }
     >
-      <div className="px-4 py-4 pb-10">
+      <div className="pb-6">
         {error ? (
           <p className="mb-3 rounded-[12px] bg-destructive/10 px-3 py-2 text-center text-[12px] font-semibold text-destructive">
             {error}
@@ -172,7 +187,7 @@ export function ProfileFiltersSettingsView() {
               </AppButton>
               <AppButton
                 type="button"
-                service="resources"
+               
                 className="flex-1"
                 loading={saving}
                 disabled={saving || !name.trim()}
@@ -233,6 +248,6 @@ export function ProfileFiltersSettingsView() {
           </ul>
         )}
       </div>
-    </SettingsShell>
+    </ResourcesWorkspaceShell>
   );
 }

@@ -38,7 +38,7 @@ git push origin web-production
 | `NEXT_PUBLIC_SUPABASE_URL` | URL проекта Supabase |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon / publishable key |
 | `NEXT_PUBLIC_SITE_URL` | `https://clover.com.kz` (на проде) |
-| `NEXT_PUBLIC_YANDEX_MAPS_API_KEY` | ключ JS API Яндекс.Карт |
+| `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` | public token Mapbox GL JS (`clover`) |
 
 Короткие имена без префикса (`SUPABASE_URL` и т.п.) в клиент Next.js **не** подхватятся — не использовать в Vercel, если код читает `NEXT_PUBLIC_*`.
 

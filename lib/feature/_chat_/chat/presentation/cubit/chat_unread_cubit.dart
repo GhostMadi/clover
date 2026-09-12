@@ -146,19 +146,49 @@ class ChatUnreadCubit extends Cubit<int> {
     if (conversationId.isEmpty) return;
     if (_activeThread.isOpen(conversationId)) return;
 
-    final peer = (data['sender_username'] ?? data['peer_username'] ?? 'Чат').toString().trim();
-    final preview = data['preview']?.toString().trim();
+    final peerRaw = (data['sender_username'] ?? data['peer_username'] ?? 'chat').toString().trim();
+    final peer = peerRaw == 'chat' || peerRaw.isEmpty ? 'Чат' : peerRaw;
+    final preview = _localizeInboxPreview(
+      data['preview']?.toString().trim(),
+      kind: data['kind']?.toString().trim(),
+    );
     final messageId = data['message_id']?.toString().trim();
 
     _openBus.emit(
       ChatPushOpenRequest(
         conversationId: conversationId,
-        peerUsername: peer.isEmpty ? 'Чат' : peer,
-        preview: (preview == null || preview.isEmpty) ? 'Новое сообщение' : preview,
+        peerUsername: peer,
+        preview: preview,
         messageId: (messageId == null || messageId.isEmpty) ? null : messageId,
         autoOpen: false,
       ),
     );
+  }
+
+  /// EN keys from inbox broadcast (`photo` / `file` / …) → RU label; free text as-is.
+  String _localizeInboxPreview(String? preview, {String? kind}) {
+    final raw = preview?.trim() ?? '';
+    final key = raw.toLowerCase();
+    const labels = <String, String>{
+      'photo': 'Фото',
+      'file': 'Файл',
+      'post': 'Пост',
+      'message': 'Сообщение',
+      'system': 'Системное',
+    };
+    if (labels.containsKey(key)) return labels[key]!;
+
+    final k = kind?.trim() ?? '';
+    if (raw.isEmpty) {
+      return switch (k) {
+        'media' => 'Фото',
+        'file' => 'Файл',
+        'post_ref' => 'Пост',
+        'system' => 'Системное',
+        _ => 'Новое сообщение',
+      };
+    }
+    return raw;
   }
 
   /// Supabase Realtime may nest as `{ payload: {...} }` or pass fields at top level.

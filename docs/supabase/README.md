@@ -12,11 +12,14 @@
 
 ## Спеки
 
-| Файл | Тема |
-|------|------|
+| Файл | Назначение |
+|------|------------|
 | [MIGRATIONS_INDEX.md](MIGRATIONS_INDEX.md) | Навигатор по миграциям |
+| [_backend-audit-plan.md](_backend-audit-plan.md) | **План аудита бэков** (цикл / чистота / журнал) |
+| Правила: **`clover-backend-feature`** (вход) · `clover-supabase-cycle` | Создание бэка фичи — всегда |
 | [booking_backend_spec.md](booking_backend_spec.md) | Запись (booking) |
 | [SPEC_BOOKING_SYSTEM.md](SPEC_BOOKING_SYSTEM.md) | Booking system |
+| [booking-points.md](booking-points.md) | Точки хозяина + schedule settings per point |
 | [SPEC_IN_APP_NOTIFICATIONS.md](SPEC_IN_APP_NOTIFICATIONS.md) | In-app уведомления (соц + запись) |
 | [SPEC_POSTS_AND_EVENTS.md](SPEC_POSTS_AND_EVENTS.md) | Публикации, ивенты, enriched RPC |
 | [SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md](SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md) | Соцграф / аккаунт |

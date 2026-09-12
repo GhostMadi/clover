@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Archive,
   Bookmark,
   Building2,
   CalendarDays,
@@ -35,7 +36,7 @@ function buildSections(
     serviceItems.push({
       href: "/app/settings/booking",
       label: "Запись",
-      subtitle: "Услуги, inbox и расписание хозяина",
+      subtitle: "Сразу в последнюю точку · inbox и услуги",
       icon: CalendarDays,
       service: "booking",
     });
@@ -44,7 +45,7 @@ function buildSections(
     serviceItems.push({
       href: "/app/settings/attendance",
       label: "Посещаемость",
-      subtitle: "Компании, геозона и работники",
+      subtitle: "Сразу в последнюю компанию · день и штат",
       icon: Building2,
       service: "attendance",
     });
@@ -82,6 +83,12 @@ function buildSections(
           label: "Сохранённые посты",
           subtitle: "Посты, которые вы сохранили",
           icon: Bookmark,
+        },
+        {
+          href: "/app/settings/archives/posts",
+          label: "Публикации",
+          subtitle: "Архив постов и ивентов",
+          icon: Archive,
         },
         {
           href: "/app/settings/archives/clusters",

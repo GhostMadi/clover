@@ -1,15 +1,15 @@
 # Email OTP и транзакционная почта
 
-**Статус:** домен **Verified** в Resend; SMTP продакшн-готов  
+**Статус:** ✅ в бою — домен Verified; Send Email Hook → Edge → Resend REST; лимит **3 OTP / email / час**  
 **Роль в продукте:** канал для **регистрации**, **сброса пароля** и подтверждения email — **не** основной ежедневный логин  
 **Целевая модель входа:** [authentication.md](authentication.md) (ник/email + пароль)  
-**Техника (SMTP, DNS, шаблоны):** [../supabase/SPEC_EMAIL_AUTH.md](../supabase/SPEC_EMAIL_AUTH.md)
+**Техника (архитектура, процесс настройки, кейсы):** [../supabase/SPEC_EMAIL_AUTH.md](../supabase/SPEC_EMAIL_AUTH.md)
 
 ---
 
 ## Цель
 
-Надёжная доставка писем Clover с **welcome@clover.com.kz** (OTP-коды, восстановление пароля) во «Входящие», без лимита встроенного SMTP Supabase.
+Надёжная доставка OTP с **welcome@clover.com.kz** и серверный гейт: не больше **трёх** писем на один адрес за скользящий час. WhatsApp/SMS — later.
 
 ---
 
@@ -22,7 +22,7 @@
 | Забыли пароль | Да → код → **новый пароль** |
 | Google / Apple | Нет (пароль опционально позже в настройках) |
 
-Тестовый блок OTP на текущем экране логина — временный; убирается, когда появится полноценная регистрация/сброс.
+Тестовый OTP-блок на экране логина — если ещё виден, убрать (регистрация/сброс — отдельные экраны).
 
 ---
 
@@ -31,9 +31,9 @@
 | Роль | Что делает |
 |------|------------|
 | Пользователь | Запрашивает код, вводит код, задаёт пароль (в целевом flow) |
-| Clover (Flutter) | OTP + проверка кода (+ установка пароля в целевом UX) |
-| Supabase Auth | OTP, сессия, шаблоны |
-| Resend | Custom SMTP, домен clover.com.kz |
+| Clover (Flutter / Web) | OTP + проверка кода; soft peek лимита |
+| Supabase Auth + Send Email Hook | Генерация OTP, **запись лимита**, отправка через Resend HTTP |
+| Resend | Доставка с домена clover.com.kz |
 | UniHost | DNS (DKIM / SPF / DMARC) |
 
 ---
@@ -41,9 +41,16 @@
 ## Бизнес-процесс (доставка письма)
 
 ```
-Flutter → Supabase Auth (OTP) → Resend (welcome@clover.com.kz)
-    → DNS clover.com.kz → Inbox → код в приложении
+Клиент → Supabase Auth (OTP)
+       → Send Email Auth Hook (HTTPS)
+       → Edge send_email_hook (HMAC → лимит 3/час → Resend REST)
+       → welcome@clover.com.kz → Inbox → код в приложении / на сайте
 ```
+
+**Лимит:** один email — max 3 отправки / час (регистрация и сброс делят счётчик).  
+Verify / пароль — без этого лимита. Eligibility register≠reset — отдельно (см. [authentication.md](authentication.md)).
+
+Полный flow, шаги настройки (Resend key, Hook, secrets, deploy) и клиентские кейсы — в SPEC.
 
 Подробный целевой UX регистрации/сброса — в [authentication.md](authentication.md).
 
@@ -55,8 +62,8 @@ Flutter → Supabase Auth (OTP) → Resend (welcome@clover.com.kz)
 |---------|----------|
 | От кого | **Clover** \<welcome@clover.com.kz\> (домен **Verified**) |
 | Доставка | Inbox (DKIM / SPF / DMARC) |
-| Тема | Ссылка для входа / Код подтверждения Clover |
-| Содержимое | Логотип + **6-значный OTP** |
+| Тема | Код подтверждения / сброс пароля Clover |
+| Содержимое | **6-значный OTP** (HTML в Edge hook) |
 
 ---
 
@@ -66,8 +73,6 @@ Flutter → Supabase Auth (OTP) → Resend (welcome@clover.com.kz)
 |------|-------|
 | **Free** (сейчас) | 3 000 / мес, ~100 / день |
 | Pro | от $20/мес, 50 000+ |
-
-Встроенный SMTP Supabase без Custom SMTP — не использовать (~2 письма/час).
 
 ---
 
@@ -79,7 +84,7 @@ Flutter → Supabase Auth (OTP) → Resend (welcome@clover.com.kz)
 | Resend | **Verified** |
 | Отправитель | welcome@clover.com.kz |
 
-Детали DNS — [SPEC_EMAIL_AUTH.md](../supabase/SPEC_EMAIL_AUTH.md).
+Детали — [SPEC_EMAIL_AUTH.md](../supabase/SPEC_EMAIL_AUTH.md).
 
 ---
 

@@ -37,7 +37,14 @@ abstract final class AuthErrorMapper {
         return AuthErrorCode.checkAuthFailed;
       }
       final message = error.message.toLowerCase();
-      if (message.contains('rate limit') || message.contains('over_email_send_rate_limit')) {
+      if (message.contains('rate limit') ||
+          message.contains('over_email_send_rate_limit') ||
+          message.contains('too many otp') ||
+          message.contains('retry in')) {
+        return AuthErrorCode.emailOtpRateLimited;
+      }
+      final statusCode = int.tryParse(error.statusCode ?? '');
+      if (statusCode == 429) {
         return AuthErrorCode.emailOtpRateLimited;
       }
       if (message.contains('invalid login credentials') ||
@@ -51,7 +58,6 @@ abstract final class AuthErrorMapper {
       if (message.contains('otp') || message.contains('token') || message.contains('expired')) {
         return AuthErrorCode.emailOtpVerifyFailed;
       }
-      final statusCode = int.tryParse(error.statusCode ?? '');
       if (statusCode != null && statusCode >= 500) {
         return AuthErrorCode.networkError;
       }
@@ -59,5 +65,15 @@ abstract final class AuthErrorMapper {
     }
 
     return AuthErrorCode.unknown;
+  }
+
+  /// Parses `Retry in 123 seconds` from Send Email Hook / Auth errors.
+  static int? retryAfterSecondsFromMessage(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return null;
+    final match = RegExp(r'retry in\s+(\d+)\s*seconds?', caseSensitive: false).firstMatch(raw);
+    if (match == null) return null;
+    final n = int.tryParse(match.group(1) ?? '');
+    if (n == null || n <= 0) return null;
+    return n;
   }
 }

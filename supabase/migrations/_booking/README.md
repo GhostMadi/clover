@@ -2,13 +2,15 @@
 
 Миграции **не переносить** из корня `supabase/migrations/` — Supabase применяет только файлы по timestamp в корне. Эта папка — навигатор по домену **запись / booking**.
 
-**Полная спека:** [`../../SPEC_BOOKING_SYSTEM.md`](../../SPEC_BOOKING_SYSTEM.md)  
-**Исходное ТЗ (rev.2):** [`../../docs/booking_backend_spec.md`](../../docs/booking_backend_spec.md)
+**Полная спека:** [`../../docs/supabase/SPEC_BOOKING_SYSTEM.md`](../../docs/supabase/SPEC_BOOKING_SYSTEM.md)  
+**Точки:** [`../../docs/supabase/booking-points.md`](../../docs/supabase/booking-points.md)  
+**Исходное ТЗ (rev.2):** [`../../docs/supabase/booking_backend_spec.md`](../../docs/supabase/booking_backend_spec.md)
 
 ### Идея данных
 
-- **Host** (владелец аккаунта с тегом `booking`) управляет услугами, мастерами, расписанием.
-- **Client** записывается через RPC — слоты считаются на сервере.
+- **Host** (владелец аккаунта с тегом `booking`) управляет **точками**, услугами, мастерами, расписанием точки.
+- **Point** (`booking_points`) — место работы; у каждой точки свои `booking_schedule_settings`.
+- **Client** записывается через RPC — слоты считаются на сервере по настройкам точки услуги.
 - **Staff** (`booking_staff`) — мастера; опционально `profile_id` для будущей привязки к аккаунту.
 - **Снапшоты** на `bookings` — цена/название услуги не «ломают» историю при редактировании каталога.
 
@@ -31,21 +33,23 @@
 | `../20260730200001_booking_host_freedom.sql` | Свобода Host (cancel/complete/no_show), auto-close cron, `reschedule_booking`. |
 | `../20260830160000_booking_create_confirmed_instant.sql` | `create_booking` → сразу `confirmed` + `confirmed_at`. |
 | `../20260830170000_posts_booking_service_link.sql` | `posts.booking_service_id`, `set_post_booking_service`, enriched `booking_service` в `get_post_enriched`. |
+| `../20260911131826_booking_points.sql` | `booking_points` + `services.point_id` + `booking_ensure_default_point`. |
+| `../20260911183500_booking_schedule_settings_per_point.sql` | Settings PK → `point_id`; helpers; RPC point-aware. |
 
 ### Таблицы
 
 | Таблица | Назначение |
 |---------|------------|
+| `booking_points` | Места хозяина (филиалы) |
 | `booking_staff` | Мастера host-аккаунта |
-| `booking_services` | Услуги |
+| `booking_services` | Услуги (`point_id` → точка) |
 | `booking_service_staff` | M2M: кто может оказать услугу |
-| `booking_schedule_settings` | Горизонт, шаг слотов, дефолтные часы (fallback) |
+| `booking_schedule_settings` | Настройки **точки**: горизонт, шаг слотов, дефолтные часы (PK `point_id`) |
 | `booking_staff_schedule` | Персональный график мастера по дням недели |
-| `booking_staff_absences` | Отпуск / больничный (диапазон дат) |
-| `booking_blocked_slots` | Ручная блокировка времени (обед, совещание) |
+| `booking_staff_absences` | Отпуск / больничный (диапазон дат; host/staff-level) |
+| `booking_blocked_slots` | Ручная блокировка времени (обед, совещание; host/staff-level) |
 | `bookings` | Записи клиентов + снапшоты услуги |
-| `booking_history` | Аудит created / status_changed |
-| `booking_history` | Аудит смены статуса |
+| `booking_history` | Аудит created / status_changed / rescheduled |
 
 ### Защита от double-booking
 
@@ -59,7 +63,7 @@ WHERE (public.booking_status_blocks_slot(status));
 
 **Host:** может отменить из любого активного статуса; `completed` — bulk-complete с автозаполнением timestamps; `no_show` — из `pending`/`confirmed` после `starts_at`.
 
-**Client:** отмена только `pending`/`confirmed` до `starts_at - client_cancel_hours_before` (настройка host-а).
+**Client:** отмена только `pending`/`confirmed` до `starts_at - client_cancel_hours_before` (настройка **точки** услуги).
 
 **Auto-close:** cron `booking_auto_close_stale_visits` — только `pending`/`confirmed` через N часов после `ends_at` → **`no_show`**. **`completed` никогда автоматом** (только host). `auto_close_hours_after_visit = 0` → выкл.
 

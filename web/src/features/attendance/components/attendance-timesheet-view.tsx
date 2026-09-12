@@ -21,7 +21,12 @@ import {
   monthPeriodToToday,
   type AttendanceWorkplace,
 } from "@/features/attendance/lib/attendance-model";
-import { SettingsShell } from "@/features/settings/components/settings-shell";
+import {
+  readAttendanceAnalyticsCache,
+  writeAttendanceAnalyticsCache,
+} from "@/features/attendance/lib/attendance-prefs";
+import { AttendanceWorkspaceShell } from "@/features/attendance/components/attendance-workspace-shell";
+import { getSessionUserId } from "@/lib/run-service-swr";
 
 export function AttendanceTimesheetView({
   workplaceId,
@@ -36,10 +41,11 @@ export function AttendanceTimesheetView({
   const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
   const [exporting, setExporting] = useState(false);
 
-  const reload = useCallback(async () => {
-    setLoading(true);
+  const reload = useCallback(async (opts?: { soft?: boolean }) => {
+    if (!opts?.soft) setLoading(true);
     setError(null);
     try {
+      const uid = await getSessionUserId();
       const w = await getAdminWorkplace(workplaceId);
       if (!w) {
         setError("Компания не найдена или нет прав admin");
@@ -55,18 +61,23 @@ export function AttendanceTimesheetView({
         start: period.start,
         end: period.end,
       });
+      const nextOverview = buildAnalyticsOverview({
+        workplace: w,
+        workerIds: ids,
+        labels,
+        punches: raw.punches,
+        absences: raw.absences.filter((a) => a.workplaceId === workplaceId),
+        start: period.start,
+        end: period.end,
+      });
       setWorkplace(w);
-      setOverview(
-        buildAnalyticsOverview({
-          workplace: w,
-          workerIds: ids,
-          labels,
-          punches: raw.punches,
-          absences: raw.absences.filter((a) => a.workplaceId === workplaceId),
-          start: period.start,
-          end: period.end,
-        }),
-      );
+      setOverview(nextOverview);
+      writeAttendanceAnalyticsCache(uid, workplaceId, {
+        periodStart: period.start,
+        periodEnd: period.end,
+        workplace: w,
+        overview: nextOverview,
+      });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Не удалось загрузить");
     } finally {
@@ -75,34 +86,50 @@ export function AttendanceTimesheetView({
   }, [workplaceId, period.start, period.end]);
 
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    void (async () => {
+      const uid = await getSessionUserId();
+      const cached = readAttendanceAnalyticsCache(
+        uid,
+        workplaceId,
+        period.start,
+        period.end,
+      );
+      if (cached) {
+        setWorkplace(cached.workplace);
+        setOverview(cached.overview);
+        setLoading(false);
+        await reload({ soft: true });
+      } else {
+        await reload();
+      }
+    })();
+  }, [reload, workplaceId, period.start, period.end]);
 
   if (loading) {
     return (
-      <SettingsShell title="Табель" backHref={back} service="attendance">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Табель">
         <div className="px-4 py-5">
           <AttendanceListShimmer rows={6} />
         </div>
-      </SettingsShell>
+      </AttendanceWorkspaceShell>
     );
   }
 
   if (error || !workplace || !overview) {
     return (
-      <SettingsShell title="Табель" backHref={back} service="attendance">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Табель">
         <div className="space-y-3 px-4 py-5">
           <p className="text-[14px] text-error">{error ?? "Нет данных"}</p>
           <AppButtonLink href={back} service="attendance">
             Назад
           </AppButtonLink>
         </div>
-      </SettingsShell>
+      </AttendanceWorkspaceShell>
     );
   }
 
   return (
-    <SettingsShell title="Табель" backHref={back} service="attendance">
+    <AttendanceWorkspaceShell workplaceId={workplaceId} title="Табель">
       <div className="space-y-5 px-4 py-5 pb-10">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -171,6 +198,6 @@ export function AttendanceTimesheetView({
           </ul>
         )}
       </div>
-    </SettingsShell>
+    </AttendanceWorkspaceShell>
   );
 }

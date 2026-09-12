@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AppButton } from "@/components/shared/app-button";
 import { BookingFormShimmer } from "@/features/booking/components/booking-shimmers";
 import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
@@ -11,6 +11,11 @@ import {
   listBlockedSlots,
   saveMyScheduleSettings,
 } from "@/features/booking/lib/client-api";
+import {
+  bookingPointBase,
+  readBookingScheduleCache,
+  writeBookingScheduleCache,
+} from "@/features/booking/lib/booking-prefs";
 import { listMyStaff } from "@/features/booking/lib/staff-api";
 import {
   defaultScheduleSettings,
@@ -23,6 +28,7 @@ import {
   formatBookingWhen,
   startOfLocalDay,
 } from "@/features/booking/lib/booking-format";
+import { createClient } from "@/lib/supabase/client";
 
 const WEEKDAYS: { id: number; label: string }[] = [
   { id: 1, label: "Пн" },
@@ -34,7 +40,7 @@ const WEEKDAYS: { id: number; label: string }[] = [
   { id: 7, label: "Вс" },
 ];
 
-export function ScheduleSettingsView() {
+export function ScheduleSettingsView({ pointId }: { pointId: string }) {
   const [settings, setSettings] = useState<BookingScheduleSettings>(defaultScheduleSettings);
   const [staff, setStaff] = useState<BookingStaff[]>([]);
   const [blocks, setBlocks] = useState<BookingBlockedSlot[]>([]);
@@ -48,26 +54,64 @@ export function ScheduleSettingsView() {
   const [blockStart, setBlockStart] = useState("");
   const [blockEnd, setBlockEnd] = useState("");
 
-  const reload = () => {
-    setLoading(true);
-    const from = addDays(startOfLocalDay(), -7);
-    const to = addDays(startOfLocalDay(), 60);
-    void Promise.all([getScheduleSettings(), listMyStaff(true), listBlockedSlots(from, to)])
-      .then(([s, st, bl]) => {
-        setSettings(s);
-        setStaff(st);
-        setBlocks(bl);
-        if (!absenceStaffId && st[0]) setAbsenceStaffId(st[0].id);
-        if (!blockStaffId && st[0]) setBlockStaffId(st[0].id);
-      })
-      .catch((e: unknown) => setError(e instanceof Error ? e.message : "Ошибка"))
-      .finally(() => setLoading(false));
+  const applyStaffDefaults = (st: BookingStaff[]) => {
+    if (!absenceStaffId && st[0]) setAbsenceStaffId(st[0].id);
+    if (!blockStaffId && st[0]) setBlockStaffId(st[0].id);
   };
 
+  const reload = useCallback(async (opts?: { soft?: boolean }) => {
+    if (!opts?.soft) setLoading(true);
+    setError(null);
+    const from = addDays(startOfLocalDay(), -7);
+    const to = addDays(startOfLocalDay(), 60);
+    try {
+      const {
+        data: { session },
+      } = await createClient().auth.getSession();
+      const uid = session?.user.id ?? null;
+      const [s, st, bl] = await Promise.all([
+        getScheduleSettings(undefined, pointId),
+        listMyStaff(true),
+        listBlockedSlots(from, to, pointId),
+      ]);
+      setSettings(s);
+      setStaff(st);
+      setBlocks(bl);
+      applyStaffDefaults(st);
+      writeBookingScheduleCache(uid, pointId, { settings: s, staff: st, blocks: bl });
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Ошибка");
+    } finally {
+      setLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- staff defaults only on empty
+  }, [pointId]);
+
   useEffect(() => {
-    reload();
+    let cancelled = false;
+    void (async () => {
+      const {
+        data: { session },
+      } = await createClient().auth.getSession();
+      if (cancelled) return;
+      const uid = session?.user.id ?? null;
+      const cached = readBookingScheduleCache(uid, pointId);
+      if (cached) {
+        setSettings(cached.settings);
+        setStaff(cached.staff);
+        setBlocks(cached.blocks);
+        applyStaffDefaults(cached.staff);
+        setLoading(false);
+        await reload({ soft: true });
+      } else {
+        await reload();
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [reload, pointId]);
 
   const toggleRest = (day: number) => {
     setSettings((s) => ({
@@ -82,8 +126,16 @@ export function ScheduleSettingsView() {
     setSaving(true);
     setError(null);
     try {
-      const next = await saveMyScheduleSettings(settings);
+      const next = await saveMyScheduleSettings(settings, pointId);
       setSettings(next);
+      const {
+        data: { session },
+      } = await createClient().auth.getSession();
+      writeBookingScheduleCache(session?.user.id ?? null, pointId, {
+        settings: next,
+        staff,
+        blocks,
+      });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Не удалось сохранить");
     } finally {
@@ -91,9 +143,18 @@ export function ScheduleSettingsView() {
     }
   };
 
+  const settingsBase = `${bookingPointBase(pointId)}/settings`;
+
   return (
-    <BookingWorkspaceShell title="Расписание">
-      <div className="mx-auto max-w-3xl space-y-6">
+    <BookingWorkspaceShell
+      pointId={pointId}
+      title="Расписание"
+      backHref={settingsBase}
+    >
+      <div className="mx-auto max-w-5xl space-y-6 lg:grid lg:grid-cols-2 lg:gap-8 lg:space-y-0">
+        <p className="text-[13px] text-muted lg:col-span-2">
+          Настройки этой точки. Другая точка — свои часы и правила.
+        </p>
         {loading ? (
           <BookingFormShimmer />
         ) : (
@@ -349,7 +410,7 @@ export function ScheduleSettingsView() {
                       className="font-semibold text-destructive"
                       onClick={() => {
                         void deleteBlockedSlot(b.id)
-                          .then(reload)
+                          .then(() => reload())
                           .catch((e: unknown) =>
                             setError(e instanceof Error ? e.message : "Ошибка"),
                           );
@@ -390,6 +451,7 @@ export function ScheduleSettingsView() {
                   disabled={!blockStaffId || !blockStart || !blockEnd}
                   onClick={() => {
                     void createBlockedSlot({
+                      pointId,
                       staffId: blockStaffId,
                       startsAt: new Date(blockStart).toISOString(),
                       endsAt: new Date(blockEnd).toISOString(),

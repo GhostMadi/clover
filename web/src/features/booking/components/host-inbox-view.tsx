@@ -1,11 +1,19 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
 import { BookingListShimmer } from "@/features/booking/components/booking-shimmers";
+import { HostBookingDetailPanel } from "@/features/booking/components/host-booking-detail-panel";
 import { listHostBookings } from "@/features/booking/lib/bookings-api";
+import { listServiceIdsForPoint } from "@/features/booking/lib/services-api";
+import {
+  bookingPointBase,
+  readBookingInboxCache,
+  writeBookingInboxCache,
+} from "@/features/booking/lib/booking-prefs";
 import type { HostBookingItem } from "@/features/booking/lib/booking-model";
 import {
   addDays,
@@ -17,6 +25,7 @@ import {
   startOfLocalDay,
   statusLabelRu,
 } from "@/features/booking/lib/booking-format";
+import { createClient } from "@/lib/supabase/client";
 
 type Tab = "calendar" | "now" | "archive";
 
@@ -54,7 +63,8 @@ function dayTitle(key: string): string {
   });
 }
 
-export function HostInboxView() {
+export function HostInboxView({ pointId }: { pointId: string }) {
+  const router = useRouter();
   const todayKey = dateKeyLocal(startOfLocalDay());
   const [items, setItems] = useState<HostBookingItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,32 +75,67 @@ export function HostInboxView() {
     () => new Date(startOfLocalDay().getFullYear(), startOfLocalDay().getMonth(), 1),
   );
   const [selectedDay, setSelectedDay] = useState<string | null>(todayKey);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [listVersion, setListVersion] = useState(0);
+
+  const reloadList = useCallback(() => {
+    setListVersion((v) => v + 1);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
+    const searching = query.trim().length >= 2;
     const t = setTimeout(() => {
-      setLoading(true);
-      const { from, to } = hostInboxRange();
-      void listHostBookings({
-        from,
-        to,
-        query: query.trim().length >= 2 ? query.trim() : undefined,
-      })
-        .then((list) => {
-          if (!cancelled) setItems(list);
-        })
-        .catch((e: unknown) => {
+      void (async () => {
+        const range = hostInboxRange();
+        const {
+          data: { session },
+        } = await createClient().auth.getSession();
+        if (cancelled) return;
+        const uid = session?.user.id ?? null;
+
+        if (!searching) {
+          const cached = readBookingInboxCache(uid, pointId, range);
+          if (cached) {
+            setItems(cached);
+            setLoading(false);
+          } else {
+            setLoading(true);
+          }
+        } else {
+          setLoading(true);
+        }
+
+        try {
+          const list = await listHostBookings({
+            from: range.from,
+            to: range.to,
+            query: searching ? query.trim() : undefined,
+          });
+          if (cancelled) return;
+          const ids = await listServiceIdsForPoint(pointId);
+          const withPoint =
+            ids.size > 0
+              ? list.filter((b) => b.serviceId != null && ids.has(b.serviceId))
+              : [];
+          if (cancelled) return;
+          setItems(withPoint);
+          setError(null);
+          if (!searching) {
+            writeBookingInboxCache(uid, pointId, range, withPoint);
+          }
+        } catch (e: unknown) {
           if (!cancelled) setError(e instanceof Error ? e.message : "Ошибка");
-        })
-        .finally(() => {
+        } finally {
           if (!cancelled) setLoading(false);
-        });
-    }, query.trim().length >= 2 ? 300 : 0);
+        }
+      })();
+    }, searching ? 300 : 0);
     return () => {
       cancelled = true;
       clearTimeout(t);
     };
-  }, [query]);
+  }, [query, listVersion, pointId]);
 
   const now = Date.now();
 
@@ -154,8 +199,185 @@ export function HostInboxView() {
     setTab("calendar");
   };
 
+  const openBooking = (id: string) => {
+    // Desktop: inspector; mobile navigates via BookingRow Link fallback.
+    if (typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches) {
+      setSelectedId(id);
+      return;
+    }
+    router.push(`${bookingPointBase(pointId)}/inbox/${id}`);
+  };
+
+  const listPane = (
+    <>
+      {tab === "now" ? (
+        <NowList items={inChair} selectedId={selectedId} onSelect={openBooking} />
+      ) : tab === "archive" ? (
+        <AgendaList
+          items={archive}
+          empty="В архиве пока пусто."
+          selectedId={selectedId}
+          onSelect={openBooking}
+        />
+      ) : (
+        <div className="grid gap-4 xl:grid-cols-[minmax(260px,340px)_1fr] xl:items-start">
+          <section className="rounded-[16px] border border-line bg-surface p-3 sm:p-4">
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => shiftMonth(-1)}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-svc-booking-ink transition hover:bg-svc-booking"
+                aria-label="Предыдущий месяц"
+              >
+                <ChevronLeft className="h-5 w-5" strokeWidth={2} />
+              </button>
+              <h2 className="font-display text-[15px] font-semibold capitalize text-ink">
+                {monthLabel(cursorMonth)}
+              </h2>
+              <button
+                type="button"
+                onClick={() => shiftMonth(1)}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-svc-booking-ink transition hover:bg-svc-booking"
+                aria-label="Следующий месяц"
+              >
+                <ChevronRight className="h-5 w-5" strokeWidth={2} />
+              </button>
+            </div>
+
+            <div className="mb-1 grid grid-cols-7 gap-0.5">
+              {WEEKDAYS.map((w) => (
+                <div
+                  key={w}
+                  className="py-1 text-center text-[10px] font-bold uppercase tracking-wide text-muted"
+                >
+                  {w}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-0.5">
+              {calendarCells.map((cell, i) => {
+                if (!cell) {
+                  return <div key={`pad-${i}`} className="aspect-square" />;
+                }
+                const count = countsByDay.get(cell.key) ?? 0;
+                const selected = selectedDay === cell.key;
+                const isToday = cell.key === todayKey;
+                return (
+                  <button
+                    key={cell.key}
+                    type="button"
+                    onClick={() => setSelectedDay(cell.key)}
+                    className={`relative flex aspect-square flex-col items-center justify-center rounded-[12px] text-[13px] font-semibold transition ${
+                      selected
+                        ? "bg-svc-booking-ink text-on-media"
+                        : isToday
+                          ? "bg-svc-booking text-svc-booking-ink"
+                          : "text-ink hover:bg-svc-booking/40"
+                    }`}
+                  >
+                    {cell.day}
+                    {count > 0 ? (
+                      <span className={`mt-0.5 flex gap-0.5 ${selected ? "opacity-90" : ""}`}>
+                        {Array.from({ length: Math.min(count, 3) }).map((_, di) => (
+                          <span
+                            key={di}
+                            className={`h-1 w-1 rounded-full ${
+                              selected ? "bg-on-media" : "bg-svc-booking-ink"
+                            }`}
+                          />
+                        ))}
+                      </span>
+                    ) : (
+                      <span className="mt-0.5 h-1" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-3 text-[11px] text-muted">
+              Точки — дни с записями · всего в окне {items.length}
+            </p>
+          </section>
+
+          <section className="min-w-0 rounded-[16px] border border-line bg-surface p-3 sm:p-4">
+            <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wide text-muted">День</p>
+                <h2 className="font-display text-[17px] font-semibold capitalize text-ink">
+                  {selectedDay ? dayTitle(selectedDay) : "Выберите день"}
+                </h2>
+              </div>
+              {selectedDay && selectedDay !== todayKey ? (
+                <button
+                  type="button"
+                  onClick={() => setSelectedDay(todayKey)}
+                  className="text-[12px] font-bold text-svc-booking-ink hover:underline"
+                >
+                  К сегодня
+                </button>
+              ) : null}
+            </div>
+
+            {inChair.length > 0 && selectedDay === todayKey ? (
+              <div className="mb-3 space-y-2">
+                <p className="text-[11px] font-bold uppercase tracking-wide text-svc-booking-ink">
+                  Сейчас в кресле
+                </p>
+                {inChair.map((item) => (
+                  <BookingRow
+                    key={item.id}
+                    item={item}
+                    highlight
+                    selected={selectedId === item.id}
+                    onSelect={openBooking}
+                  />
+                ))}
+              </div>
+            ) : null}
+
+            {dayBookings.length === 0 ? (
+              <p className="py-10 text-center text-[13px] text-muted">
+                На этот день записей нет.
+                {selectedDay === todayKey ? (
+                  <>
+                    {" "}
+                    <button
+                      type="button"
+                      className="font-bold text-svc-booking-ink hover:underline"
+                      onClick={() => {
+                        const next = addDays(startOfLocalDay(), 1);
+                        setSelectedDay(dateKeyLocal(next));
+                        setCursorMonth(
+                          new Date(next.getFullYear(), next.getMonth(), 1),
+                        );
+                      }}
+                    >
+                      Смотреть завтра
+                    </button>
+                  </>
+                ) : null}
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {dayBookings.map((item) => (
+                  <li key={item.id}>
+                    <BookingRow
+                      item={item}
+                      selected={selectedId === item.id}
+                      onSelect={openBooking}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+      )}
+    </>
+  );
+
   return (
-    <BookingWorkspaceShell title="Мои записи">
+    <BookingWorkspaceShell pointId={pointId} title="Записи">
       <div className="space-y-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <input
@@ -202,160 +424,47 @@ export function HostInboxView() {
 
         {loading ? (
           <BookingListShimmer rows={8} />
-        ) : tab === "now" ? (
-          <NowList items={inChair} />
-        ) : tab === "archive" ? (
-          <AgendaList items={archive} empty="В архиве пока пусто." />
         ) : (
-          <div className="grid gap-4 lg:grid-cols-[minmax(280px,380px)_1fr] lg:items-start">
-            {/* Month calendar */}
-            <section className="rounded-[16px] border border-line bg-surface p-3 sm:p-4">
-              <div className="mb-3 flex items-center justify-between gap-2">
-                <button
-                  type="button"
-                  onClick={() => shiftMonth(-1)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-svc-booking-ink transition hover:bg-svc-booking"
-                  aria-label="Предыдущий месяц"
-                >
-                  <ChevronLeft className="h-5 w-5" strokeWidth={2} />
-                </button>
-                <h2 className="font-display text-[15px] font-semibold capitalize text-ink">
-                  {monthLabel(cursorMonth)}
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => shiftMonth(1)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-svc-booking-ink transition hover:bg-svc-booking"
-                  aria-label="Следующий месяц"
-                >
-                  <ChevronRight className="h-5 w-5" strokeWidth={2} />
-                </button>
-              </div>
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] lg:items-start">
+            <div className="min-w-0">{listPane}</div>
 
-              <div className="mb-1 grid grid-cols-7 gap-0.5">
-                {WEEKDAYS.map((w) => (
-                  <div
-                    key={w}
-                    className="py-1 text-center text-[10px] font-bold uppercase tracking-wide text-muted"
-                  >
-                    {w}
-                  </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-7 gap-0.5">
-                {calendarCells.map((cell, i) => {
-                  if (!cell) {
-                    return <div key={`pad-${i}`} className="aspect-square" />;
-                  }
-                  const count = countsByDay.get(cell.key) ?? 0;
-                  const selected = selectedDay === cell.key;
-                  const isToday = cell.key === todayKey;
-                  return (
-                    <button
-                      key={cell.key}
-                      type="button"
-                      onClick={() => setSelectedDay(cell.key)}
-                      className={`relative flex aspect-square flex-col items-center justify-center rounded-[12px] text-[13px] font-semibold transition ${
-                        selected
-                          ? "bg-svc-booking-ink text-on-media"
-                          : isToday
-                            ? "bg-svc-booking text-svc-booking-ink"
-                            : "text-ink hover:bg-svc-booking/40"
-                      }`}
-                    >
-                      {cell.day}
-                      {count > 0 ? (
-                        <span
-                          className={`mt-0.5 flex gap-0.5 ${
-                            selected ? "opacity-90" : ""
-                          }`}
-                        >
-                          {Array.from({ length: Math.min(count, 3) }).map((_, di) => (
-                            <span
-                              key={di}
-                              className={`h-1 w-1 rounded-full ${
-                                selected ? "bg-on-media" : "bg-svc-booking-ink"
-                              }`}
-                            />
-                          ))}
-                        </span>
-                      ) : (
-                        <span className="mt-0.5 h-1" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="mt-3 text-[11px] text-muted">
-                Точки — дни с записями · всего в окне {items.length}
-              </p>
-            </section>
-
-            {/* Day agenda */}
-            <section className="min-w-0 rounded-[16px] border border-line bg-surface p-3 sm:p-4">
-              <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
-                <div>
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-muted">
-                    День
-                  </p>
-                  <h2 className="font-display text-[17px] font-semibold capitalize text-ink">
-                    {selectedDay ? dayTitle(selectedDay) : "Выберите день"}
-                  </h2>
-                </div>
-                {selectedDay && selectedDay !== todayKey ? (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedDay(todayKey)}
-                    className="text-[12px] font-bold text-svc-booking-ink hover:underline"
-                  >
-                    К сегодня
-                  </button>
-                ) : null}
-              </div>
-
-              {inChair.length > 0 && selectedDay === todayKey ? (
-                <div className="mb-3 space-y-2">
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-svc-booking-ink">
-                    Сейчас в кресле
-                  </p>
-                  {inChair.map((item) => (
-                    <BookingRow key={item.id} item={item} highlight />
-                  ))}
-                </div>
-              ) : null}
-
-              {dayBookings.length === 0 ? (
-                <p className="py-10 text-center text-[13px] text-muted">
-                  На этот день записей нет.
-                  {selectedDay === todayKey ? (
-                    <>
-                      {" "}
+            <aside className="hidden lg:block">
+              <div className="sticky top-4 rounded-[16px] border border-line bg-surface p-4">
+                {selectedId ? (
+                  <>
+                    <div className="mb-3 flex items-center justify-between gap-2">
+                      <p className="text-[12px] font-bold uppercase tracking-wide text-muted">
+                        Запись
+                      </p>
                       <button
                         type="button"
-                        className="font-bold text-svc-booking-ink hover:underline"
-                        onClick={() => {
-                          const next = addDays(startOfLocalDay(), 1);
-                          setSelectedDay(dateKeyLocal(next));
-                          setCursorMonth(
-                            new Date(next.getFullYear(), next.getMonth(), 1),
-                          );
-                        }}
+                        onClick={() => setSelectedId(null)}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted hover:bg-surface-muted"
+                        aria-label="Закрыть"
                       >
-                        Смотреть завтра
+                        <X className="h-4 w-4" strokeWidth={2} />
                       </button>
-                    </>
-                  ) : null}
-                </p>
-              ) : (
-                <ul className="space-y-2">
-                  {dayBookings.map((item) => (
-                    <li key={item.id}>
-                      <BookingRow item={item} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
+                    </div>
+                    <HostBookingDetailPanel
+                      key={selectedId}
+                      bookingId={selectedId}
+                      embedded
+                      onChanged={reloadList}
+                    />
+                    <Link
+                      href={`${bookingPointBase(pointId)}/inbox/${selectedId}`}
+                      className="mt-3 inline-block text-[12px] font-bold text-svc-booking-ink hover:underline"
+                    >
+                      Открыть на всю страницу
+                    </Link>
+                  </>
+                ) : (
+                  <p className="py-12 text-center text-[13px] text-muted">
+                    Выберите запись слева — детали появятся здесь.
+                  </p>
+                )}
+              </div>
+            </aside>
           </div>
         )}
       </div>
@@ -363,7 +472,15 @@ export function HostInboxView() {
   );
 }
 
-function NowList({ items }: { items: HostBookingItem[] }) {
+function NowList({
+  items,
+  selectedId,
+  onSelect,
+}: {
+  items: HostBookingItem[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}) {
   if (items.length === 0) {
     return <p className="text-sm text-muted">Сейчас никто не в кресле.</p>;
   }
@@ -371,7 +488,12 @@ function NowList({ items }: { items: HostBookingItem[] }) {
     <ul className="space-y-2">
       {items.map((item) => (
         <li key={item.id}>
-          <BookingRow item={item} highlight />
+          <BookingRow
+            item={item}
+            highlight
+            selected={selectedId === item.id}
+            onSelect={onSelect}
+          />
         </li>
       ))}
     </ul>
@@ -381,9 +503,13 @@ function NowList({ items }: { items: HostBookingItem[] }) {
 function AgendaList({
   items,
   empty,
+  selectedId,
+  onSelect,
 }: {
   items: HostBookingItem[];
   empty: string;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
 }) {
   if (items.length === 0) {
     return <p className="text-sm text-muted">{empty}</p>;
@@ -392,7 +518,12 @@ function AgendaList({
     <ul className="space-y-2">
       {items.map((item) => (
         <li key={item.id}>
-          <BookingRow item={item} showDate />
+          <BookingRow
+            item={item}
+            showDate
+            selected={selectedId === item.id}
+            onSelect={onSelect}
+          />
         </li>
       ))}
     </ul>
@@ -403,18 +534,25 @@ function BookingRow({
   item,
   highlight,
   showDate,
+  selected,
+  onSelect,
 }: {
   item: HostBookingItem;
   highlight?: boolean;
   showDate?: boolean;
+  selected?: boolean;
+  onSelect: (id: string) => void;
 }) {
   return (
-    <Link
-      href={`/app/settings/booking/inbox/${item.id}`}
-      className={`flex gap-3 rounded-[14px] border px-3 py-3 transition ${
-        highlight
-          ? "border-svc-booking-ink/25 bg-svc-booking"
-          : "border-line bg-bg hover:bg-svc-booking/30"
+    <button
+      type="button"
+      onClick={() => onSelect(item.id)}
+      className={`flex w-full gap-3 rounded-[14px] border px-3 py-3 text-left transition ${
+        selected
+          ? "border-svc-booking-ink/40 bg-svc-booking ring-1 ring-svc-booking-ink/30"
+          : highlight
+            ? "border-svc-booking-ink/25 bg-svc-booking"
+            : "border-line bg-bg hover:bg-svc-booking/30"
       }`}
     >
       <div className="w-14 shrink-0 text-center">
@@ -452,6 +590,6 @@ function BookingRow({
           </span>
         </div>
       </div>
-    </Link>
+    </button>
   );
 }

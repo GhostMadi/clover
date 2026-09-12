@@ -21,6 +21,7 @@ export type BookingStaff = {
 export type BookingService = {
   id: string;
   hostId: string;
+  pointId: string | null;
   title: string;
   emojiText: string;
   description: string | null;
@@ -226,6 +227,7 @@ export function mapService(row: Record<string, unknown>): BookingService {
   return {
     id: String(row.id ?? ""),
     hostId: String(row.host_id ?? ""),
+    pointId: asStr(row.point_id),
     title: String(row.title ?? ""),
     emojiText: String(row.emoji_text ?? "💈"),
     description: asStr(row.description),

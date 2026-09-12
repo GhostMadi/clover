@@ -195,7 +195,9 @@
 | `20260830270000_chat_attachments_client_message_id.sql` | `send_message_with_attachments` + `p_client_message_id` — reconcile optimistic media/file. |
 | `20260831100000_auth_login_helpers.sql` | `auth_is_email_registered`, `auth_resolve_login_email` — OTP только новым / логин по нику. |
 | `20260831120000_auth_current_user_has_password.sql` | `auth_current_user_has_password()` — для Настроек: «Установить» vs «Сбросить пароль». |
-| `20260831130000_auth_email_otp_cooldown.sql` | `auth_email_otp_cooldown` + `auth_claim_email_otp_send` / `auth_email_otp_retry_after` — кулдаун переотправки OTP 400с. |
+| `20260831130000_auth_email_otp_cooldown.sql` | Historical: `auth_email_otp_cooldown` + claim/retry 400с (superseded). |
+| `20260912170000_auth_email_otp_hourly_limit.sql` | `auth_email_otp_sends` + claim/retry **max 3 / email / hour**; claim только `service_role` (Send Email Hook). |
+| `20260912220000_booking_absences_blocks_per_point.sql` | `booking_staff_absences` / `booking_blocked_slots`.`point_id`; `replace_booking_staff_absences(p_point_id,…)`; availability/create/reschedule/analytics scoped by point. |
 | `20260831140000_auth_is_email_fully_registered.sql` | `auth_is_email_fully_registered` — блок регистрации только для завершённых аккаунтов (пароль/OAuth). |
 | `20260831150000_auth_fully_registered_password_flag.sql` | fully_registered = `clover_password_set` meta или OAuth (не `encrypted_password` после OTP). |
 

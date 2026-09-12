@@ -1,5 +1,5 @@
-import { ServicesListView } from "@/features/booking/components/services-list-view";
+import { BookingLegacyRedirect } from "@/features/booking/components/booking-legacy-redirect";
 
-export default function BookingServicesPage() {
-  return <ServicesListView />;
+export default function LegacyBookingServicesPage() {
+  return <BookingLegacyRedirect suffix="/services" />;
 }
