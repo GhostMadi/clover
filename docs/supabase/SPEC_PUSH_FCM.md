@@ -106,7 +106,7 @@ Repo secrets: `SUPABASE_URL`, `PUSH_WORKER_SECRET` (значение = Edge secr
 ## 3. iOS setup (manual)
 
 1. Xcode → Runner → Signing & Capabilities → **Push Notifications**  
-   Entitlements: Debug/Release → `aps-environment=development`; Profile/TestFlight → `production` (`Runner.entitlements` / `RunnerRelease.entitlements` / `RunnerProfile.entitlements`).
+   Entitlements: Debug → `development` (`Runner.entitlements`); **Release / TestFlight / App Store** → `production` (`RunnerRelease.entitlements`, `RunnerProfile.entitlements`). Неверный `aps-environment` → `FCM token empty`.
 2. Upload APNs **.p8** key in Firebase Console → Project Settings → Cloud Messaging
 3. `UIBackgroundModes` → `remote-notification` (Info.plist)
 4. Проверка push: **реальный iPhone** (Debug). Симулятор часто даёт `FCM token empty (APNs not ready)`.

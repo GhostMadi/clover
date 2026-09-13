@@ -35,6 +35,9 @@
   - **functions**: `post_enriched_list_json` (post + media + tags + filters, **без** marker subtree)
   - **RPC**: `list_user_feed_enriched_cursor` → lightweight JSON для сетки профиля; деталь — `get_post_enriched`
 
+- `20260913120000_events_feed_timeout_fix.sql`
+  - **RPC**: `list_events_feed_enriched_cursor` — page ids → enrich; `events_only` + `p_at_time`; index `markers_city_event_live_idx`
+
 - `20260830150000_fix_category_code_trigger_orphans.sql`
   - **fix**: дроп триггеров/функций с `category_code` после unify tags (INSERT posts 42703)
 

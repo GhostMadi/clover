@@ -9,6 +9,7 @@ import 'package:clover/core/push/push_device_token_repository.dart';
 import 'package:clover/feature/_chat_/chat/presentation/chat_push_open_bus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -32,6 +33,9 @@ class AppPushMessagingService {
   String? _syncedTokenUserId;
   Future<void>? _syncInFlight;
   Timer? _retryTimer;
+  int _retryAttempt = 0;
+
+  static const _maxSyncRetries = 6;
 
   Future<void> init() async {
     if (!AppPushConfig.enabled) return;
@@ -63,6 +67,7 @@ class AppPushMessagingService {
             unawaited(syncForCurrentUser());
           case AuthChangeEvent.signedOut:
             _retryTimer?.cancel();
+            _retryAttempt = 0;
             _resetLocalCache();
           default:
             break;
@@ -70,7 +75,6 @@ class AppPushMessagingService {
       });
 
       AppLog.i('FCM init', tag: 'Push');
-      // Не блокируем cold start (permission / APNs retry до ~2s).
       if (_client.auth.currentSession != null) {
         unawaited(syncForCurrentUser());
       }
@@ -79,7 +83,6 @@ class AppPushMessagingService {
     }
   }
 
-  /// Вызывать **до** [SupabaseClient.auth.signOut], пока RLS ещё видит пользователя.
   Future<void> detachForSignOut() async {
     if (!AppPushConfig.enabled) {
       _resetLocalCache();
@@ -140,12 +143,13 @@ class AppPushMessagingService {
 
       final token = await _resolveFcmToken();
       if (token == null || token.isEmpty) {
-        AppLog.w('FCM token empty', tag: 'Push');
+        AppLog.w(_emptyTokenHint(), tag: 'Push');
         _scheduleRetry();
         return;
       }
 
       _retryTimer?.cancel();
+      _retryAttempt = 0;
       await _upsertToken(token, userId: userId, platform: platform);
     } catch (error, stack) {
       AppLog.e('FCM sync failed', tag: 'Push', error: error, stackTrace: stack);
@@ -153,10 +157,22 @@ class AppPushMessagingService {
     }
   }
 
+  String _emptyTokenHint() {
+    if (Platform.isIOS) {
+      if (kReleaseMode) {
+        return 'FCM token empty · iOS: нужен aps-environment=production в Release/TestFlight + APNs key в Firebase';
+      }
+      return 'FCM token empty · iOS: симулятор без APNs или APNs ещё не готов (подожди / перезапусти на реальном iPhone)';
+    }
+    return 'FCM token empty · Android: Google Play Services / google-services.json';
+  }
+
   void _scheduleRetry() {
-    if (!Platform.isIOS) return;
+    if (_retryAttempt >= _maxSyncRetries) return;
+    _retryAttempt += 1;
+    final delay = Duration(seconds: 2 * _retryAttempt);
     _retryTimer?.cancel();
-    _retryTimer = Timer(const Duration(seconds: 3), () {
+    _retryTimer = Timer(delay, () {
       unawaited(syncForCurrentUser());
     });
   }
@@ -210,12 +226,16 @@ class AppPushMessagingService {
   Future<String?> _resolveFcmToken() async {
     try {
       if (Platform.isIOS) {
-        var apns = await _messaging.getAPNSToken();
-        if (apns == null || apns.isEmpty) {
-          await Future<void>.delayed(const Duration(seconds: 2));
+        String? apns;
+        for (var i = 0; i < 6; i++) {
           apns = await _messaging.getAPNSToken();
+          if (apns != null && apns.isNotEmpty) break;
+          await Future<void>.delayed(Duration(milliseconds: 500 * (i + 1)));
         }
-        if (apns == null || apns.isEmpty) return null;
+        if (apns == null || apns.isEmpty) {
+          AppLog.w('APNs token not ready yet', tag: 'Push');
+          return null;
+        }
       }
 
       final token = await _messaging.getToken();
@@ -223,7 +243,7 @@ class AppPushMessagingService {
       return token;
     } on FirebaseException catch (error) {
       if (error.code == 'apns-token-not-set') return null;
-      AppLog.e('FCM getToken', tag: 'Push', error: error);
+      AppLog.e('FCM getToken · ${error.code}', tag: 'Push', error: error);
       return null;
     } catch (error, stack) {
       AppLog.e('FCM getToken', tag: 'Push', error: error, stackTrace: stack);

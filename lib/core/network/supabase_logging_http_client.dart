@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer' as developer;
 
 import 'package:clover/core/debug/app_log.dart';
 import 'package:clover/core/debug/app_shake_logger_config.dart';
@@ -11,9 +10,9 @@ import 'package:http/http.dart' as http;
 bool get supabaseHttpLoggingEnabled => kDebugMode || AppShakeLoggerConfig.enabled;
 
 const _logName = 'SupabaseHTTP';
-const _maxBodyLogChars = 6000;
+const _maxBodyLogChars = 2000;
 
-/// HTTP-лог Supabase: короткая строка запроса + тело req/res как JSON.
+/// HTTP-лог Supabase: одна строка на запрос; body — одной записью (если включено).
 class SupabaseLoggingHttpClient extends http.BaseClient {
   SupabaseLoggingHttpClient({http.Client? inner}) : _inner = inner ?? http.Client();
 
@@ -51,12 +50,6 @@ class SupabaseLoggingHttpClient extends http.BaseClient {
       );
     } catch (e, st) {
       sw.stop();
-      developer.log(
-        '✗ ${sw.elapsedMilliseconds}ms · ${prepared.method} $summary · $e',
-        name: _logName,
-        error: e,
-        stackTrace: st,
-      );
       AppLog.e(
         '✗ ${sw.elapsedMilliseconds}ms · ${prepared.method} $summary',
         tag: _logName,
@@ -73,17 +66,16 @@ class SupabaseLoggingHttpClient extends http.BaseClient {
   }
 
   static void _log(String message) {
-    developer.log(message, name: _logName);
     AppLog.i(message, tag: _logName);
   }
 
   static void _logBody(String label, String? raw) {
+    if (!AppShakeLoggerConfig.logHttpBodies) return;
     if (raw == null || raw.trim().isEmpty) return;
     final formatted = _formatBody(raw);
-    _log('  $label:');
-    for (final line in formatted.split('\n')) {
-      _log('    $line');
-    }
+    if (formatted.isEmpty) return;
+    // Одна запись в Talker, не по строке — иначе лента «рвётся» на сотни сообщений.
+    _log('$label:\n$formatted');
   }
 
   /// Короткий путь: `profiles`, `rpc/list_user_feed_enriched_cursor`.

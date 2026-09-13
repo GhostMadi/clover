@@ -7,13 +7,11 @@ import * as Sentry from "@sentry/nextjs";
 Sentry.init({
   dsn: "https://d354c617e34fbcc5d9be1af10dad86a0@o4512063594168320.ingest.de.sentry.io/4512063615729744",
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+  // Local `next dev` / Cursor preview — не слать в Sentry (шум RSC abort).
+  enabled: process.env.NODE_ENV === "production",
 
-  dataCollection: {
-    // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
-    // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#dataCollection
-    // userInfo: false,
-    // httpBodies: [],
-  },
+  tracesSampleRate: 0.2,
+
+  // Next.js App Router: клиент ушёл / HMR оборвал RSC stream.
+  ignoreErrors: ["The destination stream closed early"],
 });

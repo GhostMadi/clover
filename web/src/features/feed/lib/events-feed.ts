@@ -25,10 +25,15 @@ export async function listEventsFeed(
   opts?: { limit?: number; cursor?: EventsFeedCursor | null },
 ): Promise<EventsFeedPage> {
   const supabase = await createClient();
-  return fetchEventsFeedPage(supabase, filter, {
-    limit: opts?.limit ?? EVENTS_FEED_PAGE_SIZE,
-    cursor: opts?.cursor,
-  });
+  try {
+    return await fetchEventsFeedPage(supabase, filter, {
+      limit: opts?.limit ?? EVENTS_FEED_PAGE_SIZE,
+      cursor: opts?.cursor,
+    });
+  } catch {
+    // statement_timeout / transient Supabase blip — don't 500 the whole /app shell
+    return { posts: [], hasMore: false };
+  }
 }
 
 export type { FeedPost } from "@/features/post/lib/parse-feed";

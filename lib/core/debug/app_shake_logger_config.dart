@@ -7,7 +7,13 @@ class AppShakeLoggerConfig {
   /// Вкл. для тестеров во всех сборках (в т.ч. release).
   static const bool enabled = true;
 
-  static const int maxEntries = 800;
+  static const int maxEntries = 400;
+
+  /// Полные req/res body в Supabase HTTP (иначе только одна строка →/←).
+  static const bool logHttpBodies = false;
+
+  /// Маршруты в Talker ([TalkerRouteObserver]).
+  static const bool logNavigation = false;
 
   /// Порог ускорения (g ≈ м/с²); выше = реже срабатывает.
   static const double shakeThreshold = 18;

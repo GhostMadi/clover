@@ -87,14 +87,6 @@ Future<void> main() async {
       }
       Sentry.captureException(error, stackTrace: stack);
     },
-    zoneSpecification: AppShakeLoggerConfig.enabled
-        ? ZoneSpecification(
-            print: (self, parent, zone, line) {
-              appTalker.debug(line);
-              parent.print(zone, line);
-            },
-          )
-        : null,
   );
 }
 
@@ -143,7 +135,8 @@ class _MyAppViewState extends State<_MyAppView> {
       routerConfig: _appRouter.config(
         navigatorObservers: () => [
           SentryNavigatorObserver(),
-          if (AppShakeLoggerConfig.enabled) TalkerRouteObserver(appTalker),
+          if (AppShakeLoggerConfig.enabled && AppShakeLoggerConfig.logNavigation)
+            TalkerRouteObserver(appTalker),
         ],
       ),
       title: 'Clover',
