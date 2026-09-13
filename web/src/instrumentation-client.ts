@@ -7,26 +7,15 @@ import * as Sentry from "@sentry/nextjs";
 Sentry.init({
   dsn: "https://d354c617e34fbcc5d9be1af10dad86a0@o4512063594168320.ingest.de.sentry.io/4512063615729744",
 
-  // Add optional integrations for additional features
+  enabled: process.env.NODE_ENV === "production",
+
   integrations: [Sentry.replayIntegration()],
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
-
-  // Define how likely Replay events are sampled.
-  // This sets the sample rate to be 10%. You may want this to be 100% while
-  // in development and sample at a lower rate in production
+  tracesSampleRate: 0.2,
   replaysSessionSampleRate: 0.1,
-
-  // Define how likely Replay events are sampled when an error occurs.
   replaysOnErrorSampleRate: 1.0,
 
-  dataCollection: {
-    // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
-    // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#dataCollection
-    // userInfo: false,
-    // httpBodies: [],
-  },
+  ignoreErrors: ["The destination stream closed early"],
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;

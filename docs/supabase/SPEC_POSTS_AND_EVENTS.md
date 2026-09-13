@@ -28,7 +28,7 @@
 | `post_enriched_list_json(posts)` | Как root, **без** `marker` — лента профиля / сетка |
 | `get_post_enriched(uuid)` | Один пост для детали / map sheet |
 | `list_user_feed_enriched_cursor(jsonb)` | Лента профиля (lightweight list JSON) |
-| `list_events_feed_enriched_cursor(jsonb)` | Лента Event / «Все» |
+| `list_events_feed_enriched_cursor(jsonb)` | Лента Event / «Все». Сначала page ids + `limit`, потом enrich. `events_only` фильтрует `coalesce(end_time, event_time) >= p_at_time`. |
 
 Правило: **не** тянуть marker отдельным REST, если уже есть enriched (теги маркера в `post.marker.tags`).  
 Лента профиля: `marker_id` на строке поста для `isEvent`; полный marker — только `get_post_enriched`.
