@@ -49,6 +49,7 @@ git push origin web-production
 | Key | Назначение |
 |-----|------------|
 | `ADMIN_SESSION_SECRET` | Секрет подписи cookie админки (**обязателен**) |
+| `SUPABASE_SERVICE_ROLE_KEY` | service_role для `/api/admin/*` после cookie (stats, support, honest quiz) |
 
 Админ = обычный аккаунт с `profiles.is_site_admin` (см. [website-admin.md](website-admin.md)).
 

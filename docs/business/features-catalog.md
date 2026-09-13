@@ -263,9 +263,9 @@ Phone / WhatsApp OTP в UI · WhatsApp webhook как продуктовый п�
 Техника: `web/`
 
 ### 🟢 Админка сайта (скрытый вход)
-15 тапов по «©» в футере → `/admin` (email+пароль из server env) → `/admin/home`.
-Бизнес: [website-admin.md](website-admin.md)
-Техника: `web/src/app/admin/`, `web/src/lib/admin-auth.ts`, `web/src/app/api/admin/`
+15 тапов по «©» → `/admin` → хаб: Support · Аналитика · Honest Quiz.
+Бизнес: [website-admin.md](website-admin.md) · Spec: [SPEC_ADMIN_PLATFORM.md](../supabase/SPEC_ADMIN_PLATFORM.md)
+Техника: `web/src/app/admin/`, `/api/admin/{support,stats,honest-quiz}`, `SUPABASE_SERVICE_ROLE_KEY`
 
 ---
 

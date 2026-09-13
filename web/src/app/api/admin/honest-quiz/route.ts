@@ -1,20 +1,16 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { getAdminSessionFromCookies } from "@/lib/admin-auth";
+import { requireSiteAdminApi } from "@/lib/admin-api-guard";
 
-/** Список / деталь прохождений — только site admin (Auth session). */
+/** Список / деталь прохождений — cookie + service_role. */
 export async function GET(request: Request) {
-  const email = await getAdminSessionFromCookies();
-  if (!email) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const gate = await requireSiteAdminApi();
+  if (!gate.ok) return gate.response;
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id")?.trim();
-  const supabase = await createClient();
 
   if (id) {
-    const { data, error } = await supabase.rpc("honest_quiz_admin_get", {
+    const { data, error } = await gate.supabase.rpc("honest_quiz_admin_get", {
       p_id: id,
     });
     if (error) {
@@ -23,7 +19,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ run: data });
   }
 
-  const { data, error } = await supabase.rpc("honest_quiz_admin_list");
+  const { data, error } = await gate.supabase.rpc("honest_quiz_admin_list");
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
