@@ -44,6 +44,7 @@ SDK_REGISTRY_TOKEN=sk.YOUR_SECRET_WITH_DOWNLOADS_READ
 Стиль всегда: `mapbox://styles/mapbox/standard`.  
 Цветовая тема basemap: **`default`**.  
 Светлая / тёмная приложения: `lightPreset` `day` / `night` (ночь с огнями зданий).  
+Flutter: preset только после `onStyleLoadedListener` (раньше → `Import 'basemap' does not exist`).  
 Логотип Mapbox и attribution на карте скрыты.
 
 ## После смены токенов
