@@ -1,16 +1,15 @@
 # Админка сайта (скрытый вход)
 
-**Статус:** актуально  
-**Связано с:** [website.md](website.md), [website-deploy.md](website-deploy.md)
+**Статус:** актуально · заполнение v1  
+**Связано с:** [website.md](website.md), [website-deploy.md](website-deploy.md), [support.md](support.md)
 
-**Не про:** кабинет пользователя `/app`, Supabase Auth обычных аккаунтов.
+**Не про:** кабинет пользователя `/app`, теги `admin` booking/attendance.
 
 ---
 
 ## Зачем
 
-Отдельная **служебная админка** сайта для владельца Clover: не в меню, не в кабинете.  
-Обычный пользователь её не видит; владелец открывает скрытым жестом и входит логином/паролем.
+Служебная панель владельца Clover: ops + платформенная аналитика. Не в меню, не в кабинете.
 
 ---
 
@@ -18,60 +17,89 @@
 
 | Роль | Что делает |
 |------|------------|
-| Владелец / оператор | 15 тапов по скрытой точке → форма входа → админ-панель |
-| Обычный посетитель | Жест не знает; даже при угадывании URL без пароля не войдёт |
+| Владелец / оператор (`profiles.is_site_admin`) | 15 тапов → `/admin` → email/пароль → хаб |
+| Обычный посетитель | Без пароля / флага не войдёт |
 
 ---
 
 ## Как попасть
 
-1. На публичных страницах сайта (футер) — **15 тапов** по строке «© … Clover».
-2. Открывается `/admin` с формой **email + пароль**.
-3. После успешного входа — `/admin/home` (сессия в httpOnly cookie, без хранения пароля в браузере).
-4. Выход — кнопка «Выйти» (сброс cookie).
+1. Футер публичных страниц — **15 тапов** по «© … Clover».
+2. `/admin` — email + пароль аккаунта с `is_site_admin`.
+3. `/admin/home` — хаб модулей (cookie `clover_admin_session` + проверка флага).
+4. Выход — «Выйти».
 
-Прямой заход на `/admin` тоже показывает форму (жест — способ **найти**, пароль — способ **войти**).
-
----
-
-## Безопасность (продукт)
-
-- Админ сайта = **обычный пользователь** с флагом `profiles.is_site_admin`.
-- Вход на `/admin`: **email + пароль этого аккаунта** (Supabase Auth). Без флага — 403.
-- Отдельный env `ADMIN_SESSION_SECRET` **не нужен** — сессия админки = обычная Auth-сессия.
-- Жест «15 тапов» — слабый слой скрытия, не замена пароля.
-
-### Назначить существующий аккаунт админом
-
-Кнопки на `/admin` больше нет. Флаг вручную:
+Назначить админа (SQL):
 
 ```sql
 update public.profiles set is_site_admin = true where email = 'твой@email.com';
 ```
 
-Снять: `update public.profiles set is_site_admin = false where …;`  
-Вход: `/admin` → email/пароль этого аккаунта.
+Env: `ADMIN_SESSION_SECRET`, `SUPABASE_SERVICE_ROLE_KEY` (только серверные `/api/admin/*`).
 
 ---
 
-## Карта экранов
+## План заполнения (roadmap)
+
+| Фаза | Модуль | Статус | URL |
+|------|--------|--------|-----|
+| **A** | Хаб + навигация | 🟢 | `/admin/home` |
+| **A** | Support inbox | 🟢 | `/admin/support` |
+| **A** | Платформенная аналитика (карточки) | 🟢 | `/admin/analytics` |
+| **A** | Honest Quiz (временное) | 🟢 | `/admin/honest` |
+| **B** | Модерация постов / жалобы | 🔴 позже | `/admin/moderation` |
+| **B** | Пользователи (поиск, флаг admin) | 🔴 позже | `/admin/users` |
+| **C** | Тренды 30д, алерты квот | 🔴 позже | analytics v2 |
+
+Не класть сюда: booking/attendance host-ops — это `/app/settings/…`.
+
+---
+
+## Карта экранов (фаза A)
 
 | URL | Что |
 |-----|-----|
 | `/admin` | Логин |
-| `/admin/home` | Домашняя админки (хаб) |
-| `/admin/honest` | Временно: ответы «Честного теста» ([honest-quiz.md](honest-quiz.md)) |
+| `/admin/home` | Хаб: Support · Аналитика · Honest Quiz · Кабинет |
+| `/admin/support` | Список заявок, смена статуса |
+| `/admin/analytics` | DAU / юзеры / сервисы / контент / ops |
+| `/admin/honest` | Прохождения честного теста |
 
 ---
 
-## Чего пока нет
+## Аналитика (фаза A) — метрики
 
-- Управление пользователями / модерация через эту панель (появится позже).
-- Связь с тегом `admin` профиля / booking / attendance — это другой «admin».
+Период: `1` / `7` / `30` дней (для «активности»).
+
+| Ключ (EN) | Смысл |
+|-----------|--------|
+| `profiles_total` | Всего профилей |
+| `dau` | Уникальные `user_id` в `account_login_events` за 1д |
+| `active_logins` | Уникальные логины за период |
+| `new_profiles` | Новые профили за период |
+| `tag_booking` / `tag_attendance` / `tag_resources` | Профили с силовым тегом |
+| `booking_points` | Точек записи |
+| `attendance_workplaces` | Компаний посещаемости |
+| `bookings_period` | Записей за период |
+| `punches_period` | Отметок за период |
+| `posts_period` | Постов за период |
+| `support_new` | Заявки support в статусе `new` |
+| `honest_quiz_finished` | Завершённые прогоны квиза |
+
+Контракт: RPC `admin_platform_stats` → [SPEC](../supabase/SPEC_ADMIN_PLATFORM.md).  
+Support admin: [SPEC_SUPPORT_REQUESTS](../supabase/SPEC_SUPPORT_REQUESTS.md).
+
+---
+
+## Безопасность
+
+- Cookie HMAC + email должен иметь `is_site_admin`.
+- API `/api/admin/*` после гейта ходит в БД через **service_role** (RLS клиентских ролей не обходим «с браузера»).
+- Не путать с тегом `admin` профиля.
 
 ---
 
 ## Связанные
 
-- Деплой env: [website-deploy.md](website-deploy.md)
-- Сайт: [website.md](website.md)
+- Деплой: [website-deploy.md](website-deploy.md)
+- Support продукт: [support.md](support.md)

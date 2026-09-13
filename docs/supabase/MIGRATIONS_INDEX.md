@@ -260,3 +260,5 @@
 | Файл | Назначение |
 |------|------------|
 | `20260908120000_support_requests.sql` | Таблица `support_requests` + RLS insert-only для формы `/support`. Spec: [SPEC_SUPPORT_REQUESTS.md](SPEC_SUPPORT_REQUESTS.md) |
+| `20260912121000_support_requests_rate_limit.sql` | Лимит 5 заявок / contact / час |
+| `20260913102000_admin_platform_stats.sql` | `admin_platform_stats` + honest quiz admin для service_role. Spec: [SPEC_ADMIN_PLATFORM.md](SPEC_ADMIN_PLATFORM.md) |
