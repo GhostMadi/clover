@@ -5,8 +5,17 @@ import 'package:clover/core/debug/app_talker.dart';
 class AppLog {
   AppLog._();
 
-  static void d(String message, {String? tag}) {
+  static void d(
+    String message, {
+    String? tag,
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
     if (!AppShakeLoggerConfig.enabled) return;
+    if (error != null) {
+      appTalker.handle(error, stackTrace, _withTag(tag, message));
+      return;
+    }
     appTalker.debug(_withTag(tag, message));
   }
 

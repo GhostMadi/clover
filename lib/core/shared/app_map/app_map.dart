@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:clover/core/config/mapbox.dart';
+import 'package:clover/core/shared/app_map/app_map_basemap_style.dart';
 import 'package:clover/core/shared/app_map/app_map_cluster_icon_factory.dart';
 import 'package:clover/core/shared/app_map/app_map_marker.dart';
 import 'package:clover/core/shared/app_map/app_map_marker_icon_factory.dart';
@@ -126,7 +127,7 @@ class _AppMapState extends State<AppMap> {
     final hadStyle = _isDarkStyle != null;
     _isDarkStyle = isDark;
     if (hadStyle && _map != null) {
-      unawaited(_applyMapStyle(isDark));
+      unawaited(AppMapBasemapStyle.apply(_map!, isDark: isDark));
     }
   }
 
@@ -231,7 +232,6 @@ class _AppMapState extends State<AppMap> {
     _map = map;
     _isDarkStyle ??= Theme.of(context).brightness == Brightness.dark;
     await _hideMapChrome(map);
-    await _applyLightPreset(map, isDark: _isDarkStyle!);
     await _setupAnnotationManagers(map);
     if (widget.onPointSelected != null) {
       map.addInteraction(
@@ -259,20 +259,10 @@ class _AppMapState extends State<AppMap> {
     ]);
   }
 
-  Future<void> _applyLightPreset(MapboxMap map, {required bool isDark}) async {
-    // Standard basemap: color theme всегда default; ночь = lightPreset night (огни домов).
-    await map.style.setStyleImportConfigProperty('basemap', 'theme', 'default');
-    await map.style.setStyleImportConfigProperty(
-      'basemap',
-      'lightPreset',
-      isDark ? MapboxConfig.lightPresetNight : MapboxConfig.lightPresetDay,
-    );
-  }
-
-  Future<void> _applyMapStyle(bool isDark) async {
+  void _onStyleLoaded(_) {
     final map = _map;
     if (map == null) return;
-    await _applyLightPreset(map, isDark: isDark);
+    unawaited(AppMapBasemapStyle.apply(map, isDark: _isDarkStyle ?? false));
   }
 
   void _onPointAnnotationTap(PointAnnotation annotation) {
@@ -448,6 +438,7 @@ class _AppMapState extends State<AppMap> {
         zoom: _defaultZoom,
       ),
       onMapCreated: _onMapCreated,
+      onStyleLoadedListener: _onStyleLoaded,
       onCameraChangeListener: widget.onCameraChanged == null ? null : (_) => _emitCamera(finished: false),
       onMapIdleListener: widget.onCameraChanged == null ? null : (_) => _emitCamera(finished: true),
     );
