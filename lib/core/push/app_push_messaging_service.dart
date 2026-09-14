@@ -11,6 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// FCM: permission → APNs (iOS) → token → upsert; chat open via [ChatPushOpenBus].
@@ -38,11 +39,14 @@ class AppPushMessagingService {
   Timer? _retryTimer;
   int _retryAttempt = 0;
 
-  static const _maxSyncRetries = 6;
+  static const _maxSyncRetries = 10;
 
   /// Android foreground: FCM не рисует tray — слушай и покажи [AppSnackBar].
   Stream<AppPushForegroundBanner> get foregroundBanners =>
       _foregroundBannerController.stream;
+
+  /// Повторный sync (resume / после логина) — на устройстве APNs часто приходит с задержкой.
+  Future<void> syncOnResume() => syncForCurrentUser();
 
   Future<void> init() async {
     if (!AppPushConfig.enabled) return;
@@ -152,12 +156,18 @@ class AppPushMessagingService {
           settings.authorizationStatus == AuthorizationStatus.provisional;
       if (!allowed) {
         AppLog.w('FCM permission · ${settings.authorizationStatus.name}', tag: 'Push');
+        await Sentry.captureMessage(
+          'FCM permission denied · ${settings.authorizationStatus.name}',
+          level: SentryLevel.warning,
+        );
         return;
       }
 
       final token = await _resolveFcmToken();
       if (token == null || token.isEmpty) {
-        AppLog.w(_emptyTokenHint(), tag: 'Push');
+        final hint = _emptyTokenHint();
+        AppLog.w(hint, tag: 'Push');
+        await Sentry.captureMessage(hint, level: SentryLevel.warning);
         _scheduleRetry();
         return;
       }
@@ -174,9 +184,9 @@ class AppPushMessagingService {
   String _emptyTokenHint() {
     if (Platform.isIOS) {
       if (kReleaseMode) {
-        return 'FCM token empty · iOS: нужен aps-environment=production в Release/TestFlight + APNs key в Firebase';
+        return 'FCM token empty · iOS Release: APNs production / Firebase .p8 / уведомления в Настройках';
       }
-      return 'FCM token empty · iOS: симулятор без APNs или APNs ещё не готов (подожди / перезапусти на реальном iPhone)';
+      return 'FCM token empty · iOS Debug: APNs ещё не готов на устройстве (подожди / переоткрой приложение)';
     }
     return 'FCM token empty · Android: Google Play Services / google-services.json';
   }
@@ -263,11 +273,12 @@ class AppPushMessagingService {
   Future<String?> _resolveFcmToken() async {
     try {
       if (Platform.isIOS) {
+        // На реальном iPhone APNs часто приходит позже, чем на симуляторе (~2–15 с).
         String? apns;
-        for (var i = 0; i < 6; i++) {
+        for (var i = 0; i < 12; i++) {
           apns = await _messaging.getAPNSToken();
           if (apns != null && apns.isNotEmpty) break;
-          await Future<void>.delayed(Duration(milliseconds: 500 * (i + 1)));
+          await Future<void>.delayed(Duration(milliseconds: 700 * (i + 1)));
         }
         if (apns == null || apns.isEmpty) {
           AppLog.w('APNs token not ready yet', tag: 'Push');
@@ -283,9 +294,11 @@ class AppPushMessagingService {
     } on FirebaseException catch (error) {
       if (error.code == 'apns-token-not-set') return null;
       AppLog.e('FCM getToken · ${error.code}', tag: 'Push', error: error);
+      await Sentry.captureException(error);
       return null;
     } catch (error, stack) {
       AppLog.e('FCM getToken', tag: 'Push', error: error, stackTrace: stack);
+      await Sentry.captureException(error, stackTrace: stack);
       return null;
     }
   }
