@@ -26,7 +26,10 @@ jobs:
           cache: true
 
       - name: Install Dependencies
-        run: flutter pub get
+        run: |
+          # Project pubspec already disables SPM; pin runner config too (Flutter 3.44+ default on).
+          flutter config --no-enable-swift-package-manager
+          flutter pub get
 
       - name: Configure Mapbox downloads
         env:
