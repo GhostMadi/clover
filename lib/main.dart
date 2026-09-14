@@ -77,9 +77,11 @@ Future<void> main() async {
         httpClient: supabaseHttpLoggingEnabled ? SupabaseLoggingHttpClient() : null,
       );
       await configureDependencies();
+      // FCM до Isar: иначе падение IsarCore на устройстве оставляет телефон без токена.
+      await sl<AppPushMessagingService>().init();
+      await initAppStorage();
       await sl<AppThemeCubit>().load();
       await sl<AppDeepLinkService>().init();
-      await sl<AppPushMessagingService>().init();
 
       if (AppShakeLoggerConfig.enabled) {
         AppLog.i('Clover started', tag: 'App');
