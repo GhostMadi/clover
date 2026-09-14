@@ -1,2 +1,4 @@
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
 #include "Generated.xcconfig"
+# Isar FFI (dlsym isar_version) — do not strip in Release/Profile / TestFlight.
+DEAD_CODE_STRIPPING=NO
