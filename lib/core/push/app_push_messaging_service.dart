@@ -29,6 +29,9 @@ class AppPushMessagingService {
   StreamSubscription<RemoteMessage>? _onMessageSub;
   StreamSubscription<RemoteMessage>? _onOpenedSub;
 
+  final _foregroundBannerController =
+      StreamController<AppPushForegroundBanner>.broadcast();
+
   String? _cachedToken;
   String? _syncedTokenUserId;
   Future<void>? _syncInFlight;
@@ -37,12 +40,23 @@ class AppPushMessagingService {
 
   static const _maxSyncRetries = 6;
 
+  /// Android foreground: FCM не рисует tray — слушай и покажи [AppSnackBar].
+  Stream<AppPushForegroundBanner> get foregroundBanners =>
+      _foregroundBannerController.stream;
+
   Future<void> init() async {
     if (!AppPushConfig.enabled) return;
     if (PushDevicePlatform.current == null) return;
 
     try {
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+      // iOS: системный баннер и в foreground (иначе только onMessage без UI).
+      await _messaging.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
       await _tokenRefreshSub?.cancel();
       _tokenRefreshSub = _messaging.onTokenRefresh.listen((token) {
@@ -183,6 +197,7 @@ class AppPushMessagingService {
     await _authSub?.cancel();
     await _onMessageSub?.cancel();
     await _onOpenedSub?.cancel();
+    await _foregroundBannerController.close();
     _tokenRefreshSub = null;
     _authSub = null;
     _onMessageSub = null;
@@ -190,7 +205,29 @@ class AppPushMessagingService {
   }
 
   void _onForegroundMessage(RemoteMessage message) {
-    _emitChatOpenIfAny(message, autoOpen: false);
+    final kind = (message.data['kind'] ?? '').toString().trim();
+    final title = (message.notification?.title ?? '').trim();
+    final body = (message.notification?.body ?? '').trim();
+    AppLog.i('FCM foreground · $kind · $title', tag: 'Push');
+
+    // iOS: баннер рисует система (presentation options + AppDelegate.willPresent).
+    if (Platform.isIOS) return;
+
+    // Android: tray в foreground нет — chat → Instagram-баннер, остальное → общий snack.
+    if (kind == 'chat_message') {
+      _emitChatOpenIfAny(message, autoOpen: false);
+      return;
+    }
+
+    if (title.isEmpty && body.isEmpty) return;
+    if (_foregroundBannerController.isClosed) return;
+    _foregroundBannerController.add(
+      AppPushForegroundBanner(
+        title: title.isEmpty ? 'Clover' : title,
+        body: body,
+        kind: kind,
+      ),
+    );
   }
 
   void _onNotificationOpen(RemoteMessage message) {
@@ -236,10 +273,12 @@ class AppPushMessagingService {
           AppLog.w('APNs token not ready yet', tag: 'Push');
           return null;
         }
+        AppLog.i('APNs ready · len=${apns.length}', tag: 'Push');
       }
 
       final token = await _messaging.getToken();
       if (token == null || token.isEmpty) return null;
+      AppLog.i('FCM token · $token', tag: 'Push');
       return token;
     } on FirebaseException catch (error) {
       if (error.code == 'apns-token-not-set') return null;
@@ -269,8 +308,10 @@ class AppPushMessagingService {
       );
       _cachedToken = token;
       _syncedTokenUserId = resolvedUserId;
-      final short = token.length > 12 ? '${token.substring(0, 12)}…' : token;
-      AppLog.i('FCM upserted · ${resolvedPlatform.storageValue} · $short', tag: 'Push');
+      AppLog.i(
+        'FCM upserted · ${resolvedPlatform.storageValue} · len=${token.length}',
+        tag: 'Push',
+      );
     } catch (error, stack) {
       AppLog.e('FCM upsert failed', tag: 'Push', error: error, stackTrace: stack);
     }
@@ -280,4 +321,16 @@ class AppPushMessagingService {
     _cachedToken = null;
     _syncedTokenUserId = null;
   }
+}
+
+class AppPushForegroundBanner {
+  const AppPushForegroundBanner({
+    required this.title,
+    required this.body,
+    required this.kind,
+  });
+
+  final String title;
+  final String body;
+  final String kind;
 }

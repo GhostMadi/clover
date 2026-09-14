@@ -10,6 +10,8 @@ class MapboxConfig {
 
   static const accessToken = String.fromEnvironment('MAPBOX_ACCESS_TOKEN');
 
+  static bool get hasAccessToken => accessToken.trim().isNotEmpty;
+
   /// Всегда Standard; свет/ночь — через `lightPreset` (day / night).
   static const styleStandard = 'mapbox://styles/mapbox/standard';
 

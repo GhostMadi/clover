@@ -57,4 +57,34 @@ class EventsFilter {
     final raw = value?.trim();
     return raw != null && raw.isNotEmpty;
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is EventsFilter &&
+        other.contentKind == contentKind &&
+        other.dateFrom == dateFrom &&
+        other.dateTo == dateTo &&
+        other.countryCode == countryCode &&
+        other.cityCode == cityCode &&
+        other.emoji == emoji &&
+        _sameTags(other.tagIds, tagIds);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        contentKind,
+        dateFrom,
+        dateTo,
+        countryCode,
+        cityCode,
+        emoji,
+        Object.hashAllUnordered(tagIds),
+      );
+
+  static bool _sameTags(Set<String> a, Set<String> b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    return a.containsAll(b);
+  }
 }

@@ -65,7 +65,7 @@ class _MapPageState extends State<MapPage> {
   void _onCameraChanged(AppMapViewport viewport, {required bool finished}) {
     _viewport = viewport;
     if (finished) {
-      unawaited(_markersCubit.onViewportSettled(viewport));
+      _markersCubit.onViewportSettled(viewport);
     }
   }
 

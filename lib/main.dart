@@ -36,6 +36,12 @@ Future<void> main() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
       MapboxOptions.setAccessToken(MapboxConfig.accessToken);
+      if (!MapboxConfig.hasAccessToken) {
+        AppLog.w(
+          'MAPBOX_ACCESS_TOKEN пустой → карта 401. Локально: dart_defines.json или --dart-define=MAPBOX_ACCESS_TOKEN=pk…',
+          tag: 'Mapbox',
+        );
+      }
 
       await SentryFlutter.init((options) {
         options.dsn = SentryConfig.resolvedDsn;
