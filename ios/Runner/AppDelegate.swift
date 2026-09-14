@@ -10,6 +10,9 @@ import FirebaseMessaging
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    // Mapbox telemetry: выкл. до создания карты (меньше шума / лагов EventsService на cold start).
+    UserDefaults.standard.set(false, forKey: "MGLMapboxMetricsEnabled")
+
     if FirebaseApp.app() == nil {
       FirebaseApp.configure()
     }
@@ -38,5 +41,18 @@ import FirebaseMessaging
   ) {
     NSLog("[Push] APNs fail · %@", error.localizedDescription)
     super.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
+  }
+
+  /// Показ push, пока приложение на экране (иначе iOS глотает banner).
+  override func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    willPresent notification: UNNotification,
+    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+  ) {
+    if #available(iOS 14.0, *) {
+      completionHandler([.banner, .badge, .sound])
+    } else {
+      completionHandler([.alert, .badge, .sound])
+    }
   }
 }

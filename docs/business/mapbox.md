@@ -9,6 +9,9 @@
 |-------|-----|--------|
 | Public `clover` | веб `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` (Vercel + `web/.env.local`) | Styles / tiles в браузере |
 | Public `clover_flutter` | `--dart-define=MAPBOX_ACCESS_TOKEN=…` / GitHub Secret `MAPBOX_ACCESS_TOKEN` | Мобилка |
+
+Локально (Cursor / VS Code): скопируй `dart_defines.json.example` → `dart_defines.json`, вставь `pk.` токен `clover_flutter`, запускай конфиг **clover (debug + Mapbox)**. Без этого карта даёт **HTTP 401 Invalid Token**.
+
 | Secret (`DOWNLOADS:READ`) | **не в git** — `~/.netrc` + `android/gradle.properties` → `SDK_REGISTRY_TOKEN` | Скачивание iOS/Android SDK |
 
 URL-ограничения для веб-токена: `http://localhost:3000`, `https://clover.com.kz`, `https://www.clover.com.kz`.

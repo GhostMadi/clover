@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/push/app_push_messaging_service.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_nav_bar/app_tab_reselect_tap_logic.dart';
@@ -42,9 +43,11 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
   late final NotificationsUnreadCubit _notificationsUnreadCubit;
   late final ChatUnreadCubit _chatUnreadCubit;
   late final ChatPushOpenBus _chatPushOpenBus;
+  late final AppPushMessagingService _pushMessaging;
   late final AttendanceContextStore _attendanceStore;
 
   StreamSubscription<ChatPushOpenRequest>? _chatPushSub;
+  StreamSubscription<AppPushForegroundBanner>? _pushBannerSub;
 
   EventsFilter _eventsFilter = const EventsFilter();
   EventsFilter _mapFilter = const EventsFilter(contentKind: EventsContentKind.eventsOnly);
@@ -59,10 +62,12 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
     _notificationsUnreadCubit = sl<NotificationsUnreadCubit>();
     _chatUnreadCubit = sl<ChatUnreadCubit>();
     _chatPushOpenBus = sl<ChatPushOpenBus>();
+    _pushMessaging = sl<AppPushMessagingService>();
     _attendanceStore = sl<AttendanceContextStore>();
     _tabReselectLogic = AppTabReselectTapLogic();
     // Баннер/open-from-push: слушатель до async bootstrap, иначе события теряются.
     _bindChatPushOpen();
+    _bindForegroundPushBanners();
     unawaited(_chatUnreadCubit.start());
     unawaited(_bootstrap());
   }
@@ -71,6 +76,7 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     unawaited(_chatPushSub?.cancel());
+    unawaited(_pushBannerSub?.cancel());
     _tabReselectLogic.dispose();
     _homeModeCubit.close();
     super.dispose();
@@ -121,6 +127,23 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
         _onChatPushOpen(pending);
       });
     }
+  }
+
+  void _bindForegroundPushBanners() {
+    unawaited(_pushBannerSub?.cancel());
+    _pushBannerSub = _pushMessaging.foregroundBanners.listen((banner) {
+      if (!mounted) return;
+      AppSnackBar.show(
+        context,
+        title: banner.title,
+        message: banner.body.isEmpty ? 'Новое уведомление' : banner.body,
+        kind: AppSnackBarKind.info,
+        placement: AppSnackBarPlacement.top,
+        duration: const Duration(seconds: 5),
+        onTap: () => unawaited(_openNotifications()),
+      );
+      unawaited(_notificationsUnreadCubit.refresh());
+    });
   }
 
   void _onChatPushOpen(ChatPushOpenRequest request) {
