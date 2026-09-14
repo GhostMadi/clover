@@ -106,6 +106,9 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
       }
     });
 
+    // Как pin_code в qMed: FCM sync после UI + сессии, не из cold main.
+    unawaited(_pushMessaging.syncAfterUiReady());
+
     // Attendance — сеть; не держим весь дашборд на лоадере.
     final uid = Supabase.instance.client.auth.currentUser?.id.trim();
     if (uid != null && uid.isNotEmpty) {
