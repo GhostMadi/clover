@@ -13,18 +13,22 @@ import FirebaseMessaging
     // Mapbox telemetry: выкл. до создания карты (меньше шума / лагов EventsService на cold start).
     UserDefaults.standard.set(false, forKey: "MGLMapboxMetricsEnabled")
 
+    // Как в qMed: Firebase ДО APNs. Сам registerForRemoteNotifications — после
+    // GeneratedPluginRegistrant (см. didInitializeImplicitFlutterEngine), иначе
+    // APNs-токен может не попасть в Firebase Messaging на реальном iPhone.
     if FirebaseApp.app() == nil {
       FirebaseApp.configure()
     }
 
     UNUserNotificationCenter.current().delegate = self
-    application.registerForRemoteNotifications()
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    // Плагины уже есть → теперь можно регистрировать remote notifications (паттерн qMed).
+    UIApplication.shared.registerForRemoteNotifications()
   }
 
   override func application(

@@ -45,8 +45,11 @@ class AppPushMessagingService {
   Stream<AppPushForegroundBanner> get foregroundBanners =>
       _foregroundBannerController.stream;
 
-  /// Повторный sync (resume / после логина) — на устройстве APNs часто приходит с задержкой.
+  /// Повторный sync (resume / после логина / dashboard ready) — как pin_code в qMed.
   Future<void> syncOnResume() => syncForCurrentUser();
+
+  /// Первый sync после появления UI (Auth + dashboard). Не вызывать из cold `main`.
+  Future<void> syncAfterUiReady() => syncForCurrentUser();
 
   Future<void> init() async {
     if (!AppPushConfig.enabled) return;
@@ -93,9 +96,8 @@ class AppPushMessagingService {
       });
 
       AppLog.i('FCM init', tag: 'Push');
-      if (_client.auth.currentSession != null) {
-        unawaited(syncForCurrentUser());
-      }
+      // Как в qMed: permission + getToken не в cold main — после UI (dashboard / signedIn / resume).
+      // Иначе на реальном iPhone APNs ещё не привязан к Messaging → токен пустой.
     } catch (error, stack) {
       AppLog.e('FCM init failed', tag: 'Push', error: error, stackTrace: stack);
     }
@@ -273,13 +275,8 @@ class AppPushMessagingService {
   Future<String?> _resolveFcmToken() async {
     try {
       if (Platform.isIOS) {
-        // На реальном iPhone APNs часто приходит позже, чем на симуляторе (~2–15 с).
-        String? apns;
-        for (var i = 0; i < 12; i++) {
-          apns = await _messaging.getAPNSToken();
-          if (apns != null && apns.isNotEmpty) break;
-          await Future<void>.delayed(Duration(milliseconds: 700 * (i + 1)));
-        }
+        // Как в qMed: фиксированный poll APNs, потом getToken с timeout.
+        final apns = await _waitForApnsToken();
         if (apns == null || apns.isEmpty) {
           AppLog.w('APNs token not ready yet', tag: 'Push');
           return null;
@@ -287,7 +284,7 @@ class AppPushMessagingService {
         AppLog.i('APNs ready · len=${apns.length}', tag: 'Push');
       }
 
-      final token = await _messaging.getToken();
+      final token = await _messaging.getToken().timeout(const Duration(seconds: 10));
       if (token == null || token.isEmpty) return null;
       AppLog.i('FCM token · $token', tag: 'Push');
       return token;
@@ -301,6 +298,16 @@ class AppPushMessagingService {
       await Sentry.captureException(error, stackTrace: stack);
       return null;
     }
+  }
+
+  /// qMed: 20 × 500ms; если нет — sync ретраится снаружи.
+  Future<String?> _waitForApnsToken({int attempts = 20}) async {
+    for (var i = 0; i < attempts; i++) {
+      final apns = await _messaging.getAPNSToken();
+      if (apns != null && apns.isNotEmpty) return apns;
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    }
+    return null;
   }
 
   Future<void> _upsertToken(
