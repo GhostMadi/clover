@@ -73,6 +73,14 @@ abstract class ChatRepository {
     required String messageId,
     required String emoji,
   });
+
+  /// Shared emoji wallpaper for all participants (max 8).
+  Future<List<String>> getConversationWallpaper(String conversationId);
+
+  Future<List<String>> setConversationWallpaper({
+    required String conversationId,
+    required List<String> emojis,
+  });
 }
 
 @LazySingleton(as: ChatRepository)
@@ -501,6 +509,45 @@ class ChatRepositoryImpl implements ChatRepository {
     }
 
     return (reactions: reactions, myReactions: myList);
+  }
+
+  @override
+  Future<List<String>> getConversationWallpaper(String conversationId) async {
+    final id = conversationId.trim();
+    if (id.isEmpty) return const [];
+    final res = await _client
+        .rpc('get_conversation_wallpaper', params: {'p_conversation_id': id})
+        .timeout(_rpcTimeout);
+    return _parseWallpaperEmojis(res);
+  }
+
+  @override
+  Future<List<String>> setConversationWallpaper({
+    required String conversationId,
+    required List<String> emojis,
+  }) async {
+    final id = conversationId.trim();
+    if (id.isEmpty) {
+      throw const ChatRepositoryException('Чат ещё не создан');
+    }
+    final res = await _client
+        .rpc(
+          'set_conversation_wallpaper',
+          params: {
+            'p_conversation_id': id,
+            'p_emojis': emojis,
+          },
+        )
+        .timeout(_rpcTimeout);
+    return _parseWallpaperEmojis(res);
+  }
+
+  static List<String> _parseWallpaperEmojis(dynamic res) {
+    if (res is! List) return const [];
+    return [
+      for (final item in res)
+        if (item is String && item.trim().isNotEmpty) item.trim(),
+    ];
   }
 
   static String newClientMessageId() {

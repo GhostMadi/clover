@@ -546,6 +546,15 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
       final repairedRemote = await _repairStructuredMessages(remote);
       if (isClosed) return;
 
+      List<String> wallpaper = const [];
+      try {
+        wallpaper = await _repository.getConversationWallpaper(id);
+      } catch (_) {
+        final curWall = state;
+        if (curWall is ChatThreadLoaded) wallpaper = curWall.wallpaperEmojis;
+      }
+      if (isClosed) return;
+
       final current = state;
       final pending = current is ChatThreadLoaded
           ? current.messages.where((message) => message.isPending).toList(growable: false)
@@ -562,6 +571,7 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
           editingMessage: current is ChatThreadLoaded ? current.editingMessage : null,
           peerIsTyping: current is ChatThreadLoaded ? current.peerIsTyping : false,
           pendingAttachments: current is ChatThreadLoaded ? current.pendingAttachments : const [],
+          wallpaperEmojis: wallpaper,
         ),
       );
       await _persistMessages(uid, id, messages);
@@ -669,7 +679,46 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
       ..onBroadcast(event: 'message_enriched', callback: (payload) => _onMessageEnriched(payload))
       ..onBroadcast(event: 'peer_read', callback: (payload) => _onPeerRead(payload))
       ..onBroadcast(event: 'typing', callback: (payload) => _onTyping(payload))
+      ..onBroadcast(event: 'wallpaper_changed', callback: (payload) => _onWallpaperChanged(payload))
       ..subscribe();
+  }
+
+  void _onWallpaperChanged(Map<String, dynamic> payload) {
+    final conversationId = _conversationId;
+    if (conversationId == null) return;
+
+    final data = payload['payload'] ?? payload;
+    if (data is! Map) return;
+    if (data['conversation_id']?.toString().trim() != conversationId) return;
+
+    final raw = data['wallpaper_emojis'];
+    final emojis = <String>[];
+    if (raw is List) {
+      for (final item in raw) {
+        final s = item?.toString().trim() ?? '';
+        if (s.isNotEmpty) emojis.add(s);
+      }
+    }
+
+    final cur = state;
+    if (cur is! ChatThreadLoaded) return;
+    emit(cur.copyWith(wallpaperEmojis: List<String>.unmodifiable(emojis)));
+  }
+
+  Future<void> setWallpaperEmojis(List<String> emojis) async {
+    final id = _conversationId;
+    if (id == null || id.isEmpty) {
+      throw const ChatRepositoryException('Чат ещё не создан');
+    }
+    final saved = await _repository.setConversationWallpaper(
+      conversationId: id,
+      emojis: emojis,
+    );
+    if (isClosed) return;
+    final cur = state;
+    if (cur is ChatThreadLoaded) {
+      emit(cur.copyWith(wallpaperEmojis: saved));
+    }
   }
 
   void _onTyping(Map<String, dynamic> payload) {
@@ -832,6 +881,7 @@ sealed class ChatThreadState {
     bool hasMoreOlder,
     bool peerIsTyping,
     List<ChatAttachmentUpload> pendingAttachments,
+    List<String> wallpaperEmojis,
   }) = ChatThreadLoaded;
   const factory ChatThreadState.error(String message) = ChatThreadError;
 }
@@ -858,6 +908,7 @@ final class ChatThreadLoaded extends ChatThreadState {
     this.hasMoreOlder = true,
     this.peerIsTyping = false,
     this.pendingAttachments = const [],
+    this.wallpaperEmojis = const [],
   });
 
   final List<ChatMessage> messages;
@@ -872,6 +923,7 @@ final class ChatThreadLoaded extends ChatThreadState {
   final bool hasMoreOlder;
   final bool peerIsTyping;
   final List<ChatAttachmentUpload> pendingAttachments;
+  final List<String> wallpaperEmojis;
 
   ChatThreadLoaded copyWith({
     List<ChatMessage>? messages,
@@ -886,6 +938,7 @@ final class ChatThreadLoaded extends ChatThreadState {
     bool? hasMoreOlder,
     bool? peerIsTyping,
     List<ChatAttachmentUpload>? pendingAttachments,
+    List<String>? wallpaperEmojis,
     bool clearSendError = false,
     bool clearReplyTo = false,
     bool clearEditingMessage = false,
@@ -906,6 +959,7 @@ final class ChatThreadLoaded extends ChatThreadState {
       pendingAttachments: clearPendingAttachments
           ? const []
           : (pendingAttachments ?? this.pendingAttachments),
+      wallpaperEmojis: wallpaperEmojis ?? this.wallpaperEmojis,
     );
   }
 }

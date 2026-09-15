@@ -1,12 +1,6 @@
-/** Локальный emoji-wallpaper чата. См. docs/business/chat-emoji-wallpaper.md */
+/** Shared emoji wallpaper helpers. См. docs/business/chat-emoji-wallpaper.md */
 
 const MAX_CHAT_WALLPAPER_EMOJIS = 8;
-const STORAGE_PREFIX = "clover.chat_wallpaper.";
-
-export function wallpaperStorageKey(conversationId: string): string {
-  const id = conversationId.trim() || "unknown";
-  return `${STORAGE_PREFIX}${id}`;
-}
 
 export function normalizeWallpaperEmojis(raw: string, max = MAX_CHAT_WALLPAPER_EMOJIS): string[] {
   const out: string[] = [];
@@ -19,30 +13,12 @@ export function normalizeWallpaperEmojis(raw: string, max = MAX_CHAT_WALLPAPER_E
   return out;
 }
 
-export function readWallpaperEmojis(conversationId: string): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(wallpaperStorageKey(conversationId));
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
-      .slice(0, MAX_CHAT_WALLPAPER_EMOJIS);
-  } catch {
-    return [];
-  }
-}
-
-export function writeWallpaperEmojis(conversationId: string, emojis: string[]): void {
-  if (typeof window === "undefined") return;
-  const key = wallpaperStorageKey(conversationId);
-  const cleaned = normalizeWallpaperEmojis(emojis.join(""));
-  if (cleaned.length === 0) {
-    window.localStorage.removeItem(key);
-    return;
-  }
-  window.localStorage.setItem(key, JSON.stringify(cleaned));
+export function parseWallpaperEmojis(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
+    .map((x) => x.trim())
+    .slice(0, MAX_CHAT_WALLPAPER_EMOJIS);
 }
 
 type ScatterItem = {
@@ -82,10 +58,10 @@ export function buildEmojiScatter(emojis: string[], seed: string, count = 28): S
   for (let i = 0; i < count; i++) {
     items.push({
       emoji: emojis[i % emojis.length]!,
-      left: rnd() * 100,
-      top: rnd() * 100,
+      left: rnd() * 92 + 2,
+      top: rnd() * 92 + 2,
       size: 18 + rnd() * 22,
-      rotate: (rnd() - 0.5) * 50,
+      rotate: rnd() * 60 - 30,
     });
   }
   return items;
