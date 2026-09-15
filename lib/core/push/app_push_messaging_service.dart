@@ -10,12 +10,12 @@ import 'package:clover/feature/_chat_/chat/presentation/chat_push_open_bus.dart'
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// FCM: permission → APNs (iOS) → token → upsert; chat open via [ChatPushOpenBus].
+/// iOS path aligned with qMed: wait APNs → getToken; AppDelegate — plugin owns APNs.
 @lazySingleton
 class AppPushMessagingService {
   AppPushMessagingService(this._client, this._tokenRepository, this._chatOpenBus);
@@ -25,7 +25,6 @@ class AppPushMessagingService {
   final ChatPushOpenBus _chatOpenBus;
 
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
-  static const _apnsChannel = MethodChannel('clover/push_apns');
 
   StreamSubscription<String>? _tokenRefreshSub;
   StreamSubscription<AuthState>? _authSub;
@@ -42,16 +41,15 @@ class AppPushMessagingService {
   int _retryAttempt = 0;
   DateTime? _lastEmptyLogAt;
   DateTime? _lastSuccessSyncAt;
-  bool? _isIosSimulator;
+  bool _apnsDelayedRetryScheduled = false;
 
   static const _maxSyncRetries = 10;
   static const _resumeCooldown = Duration(seconds: 45);
 
-  /// Android foreground: FCM не рисует tray — слушай и покажи [AppSnackBar].
   Stream<AppPushForegroundBanner> get foregroundBanners =>
       _foregroundBannerController.stream;
 
-  /// Resume / dashboard ready. Не вызывать из cold `main` (APNs ещё пустой).
+  /// Как qMed PIN: sync после UI + сессии, не из cold `main`.
   Future<void> syncAfterUiReady() {
     _retryAttempt = 0;
     return syncForCurrentUser();
@@ -62,7 +60,6 @@ class AppPushMessagingService {
     if (last != null && DateTime.now().difference(last) < _resumeCooldown) {
       return Future<void>.value();
     }
-    // После 10/10 без успеха — дать ещё одну лестницу на resume.
     if (_retryAttempt >= _maxSyncRetries) {
       _retryAttempt = 0;
     }
@@ -107,6 +104,7 @@ class AppPushMessagingService {
           case AuthChangeEvent.signedOut:
             _retryTimer?.cancel();
             _retryAttempt = 0;
+            _apnsDelayedRetryScheduled = false;
             _lastSuccessSyncAt = null;
             _resetLocalCache();
           default:
@@ -143,7 +141,6 @@ class AppPushMessagingService {
   }
 
   Future<void> syncForCurrentUser() {
-    // Один in-flight sync — иначе signedIn + dashboard + resume дублируют логи/upsert.
     return _syncInFlight ??= _syncOnce().whenComplete(() {
       _syncInFlight = null;
     });
@@ -158,11 +155,6 @@ class AppPushMessagingService {
     final platform = PushDevicePlatform.current;
     if (platform == null) return;
 
-    if (Platform.isIOS && await _runningOnIosSimulator()) {
-      _logEmptyOnce('FCM skip · iOS Simulator (нужен реальный iPhone)');
-      return;
-    }
-
     try {
       final settings = await _messaging.requestPermission(
         alert: true,
@@ -176,19 +168,15 @@ class AppPushMessagingService {
         return;
       }
 
-      // После permission — ещё раз register (первый вызов из AppDelegate мог уйти в fail).
-      if (Platform.isIOS) {
-        await _reregisterApns();
-      }
-
       final token = await _resolveFcmToken();
       if (token == null || token.isEmpty) {
-        await _scheduleRetryWithNativeHint();
+        _scheduleRetry();
         return;
       }
 
       _retryTimer?.cancel();
       _retryAttempt = 0;
+      _apnsDelayedRetryScheduled = false;
       await _upsertToken(token, userId: userId, platform: platform);
       _lastSuccessSyncAt = DateTime.now();
     } catch (error, stack) {
@@ -210,51 +198,25 @@ class AppPushMessagingService {
       if (kReleaseMode) {
         return 'FCM token empty · iOS Release: APNs production / Firebase .p8 / уведомления в Настройках';
       }
-      return 'FCM token empty · iOS Debug: APNs ещё не готов на устройстве (подожди / переоткрой приложение)';
+      return 'FCM token empty · iOS Debug: реальный iPhone + Push capability + aps-environment';
     }
     return 'FCM token empty · Android: Google Play Services / google-services.json';
   }
 
   void _scheduleRetry() {
-    if (_retryAttempt >= _maxSyncRetries) return;
+    if (_retryAttempt >= _maxSyncRetries) {
+      AppLog.e(
+        'FCM sync exhausted · Push capability / entitlements / реальный iPhone',
+        tag: 'Push',
+      );
+      return;
+    }
     _retryAttempt += 1;
     final delay = Duration(seconds: 2 * _retryAttempt);
     _retryTimer?.cancel();
     _retryTimer = Timer(delay, () {
       unawaited(syncForCurrentUser());
     });
-  }
-
-  Future<void> _scheduleRetryWithNativeHint() async {
-    final next = _retryAttempt + 1;
-    final status = await _apnsNativeStatus();
-    final nativeErr = (status?['lastError'] as String?)?.trim();
-    final nativeLen = status?['tokenLen'];
-
-    if (nativeErr != null && nativeErr.isNotEmpty) {
-      _logEmptyOnce(
-        'FCM wait · APNs fail native: $nativeErr (retry $next/$_maxSyncRetries)',
-      );
-    } else if (nativeLen is int && nativeLen > 0) {
-      // Apple отдал токен, но Firebase Messaging ещё не видит — короткий poll дальше.
-      _logEmptyOnce(
-        'FCM wait · native APNs len=$nativeLen, Messaging ещё пуст '
-        '(retry $next/$_maxSyncRetries)',
-      );
-    } else {
-      _logEmptyOnce(
-        'FCM wait · APNs ещё не готов (retry $next/$_maxSyncRetries)',
-      );
-    }
-
-    if (next > _maxSyncRetries) {
-      AppLog.e(
-        'FCM sync exhausted · проверь Xcode [Push] APNs fail, '
-        'Push capability, реальный iPhone',
-        tag: 'Push',
-      );
-    }
-    _scheduleRetry();
   }
 
   Future<void> dispose() async {
@@ -276,10 +238,8 @@ class AppPushMessagingService {
     final body = (message.notification?.body ?? '').trim();
     AppLog.i('FCM foreground · $kind · $title', tag: 'Push');
 
-    // iOS: баннер рисует система (presentation options + AppDelegate.willPresent).
     if (Platform.isIOS) return;
 
-    // Android: tray в foreground нет — chat → Instagram-баннер, остальное → общий snack.
     if (kind == 'chat_message') {
       _emitChatOpenIfAny(message, autoOpen: false);
       return;
@@ -329,8 +289,13 @@ class AppPushMessagingService {
   Future<String?> _resolveFcmToken() async {
     try {
       if (Platform.isIOS) {
+        // Как qMed: poll APNs, потом getToken.
         final apns = await _waitForApnsToken();
         if (apns == null || apns.isEmpty) {
+          _logEmptyOnce(
+            'FCM wait · APNs ещё не готов (retry ${_retryAttempt + 1}/$_maxSyncRetries)',
+          );
+          _scheduleQmedStyleApnsRetry();
           return null;
         }
         AppLog.i('APNs ready · len=${apns.length}', tag: 'Push');
@@ -345,6 +310,10 @@ class AppPushMessagingService {
       return token;
     } on FirebaseException catch (error) {
       if (error.code == 'apns-token-not-set') {
+        _logEmptyOnce(
+          'FCM wait · APNs ещё не готов (retry ${_retryAttempt + 1}/$_maxSyncRetries)',
+        );
+        _scheduleQmedStyleApnsRetry();
         return null;
       }
       AppLog.e('FCM getToken · ${error.code}', tag: 'Push', error: error);
@@ -357,43 +326,29 @@ class AppPushMessagingService {
     }
   }
 
-  /// ~15с poll; перед этим уже был native reregister.
-  Future<String?> _waitForApnsToken({int attempts = 30}) async {
+  /// Как qMed: 20 × 500ms.
+  Future<String?> _waitForApnsToken({int attempts = 20}) async {
     for (var i = 0; i < attempts; i++) {
       final apns = await _messaging.getAPNSToken();
       if (apns != null && apns.isNotEmpty) return apns;
-      // На середине — ещё один register (если первый fail был transient).
-      if (i == 10) {
-        await _reregisterApns();
-      }
       await Future<void>.delayed(const Duration(milliseconds: 500));
     }
     return null;
   }
 
-  Future<void> _reregisterApns() async {
-    try {
-      await _apnsChannel.invokeMethod<void>('reregister');
-    } catch (error) {
-      AppLog.w('APNs reregister channel · $error', tag: 'Push');
-    }
-  }
-
-  Future<Map<Object?, Object?>?> _apnsNativeStatus() async {
-    try {
-      final raw = await _apnsChannel.invokeMethod<dynamic>('status');
-      if (raw is Map) return raw;
-    } catch (_) {}
-    return null;
-  }
-
-  Future<bool> _runningOnIosSimulator() async {
-    final cached = _isIosSimulator;
-    if (cached != null) return cached;
-    final status = await _apnsNativeStatus();
-    final sim = status?['simulator'] == true;
-    _isIosSimulator = sim;
-    return sim;
+  /// Как qMed `_retrySyncAfterApnsDelay`: один отложенный sync через 5с.
+  void _scheduleQmedStyleApnsRetry() {
+    if (_apnsDelayedRetryScheduled) return;
+    _apnsDelayedRetryScheduled = true;
+    unawaited(() async {
+      await Future<void>.delayed(const Duration(seconds: 5));
+      final apns = await _messaging.getAPNSToken();
+      if (apns != null && apns.isNotEmpty) {
+        AppLog.i('APNs ready on delayed retry · len=${apns.length}', tag: 'Push');
+        await syncForCurrentUser();
+      }
+      _apnsDelayedRetryScheduled = false;
+    }());
   }
 
   Future<void> _upsertToken(
