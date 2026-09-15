@@ -59,6 +59,15 @@
 	<string>Нужен доступ к фото, чтобы сохранять изображения в галерею.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Нужен доступ к фото, чтобы выбрать изображение для публикации.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Приложению нужен Bluetooth для работы фонового режима периферийного устройства.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Приложению нужен Bluetooth для работы фонового режима периферийного устройства.</string>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>clover.mobile.com.refresh</string>
+		<string>clover.mobile.com.processing</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -84,8 +93,10 @@
 	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>remote-notification</string>
+		<string>bluetooth-peripheral</string>
 		<string>fetch</string>
+		<string>processing</string>
+		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
