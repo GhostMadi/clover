@@ -64,22 +64,24 @@ Unique: `(user_id, token)`.
 
 ### Secrets (Supabase Edge)
 
-Один из вариантов:
+**Предпочтительно B** (JSON через dotenv часто ломает `private_key`).
 
 ```bash
 # A) целиком JSON service account (Firebase Console → Project settings → Service accounts → Generate key)
 supabase secrets set FIREBASE_SERVICE_ACCOUNT_JSON="$(cat path/to/service-account.json)"
 
-# B) по полям
+# B) по полям (рекомендуется; loader предпочитает FCM_* над JSON)
 supabase secrets set FCM_PROJECT_ID=clover-52112
 supabase secrets set FCM_CLIENT_EMAIL=firebase-adminsdk-...@clover-52112.iam.gserviceaccount.com
+# PEM одной строкой с литералами \n — Edge разворачивает в реальные переносы:
 supabase secrets set FCM_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 
 # Рекомендуется для cron без service_role в URL:
 supabase secrets set PUSH_WORKER_SECRET="$(openssl rand -hex 32)"
 ```
 
-Уже должны быть: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`.
+Уже должны быть: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`.  
+OAuth Google возвращает `access_token` (snake_case) — drain читает именно это поле.
 
 ### Deploy + schedule
 

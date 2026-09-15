@@ -14,12 +14,30 @@ type CachedToken = { accessToken: string; expiresAtMs: number };
 let cached: CachedToken | null = null;
 
 export function loadFcmServiceAccount(): FcmServiceAccount {
+  // Prefer discrete secrets — FIREBASE_SERVICE_ACCOUNT_JSON often gets mangled
+  // when stored via dotenv / nested JSON quoting.
+  const discreteProject = Deno.env.get("FCM_PROJECT_ID")?.trim() ?? "";
+  const discreteEmail = Deno.env.get("FCM_CLIENT_EMAIL")?.trim() ?? "";
+  const discreteKey = (Deno.env.get("FCM_PRIVATE_KEY") ?? "").replace(/\\n/g, "\n").trim();
+  if (discreteProject && discreteEmail && discreteKey) {
+    return {
+      project_id: discreteProject,
+      client_email: discreteEmail,
+      private_key: discreteKey,
+    };
+  }
+
   const rawJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON")?.trim();
   if (rawJson) {
-    const parsed = JSON.parse(rawJson) as Record<string, unknown>;
-    const projectId = String(parsed.project_id ?? "").trim();
-    const clientEmail = String(parsed.client_email ?? "").trim();
-    const privateKey = String(parsed.private_key ?? "").replace(/\\n/g, "\n").trim();
+    let parsed: unknown = JSON.parse(rawJson);
+    // Handle accidentally double-encoded JSON string.
+    if (typeof parsed === "string") {
+      parsed = JSON.parse(parsed);
+    }
+    const obj = parsed as Record<string, unknown>;
+    const projectId = String(obj.project_id ?? "").trim();
+    const clientEmail = String(obj.client_email ?? "").trim();
+    const privateKey = String(obj.private_key ?? "").replace(/\\n/g, "\n").trim();
     if (!projectId || !clientEmail || !privateKey) {
       throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON missing project_id/client_email/private_key");
     }
@@ -101,7 +119,8 @@ export async function getFcmAccessToken(sa: FcmServiceAccount): Promise<string> 
     accessToken: body.access_token,
     expiresAtMs: now + expiresIn * 1000,
   };
-  return body.accessToken;
+  // Google returns snake_case `access_token` (not camelCase).
+  return body.access_token;
 }
 
 export type FcmSendResult =

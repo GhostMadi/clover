@@ -38,15 +38,24 @@ class AppPushMessagingService {
   Future<void>? _syncInFlight;
   Timer? _retryTimer;
   int _retryAttempt = 0;
+  DateTime? _lastEmptyLogAt;
+  DateTime? _lastSuccessSyncAt;
 
   static const _maxSyncRetries = 10;
+  static const _resumeCooldown = Duration(seconds: 45);
 
   /// Android foreground: FCM не рисует tray — слушай и покажи [AppSnackBar].
   Stream<AppPushForegroundBanner> get foregroundBanners =>
       _foregroundBannerController.stream;
 
-  /// Повторный sync (resume / после логина / dashboard ready) — как pin_code в qMed.
-  Future<void> syncOnResume() => syncForCurrentUser();
+  /// Resume: не долбим APNs/upsert каждые секунды при переключении приложений.
+  Future<void> syncOnResume() {
+    final last = _lastSuccessSyncAt;
+    if (last != null && DateTime.now().difference(last) < _resumeCooldown) {
+      return Future<void>.value();
+    }
+    return syncForCurrentUser();
+  }
 
   /// Первый sync после появления UI (Auth + dashboard). Не вызывать из cold `main`.
   Future<void> syncAfterUiReady() => syncForCurrentUser();
@@ -58,7 +67,6 @@ class AppPushMessagingService {
     try {
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-      // iOS: системный баннер и в foreground (иначе только onMessage без UI).
       await _messaging.setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,
@@ -89,6 +97,7 @@ class AppPushMessagingService {
           case AuthChangeEvent.signedOut:
             _retryTimer?.cancel();
             _retryAttempt = 0;
+            _lastSuccessSyncAt = null;
             _resetLocalCache();
           default:
             break;
@@ -96,8 +105,6 @@ class AppPushMessagingService {
       });
 
       AppLog.i('FCM init', tag: 'Push');
-      // Как в qMed: permission + getToken не в cold main — после UI (dashboard / signedIn / resume).
-      // Иначе на реальном iPhone APNs ещё не привязан к Messaging → токен пустой.
     } catch (error, stack) {
       AppLog.e('FCM init failed', tag: 'Push', error: error, stackTrace: stack);
     }
@@ -126,17 +133,10 @@ class AppPushMessagingService {
   }
 
   Future<void> syncForCurrentUser() {
-    final existing = _syncInFlight;
-    if (existing != null) return existing;
-
-    late final Future<void> future;
-    future = _syncOnce().whenComplete(() {
-      if (identical(_syncInFlight, future)) {
-        _syncInFlight = null;
-      }
+    // Один in-flight sync — иначе signedIn + dashboard + resume дублируют логи/upsert.
+    return _syncInFlight ??= _syncOnce().whenComplete(() {
+      _syncInFlight = null;
     });
-    _syncInFlight = future;
-    return future;
   }
 
   Future<void> _syncOnce() async {
@@ -157,19 +157,13 @@ class AppPushMessagingService {
       final allowed = settings.authorizationStatus == AuthorizationStatus.authorized ||
           settings.authorizationStatus == AuthorizationStatus.provisional;
       if (!allowed) {
-        AppLog.w('FCM permission · ${settings.authorizationStatus.name}', tag: 'Push');
-        await Sentry.captureMessage(
-          'FCM permission denied · ${settings.authorizationStatus.name}',
-          level: SentryLevel.warning,
-        );
+        _logEmptyOnce('FCM permission · ${settings.authorizationStatus.name}');
         return;
       }
 
       final token = await _resolveFcmToken();
       if (token == null || token.isEmpty) {
-        final hint = _emptyTokenHint();
-        AppLog.w(hint, tag: 'Push');
-        await Sentry.captureMessage(hint, level: SentryLevel.warning);
+        _logEmptyOnce(_emptyTokenHint());
         _scheduleRetry();
         return;
       }
@@ -177,10 +171,19 @@ class AppPushMessagingService {
       _retryTimer?.cancel();
       _retryAttempt = 0;
       await _upsertToken(token, userId: userId, platform: platform);
+      _lastSuccessSyncAt = DateTime.now();
     } catch (error, stack) {
       AppLog.e('FCM sync failed', tag: 'Push', error: error, stackTrace: stack);
       _scheduleRetry();
     }
+  }
+
+  void _logEmptyOnce(String message) {
+    final now = DateTime.now();
+    final last = _lastEmptyLogAt;
+    if (last != null && now.difference(last) < const Duration(seconds: 8)) return;
+    _lastEmptyLogAt = now;
+    AppLog.w(message, tag: 'Push');
   }
 
   String _emptyTokenHint() {
