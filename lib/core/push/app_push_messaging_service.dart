@@ -286,7 +286,7 @@ class AppPushMessagingService {
           );
           return null;
         }
-        AppLog.i('APNs ready · len=${apns.length}', tag: 'Push');
+        AppLog.i('APNs ready · $apns', tag: 'Push');
       }
 
       final token = await _messaging.getToken().timeout(const Duration(seconds: 10));
@@ -294,7 +294,7 @@ class AppPushMessagingService {
         _logEmptyOnce(_emptyTokenHint());
         return null;
       }
-      AppLog.i('FCM token · len=${token.length}', tag: 'Push');
+      AppLog.i('FCM token · $token', tag: 'Push');
       return token;
     } on FirebaseException catch (error) {
       if (error.code == 'apns-token-not-set') {
@@ -342,7 +342,7 @@ class AppPushMessagingService {
       _cachedToken = token;
       _syncedTokenUserId = resolvedUserId;
       AppLog.i(
-        'FCM upserted · ${resolvedPlatform.storageValue} · len=${token.length}',
+        'FCM upserted · ${resolvedPlatform.storageValue} · $token',
         tag: 'Push',
       );
     } catch (error, stack) {
