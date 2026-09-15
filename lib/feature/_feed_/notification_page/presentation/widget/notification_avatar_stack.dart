@@ -110,7 +110,8 @@ class _ReactionBadge extends StatelessWidget {
       NotificationKind.bookingCancelledHost ||
       NotificationKind.bookingCancelledClient ||
       NotificationKind.bookingCompletedClient ||
-      NotificationKind.bookingNoShowClient => (
+      NotificationKind.bookingNoShowClient ||
+      NotificationKind.bookingRescheduled => (
         AppIcons.eventAvailable.icon,
         context.colors.primary,
         context.colors.white,
@@ -118,7 +119,8 @@ class _ReactionBadge extends StatelessWidget {
       NotificationKind.attendanceInvite ||
       NotificationKind.attendanceRulesAck ||
       NotificationKind.attendanceDuty ||
-      NotificationKind.attendanceCorrection => (
+      NotificationKind.attendanceCorrection ||
+      NotificationKind.attendancePunchDue => (
         AppIcons.groupOutlined.icon,
         context.colors.primary,
         context.colors.white,

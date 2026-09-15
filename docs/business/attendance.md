@@ -325,11 +325,69 @@ Admin: Дежурные → очередь + рабочие дни → сохр�
 
 ## Уведомления (v1)
 
-| Есть | Нет |
+| Есть | Нет (вне скоупа) |
+|------|------------------|
+| In-app + FCM: invite / rules / duty / correction / **punch_due** | Дайджест admin, «опоздал» |
+| Auto-close висящей смены + пометка `auto_closed` | — |
+| Cancel punch = tombstone на сервере + revision | — |
+| Sheet на Home из локального pending | — |
+| Карточки Chat (invite, правила) | — |
+
+Тап attendance-пушей → punch / pending / настройки. Punch offline → outbox.
+
+---
+
+## Цикл доработок посещаемости (must-have)
+
+Живой контракт. Мелочи UX сюда не пишем.
+
+### Роли
+
+| Роль | Что |
 |------|-----|
-| Badge Chat (invite, правила, сообщения компании) | Push (v2) |
-| Уведомление о дежурном (mock / in-app) | — |
-| Sheet на Home по локальному pending | Actionable «отметиться» из шторки |
+| Worker (`attendanceWork`) | Получает punch_due; punch / cancel; видит auto_closed |
+| Owner (`attendance`) | Actor в punch_due; видит отмены/auto_close в bootstrap / аналитике |
+
+### 1. Push «пора отметиться / уйти» (`attendance_punch_due`)
+
+```
+active membership + scheduled time (TZ workplace)
+  → окно ≈ scheduled … +20 мин (cron 15 мин)
+  → clock_in: смена закрыта; clock_out: смена открыта
+  → один upsert+FCM на день/окно (dedupe)
+  → тап → punch
+```
+
+Payload EN: `workplace_id`, `workplace_name`, `due_kind` (`clock_in` \| `clock_out`).  
+Snooze клиента = локальный sheet; повторный FCM в то же окно не шлём (dedupe).
+
+### 2. Висящая смена (`auto_closed`)
+
+```
+открытая смена (последний live punch = clock_in)
+  → локальная дата компании (TZ) уже следующий день
+  → insert synthetic clock_out, close_reason=auto_closed
+  → clear punch_due keys на эту смену
+```
+
+Часы/ЗП видят закрытие; UI может показать «закрыто автоматически».
+
+### 3. Отмена punch = правда на сервере
+
+```
+cancel_attendance_punch(id | client_punch_id) → cancelled_at
+  → bump membership.updated_at
+  → revision_me учитывает cancelled_at (+ punches компаний owner)
+  → клиент: outbox cancel по client_punch_id; resume всегда bootstrap
+```
+
+### Трекер
+
+| # | Что | Статус |
+|---|-----|--------|
+| 1 | `attendance_punch_due` | ✅ этот цикл |
+| 2 | auto_close висящей смены | ✅ |
+| 3 | cancel + revision reconcile | ✅ |
 
 ---
 
@@ -358,10 +416,10 @@ Admin: Дежурные → очередь + рабочие дни → сохр�
 
 - Face / selfie / kiosk / live GPS-трек  
 - Роль manager между admin и worker  
-- Push / FCM  
 - Полная бухгалтерия / НДФЛ  
 - PDF табеля (пока CSV)  
 - Слияние с мастерами записи (`booking_staff`)
+- Мелкий UX-polish (дайджесты, «опоздал» admin) — не путать с [циклом доработок](#цикл-доработок-посещаемости-must-have) (закрыт)
 
 ---
 
@@ -377,7 +435,7 @@ Admin: Дежурные → очередь + рабочие дни → сохр�
 | **Зарплата vs отсутствия** | — | ✅ Оформленное отсутствие перекрывает пропуск |
 | **Переработка vs punch** | — | ✅ Подсказка → заявка → approve → ЗП (UI pipeline) |
 | **Дежурный** | — | ✅ Инфо-баннер + уведомление; опция `duty_only_punch` — жёсткий gate |
-| **Отмена отметки** | Worker отменяет локально; admin в аналитике может ещё видеть старое до sync | Отмена = событие на сервере (или tombstone); reconcile на всех устройствах |
+| **Отмена отметки** | — | ✅ tombstone + `client_punch_id` + revision/`cancelled_at`; resume bootstrap |
 | **Admin + Worker в одном аккаунте** | Два входа (Настройки vs Профиль) — ок, но sheet «надо отметиться» не должен мешать admin-хабу | Sheet только для membership-роли worker; ярлык admin ведёт в управление |
 | **Типы отметок «ожидается в»** | Scheduled time выглядит как жёсткий слот | Продуктово: это **ожидание** для опоздания, не запрет punch вне времени (если не решим иначе) |
 
@@ -432,7 +490,7 @@ Admin: Дежурные → очередь + рабочие дни → сохр�
 | UI (admin + worker) | 🟢 основной цикл + corrections + chat cards + `duty_only_punch` |
 | Бэк / миграции | 🟢 ядро v1.5 (+ replace punch types, payroll preview RPC) |
 | Flutter remote | 🟢 remote-first; payroll preview RPC; duty / OT / punch / absences → RPC + outbox |
-| Push | 🟢 in-app + `push_outbox` + Edge drain (**secrets/cron на проде** — ops, не продукт) |
+| Push | 🟢 invite / rules / duty / correction / punch_due + auto_close + cancel reconcile — [цикл](#цикл-доработок-посещаемости-must-have) |
 | Chat-карточки invite / rules | 🟢 DM Accept/Reject + групповой чат компании |
 | «Сегодня на смене» / запрос исправления | 🟢 |
 | Analytics aggregates / timesheet export RPC | 🟢 |

@@ -5,6 +5,7 @@ import {
   CalendarClock,
   ChevronRight,
   ClipboardList,
+  FilePenLine,
   MapPinned,
   Pencil,
   Users,
@@ -46,6 +47,12 @@ const SECTIONS = [
     label: "Смены и учёт",
     subtitle: "Сегодня, дежурные, OT, отсутствия",
     icon: CalendarClock,
+  },
+  {
+    href: "corrections",
+    label: "Исправления",
+    subtitle: "Approve / reject запросов на отметку",
+    icon: FilePenLine,
   },
   {
     href: "timesheet",

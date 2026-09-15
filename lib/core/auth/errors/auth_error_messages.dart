@@ -47,6 +47,10 @@ abstract final class AuthErrorMessages {
       AuthErrorCode.passwordUpdateFailed =>
         'Не удалось сохранить пароль. Попробуйте ещё раз.',
       AuthErrorCode.identifierInvalid => 'Введите ник или email.',
+      AuthErrorCode.hibernateFailed =>
+        'Не удалось усыпить аккаунт. Попробуйте ещё раз.',
+      AuthErrorCode.hibernateRateLimited =>
+        'Сон можно включать не чаще раза в 30 дней.',
     };
   }
 }

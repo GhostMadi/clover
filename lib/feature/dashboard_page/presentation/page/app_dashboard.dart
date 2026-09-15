@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/push/app_push_messaging_service.dart';
+import 'package:clover/core/push/notification_open_bus.dart';
+import 'package:clover/core/push/notification_open_router.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_nav_bar/app_tab_reselect_tap_logic.dart';
@@ -43,10 +45,13 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
   late final NotificationsUnreadCubit _notificationsUnreadCubit;
   late final ChatUnreadCubit _chatUnreadCubit;
   late final ChatPushOpenBus _chatPushOpenBus;
+  late final NotificationOpenBus _notificationOpenBus;
+  late final NotificationOpenRouter _notificationOpenRouter;
   late final AppPushMessagingService _pushMessaging;
   late final AttendanceContextStore _attendanceStore;
 
   StreamSubscription<ChatPushOpenRequest>? _chatPushSub;
+  StreamSubscription<NotificationOpenRequest>? _notificationOpenSub;
   StreamSubscription<AppPushForegroundBanner>? _pushBannerSub;
 
   EventsFilter _eventsFilter = const EventsFilter();
@@ -62,11 +67,14 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
     _notificationsUnreadCubit = sl<NotificationsUnreadCubit>();
     _chatUnreadCubit = sl<ChatUnreadCubit>();
     _chatPushOpenBus = sl<ChatPushOpenBus>();
+    _notificationOpenBus = sl<NotificationOpenBus>();
+    _notificationOpenRouter = sl<NotificationOpenRouter>();
     _pushMessaging = sl<AppPushMessagingService>();
     _attendanceStore = sl<AttendanceContextStore>();
     _tabReselectLogic = AppTabReselectTapLogic();
     // Баннер/open-from-push: слушатель до async bootstrap, иначе события теряются.
     _bindChatPushOpen();
+    _bindNotificationOpen();
     _bindForegroundPushBanners();
     unawaited(_chatUnreadCubit.start());
     unawaited(_bootstrap());
@@ -76,6 +84,7 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     unawaited(_chatPushSub?.cancel());
+    unawaited(_notificationOpenSub?.cancel());
     unawaited(_pushBannerSub?.cancel());
     _tabReselectLogic.dispose();
     _homeModeCubit.close();
@@ -133,6 +142,19 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
     }
   }
 
+  void _bindNotificationOpen() {
+    unawaited(_notificationOpenSub?.cancel());
+    _notificationOpenSub = _notificationOpenBus.stream.listen(_onNotificationOpenRequest);
+
+    final pending = _notificationOpenBus.takePending();
+    if (pending != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _onNotificationOpenRequest(pending);
+      });
+    }
+  }
+
   void _bindForegroundPushBanners() {
     unawaited(_pushBannerSub?.cancel());
     _pushBannerSub = _pushMessaging.foregroundBanners.listen((banner) {
@@ -144,10 +166,53 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
         kind: AppSnackBarKind.info,
         placement: AppSnackBarPlacement.top,
         duration: const Duration(seconds: 5),
-        onTap: () => unawaited(_openNotifications()),
+        onTap: () => unawaited(
+          _notificationOpenRouter.open(
+            context.router,
+            kind: banner.kind,
+            data: banner.data,
+          ),
+        ),
       );
       unawaited(_notificationsUnreadCubit.refresh());
     });
+  }
+
+  void _onNotificationOpenRequest(NotificationOpenRequest request) {
+    if (!mounted) return;
+    if (request.autoOpen) {
+      unawaited(
+        _notificationOpenRouter.open(
+          context.router,
+          kind: request.kind,
+          data: request.data,
+        ),
+      );
+      if (request.kind == 'chat_message') {
+        unawaited(_chatUnreadCubit.refresh());
+      } else {
+        unawaited(_notificationsUnreadCubit.refresh());
+      }
+      return;
+    }
+
+    final title = (request.title ?? '').trim();
+    final body = (request.body ?? '').trim();
+    AppSnackBar.show(
+      context,
+      title: title.isEmpty ? 'Clover' : title,
+      message: body.isEmpty ? 'Новое уведомление' : body,
+      kind: AppSnackBarKind.info,
+      placement: AppSnackBarPlacement.top,
+      duration: const Duration(seconds: 5),
+      onTap: () => unawaited(
+        _notificationOpenRouter.open(
+          context.router,
+          kind: request.kind,
+          data: request.data,
+        ),
+      ),
+    );
   }
 
   void _onChatPushOpen(ChatPushOpenRequest request) {

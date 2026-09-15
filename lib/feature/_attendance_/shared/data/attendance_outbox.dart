@@ -231,8 +231,12 @@ class AttendanceOutbox {
           punchedAt: p['punched_at'] != null ? DateTime.tryParse(p['punched_at'] as String) : null,
         );
       case AttendanceOutboxKind.punchCancel:
+        final punchId = p['punch_id'] as String?;
+        final clientPunchId = p['client_punch_id'] as String?;
         await _remote.cancelPunch(
-          punchId: p['punch_id'] as String,
+          punchId: punchId != null && !punchId.startsWith('local_') ? punchId : null,
+          clientPunchId: clientPunchId ??
+              (punchId != null && punchId.startsWith('local_') ? punchId : null),
           note: p['note'] as String?,
         );
       case AttendanceOutboxKind.absence:

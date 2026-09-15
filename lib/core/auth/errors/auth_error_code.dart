@@ -20,7 +20,9 @@ enum AuthErrorCode {
   passwordInvalid('auth_password_invalid'),
   passwordMismatch('auth_password_mismatch'),
   passwordUpdateFailed('auth_password_update_failed'),
-  identifierInvalid('auth_identifier_invalid');
+  identifierInvalid('auth_identifier_invalid'),
+  hibernateFailed('auth_hibernate_failed'),
+  hibernateRateLimited('auth_hibernate_rate_limited');
 
   const AuthErrorCode(this.value);
 

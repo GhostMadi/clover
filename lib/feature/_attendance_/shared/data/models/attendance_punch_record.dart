@@ -9,6 +9,8 @@ class AttendancePunchRecord {
     required this.at,
     this.cancelled = false,
     this.cancelComment,
+    this.clientPunchId,
+    this.closeReason,
   });
 
   final String id;
@@ -18,8 +20,16 @@ class AttendancePunchRecord {
   final DateTime at;
   final bool cancelled;
   final String? cancelComment;
+  final String? clientPunchId;
+  /// EN: auto_closed | admin_closed
+  final String? closeReason;
 
-  AttendancePunchRecord copyWith({bool? cancelled, String? cancelComment}) {
+  AttendancePunchRecord copyWith({
+    bool? cancelled,
+    String? cancelComment,
+    String? clientPunchId,
+    String? closeReason,
+  }) {
     return AttendancePunchRecord(
       id: id,
       workplaceId: workplaceId,
@@ -28,6 +38,8 @@ class AttendancePunchRecord {
       at: at,
       cancelled: cancelled ?? this.cancelled,
       cancelComment: cancelComment ?? this.cancelComment,
+      clientPunchId: clientPunchId ?? this.clientPunchId,
+      closeReason: closeReason ?? this.closeReason,
     );
   }
 

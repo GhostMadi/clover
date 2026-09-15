@@ -2,7 +2,7 @@
 
 **Процесс:** [`docs/business/attendance.md`](../business/attendance.md)  
 **Навигатор:** [`../../supabase/migrations/_attendance/README.md`](../../supabase/migrations/_attendance/README.md)  
-**Статус:** ядро v1.5 — workplace / membership / punch / absences / payroll preview / duty (`duty_only_punch`) / OT + folders + rich chat / push_outbox / analytics+timesheet / corrections / replace punch types. FCM drain: Edge `drain_push_outbox` (cron/secrets — ops).
+**Статус:** ядро v1.6 — workplace / membership / punch / absences / payroll preview / duty / OT + folders + chat / push / analytics / corrections + **punch_due** + **auto_close** + cancel reconcile. FCM drain: Edge `drain_push_outbox`.
 
 ---
 
@@ -68,7 +68,7 @@ profiles
 | `attendance_workplaces` | Компания: geo, radius, clock flags, `payroll_rules` jsonb, `duty_roster` jsonb, `duty_only_punch`, `config_version` |
 | `attendance_punch_type_defs` | Свои отметки (label, scheduled time) |
 | `attendance_memberships` | Связь profile ↔ workplace + status + `ack_version` + `base_salary_tenge` |
-| `attendance_punches` | Отметки; soft-cancel; `client_punch_id` |
+| `attendance_punches` | Отметки; soft-cancel; `client_punch_id`; `close_reason` (`auto_closed` \| `admin_closed`) |
 | `attendance_absences` | Оформленное отсутствие (перекрывает пропуск) |
 | `attendance_overtime_entries` | Заявки OT; `client_request_id`; status pipeline |
 
@@ -121,7 +121,10 @@ profiles
 | `attendance_resolve_punch_correction(...)` | void | owner approve/reject |
 | `attendance_ack_config(p_workplace_id)` | void | ack_version = config_version |
 | `submit_attendance_punch(...)` | uuid | geofence + shift rules + idempotent client id |
-| `cancel_attendance_punch(p_punch_id, p_note?)` | void | tombstone |
+| `cancel_attendance_punch(p_punch_id?, p_note?, p_client_punch_id?)` | void | tombstone; bump membership; resolve by client id for outbox |
+| `attendance_notifications_scan_punch_due()` | int | cron: `attendance_punch_due` windows (TZ workplace) |
+| `attendance_auto_close_hanging_shifts()` | int | cron: synthetic clock_out `close_reason=auto_closed` |
+| `attendance_notifications_scan_scheduled()` | int | wrapper every 15 min |
 | `attendance_upsert_absence(...)` | uuid | owner |
 
 ### Error codes (`P01xx`)

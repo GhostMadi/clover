@@ -40,6 +40,7 @@ class AuthCubit extends Cubit<AuthState> {
 
       final user = await _repository.getCurrentUser();
       if (user != null) {
+        await _repository.wakeUpIfNeeded();
         emit(Authenticated(user));
       } else {
         emit(const Unauthenticated());
@@ -59,6 +60,7 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       final user = await _repository.signInWithGoogle();
+      await _repository.wakeUpIfNeeded();
       emit(Authenticated(user));
     } catch (error) {
       final code = _resolve(error);
@@ -81,6 +83,7 @@ class AuthCubit extends Cubit<AuthState> {
         identifier: identifier,
         password: password,
       );
+      await _repository.wakeUpIfNeeded();
       emit(Authenticated(user));
     } catch (error) {
       emit(AuthError(_resolve(error, fallback: AuthErrorCode.invalidCredentials)));
@@ -191,6 +194,7 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       final user = await _repository.setPassword(password);
+      await _repository.wakeUpIfNeeded();
       emit(Authenticated(user));
     } catch (error) {
       emit(AuthError(_resolve(error, fallback: AuthErrorCode.passwordUpdateFailed)));
@@ -241,6 +245,16 @@ class AuthCubit extends Cubit<AuthState> {
 
   void backToUnauthenticated() {
     emit(const Unauthenticated());
+  }
+
+  Future<void> hibernateAccount() async {
+    emit(const AuthLoading());
+    try {
+      await _repository.hibernateAccount();
+      emit(const Unauthenticated());
+    } catch (error) {
+      _emitFailure(error, fallback: AuthErrorCode.hibernateFailed);
+    }
   }
 
   Future<void> logout() async {

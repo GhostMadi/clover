@@ -32,11 +32,13 @@ final class AppDeepLinkChatIntent extends AppDeepLinkIntent {
     this.chatId,
     this.otherUserId,
     this.username = 'Чат',
+    this.isGroup = false,
   });
 
   final String? chatId;
   final String? otherUserId;
   final String username;
+  final bool isGroup;
 }
 
 final class AppDeepLinkBookHostIntent extends AppDeepLinkIntent {
@@ -73,6 +75,13 @@ final class AppDeepLinkMyBonusesIntent extends AppDeepLinkIntent {
 
 final class AppDeepLinkHostSetupIntent extends AppDeepLinkIntent {
   const AppDeepLinkHostSetupIntent();
+}
+
+/// Attendance settings / pending invite for a workplace.
+final class AppDeepLinkAttendanceIntent extends AppDeepLinkIntent {
+  const AppDeepLinkAttendanceIntent({this.workplaceId});
+
+  final String? workplaceId;
 }
 
 final class AppDeepLinkDashboardTabIntent extends AppDeepLinkIntent {

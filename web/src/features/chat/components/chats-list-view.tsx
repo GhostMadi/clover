@@ -211,9 +211,7 @@ export function ChatsListView({ initialItems }: ChatsListViewProps) {
                 <li key={chat.id}>
                   <Link
                     href={`/app/chat/${chat.id}`}
-                    className={`flex gap-3 px-4 py-3 transition hover:opacity-90 ${
-                      unread ? accent.fill : "bg-surface"
-                    }`}
+                    className="flex gap-3 bg-surface px-4 py-3 transition hover:bg-bg/60"
                   >
                     <div
                       className={`h-[52px] w-[52px] shrink-0 overflow-hidden rounded-full border ${accent.fill} ${accent.border}`}

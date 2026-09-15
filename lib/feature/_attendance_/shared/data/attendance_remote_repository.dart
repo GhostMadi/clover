@@ -262,11 +262,20 @@ class AttendanceRemoteRepository {
     return res.toString();
   });
 
-  Future<void> cancelPunch({required String punchId, String? note}) =>
+  Future<void> cancelPunch({
+    String? punchId,
+    String? clientPunchId,
+    String? note,
+  }) =>
       _guard(() async {
         await _client.rpc(
           'cancel_attendance_punch',
-          params: {'p_punch_id': punchId, 'p_note': note},
+          params: {
+            if (punchId != null && punchId.isNotEmpty) 'p_punch_id': punchId,
+            if (clientPunchId != null && clientPunchId.isNotEmpty)
+              'p_client_punch_id': clientPunchId,
+            'p_note': note,
+          },
         );
       });
 
@@ -667,6 +676,8 @@ abstract final class AttendanceBootstrapMapper {
                 DateTime.now(),
             cancelled: m['cancelled_at'] != null,
             cancelComment: m['cancel_note']?.toString(),
+            clientPunchId: m['client_punch_id']?.toString(),
+            closeReason: m['close_reason']?.toString(),
           );
         })
         .toList(growable: false);

@@ -6,6 +6,7 @@ import 'package:clover/core/push/app_push_config.dart';
 import 'package:clover/core/push/firebase_messaging_background.dart';
 import 'package:clover/core/push/push_device_platform.dart';
 import 'package:clover/core/push/push_device_token_repository.dart';
+import 'package:clover/core/push/notification_open_bus.dart';
 import 'package:clover/feature/_chat_/chat/presentation/chat_push_open_bus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -14,14 +15,21 @@ import 'package:injectable/injectable.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// FCM: permission → APNs (iOS) → token → upsert; chat open via [ChatPushOpenBus].
+/// FCM: permission → APNs (iOS) → token → upsert; open via [NotificationOpenBus].
+/// Chat foreground banner (Realtime) still uses [ChatPushOpenBus].
 @lazySingleton
 class AppPushMessagingService {
-  AppPushMessagingService(this._client, this._tokenRepository, this._chatOpenBus);
+  AppPushMessagingService(
+    this._client,
+    this._tokenRepository,
+    this._chatOpenBus,
+    this._notificationOpenBus,
+  );
 
   final SupabaseClient _client;
   final PushDeviceTokenRepository _tokenRepository;
   final ChatPushOpenBus _chatOpenBus;
+  final NotificationOpenBus _notificationOpenBus;
 
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
@@ -86,7 +94,7 @@ class AppPushMessagingService {
 
       final initial = await _messaging.getInitialMessage();
       if (initial != null) {
-        _emitChatOpenIfAny(initial, autoOpen: true);
+        _emitNotificationOpen(initial, autoOpen: true);
       }
 
       await _authSub?.cancel();
@@ -228,9 +236,9 @@ class AppPushMessagingService {
     // iOS: баннер рисует система (presentation options + AppDelegate.willPresent).
     if (Platform.isIOS) return;
 
-    // Android: tray в foreground нет — chat → Instagram-баннер, остальное → общий snack.
+    // Android: tray в foreground нет — chat → Instagram-баннер, остальное → snack с open.
     if (kind == 'chat_message') {
-      _emitChatOpenIfAny(message, autoOpen: false);
+      _emitChatBanner(message);
       return;
     }
 
@@ -241,18 +249,37 @@ class AppPushMessagingService {
         title: title.isEmpty ? 'Clover' : title,
         body: body,
         kind: kind,
+        data: Map<String, dynamic>.from(message.data),
       ),
     );
   }
 
   void _onNotificationOpen(RemoteMessage message) {
-    _emitChatOpenIfAny(message, autoOpen: true);
+    _emitNotificationOpen(message, autoOpen: true);
   }
 
-  void _emitChatOpenIfAny(RemoteMessage message, {required bool autoOpen}) {
-    final data = message.data;
-    if ((data['kind'] ?? '').toString().trim() != 'chat_message') return;
+  void _emitNotificationOpen(RemoteMessage message, {required bool autoOpen}) {
+    final data = Map<String, dynamic>.from(message.data);
+    final kind = (data['kind'] ?? '').toString().trim();
+    if (kind.isEmpty) return;
 
+    final title = (message.notification?.title ?? '').trim();
+    final body = (message.notification?.body ?? data['body'] ?? '').toString().trim();
+
+    _notificationOpenBus.emit(
+      NotificationOpenRequest(
+        kind: kind,
+        data: data,
+        autoOpen: autoOpen,
+        title: title.isEmpty ? null : title,
+        body: body.isEmpty ? null : body,
+      ),
+    );
+  }
+
+  /// Foreground chat banner only (Realtime path still uses [ChatPushOpenBus] separately).
+  void _emitChatBanner(RemoteMessage message) {
+    final data = message.data;
     final conversationId = (data['conversation_id'] ?? '').toString().trim();
     if (conversationId.isEmpty) return;
 
@@ -266,7 +293,7 @@ class AppPushMessagingService {
         conversationId: conversationId,
         peerUsername: peer.isEmpty ? 'Чат' : peer,
         isGroup: (data['is_group'] ?? '').toString() == 'true',
-        autoOpen: autoOpen,
+        autoOpen: false,
         preview: preview.isEmpty ? null : preview,
         messageId: (data['message_id'] ?? '').toString().trim().isEmpty
             ? null
@@ -361,9 +388,11 @@ class AppPushForegroundBanner {
     required this.title,
     required this.body,
     required this.kind,
+    this.data = const {},
   });
 
   final String title;
   final String body;
   final String kind;
+  final Map<String, dynamic> data;
 }

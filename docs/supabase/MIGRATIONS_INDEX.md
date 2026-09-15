@@ -135,8 +135,12 @@
 |------|------------|
 | `20260901180000_push_device_tokens.sql` | `push_device_tokens` — upsert FCM token per user/device; RLS owner-only. |
 | `20260915120000_push_device_tokens_one_per_platform.sql` | Unique `(user_id, platform)` — один активный token; чистка старых ротаций (без дублей tray). |
+| `20260915173140_push_device_tokens_platform_web.sql` | `platform` check: `ios` \| `android` \| `web` (web FCM). |
 | `20260915130000_push_outbox_instant_drain.sql` | Trigger + `pg_net` → Edge drain при INSERT в `push_outbox`. Vault: `push_worker_secret`. |
 | `20260915140000_push_outbox_drop_drain_cron.sql` | Снят backup `pg_cron` `push_outbox_drain_backup` — только trigger. |
+| `20260915150000_push_payload_open_ids.sql` | `booking_id` в booking payload; `actor_id` в social outbox (FCM open). |
+| `20260915164321_booking_reminder_reschedule_cycle.sql` | Reminder **24h+1h** + FCM; `booking_rescheduled` in-app + FCM (history trigger); retire 3h/30m. |
+| `20260915171336_attendance_punch_due_auto_close_cancel_reconcile.sql` | `attendance_punch_due` cron; hanging shift `auto_closed`; cancel by `client_punch_id` + revision. |
 | `20260905220000_push_outbox_drain.sql` | claim/mark RPC for Edge `drain_push_outbox` (FCM HTTP v1). |
 | `20260906010000_booking_no_auto_complete_staff_id.sql` | Auto-close only `no_show` (never completed); `staff_id` in host list. |
 | `20260906020000_booking_push_client_reschedule_attendance_duty_folders.sql` | Booking → `push_outbox`; client reschedule; attendance `duty_only_punch` + folders bootstrap. |

@@ -27,6 +27,7 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -41,6 +42,8 @@ Future<void> main() async {
           tag: 'Mapbox',
         );
       }
+
+// : сила тегов, фон чата. Host booking B4/B5/B7 — всё ещё polish.
 
       await SentryFlutter.init((options) {
         options.dsn = SentryConfig.resolvedDsn;
@@ -173,10 +176,7 @@ class _MyAppViewState extends State<_MyAppView> {
           content = TalkerWrapper(
             talker: appTalker,
             // Логи только в shake-экране — без красных SnackBar по сети/RPC.
-            options: const TalkerWrapperOptions(
-              enableErrorAlerts: false,
-              enableExceptionAlerts: false,
-            ),
+            options: const TalkerWrapperOptions(enableErrorAlerts: false, enableExceptionAlerts: false),
             child: AppShakeLoggerHost(navigatorKey: _appRouter.navigatorKey, child: content),
           );
         }

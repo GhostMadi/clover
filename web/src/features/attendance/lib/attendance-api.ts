@@ -1,6 +1,7 @@
 import {
   isWorkerMembershipStatus,
   mapAbsence,
+  mapCorrectionRequest,
   mapCustomPunch,
   mapFolder,
   mapMembershipLite,
@@ -12,6 +13,7 @@ import {
   timeToRpc,
   type AttendanceAbsence,
   type AttendanceAdminHub,
+  type AttendanceCorrectionRequest,
   type AttendanceCustomPunch,
   type AttendanceDutyRoster,
   type AttendanceMembershipLite,
@@ -482,6 +484,44 @@ export async function setOvertimeStatus(params: {
   const supabase = createClient();
   const { error } = await supabase.rpc("attendance_set_overtime_status", {
     p_entry_id: params.entryId,
+    p_status: params.status,
+  });
+  if (error) throw error;
+}
+
+/** Admin/worker list — same RPC as mobile `listPunchCorrections`. */
+export async function listPunchCorrections(params: {
+  workplaceId: string;
+  status?: string | null;
+}): Promise<AttendanceCorrectionRequest[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("attendance_list_corrections", {
+    p_workplace_id: params.workplaceId,
+    ...(params.status != null && params.status !== ""
+      ? { p_status: params.status }
+      : {}),
+  });
+  if (error) throw error;
+  let raw: unknown = data;
+  if (typeof raw === "string") {
+    try {
+      raw = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+  return asRecordArray(raw)
+    .map(mapCorrectionRequest)
+    .filter((c): c is AttendanceCorrectionRequest => c != null);
+}
+
+export async function resolvePunchCorrection(params: {
+  correctionId: string;
+  status: "approved" | "rejected";
+}): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.rpc("attendance_resolve_punch_correction", {
+    p_correction_id: params.correctionId,
     p_status: params.status,
   });
   if (error) throw error;

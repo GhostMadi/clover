@@ -38,7 +38,7 @@
 | Чаты и сообщения | [business/chats.md](business/chats.md) |
 | Фон чата (смайлики) | [business/chat-emoji-wallpaper.md](business/chat-emoji-wallpaper.md) |
 | Уведомления (in-app) | [business/notifications.md](business/notifications.md) |
-| Настройки приложения | [business/settings.md](business/settings.md) |
+| Сон аккаунта | [business/account-sleep.md](business/account-sleep.md) |
 | Гайд сервисов | [business/services-guide.md](business/services-guide.md) |
 | Гайд сервиса «Ресурсы» | [business/resources-guide.md](business/resources-guide.md) |
 | Местоположения | [business/locations.md](business/locations.md) |

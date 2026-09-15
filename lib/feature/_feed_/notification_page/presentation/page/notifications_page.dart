@@ -1,14 +1,12 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/resources/app_icons.dart';
-import 'package:clover/core/deep_link/app_deep_link_navigator.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/push/notification_open_router.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_refresh.dart';
-import 'package:clover/feature/_booking_/booking_points/data/booking_point_nav.dart';
 import 'package:clover/feature/_feed_/notification_page/data/models/notification_item.dart';
-import 'package:clover/feature/_feed_/notification_page/data/models/notification_kind.dart';
 import 'package:clover/feature/_feed_/notification_page/presentation/cubit/notifications_cubit.dart';
 import 'package:clover/feature/_feed_/notification_page/presentation/utils/notification_date_grouping.dart';
 import 'package:clover/feature/_feed_/notification_page/presentation/widget/notification_section_header.dart';
@@ -28,6 +26,7 @@ class NotificationsPage extends StatefulWidget {
 class _NotificationsPageState extends State<NotificationsPage> {
   late final NotificationsCubit _cubit;
   late final ScrollController _scrollController;
+  late final NotificationOpenRouter _openRouter;
 
   static const _loadMoreThreshold = 320.0;
 
@@ -35,6 +34,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   void initState() {
     super.initState();
     _cubit = sl<NotificationsCubit>()..load();
+    _openRouter = sl<NotificationOpenRouter>();
     _scrollController = ScrollController()..addListener(_onScroll);
   }
 
@@ -62,36 +62,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Future<void> _openNotification(NotificationItem item) async {
-    final postId = item.postId?.trim();
-    if (postId != null && postId.isNotEmpty) {
-      await context.router.push(PostRoute(postId: postId));
-      return;
-    }
+    await _openRouter.openItem(context.router, item);
+  }
 
-    final bookingId = item.bookingId?.trim();
-    if (bookingId != null && bookingId.isNotEmpty) {
-      await sl<AppDeepLinkNavigator>().openBookingById(context.router, bookingId);
-      return;
-    }
-
-    if (item.kind.isBookingHostInbox) {
-      final pointId = await resolveBookingPointIdForNav();
-      if (!mounted) return;
-      await context.router.push(BookingListRoute(pointId: pointId));
-      return;
-    }
-
-    if (item.kind.isBookingClientInbox) {
-      await context.router.push(const MyBookingsRoute());
-      return;
-    }
-
-    if (item.showFollowButton) {
-      final userId = item.actors.isNotEmpty ? item.actors.first.id.trim() : '';
-      if (userId.isNotEmpty) {
-        await context.router.push(GuestProfileRoute(userId: userId));
-      }
-    }
+  bool _canOpen(NotificationItem item) {
+    return _openRouter.intentForItem(item) != null;
   }
 
   @override
@@ -131,6 +106,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   scrollController: _scrollController,
                   onRefresh: _cubit.refresh,
                   onOpen: _openNotification,
+                  canOpen: _canOpen,
                   onFollowToggle: _cubit.toggleFollow,
                   onLoginConfirm: _cubit.confirmLogin,
                   onLoginRevoke: _cubit.revokeLogin,
@@ -152,6 +128,7 @@ class _LoadedBody extends StatelessWidget {
     required this.scrollController,
     required this.onRefresh,
     required this.onOpen,
+    required this.canOpen,
     required this.onFollowToggle,
     required this.onLoginConfirm,
     required this.onLoginRevoke,
@@ -163,6 +140,7 @@ class _LoadedBody extends StatelessWidget {
   final ScrollController scrollController;
   final Future<void> Function() onRefresh;
   final Future<void> Function(NotificationItem item) onOpen;
+  final bool Function(NotificationItem item) canOpen;
   final Future<void> Function(NotificationItem item) onFollowToggle;
   final Future<void> Function(NotificationItem item) onLoginConfirm;
   final Future<void> Function(NotificationItem item) onLoginRevoke;
@@ -182,7 +160,7 @@ class _LoadedBody extends StatelessWidget {
                 child: Text(
                   'Уведомлений нет',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, color: context.colors.subTextColor),
+                  style: AppTextStyle.base(15, color: context.colors.subTextColor),
                 ),
               ),
             ),
@@ -210,6 +188,7 @@ class _LoadedBody extends StatelessWidget {
               sections,
               index,
               onOpen,
+              canOpen,
               onFollowToggle,
               onLoginConfirm,
               onLoginRevoke,
@@ -251,6 +230,7 @@ class _LoadedBody extends StatelessWidget {
     List<(NotificationDateSection, List<NotificationItem>)> sections,
     int index,
     Future<void> Function(NotificationItem item) onOpen,
+    bool Function(NotificationItem item) canOpen,
     Future<void> Function(NotificationItem item) onFollowToggle,
     Future<void> Function(NotificationItem item) onLoginConfirm,
     Future<void> Function(NotificationItem item) onLoginRevoke,
@@ -272,9 +252,7 @@ class _LoadedBody extends StatelessWidget {
             children: [
               NotificationTile(
                 item: item,
-                onTap: item.postId != null || item.showFollowButton || item.bookingId != null
-                    ? () => onOpen(item)
-                    : null,
+                onTap: canOpen(item) ? () => onOpen(item) : null,
                 onFollowToggle: item.showFollowButton ? (_) => onFollowToggle(item) : null,
                 onLoginConfirm: item.showLoginActions ? () => onLoginConfirm(item) : null,
                 onLoginRevoke: item.showLoginActions ? () => onLoginRevoke(item) : null,

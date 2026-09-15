@@ -165,13 +165,11 @@ class AttendanceContextStore with WidgetsBindingObserver {
     _knownNonParticipant = !_snapshotHasAttendance(boot);
   }
 
-  /// Flush outbox then re-bootstrap when anything was sent (server wins).
+  /// Flush outbox then always re-bootstrap (peer cancel / auto_close / admin).
   Future<void> flushOutboxAndRefresh() async {
     if (!_useRemote) return;
-    final flushed = await _outbox.flush();
-    if (flushed > 0) {
-      snapshot.value = await _remote.bootstrap();
-    }
+    await _outbox.flush();
+    snapshot.value = await _remote.bootstrap();
   }
 
   Future<void> disableMock(String userId) async {

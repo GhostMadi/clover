@@ -14,9 +14,10 @@
 Единая **лента событий** для пользователя: реакции на контент, подписки, запись к мастеру.  
 Открывается с **Home → колокольчик**; непрочитанное — **точка на колокольчике**.
 
-Push на заблокированный телефон — для **чата** уже в скоупе (FCM).  
+Push на заблокированный телефон / вкладку — **чат** и остальные outbox-события через FCM.  
 Соц (лайк / коммент / follow) → in-app лента **и** FCM через `push_outbox` (drain сразу после insert, Supabase `pg_net`).  
-Booking / attendance / login — тоже через outbox.
+Booking / attendance / login — тоже через outbox.  
+**Web-push:** сайт регистрирует FCM token с `platform=web` в ту же таблицу `push_device_tokens` (после логина; detach на sign-out).
 
 ---
 
@@ -75,25 +76,83 @@ Booking / attendance / login — тоже через outbox.
 
 ## Уведомления по записи
 
-Instant booking: запись **сразу подтверждена**, отдельного «хозяин одобрил заявку» **нет**.
+Instant booking: запись **сразу подтверждена**, отдельного «хозяин одобрил заявку» **нет**.  
+Подробнее про запись и визит: [booking.md](booking.md). Бонусы: [bonuses.md](bonuses.md).  
+Техника: [SPEC_IN_APP_NOTIFICATIONS.md](../supabase/SPEC_IN_APP_NOTIFICATIONS.md) · [SPEC_PUSH_FCM.md](../supabase/SPEC_PUSH_FCM.md).
 
-| Событие | Кому | Зачем |
-|---------|------|-------|
-| Новая запись | **Хозяин** | Клиент забронировал слот |
-| Вы записаны | **Клиент** | Подтверждение брони |
-| Напоминание о визите | **Клиент** | За **24 ч**, **3 ч**, **1 ч**, **30 мин** до начала (in-app; cron каждые 15 мин) |
-| Визит начался | **Хозяин** | Отметить «клиент пришёл» |
-| Пора закрыть визит | **Хозяин** | «Оказана» / «Не пришёл» — иначе бонусы не начислятся честно |
-| Отмена | **Вторая сторона** | Кто отменил — виден в actor |
-| Оказана (+ бонусы в тексте) | **Клиент** | Итог визита |
-| Не пришёл | **Клиент** | Статус no-show |
+### Роли
 
-**Тап:** хозяин → **Настройки → Запись** (inbox); клиент → **⋯ → Мои бронирования**.
+| Роль | Кто | Что получает |
+|------|-----|--------------|
+| **Хозяин** | Профиль с тегом `booking` | Новая запись, отмена клиентом, перенос (если перенёс клиент), visit_* (in-app) |
+| **Клиент** | Кто записался | Подтверждение, **напоминания**, отмена хозяином, перенос (если перенёс хозяин), итог визита |
 
-Подробнее про запись и визит: [booking.md](booking.md).  
-Про бонусы после «Оказана»: [bonuses.md](bonuses.md).
+### Жизненный цикл уведомлений одной записи
+
+| Фаза | kind (EN) | Кому | Канал |
+|------|-----------|------|-------|
+| Создали | `booking_created_host` / `booking_booked_client` | хозяин / клиент | in-app + FCM |
+| Ждём визит | `booking_reminder_client` | **только клиент** | in-app + FCM · окна **24 ч** и **1 ч** до `starts_at` |
+| Перенесли | `booking_rescheduled` | **вторая сторона** (кто не жал «перенести») | in-app + FCM |
+| Слот начался | `booking_visit_started` | хозяин | **только in-app** |
+| Пора закрыть | `booking_visit_needs_close` | хозяин | **только in-app** |
+| Отмена | `booking_cancelled_*` | вторая сторона | in-app + FCM |
+| Итог | `booking_completed_client` / `booking_no_show_client` | клиент | in-app + FCM |
+
+Cron напоминаний / visit: каждые **15 мин**.  
+Напоминания и visit-ping **снимаются** (dedupe), если бронь ушла из `confirmed` или стала терминальной / перенесена (пересчёт окон от нового `starts_at`).
+
+**Тап:** хозяин → inbox записи (деталь при `booking_id`); клиент → «Мои бронирования» / деталь.  
+Мобилка и веб — **один контракт open** (kind + ids). Веб: тап в ленте колокольчика **и** FCM tray (web-push), когда токен зарегистрирован.
+
+### Напоминания клиенту (цикл)
+
+```
+confirmed + starts_at в будущем
+  → окно 24 ч: upsert in-app + enqueue FCM (dedupe …:reminder:1440)
+  → окно 1 ч:  upsert in-app + enqueue FCM (dedupe …:reminder:60)
+  → визит / отмена / перенос → clear reminder keys
+```
+
+Не шлём 3 ч / 30 мин — шум без выгоды.  
+Если бронь создана **меньше чем за 24 ч** до старта — окно 24 ч пропускается (условие `created_at`); 1 ч срабатывает, если ещё актуально.
+
+### Перенос (цикл)
+
+```
+host или client → reschedule_booking
+  → history action = rescheduled
+  → clear старых reminder/visit keys
+  → in-app + FCM kind=booking_rescheduled → только второй стороне
+  → новые reminder-окна от нового starts_at (тот же cron)
+```
+
+Кто перенёс — уже видит UI; себе плитку/пуш не дублируем (и actor ≠ recipient).  
+В payload: `for_host` (bool) — куда открывать второй стороне (inbox хозяина vs «Мои бронирования»).
+
+### Стыки → решения
+
+| Тема | Решение |
+|------|---------|
+| 4 reminder vs 2 | **24 ч + 1 ч**; FCM на оба |
+| visit_* и шум | без FCM — хозяин закрывает визит в приложении |
+| Перенос и лента | kind `booking_rescheduled` в `notifications` + outbox, не только FCM |
+| Тексты | EN keys / payload на бэке; подписи на клиенте |
+| Веб open | те же kind → booking inbox/detail / attendance; web-push tray через FCM `platform=web` |
+
+### Доработки записи — трекер цикла
+
+| # | Что | Статус |
+|---|-----|--------|
+| 1 | FCM на reminder (24 ч + 1 ч) | ✅ цикл |
+| 2 | Урезать окна до 24 ч + 1 ч | ✅ цикл |
+| 3 | `booking_rescheduled` в колокольчике + FCM второй стороне (`for_host`) | ✅ цикл |
+| 4 | `visit_*` без FCM | уже так — не трогать |
+
+Мелочи вне цикла: daily-дайджест хозяину, CTA «Пришёл» в плитке.
 
 ---
+
 
 ## Чат (не колокольчик)
 
@@ -133,6 +192,26 @@ Instant booking: запись **сразу подтверждена**, отде�
 - CTA «Пришёл» / «Закрыть визит» **внутри** плитки колокольчика (v2 — только переход на экран записи)
 - Отдельная вкладка «только запись» в уведомлениях
 - Chat DM **внутри** ленты колокольчика (чат живёт на вкладке Chat + push)
+
+---
+
+## Тап = тот же deep link
+
+Открытие из **FCM tray / cold start**, **foreground snack** и **плитки колокольчика** идёт через один `NotificationOpenRouter` → `AppDeepLinkIntent` → `AppDeepLinkNavigator` (см. [deep-links.md](../code/ui/deep-links.md), [SPEC_PUSH_FCM.md](../supabase/SPEC_PUSH_FCM.md)).
+
+| kind (EN) | Тап открывает | In-app | FCM | Статус open |
+|-----------|---------------|--------|-----|-------------|
+| `post_like` / `post_dislike` / `post_comment` / `comment_*` | пост (`post_id`) | да | да | done |
+| `user_follow` | профиль actor (`actor_id`) | да | да | done |
+| `booking_*` (create/cancel/complete/no_show/`booking_rescheduled`) | деталь брони (`booking_id`) или inbox | да* | да* | цикл — [уведомления по записи](#уведомления-по-записи) |
+| `booking_reminder_client` | деталь брони | да | да (24 ч + 1 ч) | цикл reminder |
+| `booking_visit_*` | деталь / inbox | да | нет | осознанно без FCM |
+| `attendance_*` | pending / punch / настройки | да | да | done (invite/rules/duty/correction/**punch_due**) · [цикл](attendance.md#цикл-доработок-посещаемости-must-have) |
+| `account_login` | CTA в плитке (не nav) | да | да | done (CTA) |
+| `chat_message` | тред (`conversation_id`) | нет (Chat tab) | да | done |
+
+\* Reminder: in-app + FCM на окнах 24 ч и 1 ч. visit_* — без FCM.  
+\* FCM booking требует `booking_id` в payload outbox.
 
 ---
 

@@ -1,7 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/auth/cubit/auth_cubit.dart';
+import 'package:clover/core/auth/cubit/auth_state.dart';
+import 'package:clover/core/auth/errors/auth_error_code.dart';
+import 'package:clover/core/auth/errors/auth_error_messages.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_button.dart';
@@ -35,8 +39,10 @@ class SettingsAccountPage extends StatefulWidget {
 class _SettingsAccountPageState extends State<SettingsAccountPage> {
   _SettingsAccountLanguage _language = _SettingsAccountLanguage.ru;
   bool _isLoggingOut = false;
+  bool _isHibernating = false;
   bool _hasPasswordLoading = true;
   bool? _hasPassword;
+  String? _hibernateError;
 
   @override
   void initState() {
@@ -169,6 +175,59 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
     }
   }
 
+  Future<void> _confirmHibernate() async {
+    if (_isHibernating || _isLoggingOut) return;
+
+    final confirmed = await AppBottomSheet.show<bool>(
+      context: context,
+      title: 'Усыпить аккаунт',
+      content: Text(
+        'Профиль и посты скрываются из лент и поиска. Это не удаление — '
+        'при следующем входе аккаунт снова активен. '
+        'Повторный сон — не чаще раза в 30 дней.',
+        style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.4),
+      ),
+      actions: [
+        Builder(
+          builder: (sheetContext) {
+            return Row(
+              children: [
+                Expanded(
+                  child: AppButton(text: 'Отмена', onTap: () => Navigator.of(sheetContext).pop(false)),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: AppButton(
+                    text: 'Усыпить',
+                    onTap: () => Navigator.of(sheetContext).pop(true),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() {
+      _isHibernating = true;
+      _hibernateError = null;
+    });
+    try {
+      await context.read<AuthCubit>().hibernateAccount();
+    } catch (_) {
+      if (!mounted) return;
+      final state = context.read<AuthCubit>().state;
+      final code = state is AuthError ? state.code : AuthErrorCode.hibernateFailed;
+      setState(() {
+        _hibernateError = AuthErrorMessages.messageFor(code);
+        _isHibernating = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeMode = context.watch<AppThemeCubit>().state;
@@ -225,7 +284,7 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
                   icon: AppIcons.logout.icon,
                   iconColor: context.colors.destructive,
                   destructive: true,
-                  enabled: !_isLoggingOut,
+                  enabled: !_isLoggingOut && !_isHibernating,
                   trailing: _isLoggingOut
                       ? const SizedBox(
                           width: 18,
@@ -235,7 +294,34 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
                       : null,
                   onTap: _confirmLogout,
                 ),
+                AppTile(
+                  title: 'Усыпить аккаунт',
+                  subtitle: 'Скрыть профиль и посты. Не удаление.',
+                  icon: AppIcons.visibilityOff.icon,
+                  iconColor: context.colors.subTextColor,
+                  enabled: !_isLoggingOut && !_isHibernating,
+                  trailing: _isHibernating
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : null,
+                  onTap: _confirmHibernate,
+                ),
               ],
+            ),
+            if (_hibernateError != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                _hibernateError!,
+                style: AppTextStyle.base(13, color: context.colors.destructive, height: 1.35),
+              ),
+            ],
+            const SizedBox(height: 16),
+            Text(
+              'Полное удаление — форма на clover.com.kz/delete-account.',
+              style: AppTextStyle.base(12, color: context.colors.subTextColor, height: 1.35),
             ),
             SizedBox(height: SettingsScreenShell.scrollBottomGap(context)),
           ],
