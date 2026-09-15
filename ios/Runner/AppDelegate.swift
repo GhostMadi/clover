@@ -6,6 +6,10 @@ import FirebaseMessaging
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+  private var pushChannel: FlutterMethodChannel?
+  private var lastApnsError: String?
+  private var lastApnsTokenLen: Int = 0
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -13,9 +17,8 @@ import FirebaseMessaging
     // Mapbox telemetry: выкл. до создания карты (меньше шума / лагов EventsService на cold start).
     UserDefaults.standard.set(false, forKey: "MGLMapboxMetricsEnabled")
 
-    // Как в qMed: Firebase ДО APNs. Сам registerForRemoteNotifications — после
-    // GeneratedPluginRegistrant (см. didInitializeImplicitFlutterEngine), иначе
-    // APNs-токен может не попасть в Firebase Messaging на реальном iPhone.
+    // Firebase ДО APNs. registerForRemoteNotifications — после плагинов
+    // (didInitializeImplicitFlutterEngine), иначе токен может не попасть в Messaging.
     if FirebaseApp.app() == nil {
       FirebaseApp.configure()
     }
@@ -27,7 +30,38 @@ import FirebaseMessaging
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
-    // Плагины уже есть → теперь можно регистрировать remote notifications (паттерн qMed).
+
+    let channel = FlutterMethodChannel(
+      name: "clover/push_apns",
+      binaryMessenger: engineBridge.applicationRegistrar.messenger()
+    )
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard let self else {
+        result(FlutterError(code: "gone", message: nil, details: nil))
+        return
+      }
+      switch call.method {
+      case "reregister":
+        self.lastApnsError = nil
+        UIApplication.shared.registerForRemoteNotifications()
+        result(nil)
+      case "status":
+        #if targetEnvironment(simulator)
+        let simulator = true
+        #else
+        let simulator = false
+        #endif
+        result([
+          "simulator": simulator,
+          "lastError": self.lastApnsError as Any,
+          "tokenLen": self.lastApnsTokenLen,
+        ])
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+    pushChannel = channel
+
     UIApplication.shared.registerForRemoteNotifications()
   }
 
@@ -35,7 +69,15 @@ import FirebaseMessaging
     _ application: UIApplication,
     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
   ) {
-    Messaging.messaging().apnsToken = deviceToken
+    lastApnsError = nil
+    lastApnsTokenLen = deviceToken.count
+    // Debug entitlement = development → sandbox; Release/TestFlight = production.
+    #if DEBUG
+    Messaging.messaging().setAPNSToken(deviceToken, type: .sandbox)
+    #else
+    Messaging.messaging().setAPNSToken(deviceToken, type: .prod)
+    #endif
+    NSLog("[Push] APNs ok · len=%d", deviceToken.count)
     super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
   }
 
@@ -43,6 +85,8 @@ import FirebaseMessaging
     _ application: UIApplication,
     didFailToRegisterForRemoteNotificationsWithError error: Error
   ) {
+    lastApnsError = error.localizedDescription
+    lastApnsTokenLen = 0
     NSLog("[Push] APNs fail · %@", error.localizedDescription)
     super.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
   }
