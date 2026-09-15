@@ -197,8 +197,8 @@ Like / dislike на постах; уведомления автору.
 Техника: `lib/feature/_booking_/`, `web/src/features/booking/`, [SPEC_BOOKING_SYSTEM.md](../supabase/SPEC_BOOKING_SYSTEM.md) · invite: [SPEC_BOOKING_STAFF_INVITE.md](../supabase/SPEC_BOOKING_STAFF_INVITE.md)
 
 ### 🔴 Бронь мест (схема зала)
-Хозяин рисует план и помечает **любые** объекты к брони; клиент — **визуал и/или список** → **запрос** (не auto-confirm); admin inbox (доплата вне Clover, гостевая бронь, soft-hold TTL). Без эквайринга.
-Бизнес: [venue-seating.md](venue-seating.md) · код/бэк — ещё нет
+**Блок — не начинали.** План зала / запрос брони — вне текущего релиза.  
+Бизнес: [venue-seating.md](venue-seating.md) · код/бэк — нет
 
 ### 🟢 Бонусы
 Начисление и списание настраиваются на услуге; «Мои бонусы» у клиента.  
@@ -220,10 +220,10 @@ Like / dislike на постах; уведомления автору.
 Бизнес: [settings.md](settings.md)  
 Техника: `_settings_/settings/`, `_settings_/settings_account/`, `_settings_/settings_about/`, … + `lib/core/theme/`
 
-### 🔴 Сон / сброс аккаунта
-Состояния вроде hibernate на бэке.  
-Бизнес: не описан  
-Техника: в основном бэк, понятного полного UX мало
+### 🟢 Сон аккаунта (hibernate)
+Временно скрыть витрину; просыпание при входе. Не удаление / не wipe.  
+Бизнес: [account-sleep.md](account-sleep.md)  
+Техника: RPC `hibernate_account` / `wake_up_if_needed` · mobile + web settings + auth wake
 
 ---
 
@@ -249,13 +249,13 @@ Enum + catalog: страны, города, теги без sync с бэка.
 ## Сводка одним взглядом
 
 **🟢 Ок**  
-Google-вход · **сессия/выход** · онбординг · нижний бар · лента↔карта · **фильтры** · профиль (свой/чужой) · edit · теги · **подписчики** · меню ⋯ · публикации/ивенты · создание · **реакции** · **комментарии** · **сохранённые** · **архивы** · **кластеры** · **чаты** · **уведомления in-app** · **настройки** · **локации** · локализация ключей · enum-справочники · «бизнес-профиль» не отдельный тип · **онлайн-запись** · **бонусы**
+Google-вход · **сессия/выход** · онбординг · нижний бар · лента↔карта · **фильтры** · профиль · edit · теги · **подписчики** · публикации/ивенты · **реакции** · **комментарии** · **сохранённые** · **архивы** · **кластеры** · **чаты** · **уведомления** · **настройки** · **локации** · **онлайн-запись** · **бонусы** · **сон аккаунта** · **посещаемость ядро** · **web-push** (нужен Firebase Web env на Vercel)
 
-**🟡 Зазор — техника есть, дока мало или дырка в UX**  
-**блокировки** (нет UI)
+**🟡 Зазор**  
+**блокировки** (нет UI) · **сила тегов** (паттерн не везде одинаков) · **фон чата** · сайт: чат reply/reactions · хозяин booking B4/B5/B7 polish
 
-**🔴 Дыра**  
-Phone / WhatsApp OTP в UI · WhatsApp webhook как продуктовый процесс · сон/сброс аккаунта для человека
+**🔴 Дыра / блок**  
+Phone OTP (отложено) · **бронь мест** (блок, не начинали)
 
 ### 🟡 Сайт (лендинг + кабинет)
 Публичный Next.js в `web/`: лендинг, legal, auth, карта/профиль, создание поста (`/app/posts/new`). Догон мобилки — по фазам.
@@ -266,11 +266,6 @@ Phone / WhatsApp OTP в UI · WhatsApp webhook как продуктовый п�
 15 тапов по «©» → `/admin` → хаб: Support · Аналитика · Honest Quiz.
 Бизнес: [website-admin.md](website-admin.md) · Spec: [SPEC_ADMIN_PLATFORM.md](../supabase/SPEC_ADMIN_PLATFORM.md)
 Техника: `web/src/app/admin/`, `/api/admin/{support,stats,honest-quiz}`, `SUPABASE_SERVICE_ROLE_KEY`
-
-### 🟡 Честный тест (временно, не продукт)
-Мини-игра `/honest` + ответы в `/admin/honest`. Убрать после использования.  
-Бизнес: [honest-quiz.md](honest-quiz.md)  
-Техника: `web/src/features/honest-quiz/` · [SPEC_HONEST_QUIZ.md](../supabase/SPEC_HONEST_QUIZ.md)
 
 ---
 

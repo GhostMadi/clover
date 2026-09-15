@@ -37,14 +37,18 @@ export async function listMyLoginEvents(limit = 12): Promise<LoginEvent[]> {
 }
 
 /**
- * Деактивация аккаунта (RPC hibernate) + выход.
- * Полный wipe контента на бэке отключён — см. docs/supabase.
+ * Сон аккаунта (RPC hibernate) + выход.
+ * Это не удаление и не wipe — см. docs/business/account-sleep.md.
  */
-export async function deleteAccount(): Promise<void> {
+export async function hibernateAccount(): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.rpc("hibernate_account");
   if (error) {
-    throw new Error(error.message || "Не удалось удалить аккаунт");
+    const msg = error.message || "";
+    if (msg.includes("hibernate_rate_limited")) {
+      throw new Error("Сон доступен раз в 30 дней. Попробуйте позже.");
+    }
+    throw new Error(msg || "Не удалось усыпить аккаунт");
   }
   await signOut();
 }

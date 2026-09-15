@@ -14,27 +14,31 @@ type CachedToken = { accessToken: string; expiresAtMs: number };
 let cached: CachedToken | null = null;
 
 export function loadFcmServiceAccount(): FcmServiceAccount {
-  const rawJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON")?.trim();
-  if (rawJson) {
-    const parsed = JSON.parse(rawJson) as Record<string, unknown>;
-    const projectId = String(parsed.project_id ?? "").trim();
-    const clientEmail = String(parsed.client_email ?? "").trim();
-    const privateKey = String(parsed.private_key ?? "").replace(/\\n/g, "\n").trim();
-    if (!projectId || !clientEmail || !privateKey) {
-      throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON missing project_id/client_email/private_key");
-    }
-    return { project_id: projectId, client_email: clientEmail, private_key: privateKey };
-  }
-
+  // Prefer discrete FCM_* — full JSON via secrets CLI often mangles private_key.
   const projectId = Deno.env.get("FCM_PROJECT_ID")?.trim() ?? "";
   const clientEmail = Deno.env.get("FCM_CLIENT_EMAIL")?.trim() ?? "";
   const privateKey = (Deno.env.get("FCM_PRIVATE_KEY") ?? "").replace(/\\n/g, "\n").trim();
-  if (!projectId || !clientEmail || !privateKey) {
-    throw new Error(
-      "Missing FCM secrets: set FIREBASE_SERVICE_ACCOUNT_JSON or FCM_PROJECT_ID + FCM_CLIENT_EMAIL + FCM_PRIVATE_KEY",
-    );
+  if (projectId && clientEmail && privateKey) {
+    return { project_id: projectId, client_email: clientEmail, private_key: privateKey };
   }
-  return { project_id: projectId, client_email: clientEmail, private_key: privateKey };
+
+  const rawJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON")?.trim();
+  if (rawJson) {
+    let parsed: unknown = JSON.parse(rawJson);
+    if (typeof parsed === "string") parsed = JSON.parse(parsed);
+    const obj = parsed as Record<string, unknown>;
+    const pid = String(obj.project_id ?? "").trim();
+    const email = String(obj.client_email ?? "").trim();
+    const key = String(obj.private_key ?? "").replace(/\\n/g, "\n").trim();
+    if (!pid || !email || !key) {
+      throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON missing project_id/client_email/private_key");
+    }
+    return { project_id: pid, client_email: email, private_key: key };
+  }
+
+  throw new Error(
+    "Missing FCM secrets: set FCM_PROJECT_ID + FCM_CLIENT_EMAIL + FCM_PRIVATE_KEY (or FIREBASE_SERVICE_ACCOUNT_JSON)",
+  );
 }
 
 function b64url(data: Uint8Array | string): string {
@@ -101,7 +105,8 @@ export async function getFcmAccessToken(sa: FcmServiceAccount): Promise<string> 
     accessToken: body.access_token,
     expiresAtMs: now + expiresIn * 1000,
   };
-  return body.accessToken;
+  // Google returns snake_case `access_token` (not camelCase).
+  return body.access_token;
 }
 
 export type FcmSendResult =

@@ -15,10 +15,12 @@ export type NotificationKind =
   | "bookingCancelledClient"
   | "bookingCompletedClient"
   | "bookingNoShowClient"
+  | "bookingRescheduled"
   | "attendanceInvite"
   | "attendanceRulesAck"
   | "attendanceDuty"
   | "attendanceCorrection"
+  | "attendancePunchDue"
   | "accountLogin";
 
 export type NotificationActor = {
@@ -45,6 +47,11 @@ export type AppNotification = {
   bookingStartsAt: string | null;
   bonusEarnAmount: number | null;
   bookingReminderMinutesBefore: number | null;
+  /** Payload for_host — booking_rescheduled open target. */
+  bookingForHost: boolean | null;
+  workplaceId: string | null;
+  attendanceDueKind: string | null;
+  attendanceWorkplaceName: string | null;
   loginWhere: string | null;
   loginEventId: string | null;
   /** EN: confirmed | revoked | revoked_others */
@@ -97,6 +104,8 @@ function parseKind(kindRaw: string, isFollowingActor: boolean): NotificationKind
       return "bookingCompletedClient";
     case "booking_no_show_client":
       return "bookingNoShowClient";
+    case "booking_rescheduled":
+      return "bookingRescheduled";
     case "attendance_invite":
       return "attendanceInvite";
     case "attendance_rules_ack":
@@ -105,6 +114,8 @@ function parseKind(kindRaw: string, isFollowingActor: boolean): NotificationKind
       return "attendanceDuty";
     case "attendance_correction":
       return "attendanceCorrection";
+    case "attendance_punch_due":
+      return "attendancePunchDue";
     case "account_login":
       return "accountLogin";
     default:
@@ -153,6 +164,19 @@ export function parseNotificationRow(row: Record<string, unknown>): AppNotificat
       : typeof reminderRaw === "string"
         ? Number(reminderRaw) || null
         : null;
+  const forHostRaw = payload.for_host;
+  const bookingForHost =
+    forHostRaw === true || forHostRaw === "true"
+      ? true
+      : forHostRaw === false || forHostRaw === "false"
+        ? false
+        : null;
+  const workplaceId =
+    (payload.workplace_id as string | null | undefined)?.trim() || null;
+  const attendanceDueKind =
+    (payload.due_kind as string | null | undefined)?.trim() || null;
+  const attendanceWorkplaceName =
+    (payload.workplace_name as string | null | undefined)?.trim() || null;
 
   const device = (payload.device_label as string | null | undefined)?.trim() || null;
   const client = (payload.client as string | null | undefined)?.trim() || null;
@@ -192,6 +216,10 @@ export function parseNotificationRow(row: Record<string, unknown>): AppNotificat
     bookingStartsAt: payload.starts_at ? String(payload.starts_at) : null,
     bonusEarnAmount: bonus && bonus > 0 ? bonus : null,
     bookingReminderMinutesBefore: reminder && reminder > 0 ? reminder : null,
+    bookingForHost,
+    workplaceId,
+    attendanceDueKind,
+    attendanceWorkplaceName,
     loginWhere,
     loginEventId,
     loginResolved,
@@ -239,6 +267,8 @@ export function notificationMessage(item: AppNotification): string {
         : `Визит завершён: ${service}`;
     case "bookingNoShowClient":
       return `Визит отмечен как «не пришёл»: ${service}`;
+    case "bookingRescheduled":
+      return `${name} перенёс(ла) запись: ${service}`;
     case "attendanceInvite":
       return `${name} пригласил(-а) в команду посещаемости`;
     case "attendanceRulesAck":
@@ -247,6 +277,14 @@ export function notificationMessage(item: AppNotification): string {
       return "Обновлён список дежурных";
     case "attendanceCorrection":
       return "Запрос на исправление отметки";
+    case "attendancePunchDue": {
+      const place = item.attendanceWorkplaceName?.trim();
+      const suffix = place ? ` · ${place}` : "";
+      if (item.attendanceDueKind === "clock_out") return `Пора отметиться на выход${suffix}`;
+      if (item.attendanceDueKind === "auto_closed")
+        return `Смена закрыта автоматически${suffix}`;
+      return `Пора отметиться на вход${suffix}`;
+    }
     case "accountLogin":
       return `Вход в аккаунт с ${item.loginWhere?.trim() || "нового устройства"}`;
     default:

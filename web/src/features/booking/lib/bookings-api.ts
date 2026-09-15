@@ -47,6 +47,32 @@ export async function listMyBookings(params: {
     .map(mapMyBooking);
 }
 
+/** Deep-link / notification open — роль client|host с бэка. */
+export type BookingViewerResult =
+  | { role: "client"; item: MyBookingItem }
+  | { role: "host"; item: HostBookingItem };
+
+export async function getBookingForViewer(
+  bookingId: string,
+): Promise<BookingViewerResult | null> {
+  const id = bookingId.trim();
+  if (!id) return null;
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_booking_enriched_for_viewer", {
+    p_booking_id: id,
+  });
+  if (error) throw error;
+  if (!data || typeof data !== "object") return null;
+  const map = data as Record<string, unknown>;
+  const role = String(map.role ?? "").trim();
+  const raw = map.item;
+  if (!raw || typeof raw !== "object") return null;
+  const item = raw as Record<string, unknown>;
+  if (role === "client") return { role: "client", item: mapMyBooking(item) };
+  if (role === "host") return { role: "host", item: mapHostBooking(item) };
+  return null;
+}
+
 export async function updateBookingStatus(
   bookingId: string,
   status: BookingStatus,

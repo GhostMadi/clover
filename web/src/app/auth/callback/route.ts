@@ -28,6 +28,7 @@ export async function GET(request: Request) {
             sessionId = null;
           }
         }
+        await supabase.rpc("wake_up_if_needed");
         await supabase.rpc("report_account_login", {
           p_client: "web",
           p_platform: "web",

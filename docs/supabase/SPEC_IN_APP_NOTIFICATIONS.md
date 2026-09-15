@@ -60,15 +60,17 @@ Legacy rows backfilled from `notification_events` where `type = follow`.
 |------|-----------|---------|
 | `booking_created_host` | Host | `AFTER INSERT` on `bookings` |
 | `booking_booked_client` | Client | same |
-| `booking_reminder_client` | Client | Cron: **24 h, 3 h, 1 h, 30 min** before `starts_at` (`confirmed` only) |
-| `booking_visit_started` | Host | Cron: `confirmed`, slot started |
-| `booking_visit_needs_close` | Host | Cron: visit past `ends_at`, not terminal |
+| `booking_reminder_client` | Client | Cron: **24 h** and **1 h** before `starts_at` (`confirmed` only); **in-app + FCM** |
+| `booking_rescheduled` | Other party | `reschedule_booking` → history `rescheduled`; **in-app + FCM** |
+| `booking_visit_started` | Host | Cron: `confirmed`, slot started; **in-app only** |
+| `booking_visit_needs_close` | Host | Cron: visit past `ends_at`, not terminal; **in-app only** |
 | `booking_cancelled_host` | Host | `cancelled_by = client` |
 | `booking_cancelled_client` | Client | `cancelled_by = host` |
 | `booking_completed_client` | Client | `status → completed` |
 | `booking_no_show_client` | Client | `status → no_show` |
 
-Migration: `20260830220000_booking_notifications.sql` · client reminders: `20260830230000_booking_client_reminders.sql`
+Process: [notifications.md](../business/notifications.md) § запись.  
+Migrations: `20260830220000` · reminders `20260830230000` · cycle `20260915164321_booking_reminder_reschedule_cycle.sql`
 
 ### Payload (booking)
 
@@ -79,16 +81,19 @@ Migration: `20260830220000_booking_notifications.sql` · client reminders: `2026
   "starts_at": "2026-08-30T10:00:00+05:00",
   "ends_at": "2026-08-30T10:45:00+05:00",
   "bonus_earn_amount": 50,
-  "minutes_before": 60
+  "minutes_before": 60,
+  "for_host": true
 }
 ```
 
-`minutes_before` — only on `booking_reminder_client`.
+`minutes_before` — only on `booking_reminder_client`.  
+`for_host` — only on `booking_rescheduled` (open target).
 
 ### Dedupe keys
 
 - `booking:{id}:created:host` / `:created:client`
-- `booking:{id}:reminder:1440` / `:180` / `:60` / `:30`
+- `booking:{id}:reminder:1440` / `:60` (legacy `:180` / `:30` cleared on status leave)
+- `booking:{id}:rescheduled` (upsert on each transfer; `created_at` refreshes)
 - `booking:{id}:visit_started`
 - `booking:{id}:needs_close`
 - `booking:{id}:cancelled:host` / `:cancelled:client`
@@ -137,5 +142,5 @@ Navigation: post → `PostRoute`; follow → `GuestProfileRoute`; booking host �
 | In-app social + booking | **v1 done** |
 | Push / FCM | **Client token sync v1** — см. [SPEC_PUSH_FCM.md](SPEC_PUSH_FCM.md) |
 | `push_device_tokens` + outbox | Table v1; send outbox v2 |
-| Client in-app reminders (24h / 3h / 1h / 30m) | **v1** — `booking_reminder_client` |
+| Client reminders 24h + 1h + FCM; `booking_rescheduled` in-app | **cycle** — см. business notifications § запись |
 | Action buttons in notification tile | v2 |

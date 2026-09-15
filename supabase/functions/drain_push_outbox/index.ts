@@ -46,16 +46,25 @@ function localizePushTitle(title: string, kind: string): string {
     visit_completed: "Визит завершён",
     no_show: "Неявка",
     booking_rescheduled: "Запись перенесена",
+    booking_reminder: "Напоминание о записи",
     new_login: "Новый вход",
     team_invite: "Приглашение в команду",
     company_rules: "Новые правила компании",
     duty: "Дежурство",
     punch_correction: "Исправление отметки",
+    punch_due: "Посещаемость",
     photo: "Фото",
     file: "Файл",
     post: "Пост",
     message: "Сообщение",
     system: "Системное",
+    new_like: "Лайк",
+    new_dislike: "Дизлайк",
+    new_comment: "Комментарий",
+    new_reply: "Ответ",
+    new_comment_like: "Лайк комментария",
+    new_comment_dislike: "Дизлайк комментария",
+    new_follower: "Новый подписчик",
   };
   if (byKey[key]) return byKey[key];
 
@@ -67,11 +76,20 @@ function localizePushTitle(title: string, kind: string): string {
     booking_completed_client: byKey.visit_completed,
     booking_no_show_client: byKey.no_show,
     booking_rescheduled: byKey.booking_rescheduled,
+    booking_reminder_client: byKey.booking_reminder,
     attendance_invite: byKey.team_invite,
     attendance_rules_ack: byKey.company_rules,
     attendance_duty: byKey.duty,
     attendance_correction: byKey.punch_correction,
+    attendance_punch_due: byKey.punch_due,
     account_login: byKey.new_login,
+    post_like: byKey.new_like,
+    post_dislike: byKey.new_dislike,
+    post_comment: byKey.new_comment,
+    comment_reply: byKey.new_reply,
+    comment_like: byKey.new_comment_like,
+    comment_dislike: byKey.new_comment_dislike,
+    user_follow: byKey.new_follower,
   };
   if (byKind[kind]) return byKind[kind];
 
@@ -88,6 +106,7 @@ function localizePushBody(
   const service = strPayload(payload, "service_title") || "услугу";
   const workplace = strPayload(payload, "workplace_name") || "компании";
   const when = formatStartsAt(payload);
+  const actor = strPayload(payload, "actor_username") || "user";
 
   const byKey: Record<string, string> = {
     photo: "Фото",
@@ -102,12 +121,47 @@ function localizePushBody(
     marked_completed: `«${service}» отмечена как оказанная`,
     marked_no_show: "Запись отмечена как «не пришёл»",
     new_time: when ? `Новое время: ${when}` : "Время записи изменено",
+    visit_soon: (() => {
+      const mins = Number(payload.minutes_before);
+      if (mins === 1440) {
+        return when
+          ? `Завтра визит «${service}» · ${when}`
+          : `Завтра визит «${service}»`;
+      }
+      if (mins === 60) {
+        return when
+          ? `Через час «${service}» · ${when}`
+          : `Через час визит «${service}»`;
+      }
+      return when
+        ? `Скоро визит «${service}» · ${when}`
+        : `Скоро визит «${service}»`;
+    })(),
     invited_to_workplace: `Вас пригласили в «${workplace}»`,
     accept_rules: `Примите правила «${workplace}»`,
     duty_roster_updated: `Обновлён список дежурных в «${workplace}»`,
     correction_requested: `Работник просит исправить отметку в «${workplace}»`,
     correction_approved: "Запрос на исправление утверждён",
     correction_rejected: "Запрос на исправление отклонён",
+    time_to_clock_in: (() => {
+      const wp = strPayload(payload, "workplace_name") || "компании";
+      return `Пора отметиться на вход · ${wp}`;
+    })(),
+    time_to_clock_out: (() => {
+      const wp = strPayload(payload, "workplace_name") || "компании";
+      return `Пора отметиться на выход · ${wp}`;
+    })(),
+    shift_auto_closed: (() => {
+      const wp = strPayload(payload, "workplace_name") || "компании";
+      return `Смена закрыта автоматически · ${wp}`;
+    })(),
+    liked_your_post: `@${actor} лайкнул ваш пост`,
+    disliked_your_post: `@${actor} дизлайкнул ваш пост`,
+    commented_your_post: `@${actor} прокомментировал ваш пост`,
+    replied_to_comment: `@${actor} ответил на ваш комментарий`,
+    liked_your_comment: `@${actor} лайкнул ваш комментарий`,
+    disliked_your_comment: `@${actor} дизлайкнул ваш комментарий`,
+    started_following_you: `@${actor} подписался на вас`,
     login_from_device: (() => {
       const client = strPayload(payload, "client");
       const platform = strPayload(payload, "platform");
@@ -139,11 +193,25 @@ function localizePushBody(
     booking_completed_client: byKey.marked_completed,
     booking_no_show_client: byKey.marked_no_show,
     booking_rescheduled: byKey.new_time,
+    booking_reminder_client: byKey.visit_soon,
     attendance_invite: byKey.invited_to_workplace,
     attendance_rules_ack: byKey.accept_rules,
     attendance_duty: byKey.duty_roster_updated,
     attendance_correction: byKey.correction_requested,
+    attendance_punch_due: (() => {
+      const due = String(payload.due_kind ?? "").trim();
+      if (due === "clock_out") return byKey.time_to_clock_out;
+      if (due === "auto_closed") return byKey.shift_auto_closed;
+      return byKey.time_to_clock_in;
+    })(),
     account_login: byKey.login_from_device,
+    post_like: byKey.liked_your_post,
+    post_dislike: byKey.disliked_your_post,
+    post_comment: byKey.commented_your_post,
+    comment_reply: byKey.replied_to_comment,
+    comment_like: byKey.liked_your_comment,
+    comment_dislike: byKey.disliked_your_comment,
+    user_follow: byKey.started_following_you,
   };
   if (byKindBody[kind] && !/[а-яёА-ЯЁ]/.test(raw)) return byKindBody[kind];
 

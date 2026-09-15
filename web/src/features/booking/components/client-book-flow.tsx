@@ -135,7 +135,7 @@ export function ClientBookFlow({ hostId, hostName, presetServiceId }: Props) {
     setSubmitting(true);
     setError(null);
     try {
-      await createBooking({
+      const bookingId = await createBooking({
         hostId,
         serviceId,
         staffId,
@@ -143,7 +143,11 @@ export function ClientBookFlow({ hostId, hostName, presetServiceId }: Props) {
         clientNotes: notes,
         useBonuses,
       });
-      router.push("/app/settings/booking/my");
+      router.push(
+        bookingId
+          ? `/app/settings/booking/my/${bookingId}`
+          : "/app/settings/booking/my",
+      );
       router.refresh();
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Не удалось создать запись");

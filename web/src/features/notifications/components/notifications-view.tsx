@@ -23,9 +23,57 @@ type NotificationsViewProps = {
   initialHasMore: boolean;
 };
 
+function bookingHostHref(item: AppNotification): string {
+  return item.bookingId
+    ? `/app/settings/booking/inbox/${item.bookingId}`
+    : "/app/settings/booking/inbox";
+}
+
+function bookingClientHref(item: AppNotification): string {
+  return item.bookingId
+    ? `/app/settings/booking/my/${item.bookingId}`
+    : "/app/settings/booking/my";
+}
+
 function hrefFor(item: AppNotification): string | null {
   if (item.showFollowButton) return `/app/u/${item.actor.id}`;
   if (item.postId) return `/app/posts/${item.postId}`;
+
+  if (item.kind === "bookingRescheduled") {
+    return item.bookingForHost
+      ? bookingHostHref(item)
+      : bookingClientHref(item);
+  }
+
+  switch (item.kind) {
+    case "bookingCreatedHost":
+    case "bookingVisitStarted":
+    case "bookingVisitNeedsClose":
+    case "bookingCancelledHost":
+      return bookingHostHref(item);
+    case "bookingBookedClient":
+    case "bookingReminderClient":
+    case "bookingCancelledClient":
+    case "bookingCompletedClient":
+    case "bookingNoShowClient":
+      return bookingClientHref(item);
+    case "attendanceCorrection":
+      return item.workplaceId
+        ? `/app/settings/attendance/w/${item.workplaceId}/corrections`
+        : "/app/settings/attendance";
+    case "attendanceInvite":
+    case "attendanceRulesAck":
+    case "attendanceDuty":
+    case "attendancePunchDue":
+      return item.workplaceId
+        ? `/app/settings/attendance/w/${item.workplaceId}`
+        : "/app/settings/attendance";
+    case "accountLogin":
+      return null;
+    default:
+      break;
+  }
+
   if (item.actor.id) return `/app/u/${item.actor.id}`;
   return null;
 }

@@ -47,6 +47,7 @@ HTTPS требует Associated Domains на `clover.app` (настройка в
 2. До входа ссылка **копится** в pending.
 3. После дашборда / онбординга — `flushPending()` → `AppDeepLinkParser` → `AppDeepLinkNavigator`.
 4. Уведомления по записи с `booking_id` используют тот же `openBookingById`.
+5. FCM tray / cold start / snack → `NotificationOpenRouter` → те же intents (не отдельный switch).
 
 ---
 

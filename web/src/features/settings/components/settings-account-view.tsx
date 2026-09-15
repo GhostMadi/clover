@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { AppButton } from "@/components/shared/app-button";
 import { signOut } from "@/features/auth/lib/auth-api";
-import { deleteAccount, listMyLoginEvents, type LoginEvent } from "@/features/settings/lib/account-api";
+import {
+  hibernateAccount,
+  listMyLoginEvents,
+  type LoginEvent,
+} from "@/features/settings/lib/account-api";
 import {
   readLocale,
   readTheme,
@@ -53,10 +57,10 @@ export function SettingsAccountView() {
   const router = useRouter();
   const [theme, setTheme] = useState<WebThemeMode>("light");
   const [locale, setLocale] = useState<WebLocaleCode>("ru");
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmHibernate, setConfirmHibernate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
-  const [deleting, startDelete] = useTransition();
+  const [hibernating, startHibernate] = useTransition();
   const [logins, setLogins] = useState<LoginEvent[]>([]);
 
   useEffect(() => {
@@ -90,16 +94,16 @@ export function SettingsAccountView() {
     }
   };
 
-  const onDelete = () => {
+  const onHibernate = () => {
     setError(null);
-    startDelete(async () => {
+    startHibernate(async () => {
       try {
-        await deleteAccount();
+        await hibernateAccount();
         router.replace("/auth");
         router.refresh();
       } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "Не удалось удалить");
-        setConfirmDelete(false);
+        setError(e instanceof Error ? e.message : "Не удалось усыпить аккаунт");
+        setConfirmHibernate(false);
       }
     });
   };
@@ -207,7 +211,7 @@ export function SettingsAccountView() {
             <AppButton
               type="button"
               loading={loggingOut}
-              disabled={loggingOut || deleting}
+              disabled={loggingOut || hibernating}
               variant="outline"
               onClick={() => void onLogout()}
             >
@@ -215,44 +219,49 @@ export function SettingsAccountView() {
             </AppButton>
             <AppButton
               type="button"
-              disabled={loggingOut || deleting}
+              disabled={loggingOut || hibernating}
               variant="outline"
               className="!border-destructive/40 !text-destructive hover:!bg-destructive/10"
-              onClick={() => setConfirmDelete(true)}
+              onClick={() => setConfirmHibernate(true)}
             >
-              Удалить аккаунт
+              Усыпить аккаунт
             </AppButton>
+            <p className="px-1 text-[11px] leading-snug text-muted">
+              Сон скрывает профиль и контент из лент — это не удаление. Полное удаление — на
+              странице delete-account.
+            </p>
           </div>
         </section>
       </div>
 
-      {confirmDelete ? (
+      {confirmHibernate ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-4 sm:items-center">
           <div
             role="dialog"
             aria-modal
             className="w-full max-w-sm rounded-[20px] border border-line bg-surface p-5 shadow-xl"
           >
-            <p className="text-[16px] font-bold text-ink">Удалить аккаунт?</p>
+            <p className="text-[16px] font-bold text-ink">Усыпить аккаунт?</p>
             <p className="mt-2 text-[13px] leading-relaxed text-muted">
-              Профиль станет недоступен другим. Выход с этого устройства сразу после подтверждения.
+              Профиль и публикации временно скроются из лент и поиска. Данные не удаляются —
+              при следующем входе аккаунт проснётся. Повторный сон — не чаще раза в 30 дней.
             </p>
             <div className="mt-5 flex gap-2">
               <AppButton
                 type="button"
-                disabled={deleting}
+                disabled={hibernating}
                 variant="outline"
-                onClick={() => setConfirmDelete(false)}
+                onClick={() => setConfirmHibernate(false)}
               >
                 Отмена
               </AppButton>
               <AppButton
                 type="button"
-                loading={deleting}
+                loading={hibernating}
                 className="!bg-destructive !text-on-media hover:!bg-destructive/90"
-                onClick={onDelete}
+                onClick={onHibernate}
               >
-                Удалить
+                Усыпить
               </AppButton>
             </div>
           </div>

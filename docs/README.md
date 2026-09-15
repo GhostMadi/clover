@@ -38,7 +38,7 @@
 | Чаты и сообщения | [business/chats.md](business/chats.md) |
 | Фон чата (смайлики) | [business/chat-emoji-wallpaper.md](business/chat-emoji-wallpaper.md) |
 | Уведомления (in-app) | [business/notifications.md](business/notifications.md) |
-| Настройки приложения | [business/settings.md](business/settings.md) |
+| Сон аккаунта | [business/account-sleep.md](business/account-sleep.md) |
 | Гайд сервисов | [business/services-guide.md](business/services-guide.md) |
 | Гайд сервиса «Ресурсы» | [business/resources-guide.md](business/resources-guide.md) |
 | Местоположения | [business/locations.md](business/locations.md) |
@@ -55,7 +55,6 @@
 | App Store — тексты листинга | [business/app-store-listing.md](business/app-store-listing.md) |
 | App Store — privacy labels | [business/app-store-privacy-labels.md](business/app-store-privacy-labels.md) |
 | Поддержка (форма на сайте) | [business/support.md](business/support.md) |
-| Честный тест (временно) | [business/honest-quiz.md](business/honest-quiz.md) |
 | Каталог фич | [business/features-catalog.md](business/features-catalog.md) |
 
 Черновики: [business/_inbox.md](business/_inbox.md) · шаблон: [business/_template.md](business/_template.md)

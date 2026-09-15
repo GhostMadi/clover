@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { AUTH_MESSAGES, MIN_PASSWORD_LENGTH } from "@/features/auth/lib/messages";
+import { detachWebPushForSignOut } from "@/features/push/lib/web-push";
 
 /** Same as Flutter `AuthRepository.otpMaxPerHour`. */
 export const OTP_MAX_PER_HOUR = 3;
@@ -216,6 +217,16 @@ function sessionIdFromAccessToken(token: string | undefined | null): string | nu
   }
 }
 
+/** Silent wake after login / session restore (idempotent). */
+export async function wakeUpIfNeeded(): Promise<void> {
+  try {
+    const supabase = createClient();
+    await supabase.rpc("wake_up_if_needed");
+  } catch {
+    // ignore
+  }
+}
+
 /** After successful sign-in / OAuth callback / password set. */
 export async function reportAccountLogin(): Promise<void> {
   try {
@@ -231,6 +242,8 @@ export async function reportAccountLogin(): Promise<void> {
     const {
       data: { session },
     } = await supabase.auth.getSession();
+
+    await supabase.rpc("wake_up_if_needed");
 
     await supabase.rpc("report_account_login", {
       p_client: "web",
@@ -257,6 +270,7 @@ export async function signInWithGoogle() {
 }
 
 export async function signOut() {
+  await detachWebPushForSignOut();
   const supabase = createClient();
   await supabase.auth.signOut();
 }

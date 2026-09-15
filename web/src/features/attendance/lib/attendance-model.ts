@@ -107,6 +107,78 @@ export type AttendancePunchRecord = {
   cancelNote: string | null;
 };
 
+/** EN keys from `attendance_list_corrections` / resolve RPC. */
+export type AttendanceCorrectionStatus = "pending" | "approved" | "rejected";
+
+export type AttendanceCorrectionRequest = {
+  id: string;
+  workplaceId: string;
+  punchId: string;
+  profileId: string;
+  workerName: string;
+  status: AttendanceCorrectionStatus;
+  createdAt: string;
+  note: string | null;
+  proposedPunchedAt: string | null;
+  resolvedAt: string | null;
+  punchKind: string | null;
+  punchedAt: string | null;
+};
+
+export const CORRECTION_STATUS_LABEL: Record<AttendanceCorrectionStatus, string> =
+  {
+    pending: "Ожидает",
+    approved: "Утверждено",
+    rejected: "Отклонено",
+  };
+
+export function punchKindLabelRu(kind: string | null | undefined): string {
+  if (kind === "clock_in") return "Пришёл";
+  if (kind === "clock_out") return "Ушёл";
+  if (kind != null && kind.trim() !== "") return kind;
+  return "Отметка";
+}
+
+export function parseCorrectionStatus(raw: unknown): AttendanceCorrectionStatus {
+  const key = String(raw ?? "").trim();
+  if (key === "approved" || key === "rejected") return key;
+  return "pending";
+}
+
+export function mapCorrectionRequest(
+  raw: Record<string, unknown>,
+): AttendanceCorrectionRequest | null {
+  const id = String(raw.id ?? "").trim();
+  if (!id) return null;
+  return {
+    id,
+    workplaceId: String(raw.workplace_id ?? "").trim(),
+    punchId: String(raw.punch_id ?? "").trim(),
+    profileId: String(raw.profile_id ?? "").trim(),
+    workerName: String(raw.worker_name ?? "").trim() || "Работник",
+    status: parseCorrectionStatus(raw.status),
+    createdAt: String(raw.created_at ?? ""),
+    note:
+      raw.note == null || raw.note === "" ? null : String(raw.note),
+    proposedPunchedAt:
+      raw.proposed_punched_at == null || raw.proposed_punched_at === ""
+        ? null
+        : String(raw.proposed_punched_at),
+    resolvedAt:
+      raw.resolved_at == null || raw.resolved_at === ""
+        ? null
+        : String(raw.resolved_at),
+    punchKind:
+      raw.punch_kind == null || raw.punch_kind === ""
+        ? null
+        : String(raw.punch_kind),
+    punchedAt:
+      raw.punched_at == null || raw.punched_at === ""
+        ? null
+        : String(raw.punched_at),
+  };
+}
+
 export type AttendanceAdminHub = {
   folders: AttendanceFolder[];
   adminWorkplaces: AttendanceWorkplace[];
