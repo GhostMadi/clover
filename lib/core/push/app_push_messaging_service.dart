@@ -163,7 +163,7 @@ class AppPushMessagingService {
 
       final token = await _resolveFcmToken();
       if (token == null || token.isEmpty) {
-        _logEmptyOnce(_emptyTokenHint());
+        // _resolveFcmToken уже пишет причину (APNs / getToken); тут только ретрай.
         _scheduleRetry();
         return;
       }
@@ -281,18 +281,28 @@ class AppPushMessagingService {
         // Как в qMed: фиксированный poll APNs, потом getToken с timeout.
         final apns = await _waitForApnsToken();
         if (apns == null || apns.isEmpty) {
-          AppLog.w('APNs token not ready yet', tag: 'Push');
+          _logEmptyOnce(
+            'FCM wait · APNs ещё не готов (retry ${_retryAttempt + 1}/$_maxSyncRetries)',
+          );
           return null;
         }
         AppLog.i('APNs ready · len=${apns.length}', tag: 'Push');
       }
 
       final token = await _messaging.getToken().timeout(const Duration(seconds: 10));
-      if (token == null || token.isEmpty) return null;
+      if (token == null || token.isEmpty) {
+        _logEmptyOnce(_emptyTokenHint());
+        return null;
+      }
       AppLog.i('FCM token · len=${token.length}', tag: 'Push');
       return token;
     } on FirebaseException catch (error) {
-      if (error.code == 'apns-token-not-set') return null;
+      if (error.code == 'apns-token-not-set') {
+        _logEmptyOnce(
+          'FCM wait · APNs ещё не готов (retry ${_retryAttempt + 1}/$_maxSyncRetries)',
+        );
+        return null;
+      }
       AppLog.e('FCM getToken · ${error.code}', tag: 'Push', error: error);
       await Sentry.captureException(error);
       return null;
@@ -303,8 +313,8 @@ class AppPushMessagingService {
     }
   }
 
-  /// qMed: 20 × 500ms; если нет — sync ретраится снаружи.
-  Future<String?> _waitForApnsToken({int attempts = 20}) async {
+  /// До ~20с на холодном старте iOS (раньше 10с — часто рано сдавались).
+  Future<String?> _waitForApnsToken({int attempts = 40}) async {
     for (var i = 0; i < attempts; i++) {
       final apns = await _messaging.getAPNSToken();
       if (apns != null && apns.isNotEmpty) return apns;

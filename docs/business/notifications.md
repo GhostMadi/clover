@@ -15,7 +15,7 @@
 Открывается с **Home → колокольчик**; непрочитанное — **точка на колокольчике**.
 
 Push на заблокированный телефон — для **чата** уже в скоупе (FCM).  
-Соц (лайк / коммент / follow) → in-app лента **и** FCM через `push_outbox` (после `20260915100000_social_notifications_push_outbox`).  
+Соц (лайк / коммент / follow) → in-app лента **и** FCM через `push_outbox` (drain сразу после insert, Supabase `pg_net`).  
 Booking / attendance / login — тоже через outbox.
 
 ---

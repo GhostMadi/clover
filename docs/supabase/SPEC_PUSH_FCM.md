@@ -75,27 +75,25 @@ supabase secrets set FCM_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END
 supabase secrets set PUSH_WORKER_SECRET="$(openssl rand -hex 32)"
 ```
 
-OAuth Google → поле `access_token` (snake_case). Cron: repo secrets `SUPABASE_URL` + `PUSH_WORKER_SECRET`.
+OAuth Google → поле `access_token` (snake_case).
 
-### Deploy + schedule
+### Delivery (мгновенно, без внешнего cron)
+
+1. Insert в `push_outbox` → trigger `trg_push_outbox_request_drain` → `pg_net` POST на Edge `drain_push_outbox`  
+2. Vault secret name: **`push_worker_secret`** (= Edge `PUSH_WORKER_SECRET`)  
+3. GitHub Action — не нужен для доставки (опциональный ручной Run workflow)
+
+Миграция: `20260915130000_push_outbox_instant_drain.sql`.
+
+### Deploy
 
 ```bash
 supabase functions deploy drain_push_outbox
-supabase db push   # миграция claim/mark RPC
+supabase db push
+# one-time ops: vault.create_secret('<PUSH_WORKER_SECRET>', 'push_worker_secret')
 ```
 
-Cron (раз в 1–2 мин), пример:
-
-```bash
-curl -X POST "$SUPABASE_URL/functions/v1/drain_push_outbox" \
-  -H "x-push-worker-secret: $PUSH_WORKER_SECRET" \
-  -H "Content-Type: application/json" \
-  -d '{"limit":40}'
-```
-
-Варианты расписания: **GitHub Action** [`.github/workflows/drain_push_outbox.yml`](../../.github/workflows/drain_push_outbox.yml) (cron `*/2`) / внешний cron / Supabase Scheduled Functions.  
-Repo secrets: `SUPABASE_URL`, `PUSH_WORKER_SECRET` (значение = Edge secret).  
-Не класть service account / `PUSH_WORKER_SECRET` в git или в SQL миграции.
+Не класть service account / worker secret в git или в SQL миграции.
 
 ---
 
