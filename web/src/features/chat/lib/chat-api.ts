@@ -246,3 +246,33 @@ export async function sendAttachments(opts: {
   if (!id) throw new Error("Не удалось отправить вложение");
   return id;
 }
+
+export async function getConversationWallpaper(conversationId: string): Promise<string[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_conversation_wallpaper", {
+    p_conversation_id: conversationId,
+  });
+  if (error) throw error;
+  if (!Array.isArray(data)) return [];
+  return data
+    .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
+    .map((x) => x.trim())
+    .slice(0, 8);
+}
+
+export async function setConversationWallpaper(
+  conversationId: string,
+  emojis: string[],
+): Promise<string[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("set_conversation_wallpaper", {
+    p_conversation_id: conversationId,
+    p_emojis: emojis,
+  });
+  if (error) throw error;
+  if (!Array.isArray(data)) return [];
+  return data
+    .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
+    .map((x) => x.trim())
+    .slice(0, 8);
+}

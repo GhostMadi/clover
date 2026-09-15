@@ -26,12 +26,14 @@ import {
   useState,
 } from "react";
 import {
+  getConversationWallpaper,
   getMessageEnriched,
   listMessagesPage,
   markConversationRead,
   searchMessages,
   sendAttachments,
   sendTextMessage,
+  setConversationWallpaper,
   type MessageSearchHit,
 } from "@/features/chat/lib/chat-api";
 import {
@@ -59,8 +61,7 @@ import { CHAT_MINE_ACCENT, chatAccentForSeed, type ChatAccentClasses } from "@/f
 import {
   buildEmojiScatter,
   normalizeWallpaperEmojis,
-  readWallpaperEmojis,
-  writeWallpaperEmojis,
+  parseWallpaperEmojis,
 } from "@/features/chat/lib/chat-emoji-wallpaper";
 import {
   acceptAttendanceInvite,
@@ -538,7 +539,17 @@ export function ChatThreadView({
     : null;
 
   useEffect(() => {
-    setWallpaperEmojis(readWallpaperEmojis(conversationId));
+    let cancelled = false;
+    void getConversationWallpaper(conversationId)
+      .then((emojis) => {
+        if (!cancelled) setWallpaperEmojis(emojis);
+      })
+      .catch(() => {
+        if (!cancelled) setWallpaperEmojis([]);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [conversationId]);
 
   useEffect(() => {
@@ -611,6 +622,13 @@ export function ChatThreadView({
             m.isMine && i <= idx ? { ...m, isRead: true } : m,
           );
         });
+      })
+      .on("broadcast", { event: "wallpaper_changed" }, (msg) => {
+        const raw = msg.payload as Record<string, unknown> | null;
+        if (!raw) return;
+        const data = (asMap(raw.payload) ?? raw) as Record<string, unknown>;
+        if (String(data.conversation_id ?? "") !== conversationId) return;
+        setWallpaperEmojis(parseWallpaperEmojis(data.wallpaper_emojis));
       })
       .subscribe();
 
@@ -1215,9 +1233,14 @@ export function ChatThreadView({
               <button
                 type="button"
                 onClick={() => {
-                  writeWallpaperEmojis(conversationId, []);
-                  setWallpaperEmojis([]);
-                  setWallpaperOpen(false);
+                  void setConversationWallpaper(conversationId, [])
+                    .then((next) => {
+                      setWallpaperEmojis(next);
+                      setWallpaperOpen(false);
+                    })
+                    .catch(() => {
+                      /* keep modal open */
+                    });
                 }}
                 className="h-11 flex-1 rounded-[14px] border border-line text-[14px] font-semibold text-ink"
               >
@@ -1227,9 +1250,14 @@ export function ChatThreadView({
                 type="button"
                 onClick={() => {
                   const next = normalizeWallpaperEmojis(wallpaperDraft);
-                  writeWallpaperEmojis(conversationId, next);
-                  setWallpaperEmojis(next);
-                  setWallpaperOpen(false);
+                  void setConversationWallpaper(conversationId, next)
+                    .then((saved) => {
+                      setWallpaperEmojis(saved);
+                      setWallpaperOpen(false);
+                    })
+                    .catch(() => {
+                      /* keep modal open */
+                    });
                 }}
                 className="h-11 flex-1 rounded-[14px] bg-brand text-[14px] font-bold text-on-brand"
               >

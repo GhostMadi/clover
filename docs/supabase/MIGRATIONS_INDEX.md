@@ -191,7 +191,7 @@
 | `20260427120100_chat_participants_select_no_rls_recursion.sql` | Политика SELECT без рекурсии RLS. |
 | `20260427130000_chat_participants_grant_select_authenticated.sql` | `GRANT SELECT` для REST peer-курсоров. |
 | `20260428120000_mark_conversation_read_monotonic_cursor.sql` | Монотонный курсор в `mark_conversation_read`. |
-| `20260429140000_chat_broadcast_peer_read.sql` | Broadcast `peer_read` при сдвиге read-курсора (мгновенные галочки у отправителя). |
+| `20260915233000_chat_conversation_wallpaper_emojis.sql` | `chat_conversations.wallpaper_emojis` + `get/set_conversation_wallpaper` + broadcast `wallpaper_changed`. |
 | `20260908180000_count_unread_chat_messages.sql` | `count_unread_chat_messages()` — суммарный unread для бейджа кабинета (web). |
 | `20260909180806_chat_inbox_broadcast_push.sql` | Inbox broadcast `inbox_changed` на `chat_inbox_<userId>` + `push_outbox` kind `chat_message` для входящих DM. Spec: `SPEC_CHAT_INBOX_PUSH.md`. |
 | `20260915100000_social_notifications_push_outbox.sql` | `upsert_notification` → enqueue social kinds (`post_like`, comment, follow, …) в `push_outbox` на first insert. |
