@@ -13,7 +13,7 @@ class AppLog {
   }) {
     if (!AppShakeLoggerConfig.enabled) return;
     if (error != null) {
-      appTalker.handle(error, stackTrace, _withTag(tag, message));
+      appTalker.debug(_withTag(tag, message), error, stackTrace);
       return;
     }
     appTalker.debug(_withTag(tag, message));
@@ -31,11 +31,8 @@ class AppLog {
 
   static void e(String message, {String? tag, Object? error, StackTrace? stackTrace}) {
     if (!AppShakeLoggerConfig.enabled) return;
-    if (error != null) {
-      appTalker.handle(error, stackTrace, _withTag(tag, message));
-      return;
-    }
-    appTalker.error(_withTag(tag, message), null, stackTrace);
+    // Не talker.handle → иначе TalkerWrapper рисует красный SnackBar (exception alerts).
+    appTalker.error(_withTag(tag, message), error, stackTrace);
   }
 
   static void clear() {

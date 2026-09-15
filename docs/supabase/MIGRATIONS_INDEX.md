@@ -134,6 +134,7 @@
 | Файл | Назначение |
 |------|------------|
 | `20260901180000_push_device_tokens.sql` | `push_device_tokens` — upsert FCM token per user/device; RLS owner-only. |
+| `20260915120000_push_device_tokens_one_per_platform.sql` | Unique `(user_id, platform)` — один активный token; чистка старых ротаций (без дублей tray). |
 | `20260905220000_push_outbox_drain.sql` | claim/mark RPC for Edge `drain_push_outbox` (FCM HTTP v1). |
 | `20260906010000_booking_no_auto_complete_staff_id.sql` | Auto-close only `no_show` (never completed); `staff_id` in host list. |
 | `20260906020000_booking_push_client_reschedule_attendance_duty_folders.sql` | Booking → `push_outbox`; client reschedule; attendance `duty_only_punch` + folders bootstrap. |

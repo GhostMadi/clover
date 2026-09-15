@@ -87,18 +87,22 @@ class ChatRepositoryImpl implements ChatRepository {
   static const _folderChatMedia = 'chat_media';
   String? get _currentUserId => _client.auth.currentUser?.id.trim();
 
+  static const _rpcTimeout = Duration(seconds: 12);
+
   @override
   Future<List<MessageChatPreview>> listConversations({int limit = 50, int offset = 0}) async {
     final uid = _currentUserId;
     if (uid == null || uid.isEmpty) return const [];
 
-    final res = await _client.rpc(
-      'list_conversations_enriched',
-      params: {
-        'p_limit': limit,
-        'p_offset': offset,
-      },
-    );
+    final res = await _client
+        .rpc(
+          'list_conversations_enriched',
+          params: {
+            'p_limit': limit,
+            'p_offset': offset,
+          },
+        )
+        .timeout(_rpcTimeout);
 
     if (res is! List) return const [];
 
@@ -118,7 +122,7 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<int> countUnreadMessages() async {
     final uid = _currentUserId;
     if (uid == null || uid.isEmpty) return 0;
-    final res = await _client.rpc('count_unread_chat_messages');
+    final res = await _client.rpc('count_unread_chat_messages').timeout(_rpcTimeout);
     if (res is int) return res;
     if (res is num) return res.toInt();
     return int.tryParse('$res') ?? 0;

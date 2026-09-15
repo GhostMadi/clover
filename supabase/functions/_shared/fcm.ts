@@ -14,45 +14,31 @@ type CachedToken = { accessToken: string; expiresAtMs: number };
 let cached: CachedToken | null = null;
 
 export function loadFcmServiceAccount(): FcmServiceAccount {
-  // Prefer discrete secrets — FIREBASE_SERVICE_ACCOUNT_JSON often gets mangled
-  // when stored via dotenv / nested JSON quoting.
-  const discreteProject = Deno.env.get("FCM_PROJECT_ID")?.trim() ?? "";
-  const discreteEmail = Deno.env.get("FCM_CLIENT_EMAIL")?.trim() ?? "";
-  const discreteKey = (Deno.env.get("FCM_PRIVATE_KEY") ?? "").replace(/\\n/g, "\n").trim();
-  if (discreteProject && discreteEmail && discreteKey) {
-    return {
-      project_id: discreteProject,
-      client_email: discreteEmail,
-      private_key: discreteKey,
-    };
+  // Prefer discrete FCM_* — full JSON via secrets CLI often mangles private_key.
+  const projectId = Deno.env.get("FCM_PROJECT_ID")?.trim() ?? "";
+  const clientEmail = Deno.env.get("FCM_CLIENT_EMAIL")?.trim() ?? "";
+  const privateKey = (Deno.env.get("FCM_PRIVATE_KEY") ?? "").replace(/\\n/g, "\n").trim();
+  if (projectId && clientEmail && privateKey) {
+    return { project_id: projectId, client_email: clientEmail, private_key: privateKey };
   }
 
   const rawJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON")?.trim();
   if (rawJson) {
     let parsed: unknown = JSON.parse(rawJson);
-    // Handle accidentally double-encoded JSON string.
-    if (typeof parsed === "string") {
-      parsed = JSON.parse(parsed);
-    }
+    if (typeof parsed === "string") parsed = JSON.parse(parsed);
     const obj = parsed as Record<string, unknown>;
-    const projectId = String(obj.project_id ?? "").trim();
-    const clientEmail = String(obj.client_email ?? "").trim();
-    const privateKey = String(obj.private_key ?? "").replace(/\\n/g, "\n").trim();
-    if (!projectId || !clientEmail || !privateKey) {
+    const pid = String(obj.project_id ?? "").trim();
+    const email = String(obj.client_email ?? "").trim();
+    const key = String(obj.private_key ?? "").replace(/\\n/g, "\n").trim();
+    if (!pid || !email || !key) {
       throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON missing project_id/client_email/private_key");
     }
-    return { project_id: projectId, client_email: clientEmail, private_key: privateKey };
+    return { project_id: pid, client_email: email, private_key: key };
   }
 
-  const projectId = Deno.env.get("FCM_PROJECT_ID")?.trim() ?? "";
-  const clientEmail = Deno.env.get("FCM_CLIENT_EMAIL")?.trim() ?? "";
-  const privateKey = (Deno.env.get("FCM_PRIVATE_KEY") ?? "").replace(/\\n/g, "\n").trim();
-  if (!projectId || !clientEmail || !privateKey) {
-    throw new Error(
-      "Missing FCM secrets: set FIREBASE_SERVICE_ACCOUNT_JSON or FCM_PROJECT_ID + FCM_CLIENT_EMAIL + FCM_PRIVATE_KEY",
-    );
-  }
-  return { project_id: projectId, client_email: clientEmail, private_key: privateKey };
+  throw new Error(
+    "Missing FCM secrets: set FCM_PROJECT_ID + FCM_CLIENT_EMAIL + FCM_PRIVATE_KEY (or FIREBASE_SERVICE_ACCOUNT_JSON)",
+  );
 }
 
 function b64url(data: Uint8Array | string): string {

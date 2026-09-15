@@ -27,7 +27,6 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:talker_flutter/talker_flutter.dart';
-
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -74,7 +73,7 @@ Future<void> main() async {
         anonKey: SupabaseConfig.anonKey,
         authOptions: const FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
         debug: false,
-        httpClient: supabaseHttpLoggingEnabled ? SupabaseLoggingHttpClient() : null,
+        httpClient: createSupabaseHttpClient(),
       );
       await configureDependencies();
       // FCM до Isar: иначе падение IsarCore на устройстве оставляет телефон без токена.
@@ -173,7 +172,11 @@ class _MyAppViewState extends State<_MyAppView> {
         if (AppShakeLoggerConfig.enabled) {
           content = TalkerWrapper(
             talker: appTalker,
-            options: const TalkerWrapperOptions(enableErrorAlerts: false),
+            // Логи только в shake-экране — без красных SnackBar по сети/RPC.
+            options: const TalkerWrapperOptions(
+              enableErrorAlerts: false,
+              enableExceptionAlerts: false,
+            ),
             child: AppShakeLoggerHost(navigatorKey: _appRouter.navigatorKey, child: content),
           );
         }

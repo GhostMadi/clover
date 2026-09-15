@@ -48,7 +48,10 @@ class AppPushMessagingService {
   Stream<AppPushForegroundBanner> get foregroundBanners =>
       _foregroundBannerController.stream;
 
-  /// Resume: не долбим APNs/upsert каждые секунды при переключении приложений.
+  /// Resume / dashboard ready. Не вызывать из cold `main` (APNs ещё пустой).
+  /// Resume: cooldown, чтобы signedIn + dashboard + resume не долбили upsert.
+  Future<void> syncAfterUiReady() => syncForCurrentUser();
+
   Future<void> syncOnResume() {
     final last = _lastSuccessSyncAt;
     if (last != null && DateTime.now().difference(last) < _resumeCooldown) {
@@ -56,9 +59,6 @@ class AppPushMessagingService {
     }
     return syncForCurrentUser();
   }
-
-  /// Первый sync после появления UI (Auth + dashboard). Не вызывать из cold `main`.
-  Future<void> syncAfterUiReady() => syncForCurrentUser();
 
   Future<void> init() async {
     if (!AppPushConfig.enabled) return;
@@ -289,7 +289,7 @@ class AppPushMessagingService {
 
       final token = await _messaging.getToken().timeout(const Duration(seconds: 10));
       if (token == null || token.isEmpty) return null;
-      AppLog.i('FCM token · $token', tag: 'Push');
+      AppLog.i('FCM token · len=${token.length}', tag: 'Push');
       return token;
     } on FirebaseException catch (error) {
       if (error.code == 'apns-token-not-set') return null;

@@ -87,7 +87,7 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
     if (state == AppLifecycleState.resumed) {
       _pendingSheetShown = false;
       _maybeShowAttendancePendingSheet();
-      unawaited(_chatUnreadCubit.refresh());
+      _chatUnreadCubit.refreshAfterResume();
       unawaited(_pushMessaging.syncOnResume());
     }
   }

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:clover/core/debug/app_log.dart';
 import 'package:clover/core/debug/app_shake_logger_config.dart';
+import 'package:clover/core/network/app_http_client.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -12,9 +13,16 @@ bool get supabaseHttpLoggingEnabled => kDebugMode || AppShakeLoggerConfig.enable
 const _logName = 'SupabaseHTTP';
 const _maxBodyLogChars = 2000;
 
+/// HTTP-клиент для Supabase: timeouts + опциональный лог.
+http.Client createSupabaseHttpClient() {
+  final timed = createAppHttpClient();
+  if (!supabaseHttpLoggingEnabled) return timed;
+  return SupabaseLoggingHttpClient(inner: timed);
+}
+
 /// HTTP-лог Supabase: одна строка на запрос; body — одной записью (если включено).
 class SupabaseLoggingHttpClient extends http.BaseClient {
-  SupabaseLoggingHttpClient({http.Client? inner}) : _inner = inner ?? http.Client();
+  SupabaseLoggingHttpClient({http.Client? inner}) : _inner = inner ?? createAppHttpClient();
 
   final http.Client _inner;
 

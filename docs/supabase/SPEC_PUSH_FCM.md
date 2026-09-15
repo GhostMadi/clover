@@ -27,7 +27,8 @@ Table: **`public.push_device_tokens`** — RLS own rows only.
 | `platform` | `ios` \| `android` |
 | `updated_at` | Last sync |
 
-Unique: `(user_id, token)`.
+Unique: `(user_id, platform)` — один активный FCM token на платформу (ротации заменяют; иначе дубли tray).  
+Также `(user_id, token)` для идемпотентности строки.
 
 ---
 
@@ -64,24 +65,17 @@ Unique: `(user_id, token)`.
 
 ### Secrets (Supabase Edge)
 
-**Предпочтительно B** (JSON через dotenv часто ломает `private_key`).
+Дискретные `FCM_*` (JSON через CLI часто ломает `private_key`):
 
 ```bash
-# A) целиком JSON service account (Firebase Console → Project settings → Service accounts → Generate key)
-supabase secrets set FIREBASE_SERVICE_ACCOUNT_JSON="$(cat path/to/service-account.json)"
-
-# B) по полям (рекомендуется; loader предпочитает FCM_* над JSON)
 supabase secrets set FCM_PROJECT_ID=clover-52112
 supabase secrets set FCM_CLIENT_EMAIL=firebase-adminsdk-...@clover-52112.iam.gserviceaccount.com
-# PEM одной строкой с литералами \n — Edge разворачивает в реальные переносы:
+# PEM одной строкой с литералами \n:
 supabase secrets set FCM_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-
-# Рекомендуется для cron без service_role в URL:
 supabase secrets set PUSH_WORKER_SECRET="$(openssl rand -hex 32)"
 ```
 
-Уже должны быть: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`.  
-OAuth Google возвращает `access_token` (snake_case) — drain читает именно это поле.
+OAuth Google → поле `access_token` (snake_case). Cron: repo secrets `SUPABASE_URL` + `PUSH_WORKER_SECRET`.
 
 ### Deploy + schedule
 
