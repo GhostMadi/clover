@@ -43,8 +43,6 @@ Future<void> main() async {
         );
       }
 
-// : сила тегов, фон чата. Host booking B4/B5/B7 — всё ещё polish.
-
       await SentryFlutter.init((options) {
         options.dsn = SentryConfig.resolvedDsn;
         options.environment = kReleaseMode ? 'production' : 'debug';
