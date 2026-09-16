@@ -27,6 +27,7 @@
 | `post_enriched_root_json(posts)` | Строка поста + `post_media`, `tags`, **`marker`**, `profile_filters` |
 | `post_enriched_list_json(posts)` | Как root, **без** `marker` — лента профиля / сетка |
 | `get_post_enriched(uuid)` | Один пост для детали / map sheet |
+| `get_posts_enriched(uuid[])` | Батч до 50 карточек (тот же JSON). Стопка на карте — **один** round-trip |
 | `list_user_feed_enriched_cursor(jsonb)` | Лента профиля (lightweight list JSON) |
 | `list_events_feed_enriched_cursor(jsonb)` | Лента Event / «Все». Сначала page ids + `limit`, потом enrich. `events_only` фильтрует `coalesce(end_time, event_time) >= p_at_time`. |
 

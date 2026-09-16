@@ -43,6 +43,8 @@
 | `../20260701120000_markers_add_location_id.sql` | **`markers.location_id`** → `public.locations`; **`markers.location`** сохраняется; триггер копирования lat/lng; RLS ownership. |
 | `../20260701130000_markers_address_primary_cyrillic.sql` | **`address_text`** → **`address_primary`** + **`address_cyrillic`**; обновление `list_markers_map` и `get_post_enriched`; триггер копирует адрес из `locations`. |
 | `../20260701140000_markers_add_country_city.sql` | **`country_code`** + **`city_code`** (как `locations`); FK + триггер; RPC. |
+| `../20260728150000_markers_map_pagination.sql` | **`count_markers_map`** + пагинация **`list_markers_map`** (`p_offset`, country/city). |
+| `../20260916120000_list_markers_map_clusters.sql` | **`list_markers_map_clusters`**: серверный LOD — кластеры через `ST_SnapToGrid` при zoom &lt; 13; пусто при zoom ≥ 13. |
 
 ### Гео и сортировка
 
@@ -67,6 +69,26 @@
 Условие «маркер с контентом»: **`exists (select 1 from marker_posts …)`** (не массив в JSON).
 
 Возвращает (лёгкая модель, в т.ч. денормализованный `post_id` для превью).
+
+#### `public.list_markers_map_clusters`
+
+Назначение: LOD для низкого зума — агрегированные кластеры вместо отдельных точек.
+
+Параметры:
+
+- `p_lat`, `p_lng`, `p_radius_m` — как у `list_markers_map`
+- `p_zoom` — текущий zoom карты
+- `p_at_time`, `p_emoji`, `p_tag_keys`, `p_country_code`, `p_city_code` — те же фильтры видимости
+- `p_limit` — лимит кластеров (1…500, default 200)
+
+Поведение:
+
+- **`p_zoom < 13`**: фильтр как у `list_markers_map` → `ST_SnapToGrid` (ячейка ≈ `0.02°` на z10, мельче с ростом zoom) → группы по ячейке
+- **`p_zoom >= 13`**: пустой результат — клиент вызывает `list_markers_map`
+
+Возвращает: `lng`, `lat` (центроид кластера), `point_count`, `sample_emoji`, `sample_marker_id` (маркер ближе к центру ячейки, иначе min id).
+
+Grants: `authenticated`, `anon` (как `list_markers_map`); `STABLE`, `security invoker`.
 
 #### `public.list_marker_posts`
 

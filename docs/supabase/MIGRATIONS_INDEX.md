@@ -35,6 +35,9 @@
   - **functions**: `post_enriched_list_json` (post + media + tags + filters, **без** marker subtree)
   - **RPC**: `list_user_feed_enriched_cursor` → lightweight JSON для сетки профиля; деталь — `get_post_enriched`
 
+- `20260916123000_get_posts_enriched_batch.sql`
+  - **RPC**: `get_posts_enriched(uuid[])` — батч до 50 карточек того же shape, что `get_post_enriched` (стопка на карте)
+
 - `20260913120000_events_feed_timeout_fix.sql`
   - **RPC**: `list_events_feed_enriched_cursor` — page ids → enrich; `events_only` + `p_at_time`; index `markers_city_event_live_idx`
 
@@ -46,6 +49,9 @@
   - **post_media**: `poster_url` (JPEG poster для видео плиток/превью)
 
 ### Markers (events on map)
+- `20260916120000_list_markers_map_clusters.sql`
+  - **RPC**: `public.list_markers_map_clusters(...)` — PostGIS `ST_SnapToGrid` clusters for zoom &lt; 13; empty at zoom ≥ 13 (client uses `list_markers_map`)
+
 - `20260425160000_markers_core.sql`
   - **types**: `public.marker_status`
   - **tables**: `public.markers`, `public.marker_tags`, `public.marker_tag_links`

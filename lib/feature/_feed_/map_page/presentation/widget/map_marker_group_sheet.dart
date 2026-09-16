@@ -1,120 +1,120 @@
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
+import 'package:clover/core/shared/app_functional_button/app_functional_screen.dart';
+import 'package:clover/core/shared/app_functional_button/functional_button_item.dart';
+import 'package:clover/core/shared/app_state.dart';
+import 'package:clover/feature/_catalog_/social_graph/data/repository/social_graph_repository.dart';
 import 'package:clover/feature/_feed_/map_page/data/models/map_marker_item.dart';
+import 'package:clover/feature/_feed_/map_page/presentation/cubit/map_marker_stack_feed_cubit.dart';
+import 'package:clover/feature/_feed_/map_page/presentation/widget/map_marker_stack_feed_item.dart';
+import 'package:clover/feature/_post_/post/data/repository/post_repository.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_feed_shimmer.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Шторка группы маркеров: сетка emoji-маркеров для выбора.
+/// Шторка стопки: вертикальная лента постов (как events feed).
 abstract final class MapMarkerGroupSheet {
-  static Future<MapMarkerItem?> show(BuildContext context, {required List<MapMarkerItem> markers}) {
-    return AppBottomSheet.show<MapMarkerItem>(
+  static Future<void> show(BuildContext context, {required List<MapMarkerItem> markers}) {
+    final height = MediaQuery.sizeOf(context).height * 0.86;
+
+    return AppBottomSheet.show<void>(
       context: context,
-      title: 'События',
       upperCaseTitle: false,
-      showCloseButton: true,
-      contentBottomSpacing: 8,
-      content: _MapMarkerGroupGrid(markers: markers),
+      showCloseButton: false,
+      postFeedSurface: true,
+      contentHeight: height,
+      expandBody: true,
+      contentPadding: EdgeInsets.zero,
+      contentBottomSpacing: 0,
+      sheetOuterPadding: const EdgeInsets.fromLTRB(12, 80, 12, 12),
+      content: _MapMarkerStackFeedBody(markers: markers),
     );
   }
 }
 
-class _MapMarkerGroupGrid extends StatelessWidget {
-  const _MapMarkerGroupGrid({required this.markers});
+class _MapMarkerStackFeedBody extends StatefulWidget {
+  const _MapMarkerStackFeedBody({required this.markers});
 
   final List<MapMarkerItem> markers;
 
-  static const _columns = 3;
-  static const _spacing = 14.0;
-
   @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: _columns,
-        mainAxisSpacing: _spacing,
-        crossAxisSpacing: _spacing,
-        childAspectRatio: 0.82,
-      ),
-      itemCount: markers.length,
-      itemBuilder: (context, index) {
-        final marker = markers[index];
-        return _GridMarkerTile(
-          emoji: _emojiFor(marker.textEmoji),
-          onTap: () {
-            HapticFeedback.lightImpact();
-            Navigator.pop(context, marker);
-          },
-        );
-      },
-    );
-  }
-
-  static String _emojiFor(String raw) {
-    final trimmed = raw.trim();
-    return trimmed.isEmpty ? '📍' : trimmed;
-  }
+  State<_MapMarkerStackFeedBody> createState() => _MapMarkerStackFeedBodyState();
 }
 
-class _GridMarkerTile extends StatelessWidget {
-  const _GridMarkerTile({required this.emoji, required this.onTap});
+class _MapMarkerStackFeedBodyState extends State<_MapMarkerStackFeedBody> {
+  late final MapMarkerStackFeedCubit _cubit;
 
-  final String emoji;
-  final VoidCallback onTap;
+  @override
+  void initState() {
+    super.initState();
+    _cubit = MapMarkerStackFeedCubit(
+      sl<PostRepository>(),
+      sl<SocialGraphRepository>(),
+      Supabase.instance.client,
+    )..load(widget.markers);
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  void _close() => Navigator.of(context).pop();
+
+  List<FunctionalButtonItem> get _backButton => [
+        FunctionalButtonItem(
+          icon: AppIcons.back.icon,
+          keepWhenCollapsed: true,
+          customColor: context.colors.primary,
+          iconColor: context.colors.textInverse,
+          onTap: _close,
+        ),
+      ];
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final circleSize = constraints.maxWidth.clamp(72.0, 96.0);
-            final emojiSize = circleSize * 0.72;
+    return BlocProvider.value(
+      value: _cubit,
+      child: BlocBuilder<MapMarkerStackFeedCubit, MapMarkerStackFeedState>(
+        builder: (context, state) {
+          final bottomGap = AppFunctionalScreen.scrollBottomClearance(context);
 
-            return Center(
-              child: SizedBox(
-                width: circleSize,
-                height: circleSize + emojiSize * 0.18,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    Positioned(
-                      bottom: 0,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: context.colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: context.colors.primary, width: 3),
-                          boxShadow: [
-                            BoxShadow(
-                              color: context.colors.shadowDark.withValues(alpha: 0.14),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: SizedBox(width: circleSize, height: circleSize),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: circleSize * 0.2,
-                      child: Text(
-                        emoji,
-                        style: TextStyle(fontSize: emojiSize, height: 1),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
+          return AppFunctionalScreen(
+            collapsed: true,
+            collapsedBarWidthPerButton: 150,
+            backgroundColor: context.colors.pageBackground,
+            buttons: _backButton,
+            body: switch (state) {
+              MapMarkerStackFeedInitial() || MapMarkerStackFeedLoading() => const PostFeedShimmer(),
+              MapMarkerStackFeedError(:final message) => AppState(
+                state: AppScreenState.error,
+                variant: AppStateVariant.inline,
+                errorMessage: message,
+                onRetry: () => _cubit.load(widget.markers),
+                child: const SizedBox.shrink(),
               ),
-            );
-          },
-        ),
+              MapMarkerStackFeedLoaded(:final items) when items.isEmpty => AppState(
+                state: AppScreenState.empty,
+                variant: AppStateVariant.inline,
+                emptyTitle: 'Нет публикаций',
+                child: const SizedBox.shrink(),
+              ),
+              MapMarkerStackFeedLoaded(:final items) => ListView.separated(
+                padding: EdgeInsets.only(bottom: bottomGap),
+                itemCount: items.length,
+                separatorBuilder: (_, __) => ColoredBox(
+                  color: context.colors.pageBackground,
+                  child: const SizedBox(height: 10),
+                ),
+                itemBuilder: (context, index) => MapMarkerStackFeedItem(item: items[index]),
+              ),
+            },
+          );
+        },
       ),
     );
   }
