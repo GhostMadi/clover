@@ -20,6 +20,10 @@ class NotificationItem {
     this.bookingStartsAt,
     this.bonusEarnAmount,
     this.bookingReminderMinutesBefore,
+    this.bookingForHost,
+    this.workplaceId,
+    this.attendanceDueKind,
+    this.attendanceWorkplaceName,
     this.loginWhere,
     this.loginEventId,
     this.loginResolved,
@@ -43,6 +47,13 @@ class NotificationItem {
   final DateTime? bookingStartsAt;
   final int? bonusEarnAmount;
   final int? bookingReminderMinutesBefore;
+  /// Payload `for_host` for [NotificationKind.bookingRescheduled].
+  final bool? bookingForHost;
+  /// Attendance payload workplace (invite / duty / correction / punch_due).
+  final String? workplaceId;
+  /// EN: clock_in | clock_out | auto_closed for punch_due.
+  final String? attendanceDueKind;
+  final String? attendanceWorkplaceName;
   /// Human-readable place for [NotificationKind.accountLogin].
   final String? loginWhere;
   final String? loginEventId;
@@ -82,6 +93,10 @@ class NotificationItem {
       bookingStartsAt: bookingStartsAt,
       bonusEarnAmount: bonusEarnAmount,
       bookingReminderMinutesBefore: bookingReminderMinutesBefore,
+      bookingForHost: bookingForHost,
+      workplaceId: workplaceId,
+      attendanceDueKind: attendanceDueKind,
+      attendanceWorkplaceName: attendanceWorkplaceName,
       loginWhere: loginWhere,
       loginEventId: loginEventId,
       loginResolved: clearLoginResolved ? null : (loginResolved ?? this.loginResolved),

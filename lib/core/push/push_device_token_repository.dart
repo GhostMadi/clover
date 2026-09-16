@@ -15,6 +15,7 @@ class PushDeviceTokenRepository {
     required String token,
     required PushDevicePlatform platform,
   }) async {
+    // One token per user+platform (schema unique) — rotations replace, no tray dupes.
     await _client.from(_table).upsert(
       {
         'user_id': userId,
@@ -22,7 +23,7 @@ class PushDeviceTokenRepository {
         'platform': platform.storageValue,
         'updated_at': DateTime.now().toUtc().toIso8601String(),
       },
-      onConflict: 'user_id,token',
+      onConflict: 'user_id,platform',
     );
   }
 

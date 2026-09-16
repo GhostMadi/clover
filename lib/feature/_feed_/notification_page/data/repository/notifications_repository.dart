@@ -124,6 +124,13 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     final reminderRaw = payload['minutes_before'];
     final reminderMinutes =
         reminderRaw is num ? reminderRaw.toInt() : int.tryParse('$reminderRaw');
+    final forHostRaw = payload['for_host'];
+    final bookingForHost = forHostRaw == true || forHostRaw == 'true'
+        ? true
+        : (forHostRaw == false || forHostRaw == 'false' ? false : null);
+    final workplaceId = (payload['workplace_id'] as String?)?.trim();
+    final attendanceDueKind = (payload['due_kind'] as String?)?.trim();
+    final workplaceName = (payload['workplace_name'] as String?)?.trim();
 
     final loginWhere = _loginWhereFromPayload(payload);
     final loginEventId = (payload['login_event_id'] as String?)?.trim();
@@ -156,6 +163,12 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       bonusEarnAmount: bonusEarnAmount != null && bonusEarnAmount > 0 ? bonusEarnAmount : null,
       bookingReminderMinutesBefore:
           reminderMinutes != null && reminderMinutes > 0 ? reminderMinutes : null,
+      bookingForHost: bookingForHost,
+      workplaceId: workplaceId != null && workplaceId.isNotEmpty ? workplaceId : null,
+      attendanceDueKind:
+          attendanceDueKind != null && attendanceDueKind.isNotEmpty ? attendanceDueKind : null,
+      attendanceWorkplaceName:
+          workplaceName != null && workplaceName.isNotEmpty ? workplaceName : null,
       loginWhere: loginWhere,
       loginEventId: loginEventId != null && loginEventId.isNotEmpty ? loginEventId : null,
       loginResolved: loginResolved != null && loginResolved.isNotEmpty ? loginResolved : null,
@@ -210,10 +223,12 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       'booking_cancelled_client' => NotificationKind.bookingCancelledClient,
       'booking_completed_client' => NotificationKind.bookingCompletedClient,
       'booking_no_show_client' => NotificationKind.bookingNoShowClient,
+      'booking_rescheduled' => NotificationKind.bookingRescheduled,
       'attendance_invite' => NotificationKind.attendanceInvite,
       'attendance_rules_ack' => NotificationKind.attendanceRulesAck,
       'attendance_duty' => NotificationKind.attendanceDuty,
       'attendance_correction' => NotificationKind.attendanceCorrection,
+      'attendance_punch_due' => NotificationKind.attendancePunchDue,
       'account_login' => NotificationKind.accountLogin,
       _ => NotificationKind.comment,
     };

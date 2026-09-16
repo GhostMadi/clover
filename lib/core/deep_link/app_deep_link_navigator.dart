@@ -31,13 +31,14 @@ class AppDeepLinkNavigator {
           ),
         );
 
-      case AppDeepLinkChatIntent(:final chatId, :final otherUserId, :final username):
+      case AppDeepLinkChatIntent(:final chatId, :final otherUserId, :final username, :final isGroup):
         await _openDashboard(router);
         await router.push(
           ChatRoute(
             chatId: chatId,
             otherUserId: otherUserId,
             username: username,
+            isGroup: isGroup,
           ),
         );
 
@@ -80,6 +81,15 @@ class AppDeepLinkNavigator {
         await _openDashboard(router);
         final pointId = await resolveBookingPointIdForNav();
         await router.push(BookingListRoute(pointId: pointId));
+
+      case AppDeepLinkAttendanceIntent(:final workplaceId):
+        await _openDashboard(router);
+        final wp = workplaceId?.trim();
+        if (wp != null && wp.isNotEmpty) {
+          await router.push(AttendancePendingRoute(workplaceId: wp));
+        } else {
+          await router.push(const SettingsAttendanceRoute());
+        }
 
       case AppDeepLinkDashboardTabIntent(:final tab):
         await _openDashboard(router, tab: tab);

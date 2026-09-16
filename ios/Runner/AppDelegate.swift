@@ -35,7 +35,15 @@ import FirebaseMessaging
     _ application: UIApplication,
     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
   ) {
-    Messaging.messaging().apnsToken = deviceToken
+    // Симулятор/Debug Xcode = sandbox; TestFlight/Release = prod.
+    // Без type на реальном iPhone FCM часто не отдаёт token (на симе может «случайно» работать).
+    #if DEBUG
+    Messaging.messaging().setAPNSToken(deviceToken, type: .sandbox)
+    NSLog("[Push] APNs ok · sandbox · len=%d", deviceToken.count)
+    #else
+    Messaging.messaging().setAPNSToken(deviceToken, type: .prod)
+    NSLog("[Push] APNs ok · prod · len=%d", deviceToken.count)
+    #endif
     super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
   }
 

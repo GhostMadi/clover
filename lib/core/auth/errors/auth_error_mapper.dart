@@ -47,6 +47,10 @@ abstract final class AuthErrorMapper {
       if (statusCode == 429) {
         return AuthErrorCode.emailOtpRateLimited;
       }
+      if (message.contains('hibernate_rate_limited') ||
+          (message.contains('rate_limited') && message.contains('hibernate'))) {
+        return AuthErrorCode.hibernateRateLimited;
+      }
       if (message.contains('invalid login credentials') ||
           message.contains('invalid_credentials') ||
           message.contains('email not confirmed')) {

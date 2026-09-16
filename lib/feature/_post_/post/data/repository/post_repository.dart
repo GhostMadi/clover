@@ -329,6 +329,44 @@ class PostRepository {
     return PostFeedItem(post: post);
   }
 
+  /// Один round-trip для стопки на карте / нескольких id. Порядок = входной список.
+  Future<List<PostFeedItem>> getPostsEnriched(List<String> postIds) async {
+    final ids = <String>[];
+    final seen = <String>{};
+    for (final raw in postIds) {
+      final id = raw.trim();
+      if (id.isEmpty || !seen.add(id)) continue;
+      ids.add(id);
+      if (ids.length >= 50) break;
+    }
+    if (ids.isEmpty) return const [];
+
+    try {
+      final res = await _client.rpc('get_posts_enriched', params: {'p_post_ids': ids});
+      final list = await _consumeEnrichedRpc(
+        res,
+        onlyWithMarker: false,
+        excludeWithMarker: false,
+      );
+      final byId = <String, PostFeedItem>{
+        for (final item in list) item.post.id: item,
+      };
+      final ordered = <PostFeedItem>[];
+      for (final id in ids) {
+        final item = byId[id];
+        if (item == null) continue;
+        final enriched = await _enrichFollowingIfNeeded(item);
+        cacheFeedItem(enriched);
+        ordered.add(enriched);
+      }
+      return ordered;
+    } catch (_) {
+      // Fallback: parallel singles (same shape, slower).
+      final items = await Future.wait(ids.map(getPostEnriched));
+      return [for (final item in items) if (item != null) item];
+    }
+  }
+
   Future<PostFeedItem> _enrichFollowingIfNeeded(PostFeedItem item) async {
     if (item.myFollowingAuthor != null) return item;
 

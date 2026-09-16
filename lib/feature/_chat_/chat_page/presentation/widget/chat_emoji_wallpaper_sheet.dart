@@ -72,7 +72,7 @@ class _ChatEmojiWallpaperFormState extends State<_ChatEmojiWallpaperForm> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Вставь смайлики — они появятся на фоне в разных местах',
+          'Вставь смайлики — фон увидят все в этом чате',
           style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.3),
         ),
         const SizedBox(height: 12),

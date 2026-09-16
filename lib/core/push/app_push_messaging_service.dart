@@ -6,6 +6,7 @@ import 'package:clover/core/push/app_push_config.dart';
 import 'package:clover/core/push/firebase_messaging_background.dart';
 import 'package:clover/core/push/push_device_platform.dart';
 import 'package:clover/core/push/push_device_token_repository.dart';
+import 'package:clover/core/push/notification_open_bus.dart';
 import 'package:clover/feature/_chat_/chat/presentation/chat_push_open_bus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -14,14 +15,21 @@ import 'package:injectable/injectable.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// FCM: permission → APNs (iOS) → token → upsert; chat open via [ChatPushOpenBus].
+/// FCM: permission → APNs (iOS) → token → upsert; open via [NotificationOpenBus].
+/// Chat foreground banner (Realtime) still uses [ChatPushOpenBus].
 @lazySingleton
 class AppPushMessagingService {
-  AppPushMessagingService(this._client, this._tokenRepository, this._chatOpenBus);
+  AppPushMessagingService(
+    this._client,
+    this._tokenRepository,
+    this._chatOpenBus,
+    this._notificationOpenBus,
+  );
 
   final SupabaseClient _client;
   final PushDeviceTokenRepository _tokenRepository;
   final ChatPushOpenBus _chatOpenBus;
+  final NotificationOpenBus _notificationOpenBus;
 
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
@@ -38,18 +46,27 @@ class AppPushMessagingService {
   Future<void>? _syncInFlight;
   Timer? _retryTimer;
   int _retryAttempt = 0;
+  DateTime? _lastEmptyLogAt;
+  DateTime? _lastSuccessSyncAt;
 
   static const _maxSyncRetries = 10;
+  static const _resumeCooldown = Duration(seconds: 45);
 
   /// Android foreground: FCM не рисует tray — слушай и покажи [AppSnackBar].
   Stream<AppPushForegroundBanner> get foregroundBanners =>
       _foregroundBannerController.stream;
 
-  /// Повторный sync (resume / после логина / dashboard ready) — как pin_code в qMed.
-  Future<void> syncOnResume() => syncForCurrentUser();
-
-  /// Первый sync после появления UI (Auth + dashboard). Не вызывать из cold `main`.
+  /// Resume / dashboard ready. Не вызывать из cold `main` (APNs ещё пустой).
+  /// Resume: cooldown, чтобы signedIn + dashboard + resume не долбили upsert.
   Future<void> syncAfterUiReady() => syncForCurrentUser();
+
+  Future<void> syncOnResume() {
+    final last = _lastSuccessSyncAt;
+    if (last != null && DateTime.now().difference(last) < _resumeCooldown) {
+      return Future<void>.value();
+    }
+    return syncForCurrentUser();
+  }
 
   Future<void> init() async {
     if (!AppPushConfig.enabled) return;
@@ -58,7 +75,6 @@ class AppPushMessagingService {
     try {
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-      // iOS: системный баннер и в foreground (иначе только onMessage без UI).
       await _messaging.setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,
@@ -78,7 +94,7 @@ class AppPushMessagingService {
 
       final initial = await _messaging.getInitialMessage();
       if (initial != null) {
-        _emitChatOpenIfAny(initial, autoOpen: true);
+        _emitNotificationOpen(initial, autoOpen: true);
       }
 
       await _authSub?.cancel();
@@ -89,6 +105,7 @@ class AppPushMessagingService {
           case AuthChangeEvent.signedOut:
             _retryTimer?.cancel();
             _retryAttempt = 0;
+            _lastSuccessSyncAt = null;
             _resetLocalCache();
           default:
             break;
@@ -96,8 +113,6 @@ class AppPushMessagingService {
       });
 
       AppLog.i('FCM init', tag: 'Push');
-      // Как в qMed: permission + getToken не в cold main — после UI (dashboard / signedIn / resume).
-      // Иначе на реальном iPhone APNs ещё не привязан к Messaging → токен пустой.
     } catch (error, stack) {
       AppLog.e('FCM init failed', tag: 'Push', error: error, stackTrace: stack);
     }
@@ -126,17 +141,10 @@ class AppPushMessagingService {
   }
 
   Future<void> syncForCurrentUser() {
-    final existing = _syncInFlight;
-    if (existing != null) return existing;
-
-    late final Future<void> future;
-    future = _syncOnce().whenComplete(() {
-      if (identical(_syncInFlight, future)) {
-        _syncInFlight = null;
-      }
+    // Один in-flight sync — иначе signedIn + dashboard + resume дублируют логи/upsert.
+    return _syncInFlight ??= _syncOnce().whenComplete(() {
+      _syncInFlight = null;
     });
-    _syncInFlight = future;
-    return future;
   }
 
   Future<void> _syncOnce() async {
@@ -157,19 +165,13 @@ class AppPushMessagingService {
       final allowed = settings.authorizationStatus == AuthorizationStatus.authorized ||
           settings.authorizationStatus == AuthorizationStatus.provisional;
       if (!allowed) {
-        AppLog.w('FCM permission · ${settings.authorizationStatus.name}', tag: 'Push');
-        await Sentry.captureMessage(
-          'FCM permission denied · ${settings.authorizationStatus.name}',
-          level: SentryLevel.warning,
-        );
+        _logEmptyOnce('FCM permission · ${settings.authorizationStatus.name}');
         return;
       }
 
       final token = await _resolveFcmToken();
       if (token == null || token.isEmpty) {
-        final hint = _emptyTokenHint();
-        AppLog.w(hint, tag: 'Push');
-        await Sentry.captureMessage(hint, level: SentryLevel.warning);
+        // _resolveFcmToken уже пишет причину (APNs / getToken); тут только ретрай.
         _scheduleRetry();
         return;
       }
@@ -177,10 +179,19 @@ class AppPushMessagingService {
       _retryTimer?.cancel();
       _retryAttempt = 0;
       await _upsertToken(token, userId: userId, platform: platform);
+      _lastSuccessSyncAt = DateTime.now();
     } catch (error, stack) {
       AppLog.e('FCM sync failed', tag: 'Push', error: error, stackTrace: stack);
       _scheduleRetry();
     }
+  }
+
+  void _logEmptyOnce(String message) {
+    final now = DateTime.now();
+    final last = _lastEmptyLogAt;
+    if (last != null && now.difference(last) < const Duration(seconds: 8)) return;
+    _lastEmptyLogAt = now;
+    AppLog.w(message, tag: 'Push');
   }
 
   String _emptyTokenHint() {
@@ -225,9 +236,9 @@ class AppPushMessagingService {
     // iOS: баннер рисует система (presentation options + AppDelegate.willPresent).
     if (Platform.isIOS) return;
 
-    // Android: tray в foreground нет — chat → Instagram-баннер, остальное → общий snack.
+    // Android: tray в foreground нет — chat → Instagram-баннер, остальное → snack с open.
     if (kind == 'chat_message') {
-      _emitChatOpenIfAny(message, autoOpen: false);
+      _emitChatBanner(message);
       return;
     }
 
@@ -238,18 +249,37 @@ class AppPushMessagingService {
         title: title.isEmpty ? 'Clover' : title,
         body: body,
         kind: kind,
+        data: Map<String, dynamic>.from(message.data),
       ),
     );
   }
 
   void _onNotificationOpen(RemoteMessage message) {
-    _emitChatOpenIfAny(message, autoOpen: true);
+    _emitNotificationOpen(message, autoOpen: true);
   }
 
-  void _emitChatOpenIfAny(RemoteMessage message, {required bool autoOpen}) {
-    final data = message.data;
-    if ((data['kind'] ?? '').toString().trim() != 'chat_message') return;
+  void _emitNotificationOpen(RemoteMessage message, {required bool autoOpen}) {
+    final data = Map<String, dynamic>.from(message.data);
+    final kind = (data['kind'] ?? '').toString().trim();
+    if (kind.isEmpty) return;
 
+    final title = (message.notification?.title ?? '').trim();
+    final body = (message.notification?.body ?? data['body'] ?? '').toString().trim();
+
+    _notificationOpenBus.emit(
+      NotificationOpenRequest(
+        kind: kind,
+        data: data,
+        autoOpen: autoOpen,
+        title: title.isEmpty ? null : title,
+        body: body.isEmpty ? null : body,
+      ),
+    );
+  }
+
+  /// Foreground chat banner only (Realtime path still uses [ChatPushOpenBus] separately).
+  void _emitChatBanner(RemoteMessage message) {
+    final data = message.data;
     final conversationId = (data['conversation_id'] ?? '').toString().trim();
     if (conversationId.isEmpty) return;
 
@@ -263,7 +293,7 @@ class AppPushMessagingService {
         conversationId: conversationId,
         peerUsername: peer.isEmpty ? 'Чат' : peer,
         isGroup: (data['is_group'] ?? '').toString() == 'true',
-        autoOpen: autoOpen,
+        autoOpen: false,
         preview: preview.isEmpty ? null : preview,
         messageId: (data['message_id'] ?? '').toString().trim().isEmpty
             ? null
@@ -278,18 +308,28 @@ class AppPushMessagingService {
         // Как в qMed: фиксированный poll APNs, потом getToken с timeout.
         final apns = await _waitForApnsToken();
         if (apns == null || apns.isEmpty) {
-          AppLog.w('APNs token not ready yet', tag: 'Push');
+          _logEmptyOnce(
+            'FCM wait · APNs ещё не готов (retry ${_retryAttempt + 1}/$_maxSyncRetries)',
+          );
           return null;
         }
-        AppLog.i('APNs ready · len=${apns.length}', tag: 'Push');
+        AppLog.i('APNs ready · $apns', tag: 'Push');
       }
 
       final token = await _messaging.getToken().timeout(const Duration(seconds: 10));
-      if (token == null || token.isEmpty) return null;
+      if (token == null || token.isEmpty) {
+        _logEmptyOnce(_emptyTokenHint());
+        return null;
+      }
       AppLog.i('FCM token · $token', tag: 'Push');
       return token;
     } on FirebaseException catch (error) {
-      if (error.code == 'apns-token-not-set') return null;
+      if (error.code == 'apns-token-not-set') {
+        _logEmptyOnce(
+          'FCM wait · APNs ещё не готов (retry ${_retryAttempt + 1}/$_maxSyncRetries)',
+        );
+        return null;
+      }
       AppLog.e('FCM getToken · ${error.code}', tag: 'Push', error: error);
       await Sentry.captureException(error);
       return null;
@@ -300,8 +340,8 @@ class AppPushMessagingService {
     }
   }
 
-  /// qMed: 20 × 500ms; если нет — sync ретраится снаружи.
-  Future<String?> _waitForApnsToken({int attempts = 20}) async {
+  /// До ~20с на холодном старте iOS (раньше 10с — часто рано сдавались).
+  Future<String?> _waitForApnsToken({int attempts = 40}) async {
     for (var i = 0; i < attempts; i++) {
       final apns = await _messaging.getAPNSToken();
       if (apns != null && apns.isNotEmpty) return apns;
@@ -329,7 +369,7 @@ class AppPushMessagingService {
       _cachedToken = token;
       _syncedTokenUserId = resolvedUserId;
       AppLog.i(
-        'FCM upserted · ${resolvedPlatform.storageValue} · len=${token.length}',
+        'FCM upserted · ${resolvedPlatform.storageValue} · $token',
         tag: 'Push',
       );
     } catch (error, stack) {
@@ -348,9 +388,11 @@ class AppPushForegroundBanner {
     required this.title,
     required this.body,
     required this.kind,
+    this.data = const {},
   });
 
   final String title;
   final String body;
   final String kind;
+  final Map<String, dynamic> data;
 }

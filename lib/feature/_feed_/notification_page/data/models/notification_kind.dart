@@ -16,10 +16,12 @@ enum NotificationKind {
   bookingCompletedClient,
   bookingNoShowClient,
   bookingReminderClient,
+  bookingRescheduled,
   attendanceInvite,
   attendanceRulesAck,
   attendanceDuty,
   attendanceCorrection,
+  attendancePunchDue,
   accountLogin,
 }
 

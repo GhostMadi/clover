@@ -8,6 +8,7 @@ import {
   DEFAULT_MAP_FILTER,
   fetchMapMarkers,
   mapMarkersCacheKey,
+  prefetchNeighborMapMarkers,
   readMapMarkersCache,
   shouldFetchMapViewport,
   writeMapMarkersCache,
@@ -78,6 +79,7 @@ export function MapPane() {
         lastFetchedRef.current = next;
         writeMapMarkersCache(cacheKey, list);
         setMarkers(list);
+        void prefetchNeighborMapMarkers(next, filterRef.current);
       } catch {
         if (gen !== fetchGen.current) return;
         setError("Не удалось загрузить ивенты");

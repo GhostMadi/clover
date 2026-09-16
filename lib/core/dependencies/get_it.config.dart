@@ -235,6 +235,8 @@ import '../deep_link/app_deep_link_navigator.dart' as _i79;
 import '../deep_link/app_deep_link_service.dart' as _i856;
 import '../network/supabase_edge_functions_invoker.dart' as _i460;
 import '../push/app_push_messaging_service.dart' as _i86;
+import '../push/notification_open_bus.dart' as _i633;
+import '../push/notification_open_router.dart' as _i404;
 import '../push/push_device_token_repository.dart' as _i516;
 import '../session/account_session_cleanup.dart' as _i191;
 import '../session/app_session.dart' as _i819;
@@ -255,6 +257,9 @@ extension GetItInjectableX on _i174.GetIt {
     final appModule = _$AppModule();
     gh.lazySingleton<_i454.SupabaseClient>(() => appModule.supabaseClient);
     gh.lazySingleton<_i116.GoogleSignIn>(() => appModule.googleSignIn);
+    gh.lazySingleton<_i633.NotificationOpenBus>(
+      () => _i633.NotificationOpenBus(),
+    );
     gh.lazySingleton<_i782.ChatActiveThread>(() => _i782.ChatActiveThread());
     gh.lazySingleton<_i171.ChatPushOpenBus>(() => _i171.ChatPushOpenBus());
     gh.lazySingleton<_i1029.IAppStorage>(() => _i814.IsarAppStorageImpl());
@@ -306,13 +311,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1009.AttendanceCorrectionsCubit>(
       () => _i1009.AttendanceCorrectionsCubit(
         gh<_i75.AttendanceRemoteRepository>(),
-      ),
-    );
-    gh.lazySingleton<_i86.AppPushMessagingService>(
-      () => _i86.AppPushMessagingService(
-        gh<_i454.SupabaseClient>(),
-        gh<_i516.PushDeviceTokenRepository>(),
-        gh<_i171.ChatPushOpenBus>(),
       ),
     );
     gh.lazySingleton<_i34.MarkerTagsRepository>(
@@ -496,6 +494,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i462.BookingStaffRepository>(),
       ),
     );
+    gh.lazySingleton<_i86.AppPushMessagingService>(
+      () => _i86.AppPushMessagingService(
+        gh<_i454.SupabaseClient>(),
+        gh<_i516.PushDeviceTokenRepository>(),
+        gh<_i171.ChatPushOpenBus>(),
+        gh<_i633.NotificationOpenBus>(),
+      ),
+    );
     gh.factory<_i497.BookingCalendarBookingsCubit>(
       () => _i497.BookingCalendarBookingsCubit(
         gh<_i299.BookingCalendarRepository>(),
@@ -612,6 +618,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i232.MapMarkersRepository>(),
         gh<_i186.MapMarkersLocalCache>(),
       ),
+    );
+    gh.lazySingleton<_i404.NotificationOpenRouter>(
+      () => _i404.NotificationOpenRouter(gh<_i79.AppDeepLinkNavigator>()),
     );
     gh.factory<_i314.BookingListCubit>(
       () => _i314.BookingListCubit(

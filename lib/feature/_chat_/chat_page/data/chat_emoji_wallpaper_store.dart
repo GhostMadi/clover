@@ -2,7 +2,7 @@ import 'package:characters/characters.dart';
 import 'package:clover/core/storage/domain/repositories/i_app_storage.dart';
 import 'package:injectable/injectable.dart';
 
-/// Локальный фон чата (смайлики). См. docs/business/chat-emoji-wallpaper.md
+/// Normalize helpers for shared emoji wallpaper. Persistence = Supabase RPC.
 @lazySingleton
 class ChatEmojiWallpaperStore {
   ChatEmojiWallpaperStore(this._storage);
@@ -17,26 +17,9 @@ class ChatEmojiWallpaperStore {
     return '$_prefix${id.isEmpty ? 'unknown' : id}';
   }
 
-  Future<List<String>> read(String conversationKey) async {
-    final raw = await _storage.read<List<dynamic>>(key: storageKey(conversationKey));
-    if (raw == null || raw.isEmpty) return const [];
-    return [
-      for (final item in raw)
-        if (item is String && item.trim().isNotEmpty) item.trim(),
-    ].take(maxEmojis).toList(growable: false);
-  }
-
-  Future<void> write(String conversationKey, List<String> emojis) async {
-    final cleaned = normalizeEmojis(emojis);
-    final key = storageKey(conversationKey);
-    if (cleaned.isEmpty) {
-      await _storage.delete(key: key);
-      return;
-    }
-    await _storage.write<List<dynamic>>(key: key, value: cleaned);
-  }
-
-  Future<void> clear(String conversationKey) => _storage.delete(key: storageKey(conversationKey));
+  /// Legacy local keys — cleared on logout; no longer source of truth.
+  Future<void> clearLegacy(String conversationKey) =>
+      _storage.delete(key: storageKey(conversationKey));
 
   /// Уникальные grapheme-кластеры из ввода пользователя.
   static List<String> normalizeEmojis(Iterable<String> raw, {int max = maxEmojis}) {

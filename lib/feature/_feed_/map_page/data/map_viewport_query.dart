@@ -9,10 +9,15 @@ abstract final class MapViewportQuery {
   static const _refRadiusM = 28000.0;
   static const _earthRadiusM = 6371000.0;
 
-  /// Доля радиуса запроса: сдвиг меньше — не дергаем Supabase повторно.
-  static const reloadCenterFraction = 0.4;
+  /// Ниже — `list_markers_map_clusters`; с этого zoom — сырые точки `list_markers_map`.
+  static const serverClusterMaxZoom = 13.0;
 
-  static const reloadZoomDelta = 0.45;
+  /// Доля радиуса запроса: сдвиг меньше — не дергаем Supabase повторно.
+  static const reloadCenterFraction = 0.55;
+
+  static const reloadZoomDelta = 0.55;
+
+  static bool useServerClusters(double zoom) => zoom < serverClusterMaxZoom;
 
   static double radiusM(double zoom) {
     final scale = math.pow(2, _refZoom - zoom).toDouble();

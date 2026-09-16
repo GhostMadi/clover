@@ -492,6 +492,29 @@ class AuthRepository {
     }
   }
 
+  /// Hide profile from feeds; then local sign-out. Not a content wipe.
+  Future<void> hibernateAccount() async {
+    try {
+      await _supabase.rpc('hibernate_account');
+    } on PostgrestException catch (e) {
+      final msg = e.message.toLowerCase();
+      if (msg.contains('hibernate_rate_limited') || e.code == 'P0004') {
+        throw const AuthFailure(AuthErrorCode.hibernateRateLimited);
+      }
+      throw AuthFailure(AuthErrorMapper.resolve(e));
+    }
+    await signOut();
+  }
+
+  /// Idempotent: hibernate → active after login / session restore.
+  Future<void> wakeUpIfNeeded() async {
+    try {
+      await _supabase.rpc('wake_up_if_needed');
+    } catch (_) {
+      // Non-fatal: session still valid.
+    }
+  }
+
   Future<void> _persistSession(User user) async {
     await _storage.write<String>(key: AccountStorageKeys.authUserId, value: user.id);
   }

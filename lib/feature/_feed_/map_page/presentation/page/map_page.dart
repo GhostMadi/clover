@@ -64,6 +64,8 @@ class _MapPageState extends State<MapPage> {
 
   void _onCameraChanged(AppMapViewport viewport, {required bool finished}) {
     _viewport = viewport;
+    // Пока тянем карту — сразу рисуем из memory/пула; сеть только после idle.
+    _markersCubit.onViewportMoved(viewport);
     if (finished) {
       _markersCubit.onViewportSettled(viewport);
     }
@@ -76,7 +78,9 @@ class _MapPageState extends State<MapPage> {
     switch (result) {
       case AppMapMyLocationResult.moved:
         if (point == null) return;
-        _viewport = AppMapViewport(center: point, zoom: _viewport.zoom);
+        _viewport = AppMapViewport(center: point, zoom: _defaultZoom);
+        // Force reload for the new center; keep current pins until response
+        // (cubit does not clear mapMarkers while loading).
         _reloadMarkers(force: true);
       case AppMapMyLocationResult.permissionDenied:
         AppSnackBar.show(
@@ -117,9 +121,7 @@ class _MapPageState extends State<MapPage> {
       ];
       if (groupItems.isEmpty) return;
 
-      final picked = await MapMarkerGroupSheet.show(context, markers: groupItems);
-      if (!mounted || picked == null) return;
-      await _openPostForMarker(picked);
+      await MapMarkerGroupSheet.show(context, markers: groupItems);
       return;
     }
 
@@ -144,7 +146,7 @@ class _MapPageState extends State<MapPage> {
               children: [
                 AppMap(
                   controller: _mapController,
-                  initialCenter: _viewport.center,
+                  initialCenter: _defaultCenter,
                   markers: state.mapMarkers,
                   onCameraChanged: _onCameraChanged,
                   onMarkerTap: (tap) => unawaited(_onMarkerTap(tap, state)),

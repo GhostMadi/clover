@@ -79,6 +79,17 @@ jobs:
           echo "Installed provisioning profile: $PP_NAME ($PP_UUID)"
           cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PP_UUID.mobileprovision"
 
+          # Profile must include Push Notifications — otherwise TestFlight FCM never gets APNs token.
+          if ! grep -q 'aps-environment' "$PP_PLIST"; then
+            echo "ERROR: provisioning profile has no aps-environment (Push). Regenerate App Store profile with Push Notifications."
+            exit 1
+          fi
+          /usr/libexec/PlistBuddy -c 'Print :Entitlements:aps-environment' "$PP_PLIST" || true
+
+          echo "PP_NAME=$PP_NAME" >> "$GITHUB_ENV"
+          echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
+          echo "KEYCHAIN_PASSWORD=$KEYCHAIN_PASSWORD" >> "$GITHUB_ENV"
+
       - name: Build IPA
         env:
           MAPBOX_ACCESS_TOKEN: ${{ secrets.MAPBOX_ACCESS_TOKEN }}
@@ -90,25 +101,44 @@ jobs:
             exit 1
           fi
 
-          # 1) Archive без codesign — иначе Flutter/Xcode тянет Automatic Development.
-          flutter build ipa --release --no-codesign \
-            --dart-define=MAPBOX_ACCESS_TOKEN="$MAPBOX_ACCESS_TOKEN"
+          # Unlock keychain for codesign (entitlements must be embedded — never --no-codesign).
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-          ARCHIVE_PATH="build/ios/archive/Runner.xcarchive"
-          if [ ! -d "$ARCHIVE_PATH" ]; then
-            echo "Missing $ARCHIVE_PATH after flutter build ipa --no-codesign"
-            find build/ios -maxdepth 3 -type d -name '*.xcarchive' 2>/dev/null || true
+          # Local Xcode: Automatic signing (project.pbxproj).
+          # CI: override Manual + Distribution so we can sign with secrets and keep
+          # RunnerRelease.entitlements (aps-environment=production) in the IPA.
+          # --no-codesign previously stripped push entitlements → empty FCM token on device.
+          flutter build ipa --release \
+            --dart-define=MAPBOX_ACCESS_TOKEN="$MAPBOX_ACCESS_TOKEN" \
+            --export-options-plist=ios/Runner/ExportOptions.plist \
+            -- \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="${PP_NAME}" \
+            DEVELOPMENT_TEAM=TD97J996Q4 \
+            CODE_SIGN_ENTITLEMENTS=Runner/RunnerRelease.entitlements
+
+          IPA_PATH=$(ls build/ios/ipa/*.ipa | head -n 1)
+          if [ -z "${IPA_PATH:-}" ] || [ ! -f "$IPA_PATH" ]; then
+            echo "Missing IPA after flutter build ipa"
+            find build/ios -maxdepth 4 -type f -name '*.ipa' 2>/dev/null || true
             exit 1
           fi
 
-          # 2) Export + Distribution signing из keychain / clover_appstore
-          #    (см. ios/Runner/ExportOptions.plist + Manual Release в project.pbxproj).
-          mkdir -p build/ios/ipa
-          xcodebuild -exportArchive \
-            -archivePath "$ARCHIVE_PATH" \
-            -exportOptionsPlist ios/Runner/ExportOptions.plist \
-            -exportPath build/ios/ipa \
-            -allowProvisioningUpdates
+          # Gate: IPA must carry production push entitlement (FCM needs APNs).
+          TMP=$(mktemp -d)
+          unzip -q "$IPA_PATH" -d "$TMP"
+          APP=$(find "$TMP/Payload" -maxdepth 1 -name '*.app' | head -n 1)
+          ENT_FILE="$TMP/entitlements.plist"
+          codesign -d --entitlements "$ENT_FILE" "$APP"
+          echo "--- IPA entitlements ---"
+          plutil -p "$ENT_FILE" || cat "$ENT_FILE"
+          APS=$(/usr/libexec/PlistBuddy -c 'Print :aps-environment' "$ENT_FILE" 2>/dev/null || true)
+          if [ "$APS" != "production" ]; then
+            echo "ERROR: IPA aps-environment='$APS' (want production). FCM will not get a token on TestFlight."
+            exit 1
+          fi
+          echo "OK: aps-environment=production"
 
       - name: Upload to TestFlight
         env:

@@ -1,12 +1,10 @@
-# Drain FCM push_outbox every 2 minutes (and on manual run).
-# Secrets (repo): SUPABASE_URL, PUSH_WORKER_SECRET
+# Manual ops only. FCM delivery = Postgres trigger + pg_net on push_outbox INSERT.
 # Spec: docs/supabase/SPEC_PUSH_FCM.md
+# Secrets: SUPABASE_URL, PUSH_WORKER_SECRET
 
 name: Drain push outbox
 
 on:
-  schedule:
-    - cron: "*/2 * * * *"
   workflow_dispatch:
 
 jobs:

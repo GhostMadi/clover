@@ -35,6 +35,8 @@ class ChatUnreadCubit extends Cubit<int> {
   RealtimeChannel? _channel;
   StreamSubscription<AuthState>? _authSub;
   Timer? _debounce;
+  Timer? _resumeDebounce;
+  Future<void>? _refreshInFlight;
   bool _started = false;
 
   Future<void> start() async {
@@ -71,14 +73,28 @@ class ChatUnreadCubit extends Cubit<int> {
     }
   }
 
-  Future<void> refresh() async {
+  /// После resume: подождать сеть, не бить RPC сразу.
+  void refreshAfterResume() {
+    _resumeDebounce?.cancel();
+    _resumeDebounce = Timer(const Duration(milliseconds: 700), () {
+      unawaited(refresh());
+    });
+  }
+
+  Future<void> refresh() {
+    return _refreshInFlight ??= _refreshOnce().whenComplete(() {
+      _refreshInFlight = null;
+    });
+  }
+
+  Future<void> _refreshOnce() async {
     if (isClosed) return;
     try {
       final count = await _repository.countUnreadMessages();
       if (isClosed) return;
       emit(count < 0 ? 0 : count);
-    } catch (e, st) {
-      AppLog.e('Chat unread refresh failed', tag: 'ChatInbox', error: e, stackTrace: st);
+    } catch (e, _) {
+      AppLog.w('Chat unread refresh skipped · $e', tag: 'ChatInbox');
     }
   }
 
@@ -202,6 +218,8 @@ class ChatUnreadCubit extends Cubit<int> {
   }
 
   void _unbindInbox() {
+    _debounce?.cancel();
+    _resumeDebounce?.cancel();
     _channel?.unsubscribe();
     _channel = null;
   }
@@ -209,6 +227,7 @@ class ChatUnreadCubit extends Cubit<int> {
   @override
   Future<void> close() async {
     _debounce?.cancel();
+    _resumeDebounce?.cancel();
     await _authSub?.cancel();
     _unbindInbox();
     _threadCacheSync.dispose();

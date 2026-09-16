@@ -25,6 +25,8 @@ class MessageListCubit extends Cubit<MessageListState> {
 
   StreamSubscription<void>? _inboxSub;
   Timer? _inboxDebounce;
+  Timer? _resumeDebounce;
+  Future<void>? _softRefreshInFlight;
 
   String? get _currentUserId => _client.auth.currentUser?.id.trim();
 
@@ -70,8 +72,22 @@ class MessageListCubit extends Cubit<MessageListState> {
 
   Future<void> refresh() => load();
 
+  /// После resume: сеть ещё поднимается — не долбим сразу (иначе Bad file descriptor).
+  void softRefreshAfterResume() {
+    _resumeDebounce?.cancel();
+    _resumeDebounce = Timer(const Duration(milliseconds: 700), () {
+      unawaited(softRefresh());
+    });
+  }
+
   /// Soft refresh after leaving a thread / app resume (keeps current list visible).
-  Future<void> softRefresh() async {
+  Future<void> softRefresh() {
+    return _softRefreshInFlight ??= _softRefreshOnce().whenComplete(() {
+      _softRefreshInFlight = null;
+    });
+  }
+
+  Future<void> _softRefreshOnce() async {
     if (isClosed) return;
     final uid = _currentUserId;
     if (uid == null || uid.isEmpty) return;
@@ -82,8 +98,9 @@ class MessageListCubit extends Cubit<MessageListState> {
       await _localCache.writeConversations(uid, chats);
       emit(MessageListState.loaded(chats: chats, isFromCache: false));
       unawaited(_unreadCubit.refresh());
-    } catch (e, st) {
-      AppLog.e('Chat list softRefresh failed', tag: 'ChatInbox', error: e, stackTrace: st);
+    } catch (e, _) {
+      // Сеть/сокет на resume — тихо; список уже на экране.
+      AppLog.w('Chat list softRefresh skipped · $e', tag: 'ChatInbox');
     }
   }
 
@@ -99,6 +116,7 @@ class MessageListCubit extends Cubit<MessageListState> {
 
   void _unbindInbox() {
     _inboxDebounce?.cancel();
+    _resumeDebounce?.cancel();
     unawaited(_inboxSub?.cancel());
     _inboxSub = null;
   }

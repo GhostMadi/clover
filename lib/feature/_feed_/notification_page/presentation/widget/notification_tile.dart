@@ -219,6 +219,12 @@ class _NotificationTileState extends State<NotificationTile> {
         bold(_serviceLabel(item)),
         regular(_whenSuffix(item)),
       ],
+      NotificationKind.bookingRescheduled => [
+        bold(actorsLabel),
+        regular(' перенёс(ла) запись: '),
+        bold(_serviceLabel(item)),
+        regular(_whenSuffix(item)),
+      ],
       NotificationKind.attendanceInvite => [
         bold(actorsLabel),
         regular(' пригласил(-а) в команду посещаемости'),
@@ -231,6 +237,9 @@ class _NotificationTileState extends State<NotificationTile> {
       ],
       NotificationKind.attendanceCorrection => [
         regular('Запрос на исправление отметки'),
+      ],
+      NotificationKind.attendancePunchDue => [
+        regular(_attendancePunchDueLead(item)),
       ],
       NotificationKind.accountLogin => [
         regular('Вход в аккаунт с '),
@@ -273,6 +282,16 @@ class _NotificationTileState extends State<NotificationTile> {
       15 => 'Через 15 мин: ',
       final m? when m > 0 => 'Через $m мин: ',
       _ => 'Напоминание: ',
+    };
+  }
+
+  String _attendancePunchDueLead(NotificationItem item) {
+    final place = item.attendanceWorkplaceName?.trim();
+    final suffix = (place != null && place.isNotEmpty) ? ' · $place' : '';
+    return switch (item.attendanceDueKind) {
+      'clock_out' => 'Пора отметиться на выход$suffix',
+      'auto_closed' => 'Смена закрыта автоматически$suffix',
+      _ => 'Пора отметиться на вход$suffix',
     };
   }
 

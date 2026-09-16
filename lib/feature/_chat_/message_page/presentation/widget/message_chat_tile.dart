@@ -24,7 +24,7 @@ class MessageChatTile extends StatelessWidget {
     final accent = ChatPeerAccent.forSeed(context.colors, chat.id.isNotEmpty ? chat.id : username);
 
     return Material(
-      color: hasUnread ? accent.fill.withValues(alpha: 0.45) : context.colors.pageBackground,
+      color: context.colors.pageBackground,
       child: InkWell(
         onTap: onTap,
         child: Padding(

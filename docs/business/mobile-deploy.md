@@ -33,6 +33,17 @@ git push origin mobile-production
 Нужны для workflow (имена как в YAML): сертификат, provisioning profile, App Store Connect API key и т.д.  
 Не коммитить в репо.
 
+**Важно для FCM / push:** App Store provisioning profile (`BUILD_PROVISION_PROFILE_BASE64`) должен включать **Push Notifications** (`aps-environment=production`). Без этого TestFlight-сборка из CI не получает APNs/FCM token на устройстве.
+
+## Signing (Xcode vs CI)
+
+| Где | Как |
+|-----|-----|
+| **Xcode локально** | Release: **Automatically manage signing** (`project.pbxproj`) |
+| **CI → TestFlight** | Manual override при `flutter build ipa` (Distribution + profile из secrets). **Не** `--no-codesign` — иначе entitlements (push) не вшиваются и FCM пустой |
+
+Workflow проверяет в IPA `aps-environment=production` перед upload.
+
 ## Где код
 
 - Flutter: `lib/`, `android/`, `ios/`, `pubspec.yaml`
@@ -42,3 +53,4 @@ git push origin mobile-production
 
 - Продукт: [features-catalog.md](features-catalog.md)
 - Сайт / дорожная карта веба: [website-roadmap.md](website-roadmap.md)
+- Push / FCM: [../supabase/SPEC_PUSH_FCM.md](../supabase/SPEC_PUSH_FCM.md)

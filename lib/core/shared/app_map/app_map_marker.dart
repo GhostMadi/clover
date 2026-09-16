@@ -8,10 +8,16 @@ class AppMapMarker {
     required this.point,
     required this.emoji,
     this.borderColor,
+    this.clusterCount,
   });
 
   final String id;
   final AppMapPoint point;
   final String emoji;
   final Color? borderColor;
+
+  /// Server LOD cluster (`list_markers_map_clusters`). Null = single / stack point.
+  final int? clusterCount;
+
+  bool get isServerCluster => clusterCount != null && clusterCount! >= 1;
 }

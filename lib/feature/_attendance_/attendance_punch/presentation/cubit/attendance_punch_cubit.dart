@@ -273,6 +273,7 @@ class AttendancePunchCubit extends Cubit<AttendancePunchState> {
           workerId: resolvedWorkerId,
           type: type,
           at: punchedAt,
+          clientPunchId: clientId,
         );
         final memberships = s.memberships.map((m) {
           if (m.workplaceId != workplaceId) return m;
@@ -368,7 +369,12 @@ class AttendancePunchCubit extends Cubit<AttendancePunchState> {
     if (last == null) return;
 
     try {
-      await _remote.cancelPunch(punchId: last.id, note: comment);
+      final isLocalId = last.id.startsWith('local_');
+      await _remote.cancelPunch(
+        punchId: isLocalId ? null : last.id,
+        clientPunchId: isLocalId ? last.id : last.clientPunchId,
+        note: comment,
+      );
       await _store.refreshRemote();
     } on AttendanceException catch (e) {
       if (!e.isRetriableNetwork) rethrow;
@@ -378,7 +384,8 @@ class AttendancePunchCubit extends Cubit<AttendancePunchState> {
           id: 'punch_cancel_${last.id}',
           kind: AttendanceOutboxKind.punchCancel,
           payload: {
-            'punch_id': last.id,
+            if (!last.id.startsWith('local_')) 'punch_id': last.id,
+            'client_punch_id': last.clientPunchId ?? last.id,
             if (comment != null && comment.trim().isNotEmpty) 'note': comment.trim(),
           },
           createdAt: DateTime.now().toUtc(),

@@ -57,7 +57,7 @@ class _MessagePageState extends State<MessagePage> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      unawaited(_cubit.softRefresh());
+      _cubit.softRefreshAfterResume();
     }
   }
 

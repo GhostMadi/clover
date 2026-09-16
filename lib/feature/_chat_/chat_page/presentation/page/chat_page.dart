@@ -8,8 +8,8 @@ import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/image_select/app_image_selector_page.dart';
 import 'package:clover/feature/_chat_/chat/data/chat_image_compress.dart';
 import 'package:clover/feature/_chat_/chat/data/models/chat_attachment_upload.dart';
+import 'package:clover/feature/_chat_/chat/data/repository/chat_repository.dart';
 import 'package:clover/feature/_chat_/chat/presentation/widget/chat_forward_sheet.dart';
-import 'package:clover/feature/_chat_/chat_page/data/chat_emoji_wallpaper_store.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_search_hit.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/cubit/chat_thread_cubit.dart';
@@ -54,7 +54,6 @@ class _ChatPageState extends State<ChatPage> {
   bool _searchMode = false;
   bool _searchLoading = false;
   List<ChatSearchHit> _searchHits = const [];
-  List<String> _wallpaperEmojis = const [];
   bool _contextMenuOpen = false;
 
   @override
@@ -70,25 +69,24 @@ class _ChatPageState extends State<ChatPage> {
     _composerController = TextEditingController();
     _searchController = TextEditingController();
     _scrollController = ScrollController()..addListener(_onScroll);
-    _loadWallpaper();
   }
 
-  Future<void> _loadWallpaper() async {
-    final emojis = await sl<ChatEmojiWallpaperStore>().read(_accentSeed);
-    if (!mounted) return;
-    setState(() => _wallpaperEmojis = emojis);
-  }
-
-  Future<void> _openWallpaperSheet() async {
+  Future<void> _openWallpaperSheet(List<String> current) async {
     final next = await ChatEmojiWallpaperSheet.show(
       context,
-      initialEmojis: _wallpaperEmojis,
+      initialEmojis: current,
       seed: _accentSeed,
     );
     if (!mounted || next == null) return;
-    await sl<ChatEmojiWallpaperStore>().write(_accentSeed, next);
-    if (!mounted) return;
-    setState(() => _wallpaperEmojis = next);
+    try {
+      await _cubit.setWallpaperEmojis(next);
+    } catch (e) {
+      if (!mounted) return;
+      AppSnackBar.show(
+        context,
+        message: e is ChatRepositoryException ? e.message : 'Не удалось сохранить фон',
+      );
+    }
   }
 
   void _onScroll() {
@@ -500,7 +498,11 @@ class _ChatPageState extends State<ChatPage> {
                 icon: Icon(AppIcons.editPalette.icon, size: 22),
                 color: context.colors.textColor,
                 tooltip: 'Фон чата',
-                onPressed: _openWallpaperSheet,
+                onPressed: () {
+                  final s = _cubit.state;
+                  final current = s is ChatThreadLoaded ? s.wallpaperEmojis : const <String>[];
+                  _openWallpaperSheet(current);
+                },
               ),
               IconButton(
                 icon: Icon(_searchMode ? AppIcons.close.icon : AppIcons.searchRounded.icon, size: 22),
@@ -582,12 +584,13 @@ class _ChatPageState extends State<ChatPage> {
                         :final editingMessage,
                         :final isLoadingOlder,
                         :final pendingAttachments,
+                        :final wallpaperEmojis,
                       ) =>
                         Stack(
                           children: [
-                            if (_wallpaperEmojis.isNotEmpty)
+                            if (wallpaperEmojis.isNotEmpty)
                               Positioned.fill(
-                                child: ChatEmojiWallpaperLayer(emojis: _wallpaperEmojis, seed: _accentSeed),
+                                child: ChatEmojiWallpaperLayer(emojis: wallpaperEmojis, seed: _accentSeed),
                               ),
                             if (isLoadingOlder)
                               Positioned(

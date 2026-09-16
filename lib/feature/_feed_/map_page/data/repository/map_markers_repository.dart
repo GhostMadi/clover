@@ -16,6 +16,14 @@ abstract class MapMarkersRepository {
     required int offset,
     required int limit,
   });
+
+  /// Low-zoom LOD aggregates (`list_markers_map_clusters`). Empty when zoom ≥ 13.
+  Future<List<MapMarkerItem>> fetchClusters({
+    required AppMapPoint center,
+    required double zoom,
+    required EventsFilter filter,
+    required int limit,
+  });
 }
 
 @LazySingleton(as: MapMarkersRepository)
@@ -40,6 +48,27 @@ class MapMarkersRepositoryImpl implements MapMarkersRepository {
     final items = rows.map((row) => MapMarkerItem.fromJson(Map<String, dynamic>.from(row as Map))).toList();
 
     return MapMarkersPageResult(items: _applyDateFilter(items, filter), totalCount: items.length);
+  }
+
+  @override
+  Future<List<MapMarkerItem>> fetchClusters({
+    required AppMapPoint center,
+    required double zoom,
+    required EventsFilter filter,
+    required int limit,
+  }) async {
+    final params = _rpcParams(center: center, zoom: zoom, filter: filter)
+      ..addAll({
+        'p_zoom': zoom,
+        'p_limit': limit,
+      });
+
+    final res = await _client.rpc('list_markers_map_clusters', params: params);
+    final rows = res as List<dynamic>? ?? const [];
+    return rows.map((row) {
+      final map = Map<String, dynamic>.from(row as Map);
+      return MapMarkerItem.fromJson(map);
+    }).toList();
   }
 
   Map<String, dynamic> _rpcParams({

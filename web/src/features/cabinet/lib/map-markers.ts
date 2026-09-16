@@ -7,6 +7,8 @@ export type MapMarker = {
   lat: number;
   lng: number;
   postId?: string | null;
+  /** Server LOD cluster size from `list_markers_map_clusters`. */
+  pointCount?: number | null;
 };
 
 export type MapMarkersFilter = {
@@ -33,6 +35,8 @@ const EARTH_RADIUS_M = 6_371_000;
 const RELOAD_CENTER_FRACTION = 0.4;
 /** Как Flutter `MapViewportQuery.reloadZoomDelta`. */
 const RELOAD_ZOOM_DELTA = 0.45;
+/** Как Flutter `MapViewportQuery.serverClusterMaxZoom`. */
+export const SERVER_CLUSTER_MAX_ZOOM = 13;
 
 /** Как `MapViewportQuery.radiusM` в мобилке (ref zoom 12 → 28 km). */
 export function radiusMForZoom(zoom: number): number {
@@ -46,6 +50,10 @@ export function limitForZoom(zoom: number): number {
   if (zoom >= 14) return 300;
   if (zoom >= 12) return 400;
   return 500;
+}
+
+export function useServerClusters(zoom: number): boolean {
+  return zoom < SERVER_CLUSTER_MAX_ZOOM;
 }
 
 function toRad(deg: number): number {
@@ -98,7 +106,8 @@ export function mapMarkersCacheKey(viewport: MapViewport, filter: MapMarkersFilt
   const lngCell = Math.round(viewport.center.lon / cellDeg);
   const zoomBucket =
     viewport.zoom >= 16 ? 16 : viewport.zoom >= 14 ? 14 : viewport.zoom >= 12 ? 12 : 10;
-  return `map_markers_z${zoomBucket}_${latCell}_${lngCell}_${filterFingerprint(filter)}`;
+  const mode = useServerClusters(viewport.zoom) ? "c" : "p";
+  return `map_markers_${mode}_z${zoomBucket}_${latCell}_${lngCell}_${filterFingerprint(filter)}`;
 }
 
 export function readMapMarkersCache(key: string): MapMarker[] | null {
@@ -119,11 +128,53 @@ export function writeMapMarkersCache(key: string, items: MapMarker[]): void {
   } satisfies MapCacheEnvelope);
 }
 
+function mapRow(row: Record<string, unknown>): MapMarker {
+  const sampleId = row.sample_marker_id ?? row.id;
+  const countRaw = row.point_count;
+  return {
+    id: sampleId == null ? "" : String(sampleId),
+    textEmoji: String(row.text_emoji ?? row.sample_emoji ?? "").trim() || "📍",
+    lat: Number(row.lat),
+    lng: Number(row.lng),
+    postId: (row.post_id as string | null | undefined) ?? null,
+    pointCount: typeof countRaw === "number" ? countRaw : null,
+  };
+}
+
+async function fetchMapMarkerClusters(
+  center: { lat: number; lon: number },
+  zoom: number,
+  filter: MapMarkersFilter,
+): Promise<MapMarker[]> {
+  const supabase = createClient();
+  const params: Record<string, unknown> = {
+    p_lat: center.lat,
+    p_lng: center.lon,
+    p_radius_m: radiusMForZoom(zoom),
+    p_zoom: zoom,
+    p_at_time: new Date().toISOString(),
+    p_limit: limitForZoom(zoom),
+    p_country_code: filter.countryCode || null,
+    p_city_code: filter.cityCode || null,
+  };
+  if (filter.emoji) params.p_emoji = filter.emoji;
+  if (filter.tagKeys.length) params.p_tag_keys = filter.tagKeys;
+
+  const { data, error } = await supabase.rpc("list_markers_map_clusters", params);
+  if (error) throw error;
+  const rows = (data as Record<string, unknown>[] | null) ?? [];
+  return rows.map(mapRow);
+}
+
 export async function fetchMapMarkers(
   center: { lat: number; lon: number },
   zoom: number,
   filter: MapMarkersFilter = DEFAULT_MAP_FILTER,
 ): Promise<MapMarker[]> {
+  if (useServerClusters(zoom)) {
+    return fetchMapMarkerClusters(center, zoom, filter);
+  }
+
   const supabase = createClient();
   const params: Record<string, unknown> = {
     p_lat: center.lat,
@@ -143,11 +194,35 @@ export async function fetchMapMarkers(
   if (error) throw error;
 
   const rows = (data as Record<string, unknown>[] | null) ?? [];
-  return rows.map((row) => ({
-    id: String(row.id),
-    textEmoji: String(row.text_emoji ?? "").trim() || "📍",
-    lat: Number(row.lat),
-    lng: Number(row.lng),
-    postId: (row.post_id as string | null | undefined) ?? null,
-  }));
+  return rows.map(mapRow);
+}
+
+/** Warm disk cache for N/S/E/W (~0.5 radius). Best-effort, no UI. */
+export async function prefetchNeighborMapMarkers(
+  viewport: MapViewport,
+  filter: MapMarkersFilter,
+): Promise<void> {
+  const radius = radiusMForZoom(viewport.zoom);
+  const stepM = radius * 0.5;
+  const latRad = toRad(viewport.center.lat);
+  const dLat = stepM / 111_320;
+  const dLng = stepM / (111_320 * Math.max(0.2, Math.cos(latRad)));
+  const neighbors = [
+    { lat: viewport.center.lat + dLat, lon: viewport.center.lon },
+    { lat: viewport.center.lat - dLat, lon: viewport.center.lon },
+    { lat: viewport.center.lat, lon: viewport.center.lon + dLng },
+    { lat: viewport.center.lat, lon: viewport.center.lon - dLng },
+  ];
+
+  for (const center of neighbors) {
+    const key = mapMarkersCacheKey({ center, zoom: viewport.zoom }, filter);
+    const existing = readMapMarkersCache(key);
+    if (existing?.length) continue;
+    try {
+      const list = await fetchMapMarkers(center, viewport.zoom, filter);
+      writeMapMarkersCache(key, list);
+    } catch {
+      // ignore
+    }
+  }
 }
