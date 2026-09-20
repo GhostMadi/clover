@@ -5,11 +5,13 @@ import {
   BookOpen,
   ChevronRight,
   ClipboardList,
+  MessageCircle,
   Scissors,
   Settings2,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
 import {
   bookingPointBase,
@@ -18,6 +20,7 @@ import {
 } from "@/features/booking/lib/booking-prefs";
 import { BookingListShimmer } from "@/features/booking/components/booking-shimmers";
 import { listHostBookings } from "@/features/booking/lib/bookings-api";
+import { openBookingPointChat } from "@/features/booking/lib/points-api";
 import { listServiceIdsForPoint } from "@/features/booking/lib/services-api";
 import type { HostBookingItem } from "@/features/booking/lib/booking-model";
 import {
@@ -82,8 +85,28 @@ function isUpcoming(b: HostBookingItem, now: number): boolean {
 }
 
 export function BookingHubView({ pointId }: { pointId: string }) {
+  const router = useRouter();
   const [items, setItems] = useState<HostBookingItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [chatBusy, setChatBusy] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
+
+  const openChat = () => {
+    if (chatBusy) return;
+    setChatBusy(true);
+    setChatError(null);
+    startTransition(async () => {
+      try {
+        const convId = await openBookingPointChat(pointId);
+        router.push(`/app/chat/${convId}`);
+      } catch (e: unknown) {
+        setChatError(e instanceof Error ? e.message : "Не удалось открыть чат");
+      } finally {
+        setChatBusy(false);
+      }
+    });
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -165,6 +188,28 @@ export function BookingHubView({ pointId }: { pointId: string }) {
                 </Link>
               );
             })}
+            <button
+              type="button"
+              onClick={openChat}
+              disabled={chatBusy}
+              className="group flex items-start gap-3 rounded-[16px] border border-line bg-surface p-4 text-left transition hover:border-svc-booking-ink/30 hover:bg-svc-booking/35 disabled:opacity-60"
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] bg-svc-booking text-svc-booking-ink">
+                <MessageCircle className="h-5 w-5" strokeWidth={2} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-1 text-[15px] font-bold text-ink">
+                  {chatBusy ? "Открываем…" : "Чат"}
+                  <ChevronRight className="h-4 w-4 text-muted opacity-0 transition group-hover:opacity-100" />
+                </span>
+                <span className="mt-0.5 block text-[12px] text-muted">
+                  Команда точки
+                </span>
+                {chatError ? (
+                  <span className="mt-1 block text-[12px] text-destructive">{chatError}</span>
+                ) : null}
+              </span>
+            </button>
           </div>
         </section>
 

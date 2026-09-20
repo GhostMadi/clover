@@ -199,6 +199,7 @@
 | `20260427130000_chat_participants_grant_select_authenticated.sql` | `GRANT SELECT` для REST peer-курсоров. |
 | `20260428120000_mark_conversation_read_monotonic_cursor.sql` | Монотонный курсор в `mark_conversation_read`. |
 | `20260915183613_chat_conversation_wallpaper_emojis.sql` | `chat_conversations.wallpaper_emojis` + `get/set_conversation_wallpaper` + broadcast `wallpaper_changed`. |
+| `20260920165838_chat_list_conversation_participants.sql` | `list_conversation_participants` — активные участники беседы (инфо чата). |
 | `20260908180000_count_unread_chat_messages.sql` | `count_unread_chat_messages()` — суммарный unread для бейджа кабинета (web). |
 | `20260909180806_chat_inbox_broadcast_push.sql` | Inbox broadcast `inbox_changed` на `chat_inbox_<userId>` + `push_outbox` kind `chat_message` для входящих DM. Spec: `SPEC_CHAT_INBOX_PUSH.md`. |
 | `20260915100000_social_notifications_push_outbox.sql` | `upsert_notification` → enqueue social kinds (`post_like`, comment, follow, …) в `push_outbox` на first insert. |
@@ -241,6 +242,7 @@
 | `20260909033323_resources_marker_tag.sql` | Admin-тег `resources` в `marker_tags` (местоположения / фильтры). |
 | `20260908170000_booking_staff_invite_kinds.sql` | `chat_message_kind.booking_staff_invite` + `chat_message_booking_cards`. |
 | `20260908171000_booking_staff_invite_rpc.sql` | `booking_staff_invites` + invite/accept/reject/cancel + `booking_card` в enriched. Спека: [SPEC_BOOKING_STAFF_INVITE.md](SPEC_BOOKING_STAFF_INVITE.md) |
+| **`20260920165050_booking_open_point_chat.sql`** | `booking_points.group_conversation_id` + `booking_ensure_point_group_chat` / `booking_open_point_chat`. |
 | **`20260726120000_booking_schema.sql`** | Таблицы booking, EXCLUDE constraints, helpers (`booking_resolve_staff_day_window`, …), `pg_trgm` indexes. |
 | **`20260726120100_booking_rls_grants.sql`** | RLS + GRANT для authenticated. |
 | **`20260726120200_booking_rpc.sql`** | `create_booking`, `get_booking_availability`, enriched lists, status, analytics. |

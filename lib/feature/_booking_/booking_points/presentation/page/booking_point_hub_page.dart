@@ -5,6 +5,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/feature/_booking_/booking_points/presentation/cubit/booking_points_cubit.dart';
+import 'package:clover/feature/_booking_/shared/presentation/booking_point_chat_nav.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_hub_nav_card.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
@@ -122,6 +123,16 @@ class _BookingPointHubPageState extends State<BookingPointHubPage> {
               subtitle: 'Мастера и приглашения',
               icon: AppIcons.groupOutlined.icon,
               onTap: () => context.router.push(BookingTeamRoute(pointId: pointId)),
+            ),
+            BookingHubNavCard(
+              title: 'Чат',
+              subtitle: 'Команда точки',
+              icon: AppIcons.chat.icon,
+              onTap: () => openBookingPointChat(
+                context,
+                pointId: pointId,
+                pointName: _title,
+              ),
             ),
             BookingHubNavCard(
               title: 'Аналитика',

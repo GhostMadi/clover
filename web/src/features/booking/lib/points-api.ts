@@ -27,6 +27,19 @@ function mapPoint(row: Record<string, unknown>): BookingPoint {
   };
 }
 
+export async function openBookingPointChat(pointId: string): Promise<string> {
+  const id = pointId.trim();
+  if (!id) throw new Error("Точка не указана");
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("booking_open_point_chat", {
+    p_point_id: id,
+  });
+  if (error) throw error;
+  const convId = String(data ?? "").trim();
+  if (!convId) throw new Error("Не удалось открыть чат");
+  return convId;
+}
+
 export async function ensureDefaultBookingPoint(): Promise<string> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("booking_ensure_default_point");

@@ -97,6 +97,7 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: EditProfileAvatarEditorRoute.page),
         AutoRoute(page: EditProfileAvatarConfirmRoute.page),
         AutoRoute(page: ChatRoute.page),
+        AutoRoute(page: ChatInfoRoute.page),
         AutoRoute(
           page: AppDashboardRoute.page,
           children: [

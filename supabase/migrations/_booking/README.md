@@ -35,6 +35,7 @@
 | `../20260830170000_posts_booking_service_link.sql` | `posts.booking_service_id`, `set_post_booking_service`, enriched `booking_service` в `get_post_enriched`. |
 | `../20260911131826_booking_points.sql` | `booking_points` + `services.point_id` + `booking_ensure_default_point`. |
 | `../20260911183500_booking_schedule_settings_per_point.sql` | Settings PK → `point_id`; helpers; RPC point-aware. |
+| `../20260920165050_booking_open_point_chat.sql` | `group_conversation_id` + `booking_open_point_chat` (чат точки). |
 
 ### Таблицы
 

@@ -70,23 +70,20 @@ class _ChatComposerState extends State<ChatComposer> {
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    // Клавиатуру поднимает родитель (чат) — вместе с лентой; здесь только safe-area без клавы.
+    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
     final bottomSafe = MediaQuery.paddingOf(context).bottom;
     final canSend = (_hasText || widget.hasAttachments) && !widget.isSending;
     final control = ChatGeometry.controlSize;
     final inputRadius = ChatGeometry.inputRadius;
     final accent = widget.accent ?? ChatPeerAccent.mine(context.colors);
 
-    return AnimatedPadding(
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOut,
+    return Padding(
       padding: EdgeInsets.fromLTRB(
         ChatComposer._horizontalMargin,
         4,
         ChatComposer._horizontalMargin,
-        bottomInset > 0
-            ? bottomInset + 6
-            : ChatComposer._bottomMargin + bottomSafe,
+        ChatComposer._bottomMargin + (keyboardOpen ? 0 : bottomSafe),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -136,7 +133,10 @@ class _ChatComposerState extends State<ChatComposer> {
                 textInputAction: TextInputAction.newline,
                 style: AppTextStyle.base(16, color: context.colors.textColor, height: 1.35),
                 cursorColor: context.colors.fieldCursor,
+                keyboardType: TextInputType.multiline,
+                textCapitalization: TextCapitalization.sentences,
                 onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+                scrollPadding: const EdgeInsets.only(bottom: 80),
                 decoration: InputDecoration(
                   hintText: 'Сообщение',
                   hintStyle: AppTextStyle.base(16, color: context.colors.subTextColor),

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:clover/core/storage/r2_storage_service.dart';
 import 'package:clover/feature/_chat_/chat/data/chat_enriched_mapper.dart';
 import 'package:clover/feature/_chat_/chat/data/models/chat_attachment_upload.dart';
+import 'package:clover/feature/_chat_/chat_info/data/models/chat_participant.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_reaction.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_search_hit.dart';
@@ -16,6 +17,12 @@ abstract class ChatRepository {
 
   /// Total unread inbound messages for the current user (nav Chat badge).
   Future<int> countUnreadMessages();
+
+  /// Active participants for chat info (DM + group).
+  Future<List<ChatParticipant>> listConversationParticipants(String conversationId);
+
+  /// Lightweight profile for DM info when conversation is not ready yet.
+  Future<ChatParticipant?> getProfileBrief(String userId);
 
   Future<List<ChatMessage>> listMessages(
     String conversationId, {
@@ -96,6 +103,60 @@ class ChatRepositoryImpl implements ChatRepository {
   String? get _currentUserId => _client.auth.currentUser?.id.trim();
 
   static const _rpcTimeout = Duration(seconds: 12);
+
+  @override
+  Future<List<ChatParticipant>> listConversationParticipants(String conversationId) async {
+    final id = conversationId.trim();
+    if (id.isEmpty) return const [];
+
+    final res = await _client
+        .rpc('list_conversation_participants', params: {'p_conversation_id': id})
+        .timeout(_rpcTimeout);
+
+    if (res is! List) return const [];
+
+    final out = <ChatParticipant>[];
+    for (final raw in res) {
+      if (raw is! Map) continue;
+      final map = Map<String, dynamic>.from(raw);
+      final userId = map['user_id']?.toString().trim() ?? '';
+      if (userId.isEmpty) continue;
+      out.add(
+        ChatParticipant(
+          userId: userId,
+          role: map['role']?.toString().trim() ?? 'member',
+          username: map['username']?.toString().trim() ?? '',
+          avatarUrl: map['avatar_url']?.toString().trim(),
+          joinedAt: DateTime.tryParse(map['joined_at']?.toString() ?? '')?.toUtc(),
+        ),
+      );
+    }
+    return out;
+  }
+
+  @override
+  Future<ChatParticipant?> getProfileBrief(String userId) async {
+    final id = userId.trim();
+    if (id.isEmpty) return null;
+
+    final row = await _client
+        .from('profiles')
+        .select('id, username, avatar_url')
+        .eq('id', id)
+        .maybeSingle()
+        .timeout(_rpcTimeout);
+
+    if (row == null) return null;
+    final map = Map<String, dynamic>.from(row);
+    final resolvedId = map['id']?.toString().trim() ?? '';
+    if (resolvedId.isEmpty) return null;
+    return ChatParticipant(
+      userId: resolvedId,
+      role: 'member',
+      username: map['username']?.toString().trim() ?? '',
+      avatarUrl: map['avatar_url']?.toString().trim(),
+    );
+  }
 
   @override
   Future<List<MessageChatPreview>> listConversations({int limit = 50, int offset = 0}) async {

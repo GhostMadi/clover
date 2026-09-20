@@ -148,6 +148,8 @@ import '../../feature/_chat_/chat/presentation/chat_push_open_bus.dart'
     as _i171;
 import '../../feature/_chat_/chat/presentation/cubit/chat_unread_cubit.dart'
     as _i832;
+import '../../feature/_chat_/chat_info/presentation/cubit/chat_info_cubit.dart'
+    as _i1033;
 import '../../feature/_chat_/chat_page/data/chat_emoji_wallpaper_store.dart'
     as _i96;
 import '../../feature/_chat_/chat_page/presentation/cubit/chat_thread_cubit.dart'
@@ -509,6 +511,13 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i297.ChatThreadCacheSync>(
       () => _i297.ChatThreadCacheSync(
+        gh<_i233.ChatRepository>(),
+        gh<_i325.ChatLocalCache>(),
+        gh<_i454.SupabaseClient>(),
+      ),
+    );
+    gh.factory<_i1033.ChatInfoCubit>(
+      () => _i1033.ChatInfoCubit(
         gh<_i233.ChatRepository>(),
         gh<_i325.ChatLocalCache>(),
         gh<_i454.SupabaseClient>(),
