@@ -107,11 +107,12 @@ jobs:
           # Local Xcode: Automatic signing (project.pbxproj).
           # CI: override Manual + Distribution so we can sign with secrets and keep
           # RunnerRelease.entitlements (aps-environment=production) in the IPA.
-          # --no-codesign previously stripped push entitlements → empty FCM token on device.
+          # Do NOT put a bare `--` before CODE_SIGN_* — Flutter treats the next
+          # arg as Dart target ("Target file CODE_SIGN_STYLE=Manual not found").
+          # KEY=VALUE rest args are forwarded to xcodebuild as xcargs.
           flutter build ipa --release \
             --dart-define=MAPBOX_ACCESS_TOKEN="$MAPBOX_ACCESS_TOKEN" \
             --export-options-plist=ios/Runner/ExportOptions.plist \
-            -- \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="${PP_NAME}" \
