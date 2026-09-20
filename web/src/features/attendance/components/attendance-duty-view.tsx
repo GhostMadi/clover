@@ -6,7 +6,6 @@ import { AppButtonLink } from "@/components/shared/app-button";
 import { AttendanceListShimmer } from "@/features/attendance/components/attendance-shimmers";
 import {
   fetchBootstrap,
-  getAdminWorkplace,
   loadProfileLabels,
   setOvertimeStatus,
   updateDutyRoster,
@@ -57,12 +56,13 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
     setError(null);
     try {
       const uid = await getSessionUserId();
-      const w = await getAdminWorkplace(workplaceId);
+      const boot = await fetchBootstrap();
+      const w =
+        boot.workplaces.find((x) => x.id === workplaceId && x.isAdmin) ?? null;
       if (!w) {
         setError("Компания не найдена или нет прав admin");
         return;
       }
-      const boot = await fetchBootstrap();
       const active = boot.memberships.filter(
         (m) => m.workplaceId === workplaceId && m.status === "active",
       );

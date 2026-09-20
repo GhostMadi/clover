@@ -31,7 +31,16 @@ import {
   payrollLineLabelRu,
   payrollPeriodLabelRu,
 } from "@/features/attendance/lib/payroll-labels";
+import { coalesceAsync, invalidateCoalesce } from "@/lib/coalesce-async";
 import { createClient } from "@/lib/supabase/client";
+
+const BOOTSTRAP_KEY = "attendance:bootstrap";
+const ADMIN_HUB_KEY = "attendance:admin-hub";
+
+/** Сбросить memory/in-flight после мутаций хаба. */
+export function invalidateAttendanceBootstrapCache(): void {
+  invalidateCoalesce("attendance:");
+}
 
 function asRecordArray(value: unknown): Record<string, unknown>[] {
   if (!Array.isArray(value)) return [];
@@ -53,7 +62,7 @@ export type BootstrapParsed = {
   userId: string | null;
 };
 
-export async function fetchBootstrap(): Promise<BootstrapParsed> {
+async function fetchBootstrapUncached(): Promise<BootstrapParsed> {
   const supabase = createClient();
   const {
     data: { session },
@@ -147,23 +156,32 @@ export async function fetchBootstrap(): Promise<BootstrapParsed> {
   };
 }
 
-/** Admin-хаб: bootstrap + filter `is_admin`. */
+/**
+ * Bootstrap с coalesce + коротким memory (как `_networkInFlight` на мобилке).
+ * Switcher + вкладка делят один RPC.
+ */
+export async function fetchBootstrap(): Promise<BootstrapParsed> {
+  return coalesceAsync(BOOTSTRAP_KEY, fetchBootstrapUncached);
+}
+
+/** Admin-хаб: bootstrap + filter `is_admin` (тот же coalesce). */
 export async function loadAttendanceAdminHub(): Promise<
   AttendanceAdminHub & { hasWorkerMembership: boolean }
 > {
-  const { folders, workplaces, memberships, myMemberships } =
-    await fetchBootstrap();
-  const adminWorkplaces = workplaces.filter((w) => w.isAdmin);
-  const hasWorkerMembership = myMemberships.some((m) =>
-    isWorkerMembershipStatus(m.status),
-  );
-  const isWorkerOnly = adminWorkplaces.length === 0 && hasWorkerMembership;
-  return {
-    folders,
-    adminWorkplaces,
-    isWorkerOnly,
-    hasWorkerMembership,
-  };
+  return coalesceAsync(ADMIN_HUB_KEY, async () => {
+    const { folders, workplaces, myMemberships } = await fetchBootstrap();
+    const adminWorkplaces = workplaces.filter((w) => w.isAdmin);
+    const hasWorkerMembership = myMemberships.some((m) =>
+      isWorkerMembershipStatus(m.status),
+    );
+    const isWorkerOnly = adminWorkplaces.length === 0 && hasWorkerMembership;
+    return {
+      folders,
+      adminWorkplaces,
+      isWorkerOnly,
+      hasWorkerMembership,
+    };
+  });
 }
 
 export type WorkerHubData = {
@@ -204,6 +222,7 @@ export async function createWorkplace(params: {
     p_geofence_radius_m: 150,
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
   return String(data);
 }
 
@@ -215,6 +234,7 @@ export async function createFolder(name: string): Promise<string> {
     p_name: trimmed,
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
   return String(data);
 }
 
@@ -228,13 +248,16 @@ export async function setWorkplaceFolder(params: {
     p_folder_id: params.folderId,
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
 }
 
 export async function getAdminWorkplace(
   workplaceId: string,
 ): Promise<AttendanceWorkplace | null> {
-  const hub = await loadAttendanceAdminHub();
-  return hub.adminWorkplaces.find((w) => w.id === workplaceId) ?? null;
+  const boot = await fetchBootstrap();
+  return (
+    boot.workplaces.find((w) => w.id === workplaceId && w.isAdmin) ?? null
+  );
 }
 
 export async function renameWorkplace(params: {
@@ -250,6 +273,7 @@ export async function renameWorkplace(params: {
     p_bump_config: false,
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
 }
 
 export async function updateGeofence(params: {
@@ -271,6 +295,7 @@ export async function updateGeofence(params: {
     p_bump_config: true,
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
 }
 
 export async function setDutyOnlyPunch(params: {
@@ -283,6 +308,7 @@ export async function setDutyOnlyPunch(params: {
     p_duty_only_punch: params.dutyOnlyPunch,
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
 }
 
 export async function savePunchConfig(params: {
@@ -340,6 +366,7 @@ export async function savePunchConfig(params: {
     },
   );
   if (typesError) throw typesError;
+  invalidateAttendanceBootstrapCache();
 }
 
 /** Члены одной компании (admin видит roster в bootstrap). */
@@ -358,6 +385,7 @@ export async function acceptAttendanceInvite(membershipId: string): Promise<void
     p_membership_id: membershipId,
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
 }
 
 export async function rejectAttendanceInvite(membershipId: string): Promise<void> {
@@ -366,6 +394,7 @@ export async function rejectAttendanceInvite(membershipId: string): Promise<void
     p_membership_id: membershipId,
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
 }
 
 export async function ackAttendanceConfig(workplaceId: string): Promise<void> {
@@ -475,6 +504,7 @@ export async function updateDutyRoster(params: {
     p_duty_roster: dutyRosterToJson(params.roster),
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
 }
 
 export async function setOvertimeStatus(params: {

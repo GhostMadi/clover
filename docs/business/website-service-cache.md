@@ -13,7 +13,7 @@
 Punch / offline outbox — только мобилка ([website-attendance-gaps.md](website-attendance-gaps.md)).  
 На сайте кэш — **read cache + UX prefs**, не замена RLS.
 
-Паттерн: **stale-while-revalidate (SWR)** через `service-sync-cache` + `*-prefs` + опционально `run-service-swr`.
+Паттерн: **stale-while-revalidate (SWR)** через `service-sync-cache` + `*-prefs` + `run-service-swr` + **`coalesce-async`** (in-flight + короткий memory ~20с, как `_networkInFlight` на мобилке).
 
 ## Участники
 
@@ -31,6 +31,8 @@ Punch / offline outbox — только мобилка ([website-attendance-gaps
 5. Теги маркеров / shortcut — по-прежнему с бэка, не из prefs-флагов shortcut.
 6. Есть кэш → paint без shimmer; нет → shimmer → fetch → write.
 7. Поиск / query (inbox) — кэш не читает и не пишет.
+8. **Один сетевой запрос на ключ:** `coalesceAsync` в `web/src/lib/coalesce-async.ts` — параллельные и близкие вызовы (`attendance_bootstrap_me`, список точек, локации) делят Promise; после мутации — `invalidate*`.
+9. Вкладка не должна звать bootstrap дважды подряд (например `getAdminWorkplace` + `fetchBootstrap` в одном reload) — один `fetchBootstrap`, workplace из результата.
 
 ## Посещаемость
 
@@ -45,6 +47,7 @@ Punch / offline outbox — только мобилка ([website-attendance-gaps
 | Аналитика / табель | `analytics:{id}:{from}:{to}` | 6h |
 | Зарплата | `payroll:{id}:{from}:{to}` | 6h |
 | Вход | Last workplace → `/w/[id]` | LS |
+| In-flight | `attendance:bootstrap` / `attendance:admin-hub` | ~20с memory |
 
 ## Запись
 
@@ -57,6 +60,7 @@ Punch / offline outbox — только мобилка ([website-attendance-gaps
 | Услуги | `services:{pointId}` | 7d |
 | Расписание | `schedule` | 24h |
 | Аналитика | `analytics:{from}:{to}` | 6h |
+| In-flight | `booking:points` | ~20с memory |
 
 ## Ресурсы
 
@@ -65,6 +69,7 @@ Punch / offline outbox — только мобилка ([website-attendance-gaps
 | Местоположения | `locations` | 7d |
 | Деталь места | `location:{id}` | 7d |
 | Фильтры профиля | `profile-filters` | 7d |
+| In-flight | `resources:locations` | ~20с memory |
 
 ## Сознательно не здесь
 
