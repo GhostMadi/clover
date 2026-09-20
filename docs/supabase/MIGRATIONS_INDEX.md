@@ -94,7 +94,8 @@
 ### Состояние аккаунта (сон / видимость) — **актуальный бэкенд**
 
 Клиент вызывает только **`public.hibernate_account()`** (и при необходимости **`wake_up_if_needed()`**).  
-Сброс контента (удаление постов/медиа) **не используется**.
+Сброс контента (удаление постов/медиа) **не используется**.  
+**In-app «удаление»:** RPC **`soft_delete_account`** — soft-hide как сон (`account_state = hibernate`), **без** Auth Admin wipe. Продукт: [account-delete.md](../business/account-delete.md).
 
 | Файл | Назначение |
 |------|------------|
@@ -104,6 +105,7 @@
 | `20260417100000_reset_account_hard_delete_content.sql` | Итерация `reset_account`: hard-delete строк. |
 | `20260418130000_reset_account_storage_posts_clusters.sql` | Итерация `reset_account`: очистка префиксов в Storage. |
 | **`20260419000000_disable_reset_account_content_wipe.sql`** | **Финал:** `reset_account()` только `raise exception`; **`revoke execute` у `authenticated`**. Полное удаление контента с клиента отключено. |
+| **`20260920183135_soft_delete_account.sql`** | RPC **`soft_delete_account`**: soft-hide как hibernate, без лимита 30 дней, без cascade. |
 
 Ремонт таблицы кластеров на проектах без ранней миграции:
 

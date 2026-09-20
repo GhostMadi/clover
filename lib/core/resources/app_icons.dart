@@ -8,6 +8,7 @@ enum AppIcons {
   ticket(iconAndroid: Icons.confirmation_number_outlined, iconIos: CupertinoIcons.ticket),
   eventSeat(iconAndroid: Icons.event_seat_outlined, iconIos: CupertinoIcons.rectangle_grid_1x2),
   layers(iconAndroid: Icons.layers_outlined, iconIos: CupertinoIcons.square_stack_3d_up),
+  appleLogo(iconAndroid: Icons.apple, iconIos: Icons.apple),
   user(iconAndroid: Icons.person, iconIos: CupertinoIcons.person_fill),
   menu(iconAndroid: Icons.menu, iconIos: CupertinoIcons.bars),
   back(iconAndroid: Icons.arrow_back, iconIos: CupertinoIcons.back),

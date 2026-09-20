@@ -72,6 +72,23 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  Future<void> loginWithApple() async {
+    emit(const AuthLoading());
+
+    try {
+      final user = await _repository.signInWithApple();
+      await _repository.wakeUpIfNeeded();
+      emit(Authenticated(user));
+    } catch (error) {
+      final code = _resolve(error);
+      if (code == AuthErrorCode.signInCanceled) {
+        emit(const Unauthenticated());
+        return;
+      }
+      emit(AuthError(code));
+    }
+  }
+
   Future<void> loginWithPassword({
     required String identifier,
     required String password,
@@ -254,6 +271,16 @@ class AuthCubit extends Cubit<AuthState> {
       emit(const Unauthenticated());
     } catch (error) {
       _emitFailure(error, fallback: AuthErrorCode.hibernateFailed);
+    }
+  }
+
+  Future<void> deleteAccount() async {
+    emit(const AuthLoading());
+    try {
+      await _repository.deleteAccount();
+      emit(const Unauthenticated());
+    } catch (error) {
+      _emitFailure(error, fallback: AuthErrorCode.deleteAccountFailed);
     }
   }
 

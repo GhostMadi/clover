@@ -5,6 +5,7 @@ import { useEffect, useState, useTransition } from "react";
 import { AppButton } from "@/components/shared/app-button";
 import { signOut } from "@/features/auth/lib/auth-api";
 import {
+  deleteAccount,
   hibernateAccount,
   listMyLoginEvents,
   type LoginEvent,
@@ -58,9 +59,11 @@ export function SettingsAccountView() {
   const [theme, setTheme] = useState<WebThemeMode>("light");
   const [locale, setLocale] = useState<WebLocaleCode>("ru");
   const [confirmHibernate, setConfirmHibernate] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [hibernating, startHibernate] = useTransition();
+  const [deleting, startDelete] = useTransition();
   const [logins, setLogins] = useState<LoginEvent[]>([]);
 
   useEffect(() => {
@@ -70,6 +73,8 @@ export function SettingsAccountView() {
       .then(setLogins)
       .catch(() => setLogins([]));
   }, []);
+
+  const sessionBusy = loggingOut || hibernating || deleting;
 
   const onTheme = (mode: WebThemeMode) => {
     setTheme(mode);
@@ -104,6 +109,20 @@ export function SettingsAccountView() {
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Не удалось усыпить аккаунт");
         setConfirmHibernate(false);
+      }
+    });
+  };
+
+  const onDelete = () => {
+    setError(null);
+    startDelete(async () => {
+      try {
+        await deleteAccount();
+        router.replace("/auth");
+        router.refresh();
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Не удалось удалить аккаунт");
+        setConfirmDelete(false);
       }
     });
   };
@@ -211,7 +230,7 @@ export function SettingsAccountView() {
             <AppButton
               type="button"
               loading={loggingOut}
-              disabled={loggingOut || hibernating}
+              disabled={sessionBusy}
               variant="outline"
               onClick={() => void onLogout()}
             >
@@ -219,16 +238,26 @@ export function SettingsAccountView() {
             </AppButton>
             <AppButton
               type="button"
-              disabled={loggingOut || hibernating}
+              disabled={sessionBusy}
               variant="outline"
               className="!border-destructive/40 !text-destructive hover:!bg-destructive/10"
               onClick={() => setConfirmHibernate(true)}
             >
               Усыпить аккаунт
             </AppButton>
+            <AppButton
+              type="button"
+              disabled={sessionBusy}
+              variant="outline"
+              className="!border-destructive/40 !text-destructive hover:!bg-destructive/10"
+              onClick={() => setConfirmDelete(true)}
+            >
+              Удалить аккаунт
+            </AppButton>
             <p className="px-1 text-[11px] leading-snug text-muted">
-              Сон скрывает профиль и контент из лент — это не удаление. Полное удаление — на
-              странице delete-account.
+              Сон и «удалить» скрывают профиль из лент — данные не стираются каскадом.
+              При следующем входе аккаунт просыпается. Без входа — поддержка на
+              /delete-account.
             </p>
           </div>
         </section>
@@ -262,6 +291,40 @@ export function SettingsAccountView() {
                 onClick={onHibernate}
               >
                 Усыпить
+              </AppButton>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {confirmDelete ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-4 sm:items-center">
+          <div
+            role="dialog"
+            aria-modal
+            className="w-full max-w-sm rounded-[20px] border border-line bg-surface p-5 shadow-xl"
+          >
+            <p className="text-[16px] font-bold text-ink">Удалить аккаунт?</p>
+            <p className="mt-2 text-[13px] leading-relaxed text-muted">
+              Профиль и публикации скроются из лент, как при сне. Данные не стираются
+              каскадом — при следующем входе аккаунт снова активен.
+            </p>
+            <div className="mt-5 flex gap-2">
+              <AppButton
+                type="button"
+                disabled={deleting}
+                variant="outline"
+                onClick={() => setConfirmDelete(false)}
+              >
+                Отмена
+              </AppButton>
+              <AppButton
+                type="button"
+                loading={deleting}
+                className="!bg-destructive !text-on-media hover:!bg-destructive/90"
+                onClick={onDelete}
+              >
+                Удалить
               </AppButton>
             </div>
           </div>

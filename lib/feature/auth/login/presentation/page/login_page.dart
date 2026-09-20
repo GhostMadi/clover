@@ -174,6 +174,8 @@ class _LoginPageState extends State<LoginPage> {
                 const AuthOrDivider(),
                 SizedBox(height: context.heightByContext(24)),
                 const AuthGoogleSignInButton(),
+                SizedBox(height: context.heightByContext(12)),
+                const AuthAppleSignInButton(),
               ],
             ),
           ),

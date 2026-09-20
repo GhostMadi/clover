@@ -86,6 +86,8 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
         const AuthOrDivider(),
         const SizedBox(height: 24),
         const AuthGoogleSignInButton(),
+        const SizedBox(height: 12),
+        const AuthAppleSignInButton(),
       ],
     );
   }

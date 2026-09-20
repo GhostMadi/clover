@@ -42,6 +42,7 @@ supabase db push
 supabase functions deploy create_post
 supabase functions deploy send_sms_hook
 supabase functions deploy whatsapp_webhook
+supabase functions deploy delete_account
 ```
 
 Подробнее про деплой — [`../../supabase/README.md`](../../supabase/README.md).

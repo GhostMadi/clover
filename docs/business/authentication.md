@@ -1,8 +1,8 @@
 # Аутентификация Clover
 
 **Статус:**  
-- **Сейчас в приложении:** Google + тестовый email OTP ([email-authentication.md](email-authentication.md))  
-- **Целевая модель (план):** логин ник/email + пароль; регистрация через OTP (почта / SMS) или Google / Apple  
+- **Сейчас в приложении:** Google + Apple (native iOS) + email OTP / ник+пароль ([email-authentication.md](email-authentication.md))  
+- **Целевая модель:** логин ник/email + пароль; регистрация через OTP (почта / SMS) или Google / Apple  
 
 **Для кого:** продукт / поддержка / онбординг команды  
 **Не про:** код, секреты, API-ключи  
@@ -14,7 +14,7 @@
 
 Пользователь безопасно входит в Clover и получает один аккаунт.  
 Повседневный вход — **ник или почта + пароль**.  
-Первичная регистрация и восстановление — через **подтверждение (OTP)** или **соцвход (Google / позже Apple)**.
+Первичная регистрация и восстановление — через **подтверждение (OTP)** или **соцвход (Google / Apple)**.
 
 ---
 
@@ -28,7 +28,7 @@
 | Поле 2 | **Пароль** |
 | CTA | **Войти** |
 | Ссылки | «Забыли пароль?» · «Создать аккаунт» |
-| Соцкнопки | Google · позже Apple |
+| Соцкнопки | Google · Apple (iOS) |
 
 OTP **не** является основным способом ежедневного входа. Код нужен при **регистрации**, **сбросе пароля** и (при необходимости) подтверждении контакта.
 
@@ -39,7 +39,7 @@ OTP **не** является основным способом ежедневн
 ├── Войти
 ├── Забыли пароль?
 ├── Создать аккаунт
-└── Google · (позже Apple)
+└── Google · Apple (iOS)
 ```
 
 ---
@@ -53,7 +53,7 @@ OTP **не** является основным способом ежедневн
 | **Email** | email → OTP на welcome@clover.com.kz → ввод кода → **установка пароля** → профиль / онбординг |
 | **SMS / телефон** | номер → OTP (SMS/WhatsApp) → ввод кода → **установка пароля** → профиль / онбординг |
 | **Google** | Continue with Google → аккаунт сразу · пароля может не быть |
-| **Apple** (позже) | Sign in with Apple → как Google |
+| **Apple** | Continue with Apple (iOS) → как Google |
 
 Правила:
 
@@ -131,13 +131,13 @@ Google → аккаунт Clover
 | Google | ✅ |
 | Email OTP + hourly gate (3/email) | ✅ Send Email Hook + RPC |
 | SMS / WhatsApp OTP | бэк частично; UI нет |
-| Apple | ❌ позже |
-| Установить пароль после Google | ✅ настройки аккаунта |
+| Apple | ✅ native iOS (`signInWithIdToken` + nonce) |
+| Установить пароль после Google / Apple | ✅ настройки аккаунта |
 | Сброс пароля | ✅ forgot OTP |
 
 Подробно про почтовый шлюз: [email-authentication.md](email-authentication.md).
 
-Целевая модель выше в основном live; SMS/Apple — ещё план.
+Целевая модель выше в основном live; SMS — ещё план.
 
 ---
 
@@ -173,6 +173,30 @@ Google → аккаунт Clover
 3. Пересобрать приложение после смены `google-services.json` / SHA.
 
 Код: `GoogleAuthConfig.webClientId` + `iosClientId`; init в `configureDependencies`.
+
+---
+
+## Apple native (iOS)
+
+Мобилка: **Sign in with Apple → idToken + nonce → Supabase** (`signInWithIdToken`), без браузера.  
+Кнопка на login / register — только iOS (`AuthAppleSignInButton`).
+
+### Apple Developer
+
+1. App ID `clover.mobile.com` — capability **Sign in with Apple**.  
+2. Services ID `app.clover.mobile.auth` — для web/OAuth secret (если нужен сайт).  
+3. Key `.p8` → Secret Key (JWT) в Supabase (срок до 6 мес.).
+
+### Supabase → Auth → Providers → Apple
+
+1. Включить Apple.  
+2. **Client IDs:** bundle `clover.mobile.com` (+ Services ID `app.clover.mobile.auth` первым, если будет web OAuth).  
+3. Secret Key / Team ID / Key ID — для OAuth secret (web); native idToken проверяет audience = App ID.
+
+### iOS
+
+- Entitlements: `com.apple.developer.applesignin` = `Default` (Debug / Profile / Release).  
+- Код: `AuthRepository.signInWithApple` + `AuthCubit.loginWithApple`.
 
 ---
 
@@ -225,8 +249,8 @@ Logout на одном клиенте
 | 4 | **Установить / сбросить пароль** в настройках по флагу с бэка | Закрыть кейс «Google без пароля» и «забыл, уже в приложении» |
 | 5 | **Забыли пароль** (email OTP → новый пароль) | Восстановление |
 | 6 | Регистрация / сброс через **SMS** | Когда телефонный канал готов |
-| 7 | **Apple** Sign In | iOS parity |
-| 8 | Google остаётся на login + register как быстрый путь | Уже есть |
+| 7 | **Apple** Sign In | ✅ native iOS |
+| 8 | Google / Apple на login + register | ✅ |
 
 ---
 

@@ -17,7 +17,7 @@
 ## Вход и старт
 
 ### 🟢 Аутентификация (целевая модель email)
-**План / сейчас:** логин ник/email + пароль; регистрация email OTP → пароль; сброс пароля; Google. SMS/Apple — later.  
+**План / сейчас:** логин ник/email + пароль; регистрация email OTP → пароль; сброс пароля; Google; **Apple (iOS)**. SMS — later.
 Бизнес: [authentication.md](authentication.md)  
 Техника: `lib/feature/auth/`, `lib/core/auth/`, `web/src/features/auth/` · [SPEC_EMAIL_AUTH.md](../supabase/SPEC_EMAIL_AUTH.md)
 
@@ -226,6 +226,11 @@ Like / dislike на постах; уведомления автору.
 Бизнес: [account-sleep.md](account-sleep.md)  
 Техника: RPC `hibernate_account` / `wake_up_if_needed` · mobile + web settings + auth wake
 
+### 🟢 Удаление аккаунта
+Self-serve soft-hide (как сон): confirm → RPC `soft_delete_account` → выход. **Без** Auth cascade wipe.  
+Бизнес: [account-delete.md](account-delete.md)  
+Техника: `soft_delete_account` · `account_state = hibernate` · mobile + web
+
 ---
 
 ## Справочники и данные
@@ -250,7 +255,7 @@ Enum + catalog: страны, города, теги без sync с бэка.
 ## Сводка одним взглядом
 
 **🟢 Ок**  
-Google-вход · **сессия/выход** · онбординг · нижний бар · лента↔карта · **фильтры** · профиль · edit · теги · **подписчики** · публикации/ивенты · **реакции** · **комментарии** · **сохранённые** · **архивы** · **кластеры** · **чаты** · **уведомления** · **настройки** · **локации** · **онлайн-запись** · **бонусы** · **сон аккаунта** · **посещаемость ядро** · **web-push** (нужен Firebase Web env на Vercel)
+Google-вход · Apple (iOS) · **сессия/выход** · онбординг · нижний бар · лента↔карта · **фильтры** · профиль · edit · теги · **подписчики** · публикации/ивенты · **реакции** · **комментарии** · **сохранённые** · **архивы** · **кластеры** · **чаты** · **уведомления** · **настройки** · **локации** · **онлайн-запись** · **бонусы** · **сон аккаунта** · **удаление аккаунта** · **посещаемость ядро** · **web-push** (нужен Firebase Web env на Vercel)
 
 **🟡 Зазор**  
 **блокировки** (нет UI) · **сила тегов** (паттерн не везде одинаков) · сайт: чат reply/reactions · хозяин booking B4/B5/B7 polish

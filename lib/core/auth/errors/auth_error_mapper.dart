@@ -1,6 +1,7 @@
 import 'package:clover/core/auth/errors/auth_error_code.dart';
 import 'package:clover/core/auth/errors/auth_failure.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Maps provider exceptions to internal [AuthErrorCode].
@@ -30,6 +31,25 @@ abstract final class AuthErrorMapper {
         GoogleSignInExceptionCode.unknownError =>
           AuthErrorCode.googleSignInFailed,
       };
+    }
+
+    if (error is SignInWithAppleAuthorizationException) {
+      return switch (error.code) {
+        AuthorizationErrorCode.canceled => AuthErrorCode.signInCanceled,
+        AuthorizationErrorCode.unknown ||
+        AuthorizationErrorCode.invalidResponse ||
+        AuthorizationErrorCode.notHandled ||
+        AuthorizationErrorCode.notInteractive ||
+        AuthorizationErrorCode.failed ||
+        AuthorizationErrorCode.credentialImport ||
+        AuthorizationErrorCode.credentialExport ||
+        AuthorizationErrorCode.matchedExcludedCredential =>
+          AuthErrorCode.appleSignInFailed,
+      };
+    }
+
+    if (error is SignInWithAppleException) {
+      return AuthErrorCode.appleSignInFailed;
     }
 
     if (error is AuthException) {
