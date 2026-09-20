@@ -35,6 +35,9 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
 
   String? get _currentUserId => _client.auth.currentUser?.id.trim();
 
+  /// Resolved conversation id after [load] / [openWithOtherUser].
+  String? get conversationId => _conversationId;
+
   /// Открыть DM с профиля: сразу показываем пустой чат, create_dm — в фоне.
   Future<void> openWithOtherUser(String otherUserId) async {
     if (isClosed) return;
@@ -71,6 +74,7 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
           ChatThreadState.loaded(
             messages: cached!,
             isFromCache: true,
+            wallpaperEmojis: await _readCachedWallpaper(uid, conversationId),
           ),
         );
         _subscribe(conversationId);
@@ -113,6 +117,7 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
         ChatThreadState.loaded(
           messages: cached!,
           isFromCache: true,
+          wallpaperEmojis: await _readCachedWallpaper(uid, id),
         ),
       );
       _subscribe(id);
@@ -551,9 +556,15 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
       List<String> wallpaper = const [];
       try {
         wallpaper = await _repository.getConversationWallpaper(id);
+        await _persistWallpaper(uid, id, wallpaper);
       } catch (_) {
-        final curWall = state;
-        if (curWall is ChatThreadLoaded) wallpaper = curWall.wallpaperEmojis;
+        final cachedWall = await _readCachedWallpaper(uid, id);
+        if (cachedWall.isNotEmpty) {
+          wallpaper = cachedWall;
+        } else {
+          final curWall = state;
+          if (curWall is ChatThreadLoaded) wallpaper = curWall.wallpaperEmojis;
+        }
       }
       if (isClosed) return;
 
@@ -600,6 +611,20 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
     } catch (_) {
       return null;
     }
+  }
+
+  Future<List<String>> _readCachedWallpaper(String userId, String conversationId) async {
+    try {
+      return await _localCache.readWallpaper(userId, conversationId) ?? const [];
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  Future<void> _persistWallpaper(String userId, String conversationId, List<String> emojis) async {
+    try {
+      await _localCache.writeWallpaper(userId, conversationId, emojis);
+    } catch (_) {}
   }
 
   Future<List<ChatMessage>> _repairStructuredMessages(List<ChatMessage> messages) async {
@@ -687,6 +712,7 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
 
   void _onWallpaperChanged(Map<String, dynamic> payload) {
     final conversationId = _conversationId;
+    final uid = _currentUserId;
     if (conversationId == null) return;
 
     final data = payload['payload'] ?? payload;
@@ -702,6 +728,10 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
       }
     }
 
+    if (uid != null && uid.isNotEmpty) {
+      _persistWallpaper(uid, conversationId, emojis);
+    }
+
     final cur = state;
     if (cur is! ChatThreadLoaded) return;
     emit(cur.copyWith(wallpaperEmojis: List<String>.unmodifiable(emojis)));
@@ -709,6 +739,7 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
 
   Future<void> setWallpaperEmojis(List<String> emojis) async {
     final id = _conversationId;
+    final uid = _currentUserId;
     if (id == null || id.isEmpty) {
       throw const ChatRepositoryException('Чат ещё не создан');
     }
@@ -717,6 +748,9 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
       emojis: emojis,
     );
     if (isClosed) return;
+    if (uid != null && uid.isNotEmpty) {
+      await _persistWallpaper(uid, id, saved);
+    }
     final cur = state;
     if (cur is ChatThreadLoaded) {
       emit(cur.copyWith(wallpaperEmojis: saved));

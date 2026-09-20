@@ -37,7 +37,7 @@ class BookingPointsRepository {
     return _guard(() async {
       final res = await _client
           .from('booking_points')
-          .select('id, host_id, name, created_at')
+          .select('id, host_id, name, created_at, group_conversation_id')
           .eq('host_id', uid)
           .isFilter('archived_at', null)
           .order('created_at');
@@ -51,7 +51,7 @@ class BookingPointsRepository {
       final id = await ensureDefaultPointId();
       final again = await _client
           .from('booking_points')
-          .select('id, host_id, name, created_at')
+          .select('id, host_id, name, created_at, group_conversation_id')
           .eq('id', id)
           .maybeSingle();
       if (again == null) return const [];
@@ -66,7 +66,7 @@ class BookingPointsRepository {
     return _guard(() async {
       final row = await _client
           .from('booking_points')
-          .select('id, host_id, name, created_at')
+          .select('id, host_id, name, created_at, group_conversation_id')
           .eq('id', id)
           .isFilter('archived_at', null)
           .maybeSingle();
@@ -89,7 +89,7 @@ class BookingPointsRepository {
       final row = await _client
           .from('booking_points')
           .insert({'host_id': uid, 'name': trimmed})
-          .select('id, host_id, name, created_at')
+          .select('id, host_id, name, created_at, group_conversation_id')
           .single();
       return BookingPoint.fromJson(Map<String, dynamic>.from(row));
     });
@@ -104,6 +104,24 @@ class BookingPointsRepository {
 
     return _guard(() async {
       await _client.from('booking_points').update({'name': trimmed}).eq('id', id);
+    });
+  }
+
+  /// Ensure + sync host + active staff; returns conversation id.
+  Future<String> openPointChat(String pointId) async {
+    final id = pointId.trim();
+    if (id.isEmpty) {
+      throw const BookingException(BookingErrorCode.unknown);
+    }
+    return _guard(() async {
+      final raw = await _client.rpc('booking_open_point_chat', params: {
+        'p_point_id': id,
+      });
+      final convId = raw?.toString().trim() ?? '';
+      if (convId.isEmpty) {
+        throw const BookingException(BookingErrorCode.unknown);
+      }
+      return convId;
     });
   }
 }

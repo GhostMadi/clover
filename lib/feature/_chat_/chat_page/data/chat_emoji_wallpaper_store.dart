@@ -2,7 +2,8 @@ import 'package:characters/characters.dart';
 import 'package:clover/core/storage/domain/repositories/i_app_storage.dart';
 import 'package:injectable/injectable.dart';
 
-/// Normalize helpers for shared emoji wallpaper. Persistence = Supabase RPC.
+/// Normalize helpers for shared emoji wallpaper.
+/// Persistence: Supabase RPC + [ChatLocalCache] (local-first paint, как сообщения).
 @lazySingleton
 class ChatEmojiWallpaperStore {
   ChatEmojiWallpaperStore(this._storage);
@@ -17,7 +18,7 @@ class ChatEmojiWallpaperStore {
     return '$_prefix${id.isEmpty ? 'unknown' : id}';
   }
 
-  /// Legacy local keys — cleared on logout; no longer source of truth.
+  /// Legacy local keys (без userId) — cleared on logout; source of truth = RPC + ChatLocalCache.
   Future<void> clearLegacy(String conversationKey) =>
       _storage.delete(key: storageKey(conversationKey));
 

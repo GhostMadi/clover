@@ -99,9 +99,10 @@
 
 ### Вне скоупа v1 invite
 
-- Групповой чат «салона» (в отличие от attendance company chat) — достаточно DM  
 - Автотег `bookingCalendar`  
 - Заявка человеку без аккаунта Clover  
+
+Групповой чат точки (`booking_open_point_chat`) — **в скоупе** хаба точки; см. [booking-points.md](booking-points.md#групповой-чат-точки). Invite linked-staff остаётся через DM.
 
 ### Статус реализации
 

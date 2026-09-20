@@ -168,9 +168,10 @@ Like / dislike на постах; уведомления автору.
 
 ### 🟢 Список чатов и переписка
 Вкладка Chat, DM и группы, текст, фото/документы, реакции, поиск по сообщениям (FTS), превью постов, прочитано, открытие с профиля.
-**Live-inbox** (список + бейдж Chat без открытия треда) · **push** `chat_message` · тап/баннер → чат.  
-Бизнес: [chats.md](chats.md)  
-Техника: `_chat_/message_page/`, `_chat_/chat_page/`, `_chat_/chat/`
+**Live-inbox** (список + бейдж Chat без открытия треда) · **push** `chat_message` · тап/баннер → чат.
+**Инфо чата:** тап по аватару/имени в шапке → участники (группа) / профиль (DM).
+Бизнес: [chats.md](chats.md)
+Техника: `_chat_/message_page/`, `_chat_/chat_page/`, `_chat_/chat/`, `_chat_/chat_info/`
 
 ### 🟢 Фон чата (смайлики)
 Общий wallpaper на conversation: палитра → набор смайликов → все участники видят один фон.  
@@ -192,7 +193,7 @@ Like / dislike на постах; уведомления автору.
 ### 🟢 Онлайн-запись (+ удобства и календарь «мне дают»)
 Ядро записи **уже есть и остаётся**: хозяин (`booking`), клиент, inbox, визит до «Оказана».
 Дельта: удобство входов через теги / две линии на профиле; тег `bookingCalendar` + экран своих заказов (не иерархия). **ТЗ:** [booking-tz.md](booking-tz.md).
-План сил: [booking-staff-plan.md](booking-staff-plan.md). Invite linked-staff через DM — mobile + web. Hub точки: экран **Команда** (список / пригласить / имя).
+План сил: [booking-staff-plan.md](booking-staff-plan.md). Invite linked-staff через DM — mobile + web. Hub точки: **Команда** + **Чат** (`booking_open_point_chat`).
 Бизнес: [booking.md](booking.md) · силы тегов: [tag-powers.md](tag-powers.md) · точки: [booking-points.md](booking-points.md)
 Техника: `lib/feature/_booking_/` (в т.ч. `booking_team/`), `web/src/features/booking/`, [SPEC_BOOKING_SYSTEM.md](../supabase/SPEC_BOOKING_SYSTEM.md) · invite: [SPEC_BOOKING_STAFF_INVITE.md](../supabase/SPEC_BOOKING_STAFF_INVITE.md)
 

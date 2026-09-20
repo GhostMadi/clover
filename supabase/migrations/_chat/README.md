@@ -33,6 +33,7 @@
 | `../20260908180000_count_unread_chat_messages.sql` | **`count_unread_chat_messages()`** — сумма unread входящих для бейджа навигации (web cabinet). |
 | `../20260909180806_chat_inbox_broadcast_push.sql` | После INSERT: **`inbox_changed`** на topic **`chat_inbox_<user_id>`** каждому участнику + строка **`push_outbox`** (`kind=chat_message`) для peers; после peer-read — тоже **`inbox_changed`** для галочек в списке. Spec: `docs/supabase/SPEC_CHAT_INBOX_PUSH.md`. |
 | `../20260910200000_chat_media_broadcast_after_attachments.sql` | Media/file: **`message_enriched`** только после вложений (иначе пустой bubble → прыжок). |
+| `../20260920165838_chat_list_conversation_participants.sql` | **`list_conversation_participants`** — активные участники для экрана инфо чата. |
 
 ### Realtime и «прочитано» (галочки у отправителя)
 

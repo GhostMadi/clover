@@ -11,6 +11,7 @@
 | name | text | свободное имя |
 | created_at | timestamptz | |
 | archived_at | timestamptz nullable | мягкий архив |
+| group_conversation_id | uuid → chat_conversations | групповой чат точки |
 
 RLS: select/insert/update — `host_id = auth.uid()`.
 
@@ -30,6 +31,8 @@ PK = `point_id` (одна строка настроек на точку). `host_
 
 - `booking_ensure_default_point()` → uuid точки (создаёт «Основная», если нет).
 - `booking_default_point_id(host)` → uuid первой активной точки.
+- `booking_ensure_point_group_chat(p_point_id)` → uuid conversation.
+- `booking_open_point_chat(p_point_id)` → uuid — ensure + sync host + active staff с `profile_id`.
 - CRUD точки: через table API + RLS (достаточно для веба).
 - `replace_booking_staff_absences(p_point_id, p_absences)` — отсутствия **только** этой точки.
 - `get_booking_analytics(..., p_point_id?)` — опциональный фильтр через `booking_services.point_id`.
@@ -37,8 +40,10 @@ PK = `point_id` (одна строка настроек на точку). `host_
 ## Absences / blocked slots
 
 | Таблица | Scope |
-|---------|--------|
+|--------|--------|
 | `booking_staff_absences.point_id` | NOT NULL → точка |
 | `booking_blocked_slots.point_id` | NOT NULL; EXCLUDE overlap per `(staff_id, point_id)` |
 
 Availability / create / reschedule учитывают block/absence только для `service.point_id`.
+
+Миграция чата: `20260920165050_booking_open_point_chat.sql`.

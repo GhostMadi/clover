@@ -44,6 +44,9 @@ class ChatLocalCache {
   String _watermarkKey(String userId, String conversationId) =>
       'chat_thread_wm_${userId.trim()}_${conversationId.trim()}';
 
+  String _wallpaperKey(String userId, String conversationId) =>
+      'chat_wallpaper_${userId.trim()}_${conversationId.trim()}';
+
   Future<List<MessageChatPreview>?> readConversations(String userId) async {
     final id = userId.trim();
     if (id.isEmpty) return null;
@@ -147,6 +150,36 @@ class ChatLocalCache {
     } catch (_) {}
   }
 
+  /// Shared emoji wallpaper snapshot (same local-first pattern as messages).
+  Future<List<String>?> readWallpaper(String userId, String conversationId) async {
+    final uid = userId.trim();
+    final cid = conversationId.trim();
+    if (uid.isEmpty || cid.isEmpty) return null;
+
+    try {
+      return await _storage.readList<String>(
+        key: _wallpaperKey(uid, cid),
+        fromJson: (json) => json?.toString() ?? '',
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> writeWallpaper(String userId, String conversationId, List<String> emojis) async {
+    final uid = userId.trim();
+    final cid = conversationId.trim();
+    if (uid.isEmpty || cid.isEmpty) return;
+
+    try {
+      await _storage.writeList(
+        key: _wallpaperKey(uid, cid),
+        value: emojis,
+        toJson: (emoji) => emoji,
+      );
+    } catch (_) {}
+  }
+
   Future<void> clearConversations(String userId) async {
     final id = userId.trim();
     if (id.isEmpty) return;
@@ -159,6 +192,7 @@ class ChatLocalCache {
     if (uid.isEmpty || cid.isEmpty) return;
     await _storage.delete(key: _threadKey(uid, cid));
     await _storage.delete(key: _watermarkKey(uid, cid));
+    await _storage.delete(key: _wallpaperKey(uid, cid));
   }
 
   Future<void> _syncWatermark(String userId, String conversationId, List<ChatMessage> messages) async {
