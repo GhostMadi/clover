@@ -104,20 +104,48 @@ jobs:
           # Unlock keychain for codesign (entitlements must be embedded — never --no-codesign).
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-          # Local Xcode: Automatic signing (project.pbxproj).
-          # CI: override Manual + Distribution so we can sign with secrets and keep
-          # RunnerRelease.entitlements (aps-environment=production) in the IPA.
-          # Do NOT put a bare `--` before CODE_SIGN_* — Flutter treats the next
-          # arg as Dart target ("Target file CODE_SIGN_STYLE=Manual not found").
-          # KEY=VALUE rest args are forwarded to xcodebuild as xcargs.
+          # Flutter 3.47+ treats trailing KEY=VALUE (and args after --) as Dart targets,
+          # so CODE_SIGN_* cannot be passed on the flutter CLI. Patch Runner Release in
+          # pbxproj for this CI job only (checkout is ephemeral). Local stays Automatic.
+          python3 <<'PY'
+          from pathlib import Path
+          import os, re, sys
+
+          path = Path("ios/Runner.xcodeproj/project.pbxproj")
+          text = path.read_text()
+          pp = os.environ["PP_NAME"]
+          pattern = re.compile(
+              r"(CODE_SIGN_ENTITLEMENTS = Runner/RunnerRelease\.entitlements;\n"
+              r"\t\t\t\tCODE_SIGN_IDENTITY = )\"[^\"]*\";(\n"
+              r"\t\t\t\tCODE_SIGN_STYLE = )[^;]+;(\n"
+              r"\t\t\t\tCURRENT_PROJECT_VERSION = \"\$\(FLUTTER_BUILD_NUMBER\)\";\n"
+              r"\t\t\t\tDEAD_CODE_STRIPPING = NO;\n"
+              r"\t\t\t\tDEVELOPMENT_TEAM = TD97J996Q4;\n"
+              r".*?"
+              r"PROVISIONING_PROFILE_SPECIFIER = )\"[^\"]*\";",
+              re.DOTALL,
+          )
+
+          def repl(m: re.Match[str]) -> str:
+              return (
+                  m.group(1)
+                  + '"Apple Distribution";'
+                  + m.group(2)
+                  + "Manual;"
+                  + m.group(3)
+                  + f'"{pp}";'
+              )
+
+          new, n = pattern.subn(repl, text, count=1)
+          if n != 1:
+              sys.exit(f"Failed to patch Runner Release signing (matches={n})")
+          path.write_text(new)
+          print(f"CI signing: Runner Release → Manual / Apple Distribution / {pp}")
+          PY
+
           flutter build ipa --release \
             --dart-define=MAPBOX_ACCESS_TOKEN="$MAPBOX_ACCESS_TOKEN" \
-            --export-options-plist=ios/Runner/ExportOptions.plist \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="${PP_NAME}" \
-            DEVELOPMENT_TEAM=TD97J996Q4 \
-            CODE_SIGN_ENTITLEMENTS=Runner/RunnerRelease.entitlements
+            --export-options-plist=ios/Runner/ExportOptions.plist
 
           IPA_PATH=$(ls build/ios/ipa/*.ipa | head -n 1)
           if [ -z "${IPA_PATH:-}" ] || [ ! -f "$IPA_PATH" ]; then
