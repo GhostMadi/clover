@@ -7,7 +7,7 @@
 Техника (бэк): [SPEC_BOOKING_SYSTEM.md](../supabase/SPEC_BOOKING_SYSTEM.md)  
 Профиль и точки входа: [profile.md](profile.md) · теги: [profile-data.md](profile-data.md)
 
-**Другая фича:** бронь **мест по схеме зала** (кино / ресторан / театр) — [venue-seating.md](venue-seating.md), не этот документ.
+**Другая фича:** **«Бронь»** — билеты, места и опц. схема пространства (кино / ресторан / театр) — [venue-seating.md](venue-seating.md), не этот документ.
 
 ---
 

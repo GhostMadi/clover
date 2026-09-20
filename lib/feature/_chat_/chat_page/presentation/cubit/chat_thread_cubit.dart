@@ -408,14 +408,16 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
 
   Future<void> sendMessage(String text) async {
     final id = _conversationId;
-    final uid = _currentUserId;
-    if (id == null || uid == null) return;
+    if (id == null) return;
 
     final body = text.trim();
     if (body.isEmpty) return;
 
     final cur = state;
     if (cur is! ChatThreadLoaded) return;
+
+    final uid = _currentUserId;
+    if (uid == null) return;
 
     if (cur.editingMessage != null) {
       await _saveEdit(body, cur);

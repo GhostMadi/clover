@@ -62,6 +62,24 @@ class AttendancePrimaryButton extends StatelessWidget {
   }
 }
 
+/// Лоадер посещаемости (синий акцент).
+class AttendanceLoader extends StatelessWidget {
+  const AttendanceLoader({super.key, this.strokeWidth = 2.5, this.size});
+
+  final double strokeWidth;
+  final double? size;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = attendanceServiceAccent(context.colors).icon;
+    final indicator = CircularProgressIndicator(strokeWidth: strokeWidth, color: color);
+    if (size == null) return Center(child: indicator);
+    return Center(
+      child: SizedBox(width: size, height: size, child: indicator),
+    );
+  }
+}
+
 /// Поле ввода с синим акцентом посещаемости.
 class AttendanceField extends StatelessWidget {
   const AttendanceField({

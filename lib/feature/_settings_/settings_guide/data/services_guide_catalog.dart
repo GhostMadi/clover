@@ -1,5 +1,6 @@
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_key.dart';
 import 'package:flutter/widgets.dart';
 
 /// Ключи гайда всех сервисов — [docs/business/services-guide.md].
@@ -25,6 +26,25 @@ enum ServicesGuideTopic {
         ServicesGuideTopic.booking => AppServiceKind.booking,
         ServicesGuideTopic.attendance => AppServiceKind.attendance,
         ServicesGuideTopic.resources => kResourcesService,
+      };
+
+  /// Admin-тег, который «Активировать» вешает на профиль.
+  MarkerTagKey get adminTag => switch (this) {
+        ServicesGuideTopic.booking => MarkerTagKey.booking,
+        ServicesGuideTopic.attendance => MarkerTagKey.attendance,
+        ServicesGuideTopic.resources => MarkerTagKey.resources,
+      };
+
+  String get activateLabel => switch (this) {
+        ServicesGuideTopic.booking => 'Активировать запись',
+        ServicesGuideTopic.attendance => 'Активировать посещаемость',
+        ServicesGuideTopic.resources => 'Активировать ресурсы',
+      };
+
+  String get openLabel => switch (this) {
+        ServicesGuideTopic.booking => 'Открыть запись',
+        ServicesGuideTopic.attendance => 'Открыть посещаемость',
+        ServicesGuideTopic.resources => 'Открыть ресурсы',
       };
 }
 
@@ -65,53 +85,76 @@ abstract final class ServicesGuideCatalog {
     ServicesGuideContent(
       topic: ServicesGuideTopic.booking,
       cardTitle: 'Запись',
-      cardSubtitle: 'Услуги, inbox и расписание',
+      cardSubtitle: 'Услуги, заявки и расписание',
       pageTitle: 'Запись',
       lead:
-          'Сервис для хозяина витрины: услуги, заявки клиентов и расписание. '
-          'Клиент бронирует без вашего тега хозяина.',
+          'Запись — когда вы принимаете клиентов: услуги, слоты и заявки в одном месте. '
+          'Гость находит вас в городе и нажимает «Записаться».',
       steps: [
         ServicesGuideStep(
-          title: 'Тег',
-          body: 'Включите тег booking на профиле — появится хаб «Запись» в настройках и ярлык на профиле.',
+          title: 'Включите сервис',
+          body:
+              'Кнопка «Активировать» добавит тег записи на профиль. '
+              'Появится хаб «Запись» в настройках и ярлык на вашей витрине.',
         ),
         ServicesGuideStep(
-          title: 'Услуги и inbox',
-          body: 'Создайте услуги, принимайте и ведите заявки в inbox хозяина.',
+          title: 'Заведите услуги',
+          body:
+              'Назовите услугу, укажите длительность и доступность. '
+              'Клиент видит понятный список и выбирает удобное время.',
         ),
         ServicesGuideStep(
-          title: 'Клиент',
-          body: '«Мои бронирования» — где вы клиент. Тег хозяина для этого не нужен.',
+          title: 'Принимайте заявки',
+          body:
+              'Новые брони приходят в inbox. Подтверждайте, переносите или отвечайте в чате — '
+              'всё рядом, без лишней суеты.',
         ),
         ServicesGuideStep(
-          title: 'Исполнители',
-          body: 'Можно пригласить исполнителя карточкой в чат — он примет или отклонит приглашение.',
+          title: 'Бонусы на услуге',
+          body:
+              'Лояльность настраивается у услуги: начисление и оплата баллами. '
+              'Гость копит и тратит там, где вы это разрешили.',
+        ),
+        ServicesGuideStep(
+          title: 'Команда',
+          body:
+              'Можно пригласить исполнителя из чата. Он получит свои заказы, '
+              'а вы остаётесь хозяином витрины.',
         ),
       ],
     ),
     ServicesGuideContent(
       topic: ServicesGuideTopic.attendance,
       cardTitle: 'Посещаемость',
-      cardSubtitle: 'Компании, геозона и punch',
+      cardSubtitle: 'Смены, геозона и команда',
       pageTitle: 'Посещаемость',
       lead:
-          'Учёт смен и присутствия: компании, геозона, работники и punch с телефона.',
+          'Посещаемость — учёт прихода и ухода команды. '
+          'Вы ведёте компанию и правила; сотрудники отмечаются с телефона.',
       steps: [
         ServicesGuideStep(
-          title: 'Теги',
-          body: 'attendance — admin компании; attendanceWork — работник (punch).',
+          title: 'Включите сервис',
+          body:
+              '«Активировать» повесит тег хозяина посещаемости. '
+              'Откроется хаб в настройках и управление на профиле.',
         ),
         ServicesGuideStep(
-          title: 'Компания',
-          body: 'Создайте компанию, настройте геозону и пригласите людей в команду.',
+          title: 'Создайте компанию',
+          body:
+              'Задайте точку, геозону и базовые правила смен. '
+              'Так punch сработает только там, где нужно.',
         ),
         ServicesGuideStep(
-          title: 'Punch',
-          body: 'Работник отмечает приход/уход с телефона в зоне компании.',
+          title: 'Пригласите людей',
+          body:
+              'Отправьте приглашение в команду. У сотрудника появится свой режим punch — '
+              'отметить приход и уход.',
         ),
         ServicesGuideStep(
-          title: 'Отчёты',
-          body: 'Admin видит табель, аналитику и настройки оплаты смен.',
+          title: 'Смотрите табель',
+          body:
+              'Смены, корректировки и аналитика собираются у вас. '
+              'Меньше ручных таблиц — больше ясности.',
         ),
       ],
     ),
@@ -121,19 +164,26 @@ abstract final class ServicesGuideCatalog {
       cardSubtitle: 'Места и фильтры витрины',
       pageTitle: 'Ресурсы',
       lead:
-          'Личный набор автора: местоположения для постов и свои фильтры сетки профиля.',
+          'Ресурсы — ваш личный справочник автора: сохранённые места для постов '
+          'и фильтры, по которым гости читают витрину.',
       steps: [
         ServicesGuideStep(
-          title: 'Тег',
-          body: 'Тег resources открывает хаб «Ресурсы» в настройках.',
+          title: 'Включите сервис',
+          body:
+              '«Активировать» добавит тег ресурсов. '
+              'Появится хаб «Ресурсы» — местоположения и фильтры.',
         ),
         ServicesGuideStep(
           title: 'Местоположения',
-          body: 'Сохраните адреса один раз и выбирайте их в композере поста.',
+          body:
+              'Сохраните адреса один раз. В композере поста выбираете точку из списка — '
+              'без повторного поиска на карте.',
         ),
         ServicesGuideStep(
           title: 'Фильтры витрины',
-          body: 'Свои категории и значения — чипы на профиле и метки у постов. Не путать с фильтром ленты Home.',
+          body:
+              'Свои категории и значения на профиле. Гость быстрее понимает, кто вы '
+              'и что у вас есть. Это не фильтр ленты Home.',
         ),
       ],
     ),

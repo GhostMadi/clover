@@ -1,6 +1,7 @@
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/core/storage/app_progressive_network_image.dart';
 import 'package:clover/feature/_post_/post_comment/data/models/comment_item.dart';
 import 'package:clover/feature/_post_/post_comment/data/models/comment_model.dart';
 import 'package:clover/feature/_post_/post_comment/presentation/widget/comment_time_format.dart';
@@ -26,6 +27,13 @@ class PostCommentTile extends StatelessWidget {
     final avatarUrl = item.authorAvatarUrl?.trim();
     final likesLabel = item.comment.likesCount > 0 ? '${item.comment.likesCount}' : null;
 
+    ImageProvider? avatarProvider;
+    if (avatarUrl != null && avatarUrl.isNotEmpty) {
+      avatarProvider = AppProgressiveNetworkImage.isAssetPath(avatarUrl)
+          ? AssetImage(AppProgressiveNetworkImage.normalizeAssetPath(avatarUrl))
+          : NetworkImage(avatarUrl);
+    }
+
     return Padding(
       padding: EdgeInsets.fromLTRB(dense ? 44 : 16, dense ? 8 : 12, 16, 0),
       child: Row(
@@ -34,8 +42,8 @@ class PostCommentTile extends StatelessWidget {
           CircleAvatar(
             radius: dense ? 14 : 18,
             backgroundColor: context.colors.surfaceSoft,
-            backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
-            child: avatarUrl == null || avatarUrl.isEmpty
+            backgroundImage: avatarProvider,
+            child: avatarProvider == null
                 ? Icon(AppIcons.user.icon, size: dense ? 16 : 20, color: context.colors.iconMuted)
                 : null,
           ),

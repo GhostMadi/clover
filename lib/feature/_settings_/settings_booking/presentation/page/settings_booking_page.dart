@@ -6,11 +6,10 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_booking_/booking_points/presentation/cubit/booking_points_cubit.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_hub_nav_card.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
-import 'package:clover/feature/_settings_/settings/presentation/widget/settings_tile_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -66,6 +65,7 @@ class _SettingsBookingPageState extends State<SettingsBookingPage> {
             },
           ),
         ],
+        service: kBookingService,
       );
       if (name == null || name.isEmpty || !mounted) return;
 
@@ -87,13 +87,12 @@ class _SettingsBookingPageState extends State<SettingsBookingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = bookingServiceAccent(context.colors);
-
     return BlocBuilder<BookingPointsCubit, BookingPointsState>(
       bloc: _cubit,
       builder: (context, state) {
         final points = state is BookingPointsLoaded ? state.points : const [];
         final loading = state is BookingPointsLoading || state is BookingPointsInitial;
+        final refreshing = state is BookingPointsLoaded && state.isRefreshing;
 
         return SettingsScreenShell(
           title: 'Запись',
@@ -108,35 +107,39 @@ class _SettingsBookingPageState extends State<SettingsBookingPage> {
                       ),
                     )
                   : RefreshIndicator(
-                      onRefresh: _cubit.load,
-                      child: ListView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                      onRefresh: _cubit.refresh,
+                      child: Stack(
                         children: [
-                          const SettingsTileSectionTitle('Точки'),
-                          AppTileGroup(
+                          ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                             children: [
-                              for (final point in points)
-                                AppTile(
-                                  title: point.name,
-                                  subtitle: 'Услуги, расписание, записи',
-                                  icon: AppIcons.locationOn.icon,
-                                  iconColor: accent.icon,
-                                  iconBackgroundColor: accent.soft,
-                                  showChevron: true,
-                                  onTap: () => _openPoint(point.id, name: point.name),
-                                ),
-                              AppTile(
-                                title: 'Новая точка',
-                                subtitle: 'Салон, филиал или кабинет',
-                                icon: AppIcons.add.icon,
-                                iconColor: accent.icon,
-                                iconBackgroundColor: accent.soft,
-                                showChevron: false,
-                                onTap: _createPoint,
+                              BookingHubNavGrid(
+                                children: [
+                                  for (final point in points)
+                                    BookingHubNavCard(
+                                      title: point.name,
+                                      subtitle: 'Услуги, расписание, записи',
+                                      icon: AppIcons.locationOn.icon,
+                                      onTap: () => _openPoint(point.id, name: point.name),
+                                    ),
+                                  BookingHubNavCard(
+                                    title: 'Новая точка',
+                                    subtitle: 'Салон, филиал или кабинет',
+                                    icon: AppIcons.add.icon,
+                                    onTap: _createPoint,
+                                  ),
+                                ],
                               ),
                             ],
                           ),
+                          if (refreshing)
+                            const Positioned(
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              child: LinearProgressIndicator(minHeight: 2),
+                            ),
                         ],
                       ),
                     ),

@@ -14,8 +14,10 @@ import 'package:clover/feature/_booking_/shared/data/models/booking_horizon_kind
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class BookingScheduleSettingsForm extends StatelessWidget {
+/// Расписание точки: сверху выходные / горизонт / часы, остальное — в «Ещё».
+class BookingScheduleSettingsForm extends StatefulWidget {
   const BookingScheduleSettingsForm({
     super.key,
     required this.pointId,
@@ -31,6 +33,11 @@ class BookingScheduleSettingsForm extends StatelessWidget {
   final ValueChanged<BookingScheduleSettings> onChanged;
   final bool enabled;
 
+  @override
+  State<BookingScheduleSettingsForm> createState() => _BookingScheduleSettingsFormState();
+}
+
+class _BookingScheduleSettingsFormState extends State<BookingScheduleSettingsForm> {
   static const _horizonModeOptions = [
     AppSingleSelectOption(value: BookingHorizonKind.daysAhead, label: 'На период'),
     AppSingleSelectOption(value: BookingHorizonKind.untilDate, label: 'До даты'),
@@ -54,204 +61,230 @@ class BookingScheduleSettingsForm extends StatelessWidget {
     for (var h = 6; h <= 23; h++) AppSingleSelectOption(value: h, label: '${h.toString().padLeft(2, '0')}:00'),
   ];
 
+  late bool _moreOpen;
+
+  BookingScheduleSettings get settings => widget.settings;
+
+  @override
+  void initState() {
+    super.initState();
+    final s = widget.settings;
+    _moreOpen = s.executorAbsences.isNotEmpty ||
+        s.clientCancelHoursBefore > 0 ||
+        s.autoCloseHoursAfterVisit > 0;
+  }
+
+  Widget _gated({required Widget child}) {
+    return IgnorePointer(
+      ignoring: !widget.enabled,
+      child: Opacity(opacity: widget.enabled ? 1 : 0.55, child: child),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 8, 16, BookingScreenShell.scrollBottomGap(context)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _SectionCard(
-            title: 'Выходные дни',
-            subtitle: 'Клиент не сможет выбрать эти дни недели',
-            child: IgnorePointer(
-              ignoring: !enabled,
-              child: Opacity(
-                opacity: enabled ? 1 : 0.55,
-                child: AppMultiSelect<int>(
-                  label: 'Дни отдыха',
-                  hint: 'Выберите дни',
-                  sheetTitle: 'Выходные дни',
-                  emptySelectionHint: 'Нет выходных',
-                  options: _weekdayOptions,
-                  values: settings.restWeekdays,
-                  onChanged: (value) => onChanged(settings.copyWith(restWeekdays: value)),
-                ),
+          _Section(
+            title: 'Выходные',
+            child: _gated(
+              child: AppMultiSelect<int>(
+                label: 'Дни',
+                hint: 'Выберите',
+                sheetTitle: 'Выходные',
+                emptySelectionHint: 'Нет',
+                options: _weekdayOptions,
+                values: settings.restWeekdays,
+                onChanged: (value) => widget.onChanged(settings.copyWith(restWeekdays: value)),
               ),
             ),
           ),
           const SizedBox(height: 12),
-          _SectionCard(
-            title: 'Горизонт записи',
-            subtitle: 'На сколько вперёд клиент может записаться',
-            child: IgnorePointer(
-              ignoring: !enabled,
-              child: Opacity(
-                opacity: enabled ? 1 : 0.55,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    AppSingleSelect<BookingHorizonKind>(
-                      label: 'Способ',
-                      hint: 'Выберите способ',
-                      sheetTitle: 'Горизонт записи',
-                      options: _horizonModeOptions,
-                      value: settings.horizonKind,
-                      onChanged: (value) {
-                        final today = DateTime.now();
-                        final base = DateTime(today.year, today.month, today.day);
-                        onChanged(
-                          settings.copyWith(
-                            horizonKind: value,
-                            maxBookingUntilDate: value == BookingHorizonKind.untilDate
-                                ? (settings.maxBookingUntilDate ?? base.add(Duration(days: settings.maxBookingDaysAhead)))
-                                : settings.maxBookingUntilDate,
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    if (settings.horizonKind == BookingHorizonKind.daysAhead)
-                      AppSingleSelect<int>(
-                        label: 'Максимальный срок',
-                        hint: 'Выберите период',
-                        sheetTitle: 'Запись вперёд',
-                        options: _horizonOptions,
-                        value: settings.maxBookingDaysAhead,
-                        onChanged: (value) => onChanged(settings.copyWith(maxBookingDaysAhead: value)),
-                      )
-                    else
-                      AppDatePicker(
-                        label: 'Запись до',
-                        hint: 'Выберите дату',
-                        value: settings.maxBookingUntilDate,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 365)),
-                        onChanged: (value) => onChanged(
-                          settings.copyWith(maxBookingUntilDate: DateTime(value.year, value.month, value.day)),
+          _Section(
+            title: 'Горизонт',
+            child: _gated(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AppSingleSelect<BookingHorizonKind>(
+                    label: 'Способ',
+                    hint: 'Выберите',
+                    sheetTitle: 'Горизонт',
+                    options: _horizonModeOptions,
+                    value: settings.horizonKind,
+                    onChanged: (value) {
+                      final today = DateTime.now();
+                      final base = DateTime(today.year, today.month, today.day);
+                      widget.onChanged(
+                        settings.copyWith(
+                          horizonKind: value,
+                          maxBookingUntilDate: value == BookingHorizonKind.untilDate
+                              ? (settings.maxBookingUntilDate ??
+                                  base.add(Duration(days: settings.maxBookingDaysAhead)))
+                              : settings.maxBookingUntilDate,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  if (settings.horizonKind == BookingHorizonKind.daysAhead)
+                    AppSingleSelect<int>(
+                      label: 'На сколько вперёд',
+                      hint: 'Период',
+                      sheetTitle: 'Запись вперёд',
+                      options: _horizonOptions,
+                      value: settings.maxBookingDaysAhead,
+                      onChanged: (value) =>
+                          widget.onChanged(settings.copyWith(maxBookingDaysAhead: value)),
+                    )
+                  else
+                    AppDatePicker(
+                      label: 'До даты',
+                      hint: 'Дата',
+                      value: settings.maxBookingUntilDate,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                      service: kBookingService,
+                      onChanged: (value) => widget.onChanged(
+                        settings.copyWith(
+                          maxBookingUntilDate: DateTime(value.year, value.month, value.day),
                         ),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
             ),
           ),
           const SizedBox(height: 12),
-          _SectionCard(
-            title: 'Рабочие часы',
-            subtitle: 'Общее время приёма в течение дня',
-            child: IgnorePointer(
-              ignoring: !enabled,
-              child: Opacity(
-                opacity: enabled ? 1 : 0.55,
+          _Section(
+            title: 'Часы работы',
+            child: _gated(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: AppSingleSelect<int>(
+                      label: 'С',
+                      hint: '09:00',
+                      sheetTitle: 'Начало',
+                      options: _hourOptions,
+                      value: settings.workStartHour,
+                      onChanged: (value) => widget.onChanged(settings.copyWith(workStartHour: value)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: AppSingleSelect<int>(
+                      label: 'До',
+                      hint: '20:00',
+                      sheetTitle: 'Конец',
+                      options: _hourOptions,
+                      value: settings.workEndHour,
+                      onChanged: (value) => widget.onChanged(settings.copyWith(workEndHour: value)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Material(
+            color: colors.surfaceMuted.withValues(alpha: 0.45),
+            borderRadius: BorderRadius.circular(14),
+            child: InkWell(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                setState(() => _moreOpen = !_moreOpen);
+              },
+              borderRadius: BorderRadius.circular(14),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 child: Row(
                   children: [
                     Expanded(
-                      child: AppSingleSelect<int>(
-                        label: 'С',
-                        hint: '09:00',
-                        sheetTitle: 'Начало работы',
-                        options: _hourOptions,
-                        value: settings.workStartHour,
-                        onChanged: (value) => onChanged(settings.copyWith(workStartHour: value)),
+                      child: Text(
+                        'Ещё настройки',
+                        style: AppTextStyle.base(
+                          14,
+                          color: colors.textColor,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: AppSingleSelect<int>(
-                        label: 'До',
-                        hint: '20:00',
-                        sheetTitle: 'Конец работы',
-                        options: _hourOptions,
-                        value: settings.workEndHour,
-                        onChanged: (value) => onChanged(settings.copyWith(workEndHour: value)),
-                      ),
+                    Icon(
+                      _moreOpen ? AppIcons.arrowUp.icon : AppIcons.arrowDown.icon,
+                      size: 22,
+                      color: colors.iconMuted,
                     ),
                   ],
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          _SectionCard(
-            title: 'Отмена и незакрытые визиты',
-            subtitle:
-                '«Оказана» ставите только вы. Система сама услугу не закрывает — максимум «Не пришёл».',
-            child: IgnorePointer(
-              ignoring: !enabled,
-              child: Opacity(
-                opacity: enabled ? 1 : 0.55,
+          if (_moreOpen) ...[
+            const SizedBox(height: 12),
+            _Section(
+              title: 'Отмена и визиты',
+              child: _gated(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     AppSingleSelect<int>(
-                      label: 'Клиент может отменить за',
+                      label: 'Отмена клиентом',
                       hint: 'Выберите',
-                      sheetTitle: 'Отмена клиентом',
+                      sheetTitle: 'Отмена',
                       options: const [
-                        AppSingleSelectOption(value: 0, label: 'До начала визита'),
-                        AppSingleSelectOption(value: 1, label: 'Не позже чем за 1 ч'),
-                        AppSingleSelectOption(value: 2, label: 'Не позже чем за 2 ч'),
-                        AppSingleSelectOption(value: 3, label: 'Не позже чем за 3 ч'),
-                        AppSingleSelectOption(value: 6, label: 'Не позже чем за 6 ч'),
-                        AppSingleSelectOption(value: 12, label: 'Не позже чем за 12 ч'),
-                        AppSingleSelectOption(value: 24, label: 'Не позже чем за 24 ч'),
+                        AppSingleSelectOption(value: 0, label: 'До начала'),
+                        AppSingleSelectOption(value: 1, label: 'За 1 ч'),
+                        AppSingleSelectOption(value: 2, label: 'За 2 ч'),
+                        AppSingleSelectOption(value: 3, label: 'За 3 ч'),
+                        AppSingleSelectOption(value: 6, label: 'За 6 ч'),
+                        AppSingleSelectOption(value: 12, label: 'За 12 ч'),
+                        AppSingleSelectOption(value: 24, label: 'За 24 ч'),
                       ],
                       value: settings.clientCancelHoursBefore,
                       onChanged: (value) =>
-                          onChanged(settings.copyWith(clientCancelHoursBefore: value)),
+                          widget.onChanged(settings.copyWith(clientCancelHoursBefore: value)),
                     ),
                     const SizedBox(height: 12),
                     AppSingleSelect<int>(
                       label: 'Авто «Не пришёл»',
                       hint: 'Выберите',
-                      sheetTitle: 'Авто «Не пришёл»',
+                      sheetTitle: 'Авто статус',
                       options: const [
-                        AppSingleSelectOption(value: 0, label: 'Выкл — только вручную'),
-                        AppSingleSelectOption(value: 3, label: 'Через 3 ч после конца'),
-                        AppSingleSelectOption(value: 6, label: 'Через 6 ч после конца'),
-                        AppSingleSelectOption(value: 12, label: 'Через 12 ч после конца'),
-                        AppSingleSelectOption(value: 24, label: 'Через 24 ч после конца'),
+                        AppSingleSelectOption(value: 0, label: 'Выкл'),
+                        AppSingleSelectOption(value: 3, label: 'Через 3 ч'),
+                        AppSingleSelectOption(value: 6, label: 'Через 6 ч'),
+                        AppSingleSelectOption(value: 12, label: 'Через 12 ч'),
+                        AppSingleSelectOption(value: 24, label: 'Через 24 ч'),
                       ],
                       value: settings.autoCloseHoursAfterVisit,
                       onChanged: (value) =>
-                          onChanged(settings.copyWith(autoCloseHoursAfterVisit: value)),
+                          widget.onChanged(settings.copyWith(autoCloseHoursAfterVisit: value)),
                     ),
                   ],
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          _SectionCard(
-            title: 'Буфер между услугами',
-            subtitle: 'Задаётся отдельно для каждой услуги при создании. При редактировании изменить нельзя.',
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: context.colors.surfaceSoft,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: context.colors.border.withValues(alpha: 0.45)),
-              ),
-              child: Text(
-                'Например, 10 минут после стрижки — время на уборку. Откройте услугу и создайте новую, если нужен другой буфер.',
-                style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
-              ),
+            const SizedBox(height: 12),
+            _ExecutorAbsenceSection(
+              absences: settings.executorAbsences,
+              executors: widget.executors,
+              enabled: widget.enabled,
+              onChanged: (absences) =>
+                  widget.onChanged(settings.copyWith(executorAbsences: absences)),
             ),
-          ),
-          const SizedBox(height: 12),
-          _ExecutorAbsenceSection(
-            absences: settings.executorAbsences,
-            executors: executors,
-            enabled: enabled,
-            onChanged: (absences) => onChanged(settings.copyWith(executorAbsences: absences)),
-          ),
-          const SizedBox(height: 12),
-          BookingScheduleOpsSections(
-            pointId: pointId,
-            executors: executors,
-            enabled: enabled,
-          ),
+            const SizedBox(height: 12),
+            BookingScheduleOpsSections(
+              pointId: widget.pointId,
+              executors: widget.executors,
+              enabled: widget.enabled,
+            ),
+          ],
         ],
       ),
     );
@@ -337,9 +370,8 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
         AppSingleSelectOption(value: executor.id, label: executor.displayLabel),
     ];
 
-    return _SectionCard(
-      title: 'Недоступность исполнителей',
-      subtitle: 'Отпуск, больничный — клиент не сможет записаться на эти дни',
+    return _Section(
+      title: 'Отпуска / отсутствия',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -352,7 +384,7 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
             ),
             const SizedBox(height: 8),
           ],
-          if (_adding) ...[
+          if (_adding)
             IgnorePointer(
               ignoring: !widget.enabled,
               child: Opacity(
@@ -361,34 +393,44 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     AppSingleSelect<String>(
-                      label: 'Исполнитель',
-                      hint: 'Выберите мастера',
-                      sheetTitle: 'Исполнитель',
+                      label: 'Мастер',
+                      hint: 'Выберите',
+                      sheetTitle: 'Мастер',
                       options: executorOptions,
                       value: _draftExecutorId,
                       onChanged: (value) => setState(() => _draftExecutorId = value),
                     ),
                     const SizedBox(height: 12),
-                    AppDatePicker(
-                      label: 'С',
-                      hint: 'Дата начала',
-                      value: _draftStart,
-                      firstDate: DateTime.now().subtract(const Duration(days: 1)),
-                      onChanged: (value) => setState(() => _draftStart = value),
-                    ),
-                    const SizedBox(height: 12),
-                    AppDatePicker(
-                      label: 'По',
-                      hint: 'Дата окончания',
-                      value: _draftEnd,
-                      firstDate: _draftStart ?? DateTime.now().subtract(const Duration(days: 1)),
-                      onChanged: (value) => setState(() => _draftEnd = value),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppDatePicker(
+                            label: 'С',
+                            hint: 'Начало',
+                            value: _draftStart,
+                            firstDate: DateTime.now().subtract(const Duration(days: 1)),
+                            service: kBookingService,
+                            onChanged: (value) => setState(() => _draftStart = value),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: AppDatePicker(
+                            label: 'По',
+                            hint: 'Конец',
+                            value: _draftEnd,
+                            firstDate: _draftStart ?? DateTime.now().subtract(const Duration(days: 1)),
+                            service: kBookingService,
+                            onChanged: (value) => setState(() => _draftEnd = value),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 12),
                     BookingField(
                       controller: _noteController,
                       labelText: 'Комментарий',
-                      hintText: 'Отпуск, командировка…',
+                      hintText: 'Необязательно',
                       textInputAction: TextInputAction.done,
                       isEnabled: widget.enabled,
                     ),
@@ -423,29 +465,14 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
                   ],
                 ),
               ),
-            ),
-          ] else
+            )
+          else
             AppOutlinedButton(
               service: kBookingService,
-              text: 'Добавить период',
+              text: 'Добавить',
               height: 48,
               isExpanded: true,
               onTap: widget.enabled ? () => setState(() => _adding = true) : null,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(AppIcons.addRounded.icon, size: 18, color: widget.enabled ? context.colors.textColor : context.colors.subTextColor),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Добавить период',
-                    style: AppTextStyle.base(
-                      16,
-                      fontWeight: FontWeight.w700,
-                      color: widget.enabled ? context.colors.textColor : context.colors.subTextColor,
-                    ),
-                  ),
-                ],
-              ),
             ),
         ],
       ),
@@ -468,30 +495,30 @@ class _AbsenceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = executor?.displayName ?? 'Исполнитель';
+    final colors = context.colors;
+    final name = executor?.displayName ?? 'Мастер';
     final range = '${AppDatePicker.formatDisplay(absence.startDay)} — ${AppDatePicker.formatDisplay(absence.endDay)}';
     final note = absence.note?.trim();
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
       decoration: BoxDecoration(
-        color: context.colors.surface,
+        color: colors.surfaceSoft,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: colors.border.withValues(alpha: 0.45)),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: AppTextStyle.base(14, color: context.colors.textColor, fontWeight: FontWeight.w700)),
+                Text(name, style: AppTextStyle.base(14, color: colors.textColor, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 2),
-                Text(range, style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600)),
+                Text(range, style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600)),
                 if (note != null && note.isNotEmpty) ...[
                   const SizedBox(height: 2),
-                  Text(note, style: AppTextStyle.base(12, color: context.colors.subTextColor)),
+                  Text(note, style: AppTextStyle.base(12, color: colors.subTextColor)),
                 ],
               ],
             ),
@@ -499,7 +526,7 @@ class _AbsenceTile extends StatelessWidget {
           IconButton(
             onPressed: enabled ? onRemove : null,
             icon: Icon(AppIcons.closeRounded.icon, size: 20),
-            color: context.colors.subTextColor,
+            color: colors.subTextColor,
           ),
         ],
       ),
@@ -507,33 +534,30 @@ class _AbsenceTile extends StatelessWidget {
   }
 }
 
-class _SectionCard extends StatelessWidget {
-  const _SectionCard({
+class _Section extends StatelessWidget {
+  const _Section({
     required this.title,
-    required this.subtitle,
     required this.child,
   });
 
   final String title;
-  final String subtitle;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
       decoration: BoxDecoration(
-        color: context.colors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: colors.border.withValues(alpha: 0.55)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(title, style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 4),
-          Text(subtitle, style: AppTextStyle.base(12, color: context.colors.subTextColor, height: 1.3)),
-          const SizedBox(height: 12),
+          Text(title, style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 10),
           child,
         ],
       ),

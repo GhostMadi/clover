@@ -9,7 +9,6 @@ import { AttendanceListShimmer } from "@/features/attendance/components/attendan
 import { AttendanceWorkspaceShell } from "@/features/attendance/components/attendance-workspace-shell";
 import {
   fetchBootstrap,
-  getAdminWorkplace,
   loadProfileLabels,
   renameWorkplace,
 } from "@/features/attendance/lib/attendance-api";
@@ -62,13 +61,14 @@ export function AttendanceTodayView({ workplaceId }: { workplaceId: string }) {
     setError(null);
     try {
       const uid = await getSessionUserId();
-      const w = await getAdminWorkplace(workplaceId);
+      const boot = await fetchBootstrap();
+      const w =
+        boot.workplaces.find((x) => x.id === workplaceId && x.isAdmin) ?? null;
       if (!w) {
         setError("Компания не найдена или нет прав admin");
         setWorkplace(null);
         return;
       }
-      const boot = await fetchBootstrap();
       const active = boot.memberships.filter(
         (m) => m.workplaceId === workplaceId && m.status === "active",
       );

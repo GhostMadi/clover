@@ -28,8 +28,12 @@ class AppTab extends StatelessWidget {
 
   final AppServiceKind? service;
 
-  /// Фиксированная высота всего контрола (включая трек). `null` — по контенту.
+  /// Фиксированная высота всего контрола (включая трек).
+  /// `null` → [defaultHeight].
   final double? height;
+
+  /// Глобальная высота сегмента по умолчанию (удобный тап).
+  static const double defaultHeight = 48;
 
   static const double _outerPadding = 3;
 
@@ -42,6 +46,7 @@ class AppTab extends StatelessWidget {
     final accent = service != null ? colors.serviceAccent(service!) : null;
     final trackColor = accent?.soft ?? colors.surfaceMuted;
     final selectedColor = accent?.icon ?? colors.textColor;
+    final resolvedHeight = height ?? defaultHeight;
 
     if (scrollable) {
       return _ScrollableAppTab(
@@ -50,7 +55,7 @@ class AppTab extends StatelessWidget {
         onTabChanged: onTabChanged,
         trackColor: trackColor,
         selectedColor: selectedColor,
-        height: height,
+        height: resolvedHeight,
       );
     }
 
@@ -58,18 +63,17 @@ class AppTab extends StatelessWidget {
       builder: (context, constraints) {
         final totalWidth = constraints.maxWidth - _outerPadding * 2;
         final tabWidth = totalWidth / tabs.length;
-        final fillHeight = height != null;
 
         return Container(
           width: double.infinity,
-          height: height,
+          height: resolvedHeight,
           padding: const EdgeInsets.all(_outerPadding),
           decoration: ShapeDecoration(
             color: trackColor,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
           child: Stack(
-            fit: fillHeight ? StackFit.expand : StackFit.loose,
+            fit: StackFit.expand,
             children: [
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 250),
@@ -81,15 +85,14 @@ class AppTab extends StatelessWidget {
                 child: const _TabIndicator(),
               ),
               Row(
-                crossAxisAlignment:
-                    fillHeight ? CrossAxisAlignment.stretch : CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: List.generate(tabs.length, (i) {
                   return Expanded(
                     child: _AppTabItem(
                       label: tabs[i],
                       isSelected: i == index,
                       expand: true,
-                      fillHeight: fillHeight,
+                      fillHeight: true,
                       selectedColor: selectedColor,
                       onTap: () {
                         if (i != index) {
@@ -238,11 +241,11 @@ class _ScrollableAppTabState extends State<_ScrollableAppTab> {
 
   @override
   Widget build(BuildContext context) {
-    final fillHeight = widget.height != null;
+    final resolvedHeight = widget.height ?? AppTab.defaultHeight;
 
     return Container(
       width: double.infinity,
-      height: widget.height,
+      height: resolvedHeight,
       padding: const EdgeInsets.all(AppTab._outerPadding),
       decoration: ShapeDecoration(
         color: widget.trackColor,
@@ -252,43 +255,45 @@ class _ScrollableAppTabState extends State<_ScrollableAppTab> {
         controller: _controller,
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        child: Stack(
-          fit: fillHeight ? StackFit.expand : StackFit.loose,
-          children: [
-            if (_hasMeasured && _indicatorWidth > 0)
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeInOut,
-                left: _indicatorLeft,
-                width: _indicatorWidth,
-                top: 0,
-                bottom: 0,
-                child: const _TabIndicator(),
+        child: SizedBox(
+          height: resolvedHeight - AppTab._outerPadding * 2,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (_hasMeasured && _indicatorWidth > 0)
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeInOut,
+                  left: _indicatorLeft,
+                  width: _indicatorWidth,
+                  top: 0,
+                  bottom: 0,
+                  child: const _TabIndicator(),
+                ),
+              Row(
+                key: _rowKey,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: List.generate(widget.tabs.length, (i) {
+                  return KeyedSubtree(
+                    key: _keys[i],
+                    child: _AppTabItem(
+                      label: widget.tabs[i],
+                      isSelected: i == widget.currentIndex,
+                      expand: false,
+                      fillHeight: true,
+                      selectedColor: widget.selectedColor,
+                      onTap: () {
+                        if (i != widget.currentIndex) {
+                          HapticFeedback.selectionClick();
+                          widget.onTabChanged(i);
+                        }
+                      },
+                    ),
+                  );
+                }),
               ),
-            Row(
-              key: _rowKey,
-              crossAxisAlignment:
-                  fillHeight ? CrossAxisAlignment.stretch : CrossAxisAlignment.center,
-              children: List.generate(widget.tabs.length, (i) {
-                return KeyedSubtree(
-                  key: _keys[i],
-                  child: _AppTabItem(
-                    label: widget.tabs[i],
-                    isSelected: i == widget.currentIndex,
-                    expand: false,
-                    fillHeight: fillHeight,
-                    selectedColor: widget.selectedColor,
-                    onTap: () {
-                      if (i != widget.currentIndex) {
-                        HapticFeedback.selectionClick();
-                        widget.onTabChanged(i);
-                      }
-                    },
-                  ),
-                );
-              }),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

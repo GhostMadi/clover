@@ -10,6 +10,22 @@ class BookingAnalyticsPopularService {
   final String title;
   final String emojiText;
   final int bookingCount;
+
+  Map<String, dynamic> toJson() => {
+        'service_id': serviceId,
+        'title': title,
+        'emoji_text': emojiText,
+        'booking_count': bookingCount,
+      };
+
+  factory BookingAnalyticsPopularService.fromJson(Map<String, dynamic> json) {
+    return BookingAnalyticsPopularService(
+      serviceId: json['service_id']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      emojiText: json['emoji_text']?.toString() ?? '💈',
+      bookingCount: (json['booking_count'] as num?)?.toInt() ?? 0,
+    );
+  }
 }
 
 class BookingAnalyticsPeriodResult {

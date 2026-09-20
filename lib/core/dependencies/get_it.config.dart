@@ -52,9 +52,13 @@ import '../../feature/_attendance_/attendance_workplace_settings/presentation/cu
     as _i381;
 import '../../feature/_attendance_/shared/data/attendance_context_store.dart'
     as _i865;
+import '../../feature/_attendance_/shared/data/attendance_local_cache.dart'
+    as _i942;
 import '../../feature/_attendance_/shared/data/attendance_outbox.dart' as _i352;
 import '../../feature/_attendance_/shared/data/attendance_remote_repository.dart'
     as _i75;
+import '../../feature/_attendance_/shared/data/attendance_workplaces_prefs.dart'
+    as _i34;
 import '../../feature/_bonus_/bonus_history/data/repository/bonus_history_repository.dart'
     as _i1054;
 import '../../feature/_bonus_/bonus_history/presentation/cubit/bonus_history_cubit.dart'
@@ -109,6 +113,8 @@ import '../../feature/_booking_/booking_settings/presentation/cubit/booking_sche
     as _i545;
 import '../../feature/_booking_/booking_settings/presentation/cubit/booking_schedule_settings_cubit.dart'
     as _i633;
+import '../../feature/_booking_/booking_team/presentation/cubit/booking_team_cubit.dart'
+    as _i572;
 import '../../feature/_booking_/my_bookings/data/models/my_booking_item.dart'
     as _i56;
 import '../../feature/_booking_/my_bookings/data/repository/my_bookings_repository.dart'
@@ -208,6 +214,8 @@ import '../../feature/_profile_/followers_and_followings/data/repository/followe
     as _i986;
 import '../../feature/_profile_/followers_and_followings/presentation/cubit/followers_and_followings_cubit.dart'
     as _i776;
+import '../../feature/_profile_/profile_page/data/repository/profile_local_cache.dart'
+    as _i340;
 import '../../feature/_profile_/profile_page/data/repository/profile_repository.dart'
     as _i57;
 import '../../feature/_profile_/profile_page/presentation/cubit/guest_profile_cubit.dart'
@@ -404,10 +412,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i339.LocationCubit>(
       () => _i339.LocationCubit(gh<_i634.LocationRepository>()),
     );
-    gh.factory<_i633.BookingScheduleSettingsCubit>(
-      () => _i633.BookingScheduleSettingsCubit(
-        gh<_i361.BookingScheduleRepository>(),
-        gh<_i462.BookingStaffRepository>(),
+    gh.lazySingleton<_i34.AttendanceWorkplacesPrefs>(
+      () => _i34.AttendanceWorkplacesPrefs(
+        gh<_i1029.IAppStorage>(),
+        gh<_i819.AppSession>(),
       ),
     );
     gh.lazySingleton<_i1024.BookingPointsPrefs>(
@@ -427,6 +435,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i980.AppThemeStore>(
       () => _i980.AppThemeStore(gh<_i1029.IAppStorage>()),
+    );
+    gh.lazySingleton<_i942.AttendanceLocalCache>(
+      () => _i942.AttendanceLocalCache(gh<_i1029.IAppStorage>()),
     );
     gh.lazySingleton<_i984.BookingLocalCache>(
       () => _i984.BookingLocalCache(gh<_i1029.IAppStorage>()),
@@ -451,6 +462,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i824.PostShareLocalCache>(
       () => _i824.PostShareLocalCache(gh<_i1029.IAppStorage>()),
+    );
+    gh.lazySingleton<_i340.ProfileLocalCache>(
+      () => _i340.ProfileLocalCache(gh<_i1029.IAppStorage>()),
     );
     gh.lazySingleton<_i501.DashboardHomeModeStore>(
       () => _i501.DashboardHomeModeStore(gh<_i1029.IAppStorage>()),
@@ -478,6 +492,21 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i782.ChatActiveThread>(),
       ),
     );
+    gh.factory<_i74.BookingAnalyticsCubit>(
+      () => _i74.BookingAnalyticsCubit(
+        gh<_i627.BookingAnalyticsRepository>(),
+        gh<_i462.BookingStaffRepository>(),
+        gh<_i984.BookingLocalCache>(),
+        gh<_i819.AppSession>(),
+      ),
+    );
+    gh.singleton<_i95.ProfileCubit>(
+      () => _i95.ProfileCubit(
+        gh<_i57.ProfileNewRepository>(),
+        gh<_i340.ProfileLocalCache>(),
+        gh<_i819.AppSession>(),
+      ),
+    );
     gh.lazySingleton<_i297.ChatThreadCacheSync>(
       () => _i297.ChatThreadCacheSync(
         gh<_i233.ChatRepository>(),
@@ -485,13 +514,26 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i454.SupabaseClient>(),
       ),
     );
-    gh.singleton<_i95.ProfileCubit>(
-      () => _i95.ProfileCubit(gh<_i57.ProfileNewRepository>()),
-    );
-    gh.factory<_i74.BookingAnalyticsCubit>(
-      () => _i74.BookingAnalyticsCubit(
-        gh<_i627.BookingAnalyticsRepository>(),
+    gh.factory<_i572.BookingTeamCubit>(
+      () => _i572.BookingTeamCubit(
         gh<_i462.BookingStaffRepository>(),
+        gh<_i984.BookingLocalCache>(),
+        gh<_i819.AppSession>(),
+      ),
+    );
+    gh.lazySingleton<_i865.AttendanceContextStore>(
+      () => _i865.AttendanceContextStore(
+        gh<_i1029.IAppStorage>(),
+        gh<_i75.AttendanceRemoteRepository>(),
+        gh<_i352.AttendanceOutbox>(),
+        gh<_i942.AttendanceLocalCache>(),
+      ),
+    );
+    gh.factory<_i72.AttendanceWorkersCubit>(
+      () => _i72.AttendanceWorkersCubit(
+        gh<_i865.AttendanceContextStore>(),
+        gh<_i75.AttendanceRemoteRepository>(),
+        gh<_i233.ChatRepository>(),
       ),
     );
     gh.lazySingleton<_i86.AppPushMessagingService>(
@@ -528,6 +570,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i469.SocialGraphRepository>(),
       ),
     );
+    gh.factory<_i905.AttendanceWorkerHubCubit>(
+      () => _i905.AttendanceWorkerHubCubit(gh<_i865.AttendanceContextStore>()),
+    );
     gh.factory<_i91.BookingStaffSearchCubit>(
       () => _i91.BookingStaffSearchCubit(gh<_i462.BookingStaffRepository>()),
     );
@@ -549,6 +594,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i121.ProfileFilterCubit>(
       () => _i121.ProfileFilterCubit(gh<_i858.FilterRepository>()),
+    );
+    gh.factory<_i971.AttendanceCompanyCubit>(
+      () => _i971.AttendanceCompanyCubit(
+        gh<_i865.AttendanceContextStore>(),
+        gh<_i942.AttendanceLocalCache>(),
+        gh<_i34.AttendanceWorkplacesPrefs>(),
+        gh<_i819.AppSession>(),
+      ),
     );
     gh.lazySingleton<_i614.PostCreateUploadCubit>(
       () => _i614.PostCreateUploadCubit(gh<_i317.PostCreateRepository>()),
@@ -577,12 +630,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i138.NotificationsUnreadCubit>(),
       ),
     );
-    gh.factory<_i744.BookingPointsCubit>(
-      () => _i744.BookingPointsCubit(
-        gh<_i21.BookingPointsRepository>(),
-        gh<_i1024.BookingPointsPrefs>(),
-      ),
-    );
     gh.factory<_i978.BookingClientCubit>(
       () => _i978.BookingClientCubit(gh<_i350.BookingClientRepository>()),
     );
@@ -595,6 +642,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i57.ProfileNewRepository>(),
         gh<_i34.MarkerTagsRepository>(),
         gh<_i573.R2StorageService>(),
+      ),
+    );
+    gh.factory<_i744.BookingPointsCubit>(
+      () => _i744.BookingPointsCubit(
+        gh<_i21.BookingPointsRepository>(),
+        gh<_i1024.BookingPointsPrefs>(),
+        gh<_i984.BookingLocalCache>(),
+        gh<_i819.AppSession>(),
       ),
     );
     gh.factory<_i671.PostShareRecipientsCubit>(
@@ -622,6 +677,50 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i404.NotificationOpenRouter>(
       () => _i404.NotificationOpenRouter(gh<_i79.AppDeepLinkNavigator>()),
     );
+    gh.factory<_i190.AttendanceHubCubit>(
+      () => _i190.AttendanceHubCubit(
+        gh<_i865.AttendanceContextStore>(),
+        gh<_i75.AttendanceRemoteRepository>(),
+        gh<_i942.AttendanceLocalCache>(),
+        gh<_i34.AttendanceWorkplacesPrefs>(),
+        gh<_i819.AppSession>(),
+      ),
+    );
+    gh.factory<_i967.AttendanceAbsencesCubit>(
+      () => _i967.AttendanceAbsencesCubit(
+        gh<_i865.AttendanceContextStore>(),
+        gh<_i75.AttendanceRemoteRepository>(),
+        gh<_i352.AttendanceOutbox>(),
+      ),
+    );
+    gh.factory<_i532.AttendanceOvertimeCubit>(
+      () => _i532.AttendanceOvertimeCubit(
+        gh<_i865.AttendanceContextStore>(),
+        gh<_i75.AttendanceRemoteRepository>(),
+        gh<_i352.AttendanceOutbox>(),
+      ),
+    );
+    gh.factory<_i456.AttendancePayrollRulesCubit>(
+      () => _i456.AttendancePayrollRulesCubit(
+        gh<_i865.AttendanceContextStore>(),
+        gh<_i75.AttendanceRemoteRepository>(),
+        gh<_i352.AttendanceOutbox>(),
+      ),
+    );
+    gh.factory<_i534.AttendancePunchCubit>(
+      () => _i534.AttendancePunchCubit(
+        gh<_i865.AttendanceContextStore>(),
+        gh<_i75.AttendanceRemoteRepository>(),
+        gh<_i352.AttendanceOutbox>(),
+      ),
+    );
+    gh.factory<_i381.AttendanceWorkplaceSettingsCubit>(
+      () => _i381.AttendanceWorkplaceSettingsCubit(
+        gh<_i865.AttendanceContextStore>(),
+        gh<_i75.AttendanceRemoteRepository>(),
+        gh<_i352.AttendanceOutbox>(),
+      ),
+    );
     gh.factory<_i314.BookingListCubit>(
       () => _i314.BookingListCubit(
         gh<_i152.BookingHostListRepository>(),
@@ -637,6 +736,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i454.SupabaseClient>(),
       ),
     );
+    gh.factory<_i633.BookingScheduleSettingsCubit>(
+      () => _i633.BookingScheduleSettingsCubit(
+        gh<_i361.BookingScheduleRepository>(),
+        gh<_i462.BookingStaffRepository>(),
+        gh<_i984.BookingLocalCache>(),
+        gh<_i819.AppSession>(),
+      ),
+    );
     gh.lazySingleton<_i16.ClusterCreateUploadCubit>(
       () => _i16.ClusterCreateUploadCubit(gh<_i220.ClusterCreateRepository>()),
     );
@@ -648,13 +755,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i4.DashboardHomeModeCubit>(
       () => _i4.DashboardHomeModeCubit(gh<_i501.DashboardHomeModeStore>()),
-    );
-    gh.lazySingleton<_i865.AttendanceContextStore>(
-      () => _i865.AttendanceContextStore(
-        gh<_i1029.IAppStorage>(),
-        gh<_i75.AttendanceRemoteRepository>(),
-        gh<_i352.AttendanceOutbox>(),
-      ),
     );
     gh.lazySingleton<_i984.PostRepository>(
       () => _i984.PostRepository(
@@ -693,12 +793,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i75.AttendanceRemoteRepository>(),
       ),
     );
-    gh.factory<_i190.AttendanceHubCubit>(
-      () => _i190.AttendanceHubCubit(
-        gh<_i865.AttendanceContextStore>(),
-        gh<_i75.AttendanceRemoteRepository>(),
-      ),
-    );
     gh.lazySingleton<_i832.ChatUnreadCubit>(
       () => _i832.ChatUnreadCubit(
         gh<_i233.ChatRepository>(),
@@ -713,16 +807,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i454.SupabaseClient>(),
         gh<_i984.PostRepository>(),
       ),
-    );
-    gh.factory<_i72.AttendanceWorkersCubit>(
-      () => _i72.AttendanceWorkersCubit(
-        gh<_i865.AttendanceContextStore>(),
-        gh<_i75.AttendanceRemoteRepository>(),
-        gh<_i233.ChatRepository>(),
-      ),
-    );
-    gh.factory<_i905.AttendanceWorkerHubCubit>(
-      () => _i905.AttendanceWorkerHubCubit(gh<_i865.AttendanceContextStore>()),
     );
     gh.factory<_i213.PostDetailCubit>(
       () => _i213.PostDetailCubit(
@@ -743,41 +827,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i116.GoogleSignIn>(),
         gh<_i191.AccountSessionCleanup>(),
         gh<_i86.AppPushMessagingService>(),
-      ),
-    );
-    gh.factory<_i967.AttendanceAbsencesCubit>(
-      () => _i967.AttendanceAbsencesCubit(
-        gh<_i865.AttendanceContextStore>(),
-        gh<_i75.AttendanceRemoteRepository>(),
-        gh<_i352.AttendanceOutbox>(),
-      ),
-    );
-    gh.factory<_i532.AttendanceOvertimeCubit>(
-      () => _i532.AttendanceOvertimeCubit(
-        gh<_i865.AttendanceContextStore>(),
-        gh<_i75.AttendanceRemoteRepository>(),
-        gh<_i352.AttendanceOutbox>(),
-      ),
-    );
-    gh.factory<_i456.AttendancePayrollRulesCubit>(
-      () => _i456.AttendancePayrollRulesCubit(
-        gh<_i865.AttendanceContextStore>(),
-        gh<_i75.AttendanceRemoteRepository>(),
-        gh<_i352.AttendanceOutbox>(),
-      ),
-    );
-    gh.factory<_i534.AttendancePunchCubit>(
-      () => _i534.AttendancePunchCubit(
-        gh<_i865.AttendanceContextStore>(),
-        gh<_i75.AttendanceRemoteRepository>(),
-        gh<_i352.AttendanceOutbox>(),
-      ),
-    );
-    gh.factory<_i381.AttendanceWorkplaceSettingsCubit>(
-      () => _i381.AttendanceWorkplaceSettingsCubit(
-        gh<_i865.AttendanceContextStore>(),
-        gh<_i75.AttendanceRemoteRepository>(),
-        gh<_i352.AttendanceOutbox>(),
       ),
     );
     gh.factory<_i426.AttendanceTimesheetCubit>(
@@ -808,12 +857,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i604.AttendanceAnalyticsCubit>(
       () => _i604.AttendanceAnalyticsCubit(
-        gh<_i865.AttendanceContextStore>(),
-        gh<_i522.AttendanceAnalyticsLoader>(),
-      ),
-    );
-    gh.factory<_i971.AttendanceCompanyCubit>(
-      () => _i971.AttendanceCompanyCubit(
         gh<_i865.AttendanceContextStore>(),
         gh<_i522.AttendanceAnalyticsLoader>(),
       ),

@@ -81,17 +81,15 @@ class _AttendanceAnalyticsPageState extends State<AttendanceAnalyticsPage> {
 
   void _shiftPeriod(int delta) {
     if (_isMonth) {
-      final anchor = DateTime(_start.year, _start.month + delta, 1);
-      _applyMonth(anchor: anchor);
+      _applyMonth(anchor: DateTime(_start.year, _start.month + delta, 1));
     } else {
-      final newStart = _start.add(Duration(days: 7 * delta));
       final newEnd = _end.add(Duration(days: 7 * delta));
       if (newEnd.isAfter(_today)) {
         _applyWeek(anchor: _today);
       } else {
         setState(() {
           _isMonth = false;
-          _start = newStart;
+          _start = _start.add(Duration(days: 7 * delta));
           _end = newEnd;
         });
         _reload();
@@ -107,23 +105,19 @@ class _AttendanceAnalyticsPageState extends State<AttendanceAnalyticsPage> {
     return _end.isBefore(_today);
   }
 
-  bool get _canGoPrevious => true;
-
   String _periodLabel() {
-    if (_isMonth && _start.day == 1 && _sameMonth(_start, _end)) {
+    if (_isMonth && _start.day == 1 && _start.year == _end.year && _start.month == _end.month) {
       return '${_monthNames[_start.month - 1]} ${_start.year}';
     }
     return '${_fmt(_start)} — ${_fmt(_end)}';
   }
 
-  bool _sameMonth(DateTime a, DateTime b) => a.year == b.year && a.month == b.month;
-
   String _fmt(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
 
   bool _isTodayPeriod() {
     if (_isMonth) {
-      return _sameMonth(_start, _today) && !_end.isBefore(_today);
+      return _start.year == _today.year && _start.month == _today.month && !_end.isBefore(_today);
     }
     return !_end.isBefore(_today) && !_start.isAfter(_today);
   }
@@ -144,77 +138,57 @@ class _AttendanceAnalyticsPageState extends State<AttendanceAnalyticsPage> {
 
         final overview = state is AttendanceAnalyticsLoaded ? state.overview : null;
         final loading = state is AttendanceAnalyticsLoading || overview == null;
-        final loadedOverview = overview;
-        final maxHours = loadedOverview == null || loadedOverview.workers.isEmpty
-            ? 1.0
-            : loadedOverview.workers.map((w) => w.hoursValue).reduce((a, b) => a > b ? a : b);
-        final fromRemote = state is AttendanceAnalyticsLoaded && state.fromRemotePeriod;
 
         return AttendanceScreenShell(
           title: 'Аналитика',
           body: loading
-              ? Center(
-                  child: CircularProgressIndicator(
-                    color: context.colors.serviceAccent(kAttendanceService).icon,
-                  ),
-                )
-              : SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, AttendanceScreenShell.scrollBottomGap(context)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      AttendanceAnalyticsPeriodPicker(
-                        isMonth: _isMonth,
-                        onWeek: () => _applyWeek(anchor: _end.isAfter(_today) ? _today : _end),
-                        onMonth: () => _applyMonth(anchor: _start),
-                        periodLabel: _periodLabel(),
-                        onPrevious: () => _shiftPeriod(-1),
-                        onNext: () => _shiftPeriod(1),
-                        canGoPrevious: _canGoPrevious,
-                        canGoNext: _canGoNext,
-                      ),
-                      if (fromRemote) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          'Период подгружен с сервера',
-                          style: AppTextStyle.base(12, color: context.colors.subTextColor),
-                        ),
-                      ],
-                      const SizedBox(height: 24),
-                      if (_isTodayPeriod())
-                        AttendanceTodayTeamSection(
-                          workers: overview.workers,
-                          workplaceId: widget.workplaceId,
-                        ),
-                      if (_isTodayPeriod()) const SizedBox(height: 28),
-                      AttendanceAnalyticsSummarySection(
-                        overview: overview,
-                        workerCount: overview.workers.length,
-                      ),
-                      const SizedBox(height: 28),
-                      AttendanceAnalyticsTeamSection(
+              ? const AttendanceLoader()
+              : ListView(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, AttendanceScreenShell.scrollBottomGap(context)),
+                  children: [
+                    AttendanceAnalyticsPeriodPicker(
+                      isMonth: _isMonth,
+                      onWeek: () => _applyWeek(anchor: _end.isAfter(_today) ? _today : _end),
+                      onMonth: () => _applyMonth(anchor: _start),
+                      periodLabel: _periodLabel(),
+                      onPrevious: () => _shiftPeriod(-1),
+                      onNext: () => _shiftPeriod(1),
+                      canGoNext: _canGoNext,
+                    ),
+                    const SizedBox(height: 16),
+                    if (_isTodayPeriod()) ...[
+                      AttendanceTodayTeamSection(
                         workers: overview.workers,
-                        maxHours: maxHours,
-                        onWorkerTap: (worker) {
-                          context.router.push(
-                            AttendanceWorkerAnalyticsRoute(
-                              workplaceId: widget.workplaceId,
-                              workerId: worker.id,
-                            ),
-                          );
-                        },
+                        workplaceId: widget.workplaceId,
                       ),
-                      if (overview.workers.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 32),
-                          child: Text(
-                            'Нет данных за период',
-                            textAlign: TextAlign.center,
-                            style: AppTextStyle.base(14, color: context.colors.subTextColor),
-                          ),
-                        ),
+                      const SizedBox(height: 16),
                     ],
-                  ),
+                    AttendanceAnalyticsSummarySection(
+                      overview: overview,
+                      workerCount: overview.workers.length,
+                    ),
+                    const SizedBox(height: 20),
+                    AttendanceAnalyticsTeamSection(
+                      workers: overview.workers,
+                      onWorkerTap: (worker) {
+                        context.router.push(
+                          AttendanceWorkerAnalyticsRoute(
+                            workplaceId: widget.workplaceId,
+                            workerId: worker.id,
+                          ),
+                        );
+                      },
+                    ),
+                    if (overview.workers.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 24),
+                        child: Text(
+                          'Нет данных за период',
+                          textAlign: TextAlign.center,
+                          style: AppTextStyle.base(14, color: context.colors.subTextColor),
+                        ),
+                      ),
+                  ],
                 ),
         );
       },

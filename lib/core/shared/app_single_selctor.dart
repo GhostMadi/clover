@@ -24,6 +24,7 @@ class AppSingleSelect<T> extends StatelessWidget {
     required this.onChanged,
     this.searchHint = 'Поиск',
     this.sheetTitle,
+    this.service,
   });
 
   /// Подпись над полем (опционально).
@@ -38,6 +39,9 @@ class AppSingleSelect<T> extends StatelessWidget {
 
   final String searchHint;
   final String? sheetTitle;
+
+  /// Акцент сервиса (шторка, чек, шеврон).
+  final AppServiceKind? service;
 
   static const double _radius = 12;
 
@@ -57,7 +61,13 @@ class AppSingleSelect<T> extends StatelessWidget {
       upperCaseTitle: false,
       showCloseButton: true,
       contentHeight: h,
-      content: AppSingleSelectSheetContent<T>(searchHint: searchHint, options: options, selected: value),
+      service: service,
+      content: AppSingleSelectSheetContent<T>(
+        searchHint: searchHint,
+        options: options,
+        selected: value,
+        service: service,
+      ),
     );
     if (!context.mounted || picked == null) return;
     onChanged(picked);
@@ -66,8 +76,10 @@ class AppSingleSelect<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final accent = service != null ? colors.serviceAccent(service!) : null;
     final display = _selectedLabel();
     final hasValue = display != null && display.isNotEmpty;
+    final chevronColor = accent?.icon ?? colors.subTextColor.withValues(alpha: 0.55);
 
     final field = Material(
       color: colors.fieldBackground,
@@ -79,7 +91,11 @@ class AppSingleSelect<T> extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(_radius),
-            border: Border.all(color: colors.fieldBorder),
+            border: Border.all(
+              color: hasValue && accent != null
+                  ? accent.ctaBorder.withValues(alpha: 0.65)
+                  : colors.fieldBorder,
+            ),
           ),
           child: Row(
             children: [
@@ -97,7 +113,7 @@ class AppSingleSelect<T> extends StatelessWidget {
               ),
               Icon(
                 AppIcons.arrowDown.icon,
-                color: colors.subTextColor.withValues(alpha: 0.55),
+                color: chevronColor,
                 size: 24,
               ),
             ],
@@ -129,6 +145,7 @@ class AppSingleSelect<T> extends StatelessWidget {
     required List<AppSingleSelectOption<T>> options,
     T? selected,
     String searchHint = 'Поиск',
+    AppServiceKind? service,
   }) async {
     final h = MediaQuery.sizeOf(context).height * 0.58;
     return AppBottomSheet.show<T>(
@@ -138,7 +155,13 @@ class AppSingleSelect<T> extends StatelessWidget {
       showCloseButton: true,
       contentHeight: h,
       contentBottomSpacing: 0,
-      content: AppSingleSelectSheetContent<T>(searchHint: searchHint, options: options, selected: selected),
+      service: service,
+      content: AppSingleSelectSheetContent<T>(
+        searchHint: searchHint,
+        options: options,
+        selected: selected,
+        service: service,
+      ),
     );
   }
 }
@@ -150,11 +173,13 @@ class AppSingleSelectSheetContent<T> extends StatefulWidget {
     required this.searchHint,
     required this.options,
     required this.selected,
+    this.service,
   });
 
   final String searchHint;
   final List<AppSingleSelectOption<T>> options;
   final T? selected;
+  final AppServiceKind? service;
 
   @override
   State<AppSingleSelectSheetContent<T>> createState() => _AppSingleSelectSheetContentState<T>();
@@ -185,6 +210,8 @@ class _AppSingleSelectSheetContentState<T> extends State<AppSingleSelectSheetCon
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final accent = widget.service != null ? colors.serviceAccent(widget.service!) : null;
+    final checkColor = accent?.icon ?? colors.btnBackground;
     final bottom = MediaQuery.paddingOf(context).bottom;
 
     return Column(
@@ -196,6 +223,7 @@ class _AppSingleSelectSheetContentState<T> extends State<AppSingleSelectSheetCon
           prefixIcon: AppIcons.searchRounded.icon,
           textInputAction: TextInputAction.search,
           onChanged: (v) => setState(() => _query = v),
+          service: widget.service,
         ),
         const SizedBox(height: 12),
         Expanded(
@@ -228,7 +256,7 @@ class _AppSingleSelectSheetContentState<T> extends State<AppSingleSelectSheetCon
                         ),
                       ),
                       trailing: isSelected
-                          ? Icon(AppIcons.checkRounded.icon, color: colors.btnBackground, size: 22)
+                          ? Icon(AppIcons.checkRounded.icon, color: checkColor, size: 22)
                           : null,
                       onTap: () => Navigator.pop(context, o.value),
                     );

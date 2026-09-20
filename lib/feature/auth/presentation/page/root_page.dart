@@ -17,7 +17,7 @@ class RootPage extends StatelessWidget {
   const RootPage({super.key});
 
   Future<void> _routeAuthenticated(BuildContext context, String userId) async {
-    final seen = await sl<OnboardingStore>().hasSeen(userId, OnboardingCatalog.appV1Id);
+    final seen = await sl<OnboardingStore>().hasSeen(userId, OnboardingCatalog.appFlowId);
     if (!context.mounted) return;
     if (seen) {
       await AutoRouter.of(context).replaceAll([const AppDashboardRoute()]);

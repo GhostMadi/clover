@@ -4,7 +4,7 @@ import 'package:clover/core/shared/app_shimmer.dart';
 import 'package:clover/core/storage/app_progressive_network_image.dart';
 import 'package:flutter/material.dart';
 
-/// Плитка изображения поста: progressive remote + placeholder.
+/// Плитка изображения поста: progressive remote / локальный asset + placeholder.
 class PostImageTile extends StatelessWidget {
   const PostImageTile({
     super.key,
@@ -19,6 +19,11 @@ class PostImageTile extends StatelessWidget {
   final int? memCacheWidth;
   final double borderRadius;
 
+  static bool isAssetPath(String url) => AppProgressiveNetworkImage.isAssetPath(url);
+
+  static String normalizeAssetPath(String url) =>
+      AppProgressiveNetworkImage.normalizeAssetPath(url);
+
   @override
   Widget build(BuildContext context) {
     final url = imageUrl?.trim() ?? '';
@@ -27,7 +32,9 @@ class PostImageTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         child: ColoredBox(
           color: context.colors.surfaceSoft,
-          child: Center(child: Icon(AppIcons.imageOutlined.icon, color: context.colors.iconMuted, size: 28)),
+          child: Center(
+            child: Icon(AppIcons.imageOutlined.icon, color: context.colors.iconMuted, size: 28),
+          ),
         ),
       );
     }

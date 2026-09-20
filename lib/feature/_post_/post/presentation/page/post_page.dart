@@ -84,6 +84,7 @@ class _PostPageState extends State<PostPage> {
         initialMyReaction: widget.initialMyReaction,
         initialAuthorUsername: widget.initialAuthorUsername,
         initialAuthorAvatarUrl: widget.initialAuthorAvatarUrl,
+        fetchRemote: true,
       );
     _scrollController.addListener(_onScroll);
   }

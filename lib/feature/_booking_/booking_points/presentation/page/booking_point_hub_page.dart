@@ -4,21 +4,15 @@ import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
-import 'package:clover/core/shared/app_tile.dart';
-import 'package:clover/feature/_booking_/booking_points/data/booking_points_prefs.dart';
-import 'package:clover/feature/_booking_/booking_points/data/repository/booking_points_repository.dart';
+import 'package:clover/feature/_booking_/booking_points/presentation/cubit/booking_points_cubit.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_hub_nav_card.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
-import 'package:clover/feature/_settings_/settings/presentation/widget/settings_tile_section.dart';
 import 'package:flutter/material.dart';
 
 @RoutePage()
 class BookingPointHubPage extends StatefulWidget {
-  const BookingPointHubPage({
-    super.key,
-    required this.pointId,
-    this.pointName,
-  });
+  const BookingPointHubPage({super.key, required this.pointId, this.pointName});
 
   final String pointId;
   final String? pointName;
@@ -28,54 +22,76 @@ class BookingPointHubPage extends StatefulWidget {
 }
 
 class _BookingPointHubPageState extends State<BookingPointHubPage> {
-  String _title = 'Точка';
-  var _loading = true;
+  late final BookingPointsCubit _pointsCubit;
+  late String _title;
+  late bool _loading;
   var _missing = false;
 
   @override
   void initState() {
     super.initState();
+    _pointsCubit = sl<BookingPointsCubit>();
     final hint = widget.pointName?.trim();
-    if (hint != null && hint.isNotEmpty) _title = hint;
+    final hasHint = hint != null && hint.isNotEmpty;
+    _title = hasHint ? hint : 'Точка';
+    _loading = !hasHint;
     _bootstrap();
   }
 
-  Future<void> _bootstrap() async {
-    final prefs = sl<BookingPointsPrefs>();
-    await prefs.writeLastPointId(widget.pointId);
+  @override
+  void dispose() {
+    _pointsCubit.close();
+    super.dispose();
+  }
 
-    final point = await sl<BookingPointsRepository>().getPoint(widget.pointId);
+  Future<void> _bootstrap() async {
+    final pointId = widget.pointId.trim();
+    await _pointsCubit.remember(pointId);
+
+    final hint = widget.pointName?.trim();
+    if (hint != null && hint.isNotEmpty) {
+      if (mounted && (_loading || _title != hint)) {
+        setState(() {
+          _loading = false;
+          _missing = false;
+          _title = hint;
+        });
+      }
+      return;
+    }
+
+    final name = await _pointsCubit.resolvePointName(pointId);
     if (!mounted) return;
     setState(() {
       _loading = false;
-      if (point == null) {
+      if (name == null || name.isEmpty) {
         _missing = true;
       } else {
-        _title = point.name;
+        _title = name;
       }
     });
   }
 
+  Future<void> _onPointChanged(String nextId) async {
+    final name = await _pointsCubit.resolvePointName(nextId);
+    if (!mounted) return;
+    context.router.replace(BookingPointHubRoute(pointId: nextId, pointName: name));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final accent = bookingServiceAccent(context.colors);
     final pointId = widget.pointId;
 
     if (_loading) {
-      return BookingScreenShell(
-        title: _title,
-        body: const BookingLoader(),
-      );
+      return BookingScreenShell(title: _title, compactBar: true, body: const BookingLoader());
     }
 
     if (_missing) {
       return BookingScreenShell(
         title: 'Точка',
+        compactBar: true,
         body: Center(
-          child: Text(
-            'Точка не найдена',
-            style: AppTextStyle.base(15, color: context.colors.subTextColor),
-          ),
+          child: Text('Точка не найдена', style: AppTextStyle.base(15, color: context.colors.subTextColor)),
         ),
       );
     }
@@ -83,58 +99,41 @@ class _BookingPointHubPageState extends State<BookingPointHubPage> {
     return BookingScreenShell(
       title: _title,
       pointId: pointId,
-      onPointChanged: (nextId) {
-        context.router.replace(
-          BookingPointHubRoute(pointId: nextId),
-        );
-      },
+      compactBar: true,
+      onPointChanged: _onPointChanged,
       body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, BookingScreenShell.scrollBottomGap(context)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        padding: EdgeInsets.fromLTRB(16, 0, 16, BookingScreenShell.scrollBottomGap(context)),
+        child: BookingHubNavGrid(
           children: [
-            const SettingsTileSectionTitle('Точка'),
-            AppTileGroup(
-              children: [
-                AppTile(
-                  title: 'Мои записи',
-                  subtitle: 'Календарь и визиты',
-                  icon: AppIcons.calendarMonth.icon,
-                  iconColor: accent.icon,
-                  iconBackgroundColor: accent.soft,
-                  showChevron: true,
-                  onTap: () => context.router.push(BookingListRoute(pointId: pointId)),
-                ),
-                AppTile(
-                  title: 'Услуги',
-                  subtitle: 'Цены, длительность, исполнители',
-                  icon: AppIcons.designServices.icon,
-                  iconColor: accent.icon,
-                  iconBackgroundColor: accent.soft,
-                  showChevron: true,
-                  onTap: () => context.router.push(BookingCreateRoute(pointId: pointId)),
-                ),
-                AppTile(
-                  title: 'Аналитика',
-                  subtitle: 'Записи, услуги и исполнители',
-                  icon: AppIcons.insights.icon,
-                  iconColor: accent.icon,
-                  iconBackgroundColor: accent.soft,
-                  showChevron: true,
-                  onTap: () => context.router.push(BookingAnalyticsRoute(pointId: pointId)),
-                ),
-                AppTile(
-                  title: 'Настройки расписания',
-                  subtitle: 'Часы работы, горизонт, отсутствия',
-                  icon: AppIcons.settingsOutlined.icon,
-                  iconColor: accent.icon,
-                  iconBackgroundColor: accent.soft,
-                  showChevron: true,
-                  onTap: () => context.router.push(
-                    BookingScheduleSettingsRoute(pointId: pointId),
-                  ),
-                ),
-              ],
+            BookingHubNavCard(
+              title: 'Мои записи',
+              subtitle: 'Календарь и визиты',
+              icon: AppIcons.calendarMonth.icon,
+              onTap: () => context.router.push(BookingListRoute(pointId: pointId)),
+            ),
+            BookingHubNavCard(
+              title: 'Услуги',
+              subtitle: 'Цены и длительность',
+              icon: AppIcons.designServices.icon,
+              onTap: () => context.router.push(BookingCreateRoute(pointId: pointId)),
+            ),
+            BookingHubNavCard(
+              title: 'Команда',
+              subtitle: 'Мастера и приглашения',
+              icon: AppIcons.groupOutlined.icon,
+              onTap: () => context.router.push(BookingTeamRoute(pointId: pointId)),
+            ),
+            BookingHubNavCard(
+              title: 'Аналитика',
+              subtitle: 'Записи и услуги',
+              icon: AppIcons.insights.icon,
+              onTap: () => context.router.push(BookingAnalyticsRoute(pointId: pointId)),
+            ),
+            BookingHubNavCard(
+              title: 'Расписание',
+              subtitle: 'Часы и отсутствия',
+              icon: AppIcons.settingsOutlined.icon,
+              onTap: () => context.router.push(BookingScheduleSettingsRoute(pointId: pointId)),
             ),
           ],
         ),

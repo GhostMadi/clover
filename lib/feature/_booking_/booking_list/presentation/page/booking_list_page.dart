@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
-import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/app_tab.dart';
@@ -14,14 +14,16 @@ import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_i
 import 'package:clover/feature/_booking_/booking_list/presentation/cubit/booking_list_cubit.dart';
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_archive_body.dart';
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_card.dart';
-import 'package:clover/feature/_booking_/booking_points/data/repository/booking_points_repository.dart';
-import 'package:clover/feature/_booking_/shared/presentation/widget/booking_month_calendar.dart';
+import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_day_strip.dart';
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_empty_state.dart';
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_now_card.dart';
+import 'package:clover/feature/_booking_/booking_points/data/booking_point_title.dart';
 import 'package:clover/feature/_booking_/shared/data/models/booking_status.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_month_calendar.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
@@ -39,6 +41,7 @@ class _BookingListPageState extends State<BookingListPage> {
   late final TextEditingController _searchController;
   Timer? _searchDebounce;
   String _title = 'Мои записи';
+  var _showSearch = false;
 
   @override
   void initState() {
@@ -49,9 +52,9 @@ class _BookingListPageState extends State<BookingListPage> {
   }
 
   Future<void> _resolveTitle() async {
-    final point = await sl<BookingPointsRepository>().getPoint(widget.pointId);
-    if (!mounted || point == null) return;
-    setState(() => _title = point.name);
+    final name = await resolveBookingPointNameCached(widget.pointId);
+    if (!mounted || name == null) return;
+    setState(() => _title = name);
   }
 
   void _onPointChanged(String nextId) {
@@ -104,6 +107,9 @@ class _BookingListPageState extends State<BookingListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final accent = bookingServiceAccent(colors);
+
     return BlocBuilder<BookingListCubit, BookingListState>(
       bloc: _cubit,
       builder: (context, state) {
@@ -121,10 +127,22 @@ class _BookingListPageState extends State<BookingListPage> {
         final history = BookingHostInbox.history(items);
         final cancelled = BookingHostInbox.cancelled(items);
         final calendarCounts = BookingHostInbox.overviewCountsByDay(items);
+        final dayOptions = BookingHostInbox.upcomingDayOptions(items);
 
         void onCalendarDaySelected(DateTime day) {
           _cubit.setUpcomingDay(day);
           _cubit.setMainTab(BookingHostInboxTab.upcoming.index);
+        }
+
+        Future<void> openMonthCalendar() async {
+          HapticFeedback.selectionClick();
+          final picked = await BookingMonthCalendarSheet.show(
+            context,
+            selectedDay: upcomingDay,
+            countsByDay: calendarCounts,
+          );
+          if (picked == null || !mounted) return;
+          onCalendarDaySelected(picked);
         }
 
         Widget buildScrollBody() {
@@ -145,41 +163,85 @@ class _BookingListPageState extends State<BookingListPage> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
                     SliverToBoxAdapter(
-                      child: BookingMonthCalendar(
-                        selectedDay: upcomingDay,
-                        countsByDay: calendarCounts,
-                        onDaySelected: onCalendarDaySelected,
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                        child: AppField(
-                          controller: _searchController,
-                          hintText: 'Клиент, услуга, телефон…',
-                          prefixIcon: AppIcons.search.icon,
-                          textInputAction: TextInputAction.search,
-                          service: kBookingService,
-                          onChanged: _onSearchChanged,
-                        ),
-                      ),
-                    ),
-                    SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                        child: AppTab(
-                          scrollable: true,
-                          service: kBookingService,
-                          tabs: [
-                            BookingHostInboxTab.inChair.label,
-                            BookingHostInboxTab.upcoming.label,
-                            BookingHostInboxTab.archive.label,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: AppTab(
+                                service: kBookingService,
+                                tabs: [
+                                  for (final t in BookingHostInboxTab.values) t.shortLabel,
+                                ],
+                                currentIndex: tabIndex,
+                                onTabChanged: _cubit.setMainTab,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            _HeaderIconButton(
+                              icon: AppIcons.search.icon,
+                              selected: _showSearch,
+                              accent: accent,
+                              onTap: () => setState(() => _showSearch = !_showSearch),
+                            ),
                           ],
-                          currentIndex: tabIndex,
-                          onTabChanged: _cubit.setMainTab,
                         ),
                       ),
                     ),
+                    if (_showSearch)
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                          child: AppField(
+                            controller: _searchController,
+                            hintText: 'Клиент, услуга, телефон…',
+                            prefixIcon: AppIcons.search.icon,
+                            textInputAction: TextInputAction.search,
+                            service: kBookingService,
+                            onChanged: _onSearchChanged,
+                          ),
+                        ),
+                      ),
+                    if (tab == BookingHostInboxTab.upcoming) ...[
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: BookingListDayStrip(
+                                  days: dayOptions,
+                                  selectedDay: upcomingDay,
+                                  countsByDay: calendarCounts,
+                                  onSelected: onCalendarDaySelected,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 12),
+                                child: _HeaderIconButton(
+                                  icon: AppIcons.calendarMonth.icon,
+                                  accent: accent,
+                                  onTap: openMonthCalendar,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                          child: Text(
+                            BookingHostInbox.archiveDayLabel(upcomingDay),
+                            style: AppTextStyle.base(
+                              15,
+                              color: colors.textColor,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                     ...switch (tab) {
                       BookingHostInboxTab.inChair => _inChairSlivers(
                         items: inChair,
@@ -188,22 +250,21 @@ class _BookingListPageState extends State<BookingListPage> {
                       ),
                       BookingHostInboxTab.upcoming => _upcomingSlivers(
                         context: context,
-                        selectedDay: upcomingDay,
                         items: upcoming,
                         allUpcomingEmpty: upcomingAll.isEmpty,
                         onOpen: _openItem,
                       ),
                       BookingHostInboxTab.archive => [
-                        SliverToBoxAdapter(
-                          child: BookingListArchiveBody(
-                            forgotten: forgotten,
-                            history: history,
-                            cancelled: cancelled,
-                            updatingIds: updatingIds,
-                            onMarkCompleted: (item) => _setStatus(item, BookingStatus.completed, 'Отмечено: был'),
-                            onMarkNoShow: (item) => _setStatus(item, BookingStatus.noShow, 'Отмечено: не пришёл'),
-                            onOpenItem: _openItem,
-                          ),
+                        SyncedSliverFillOrList(
+                          forgotten: forgotten,
+                          history: history,
+                          cancelled: cancelled,
+                          updatingIds: updatingIds,
+                          onMarkCompleted: (item) =>
+                              _setStatus(item, BookingStatus.completed, 'Отмечено: был'),
+                          onMarkNoShow: (item) =>
+                              _setStatus(item, BookingStatus.noShow, 'Отмечено: не пришёл'),
+                          onOpenItem: _openItem,
                         ),
                       ],
                     },
@@ -228,6 +289,80 @@ class _BookingListPageState extends State<BookingListPage> {
   }
 }
 
+class _HeaderIconButton extends StatelessWidget {
+  const _HeaderIconButton({
+    required this.icon,
+    required this.onTap,
+    required this.accent,
+    this.selected = false,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+  final AppServiceAccent accent;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? accent.soft : context.colors.surface,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Ink(
+          width: AppTab.defaultHeight,
+          height: AppTab.defaultHeight,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: selected ? accent.ctaBorder : context.colors.border.withValues(alpha: 0.65),
+            ),
+          ),
+          child: Icon(icon, size: 22, color: selected ? accent.icon : context.colors.iconMuted),
+        ),
+      ),
+    );
+  }
+}
+
+/// Обёртка, чтобы архив оставался одним sliver-блоком.
+class SyncedSliverFillOrList extends StatelessWidget {
+  const SyncedSliverFillOrList({
+    super.key,
+    required this.forgotten,
+    required this.history,
+    required this.cancelled,
+    required this.updatingIds,
+    required this.onMarkCompleted,
+    required this.onMarkNoShow,
+    required this.onOpenItem,
+  });
+
+  final List<BookingListItem> forgotten;
+  final List<BookingListItem> history;
+  final List<BookingListItem> cancelled;
+  final Set<String> updatingIds;
+  final ValueChanged<BookingListItem> onMarkCompleted;
+  final ValueChanged<BookingListItem> onMarkNoShow;
+  final ValueChanged<BookingListItem> onOpenItem;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: BookingListArchiveBody(
+        forgotten: forgotten,
+        history: history,
+        cancelled: cancelled,
+        updatingIds: updatingIds,
+        onMarkCompleted: onMarkCompleted,
+        onMarkNoShow: onMarkNoShow,
+        onOpenItem: onOpenItem,
+      ),
+    );
+  }
+}
+
 List<Widget> _inChairSlivers({
   required List<BookingListItem> items,
   required ValueChanged<BookingListItem> onOpen,
@@ -235,8 +370,7 @@ List<Widget> _inChairSlivers({
 }) {
   if (items.isEmpty) {
     return [
-      const SliverFillRemaining(
-        hasScrollBody: false,
+      const SyncedSliverFillRemaining(
         child: BookingListEmptyState(
           title: 'Сейчас никого нет',
           subtitle: 'Здесь появится клиент, когда начнётся его визит',
@@ -248,7 +382,7 @@ List<Widget> _inChairSlivers({
 
   return [
     SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
       sliver: SliverList.separated(
         itemCount: items.length,
         separatorBuilder: (_, __) => const SizedBox(height: 12),
@@ -267,32 +401,18 @@ List<Widget> _inChairSlivers({
 
 List<Widget> _upcomingSlivers({
   required BuildContext context,
-  required DateTime selectedDay,
   required List<BookingListItem> items,
   required bool allUpcomingEmpty,
   required ValueChanged<BookingListItem> onOpen,
 }) {
-  final dayLabel = BookingHostInbox.archiveDayLabel(selectedDay);
-
   if (items.isEmpty) {
     return [
-      if (!allUpcomingEmpty)
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text(
-              dayLabel,
-              style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
-            ),
-          ),
-        ),
-      SliverFillRemaining(
-        hasScrollBody: false,
+      SyncedSliverFillRemaining(
         child: BookingListEmptyState(
           title: allUpcomingEmpty ? 'Предстоящих записей нет' : 'На этот день записей нет',
           subtitle: allUpcomingEmpty
               ? 'Подтверждённые будущие визиты появятся здесь'
-              : 'Выберите другой день в календаре',
+              : 'Выберите другой день в ленте или откройте календарь',
           showCreateButton: false,
         ),
       ),
@@ -300,15 +420,6 @@ List<Widget> _upcomingSlivers({
   }
 
   return [
-    SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-        child: Text(
-          dayLabel,
-          style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
-        ),
-      ),
-    ),
     SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
       sliver: SliverList.separated(
@@ -316,9 +427,20 @@ List<Widget> _upcomingSlivers({
         separatorBuilder: (_, __) => const SizedBox(height: 10),
         itemBuilder: (context, index) {
           final item = items[index];
-          return BookingListCard(item: item, onTap: () => onOpen(item));
+          return BookingListCard(item: item, onTap: () => onOpen(item), timeFirst: true);
         },
       ),
     ),
   ];
+}
+
+class SyncedSliverFillRemaining extends StatelessWidget {
+  const SyncedSliverFillRemaining({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverFillRemaining(hasScrollBody: false, child: child);
+  }
 }

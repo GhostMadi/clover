@@ -8,8 +8,9 @@ import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_attendance_/attendance_hub/presentation/cubit/attendance_hub_cubit.dart';
-import 'package:clover/feature/_attendance_/shared/data/models/attendance_snapshot.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_workplace.dart';
+import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_hub_nav_card.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
@@ -26,17 +27,28 @@ class AttendanceHubPage extends StatefulWidget {
 
 class _AttendanceHubPageState extends State<AttendanceHubPage> {
   late final AttendanceHubCubit _cubit;
+  late final AttendanceContextStore _attendanceStore;
+  bool _isWorker = false;
 
   @override
   void initState() {
     super.initState();
+    _attendanceStore = sl<AttendanceContextStore>();
     _cubit = sl<AttendanceHubCubit>()..load();
+    final snap = _attendanceStore.snapshot.value;
+    _isWorker = snap?.showProfileWorkerButton ?? false;
   }
 
   @override
   void dispose() {
     _cubit.close();
     super.dispose();
+  }
+
+  Future<void> _openCompany(AttendanceWorkplace workplace) async {
+    await _cubit.remember(workplace.id);
+    if (!mounted) return;
+    await context.router.push(AttendanceCompanyRoute(workplaceId: workplace.id));
   }
 
   Future<void> _createWorkplace({String? folderId}) async {
@@ -62,14 +74,16 @@ class _AttendanceHubPageState extends State<AttendanceHubPage> {
           textInputAction: TextInputAction.done,
         ),
         actions: [
-          AttendancePrimaryButton(
-            text: 'Создать',
-            isExpanded: true,
-            onTap: () {
-              final value = nameController.text.trim();
-              if (value.isEmpty) return;
-              Navigator.of(context).pop(value);
-            },
+          Builder(
+            builder: (sheetContext) => AttendancePrimaryButton(
+              text: 'Создать',
+              isExpanded: true,
+              onTap: () {
+                final value = nameController.text.trim();
+                if (value.isEmpty) return;
+                Navigator.of(sheetContext).pop(value);
+              },
+            ),
           ),
         ],
       );
@@ -78,45 +92,9 @@ class _AttendanceHubPageState extends State<AttendanceHubPage> {
 
       final ok = await _cubit.createWorkplace(name: name, folderId: folderId);
       if (!mounted) return;
-      if (ok) {
-        AppSnackBar.show(context, message: 'Компания создана', kind: AppSnackBarKind.success);
-      } else {
-        AppSnackBar.show(context, message: 'Не удалось создать компанию', kind: AppSnackBarKind.error);
-      }
-    } finally {
-      Future<void>.delayed(const Duration(milliseconds: 400), nameController.dispose);
-    }
-  }
-
-  Future<void> _createFolder() async {
-    final nameController = TextEditingController();
-    try {
-      final name = await AttendanceBottomSheet.show<String>(
-        context: context,
-        title: 'Новая папка',
-        content: AttendanceField(
-          controller: nameController,
-          labelText: 'Название папки',
-          textInputAction: TextInputAction.done,
-        ),
-        actions: [
-          AttendancePrimaryButton(
-            text: 'Создать',
-            isExpanded: true,
-            onTap: () {
-              final value = nameController.text.trim();
-              if (value.isEmpty) return;
-              Navigator.of(context).pop(value);
-            },
-          ),
-        ],
-      );
-      if (name == null || name.isEmpty || !mounted) return;
-      final ok = await _cubit.createFolder(name);
-      if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: ok ? 'Папка создана' : 'Не удалось создать папку',
+        message: ok ? 'Компания создана' : 'Не удалось создать компанию',
         kind: ok ? AppSnackBarKind.success : AppSnackBarKind.error,
       );
     } finally {
@@ -127,48 +105,107 @@ class _AttendanceHubPageState extends State<AttendanceHubPage> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final accent = attendanceServiceAccent(colors);
 
     return BlocBuilder<AttendanceHubCubit, AttendanceHubState>(
       bloc: _cubit,
       builder: (context, state) {
-        if (state is AttendanceHubInitial || state is AttendanceHubLoading) {
-          return AttendanceScreenShell(
+        final loaded = state is AttendanceHubLoaded ? state : null;
+        final workplaces = loaded?.adminWorkplaces ?? const <AttendanceWorkplace>[];
+        final snap = loaded?.snapshot;
+        final worker = _isWorker || (snap?.showProfileWorkerButton ?? false);
+        final loading =
+            (state is AttendanceHubInitial || state is AttendanceHubLoading) && workplaces.isEmpty;
+        final refreshing = loaded?.isRefreshing == true;
+
+        if (loading) {
+          return const AttendanceScreenShell(
             title: 'Посещаемость',
-            body: Center(child: CircularProgressIndicator(color: colors.serviceAccent(kAttendanceService).icon)),
+            body: AttendanceLoader(),
           );
         }
 
-        if (state is AttendanceHubError) {
+        if (state is AttendanceHubError && workplaces.isEmpty) {
           return AttendanceScreenShell(
             title: 'Посещаемость',
             body: _EmptyAdminBody(onRefresh: _cubit.load),
           );
         }
 
-        final loaded = state as AttendanceHubLoaded;
-        final workplaces = loaded.adminWorkplaces;
-
         return AttendanceScreenShell(
           title: 'Посещаемость',
           showAdd: true,
           onAddTap: () => _createWorkplace(),
-          body: workplaces.isEmpty && loaded.snapshot.folders.isEmpty
-              ? _EmptyAdminBody(onRefresh: _cubit.load)
-              : _AdminHubBody(
-                  snapshot: loaded.snapshot,
-                  onCreateFolder: _createFolder,
-                  onCreateInFolder: (folderId) => _createWorkplace(folderId: folderId),
-                  onMove: (workplaceId, folderId) async {
-                    final ok = await _cubit.moveWorkplaceToFolder(
-                      workplaceId: workplaceId,
-                      folderId: folderId,
-                    );
-                    if (!mounted) return;
-                    if (!ok) {
-                      AppSnackBar.show(this.context, message: 'Не удалось переместить', kind: AppSnackBarKind.error);
-                    }
-                  },
+          body: RefreshIndicator(
+            onRefresh: _cubit.refresh,
+            child: Stack(
+              children: [
+                ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, AttendanceScreenShell.scrollBottomGap(context)),
+                  children: [
+                    Text(
+                      'Компании',
+                      style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 8),
+                    if (workplaces.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: Text(
+                          'Создайте компанию: геозона, работники и отметки. Кнопка «+» сверху.',
+                          style: AppTextStyle.base(14, color: colors.subTextColor, height: 1.35),
+                        ),
+                      )
+                    else
+                      AttendanceHubNavGrid(
+                        children: [
+                          for (final workplace in workplaces)
+                            AttendanceHubNavCard(
+                              title: workplace.name,
+                              subtitle: 'Открыть',
+                              icon: AppIcons.inventory.icon,
+                              onTap: () => _openCompany(workplace),
+                            ),
+                        ],
+                      ),
+                    if (worker) ...[
+                      const SizedBox(height: 20),
+                      Text(
+                        'Смены',
+                        style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 8),
+                      AppTileGroup(
+                        children: [
+                          AppTile(
+                            title: 'Моя посещаемость',
+                            subtitle: 'Отметки и смены',
+                            icon: AppIcons.accessTime.icon,
+                            iconColor: accent.icon,
+                            iconBackgroundColor: accent.soft,
+                            showChevron: true,
+                            onTap: () => context.router.push(const AttendanceWorkerHubRoute()),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
                 ),
+                if (refreshing)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: LinearProgressIndicator(
+                      minHeight: 2,
+                      color: accent.icon,
+                      backgroundColor: accent.soft,
+                    ),
+                  ),
+              ],
+            ),
+          ),
         );
       },
     );
@@ -201,140 +238,6 @@ class _EmptyAdminBody extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _AdminHubBody extends StatelessWidget {
-  const _AdminHubBody({
-    required this.snapshot,
-    required this.onCreateFolder,
-    required this.onCreateInFolder,
-    required this.onMove,
-  });
-
-  final AttendanceSnapshot snapshot;
-  final VoidCallback onCreateFolder;
-  final ValueChanged<String> onCreateInFolder;
-  final Future<void> Function(String workplaceId, String? folderId) onMove;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final workplaces = snapshot.workplaces.where((e) => e.isAdmin).toList(growable: false);
-    final folders = snapshot.folders;
-    final unfiled = workplaces.where((w) => w.folderId == null || w.folderId!.isEmpty).toList();
-
-    return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(16, 8, 16, AttendanceScreenShell.scrollBottomGap(context)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text('Компании', style: AppTextStyle.base(13, color: colors.subTextColor)),
-              ),
-              TextButton(
-                onPressed: onCreateFolder,
-                child: Text(
-                  'Папка',
-                  style: AppTextStyle.base(13, color: colors.serviceAccent(kAttendanceService).icon, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          for (final folder in folders) ...[
-            Text(folder.name, style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 6),
-            AppTileGroup(
-              children: [
-                for (final workplace in workplaces.where((w) => w.folderId == folder.id))
-                  _WorkplaceTile(
-                    workplace: workplace,
-                    folders: folders,
-                    onMove: onMove,
-                  ),
-                AttendanceServiceTile(
-                  title: 'Добавить компанию в папку',
-                  icon: AppIcons.add.icon,
-                  showChevron: false,
-                  onTap: () => onCreateInFolder(folder.id),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-          if (unfiled.isNotEmpty || folders.isEmpty) ...[
-            if (folders.isNotEmpty)
-              Text('Без папки', style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700)),
-            if (folders.isNotEmpty) const SizedBox(height: 6),
-            AppTileGroup(
-              children: [
-                for (final workplace in unfiled)
-                  _WorkplaceTile(
-                    workplace: workplace,
-                    folders: folders,
-                    onMove: onMove,
-                  ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _WorkplaceTile extends StatelessWidget {
-  const _WorkplaceTile({
-    required this.workplace,
-    required this.folders,
-    required this.onMove,
-  });
-
-  final AttendanceWorkplace workplace;
-  final List<AttendanceFolder> folders;
-  final Future<void> Function(String workplaceId, String? folderId) onMove;
-
-  Future<void> _pickFolder(BuildContext context) async {
-    if (folders.isEmpty) return;
-    final choice = await AttendanceBottomSheet.show<String?>(
-      context: context,
-      title: 'Папка',
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AppTile(
-            title: 'Без папки',
-            onTap: () => Navigator.of(context).pop(''),
-          ),
-          for (final f in folders)
-            AppTile(
-              title: f.name,
-              onTap: () => Navigator.of(context).pop(f.id),
-            ),
-        ],
-      ),
-    );
-    if (choice == null) return;
-    await onMove(workplace.id, choice.isEmpty ? null : choice);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AttendanceServiceTile(
-      title: workplace.name,
-      icon: AppIcons.inventory.icon,
-      showChevron: true,
-      trailing: folders.isEmpty
-          ? null
-          : IconButton(
-              icon: Icon(AppIcons.folder.icon, size: 20, color: context.colors.iconMuted),
-              onPressed: () => _pickFolder(context),
-            ),
-      onTap: () => context.router.push(AttendanceCompanyRoute(workplaceId: workplace.id)),
     );
   }
 }

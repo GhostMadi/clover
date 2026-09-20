@@ -3,6 +3,7 @@ import {
   writeBookingPointsCache,
   type BookingPointCacheItem,
 } from "@/features/booking/lib/booking-prefs";
+import { coalesceAsync, invalidateCoalesce } from "@/lib/coalesce-async";
 
 export type BookingPoint = {
   id: string;
@@ -10,6 +11,12 @@ export type BookingPoint = {
   name: string;
   createdAt: string;
 };
+
+const POINTS_KEY = "booking:points";
+
+export function invalidateBookingPointsCache(): void {
+  invalidateCoalesce("booking:points");
+}
 
 function mapPoint(row: Record<string, unknown>): BookingPoint {
   return {
@@ -24,10 +31,11 @@ export async function ensureDefaultBookingPoint(): Promise<string> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("booking_ensure_default_point");
   if (error) throw error;
+  invalidateBookingPointsCache();
   return String(data);
 }
 
-export async function listBookingPoints(): Promise<BookingPoint[]> {
+async function listBookingPointsUncached(): Promise<BookingPoint[]> {
   const supabase = createClient();
   const {
     data: { session },
@@ -65,6 +73,11 @@ export async function listBookingPoints(): Promise<BookingPoint[]> {
   return points;
 }
 
+/** Список точек с coalesce (switcher + entry + hub). */
+export async function listBookingPoints(): Promise<BookingPoint[]> {
+  return coalesceAsync(POINTS_KEY, listBookingPointsUncached);
+}
+
 export async function createBookingPoint(name: string): Promise<BookingPoint> {
   const trimmed = name.trim();
   if (!trimmed) throw new Error("Укажите название");
@@ -81,6 +94,7 @@ export async function createBookingPoint(name: string): Promise<BookingPoint> {
     .select("id, host_id, name, created_at")
     .single();
   if (error) throw error;
+  invalidateBookingPointsCache();
   await listBookingPoints();
   return mapPoint(data as Record<string, unknown>);
 }
@@ -97,4 +111,5 @@ export async function renameBookingPoint(params: {
     .update({ name: trimmed })
     .eq("id", params.pointId);
   if (error) throw error;
+  invalidateBookingPointsCache();
 }

@@ -128,12 +128,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( DateTime start,  DateTime end,  String? staffId)?  loading,TResult Function( DateTime start,  DateTime end,  String? staffId,  BookingAnalyticsResult result,  List<BookingServiceExecutor> staff)?  loaded,TResult Function( DateTime start,  DateTime end,  String? staffId,  String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( DateTime start,  DateTime end,  String? staffId)?  loading,TResult Function( DateTime start,  DateTime end,  String? staffId,  BookingAnalyticsResult result,  List<BookingServiceExecutor> staff,  bool isFromCache)?  loaded,TResult Function( DateTime start,  DateTime end,  String? staffId,  String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading(_that.start,_that.end,_that.staffId);case _Loaded() when loaded != null:
-return loaded(_that.start,_that.end,_that.staffId,_that.result,_that.staff);case _Error() when error != null:
+return loaded(_that.start,_that.end,_that.staffId,_that.result,_that.staff,_that.isFromCache);case _Error() when error != null:
 return error(_that.start,_that.end,_that.staffId,_that.message);case _:
   return orElse();
 
@@ -152,12 +152,12 @@ return error(_that.start,_that.end,_that.staffId,_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( DateTime start,  DateTime end,  String? staffId)  loading,required TResult Function( DateTime start,  DateTime end,  String? staffId,  BookingAnalyticsResult result,  List<BookingServiceExecutor> staff)  loaded,required TResult Function( DateTime start,  DateTime end,  String? staffId,  String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( DateTime start,  DateTime end,  String? staffId)  loading,required TResult Function( DateTime start,  DateTime end,  String? staffId,  BookingAnalyticsResult result,  List<BookingServiceExecutor> staff,  bool isFromCache)  loaded,required TResult Function( DateTime start,  DateTime end,  String? staffId,  String message)  error,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Loading():
 return loading(_that.start,_that.end,_that.staffId);case _Loaded():
-return loaded(_that.start,_that.end,_that.staffId,_that.result,_that.staff);case _Error():
+return loaded(_that.start,_that.end,_that.staffId,_that.result,_that.staff,_that.isFromCache);case _Error():
 return error(_that.start,_that.end,_that.staffId,_that.message);case _:
   throw StateError('Unexpected subclass');
 
@@ -175,12 +175,12 @@ return error(_that.start,_that.end,_that.staffId,_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( DateTime start,  DateTime end,  String? staffId)?  loading,TResult? Function( DateTime start,  DateTime end,  String? staffId,  BookingAnalyticsResult result,  List<BookingServiceExecutor> staff)?  loaded,TResult? Function( DateTime start,  DateTime end,  String? staffId,  String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( DateTime start,  DateTime end,  String? staffId)?  loading,TResult? Function( DateTime start,  DateTime end,  String? staffId,  BookingAnalyticsResult result,  List<BookingServiceExecutor> staff,  bool isFromCache)?  loaded,TResult? Function( DateTime start,  DateTime end,  String? staffId,  String message)?  error,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading(_that.start,_that.end,_that.staffId);case _Loaded() when loaded != null:
-return loaded(_that.start,_that.end,_that.staffId,_that.result,_that.staff);case _Error() when error != null:
+return loaded(_that.start,_that.end,_that.staffId,_that.result,_that.staff,_that.isFromCache);case _Error() when error != null:
 return error(_that.start,_that.end,_that.staffId,_that.message);case _:
   return null;
 
@@ -295,7 +295,7 @@ as String?,
 
 
 class _Loaded implements BookingAnalyticsState {
-  const _Loaded({required this.start, required this.end, this.staffId, required this.result, required final  List<BookingServiceExecutor> staff}): _staff = staff;
+  const _Loaded({required this.start, required this.end, this.staffId, required this.result, required final  List<BookingServiceExecutor> staff, this.isFromCache = false}): _staff = staff;
   
 
  final  DateTime start;
@@ -309,6 +309,7 @@ class _Loaded implements BookingAnalyticsState {
   return EqualUnmodifiableListView(_staff);
 }
 
+@JsonKey() final  bool isFromCache;
 
 /// Create a copy of BookingAnalyticsState
 /// with the given fields replaced by the non-null parameter values.
@@ -320,16 +321,16 @@ _$LoadedCopyWith<_Loaded> get copyWith => __$LoadedCopyWithImpl<_Loaded>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&(identical(other.start, start) || other.start == start)&&(identical(other.end, end) || other.end == end)&&(identical(other.staffId, staffId) || other.staffId == staffId)&&(identical(other.result, result) || other.result == result)&&const DeepCollectionEquality().equals(other._staff, _staff));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&(identical(other.start, start) || other.start == start)&&(identical(other.end, end) || other.end == end)&&(identical(other.staffId, staffId) || other.staffId == staffId)&&(identical(other.result, result) || other.result == result)&&const DeepCollectionEquality().equals(other._staff, _staff)&&(identical(other.isFromCache, isFromCache) || other.isFromCache == isFromCache));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,start,end,staffId,result,const DeepCollectionEquality().hash(_staff));
+int get hashCode => Object.hash(runtimeType,start,end,staffId,result,const DeepCollectionEquality().hash(_staff),isFromCache);
 
 @override
 String toString() {
-  return 'BookingAnalyticsState.loaded(start: $start, end: $end, staffId: $staffId, result: $result, staff: $staff)';
+  return 'BookingAnalyticsState.loaded(start: $start, end: $end, staffId: $staffId, result: $result, staff: $staff, isFromCache: $isFromCache)';
 }
 
 
@@ -340,7 +341,7 @@ abstract mixin class _$LoadedCopyWith<$Res> implements $BookingAnalyticsStateCop
   factory _$LoadedCopyWith(_Loaded value, $Res Function(_Loaded) _then) = __$LoadedCopyWithImpl;
 @useResult
 $Res call({
- DateTime start, DateTime end, String? staffId, BookingAnalyticsResult result, List<BookingServiceExecutor> staff
+ DateTime start, DateTime end, String? staffId, BookingAnalyticsResult result, List<BookingServiceExecutor> staff, bool isFromCache
 });
 
 
@@ -357,14 +358,15 @@ class __$LoadedCopyWithImpl<$Res>
 
 /// Create a copy of BookingAnalyticsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? start = null,Object? end = null,Object? staffId = freezed,Object? result = null,Object? staff = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? start = null,Object? end = null,Object? staffId = freezed,Object? result = null,Object? staff = null,Object? isFromCache = null,}) {
   return _then(_Loaded(
 start: null == start ? _self.start : start // ignore: cast_nullable_to_non_nullable
 as DateTime,end: null == end ? _self.end : end // ignore: cast_nullable_to_non_nullable
 as DateTime,staffId: freezed == staffId ? _self.staffId : staffId // ignore: cast_nullable_to_non_nullable
 as String?,result: null == result ? _self.result : result // ignore: cast_nullable_to_non_nullable
 as BookingAnalyticsResult,staff: null == staff ? _self._staff : staff // ignore: cast_nullable_to_non_nullable
-as List<BookingServiceExecutor>,
+as List<BookingServiceExecutor>,isFromCache: null == isFromCache ? _self.isFromCache : isFromCache // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

@@ -141,11 +141,13 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
         },
       ),
       actions: [
-        BookingPrimaryButton(
-          text: 'Добавить',
-          isExpanded: true,
-          height: 48,
-          onTap: () => Navigator.of(context).pop(true),
+        Builder(
+          builder: (sheetContext) => BookingPrimaryButton(
+            text: 'Добавить',
+            isExpanded: true,
+            height: 48,
+            onTap: () => Navigator.of(sheetContext).pop(true),
+          ),
         ),
       ],
     );
@@ -222,6 +224,13 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (state.errorMessage != null) ...[
+              Text(
+                state.errorMessage!,
+                style: AppTextStyle.base(13, color: colors.destructive),
+              ),
+              const SizedBox(height: 8),
+            ],
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -234,28 +243,17 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
                 children: [
                   Text(
                     'Блоки времени',
-                    style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w800),
+                    style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Обед или занятость без фейковой записи — слот не предложится клиенту.',
-                    style: AppTextStyle.base(12, color: colors.subTextColor, height: 1.3),
-                  ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   if (state.loadingBlocked)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Center(
-                        child: SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      ),
+                      child: BookingLoader(size: 22),
                     )
                   else if (state.blocked.isEmpty)
                     Text(
-                      'Пока нет блоков на ближайшие 60 дней',
+                      'Нет блоков',
                       style: AppTextStyle.base(13, color: colors.subTextColor),
                     )
                   else
@@ -281,7 +279,7 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
                       ),
                   const SizedBox(height: 8),
                   AppOutlinedButton(
-                    text: 'Заблокировать время',
+                    text: 'Заблокировать',
                     isExpanded: true,
                     service: kBookingService,
                     onTap: widget.enabled && widget.executors.isNotEmpty ? _addBlocked : null,
@@ -291,7 +289,7 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
             ),
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
               decoration: BoxDecoration(
                 color: colors.surface,
                 borderRadius: BorderRadius.circular(16),
@@ -302,24 +300,19 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
                 children: [
                   Text(
                     'График мастера',
-                    style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w800),
+                    style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Переопределение рабочих дней. Пусто = общие часы расписания.',
-                    style: AppTextStyle.base(12, color: colors.subTextColor, height: 1.3),
-                  ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   if (widget.executors.isEmpty)
                     Text(
-                      'Сначала добавьте исполнителей в услугах',
+                      'Сначала добавьте мастеров в услугах',
                       style: AppTextStyle.base(13, color: colors.subTextColor),
                     )
                   else ...[
                     AppSingleSelect<String>(
-                      label: 'Исполнитель',
+                      label: 'Мастер',
                       hint: 'Выберите',
-                      sheetTitle: 'Исполнитель',
+                      sheetTitle: 'Мастер',
                       options: [
                         for (final e in widget.executors)
                           AppSingleSelectOption(value: e.id, label: e.displayName),
@@ -329,13 +322,7 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
                     ),
                     const SizedBox(height: 12),
                     if (state.loadingSchedule)
-                      const Center(
-                        child: SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      )
+                      const BookingLoader(size: 22)
                     else
                       Wrap(
                         spacing: 8,
@@ -351,14 +338,9 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
                             borderRadius: BorderRadius.circular(12),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(12),
-                              onTap: widget.enabled
-                                  ? () => _toggleDay(day, state)
-                                  : null,
+                              onTap: widget.enabled ? () => _toggleDay(day, state) : null,
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                 child: Text(
                                   day.shortLabel,
                                   style: AppTextStyle.base(

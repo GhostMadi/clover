@@ -66,6 +66,6 @@ UX как у посещаемости: сначала точка, потом д�
 | | |
 |--|--|
 | Вход | Settings → Запись = **список точек** (+ создать) |
-| Hub точки | Inbox / услуги / аналитика / расписание — все с `pointId` |
+| Hub точки | Inbox / услуги / **команда** / аналитика / расписание — все с `pointId` |
 | Last point | prefs `booking_last_point_<uid>` |
 | Switcher в app bar | ✅ sheet выбора точки → replace route |

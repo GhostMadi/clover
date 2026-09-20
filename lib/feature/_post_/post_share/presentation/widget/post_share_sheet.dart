@@ -5,6 +5,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
+import 'package:clover/core/storage/app_progressive_network_image.dart';
 import 'package:clover/feature/_post_/post_share/data/models/post_share_recipient.dart';
 import 'package:clover/feature/_post_/post_share/data/repository/post_share_repository.dart';
 import 'package:clover/feature/_post_/post_share/presentation/cubit/post_share_recipients_cubit.dart';
@@ -250,6 +251,12 @@ class _ShareRecipientGridCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final avatarUrl = recipient.avatarUrl?.trim();
+    ImageProvider? avatarProvider;
+    if (avatarUrl != null && avatarUrl.isNotEmpty) {
+      avatarProvider = AppProgressiveNetworkImage.isAssetPath(avatarUrl)
+          ? AssetImage(AppProgressiveNetworkImage.normalizeAssetPath(avatarUrl))
+          : NetworkImage(avatarUrl);
+    }
 
     return InkWell(
       onTap: onTap,
@@ -273,10 +280,8 @@ class _ShareRecipientGridCell extends StatelessWidget {
                   child: CircleAvatar(
                     radius: _avatarSize / 2,
                     backgroundColor: context.colors.surfaceSoft,
-                    backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
-                        ? NetworkImage(avatarUrl)
-                        : null,
-                    child: avatarUrl == null || avatarUrl.isEmpty
+                    backgroundImage: avatarProvider,
+                    child: avatarProvider == null
                         ? Icon(AppIcons.user.icon, color: context.colors.iconMuted, size: 28)
                         : null,
                   ),

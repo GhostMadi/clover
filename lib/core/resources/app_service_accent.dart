@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 /// | [AppServiceKind.booking] | жёлтый `#FDF08B` |
 /// | [AppServiceKind.resources] | сиреневый / фиолет |
 /// | [AppServiceKind.bonus] | оранжевый |
+/// | [AppServiceKind.venue] | coral `#FFA39E` (бронь / места) |
 ///
 /// Чтобы сменить цвет сервиса — правь только [serviceAccent] и токены в [AppPalette].
 enum AppServiceKind {
@@ -27,6 +28,9 @@ enum AppServiceKind {
 
   /// Бонусы — оранжевый.
   bonus,
+
+  /// Бронь / билеты / места — soft coral `#FFA39E`.
+  venue,
 }
 
 /// Shortcut для территории «Ресурсы».
@@ -40,6 +44,7 @@ class AppServiceAccent {
     required this.ctaBorder,
     required this.soft,
     required this.icon,
+    required this.onSoft,
   });
 
   /// Фон основной кнопки сервиса.
@@ -56,42 +61,65 @@ class AppServiceAccent {
 
   /// Акцент иконок и вторичных меток.
   final Color icon;
+
+  /// Текст на [soft] (читаемый и в dark: жёлтый soft остаётся светлым).
+  final Color onSoft;
 }
 
 extension AppServiceAccentResolver on AppPalette {
+  static const _inkOnLight = Color(0xFF1A1D1E);
+  static const _inkOnDark = Color(0xFFFFFFFF);
+
   AppServiceAccent serviceAccent(AppServiceKind kind) {
     return switch (kind) {
       AppServiceKind.attendance => AppServiceAccent(
         cta: functionalSoftBlueIcon,
-        ctaForeground: textInverse,
+        ctaForeground: _inkOnDark,
         ctaBorder: borderCardBlue,
         soft: functionalSoftBlue,
         icon: functionalSoftBlueIcon,
+        onSoft: _onSoftInk(functionalSoftBlue),
       ),
       AppServiceKind.booking => AppServiceAccent(
         cta: functionalSoftYellow,
-
-        /// Всегда тёмный текст на жёлтом (и в dark theme).
-        ctaForeground: const Color(0xFF1A1D1E),
+        /// Жёлтый CTA всегда светлый — только тёмный текст (light и dark).
+        ctaForeground: _inkOnLight,
         ctaBorder: borderCardYellow,
         soft: functionalSoftYellow,
         icon: functionalSoftYellowIcon,
+        onSoft: _inkOnLight,
       ),
       AppServiceKind.resources => AppServiceAccent(
-        /// Тёмный фиолет как заливка CTA — на нём белый читается (и в dark).
         cta: const Color(0xFF5C4FA8),
-        ctaForeground: const Color(0xFFFFFFFF),
+        ctaForeground: _inkOnDark,
         ctaBorder: borderCardLilac,
         soft: functionalSoftLilac,
         icon: functionalSoftLilacIcon,
+        onSoft: _onSoftInk(functionalSoftLilac),
       ),
       AppServiceKind.bonus => AppServiceAccent(
         cta: functionalSoftOrangeIcon,
-        ctaForeground: textInverse,
+        ctaForeground: _inkOnDark,
         ctaBorder: functionalSoftOrange,
         soft: functionalSoftOrange,
         icon: functionalSoftOrangeIcon,
+        onSoft: _onSoftInk(functionalSoftOrange),
+      ),
+      AppServiceKind.venue => AppServiceAccent(
+        /// Soft coral CTA — всегда светлый, тёмный текст (как жёлтая запись).
+        cta: functionalSoftVenue,
+        ctaForeground: _inkOnLight,
+        ctaBorder: borderCardVenue,
+        soft: functionalSoftVenue,
+        icon: functionalSoftVenueIcon,
+        onSoft: _inkOnLight,
       ),
     };
+  }
+
+  Color _onSoftInk(Color soft) {
+    return ThemeData.estimateBrightnessForColor(soft) == Brightness.dark
+        ? _inkOnDark
+        : _inkOnLight;
   }
 }

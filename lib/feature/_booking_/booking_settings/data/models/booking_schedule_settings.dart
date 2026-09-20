@@ -96,6 +96,52 @@ class BookingScheduleSettings {
 
   String get restDaysLabel => BookingWeekday.joinedShortLabels(restWeekdays);
 
+  Map<String, dynamic> toJson() => {
+        'rest_weekdays': restWeekdays.toList(),
+        'horizon_kind': horizonKind.dbValue,
+        'max_booking_days_ahead': maxBookingDaysAhead,
+        if (maxBookingUntilDate != null)
+          'max_booking_until_date': maxBookingUntilDate!.toIso8601String().substring(0, 10),
+        'work_start_hour': workStartHour,
+        'work_start_minute': workStartMinute,
+        'work_end_hour': workEndHour,
+        'work_end_minute': workEndMinute,
+        'client_cancel_hours_before': clientCancelHoursBefore,
+        'auto_close_hours_after_visit': autoCloseHoursAfterVisit,
+        'executor_absences': [
+          for (final a in executorAbsences) a.toJson(),
+        ],
+      };
+
+  factory BookingScheduleSettings.fromJson(Map<String, dynamic> json) {
+    final restRaw = json['rest_weekdays'];
+    final absencesRaw = json['executor_absences'];
+    final untilRaw = json['max_booking_until_date']?.toString();
+    return BookingScheduleSettings(
+      restWeekdays: {
+        if (restRaw is List)
+          for (final v in restRaw)
+            if (v is num) v.toInt(),
+      },
+      horizonKind: BookingHorizonKind.fromDb(json['horizon_kind']?.toString()) ??
+          BookingHorizonKind.daysAhead,
+      maxBookingDaysAhead: (json['max_booking_days_ahead'] as num?)?.toInt() ?? 14,
+      maxBookingUntilDate: untilRaw == null || untilRaw.isEmpty ? null : DateTime.tryParse(untilRaw),
+      workStartHour: (json['work_start_hour'] as num?)?.toInt() ?? 9,
+      workStartMinute: (json['work_start_minute'] as num?)?.toInt() ?? 0,
+      workEndHour: (json['work_end_hour'] as num?)?.toInt() ?? 20,
+      workEndMinute: (json['work_end_minute'] as num?)?.toInt() ?? 0,
+      executorAbsences: [
+        if (absencesRaw is List)
+          for (final item in absencesRaw)
+            if (item is Map)
+              BookingExecutorAbsence.fromJson(Map<String, dynamic>.from(item)),
+      ],
+      clientCancelHoursBefore: (json['client_cancel_hours_before'] as num?)?.toInt() ?? 0,
+      autoCloseHoursAfterVisit: (json['auto_close_hours_after_visit'] as num?)?.toInt() ?? 0,
+    );
+  }
+
   String get maxHorizonLabel {
     if (horizonKind == BookingHorizonKind.untilDate && maxBookingUntilDate != null) {
       return 'до ${AppDatePicker.formatDisplay(maxBookingUntilDate!)}';

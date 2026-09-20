@@ -44,6 +44,18 @@ git push origin mobile-production
 
 Workflow проверяет в IPA `aps-environment=production` перед upload.
 
+## Android / Play (AAB)
+
+Play **не** принимает debug-подпись.
+
+| Файл | Назначение |
+|------|------------|
+| `android/app/upload-keystore.jks` | Upload key (локально, **не** в git) |
+| `android/key.properties` | пароли / alias (шаблон: `key.properties.example`) |
+| `flutter build appbundle --release --dart-define-from-file=dart_defines.json` | → `build/app/outputs/bundle/release/app-release.aab` |
+
+После первой загрузки в Play Console включи **Play App Signing**. SHA-1 **App signing** (из Play → Подписание приложения) добавь в Google Cloud Android OAuth / Firebase — иначе Google Sign-In на сборках из магазина может не работать.
+
 ## Где код
 
 - Flutter: `lib/`, `android/`, `ios/`, `pubspec.yaml`

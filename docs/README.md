@@ -44,7 +44,7 @@
 | Местоположения | [business/locations.md](business/locations.md) |
 | Блокировки (бэк) | [business/blocks.md](business/blocks.md) |
 | Онлайн-запись | [business/booking.md](business/booking.md) · план: [booking-staff-plan.md](business/booking-staff-plan.md) · **ТЗ + теги:** [booking-tz.md](business/booking-tz.md) |
-| Бронь мест (схема зала) | [business/venue-seating.md](business/venue-seating.md) |
+| Бронь (билеты / места / схема) | [business/venue-seating.md](business/venue-seating.md) |
 | Посещаемость (геозона, смены) | [business/attendance.md](business/attendance.md) · **ТЗ + теги:** [attendance-tz.md](business/attendance-tz.md) · хвосты сайта: [website-attendance-gaps.md](business/website-attendance-gaps.md) |
 | Бонусы (лояльность) | [business/bonuses.md](business/bonuses.md) |
 | Сайт (лендинг + legal + кабинет) | [business/website.md](business/website.md) · **дорожная карта:** [website-roadmap.md](business/website-roadmap.md) · [gap-plan](business/website-gap-plan.md) |

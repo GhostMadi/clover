@@ -8,18 +8,14 @@ import 'package:flutter/material.dart';
 class BookingAnalyticsSummarySection extends StatelessWidget {
   const BookingAnalyticsSummarySection({
     super.key,
-    required this.periodLabel,
     required this.result,
-    this.userLabel,
   });
 
-  final String periodLabel;
   final BookingAnalyticsResult result;
-  final String? userLabel;
 
   @override
   Widget build(BuildContext context) {
-    final accent = bookingServiceAccent(context.colors);
+    final colors = context.colors;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -27,32 +23,9 @@ class BookingAnalyticsSummarySection extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: Text(
-                periodLabel,
-                style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
-              ),
-            ),
-            Text(
-              '${result.totalBookings} записей',
-              style: AppTextStyle.base(13, color: accent.icon, fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-        if (userLabel != null) ...[
-          const SizedBox(height: 4),
-          Text(
-            userLabel!,
-            style: AppTextStyle.base(13, color: accent.icon, fontWeight: FontWeight.w600),
-          ),
-        ],
-        const SizedBox(height: 14),
-        Row(
-          children: [
-            Expanded(
               child: _MetricTile(
                 label: 'Выручка',
                 value: _formatMoney(result.revenue),
-                subtitle: 'завершённые визиты',
               ),
             ),
             const SizedBox(width: 10),
@@ -60,37 +33,20 @@ class BookingAnalyticsSummarySection extends StatelessWidget {
               child: _MetricTile(
                 label: 'Средний чек',
                 value: result.completedBookings > 0 ? _formatMoney(result.avgCheck) : '—',
-                subtitle: '${result.completedBookings} оказано',
               ),
             ),
           ],
         ),
-        if (_hasStatusBreakdown) ...[
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              if (result.pendingBookings > 0)
-                _StatusChip(label: 'Ожидает', count: result.pendingBookings),
-              if (result.confirmedBookings > 0)
-                _StatusChip(label: 'Подтверждена', count: result.confirmedBookings),
-              if (result.completedBookings > 0)
-                _StatusChip(label: 'Оказана', count: result.completedBookings),
-              if (result.cancelledBookings > 0)
-                _StatusChip(label: 'Отменена', count: result.cancelledBookings),
-            ],
-          ),
-        ],
+        const SizedBox(height: 10),
+        Text(
+          '${result.totalBookings} записей · ${result.completedBookings} оказано'
+          '${result.cancelledBookings > 0 ? ' · ${result.cancelledBookings} отменено' : ''}'
+          '${result.pendingBookings > 0 ? ' · ${result.pendingBookings} ждут' : ''}',
+          style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600),
+        ),
       ],
     );
   }
-
-  bool get _hasStatusBreakdown =>
-      result.pendingBookings > 0 ||
-      result.confirmedBookings > 0 ||
-      result.completedBookings > 0 ||
-      result.cancelledBookings > 0;
 
   static String _formatMoney(double value) {
     if (value == value.roundToDouble()) {
@@ -104,68 +60,36 @@ class _MetricTile extends StatelessWidget {
   const _MetricTile({
     required this.label,
     required this.value,
-    required this.subtitle,
   });
 
   final String label;
   final String value;
-  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final accent = bookingServiceAccent(colors);
+
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       decoration: BoxDecoration(
-        color: context.colors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: colors.border.withValues(alpha: 0.55)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
-            style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(12, color: colors.subTextColor, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 6),
           Text(
             value,
-            style: AppTextStyle.base(20, color: context.colors.textColor, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            subtitle,
-            style: AppTextStyle.base(11, color: context.colors.subTextColor),
+            style: AppTextStyle.base(20, color: accent.icon, fontWeight: FontWeight.w800),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({
-    required this.label,
-    required this.count,
-  });
-
-  final String label;
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    final accent = bookingServiceAccent(context.colors);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: accent.soft,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: accent.ctaBorder.withValues(alpha: 0.7)),
-      ),
-      child: Text(
-        '$label · $count',
-        style: AppTextStyle.base(12, color: accent.icon, fontWeight: FontWeight.w600),
       ),
     );
   }

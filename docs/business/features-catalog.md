@@ -192,13 +192,13 @@ Like / dislike на постах; уведомления автору.
 ### 🟢 Онлайн-запись (+ удобства и календарь «мне дают»)
 Ядро записи **уже есть и остаётся**: хозяин (`booking`), клиент, inbox, визит до «Оказана».
 Дельта: удобство входов через теги / две линии на профиле; тег `bookingCalendar` + экран своих заказов (не иерархия). **ТЗ:** [booking-tz.md](booking-tz.md).
-План сил: [booking-staff-plan.md](booking-staff-plan.md). Invite linked-staff через DM — mobile + web.
-Бизнес: [booking.md](booking.md) · силы тегов: [tag-powers.md](tag-powers.md)
-Техника: `lib/feature/_booking_/`, `web/src/features/booking/`, [SPEC_BOOKING_SYSTEM.md](../supabase/SPEC_BOOKING_SYSTEM.md) · invite: [SPEC_BOOKING_STAFF_INVITE.md](../supabase/SPEC_BOOKING_STAFF_INVITE.md)
+План сил: [booking-staff-plan.md](booking-staff-plan.md). Invite linked-staff через DM — mobile + web. Hub точки: экран **Команда** (список / пригласить / имя).
+Бизнес: [booking.md](booking.md) · силы тегов: [tag-powers.md](tag-powers.md) · точки: [booking-points.md](booking-points.md)
+Техника: `lib/feature/_booking_/` (в т.ч. `booking_team/`), `web/src/features/booking/`, [SPEC_BOOKING_SYSTEM.md](../supabase/SPEC_BOOKING_SYSTEM.md) · invite: [SPEC_BOOKING_STAFF_INVITE.md](../supabase/SPEC_BOOKING_STAFF_INVITE.md)
 
-### 🔴 Бронь мест (схема зала)
-**Блок — не начинали.** План зала / запрос брони — вне текущего релиза.  
-Бизнес: [venue-seating.md](venue-seating.md) · код/бэк — нет
+### 🟡 Бронь (билеты / места / схема)
+**Моки:** мобилка смотрит · **веб-рисовалка** на `/app/settings/venue` (фигуры, линии, цвета, JSON). Бэк / тег `venue` — ещё нет.  
+Бизнес: [venue-seating.md](venue-seating.md) · код: `lib/feature/_venue_/` · `web/src/features/venue/`
 
 ### 🟢 Бонусы
 Начисление и списание настраиваются на услуге; «Мои бонусы» у клиента.  
@@ -207,7 +207,7 @@ Like / dislike на постах; уведомления автору.
 
 ### 🟡 Посещаемость (+ слой тегов)
 Ядро admin + worker уже есть. Дельта: теги `attendance` / `attendanceWork`, гейты create/punch, inactive без worker-тега, без prefs-ярлыка. **ТЗ:** [attendance-tz.md](attendance-tz.md).  
-Бэк ядра 🟢; Flutter / веб ядро 🟢; слой тегов — по ТЗ.  
+Бэк ядра 🟢; Flutter / веб ядро 🟢; слой тегов — по ТЗ. Групповой чат компании: `attendance_open_company_chat` (ensure + sync active).  
 Бизнес: [attendance.md](attendance.md) · силы: [tag-powers.md](tag-powers.md) · веб: [website-gap-plan.md](website-gap-plan.md)  
 Техника: `lib/feature/_attendance_/`, `web/src/features/attendance/`, [SPEC_ATTENDANCE_SYSTEM.md](../supabase/SPEC_ATTENDANCE_SYSTEM.md), `supabase/migrations/_attendance/`
 

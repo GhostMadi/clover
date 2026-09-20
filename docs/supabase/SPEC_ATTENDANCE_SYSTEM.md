@@ -116,6 +116,7 @@ profiles
 | `attendance_reject_invite(p_membership_id)` | void | → declined |
 | `attendance_archive_member(p_membership_id)` | void | → archived |
 | `attendance_reinvite_member(p_membership_id)` | void | archived/declined → pending + DM card + notify |
+| `attendance_open_company_chat(p_workplace_id)` | uuid | viewer (owner/active): ensure group chat + sync owner + **all active** members as participants; returns `conversation_id` |
 | `attendance_list_corrections(p_workplace_id, p_status?)` | jsonb | owner: all; member: own |
 | `attendance_request_punch_correction(...)` | uuid | worker |
 | `attendance_resolve_punch_correction(...)` | void | owner approve/reject |
@@ -163,6 +164,7 @@ Idempotent `client_punch_id` / `client_request_id`: повтор → тот же
 | `20260906020000_booking_push_client_reschedule_attendance_duty_folders.sql` | `duty_only_punch` + folders bootstrap |
 | `20260906130000_booking_attendance_prod_ready.sql` | `attendance_replace_punch_types`, `attendance_payroll_preview`, availability `p_exclude_booking_id`, `service_id` in booking lists |
 | `20260908194706_attendance_tag_powers_impl.sql` | теги `attendance` / `attendanceWork`; гейты create/invite/update/punch; bootstrap `has_attendance_work_tag` |
+| `20260920161956_attendance_open_company_chat.sql` | `attendance_open_company_chat` — open/ensure group + sync active members |
 
 ---
 

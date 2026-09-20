@@ -10,7 +10,7 @@ import 'package:clover/feature/_booking_/booking_analytics/presentation/widget/b
 import 'package:clover/feature/_booking_/booking_analytics/presentation/widget/booking_analytics_summary_section.dart';
 import 'package:clover/feature/_booking_/booking_analytics/presentation/widget/booking_analytics_top_staff_section.dart';
 import 'package:clover/feature/_booking_/booking_analytics/presentation/widget/booking_analytics_user_picker.dart';
-import 'package:clover/feature/_booking_/booking_points/data/repository/booking_points_repository.dart';
+import 'package:clover/feature/_booking_/booking_points/data/booking_point_title.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,9 +47,9 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage> {
   }
 
   Future<void> _resolveTitle() async {
-    final point = await sl<BookingPointsRepository>().getPoint(widget.pointId);
-    if (!mounted || point == null) return;
-    setState(() => _title = point.name);
+    final name = await resolveBookingPointNameCached(widget.pointId);
+    if (!mounted || name == null) return;
+    setState(() => _title = name);
   }
 
   void _onPointChanged(String nextId) {
@@ -75,8 +75,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage> {
     _reload();
   }
 
-  void _reload() {
-    _cubit.load(
+  Future<void> _reload() {
+    return _cubit.load(
       start: _start,
       end: _end,
       staffId: _selectedUserId,
@@ -100,14 +100,6 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage> {
     _reload();
   }
 
-  String _formatPeriodLabel(DateTime start, DateTime end) {
-    if (start.year == end.year && start.month == end.month && start.day == end.day) {
-      return '${start.day}.${start.month.toString().padLeft(2, '0')}.${start.year}';
-    }
-    return '${start.day}.${start.month.toString().padLeft(2, '0')}.${start.year} — '
-        '${end.day}.${end.month.toString().padLeft(2, '0')}.${end.year}';
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BookingAnalyticsCubit, BookingAnalyticsState>(
@@ -124,82 +116,69 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage> {
               username: member.username,
             ),
         ];
-        final selectedUser = _selectedUserId == null
-            ? null
-            : users.where((u) => u.id == _selectedUserId).firstOrNull;
-        final periodLabel = _formatPeriodLabel(_start, _end);
-        final userLabel = selectedUser == null ? null : 'Исполнитель: ${selectedUser.displayName}';
 
         return BookingScreenShell(
           title: _title,
           pointId: widget.pointId,
           onPointChanged: _onPointChanged,
           compactBar: true,
-          isLoading: isLoading,
+          isLoading: isLoading && result == null,
           body: state.maybeMap(
             error: (s) => Center(child: Text(s.message)),
-            orElse: () => SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, BookingScreenShell.scrollBottomGap(context)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  BookingAnalyticsPeriodPicker(
-                    start: _start,
-                    end: _end,
-                    onStartChanged: _onStartChanged,
-                    onEndChanged: _onEndChanged,
-                    onWeekPreset: _applyWeekPreset,
-                    onMonthPreset: _applyMonthPreset,
-                  ),
-                  const SizedBox(height: 20),
-                  BookingAnalyticsUserPicker(
-                    users: users,
-                    selectedUserId: _selectedUserId,
-                    onChanged: (value) {
-                      setState(() => _selectedUserId = value);
-                      _reload();
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  if (result != null) ...[
-                    BookingAnalyticsSummarySection(
-                      periodLabel: periodLabel,
-                      result: result,
-                      userLabel: userLabel,
+            orElse: () => RefreshIndicator(
+              onRefresh: _reload,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(16, 8, 16, BookingScreenShell.scrollBottomGap(context)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    BookingAnalyticsPeriodPicker(
+                      start: _start,
+                      end: _end,
+                      onStartChanged: _onStartChanged,
+                      onEndChanged: _onEndChanged,
+                      onWeekPreset: _applyWeekPreset,
+                      onMonthPreset: _applyMonthPreset,
                     ),
-                    const SizedBox(height: 24),
-                    if (result.popularServices.isNotEmpty) ...[
-                      BookingAnalyticsPopularServicesSection(services: result.popularServices),
-                      const SizedBox(height: 24),
+                    if (users.length > 1) ...[
+                      const SizedBox(height: 12),
+                      BookingAnalyticsUserPicker(
+                        users: users,
+                        selectedUserId: _selectedUserId,
+                        onChanged: (value) {
+                          setState(() => _selectedUserId = value);
+                          _reload();
+                        },
+                      ),
                     ],
-                    if (result.topStaff.isNotEmpty)
-                      BookingAnalyticsTopStaffSection(staff: result.topStaff),
-                    if (result.totalBookings == 0 &&
-                        result.popularServices.isEmpty &&
-                        result.topStaff.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Text(
-                          'За выбранный период записей нет',
+                    const SizedBox(height: 16),
+                    if (result != null) ...[
+                      BookingAnalyticsSummarySection(result: result),
+                      if (result.popularServices.isNotEmpty) ...[
+                        const SizedBox(height: 20),
+                        BookingAnalyticsPopularServicesSection(services: result.popularServices),
+                      ],
+                      if (result.topStaff.isNotEmpty) ...[
+                        const SizedBox(height: 20),
+                        BookingAnalyticsTopStaffSection(staff: result.topStaff),
+                      ],
+                      if (result.totalBookings == 0) ...[
+                        const SizedBox(height: 24),
+                        Text(
+                          'За период записей нет',
                           textAlign: TextAlign.center,
                           style: AppTextStyle.base(14, color: context.colors.subTextColor),
                         ),
-                      ),
+                      ],
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
         );
       },
     );
-  }
-}
-
-extension _FirstOrNull<E> on Iterable<E> {
-  E? get firstOrNull {
-    final iterator = this.iterator;
-    if (!iterator.moveNext()) return null;
-    return iterator.current;
   }
 }

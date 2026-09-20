@@ -1,0 +1,4 @@
+storePassword=Alimadi2000
+keyPassword=Alimadi2000
+keyAlias=upload
+storeFile=upload-keystore.jks

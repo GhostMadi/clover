@@ -26,6 +26,50 @@ class BookingAnalyticsResult {
   final double avgCheck;
   final List<BookingAnalyticsPopularService> popularServices;
   final List<BookingAnalyticsStaffStat> topStaff;
+
+  Map<String, dynamic> toJson() => {
+        'total_bookings': totalBookings,
+        'pending_bookings': pendingBookings,
+        'confirmed_bookings': confirmedBookings,
+        'completed_bookings': completedBookings,
+        'cancelled_bookings': cancelledBookings,
+        'revenue': revenue,
+        'avg_check': avgCheck,
+        'popular_services': [
+          for (final s in popularServices) s.toJson(),
+        ],
+        'top_staff': [
+          for (final s in topStaff) s.toJson(),
+        ],
+      };
+
+  factory BookingAnalyticsResult.fromJson(Map<String, dynamic> json) {
+    final popularRaw = json['popular_services'];
+    final topStaffRaw = json['top_staff'];
+    return BookingAnalyticsResult(
+      totalBookings: BookingJson.asInt(json['total_bookings']),
+      pendingBookings: BookingJson.asInt(json['pending_bookings']),
+      confirmedBookings: BookingJson.asInt(json['confirmed_bookings']),
+      completedBookings: BookingJson.asInt(json['completed_bookings']),
+      cancelledBookings: BookingJson.asInt(json['cancelled_bookings']),
+      revenue: BookingJson.asDouble(json['revenue']),
+      avgCheck: BookingJson.asDouble(json['avg_check']),
+      popularServices: popularRaw is List
+          ? [
+              for (final item in popularRaw)
+                if (item is Map)
+                  BookingAnalyticsPopularService.fromJson(Map<String, dynamic>.from(item)),
+            ]
+          : const [],
+      topStaff: topStaffRaw is List
+          ? [
+              for (final item in topStaffRaw)
+                if (item is Map)
+                  BookingAnalyticsStaffStat.fromJson(Map<String, dynamic>.from(item)),
+            ]
+          : const [],
+    );
+  }
 }
 
 class BookingAnalyticsStaffStat {
@@ -42,6 +86,22 @@ class BookingAnalyticsStaffStat {
   final int bookingCount;
   final double revenue;
   final int completedCount;
+
+  Map<String, dynamic> toJson() => {
+        'staff_id': staffId,
+        'display_name': displayName,
+        'booking_count': bookingCount,
+        'revenue': revenue,
+        'completed_count': completedCount,
+      };
+
+  factory BookingAnalyticsStaffStat.fromJson(Map<String, dynamic> json) => BookingAnalyticsStaffStat(
+        staffId: json['staff_id']?.toString() ?? '',
+        displayName: json['display_name']?.toString() ?? '',
+        bookingCount: BookingJson.asInt(json['booking_count']),
+        revenue: BookingJson.asDouble(json['revenue']),
+        completedCount: BookingJson.asInt(json['completed_count']),
+      );
 }
 
 @lazySingleton

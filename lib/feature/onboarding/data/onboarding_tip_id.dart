@@ -1,9 +1,11 @@
 /// Идентификаторы онбордингов / service-tips.
 ///
-/// [appV1] — стартовый флоу после первого входа.
-/// Остальные — будущие разовые показы новых сервисов (без повторного app-onboarding).
+/// [appV2] — стартовый флоу с выбором сюжета (гость / бизнес / оба).
+/// [appV1] — старый mono-flow (история; новые пользователи идут на v2).
+/// Остальные — будущие разовые показы новых сервисов.
 enum OnboardingTipId {
   appV1('app_v1'),
+  appV2('app_v2'),
   serviceBooking('service_booking'),
   serviceBonus('service_bonus'),
   tipMapEventsToggle('tip_map_events_toggle');

@@ -37,6 +37,8 @@ class AppFunctionalButtons extends StatefulWidget {
   }
 
   /// Горизонтальный inset для центрирования сжатой панели. `0` — полная ширина.
+  ///
+  /// Одна видимая кнопка → квадратная пилюля (высота бара), не широкая полоса.
   static double collapsedHorizontalInset(
     BuildContext context, {
     required List<FunctionalButtonItem> buttons,
@@ -52,7 +54,9 @@ class AppFunctionalButtons extends StatefulWidget {
       return 0;
     }
 
-    final perButton = figmaCollapsedWidthPerButton ?? figmaCollapsedBarWidthPerButton;
+    final perButton = visibleCount == 1
+        ? 64.0
+        : (figmaCollapsedWidthPerButton ?? figmaCollapsedBarWidthPerButton);
     final barWidth = context.widthByContext(perButton) * visibleCount;
     final screenWidth = MediaQuery.sizeOf(context).width;
 
@@ -87,7 +91,7 @@ class _AppFunctionalButtonsState extends State<AppFunctionalButtons> {
 
     final colors = context.colors;
     final barRadius = context.widthByContext(_figmaBarRadius);
-    final height = context.heightByContext(_figmaBarHeight);
+    final height = context.heightByContext(_figmaBarHeight).clamp(40.0, 120.0);
     final blur = context.heightByContext(_figmaBlurSigma).clamp(8.0, 32.0);
 
     final visibleButtons = AppFunctionalButtons.visibleButtons(widget.buttons, widget.collapsed);
@@ -96,53 +100,62 @@ class _AppFunctionalButtonsState extends State<AppFunctionalButtons> {
       return const SizedBox.shrink();
     }
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(barRadius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: widget.backgroundColor ?? colors.surfaceSoft.withValues(alpha: 0.92),
-            borderRadius: BorderRadius.circular(barRadius),
-            border: Border.all(color: colors.border.withValues(alpha: 0.7)),
-            boxShadow: [
-              BoxShadow(
-                color: colors.shadowDark.withValues(alpha: 0.10),
-                blurRadius: context.heightByContext(_figmaShadowBlur),
-                offset: Offset(0, context.heightByContext(_figmaShadowOffsetY)),
-              ),
-            ],
-          ),
-          child: AnimatedSize(
-            duration: _animationDuration,
-            curve: _animationCurve,
-            alignment: Alignment.center,
-            child: SizedBox(
-              height: height.clamp(40.0, 120.0),
-              child: ClipRect(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: List.generate(visibleButtons.length, (index) {
-                    final button = visibleButtons[index];
+    // Одна кнопка в compact (Назад на деталке) — квадратная пилюля, не полоса.
+    final singlePill = widget.collapsed && visibleButtons.length == 1;
+    final barWidth = singlePill ? height : null;
 
-                    return Expanded(
-                      child: AnimatedPadding(
-                        duration: _animationDuration,
-                        curve: _animationCurve,
-                        padding: EdgeInsets.all(
-                          button.customColor != null || button.borderColor != null ? 2 : 6,
-                        ),
-                        child: _FunctionalButtonTab(
-                          button: button,
-                          indicatorRadius: context.widthByContext(_figmaIndicatorRadius),
-                          iconSize: context.heightByContext(_figmaIconSize),
-                          labelFontSize: context.heightByContext(_figmaLabelFont),
-                          labelGap: context.heightByContext(_figmaLabelGap),
-                        ),
-                      ),
-                    );
-                  }),
+    Widget buttonRow() {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final button in visibleButtons)
+            Expanded(
+              child: AnimatedPadding(
+                duration: _animationDuration,
+                curve: _animationCurve,
+                padding: EdgeInsets.all(
+                  button.customColor != null || button.borderColor != null ? 2 : 6,
                 ),
+                child: _FunctionalButtonTab(
+                  button: button,
+                  indicatorRadius: context.widthByContext(_figmaIndicatorRadius),
+                  iconSize: context.heightByContext(_figmaIconSize),
+                  labelFontSize: context.heightByContext(_figmaLabelFont),
+                  labelGap: context.heightByContext(_figmaLabelGap),
+                ),
+              ),
+            ),
+        ],
+      );
+    }
+
+    return SizedBox(
+      width: barWidth,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(barRadius),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: widget.backgroundColor ?? colors.surfaceSoft.withValues(alpha: 0.92),
+              borderRadius: BorderRadius.circular(barRadius),
+              border: Border.all(color: colors.border.withValues(alpha: 0.7)),
+              boxShadow: [
+                BoxShadow(
+                  color: colors.shadowDark.withValues(alpha: 0.10),
+                  blurRadius: context.heightByContext(_figmaShadowBlur),
+                  offset: Offset(0, context.heightByContext(_figmaShadowOffsetY)),
+                ),
+              ],
+            ),
+            child: AnimatedSize(
+              duration: _animationDuration,
+              curve: _animationCurve,
+              alignment: Alignment.center,
+              child: SizedBox(
+                height: height,
+                width: barWidth,
+                child: ClipRect(child: buttonRow()),
               ),
             ),
           ),

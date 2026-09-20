@@ -364,7 +364,8 @@ class _AppMapState extends State<AppMap> {
     if (selectedPoint != null && pinBytes != null) {
       desired['selected'] = _DesiredPin(
         key: 'selected',
-        signature: '$themeTag|selected|${selectedPoint.latitude.toStringAsFixed(6)}|${selectedPoint.longitude.toStringAsFixed(6)}',
+        signature:
+            '$themeTag|selected|${selectedPoint.latitude.toStringAsFixed(6)}|${selectedPoint.longitude.toStringAsFixed(6)}',
         geometry: _toMapbox(selectedPoint),
         image: pinBytes,
         iconSize: _pinIconSize,
@@ -372,8 +373,14 @@ class _AppMapState extends State<AppMap> {
       );
     }
 
-    final clusters = [for (final marker in widget.markers) if (marker.isServerCluster) marker];
-    final markers = [for (final marker in widget.markers) if (!marker.isServerCluster) marker];
+    final clusters = [
+      for (final marker in widget.markers)
+        if (marker.isServerCluster) marker,
+    ];
+    final markers = [
+      for (final marker in widget.markers)
+        if (!marker.isServerCluster) marker,
+    ];
 
     if (clusters.isNotEmpty) {
       final clusterIconById = <String, Uint8List>{};

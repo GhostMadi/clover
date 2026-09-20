@@ -6,11 +6,8 @@ import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
-import 'package:clover/feature/_booking_/booking_create/data/models/booking_staff_invite.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_staff_profile.dart';
-import 'package:clover/feature/_booking_/booking_create/data/repository/booking_staff_repository.dart';
 import 'package:clover/feature/_booking_/booking_create/presentation/cubit/booking_staff_search_cubit.dart';
-import 'package:clover/feature/_booking_/shared/data/booking_error.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,11 +18,13 @@ abstract final class BookingStaffProfileSearchSheet {
     BuildContext context, {
     Set<String> excludeStaffIds = const {},
     Set<String> excludeProfileIds = const {},
+    /// Экран «Команда»: только пригласить / добавить имя, без выбора на услугу.
+    bool manageTeam = false,
   }) {
     return AppBottomSheet.show<BookingServiceExecutor>(
       service: kBookingService,
       context: context,
-      title: 'Исполнители',
+      title: manageTeam ? 'Добавить' : 'Исполнители',
       expandBody: true,
       contentPadding: const EdgeInsets.all(16),
       sheetOuterPadding: const EdgeInsets.fromLTRB(16, 48, 16, 12),
@@ -33,6 +32,7 @@ abstract final class BookingStaffProfileSearchSheet {
       content: _Body(
         excludeStaffIds: excludeStaffIds,
         excludeProfileIds: excludeProfileIds,
+        manageTeam: manageTeam,
       ),
     );
   }
@@ -44,40 +44,33 @@ class _Body extends StatefulWidget {
   const _Body({
     required this.excludeStaffIds,
     required this.excludeProfileIds,
+    this.manageTeam = false,
   });
 
   final Set<String> excludeStaffIds;
   final Set<String> excludeProfileIds;
+  final bool manageTeam;
 
   @override
   State<_Body> createState() => _BodyState();
 }
 
 class _BodyState extends State<_Body> {
-  late final BookingStaffSearchCubit _searchCubit;
+  late final BookingStaffSearchCubit _cubit;
   late final TextEditingController _queryController;
   late final TextEditingController _nameController;
-  late final BookingStaffRepository _repository;
 
   _SheetMode _mode = _SheetMode.pick;
-  List<BookingServiceExecutor> _staff = const [];
-  List<BookingStaffInvite> _pending = const [];
-  bool _loading = true;
-  bool _busy = false;
-  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _repository = sl<BookingStaffRepository>();
-    _searchCubit = sl<BookingStaffSearchCubit>()
-      ..configure(excludeProfileIds: {
-        ...widget.excludeProfileIds,
-      });
+    _cubit = sl<BookingStaffSearchCubit>()
+      ..configure(excludeProfileIds: {...widget.excludeProfileIds})
+      ..loadTeam();
     _queryController = TextEditingController();
     _nameController = TextEditingController();
     _queryController.addListener(_onQueryChanged);
-    _reload();
   }
 
   @override
@@ -85,166 +78,118 @@ class _BodyState extends State<_Body> {
     _queryController.removeListener(_onQueryChanged);
     _queryController.dispose();
     _nameController.dispose();
-    _searchCubit.close();
+    _cubit.close();
     super.dispose();
   }
 
   void _onQueryChanged() {
     if (_mode == _SheetMode.invite) {
-      _searchCubit.search(_queryController.text);
-    }
-  }
-
-  Future<void> _reload() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final results = await Future.wait([
-        _repository.listMyStaff(),
-        _repository.listPendingInvites(),
-      ]);
-      if (!mounted) return;
-      setState(() {
-        _staff = results[0] as List<BookingServiceExecutor>;
-        _pending = results[1] as List<BookingStaffInvite>;
-        _loading = false;
-      });
-      // Не прячем из поиска — показываем статус «Приглашён» / «В команде».
-      _searchCubit.configure(excludeProfileIds: widget.excludeProfileIds);
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = BookingException.from(e).userMessage;
-      });
+      _cubit.search(_queryController.text);
     }
   }
 
   Future<void> _invite(BookingStaffProfile profile) async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    try {
-      await _repository.inviteStaff(profile.id);
-      if (!mounted) return;
-      AppSnackBar.show(
-        context,
-        message: 'Приглашение отправлено в чат',
-        kind: AppSnackBarKind.success,
-      );
-      await _reload();
-      if (!mounted) return;
-      setState(() => _mode = _SheetMode.pick);
-    } catch (e) {
-      if (!mounted) return;
-      AppSnackBar.show(
-        context,
-        message: BookingException.from(e).userMessage,
-        kind: AppSnackBarKind.error,
-      );
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
+    await _cubit.invite(profile.id);
   }
 
   Future<void> _cancelInvite(String inviteId) async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    try {
-      await _repository.cancelInvite(inviteId);
-      if (!mounted) return;
-      AppSnackBar.show(context, message: 'Заявка отменена', kind: AppSnackBarKind.success);
-      await _reload();
-    } catch (e) {
-      if (!mounted) return;
-      AppSnackBar.show(
-        context,
-        message: BookingException.from(e).userMessage,
-        kind: AppSnackBarKind.error,
-      );
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
+    await _cubit.cancelInvite(inviteId);
   }
 
   Future<void> _createNameOnly() async {
-    final name = _nameController.text.trim();
-    if (name.isEmpty || _busy) return;
-    setState(() => _busy = true);
-    try {
-      final staff = await _repository.createStaff(displayName: name);
-      if (!mounted) return;
-      Navigator.of(context).pop(staff);
-    } catch (e) {
-      if (!mounted) return;
-      AppSnackBar.show(
-        context,
-        message: BookingException.from(e).userMessage,
-        kind: AppSnackBarKind.error,
-      );
-      setState(() => _busy = false);
-    }
+    final staff = await _cubit.createNameOnly(_nameController.text);
+    if (!mounted || staff == null) return;
+    Navigator.of(context).pop(staff);
   }
 
-  List<BookingServiceExecutor> get _availableStaff {
+  List<BookingServiceExecutor> _availableStaff(BookingStaffSearchState state) {
     return [
-      for (final person in _staff)
+      for (final person in state.staff)
         if (!widget.excludeStaffIds.contains(person.id)) person,
     ];
   }
 
-  String? _inviteStatusLabel(String profileId) {
+  String? _inviteStatusLabel(BookingStaffSearchState state, String profileId) {
     final id = profileId.trim();
     if (id.isEmpty) return null;
-    if (_staff.any((s) => s.profileId?.trim() == id)) return 'В команде';
-    if (_pending.any((i) => i.inviteeId.trim() == id)) return 'Приглашён';
+    if (state.staff.any((s) => s.profileId?.trim() == id)) return 'В команде';
+    if (state.pending.any((i) => i.inviteeId.trim() == id)) return 'Приглашён';
     return null;
+  }
+
+  void _handleAction(BookingStaffSearchState state) {
+    final action = state.lastAction;
+    if (action == null) return;
+    switch (action) {
+      case BookingStaffSheetAction.invited:
+        AppSnackBar.show(context, message: 'Приглашение отправлено в чат', kind: AppSnackBarKind.success);
+        setState(() => _mode = _SheetMode.pick);
+      case BookingStaffSheetAction.inviteCancelled:
+        AppSnackBar.show(context, message: 'Заявка отменена', kind: AppSnackBarKind.success);
+      case BookingStaffSheetAction.created:
+        break;
+      case BookingStaffSheetAction.failed:
+        final message = state.actionError;
+        if (message != null && message.isNotEmpty) {
+          AppSnackBar.show(context, message: message, kind: AppSnackBarKind.error);
+        }
+    }
+    _cubit.clearLastAction();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const BookingLoader(strokeWidth: 2);
-    }
+    return BlocConsumer<BookingStaffSearchCubit, BookingStaffSearchState>(
+      bloc: _cubit,
+      listenWhen: (prev, next) => prev.lastAction != next.lastAction && next.lastAction != null,
+      listener: (context, state) => _handleAction(state),
+      builder: (context, state) {
+        if (state.loadingTeam && state.staff.isEmpty && state.pending.isEmpty) {
+          return const BookingLoader(strokeWidth: 2);
+        }
 
-    return switch (_mode) {
-      _SheetMode.pick => _buildPick(context),
-      _SheetMode.invite => _buildInvite(context),
-      _SheetMode.nameOnly => _buildNameOnly(context),
-    };
+        return switch (_mode) {
+          _SheetMode.pick => _buildPick(context, state),
+          _SheetMode.invite => _buildInvite(context, state),
+          _SheetMode.nameOnly => _buildNameOnly(context, state),
+        };
+      },
+    );
   }
 
-  Widget _buildPick(BuildContext context) {
-    final available = _availableStaff;
+  Widget _buildPick(BuildContext context, BookingStaffSearchState state) {
+    final available = _availableStaff(state);
+    final manage = widget.manageTeam;
+    final colors = context.colors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (_error != null)
+        if (state.error != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(
-              _error!,
+              state.error!,
               textAlign: TextAlign.center,
-              style: AppTextStyle.base(13, color: context.colors.subTextColor),
+              style: AppTextStyle.base(13, color: colors.subTextColor),
             ),
           ),
         Expanded(
           child: ListView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             children: [
-              Text(
-                'Уже в команде',
-                style: AppTextStyle.base(14, color: context.colors.textColor, fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 8),
-              if (available.isEmpty)
+              if (!manage) ...[
                 Text(
-                  'Пока никого нет — пригласите аккаунт Clover или добавьте имя.',
-                  style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
-                )
-              else
-                ...[
+                  'Уже в команде',
+                  style: AppTextStyle.base(14, color: colors.textColor, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 8),
+                if (available.isEmpty)
+                  Text(
+                    'Пока никого нет — пригласите аккаунт Clover или добавьте имя.',
+                    style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
+                  )
+                else
                   for (final person in available) ...[
                     _StaffTile(
                       title: person.displayName,
@@ -255,15 +200,19 @@ class _BodyState extends State<_Body> {
                     ),
                     const SizedBox(height: 8),
                   ],
-                ],
-              if (_pending.isNotEmpty) ...[
+              ] else
+                Text(
+                  'Пригласите из Clover или добавьте только имя для слотов.',
+                  style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
+                ),
+              if (state.pending.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 Text(
                   'Ожидают ответа',
-                  style: AppTextStyle.base(14, color: context.colors.textColor, fontWeight: FontWeight.w700),
+                  style: AppTextStyle.base(14, color: colors.textColor, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 8),
-                for (final invite in _pending) ...[
+                for (final invite in state.pending) ...[
                   _StaffTile(
                     title: invite.title,
                     subtitle: invite.inviteeUsername?.trim().isNotEmpty == true
@@ -272,7 +221,7 @@ class _BodyState extends State<_Body> {
                     avatarUrl: invite.inviteeAvatarUrl,
                     actionLabel: 'Отменить',
                     outlined: true,
-                    onTap: _busy ? null : () => _cancelInvite(invite.id),
+                    onTap: state.busy ? null : () => _cancelInvite(invite.id),
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -287,7 +236,7 @@ class _BodyState extends State<_Body> {
           isExpanded: true,
           onTap: () {
             setState(() => _mode = _SheetMode.invite);
-            _searchCubit.search(_queryController.text);
+            _cubit.search(_queryController.text);
           },
         ),
         const SizedBox(height: 8),
@@ -302,99 +251,108 @@ class _BodyState extends State<_Body> {
     );
   }
 
-  Widget _buildInvite(BuildContext context) {
-    return BlocProvider.value(
-      value: _searchCubit,
-      child: BlocBuilder<BookingStaffSearchCubit, BookingStaffSearchState>(
-        builder: (context, state) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: () => setState(() => _mode = _SheetMode.pick),
-                  child: Text(
-                    '← Назад',
-                    style: AppTextStyle.base(14, color: context.colors.subTextColor),
-                  ),
-                ),
-              ),
-              Text(
-                'Отправим заявку в личный чат. После «Принять» можно назначить на услугу.',
-                style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
-              ),
-              const SizedBox(height: 12),
-              BookingField(
-                controller: _queryController,
-                hintText: 'Поиск по никнейму или имени',
-                prefixIcon: AppIcons.searchRounded.icon,
-                textInputAction: TextInputAction.search,
-              ),
-              const SizedBox(height: 16),
-              if (state.error != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    state.error!,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyle.base(13, color: context.colors.subTextColor),
-                  ),
-                ),
-              Expanded(
-                child: state.loading && state.results.isEmpty
-                    ? const BookingLoader(strokeWidth: 2)
-                    : state.results.isEmpty
-                        ? Center(
-                            child: Text(
-                              'Никого не найдено',
-                              style: AppTextStyle.base(14, color: context.colors.subTextColor),
-                            ),
-                          )
-                        : ListView.separated(
-                            itemCount: state.results.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 8),
-                            itemBuilder: (context, index) {
-                              final profile = state.results[index];
-                              final status = _inviteStatusLabel(profile.id);
-                              final locked = status != null || _busy;
-                              return _StaffTile(
-                                title: profile.title,
-                                subtitle: profile.displayName?.trim().isNotEmpty == true
-                                    ? profile.displayUsername
-                                    : null,
-                                avatarUrl: profile.avatarUrl,
-                                actionLabel: status ?? (_busy ? '…' : 'Пригласить'),
-                                outlined: status != null,
-                                onTap: locked ? null : () => _invite(profile),
-                              );
-                            },
-                          ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildNameOnly(BuildContext context) {
+  Widget _buildInvite(BuildContext context, BookingStaffSearchState state) {
+    final colors = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Align(
           alignment: Alignment.centerLeft,
-          child: TextButton(
-            onPressed: () => setState(() => _mode = _SheetMode.pick),
+          child: Material(
+            type: MaterialType.transparency,
+            child: InkWell(
+              onTap: () => setState(() => _mode = _SheetMode.pick),
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                child: Text(
+                  '← Назад',
+                  style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Text(
+          'Отправим заявку в личный чат. После «Принять» можно назначить на услугу.',
+          style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
+        ),
+        const SizedBox(height: 12),
+        BookingField(
+          controller: _queryController,
+          hintText: 'Поиск по никнейму или имени',
+          prefixIcon: AppIcons.searchRounded.icon,
+          textInputAction: TextInputAction.search,
+        ),
+        const SizedBox(height: 16),
+        if (state.searchError != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
             child: Text(
-              '← Назад',
-              style: AppTextStyle.base(14, color: context.colors.subTextColor),
+              state.searchError!,
+              textAlign: TextAlign.center,
+              style: AppTextStyle.base(13, color: colors.subTextColor),
+            ),
+          ),
+        Expanded(
+          child: state.loadingSearch && state.results.isEmpty
+              ? const BookingLoader(strokeWidth: 2)
+              : state.results.isEmpty
+                  ? Center(
+                      child: Text(
+                        'Никого не найдено',
+                        style: AppTextStyle.base(14, color: colors.subTextColor),
+                      ),
+                    )
+                  : ListView.separated(
+                      itemCount: state.results.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      itemBuilder: (context, index) {
+                        final profile = state.results[index];
+                        final status = _inviteStatusLabel(state, profile.id);
+                        final locked = status != null || state.busy;
+                        return _StaffTile(
+                          title: profile.title,
+                          subtitle: profile.displayName?.trim().isNotEmpty == true
+                              ? profile.displayUsername
+                              : null,
+                          avatarUrl: profile.avatarUrl,
+                          actionLabel: status ?? (state.busy ? '…' : 'Пригласить'),
+                          outlined: status != null,
+                          onTap: locked ? null : () => _invite(profile),
+                        );
+                      },
+                    ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNameOnly(BuildContext context, BookingStaffSearchState state) {
+    final colors = context.colors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Material(
+            type: MaterialType.transparency,
+            child: InkWell(
+              onTap: () => setState(() => _mode = _SheetMode.pick),
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                child: Text(
+                  '← Назад',
+                  style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w600),
+                ),
+              ),
             ),
           ),
         ),
         Text(
           'Без аккаунта Clover — только имя в слотах. Календаря у исполнителя не будет.',
-          style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
+          style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
         ),
         const SizedBox(height: 12),
         Expanded(
@@ -410,10 +368,10 @@ class _BodyState extends State<_Body> {
           ),
         ),
         BookingPrimaryButton(
-          text: _busy ? '…' : 'Добавить',
+          text: state.busy ? '…' : 'Добавить',
           height: 48,
           isExpanded: true,
-          interactive: !_busy,
+          interactive: !state.busy,
           onTap: _createNameOnly,
         ),
       ],
@@ -440,13 +398,14 @@ class _StaffTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final url = avatarUrl?.trim();
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: context.colors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: colors.border.withValues(alpha: 0.55)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -457,10 +416,10 @@ class _StaffTile extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 20,
-                  backgroundColor: context.colors.surfaceSoft,
+                  backgroundColor: colors.surfaceSoft,
                   backgroundImage: url != null && url.isNotEmpty ? NetworkImage(url) : null,
                   child: url == null || url.isEmpty
-                      ? Icon(AppIcons.user.icon, color: context.colors.iconMuted, size: 20)
+                      ? Icon(AppIcons.user.icon, color: colors.iconMuted, size: 20)
                       : null,
                 ),
                 const SizedBox(width: 12),
@@ -470,13 +429,13 @@ class _StaffTile extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
+                        style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
                       ),
                       if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(
                           subtitle!,
-                          style: AppTextStyle.base(13, color: context.colors.subTextColor),
+                          style: AppTextStyle.base(13, color: colors.subTextColor),
                         ),
                       ],
                     ],

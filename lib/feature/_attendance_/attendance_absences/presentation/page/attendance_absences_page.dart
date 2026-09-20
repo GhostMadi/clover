@@ -1,16 +1,17 @@
-import 'package:clover/feature/_attendance_/shared/data/models/attendance_worker.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/feature/_attendance_/attendance_absences/presentation/cubit/attendance_absences_cubit.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_error.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_outbox.dart';
+import 'package:clover/feature/_attendance_/attendance_absences/presentation/widget/attendance_absence_add_sheet.dart';
+import 'package:clover/feature/_attendance_/attendance_absences/presentation/widget/attendance_absence_tile.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_absence.dart';
+import 'package:clover/feature/_attendance_/shared/data/models/attendance_worker.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
@@ -38,6 +39,20 @@ class _AttendanceAbsencesPageState extends State<AttendanceAbsencesPage> {
     super.dispose();
   }
 
+  Future<void> _add() async {
+    HapticFeedback.selectionClick();
+    final loaded = _cubit.state is AttendanceAbsencesLoaded
+        ? _cubit.state as AttendanceAbsencesLoaded
+        : null;
+    final workers = loaded?.workers ?? const <AttendanceWorkerListItem>[];
+    await AttendanceAbsenceAddSheet.show(
+      context,
+      workplaceId: widget.workplaceId,
+      workers: workers,
+      cubit: _cubit,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AttendanceAbsencesCubit, AttendanceAbsencesState>(
@@ -45,163 +60,79 @@ class _AttendanceAbsencesPageState extends State<AttendanceAbsencesPage> {
       builder: (context, state) {
         final loaded = state is AttendanceAbsencesLoaded ? state : null;
         final absences = loaded?.absences ?? const <AttendanceAbsenceEntry>[];
-        final workers = loaded?.workers ?? const <AttendanceWorkerListItem>[];
         final snap = loaded?.snapshot;
 
         return AttendanceScreenShell(
           title: 'Отсутствия',
           showAdd: true,
-          onAddTap: () => _showAdd(context, workers),
-          body: ListView(
-            padding: EdgeInsets.fromLTRB(16, 8, 16, AttendanceScreenShell.scrollBottomGap(context)),
-            children: [
-              Text(
-                'Выходной, отпуск и больничный не считаются пропуском в зарплате.',
-                style: AppTextStyle.base(14, color: context.colors.subTextColor),
-              ),
-              const SizedBox(height: 14),
-              if (absences.isEmpty)
-                Text('Нет записей', style: AppTextStyle.base(15, color: context.colors.subTextColor))
-              else
-                for (final entry in absences)
-                  _AbsenceCard(
-                    entry: entry,
-                    workerName: snap?.workersFor(widget.workplaceId)
-                            .where((w) => w.id == entry.workerId)
-                            .map((w) => w.displayName)
-                            .firstOrNull ??
-                        entry.workerId,
-                  ),
-            ],
-          ),
+          onAddTap: _add,
+          body: absences.isEmpty
+              ? ListView(
+                  padding: EdgeInsets.fromLTRB(16, 8, 16, AttendanceScreenShell.scrollBottomGap(context)),
+                  children: [
+                    SizedBox(height: MediaQuery.sizeOf(context).height * 0.12),
+                    _EmptyAbsences(onAdd: _add),
+                  ],
+                )
+              : ListView(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, AttendanceScreenShell.scrollBottomGap(context)),
+                  children: [
+                    for (final entry in absences) ...[
+                      AttendanceAbsenceTile(
+                        entry: entry,
+                        workerName: snap
+                                ?.workersFor(widget.workplaceId)
+                                .where((w) => w.id == entry.workerId)
+                                .map((w) => w.displayName)
+                                .firstOrNull ??
+                            entry.workerId,
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ],
+                ),
         );
       },
     );
   }
-
-  Future<void> _showAdd(BuildContext context, List<AttendanceWorkerListItem> workers) {
-    if (workers.isEmpty) {
-      return AttendanceBottomSheet.show(
-        context: context,
-        title: 'Добавить отсутствие',
-        content: Text(
-          'Нет активных работников в компании.',
-          style: AppTextStyle.base(15, color: context.colors.subTextColor),
-        ),
-        actions: [
-          AttendancePrimaryButton(
-            text: 'Понятно',
-            isExpanded: true,
-            onTap: () => Navigator.of(context).pop(),
-          ),
-        ],
-      );
-    }
-
-    var kind = AttendanceAbsenceKind.dayOff;
-    var workerId = workers.first.id;
-    final now = DateTime.now();
-
-    return AttendanceBottomSheet.show(
-      context: context,
-      title: 'Добавить отсутствие',
-      content: StatefulBuilder(
-        builder: (context, setState) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Работник', style: AppTextStyle.base(13, color: context.colors.subTextColor)),
-              const SizedBox(height: 8),
-              for (final w in workers)
-                AttendanceServiceTile(
-                  title: w.displayName,
-                  selected: w.id == workerId,
-                  onTap: () => setState(() => workerId = w.id),
-                ),
-              const SizedBox(height: 12),
-              Text('Тип', style: AppTextStyle.base(13, color: context.colors.subTextColor)),
-              const SizedBox(height: 8),
-              for (final k in AttendanceAbsenceKind.values)
-                AttendanceServiceTile(
-                  title: k.labelRu,
-                  selected: k == kind,
-                  onTap: () => setState(() => kind = k),
-                ),
-            ],
-          );
-        },
-      ),
-      actions: [
-        AttendancePrimaryButton(
-          text: 'Сохранить',
-          isExpanded: true,
-          onTap: () async {
-            try {
-              final result = await _cubit.addAbsence(
-                AttendanceAbsenceEntry(
-                  id: 'abs_${DateTime.now().millisecondsSinceEpoch}',
-                  workplaceId: widget.workplaceId,
-                  workerId: workerId,
-                  kind: kind,
-                  startDate: now,
-                  endDate: now,
-                ),
-              );
-              if (!context.mounted) return;
-              Navigator.of(context).pop();
-              AppSnackBar.show(
-                context,
-                message: result == AttendancePersistResult.queued
-                    ? 'Сохранено локально, синхронизируется'
-                    : 'Отсутствие добавлено',
-                kind: AppSnackBarKind.success,
-              );
-            } catch (e) {
-              if (!context.mounted) return;
-              final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить';
-              AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
-            }
-          },
-        ),
-      ],
-    );
-  }
 }
 
-class _AbsenceCard extends StatelessWidget {
-  const _AbsenceCard({required this.entry, required this.workerName});
+class _EmptyAbsences extends StatelessWidget {
+  const _EmptyAbsences({required this.onAdd});
 
-  final AttendanceAbsenceEntry entry;
-  final String workerName;
+  final VoidCallback onAdd;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final fmt = (DateTime d) => '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.borderSoft),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(workerName, style: AppTextStyle.base(16, color: colors.textColor, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 4),
-          Text(
-            '${entry.kind.labelRu} · ${fmt(entry.startDate)} — ${fmt(entry.endDate)}',
-            style: AppTextStyle.base(14, color: colors.subTextColor),
-          ),
-          if (entry.note != null) ...[
-            const SizedBox(height: 4),
-            Text(entry.note!, style: AppTextStyle.base(13, color: colors.subTextColor)),
+    final accent = attendanceServiceAccent(context.colors);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(color: accent.soft, shape: BoxShape.circle),
+              child: Icon(AppIcons.eventBusy.icon, size: 34, color: accent.icon),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Нет отсутствий',
+              textAlign: TextAlign.center,
+              style: AppTextStyle.base(18, color: context.colors.textColor, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Выходной, отпуск или больничный',
+              textAlign: TextAlign.center,
+              style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.35),
+            ),
+            const SizedBox(height: 20),
+            AttendancePrimaryButton(text: 'Добавить', isExpanded: true, onTap: onAdd),
           ],
-        ],
+        ),
       ),
     );
   }

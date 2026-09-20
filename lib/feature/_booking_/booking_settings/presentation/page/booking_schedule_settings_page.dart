@@ -63,7 +63,7 @@ class _BookingScheduleSettingsPageState extends State<BookingScheduleSettingsPag
         final staff = loaded?.staff ?? const <BookingServiceExecutor>[];
 
         return BookingScreenShell(
-          title: 'Настройки записи',
+          title: 'Расписание',
           pointId: widget.pointId,
           onPointChanged: (nextId) {
             context.router.replace(BookingScheduleSettingsRoute(pointId: nextId));

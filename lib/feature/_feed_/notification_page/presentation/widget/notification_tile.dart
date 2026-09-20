@@ -355,19 +355,39 @@ class _PostPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final trimmed = url.trim();
+    final isAsset = trimmed.startsWith('assets/') || trimmed.startsWith('asset:');
+    final assetPath = trimmed.startsWith('asset:') ? trimmed.substring('asset:'.length) : trimmed;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
-      child: Image.network(
-        url,
-        width: 44,
-        height: 44,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Container(
-          width: 44,
-          height: 44,
-          color: context.colors.surfaceSoft,
-          child: Icon(AppIcons.imageOutlined.icon, size: 20, color: context.colors.subTextColor.withValues(alpha: 0.6)),
-        ),
+      child: isAsset
+          ? Image.asset(
+              assetPath,
+              width: 44,
+              height: 44,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => _previewFallback(context),
+            )
+          : Image.network(
+              trimmed,
+              width: 44,
+              height: 44,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => _previewFallback(context),
+            ),
+    );
+  }
+
+  Widget _previewFallback(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 44,
+      color: context.colors.surfaceSoft,
+      child: Icon(
+        AppIcons.imageOutlined.icon,
+        size: 20,
+        color: context.colors.subTextColor.withValues(alpha: 0.6),
       ),
     );
   }

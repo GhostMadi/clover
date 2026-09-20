@@ -37,6 +37,8 @@
   --svc-resources-ink: #5c4fa8;
   --svc-bonus: #fff3e0;
   --svc-bonus-ink: #e65100;
+  --svc-venue: #ffa39e; /* functionalSoftVenue / cloverRedToken */
+  --svc-venue-ink: #b54b45;
 
   /* Chat candy bubbles — всегда light softs (жвачка/мультик), даже в dark */
   --chat-candy-blue: #e3f0fc;
@@ -108,6 +110,8 @@ html[data-theme="dark"] {
   --svc-resources-ink: #c4bbf0;
   --svc-bonus: #2a1e12;
   --svc-bonus-ink: #ffb74d;
+  --svc-venue: #ffa39e;
+  --svc-venue-ink: #b54b45;
 
   --nav-inactive: #7a828a;
   --shimmer-base: #2c2c2e;
@@ -152,6 +156,8 @@ html[data-theme="dark"] {
   --color-svc-resources-ink: var(--svc-resources-ink);
   --color-svc-bonus: var(--svc-bonus);
   --color-svc-bonus-ink: var(--svc-bonus-ink);
+  --color-svc-venue: var(--svc-venue);
+  --color-svc-venue-ink: var(--svc-venue-ink);
   --color-nav-inactive: var(--nav-inactive);
   --color-on-media: var(--on-media);
   --shadow-elevate-sm: var(--elevate-sm);

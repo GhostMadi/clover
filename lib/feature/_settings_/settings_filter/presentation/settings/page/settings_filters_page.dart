@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
@@ -9,7 +10,6 @@ import 'package:clover/feature/_settings_/settings/presentation/widget/settings_
 import 'package:clover/feature/_settings_/settings_filter/data/models/filter_category.dart';
 import 'package:clover/feature/_settings_/settings_filter/presentation/settings/cubit/settings_filters_cubit.dart';
 import 'package:clover/feature/_settings_/settings_filter/presentation/settings/widget/filter_category_card.dart';
-import 'package:clover/feature/_settings_/settings_filter/presentation/settings/widget/filter_category_editor_sheet.dart';
 import 'package:clover/feature/_settings_/settings_filter/presentation/settings/widget/filter_settings_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,13 +38,21 @@ class _SettingsFiltersPageState extends State<SettingsFiltersPage> {
   }
 
   Future<void> _createCategory() async {
-    final draft = await FilterCategoryEditorSheet.showCreate(context);
+    final draft = await context.router.push<FilterCategory>(
+      SettingsFilterCategoryRoute(),
+    );
     if (draft == null || !mounted) return;
     await _saveDraft(draft);
   }
 
   Future<void> _editCategory(FilterCategory category) async {
-    final draft = await FilterCategoryEditorSheet.showEdit(context, category: category);
+    final draft = await context.router.push<FilterCategory>(
+      SettingsFilterCategoryRoute(
+        categoryId: category.id,
+        initialName: category.name,
+        initialValues: category.values,
+      ),
+    );
     if (draft == null || !mounted) return;
     await _saveDraft(draft);
   }

@@ -30,6 +30,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
   bool _clusterRequestInFlight = false;
 
   /// [initialPost] — данные от родителя (лента); [initialMyReaction] — лайк/дизлайк без второго запроса.
+  /// [fetchRemote] — `false` для локальных муляжей (App Store), без RPC.
   Future<void> load(
     String postId, {
     PostModel? initialPost,
@@ -38,6 +39,9 @@ class PostDetailCubit extends Cubit<PostDetailState> {
     String? initialMyReaction,
     String? initialAuthorUsername,
     String? initialAuthorAvatarUrl,
+    bool? initialMyFollowingAuthor,
+    bool? initialMySaved,
+    bool fetchRemote = true,
   }) async {
     if (isClosed) return;
     final id = postId.trim();
@@ -65,20 +69,27 @@ class PostDetailCubit extends Cubit<PostDetailState> {
         authorAvatarUrl: _initialAuthorAvatarUrl,
         marker: _initialMarker,
         bookingService: _initialBookingService,
-        mySaved: _resolveInitialSaved(cachedItem?.mySaved, id),
-        myFollowingAuthor: cachedItem?.myFollowingAuthor,
+        mySaved: initialMySaved ?? _resolveInitialSaved(cachedItem?.mySaved, id),
+        myFollowingAuthor: initialMyFollowingAuthor ?? cachedItem?.myFollowingAuthor,
         profileFilters: cachedItem?.profileFilters ?? const [],
       );
       _repository.cacheFeedItem(item);
-      final needsRemotePayload = item.isMarkerPayloadPending || item.isBookingServicePayloadPending;
+      final needsRemotePayload =
+          fetchRemote && (item.isMarkerPayloadPending || item.isBookingServicePayloadPending);
       emit(PostDetailState.loaded(item, isFromCache: true, isRefreshing: needsRemotePayload));
 
-      await _fetchRemote();
+      if (fetchRemote) {
+        await _fetchRemote();
+      }
       return;
     }
 
     emit(const PostDetailState.loading());
-    await _fetchRemote();
+    if (fetchRemote) {
+      await _fetchRemote();
+    } else {
+      emit(const PostDetailState.error('Пост не найден'));
+    }
   }
 
   Future<void> reload() async {

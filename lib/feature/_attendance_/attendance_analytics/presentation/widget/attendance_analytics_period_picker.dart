@@ -1,7 +1,7 @@
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/feature/_attendance_/attendance_analytics/presentation/widget/attendance_analytics_ui.dart';
+import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -30,65 +30,45 @@ class AttendanceAnalyticsPeriodPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final accent = attendanceServiceAccent(colors);
 
-    return AttendanceAnalyticsCard(
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('Период', style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 10),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: colors.surfaceMuted,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(4),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _Segment(
-                      label: 'Неделя',
-                      selected: !isMonth,
-                      onTap: onWeek,
-                    ),
-                  ),
-                  Expanded(
-                    child: _Segment(
-                      label: 'Месяц',
-                      selected: isMonth,
-                      onTap: onMonth,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: colors.surfaceMuted,
+            borderRadius: BorderRadius.circular(14),
           ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              _NavButton(
-                icon: AppIcons.chevronLeft.icon,
-                enabled: canGoPrevious,
-                onTap: onPrevious,
-              ),
-              Expanded(
-                child: Text(
-                  periodLabel,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.base(14, color: colors.textColor, fontWeight: FontWeight.w700),
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _Segment(label: 'Неделя', selected: !isMonth, onTap: onWeek, accent: accent),
                 ),
-              ),
-              _NavButton(
-                icon: AppIcons.chevronRight.icon,
-                enabled: canGoNext,
-                onTap: onNext,
-              ),
-            ],
+                Expanded(
+                  child: _Segment(label: 'Месяц', selected: isMonth, onTap: onMonth, accent: accent),
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            _NavButton(icon: AppIcons.chevronLeft.icon, enabled: canGoPrevious, onTap: onPrevious),
+            Expanded(
+              child: Text(
+                periodLabel,
+                textAlign: TextAlign.center,
+                style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
+              ),
+            ),
+            _NavButton(icon: AppIcons.chevronRight.icon, enabled: canGoNext, onTap: onNext),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -105,7 +85,7 @@ class _NavButton extends StatelessWidget {
     return Opacity(
       opacity: enabled ? 1 : 0.35,
       child: Material(
-        color: context.colors.surfaceMuted,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: enabled
@@ -115,10 +95,16 @@ class _NavButton extends StatelessWidget {
                 }
               : null,
           borderRadius: BorderRadius.circular(10),
-          child: SizedBox(
-            width: 36,
-            height: 36,
-            child: Icon(icon, size: 18, color: context.colors.textColor),
+          child: Ink(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
+            ),
+            child: SizedBox(
+              width: 36,
+              height: 36,
+              child: Icon(icon, size: 18, color: context.colors.textColor),
+            ),
           ),
         ),
       ),
@@ -127,11 +113,17 @@ class _NavButton extends StatelessWidget {
 }
 
 class _Segment extends StatelessWidget {
-  const _Segment({required this.label, required this.selected, required this.onTap});
+  const _Segment({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    required this.accent,
+  });
 
   final String label;
   final bool selected;
   final VoidCallback onTap;
+  final AppServiceAccent accent;
 
   @override
   Widget build(BuildContext context) {
@@ -144,20 +136,10 @@ class _Segment extends StatelessWidget {
         onTap();
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
+        duration: const Duration(milliseconds: 180),
         decoration: BoxDecoration(
           color: selected ? colors.surface : null,
           borderRadius: BorderRadius.circular(11),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: colors.shadowDark.withValues(alpha: 0.06),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
         ),
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: Text(
@@ -165,7 +147,7 @@ class _Segment extends StatelessWidget {
           textAlign: TextAlign.center,
           style: AppTextStyle.base(
             14,
-            color: selected ? colors.functionalSoftBlueIcon : colors.subTextColor,
+            color: selected ? accent.icon : colors.subTextColor,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
           ),
         ),

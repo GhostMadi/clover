@@ -1,9 +1,12 @@
 import 'package:clover/core/storage/domain/repositories/i_app_storage.dart';
 import 'package:clover/core/storage/extensions/app_storage_extensions.dart';
+import 'package:clover/feature/_booking_/booking_analytics/data/repository/booking_analytics_repository.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_date_range.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_item.dart';
+import 'package:clover/feature/_booking_/booking_points/data/models/booking_point.dart';
+import 'package:clover/feature/_booking_/booking_settings/data/models/booking_schedule_settings.dart';
 import 'package:clover/feature/_booking_/my_bookings/data/models/my_booking_item.dart';
 import 'package:injectable/injectable.dart';
 
@@ -37,6 +40,8 @@ class BookingLocalCache {
   }
 
   String _myStaffKey(String userId) => 'booking_my_staff_${userId.trim()}';
+
+  String _myPointsKey(String userId) => 'booking_my_points_${userId.trim()}';
 
   Future<List<MyBookingItem>?> readMyBookings(String userId, BookingListDateRange range) {
     return _readList(
@@ -89,6 +94,93 @@ class BookingLocalCache {
 
   Future<void> writeMyStaff(String userId, List<BookingServiceExecutor> items) {
     return _writeList(_myStaffKey(userId), items, (e) => e.toJson());
+  }
+
+  Future<List<BookingPoint>?> readMyPoints(String userId) {
+    return _readList(_myPointsKey(userId), BookingPoint.fromJson);
+  }
+
+  Future<void> writeMyPoints(String userId, List<BookingPoint> items) {
+    return _writeList(_myPointsKey(userId), items, (e) => e.toJson());
+  }
+
+  String _scheduleSettingsKey(String userId, String? pointId) {
+    final pid = (pointId ?? '').trim();
+    return pid.isEmpty
+        ? 'booking_schedule_settings_${userId.trim()}'
+        : 'booking_schedule_settings_${userId.trim()}_$pid';
+  }
+
+  String _analyticsKey(
+    String userId, {
+    required String pointId,
+    required DateTime start,
+    required DateTime end,
+    String? staffId,
+  }) {
+    final from = DateTime(start.year, start.month, start.day).toIso8601String();
+    final to = DateTime(end.year, end.month, end.day).toIso8601String();
+    final sid = (staffId ?? '').trim();
+    return 'booking_analytics_${userId.trim()}_${pointId.trim()}_${from}_${to}_$sid';
+  }
+
+  Future<BookingScheduleSettings?> readScheduleSettings(String userId, {String? pointId}) {
+    return _storage.readObject(
+      key: _scheduleSettingsKey(userId, pointId),
+      fromJson: BookingScheduleSettings.fromJson,
+    );
+  }
+
+  Future<void> writeScheduleSettings(
+    String userId,
+    BookingScheduleSettings settings, {
+    String? pointId,
+  }) {
+    return _storage.writeObject(
+      key: _scheduleSettingsKey(userId, pointId),
+      value: settings,
+      toJson: (s) => s.toJson(),
+    );
+  }
+
+  Future<BookingAnalyticsResult?> readAnalytics(
+    String userId, {
+    required String pointId,
+    required DateTime start,
+    required DateTime end,
+    String? staffId,
+  }) {
+    return _storage.readObject(
+      key: _analyticsKey(
+        userId,
+        pointId: pointId,
+        start: start,
+        end: end,
+        staffId: staffId,
+      ),
+      fromJson: BookingAnalyticsResult.fromJson,
+    );
+  }
+
+  Future<void> writeAnalytics(
+    String userId,
+    BookingAnalyticsResult result, {
+    required String pointId,
+    required DateTime start,
+    required DateTime end,
+    String? staffId,
+  }) {
+    return _storage.writeObject(
+      key: _analyticsKey(
+        userId,
+        pointId: pointId,
+        start: start,
+        end: end,
+        staffId: staffId,
+      ),
+      value: result,
+      toJson: (r) => r.toJson(),
+    );
   }
 
   Future<List<T>?> _readList<T>(

@@ -1,11 +1,16 @@
-"use client";
-
 import { createClient } from "@/lib/supabase/client";
 import type { SavedLocation } from "@/features/post-create/lib/post-create-model";
+import { coalesceAsync, invalidateCoalesce } from "@/lib/coalesce-async";
 
 export type ManagedLocation = SavedLocation & {
   isActive: boolean;
 };
+
+const LOCATIONS_KEY = "resources:locations";
+
+export function invalidateResourcesLocationsCache(): void {
+  invalidateCoalesce("resources:locations");
+}
 
 function mapRow(row: Record<string, unknown>): ManagedLocation {
   return {
@@ -25,13 +30,15 @@ const SELECT =
 
 /** Все места владельца (активные и нет) — для справочника Ресурсов. */
 export async function listMyLocationsAll(): Promise<ManagedLocation[]> {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("locations")
-    .select(SELECT)
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  return (data ?? []).map((r) => mapRow(r as Record<string, unknown>));
+  return coalesceAsync(LOCATIONS_KEY, async () => {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("locations")
+      .select(SELECT)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return (data ?? []).map((r) => mapRow(r as Record<string, unknown>));
+  });
 }
 
 export async function getMyLocation(id: string): Promise<ManagedLocation | null> {
@@ -86,6 +93,7 @@ export async function createManagedLocation(opts: {
     .select(SELECT)
     .single();
   if (error) throw error;
+  invalidateResourcesLocationsCache();
   return mapRow(data as Record<string, unknown>);
 }
 
@@ -129,6 +137,7 @@ export async function updateManagedLocation(opts: {
     .select(SELECT)
     .single();
   if (error) throw error;
+  invalidateResourcesLocationsCache();
   return mapRow(data as Record<string, unknown>);
 }
 
@@ -136,4 +145,5 @@ export async function deleteManagedLocation(id: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from("locations").delete().eq("id", id);
   if (error) throw error;
+  invalidateResourcesLocationsCache();
 }

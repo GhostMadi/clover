@@ -35,7 +35,11 @@ class AttendanceWorkerHubCubit extends Cubit<AttendanceWorkerHubState> {
     if (isClosed) return;
     emit(const AttendanceWorkerHubState.loading());
     try {
-      await _store.hydrateCurrent(force: true);
+      if (_store.isRemote && _store.snapshot.value != null) {
+        await _store.refreshRemote();
+      } else {
+        await _store.hydrateCurrent();
+      }
       if (isClosed) return;
       final snap = _store.snapshot.value ?? AttendanceSnapshot(fromRemote: true);
       emit(

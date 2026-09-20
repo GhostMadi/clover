@@ -10,7 +10,8 @@ import 'package:clover/feature/_booking_/shared/presentation/widget/booking_serv
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class BookingServiceForm extends StatelessWidget {
+/// Форма услуги: сверху суть (название, emoji, время, цена, мастера), остальное — в «Ещё».
+class BookingServiceForm extends StatefulWidget {
   const BookingServiceForm({
     super.key,
     required this.draft,
@@ -50,177 +51,121 @@ class BookingServiceForm extends StatelessWidget {
   final bool enabled;
   final bool bufferAfterLocked;
 
+  @override
+  State<BookingServiceForm> createState() => _BookingServiceFormState();
+}
+
+class _BookingServiceFormState extends State<BookingServiceForm> {
   static final _intFormatter = FilteringTextInputFormatter.digitsOnly;
   static final _priceFormatter = FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'));
 
+  late bool _moreOpen;
+
+  @override
+  void initState() {
+    super.initState();
+    final d = widget.draft;
+    _moreOpen = d.maxParticipants > 1 ||
+        d.bufferAfterMinutes > 0 ||
+        d.bonusPayPercent > 0 ||
+        d.bonusEarnAmount > 0 ||
+        d.description.trim().isNotEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final draft = widget.draft;
+    final enabled = widget.enabled;
+
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 8, 16, BookingScreenShell.scrollBottomGap(context)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           BookingField(
-            controller: titleController,
+            controller: widget.titleController,
             labelText: 'Название',
-            hintText: 'Например, Стрижка мужская',
+            hintText: 'Стрижка мужская',
             textInputAction: TextInputAction.next,
             isEnabled: enabled,
-            onChanged: (_) => onDraftChanged(),
+            onChanged: (_) => widget.onDraftChanged(),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           AppSmilePicker(
-            controller: emojiController,
+            controller: widget.emojiController,
             label: 'Эмодзи',
-            hintText: 'Выберите один эмодзи',
+            hintText: 'Выберите',
             enabled: enabled,
-            onChanged: (_) => onDraftChanged(),
+            onChanged: (_) => widget.onDraftChanged(),
           ),
-          const SizedBox(height: 16),
-          BookingField(
-            controller: durationController,
-            labelText: 'Длительность (мин)',
-            hintText: '30',
-            keyboardType: TextInputType.number,
-            textInputAction: TextInputAction.next,
-            inputFormatters: [_intFormatter],
-            isEnabled: enabled,
-            onChanged: (_) => onDraftChanged(),
-          ),
-          const SizedBox(height: 16),
-          BookingField(
-            controller: priceController,
-            labelText: 'Цена (₸)',
-            hintText: '0',
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            textInputAction: TextInputAction.next,
-            inputFormatters: [_priceFormatter],
-            isEnabled: enabled,
-            onChanged: (_) => onDraftChanged(),
-          ),
-          const SizedBox(height: 16),
-          BookingField(
-            controller: maxParticipantsController,
-            labelText: 'Макс. участников',
-            hintText: '1',
-            keyboardType: TextInputType.number,
-            textInputAction: TextInputAction.next,
-            inputFormatters: [_intFormatter],
-            isEnabled: enabled,
-            onChanged: (_) => onDraftChanged(),
-          ),
-          const SizedBox(height: 16),
-          BookingField(
-            controller: bufferAfterController,
-            labelText: 'Буфер после (мин)',
-            hintText: '0',
-            keyboardType: TextInputType.number,
-            textInputAction: TextInputAction.next,
-            inputFormatters: [_intFormatter],
-            isEnabled: enabled && !bufferAfterLocked,
-            onChanged: (_) => onDraftChanged(),
-          ),
-          if (bufferAfterLocked) ...[
-            const SizedBox(height: 6),
-            Text(
-              'Буфер задаётся только при создании услуги',
-              style: AppTextStyle.base(12, color: context.colors.subTextColor, height: 1.3),
-            ),
-          ],
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: context.colors.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Бонусы',
-                  style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Начисление и оплата бонусами настраиваются для каждой услуги отдельно.',
-                  style: AppTextStyle.base(12, color: context.colors.subTextColor, height: 1.3),
-                ),
-                const SizedBox(height: 12),
-                BookingField(
-                  controller: bonusEarnAmountController,
-                  labelText: 'Бонусов за визит',
-                  hintText: '50',
+          const SizedBox(height: 14),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: BookingField(
+                  controller: widget.durationController,
+                  labelText: 'Минуты',
+                  hintText: '30',
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.next,
                   inputFormatters: [_intFormatter],
                   isEnabled: enabled,
-                  onChanged: (_) => onDraftChanged(),
+                  onChanged: (_) => widget.onDraftChanged(),
                 ),
-                const SizedBox(height: 14),
-                BookingField(
-                  controller: bonusPayPercentController,
-                  labelText: 'Оплата бонусами (%)',
-                  hintText: '20',
-                  keyboardType: TextInputType.number,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: BookingField(
+                  controller: widget.priceController,
+                  labelText: 'Цена ₸',
+                  hintText: '0',
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   textInputAction: TextInputAction.next,
-                  inputFormatters: [_intFormatter],
+                  inputFormatters: [_priceFormatter],
                   isEnabled: enabled,
-                  onChanged: (_) => onDraftChanged(),
+                  onChanged: (_) => widget.onDraftChanged(),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          BookingField(
-            controller: descriptionController,
-            labelText: 'Описание',
-            hintText: 'Необязательно',
-            textInputAction: TextInputAction.done,
-            keyboardType: TextInputType.multiline,
-            isEnabled: enabled,
-            onChanged: (_) => onDraftChanged(),
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           Text(
             'Исполнители',
-            style: AppTextStyle.base(14, color: context.colors.textColor, fontWeight: FontWeight.w600),
+            style: AppTextStyle.base(14, color: colors.textColor, fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 6),
-          Text(
-            'Выберите из команды или пригласите аккаунт Clover (нужен Accept в чате).',
-            style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
-          ),
-          if (selectedExecutors.isNotEmpty) ...[
-            const SizedBox(height: 12),
+          if (widget.selectedExecutors.isNotEmpty) ...[
+            const SizedBox(height: 10),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                for (final executor in selectedExecutors)
+                for (final executor in widget.selectedExecutors)
                   _ExecutorChip(
                     executor: executor,
                     enabled: enabled,
-                    onRemove: onRemoveExecutor == null ? null : () => onRemoveExecutor!(executor.id),
+                    onRemove: widget.onRemoveExecutor == null
+                        ? null
+                        : () => widget.onRemoveExecutor!(executor.id),
                   ),
               ],
             ),
           ],
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           AppOutlinedButton(
             text: 'Добавить исполнителя',
             height: 48,
             isExpanded: true,
             service: kBookingService,
-            onTap: enabled ? onAddExecutor : null,
+            onTap: enabled ? widget.onAddExecutor : null,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   AppIcons.personSearch.icon,
                   size: 18,
-                  color: enabled ? context.colors.textColor : context.colors.subTextColor,
+                  color: enabled ? colors.textColor : colors.subTextColor,
                 ),
                 const SizedBox(width: 6),
                 Text(
@@ -228,7 +173,7 @@ class BookingServiceForm extends StatelessWidget {
                   style: AppTextStyle.base(
                     16,
                     fontWeight: FontWeight.w700,
-                    color: enabled ? context.colors.textColor : context.colors.subTextColor,
+                    color: enabled ? colors.textColor : colors.subTextColor,
                   ),
                 ),
               ],
@@ -236,12 +181,109 @@ class BookingServiceForm extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           BookingSwitchRow(
-            title: 'Активна',
-            subtitle: 'Неактивные услуги не показываются клиентам',
+            title: 'Показывать клиентам',
+            subtitle: draft.isActive ? 'Услуга активна' : 'Скрыта из записи',
             value: draft.isActive,
             enabled: enabled,
-            onChanged: enabled ? onActiveChanged : null,
+            onChanged: enabled ? widget.onActiveChanged : null,
           ),
+          const SizedBox(height: 8),
+          Material(
+            color: colors.surfaceMuted.withValues(alpha: 0.45),
+            borderRadius: BorderRadius.circular(14),
+            child: InkWell(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                setState(() => _moreOpen = !_moreOpen);
+              },
+              borderRadius: BorderRadius.circular(14),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Ещё настройки',
+                        style: AppTextStyle.base(
+                          14,
+                          color: colors.textColor,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      _moreOpen ? AppIcons.arrowUp.icon : AppIcons.arrowDown.icon,
+                      size: 22,
+                      color: colors.iconMuted,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (_moreOpen) ...[
+            const SizedBox(height: 14),
+            BookingField(
+              controller: widget.maxParticipantsController,
+              labelText: 'Макс. участников',
+              hintText: '1',
+              keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.next,
+              inputFormatters: [_intFormatter],
+              isEnabled: enabled,
+              onChanged: (_) => widget.onDraftChanged(),
+            ),
+            const SizedBox(height: 14),
+            BookingField(
+              controller: widget.bufferAfterController,
+              labelText: 'Буфер после, мин',
+              hintText: '0',
+              keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.next,
+              inputFormatters: [_intFormatter],
+              isEnabled: enabled && !widget.bufferAfterLocked,
+              onChanged: (_) => widget.onDraftChanged(),
+            ),
+            if (widget.bufferAfterLocked) ...[
+              const SizedBox(height: 6),
+              Text(
+                'Буфер меняется только при создании',
+                style: AppTextStyle.base(12, color: colors.subTextColor, height: 1.3),
+              ),
+            ],
+            const SizedBox(height: 14),
+            BookingField(
+              controller: widget.descriptionController,
+              labelText: 'Описание',
+              hintText: 'Необязательно',
+              textInputAction: TextInputAction.next,
+              keyboardType: TextInputType.multiline,
+              isEnabled: enabled,
+              onChanged: (_) => widget.onDraftChanged(),
+            ),
+            const SizedBox(height: 14),
+            BookingField(
+              controller: widget.bonusEarnAmountController,
+              labelText: 'Бонусов за визит',
+              hintText: '0',
+              keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.next,
+              inputFormatters: [_intFormatter],
+              isEnabled: enabled,
+              onChanged: (_) => widget.onDraftChanged(),
+            ),
+            const SizedBox(height: 14),
+            BookingField(
+              controller: widget.bonusPayPercentController,
+              labelText: 'Оплата бонусами, %',
+              hintText: '0',
+              keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.done,
+              inputFormatters: [_intFormatter],
+              isEnabled: enabled,
+              onChanged: (_) => widget.onDraftChanged(),
+            ),
+          ],
         ],
       ),
     );
@@ -261,13 +303,15 @@ class _ExecutorChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final accent = bookingServiceAccent(colors);
     final avatarUrl = executor.avatarUrl?.trim();
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: context.colors.surfaceSoftGreen.withValues(alpha: 0.45),
+        color: accent.soft.withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: context.colors.borderCardGreen.withValues(alpha: 0.65)),
+        border: Border.all(color: colors.border.withValues(alpha: 0.55)),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(6, 6, 10, 6),
@@ -276,16 +320,16 @@ class _ExecutorChip extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 14,
-              backgroundColor: context.colors.surfaceSoft,
+              backgroundColor: colors.surfaceSoft,
               backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
               child: avatarUrl == null || avatarUrl.isEmpty
-                  ? Icon(AppIcons.user.icon, color: context.colors.iconMuted, size: 14)
+                  ? Icon(AppIcons.user.icon, color: colors.iconMuted, size: 14)
                   : null,
             ),
             const SizedBox(width: 8),
             Text(
               executor.displayName,
-              style: AppTextStyle.base(13, color: context.colors.textColor, fontWeight: FontWeight.w600),
+              style: AppTextStyle.base(13, color: colors.textColor, fontWeight: FontWeight.w600),
             ),
             if (onRemove != null) ...[
               const SizedBox(width: 4),
@@ -297,7 +341,7 @@ class _ExecutorChip extends StatelessWidget {
                   child: Icon(
                     AppIcons.closeRounded.icon,
                     size: 16,
-                    color: enabled ? context.colors.subTextColor : context.colors.border,
+                    color: enabled ? colors.subTextColor : colors.border,
                   ),
                 ),
               ),

@@ -8,7 +8,6 @@ import 'package:clover/core/shared/app_refresh.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_catalog_/location/data/models/location_model.dart';
 import 'package:clover/feature/_catalog_/location/presentation/cubit/location_cubit.dart';
-import 'package:clover/feature/_catalog_/location/presentation/widget/location_detail_sheet.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_tile_section.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +25,9 @@ class LocationPage extends StatelessWidget {
   }
 
   Future<void> _openDetail(BuildContext context, LocationCubit cubit, LocationModel item) async {
-    final changed = await LocationDetailSheet.show(context, location: item);
+    final changed = await context.router.push<bool>(
+      LocationDetailRoute(locationId: item.id, initialTitle: item.displayTitle),
+    );
     if (changed == true && context.mounted) {
       await cubit.load();
     }
@@ -109,9 +110,8 @@ class LocationPage extends StatelessWidget {
                                   icon: AppIcons.locationOn.icon,
                                   iconColor: item.hasGeoBinding ? accent.icon : context.colors.iconMuted,
                                   iconBackgroundColor: item.hasGeoBinding ? accent.soft : null,
-                                  enabled: item.isActive,
                                   showChevron: true,
-                                  onTap: item.isActive ? () => _openDetail(context, cubit, item) : null,
+                                  onTap: () => _openDetail(context, cubit, item),
                                 ),
                             ],
                           ),
