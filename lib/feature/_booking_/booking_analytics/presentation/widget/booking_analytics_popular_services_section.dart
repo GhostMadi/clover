@@ -16,19 +16,19 @@ class BookingAnalyticsPopularServicesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     if (services.isEmpty) return const SizedBox.shrink();
 
-    final maxCount = services.map((e) => e.bookingCount).reduce((a, b) => a > b ? a : b);
+    final colors = context.colors;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Популярные услуги',
-          style: AppTextStyle.base(18, color: context.colors.textColor, fontWeight: FontWeight.w800),
+          'Услуги',
+          style: AppTextStyle.base(16, color: colors.textColor, fontWeight: FontWeight.w700),
         ),
-        const SizedBox(height: 12),
-        for (final service in services) ...[
-          _PopularServiceRow(service: service, maxCount: maxCount),
-          const SizedBox(height: 10),
+        const SizedBox(height: 10),
+        for (var i = 0; i < services.length; i++) ...[
+          if (i > 0) const SizedBox(height: 8),
+          _PopularServiceRow(service: services[i]),
         ],
       ],
     );
@@ -36,68 +36,38 @@ class BookingAnalyticsPopularServicesSection extends StatelessWidget {
 }
 
 class _PopularServiceRow extends StatelessWidget {
-  const _PopularServiceRow({
-    required this.service,
-    required this.maxCount,
-  });
+  const _PopularServiceRow({required this.service});
 
   final BookingAnalyticsPopularService service;
-  final int maxCount;
 
   @override
   Widget build(BuildContext context) {
-    final progress = maxCount == 0 ? 0.0 : service.bookingCount / maxCount;
+    final colors = context.colors;
+    final accent = bookingServiceAccent(colors);
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
       decoration: BoxDecoration(
-        color: context.colors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: colors.border.withValues(alpha: 0.55)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: context.colors.surfaceSoftGreen.withValues(alpha: 0.55),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(service.emojiText, style: AppTextStyle.emoji(22)),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      service.title,
-                      style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${service.bookingCount} записей',
-                      style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 8,
-              backgroundColor: context.colors.surfaceSoft,
-              color: bookingServiceAccent(context.colors).icon,
+          Text(service.emojiText, style: AppTextStyle.emoji(22)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              service.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
             ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '${service.bookingCount}',
+            style: AppTextStyle.base(15, color: accent.icon, fontWeight: FontWeight.w800),
           ),
         ],
       ),

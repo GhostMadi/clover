@@ -1,12 +1,39 @@
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/feature/_booking_/booking_list/data/booking_host_inbox.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// Компактный месячный календарь: точки на днях с записями, выбор дня.
+/// Выбор дня в шторке: лента дней остаётся быстрым UX, месяц — для прыжка.
+abstract final class BookingMonthCalendarSheet {
+  static Future<DateTime?> show(
+    BuildContext context, {
+    required DateTime selectedDay,
+    required Map<DateTime, int> countsByDay,
+  }) {
+    return AppBottomSheet.show<DateTime>(
+      context: context,
+      title: 'День',
+      upperCaseTitle: false,
+      showCloseButton: true,
+      service: kBookingService,
+      contentPadding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+      contentBottomSpacing: 8,
+      content: Builder(
+        builder: (sheetContext) => BookingMonthCalendar(
+          selectedDay: selectedDay,
+          countsByDay: countsByDay,
+          onDaySelected: (day) => Navigator.of(sheetContext).pop(day),
+        ),
+      ),
+    );
+  }
+}
+
+/// Компактная месячная сетка (для шторки): круг выбора, точки на днях с записями.
 class BookingMonthCalendar extends StatefulWidget {
   const BookingMonthCalendar({
     super.key,
@@ -19,8 +46,6 @@ class BookingMonthCalendar extends StatefulWidget {
   final DateTime selectedDay;
   final Map<DateTime, int> countsByDay;
   final ValueChanged<DateTime> onDaySelected;
-
-  /// Месяц при первом показе; дальше пользователь листает локально.
   final DateTime? focusedMonth;
 
   @override
@@ -72,89 +97,89 @@ class _BookingMonthCalendarState extends State<BookingMonthCalendar> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final accent = bookingServiceAccent(colors);
     final today = BookingHostInbox.dayKey(DateTime.now());
     final selectedKey = BookingHostInbox.dayKey(widget.selectedDay);
     final firstDay = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
     final daysInMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0).day;
     final leadingEmpty = firstDay.weekday - 1;
+    final totalCells = leadingEmpty + daysInMonth;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  _MonthNavButton(icon: AppIcons.chevronLeft.icon, onTap: () => _shiftMonth(-1)),
-                  Expanded(
-                    child: Text(
-                      '${_monthLabels[_focusedMonth.month - 1]} ${_focusedMonth.year}',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                  _MonthNavButton(icon: AppIcons.chevronRight.icon, onTap: () => _shiftMonth(1)),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  for (final label in _weekdayLabels)
-                    Expanded(
-                      child: Text(
-                        label,
-                        textAlign: TextAlign.center,
-                        style: AppTextStyle.base(11, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 7,
-                  mainAxisSpacing: 4,
-                  crossAxisSpacing: 4,
-                  childAspectRatio: 1.05,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            _MonthNavButton(icon: AppIcons.chevronLeft.icon, onTap: () => _shiftMonth(-1)),
+            Expanded(
+              child: Text(
+                '${_monthLabels[_focusedMonth.month - 1]} ${_focusedMonth.year}',
+                textAlign: TextAlign.center,
+                style: AppTextStyle.base(
+                  17,
+                  color: colors.textColor,
+                  fontWeight: FontWeight.w700,
                 ),
-                itemCount: leadingEmpty + daysInMonth,
-                itemBuilder: (context, index) {
-                  if (index < leadingEmpty) return const SizedBox.shrink();
-
-                  final dayNumber = index - leadingEmpty + 1;
-                  final day = DateTime(_focusedMonth.year, _focusedMonth.month, dayNumber);
-                  final key = BookingHostInbox.dayKey(day);
-                  final selected = key == selectedKey;
-                  final isToday = key == today;
-                  final count = widget.countsByDay[key] ?? 0;
-
-                  return _DayCell(
-                    day: dayNumber,
-                    selected: selected,
-                    isToday: isToday,
-                    count: count,
-                    onTap: () {
-                      if (selected) return;
-                      HapticFeedback.selectionClick();
-                      widget.onDaySelected(key);
-                    },
-                  );
-                },
               ),
-            ],
-          ),
+            ),
+            _MonthNavButton(icon: AppIcons.chevronRight.icon, onTap: () => _shiftMonth(1)),
+          ],
         ),
-      ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            for (final label in _weekdayLabels)
+              Expanded(
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyle.base(
+                    12,
+                    color: colors.subTextColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.zero,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+            mainAxisSpacing: 2,
+            crossAxisSpacing: 2,
+            childAspectRatio: 1,
+          ),
+          itemCount: totalCells,
+          itemBuilder: (context, index) {
+            if (index < leadingEmpty) return const SizedBox.shrink();
+
+            final dayNumber = index - leadingEmpty + 1;
+            final day = DateTime(_focusedMonth.year, _focusedMonth.month, dayNumber);
+            final key = BookingHostInbox.dayKey(day);
+            final selected = key == selectedKey;
+            final isToday = key == today;
+            final count = widget.countsByDay[key] ?? 0;
+
+            return _DayCell(
+              day: dayNumber,
+              selected: selected,
+              isToday: isToday,
+              hasBookings: count > 0,
+              accent: accent,
+              onTap: () {
+                HapticFeedback.selectionClick();
+                widget.onDaySelected(key);
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 }
@@ -171,15 +196,14 @@ class _MonthNavButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: context.colors.surfaceSoft,
-      borderRadius: BorderRadius.circular(12),
+      type: MaterialType.transparency,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: SizedBox(
-          width: 36,
-          height: 36,
-          child: Icon(icon, size: 18, color: context.colors.textColor),
+          width: 40,
+          height: 40,
+          child: Icon(icon, size: 20, color: context.colors.textColor),
         ),
       ),
     );
@@ -191,59 +215,76 @@ class _DayCell extends StatelessWidget {
     required this.day,
     required this.selected,
     required this.isToday,
-    required this.count,
+    required this.hasBookings,
+    required this.accent,
     required this.onTap,
   });
 
   final int day;
   final bool selected;
   final bool isToday;
-  final int count;
+  final bool hasBookings;
+  final AppServiceAccent accent;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final accent = bookingServiceAccent(context.colors);
-    final textColor = selected
-        ? accent.ctaForeground
-        : isToday
-            ? accent.icon
-            : context.colors.textColor;
+    final colors = context.colors;
 
-    return Material(
-      color: selected ? accent.cta : context.colors.surface,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: isToday && !selected ? Border.all(color: accent.icon, width: 1.5) : null,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '$day',
-                style: AppTextStyle.base(14, color: textColor, fontWeight: FontWeight.w700),
+    final Color circleBg;
+    final Color textColor;
+    if (selected) {
+      circleBg = accent.cta;
+      textColor = accent.ctaForeground;
+    } else if (isToday) {
+      circleBg = accent.soft;
+      textColor = accent.icon;
+    } else {
+      circleBg = colors.surface;
+      textColor = colors.textColor;
+    }
+
+    return InkWell(
+      onTap: onTap,
+      customBorder: const CircleBorder(),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: selected || isToday ? circleBg : null,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              '$day',
+              style: AppTextStyle.base(
+                15,
+                color: textColor,
+                fontWeight: selected || isToday ? FontWeight.w700 : FontWeight.w500,
               ),
-              SizedBox(
-                height: 6,
-                child: count > 0
-                    ? Container(
-                        width: 5,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: selected ? accent.ctaForeground.withValues(alpha: 0.85) : accent.icon,
-                          shape: BoxShape.circle,
-                        ),
-                      )
-                    : null,
-              ),
-            ],
+            ),
           ),
-        ),
+          SizedBox(
+            height: 5,
+            child: hasBookings
+                ? Center(
+                    child: Container(
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? accent.ctaForeground.withValues(alpha: 0.9)
+                            : accent.icon.withValues(alpha: 0.8),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  )
+                : null,
+          ),
+        ],
       ),
     );
   }

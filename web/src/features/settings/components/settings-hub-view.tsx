@@ -9,6 +9,7 @@ import {
   Folder,
   Info,
   Layers,
+  // Ticket, // «Бронь» — скрыто до релиза сервиса
   UserRound,
 } from "lucide-react";
 import Link from "next/link";
@@ -41,6 +42,14 @@ function buildSections(
       service: "booking",
     });
   }
+  // Прод: вход в «Бронь» скрыт, пока сервис не готов.
+  // serviceItems.push({
+  //   href: "/app/settings/venue",
+  //   label: "Бронь",
+  //   subtitle: "План зала и места",
+  //   icon: Ticket,
+  //   service: "venue",
+  // });
   if (hasAttendanceTag) {
     serviceItems.push({
       href: "/app/settings/attendance",
@@ -154,7 +163,9 @@ export function SettingsHubView({
                       ? "hover:bg-svc-booking/40"
                       : item.service === "attendance"
                         ? "hover:bg-svc-attendance/40"
-                        : "hover:bg-bg";
+                        : item.service === "venue"
+                          ? "hover:bg-svc-venue/40"
+                          : "hover:bg-bg";
                 return (
                   <li key={`${item.href}:${item.label}`} className="border-b border-line last:border-0">
                     <Link

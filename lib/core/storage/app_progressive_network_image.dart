@@ -1,9 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter_blurhash/flutter_blurhash.dart';
-/// Обертка над cached_network_image с опциональным blurhash placeholder.
-/// (LQIP ощущение "как Instagram" без кастомного загрузчика.)
+
+/// Обертка над cached_network_image / Image.asset с опциональным blurhash placeholder.
 class AppProgressiveNetworkImage extends StatelessWidget {
   const AppProgressiveNetworkImage({
     super.key,
@@ -14,8 +13,6 @@ class AppProgressiveNetworkImage extends StatelessWidget {
     this.fit = BoxFit.cover,
     this.borderRadius,
     this.backgroundColor,
-    // В лентах/списках любые fade часто воспринимаются как "мигание" при pop/rebuild.
-    // Поэтому по умолчанию отключаем fade, а где нужно — включаем явно.
     this.fadeInDuration = Duration.zero,
   });
 
@@ -29,15 +26,36 @@ class AppProgressiveNetworkImage extends StatelessWidget {
 
   final Duration fadeInDuration;
 
+  static bool isAssetPath(String url) {
+    final t = url.trim();
+    return t.startsWith('assets/') || t.startsWith('asset:');
+  }
+
+  /// Убирает `asset:` и маркер `__ar-WxH` из пути для [Image.asset].
+  static String normalizeAssetPath(String url) {
+    var t = url.trim();
+    if (t.startsWith('asset:')) t = t.substring('asset:'.length);
+    t = t.replaceAll(RegExp(r'__ar-\d+x\d+', caseSensitive: false), '');
+    return t;
+  }
+
   @override
   Widget build(BuildContext context) {
     final bg = backgroundColor ?? AppColors.surfaceSoft;
     final url = imageUrl.trim();
-    final bh = blurHash?.trim();
 
     Widget child;
     if (url.isEmpty) {
       child = DecoratedBox(decoration: BoxDecoration(color: bg));
+    } else if (isAssetPath(url)) {
+      child = Image.asset(
+        normalizeAssetPath(url),
+        fit: fit,
+        width: width,
+        height: height,
+        filterQuality: FilterQuality.medium,
+        errorBuilder: (_, __, ___) => DecoratedBox(decoration: BoxDecoration(color: bg)),
+      );
     } else {
       child = CachedNetworkImage(
         imageUrl: url,
@@ -47,9 +65,6 @@ class AppProgressiveNetworkImage extends StatelessWidget {
         imageBuilder: (context, provider) =>
             Image(image: provider, fit: fit, gaplessPlayback: true, filterQuality: FilterQuality.low),
         placeholder: (_, __) {
-          // if (bh != null && bh.isNotEmpty) {
-          //   return BlurHash(hash: bh, imageFit: fit, color: bg);
-          // }
           return DecoratedBox(decoration: BoxDecoration(color: bg));
         },
         errorWidget: (_, __, ___) => DecoratedBox(decoration: BoxDecoration(color: bg)),

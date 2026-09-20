@@ -1,17 +1,25 @@
+import 'package:clover/core/session/app_session.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
 import 'package:clover/feature/_booking_/booking_create/data/repository/booking_staff_repository.dart';
 import 'package:clover/feature/_booking_/booking_settings/data/models/booking_schedule_settings.dart';
 import 'package:clover/feature/_booking_/booking_settings/data/repository/booking_schedule_repository.dart';
+import 'package:clover/feature/_booking_/shared/data/booking_local_cache.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class BookingScheduleSettingsCubit extends Cubit<BookingScheduleSettingsState> {
-  BookingScheduleSettingsCubit(this._scheduleRepository, this._staffRepository)
-      : super(const BookingScheduleSettingsState.initial());
+  BookingScheduleSettingsCubit(
+    this._scheduleRepository,
+    this._staffRepository,
+    this._cache,
+    this._session,
+  ) : super(const BookingScheduleSettingsState.initial());
 
   final BookingScheduleRepository _scheduleRepository;
   final BookingStaffRepository _staffRepository;
+  final BookingLocalCache _cache;
+  final AppSession _session;
 
   String? _pointId;
 
@@ -19,20 +27,59 @@ class BookingScheduleSettingsCubit extends Cubit<BookingScheduleSettingsState> {
   Future<void> load({String? pointId}) async {
     _pointId = pointId?.trim();
     if (_pointId != null && _pointId!.isEmpty) _pointId = null;
-    emit(const BookingScheduleSettingsState.loading());
+
+    final uid = _session.userId;
+    if (uid != null && uid.isNotEmpty) {
+      final cachedSettings = await _cache.readScheduleSettings(uid, pointId: _pointId);
+      final cachedStaff = await _cache.readMyStaff(uid);
+      if (!isClosed && cachedSettings != null) {
+        emit(
+          BookingScheduleSettingsState.loaded(
+            settings: cachedSettings,
+            staff: cachedStaff ?? const [],
+            pointId: _pointId,
+            isFromCache: true,
+          ),
+        );
+      } else if (!isClosed) {
+        emit(const BookingScheduleSettingsState.loading());
+      }
+    } else {
+      emit(const BookingScheduleSettingsState.loading());
+    }
+
+    await _syncRemote();
+  }
+
+  Future<void> _syncRemote() async {
     try {
       final results = await Future.wait([
         _scheduleRepository.getSettings(pointId: _pointId),
         _staffRepository.listMyStaff(),
       ]);
       if (isClosed) return;
-      emit(BookingScheduleSettingsState.loaded(
-        settings: results[0] as BookingScheduleSettings,
-        staff: results[1] as List<BookingServiceExecutor>,
-        pointId: _pointId,
-      ));
+      final settings = results[0] as BookingScheduleSettings;
+      final staff = results[1] as List<BookingServiceExecutor>;
+      emit(
+        BookingScheduleSettingsState.loaded(
+          settings: settings,
+          staff: staff,
+          pointId: _pointId,
+          isFromCache: false,
+        ),
+      );
+
+      final uid = _session.userId;
+      if (uid != null && uid.isNotEmpty) {
+        await Future.wait([
+          _cache.writeScheduleSettings(uid, settings, pointId: _pointId),
+          _cache.writeMyStaff(uid, staff),
+        ]);
+      }
     } catch (e) {
       if (isClosed) return;
+      final loaded = state.mapOrNull(loaded: (s) => s);
+      if (loaded != null) return;
       emit(BookingScheduleSettingsState.error('$e'));
     }
   }
@@ -49,11 +96,17 @@ class BookingScheduleSettingsCubit extends Cubit<BookingScheduleSettingsState> {
         BookingScheduleSettingsLoaded(:final staff) => staff,
         _ => const <BookingServiceExecutor>[],
       };
-      emit(BookingScheduleSettingsState.loaded(
-        settings: saved,
-        staff: staff,
-        pointId: _pointId,
-      ));
+      emit(
+        BookingScheduleSettingsState.loaded(
+          settings: saved,
+          staff: staff,
+          pointId: _pointId,
+        ),
+      );
+      final uid = _session.userId;
+      if (uid != null && uid.isNotEmpty) {
+        await _cache.writeScheduleSettings(uid, saved, pointId: _pointId);
+      }
       return true;
     } catch (e) {
       if (isClosed) return false;
@@ -72,6 +125,7 @@ sealed class BookingScheduleSettingsState {
     required BookingScheduleSettings settings,
     required List<BookingServiceExecutor> staff,
     String? pointId,
+    bool isFromCache,
   }) = BookingScheduleSettingsLoaded;
   const factory BookingScheduleSettingsState.submitting() = BookingScheduleSettingsSubmitting;
   const factory BookingScheduleSettingsState.error(String message) = BookingScheduleSettingsError;
@@ -115,11 +169,13 @@ final class BookingScheduleSettingsLoaded extends BookingScheduleSettingsState {
     required this.settings,
     required this.staff,
     this.pointId,
+    this.isFromCache = false,
   });
 
   final BookingScheduleSettings settings;
   final List<BookingServiceExecutor> staff;
   final String? pointId;
+  final bool isFromCache;
 }
 
 final class BookingScheduleSettingsSubmitting extends BookingScheduleSettingsState {

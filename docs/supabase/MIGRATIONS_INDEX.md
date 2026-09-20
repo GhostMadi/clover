@@ -35,7 +35,7 @@
   - **functions**: `post_enriched_list_json` (post + media + tags + filters, **без** marker subtree)
   - **RPC**: `list_user_feed_enriched_cursor` → lightweight JSON для сетки профиля; деталь — `get_post_enriched`
 
-- `20260916123000_get_posts_enriched_batch.sql`
+- `20260916072504_get_posts_enriched_batch.sql`
   - **RPC**: `get_posts_enriched(uuid[])` — батч до 50 карточек того же shape, что `get_post_enriched` (стопка на карте)
 
 - `20260913120000_events_feed_timeout_fix.sql`
@@ -49,7 +49,7 @@
   - **post_media**: `poster_url` (JPEG poster для видео плиток/превью)
 
 ### Markers (events on map)
-- `20260916120000_list_markers_map_clusters.sql`
+- `20260916041549_list_markers_map_clusters.sql`
   - **RPC**: `public.list_markers_map_clusters(...)` — PostGIS `ST_SnapToGrid` clusters for zoom &lt; 13; empty at zoom ≥ 13 (client uses `list_markers_map`)
 
 - `20260425160000_markers_core.sql`
@@ -166,6 +166,7 @@
 | **`20260903120200_attendance_rpc.sql`** | bootstrap, invite/accept/reject/archive/reinvite, ack, punch submit/cancel, absence upsert. |
 | **`20260905130000_attendance_payroll_duty_ot.sql`** | `payroll_rules` / `duty_roster` jsonb, `base_salary_tenge`, OT table + RPC; bootstrap расширен. |
 | **`20260905200000_attendance_chat_push_analytics_correction.sql`** | group chat, CLOVER_CARD invite/rules, notify+push_outbox, analytics/timesheet RPC, punch correction. |
+| **`20260920161956_attendance_open_company_chat.sql`** | `attendance_open_company_chat` — ensure group + sync active members; client open entry. |
 | **`20260905210000_attendance_chat_card_kinds.sql`** | `chat_message_kind` + `chat_message_attendance_cards`. |
 | **`20260905210100_attendance_rich_chat_reinvite_corrections_list.sql`** | rich post card, reinvite DM+notify, `attendance_list_corrections`, enriched `attendance_card`. |
 | **`20260906130000_booking_attendance_prod_ready.sql`** | Atomic punch types, server payroll preview; booking enriched `service_id`/`staff_id`; availability exclude id для reschedule. |
@@ -197,7 +198,7 @@
 | `20260427120100_chat_participants_select_no_rls_recursion.sql` | Политика SELECT без рекурсии RLS. |
 | `20260427130000_chat_participants_grant_select_authenticated.sql` | `GRANT SELECT` для REST peer-курсоров. |
 | `20260428120000_mark_conversation_read_monotonic_cursor.sql` | Монотонный курсор в `mark_conversation_read`. |
-| `20260915233000_chat_conversation_wallpaper_emojis.sql` | `chat_conversations.wallpaper_emojis` + `get/set_conversation_wallpaper` + broadcast `wallpaper_changed`. |
+| `20260915183613_chat_conversation_wallpaper_emojis.sql` | `chat_conversations.wallpaper_emojis` + `get/set_conversation_wallpaper` + broadcast `wallpaper_changed`. |
 | `20260908180000_count_unread_chat_messages.sql` | `count_unread_chat_messages()` — суммарный unread для бейджа кабинета (web). |
 | `20260909180806_chat_inbox_broadcast_push.sql` | Inbox broadcast `inbox_changed` на `chat_inbox_<userId>` + `push_outbox` kind `chat_message` для входящих DM. Spec: `SPEC_CHAT_INBOX_PUSH.md`. |
 | `20260915100000_social_notifications_push_outbox.sql` | `upsert_notification` → enqueue social kinds (`post_like`, comment, follow, …) в `push_outbox` на first insert. |

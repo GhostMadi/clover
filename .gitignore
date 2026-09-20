@@ -44,6 +44,13 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Android upload signing (Play) — never commit
+/android/key.properties
+/android/app/*.jks
+/android/app/*.keystore
+**/*.jks
+**/*.keystore
+
 # Next.js (web/)
 web/node_modules/
 web/.next/

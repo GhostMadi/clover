@@ -82,10 +82,13 @@ class _BookingCalendarHostPageState extends State<BookingCalendarHostPage> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
                     SliverToBoxAdapter(
-                      child: BookingMonthCalendar(
-                        selectedDay: _selectedDay,
-                        countsByDay: calendarCounts,
-                        onDaySelected: (day) => setState(() => _selectedDay = day),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                        child: BookingMonthCalendar(
+                          selectedDay: _selectedDay,
+                          countsByDay: calendarCounts,
+                          onDaySelected: (day) => setState(() => _selectedDay = day),
+                        ),
                       ),
                     ),
                     if (dayItems.isEmpty)

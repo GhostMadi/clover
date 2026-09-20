@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "venue_id": "cafe_clover",
+  "plan": {
+    "id": "plan_floor1",
+    "floor_key": "floor_1",
+    "label": "1 этаж",
+    "version": 3,
+    "status": "published",
+    "canvas": {
+      "width": 1000,
+      "height": 800,
+      "unit": "px",
+      "background": "#F7F7F8"
+    },
+    "nodes": [
+      {
+        "id": "n_bar",
+        "kind": "rect",
+        "role": "decor",
+        "label": "Бар",
+        "frame": { "x": 80, "y": 60, "w": 840, "h": 90 },
+        "style": {
+          "fill": "#E8E8E8",
+          "stroke": "#CCCCCC",
+          "radius": 12,
+          "opacity": 1
+        },
+        "z_index": 1,
+        "bookable_id": null
+      },
+      {
+        "id": "n_table_window",
+        "kind": "rect",
+        "role": "bookable",
+        "label": "У окна",
+        "frame": { "x": 80, "y": 220, "w": 280, "h": 180 },
+        "style": {
+          "fill": "#FFA39E",
+          "stroke": "#B54B45",
+          "radius": 14,
+          "opacity": 1
+        },
+        "z_index": 10,
+        "bookable_id": "bk_table_1"
+      },
+      {
+        "id": "n_table_2",
+        "kind": "rect",
+        "role": "bookable",
+        "label": "2",
+        "frame": { "x": 420, "y": 220, "w": 220, "h": 180 },
+        "style": {
+          "fill": "#FFA39E",
+          "stroke": "#B54B45",
+          "radius": 14,
+          "opacity": 1
+        },
+        "z_index": 10,
+        "bookable_id": "bk_table_2"
+      },
+      {
+        "id": "n_table_3",
+        "kind": "ellipse",
+        "role": "bookable",
+        "label": "3",
+        "frame": { "x": 700, "y": 220, "w": 220, "h": 180 },
+        "style": {
+          "fill": "#FFA39E",
+          "stroke": "#B54B45",
+          "radius": 999,
+          "opacity": 1
+        },
+        "z_index": 10,
+        "bookable_id": "bk_table_3"
+      },
+      {
+        "id": "n_table_big",
+        "kind": "rect",
+        "role": "bookable",
+        "label": "Большой",
+        "frame": { "x": 180, "y": 460, "w": 360, "h": 220 },
+        "style": {
+          "fill": "#FFA39E",
+          "stroke": "#B54B45",
+          "radius": 16,
+          "opacity": 1
+        },
+        "z_index": 10,
+        "bookable_id": "bk_table_4"
+      },
+      {
+        "id": "n_wall_hint",
+        "kind": "path",
+        "role": "decor",
+        "label": null,
+        "points": [
+          { "x": 40, "y": 40 },
+          { "x": 960, "y": 40 },
+          { "x": 960, "y": 760 },
+          { "x": 40, "y": 760 }
+        ],
+        "style": {
+          "fill": null,
+          "stroke": "#DDDDDD",
+          "stroke_width": 3,
+          "opacity": 1
+        },
+        "z_index": 0,
+        "bookable_id": null
+      }
+    ]
+  },
+  "bookables": [
+    {
+      "id": "bk_table_1",
+      "code": "window",
+      "label": "Стол у окна",
+      "capacity": 2,
+      "price_hint": null,
+      "selection": "single"
+    },
+    {
+      "id": "bk_table_2",
+      "code": "t2",
+      "label": "Стол 2",
+      "capacity": 4,
+      "price_hint": null,
+      "selection": "single"
+    },
+    {
+      "id": "bk_table_3",
+      "code": "t3",
+      "label": "Стол 3",
+      "capacity": 4,
+      "price_hint": null,
+      "selection": "single"
+    },
+    {
+      "id": "bk_table_4",
+      "code": "big",
+      "label": "Большой стол",
+      "capacity": 6,
+      "price_hint": null,
+      "selection": "single"
+    }
+  ],
+  "occasion": {
+    "id": "occ_tonight_1900",
+    "kind": "slot",
+    "label": "Ужин",
+    "starts_at": "2026-09-16T19:00:00+05:00",
+    "ends_at": "2026-09-16T21:00:00+05:00"
+  },
+  "inventory": [
+    { "bookable_id": "bk_table_1", "state": "free" },
+    { "bookable_id": "bk_table_2", "state": "held" },
+    { "bookable_id": "bk_table_3", "state": "free" },
+    { "bookable_id": "bk_table_4", "state": "taken" }
+  ],
+  "client_view": {
+    "mode": "visual_and_list",
+    "legend": ["free", "held", "taken"],
+    "note": "Клиент рисунок не правит — только кликает bookable со state=free"
+  }
+}

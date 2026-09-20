@@ -31,6 +31,24 @@ class BookingExecutorAbsence {
     return executor.displayName;
   }
 
+  factory BookingExecutorAbsence.fromJson(Map<String, dynamic> json) {
+    return BookingExecutorAbsence(
+      id: json['id']?.toString() ?? '',
+      executorId: json['executor_id']?.toString() ?? '',
+      startDay: DateTime.tryParse(json['start_day']?.toString() ?? '') ?? DateTime.now(),
+      endDay: DateTime.tryParse(json['end_day']?.toString() ?? '') ?? DateTime.now(),
+      note: json['note']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'executor_id': executorId,
+        'start_day': startDay.toIso8601String().substring(0, 10),
+        'end_day': endDay.toIso8601String().substring(0, 10),
+        if (note != null) 'note': note,
+      };
+
   BookingExecutorAbsence copyWith({
     String? executorId,
     DateTime? startDay,

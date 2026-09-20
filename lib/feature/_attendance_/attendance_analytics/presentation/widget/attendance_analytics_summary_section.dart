@@ -1,11 +1,10 @@
-import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_attendance_/attendance_analytics/data/models/attendance_analytics_models.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
-import 'package:clover/feature/_attendance_/attendance_analytics/presentation/widget/attendance_analytics_ui.dart';
 import 'package:flutter/material.dart';
 
+/// Компактная сводка периода.
 class AttendanceAnalyticsSummarySection extends StatelessWidget {
   const AttendanceAnalyticsSummarySection({
     super.key,
@@ -19,121 +18,63 @@ class AttendanceAnalyticsSummarySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final service = attendanceServiceAccent(colors);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const AttendanceAnalyticsSectionHeader(
-          title: 'Сводка',
-          subtitle: 'Общая картина по команде',
+        Row(
+          children: [
+            Expanded(
+              child: _MetricTile(label: 'Часы', value: overview.totalLabel),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _MetricTile(label: 'В среднем', value: overview.avgLabel),
+            ),
+          ],
         ),
-        const SizedBox(height: 14),
-        AttendanceAnalyticsCard(
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  AttendanceMetricIcon(
-                    icon: AppIcons.schedule.icon,
-                    tint: service.icon,
-                    bg: service.soft,
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          overview.totalLabel,
-                          style: AppTextStyle.base(28, color: colors.textColor, fontWeight: FontWeight.w800),
-                        ),
-                        Text(
-                          'отработано командой · $workerCount чел.',
-                          style: AppTextStyle.base(13, color: colors.subTextColor),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-              const Divider(height: 1),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  Expanded(
-                    child: _CompactMetric(
-                      label: 'В среднем',
-                      value: overview.avgLabel,
-                      icon: AppIcons.groupOutlined.icon,
-                      tint: colors.functionalSoftBlueIcon,
-                      bg: colors.functionalSoftBlue,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _CompactMetric(
-                      label: 'Опоздания',
-                      value: '${overview.lateDaysTotal}',
-                      icon: AppIcons.accessTime.icon,
-                      tint: colors.functionalSoftYellowIcon,
-                      bg: colors.functionalSoftYellow,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _CompactMetric(
-                      label: 'Пропуски',
-                      value: '${overview.missedDaysTotal}',
-                      icon: AppIcons.eventBusy.icon,
-                      tint: colors.destructive,
-                      bg: colors.functionalSoftRed,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        const SizedBox(height: 10),
+        Text(
+          '$workerCount чел.'
+          '${overview.lateDaysTotal > 0 ? ' · ${overview.lateDaysTotal} опозд.' : ''}'
+          '${overview.missedDaysTotal > 0 ? ' · ${overview.missedDaysTotal} проп.' : ''}',
+          style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600),
         ),
       ],
     );
   }
 }
 
-class _CompactMetric extends StatelessWidget {
-  const _CompactMetric({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.tint,
-    required this.bg,
-  });
+class _MetricTile extends StatelessWidget {
+  const _MetricTile({required this.label, required this.value});
 
   final String label;
   final String value;
-  final IconData icon;
-  final Color tint;
-  final Color bg;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final accent = attendanceServiceAccent(colors);
+
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       decoration: BoxDecoration(
-        color: colors.pageBackground,
-        borderRadius: BorderRadius.circular(14),
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colors.border.withValues(alpha: 0.55)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: tint),
-          const SizedBox(height: 8),
-          Text(value, style: AppTextStyle.base(16, color: colors.textColor, fontWeight: FontWeight.w800)),
-          Text(label, style: AppTextStyle.base(11, color: colors.subTextColor)),
+          Text(
+            label,
+            style: AppTextStyle.base(12, color: colors.subTextColor, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: AppTextStyle.base(20, color: accent.icon, fontWeight: FontWeight.w800),
+          ),
         ],
       ),
     );

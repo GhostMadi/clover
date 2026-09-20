@@ -1,6 +1,7 @@
 import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/storage/app_progressive_network_image.dart';
 import 'package:flutter/material.dart';
 
 /// Аватар профиля с обводкой.
@@ -21,6 +22,13 @@ class ProfileHeaderAvatar extends StatelessWidget {
     final radius = context.heightByContext(_figmaRadius);
     final iconSize = context.heightByContext(_figmaIconSize);
 
+    ImageProvider? provider;
+    if (hasImage) {
+      provider = AppProgressiveNetworkImage.isAssetPath(url)
+          ? AssetImage(AppProgressiveNetworkImage.normalizeAssetPath(url))
+          : NetworkImage(url);
+    }
+
     return Container(
       padding: EdgeInsets.all(context.widthByContext(_figmaOuterPadding)),
       decoration: BoxDecoration(shape: BoxShape.circle, color: context.colors.activeColor),
@@ -30,7 +38,7 @@ class ProfileHeaderAvatar extends StatelessWidget {
         child: CircleAvatar(
           radius: radius,
           backgroundColor: context.colors.surface,
-          backgroundImage: hasImage ? NetworkImage(url) : null,
+          backgroundImage: provider,
           child: hasImage
               ? null
               : Icon(AppIcons.personRounded.icon, size: iconSize, color: context.colors.iconMuted),

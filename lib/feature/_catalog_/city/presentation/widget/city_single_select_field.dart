@@ -17,6 +17,7 @@ class CitySingleSelectField extends StatelessWidget {
     this.searchHint = 'Поиск города',
     this.sheetTitle,
     this.disabledHint = 'Сначала выберите страну',
+    this.service,
   });
 
   final String? label;
@@ -29,6 +30,7 @@ class CitySingleSelectField extends StatelessWidget {
   final String searchHint;
   final String? sheetTitle;
   final String disabledHint;
+  final AppServiceKind? service;
 
   List<AppSingleSelectOption<String>> _optionsFor(String countryCode) {
     return CitiesCatalog.forCountryCode(countryCode)
@@ -63,6 +65,7 @@ class CitySingleSelectField extends StatelessWidget {
       options: options,
       value: _normalize(value, options),
       onChanged: onChanged,
+      service: service,
     );
   }
 

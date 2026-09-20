@@ -5,6 +5,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_mini_menu.dart';
 import 'package:clover/core/shared/jelly.dart';
+import 'package:clover/core/storage/app_progressive_network_image.dart';
 import 'package:flutter/material.dart';
 
 /// Ширина карточки 1x1 (px Figma).
@@ -118,19 +119,32 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
           children: [
             Positioned.fill(
               child: hasThumb
-                  ? CachedNetworkImage(
-                      imageUrl: url,
-                      fit: BoxFit.cover,
-                      placeholder: (_, __) => ColoredBox(color: colors.surfaceSoft),
-                      errorWidget: (_, __, ___) => ColoredBox(
-                        color: colors.surfaceSoft,
-                        child: Icon(
-                          AppIcons.imageNotSupported.icon,
-                          size: context.heightByContext(ClusterCard._figmaIconSize),
-                          color: colors.iconMuted,
-                        ),
-                      ),
-                    )
+                  ? (AppProgressiveNetworkImage.isAssetPath(url)
+                      ? Image.asset(
+                          AppProgressiveNetworkImage.normalizeAssetPath(url),
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => ColoredBox(
+                            color: colors.surfaceSoft,
+                            child: Icon(
+                              AppIcons.imageNotSupported.icon,
+                              size: context.heightByContext(ClusterCard._figmaIconSize),
+                              color: colors.iconMuted,
+                            ),
+                          ),
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: url,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => ColoredBox(color: colors.surfaceSoft),
+                          errorWidget: (_, __, ___) => ColoredBox(
+                            color: colors.surfaceSoft,
+                            child: Icon(
+                              AppIcons.imageNotSupported.icon,
+                              size: context.heightByContext(ClusterCard._figmaIconSize),
+                              color: colors.iconMuted,
+                            ),
+                          ),
+                        ))
                   : ColoredBox(
                       color: colors.surfaceSoft,
                       child: Center(

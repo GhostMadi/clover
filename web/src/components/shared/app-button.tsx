@@ -62,8 +62,10 @@ function classes(
         : variants[variant];
   const iconOnCta =
     size === "icon" && variant === "primary"
-      ? service === "booking"
-        ? "!text-svc-booking-ink [&_svg]:!text-svc-booking-ink [&_svg]:!stroke-svc-booking-ink"
+      ? service === "booking" || service === "venue"
+        ? service === "booking"
+          ? "!text-svc-booking-ink [&_svg]:!text-svc-booking-ink [&_svg]:!stroke-svc-booking-ink"
+          : "!text-svc-venue-ink [&_svg]:!text-svc-venue-ink [&_svg]:!stroke-svc-venue-ink"
         : service
           ? "!text-on-media [&_svg]:!text-on-media [&_svg]:!stroke-on-media"
           : "!text-on-brand [&_svg]:!text-on-brand [&_svg]:!stroke-on-brand"

@@ -1,24 +1,53 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/router/app_router.gr.dart';
+import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
-import 'package:flutter/widgets.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_error.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_remote_repository.dart';
+import 'package:flutter/material.dart';
 
-/// Открыть групповой чат компании (если есть) или локальный экран правил/ack.
-void openAttendanceCompanyChat(BuildContext context, String workplaceId) {
-  sl<AttendanceContextStore>().clearUnreadChat();
-  final snap = sl<AttendanceContextStore>().snapshot.value;
-  final convId = snap?.workplaceById(workplaceId)?.groupConversationId?.trim();
-  if (convId != null && convId.isNotEmpty) {
+/// Открыть групповой чат компании (все активные сотрудники).
+Future<void> openAttendanceCompanyChat(BuildContext context, String workplaceId) async {
+  final store = sl<AttendanceContextStore>();
+  store.clearUnreadChat();
+
+  final snap = store.snapshot.value;
+  final workplace = snap?.workplaceById(workplaceId);
+  final title = workplace?.name.trim().isNotEmpty == true
+      ? 'Посещаемость · ${workplace!.name}'
+      : 'Посещаемость';
+
+  var convId = workplace?.groupConversationId?.trim() ?? '';
+
+  if (store.isRemote) {
+    try {
+      final remote = sl<AttendanceRemoteRepository>();
+      // Always ensure + sync members (owner + active), then open real chat.
+      convId = await remote.openCompanyChat(workplaceId);
+      store.patchWorkplaceGroupChat(workplaceId, convId);
+    } catch (e) {
+      if (!context.mounted) return;
+      final msg = e is AttendanceException ? e.userMessage : 'Не удалось открыть чат';
+      AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
+      return;
+    }
+  }
+
+  if (!context.mounted) return;
+
+  if (convId.isNotEmpty) {
     context.router.push(
       ChatRoute(
         chatId: convId,
-        username: snap?.workplaceById(workplaceId)?.name ?? 'Посещаемость',
+        username: title,
         isGroup: true,
       ),
     );
     return;
   }
+
+  // Mock / offline fallback: local cards screen.
   context.router.push(AttendanceCompanyChatRoute(workplaceId: workplaceId));
 }
 

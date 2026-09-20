@@ -4,6 +4,7 @@ import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_tile.dart';
+// import 'package:clover/feature/_venue_/shared/presentation/widget/venue_service_ui.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
@@ -21,6 +22,7 @@ class SettingsPage extends StatelessWidget {
     final booking = bookingServiceAccent(context.colors);
     final attendance = attendanceServiceAccent(context.colors);
     final resources = context.colors.serviceAccent(kResourcesService);
+    // final venue = venueServiceAccent(context.colors); // «Бронь» — скрыто до релиза
 
     return SettingsScreenShell(
       title: 'Настройки',
@@ -43,6 +45,15 @@ class SettingsPage extends StatelessWidget {
                     const SettingsTileSectionTitle('Сервисы'),
                     AppTileGroup(
                       children: [
+                        AppTile(
+                          title: 'Гайд',
+                          subtitle: 'Как включить и пользоваться сервисами',
+                          icon: AppIcons.infoOutline.icon,
+                          iconColor: context.colors.primary,
+                          iconBackgroundColor: context.colors.successSoft,
+                          showChevron: true,
+                          onTap: () => context.router.push(const SettingsGuideRoute()),
+                        ),
                         if (hasBooking)
                           AppTile(
                             title: 'Запись',
@@ -53,6 +64,16 @@ class SettingsPage extends StatelessWidget {
                             showChevron: true,
                             onTap: () => context.router.push(const SettingsBookingRoute()),
                           ),
+                        // Прод: вход в «Бронь» скрыт, пока сервис не готов.
+                        // AppTile(
+                        //   title: 'Бронь',
+                        //   subtitle: 'Моки · билеты, места и схема',
+                        //   icon: AppIcons.ticket.icon,
+                        //   iconColor: venue.icon,
+                        //   iconBackgroundColor: venue.soft,
+                        //   showChevron: true,
+                        //   onTap: () => context.router.push(const SettingsVenueRoute()),
+                        // ),
                         if (hasAttendance)
                           AppTile(
                             title: 'Посещаемость',
@@ -73,13 +94,6 @@ class SettingsPage extends StatelessWidget {
                             showChevron: true,
                             onTap: () => context.router.push(const SettingsResourcesRoute()),
                           ),
-                        AppTile(
-                          title: 'Гайд',
-                          subtitle: 'Запись, посещаемость и ресурсы',
-                          icon: AppIcons.infoOutline.icon,
-                          showChevron: true,
-                          onTap: () => context.router.push(const SettingsGuideRoute()),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 20),

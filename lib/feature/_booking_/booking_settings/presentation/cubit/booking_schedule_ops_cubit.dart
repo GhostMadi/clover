@@ -19,7 +19,7 @@ class BookingScheduleOpsCubit extends Cubit<BookingScheduleOpsState> {
   String _pointId = '';
 
   Future<void> _loadBlocked() async {
-    emit(state.copyWith(loadingBlocked: true));
+    emit(state.copyWith(loadingBlocked: true, clearError: true));
     try {
       final now = DateTime.now();
       final from = DateTime(now.year, now.month, now.day);
@@ -29,8 +29,8 @@ class BookingScheduleOpsCubit extends Cubit<BookingScheduleOpsState> {
         pointId: _pointId,
       );
       emit(state.copyWith(blocked: list, loadingBlocked: false));
-    } catch (_) {
-      emit(state.copyWith(loadingBlocked: false));
+    } catch (e) {
+      emit(state.copyWith(loadingBlocked: false, errorMessage: '$e'));
     }
   }
 
@@ -41,12 +41,12 @@ class BookingScheduleOpsCubit extends Cubit<BookingScheduleOpsState> {
   }
 
   Future<void> selectStaff(String staffId) async {
-    emit(state.copyWith(scheduleStaffId: staffId, loadingSchedule: true));
+    emit(state.copyWith(scheduleStaffId: staffId, loadingSchedule: true, clearError: true));
     try {
       final days = await _ops.listStaffSchedule(staffId);
       emit(state.copyWith(days: days, loadingSchedule: false));
-    } catch (_) {
-      emit(state.copyWith(loadingSchedule: false));
+    } catch (e) {
+      emit(state.copyWith(loadingSchedule: false, errorMessage: '$e'));
     }
   }
 
@@ -97,6 +97,7 @@ class BookingScheduleOpsState {
     this.scheduleStaffId,
     this.loadingBlocked = false,
     this.loadingSchedule = false,
+    this.errorMessage,
   });
 
   const BookingScheduleOpsState.initial() : this();
@@ -106,6 +107,7 @@ class BookingScheduleOpsState {
   final String? scheduleStaffId;
   final bool loadingBlocked;
   final bool loadingSchedule;
+  final String? errorMessage;
 
   BookingScheduleOpsState copyWith({
     List<BookingBlockedSlot>? blocked,
@@ -113,6 +115,8 @@ class BookingScheduleOpsState {
     String? scheduleStaffId,
     bool? loadingBlocked,
     bool? loadingSchedule,
+    String? errorMessage,
+    bool clearError = false,
   }) {
     return BookingScheduleOpsState(
       blocked: blocked ?? this.blocked,
@@ -120,6 +124,7 @@ class BookingScheduleOpsState {
       scheduleStaffId: scheduleStaffId ?? this.scheduleStaffId,
       loadingBlocked: loadingBlocked ?? this.loadingBlocked,
       loadingSchedule: loadingSchedule ?? this.loadingSchedule,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
 }

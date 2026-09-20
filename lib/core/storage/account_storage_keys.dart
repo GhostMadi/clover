@@ -15,11 +15,18 @@ abstract final class AccountStorageKeys {
   /// Префиксы ключей, которые удаляются при выходе из аккаунта.
   static const accountPrefixes = <String>[
     'auth_',
+    'profile_current_',
     'booking_last_point_',
+    'booking_my_points_',
     'booking_my_services_',
     'booking_my_staff_',
     'booking_my_bookings_',
     'booking_host_bookings_',
+    'booking_schedule_settings_',
+    'booking_analytics_',
+    'attendance_last_workplace_',
+    'attendance_my_workplaces_',
+    'attendance_my_folders_',
     'post_new_feed_',
     'post_marker_feed_',
     'post_all_feed_',

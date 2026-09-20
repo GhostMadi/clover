@@ -192,11 +192,29 @@ abstract final class BookingHostInbox {
     return weekdays[key.weekday - 1];
   }
 
+  /// Короткий месяц для чипа ленты: «20 сен».
+  static String dayStripDayWithMonth(DateTime day) {
+    final key = dayKey(day);
+    const months = [
+      'янв',
+      'фев',
+      'мар',
+      'апр',
+      'мая',
+      'июн',
+      'июл',
+      'авг',
+      'сен',
+      'окт',
+      'ноя',
+      'дек',
+    ];
+    return '${key.day} ${months[key.month - 1]}';
+  }
+
   static String archiveDayLabel(DateTime day, {DateTime? now}) {
     final today = dayKey(now ?? DateTime.now());
     final key = dayKey(day);
-    if (key == today) return 'Сегодня';
-    if (key == today.subtract(const Duration(days: 1))) return 'Вчера';
     const months = [
       'января',
       'февраля',
@@ -211,7 +229,11 @@ abstract final class BookingHostInbox {
       'ноября',
       'декабря',
     ];
+    final dayMonth = '${key.day} ${months[key.month - 1]}';
+    if (key == today) return 'Сегодня, $dayMonth';
+    if (key == today.subtract(const Duration(days: 1))) return 'Вчера, $dayMonth';
+    if (key == today.add(const Duration(days: 1))) return 'Завтра, $dayMonth';
     const weekdays = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
-    return '${weekdays[key.weekday - 1]}, ${key.day} ${months[key.month - 1]}';
+    return '${weekdays[key.weekday - 1]}, $dayMonth';
   }
 }

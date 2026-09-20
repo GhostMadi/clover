@@ -1,4 +1,5 @@
 import 'package:clover/core/storage/domain/repositories/i_app_storage.dart';
+import 'package:clover/feature/_attendance_/shared/data/attendance_local_cache.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_outbox.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_remote_repository.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_workers_mock.dart';
@@ -13,16 +14,12 @@ import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_type.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_snapshot.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_workplace.dart';
-import 'package:injectable/injectable.dart';
 import 'package:flutter/widgets.dart';
+import 'package:injectable/injectable.dart';
 
 /// DM после invite — открыть вкладку Chat / ChatRoute.
 class AttendanceInviteDm {
-  const AttendanceInviteDm({
-    required this.conversationId,
-    required this.otherUserId,
-    required this.username,
-  });
+  const AttendanceInviteDm({required this.conversationId, required this.otherUserId, required this.username});
 
   final String conversationId;
   final String otherUserId;
@@ -33,13 +30,14 @@ class AttendanceInviteDm {
 /// (hub / workers / punch / settings / absences / OT / company chat).
 @lazySingleton
 class AttendanceContextStore with WidgetsBindingObserver {
-  AttendanceContextStore(this._storage, this._remote, this._outbox) {
+  AttendanceContextStore(this._storage, this._remote, this._outbox, this._cache) {
     WidgetsBinding.instance.addObserver(this);
   }
 
   final IAppStorage _storage;
   final AttendanceRemoteRepository _remote;
   final AttendanceOutbox _outbox;
+  final AttendanceLocalCache _cache;
   final ValueNotifier<AttendanceSnapshot?> snapshot = ValueNotifier(null);
 
   static String _mockKey(String userId) => 'resource_attendance_mock_enabled_$userId';
@@ -51,6 +49,9 @@ class AttendanceContextStore with WidgetsBindingObserver {
 
   /// After empty bootstrap: skip Home network until user opens attendance.
   bool _knownNonParticipant = false;
+
+  /// Coalesce concurrent hydrate/refresh (dashboard + hub open).
+  Future<void>? _networkInFlight;
 
   bool get isRemote => _useRemote;
 
@@ -87,9 +88,29 @@ class AttendanceContextStore with WidgetsBindingObserver {
 
     if (_loadedForUser && snapshot.value != null && _boundUserId == userId && _useRemote && !force) {
       if (_knownNonParticipant) return;
+      // Soft re-entry: one bootstrap (peer updates), flush only if pending.
       await flushOutboxAndRefresh();
       return;
     }
+
+    final inflight = _networkInFlight;
+    if (inflight != null) {
+      await inflight;
+      if (!force && _loadedForUser && _boundUserId == userId && snapshot.value != null) {
+        return;
+      }
+    }
+
+    final run = _hydrateFresh(userId);
+    _networkInFlight = run;
+    try {
+      await run;
+    } finally {
+      if (identical(_networkInFlight, run)) _networkInFlight = null;
+    }
+  }
+
+  Future<void> _hydrateFresh(String userId) async {
     _boundUserId = userId;
 
     // Remote-first: без mock-демо по умолчанию.
@@ -101,9 +122,11 @@ class AttendanceContextStore with WidgetsBindingObserver {
       final boot = await _remote.bootstrap();
       snapshot.value = boot;
       _knownNonParticipant = !_snapshotHasAttendance(boot);
+      await _persistCompanyList(userId, boot);
       await _outbox.refreshCount(userId);
+      // Не дергаем второй bootstrap: только слить outbox, если есть pending.
       if (!_knownNonParticipant) {
-        await flushOutboxAndRefresh();
+        await _flushOutboxOnly();
       }
     } catch (_) {
       snapshot.value = AttendanceSnapshot(fromRemote: true);
@@ -111,6 +134,18 @@ class AttendanceContextStore with WidgetsBindingObserver {
       await _outbox.refreshCount(userId);
     }
     _loadedForUser = true;
+  }
+
+  Future<void> _flushOutboxOnly() async {
+    if (!_useRemote) return;
+    final flushed = await _outbox.flush();
+    if (flushed <= 0) return;
+    await refreshRemote();
+  }
+
+  Future<void> _persistCompanyList(String userId, AttendanceSnapshot boot) async {
+    await _cache.writeWorkplaces(userId, boot.workplaces);
+    await _cache.writeFolders(userId, boot.folders);
   }
 
   static bool _snapshotHasAttendance(AttendanceSnapshot s) {
@@ -125,6 +160,7 @@ class AttendanceContextStore with WidgetsBindingObserver {
     _useRemote = false;
     _knownNonParticipant = false;
     _boundUserId = null;
+    _networkInFlight = null;
     if (uid != null && uid.isNotEmpty) {
       await _outbox.clearForUser(uid);
       await _storage.delete(key: _mockKey(uid));
@@ -153,23 +189,57 @@ class AttendanceContextStore with WidgetsBindingObserver {
     _useRemote = true;
     _boundUserId = uid;
     _knownNonParticipant = false;
-    snapshot.value = await _remote.bootstrap();
-    await flushOutboxAndRefresh();
+    final boot = await _remote.bootstrap();
+    snapshot.value = boot;
+    await _persistCompanyList(uid, boot);
+    await _flushOutboxOnly();
     _loadedForUser = true;
   }
 
   Future<void> refreshRemote() async {
     if (!_useRemote) return;
+    final inflight = _networkInFlight;
+    if (inflight != null) {
+      await inflight;
+      return;
+    }
+    final run = _refreshRemoteBody();
+    _networkInFlight = run;
+    try {
+      await run;
+    } finally {
+      if (identical(_networkInFlight, run)) _networkInFlight = null;
+    }
+  }
+
+  Future<void> _refreshRemoteBody() async {
     final boot = await _remote.bootstrap();
     snapshot.value = boot;
     _knownNonParticipant = !_snapshotHasAttendance(boot);
+    final uid = _boundUserId ?? _remote.currentUserId;
+    if (uid != null && uid.isNotEmpty) {
+      await _persistCompanyList(uid, boot);
+    }
   }
 
-  /// Flush outbox then always re-bootstrap (peer cancel / auto_close / admin).
+  /// Flush outbox; re-bootstrap once (resume / soft re-entry). Empty outbox → one bootstrap only.
   Future<void> flushOutboxAndRefresh() async {
     if (!_useRemote) return;
-    await _outbox.flush();
-    snapshot.value = await _remote.bootstrap();
+    final inflight = _networkInFlight;
+    if (inflight != null) {
+      await inflight;
+      return;
+    }
+    final run = () async {
+      await _outbox.flush();
+      await _refreshRemoteBody();
+    }();
+    _networkInFlight = run;
+    try {
+      await run;
+    } finally {
+      if (identical(_networkInFlight, run)) _networkInFlight = null;
+    }
   }
 
   Future<void> disableMock(String userId) async {
@@ -184,6 +254,20 @@ class AttendanceContextStore with WidgetsBindingObserver {
     final current = snapshot.value;
     if (current == null) return;
     snapshot.value = fn(current);
+  }
+
+  /// Cache group chat id after [AttendanceRemoteRepository.openCompanyChat].
+  void patchWorkplaceGroupChat(String workplaceId, String conversationId) {
+    final id = workplaceId.trim();
+    final cid = conversationId.trim();
+    if (id.isEmpty || cid.isEmpty) return;
+    patch((s) {
+      final workplaces = [
+        for (final w in s.workplaces)
+          if (w.id == id) w.copyWith(groupConversationId: cid) else w,
+      ];
+      return s.copyWith(workplaces: workplaces);
+    });
   }
 
   void clearUnreadChat() => patch((s) => s.copyWith(mockUnreadAttendanceChat: false));
@@ -209,10 +293,7 @@ class AttendanceContextStore with WidgetsBindingObserver {
       clockOutEnabled: true,
       clockInScheduledTime: AttendanceDayTime(hour: 9, minute: 0),
       customPunches: [
-        AttendanceCustomPunchConfig(
-          label: 'Обед',
-          scheduledTime: AttendanceDayTime(hour: 13, minute: 0),
-        ),
+        AttendanceCustomPunchConfig(label: 'Обед', scheduledTime: AttendanceDayTime(hour: 13, minute: 0)),
       ],
       payrollRules: AttendancePayrollRules(
         lateDeductsPay: true,
@@ -220,11 +301,7 @@ class AttendanceContextStore with WidgetsBindingObserver {
         absenceDeductsPay: true,
         partialDayDeductsPay: true,
       ),
-      workerBaseSalaries: {
-        'worker_you': 350000,
-        'worker_ivan': 280000,
-        'worker_aidana': 220000,
-      },
+      workerBaseSalaries: {'worker_you': 350000, 'worker_ivan': 280000, 'worker_aidana': 220000},
       dutyRoster: AttendanceDutyRoster(
         workerIds: ['worker_you', 'worker_ivan', 'worker_aidana'],
         workingWeekdays: {1, 2, 3, 4, 5, 6},

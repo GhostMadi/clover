@@ -6,6 +6,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_profile_hit.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Поиск человека по нику / имени для invite в компанию.
 abstract final class AttendanceWorkerSearchSheet {
@@ -15,7 +16,8 @@ abstract final class AttendanceWorkerSearchSheet {
   }) {
     return AttendanceBottomSheet.show<AttendanceProfileHit>(
       context: context,
-      title: 'Добавить работника',
+      title: 'Добавить',
+      upperCaseTitle: false,
       expandBody: true,
       contentPadding: const EdgeInsets.all(16),
       sheetOuterPadding: const EdgeInsets.fromLTRB(16, 48, 16, 12),
@@ -96,11 +98,11 @@ class _BodyState extends State<_Body> {
       children: [
         AttendanceField(
           controller: _queryController,
-          hintText: 'Поиск по нику или имени',
+          hintText: 'Ник или имя',
           prefixIcon: AppIcons.searchRounded.icon,
           textInputAction: TextInputAction.search,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         if (_error != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
@@ -112,12 +114,7 @@ class _BodyState extends State<_Body> {
           ),
         Expanded(
           child: _loading && _results.isEmpty
-              ? Center(
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: attendanceServiceAccent(colors).icon,
-                  ),
-                )
+              ? const AttendanceLoader()
               : _results.isEmpty
                   ? Center(
                       child: Text(
@@ -133,7 +130,10 @@ class _BodyState extends State<_Body> {
                         final profile = _results[index];
                         return _ProfileTile(
                           profile: profile,
-                          onTap: () => Navigator.of(context).pop(profile),
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            Navigator.of(context).pop(profile);
+                          },
                         );
                       },
                     ),
@@ -155,25 +155,28 @@ class _ProfileTile extends StatelessWidget {
     final accent = attendanceServiceAccent(colors);
     final avatarUrl = profile.avatarUrl?.trim();
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.border.withValues(alpha: 0.55)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
+    return Material(
+      color: colors.surface,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: colors.border.withValues(alpha: 0.55)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+            child: Row(
               children: [
                 CircleAvatar(
-                  radius: 20,
+                  radius: 22,
                   backgroundColor: accent.soft,
-                  backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+                  backgroundImage:
+                      avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
                   child: avatarUrl == null || avatarUrl.isEmpty
-                      ? Icon(AppIcons.user.icon, color: accent.icon, size: 20)
+                      ? Icon(AppIcons.user.icon, color: accent.icon, size: 22)
                       : null,
                 ),
                 const SizedBox(width: 12),
@@ -183,27 +186,24 @@ class _ProfileTile extends StatelessWidget {
                     children: [
                       Text(
                         profile.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         profile.displayUsername,
-                        style: AppTextStyle.base(13, color: colors.subTextColor),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyle.base(12, color: colors.subTextColor, fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
                 ),
+                Icon(AppIcons.chevronRight.icon, size: 20, color: colors.iconMuted),
               ],
             ),
-            const SizedBox(height: 12),
-            AttendancePrimaryButton(
-              text: 'Пригласить',
-              height: 40,
-              borderRadius: 12,
-              isExpanded: true,
-              onTap: onTap,
-            ),
-          ],
+          ),
         ),
       ),
     );

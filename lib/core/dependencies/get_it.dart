@@ -16,8 +16,11 @@ final sl = GetIt.instance;
 )
 Future<void> configureDependencies() async {
   sl.init();
+  // serverClientId (Web) обязателен: idToken.aud должен совпасть с Client ID в Supabase.
+  // clientId (iOS) нужен на iOS; на Android берётся из google-services / package+SHA.
   await GoogleSignIn.instance.initialize(
     clientId: GoogleAuthConfig.iosClientId,
+    serverClientId: GoogleAuthConfig.webClientId,
   );
 }
 

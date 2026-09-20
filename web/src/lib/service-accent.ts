@@ -1,6 +1,6 @@
 /** Акценты бизнес-сервисов = AppServiceKind / AppPalette. */
 
-export type AppServiceKind = "resources" | "booking" | "attendance" | "bonus";
+export type AppServiceKind = "resources" | "booking" | "attendance" | "bonus" | "venue";
 
 export type ServiceAccentClasses = {
   /** Мягкий фон иконок / секций */
@@ -44,6 +44,14 @@ export const SERVICE_ACCENT: Record<AppServiceKind, ServiceAccentClasses> = {
     cta: "bg-svc-bonus-ink",
     ctaFg: "text-on-media",
     border: "border-svc-bonus-ink/40",
+  },
+  venue: {
+    soft: "bg-svc-venue",
+    icon: "text-svc-venue-ink",
+    /** Coral soft + тёмный ink — как жёлтая запись. */
+    cta: "bg-svc-venue",
+    ctaFg: "text-svc-venue-ink",
+    border: "border-svc-venue-ink/35",
   },
 };
 

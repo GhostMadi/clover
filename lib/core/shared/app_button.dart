@@ -65,7 +65,13 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
     final serviceAccent = widget.service != null ? colors.serviceAccent(widget.service!) : null;
     final ctaColor = serviceAccent?.cta ?? colors.primary;
     final backgroundColor = _isEnabled ? ctaColor : colors.surfaceSoft;
-    final textColor = _isEnabled ? (serviceAccent?.ctaForeground ?? colors.textInverse) : colors.subTextColor;
+    // На светлом CTA (жёлтая запись) — тёмный текст; не брать textInverse из dark theme.
+    final textColor = !_isEnabled
+        ? colors.subTextColor
+        : (serviceAccent?.ctaForeground ??
+            (ThemeData.estimateBrightnessForColor(ctaColor) == Brightness.dark
+                ? colors.white
+                : const Color(0xFF1A1D1E)));
 
     final shadows = _isEnabled
         ? [

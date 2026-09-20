@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:clover/core/shared/image_select/app_image_edit_exporter.dart';
 import 'package:clover/core/shared/image_select/models/app_image_editor_result.dart';
 import 'package:clover/core/storage/r2_storage_service.dart';
+import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_key.dart';
 import 'package:clover/feature/_catalog_/marker_tags/data/repository/marker_tags_repository.dart';
 import 'package:clover/feature/_profile_/edit_profile/data/models/edit_profile_error.dart';
 import 'package:clover/feature/_profile_/edit_profile/data/models/edit_profile_save_input.dart';
@@ -16,6 +17,9 @@ abstract class EditProfileRepository {
   Future<ProfileNewModel> updateProfile(EditProfileSaveInput input);
 
   Future<ProfileNewModel> updateUsername(String username);
+
+  /// Добавляет account-тег к уже выбранным (не снимает остальные).
+  Future<ProfileNewModel> addAccountTag(MarkerTagKey tag);
 }
 
 @LazySingleton(as: EditProfileRepository)
@@ -75,6 +79,28 @@ class EditProfileRepositoryImpl implements EditProfileRepository {
       await _client.from('profiles').update({'username': next}).eq('id', uid);
     } on PostgrestException catch (error) {
       throw EditProfileError.from(error);
+    }
+
+    return _requireCurrentProfile();
+  }
+
+  @override
+  Future<ProfileNewModel> addAccountTag(MarkerTagKey tag) async {
+    final uid = _requireUid();
+    final profile = await _requireCurrentProfile();
+    if (profile.hasAccountTag(tag)) {
+      return profile;
+    }
+
+    final nextKeys = {...profile.tagKeySet, tag.key};
+    try {
+      await _syncProfileTagLink(uid: uid, tagKeys: nextKeys);
+    } on PostgrestException catch (error) {
+      throw EditProfileError.from(error);
+    } on EditProfileError {
+      rethrow;
+    } catch (_) {
+      throw EditProfileError('Не удалось активировать сервис');
     }
 
     return _requireCurrentProfile();

@@ -42,7 +42,9 @@ export function SettingsShell({
                     ? "text-svc-attendance-ink hover:bg-svc-attendance"
                     : service === "bonus"
                       ? "text-svc-bonus-ink hover:bg-svc-bonus"
-                      : "text-ink hover:bg-surface-muted"
+                      : service === "venue"
+                        ? "text-svc-venue-ink hover:bg-svc-venue"
+                        : "text-ink hover:bg-surface-muted"
             }`}
             aria-label="Назад"
           >

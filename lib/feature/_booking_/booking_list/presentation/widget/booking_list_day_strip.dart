@@ -5,17 +5,20 @@ import 'package:clover/feature/_booking_/shared/presentation/widget/booking_serv
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// Горизонтальная лента дней с числом записей — основной выбор дня в inbox.
 class BookingListDayStrip extends StatelessWidget {
   const BookingListDayStrip({
     super.key,
     required this.days,
     required this.selectedDay,
     required this.onSelected,
+    this.countsByDay = const {},
   });
 
   final List<DateTime> days;
   final DateTime selectedDay;
   final ValueChanged<DateTime> onSelected;
+  final Map<DateTime, int> countsByDay;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +28,7 @@ class BookingListDayStrip extends StatelessWidget {
     final accent = bookingServiceAccent(context.colors);
 
     return SizedBox(
-      height: 44,
+      height: 64,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -36,10 +39,11 @@ class BookingListDayStrip extends StatelessWidget {
           final key = BookingHostInbox.dayKey(day);
           final selected = key == selectedKey;
           final label = BookingHostInbox.dayStripLabel(day);
-          final dayNumber = '${key.day}';
+          final dayWithMonth = BookingHostInbox.dayStripDayWithMonth(key);
+          final count = countsByDay[key] ?? 0;
 
           return Material(
-            color: selected ? accent.cta : context.colors.surfaceSoft,
+            color: selected ? accent.cta : context.colors.surface,
             borderRadius: BorderRadius.circular(16),
             child: InkWell(
               onTap: () {
@@ -48,30 +52,50 @@ class BookingListDayStrip extends StatelessWidget {
                 onSelected(key);
               },
               borderRadius: BorderRadius.circular(16),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      label,
-                      style: AppTextStyle.base(
-                        12,
-                        color: selected ? accent.ctaForeground : context.colors.textColor,
-                        fontWeight: FontWeight.w700,
+              child: Ink(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: selected
+                      ? null
+                      : Border.all(color: context.colors.border.withValues(alpha: 0.65)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        label,
+                        style: AppTextStyle.base(
+                          12,
+                          color: selected ? accent.ctaForeground : context.colors.subTextColor,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    Text(
-                      dayNumber,
-                      style: AppTextStyle.base(
-                        11,
-                        color: selected
-                            ? accent.ctaForeground.withValues(alpha: 0.85)
-                            : context.colors.subTextColor,
-                        fontWeight: FontWeight.w600,
+                      const SizedBox(height: 2),
+                      Text(
+                        dayWithMonth,
+                        style: AppTextStyle.base(
+                          15,
+                          color: selected ? accent.ctaForeground : context.colors.textColor,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
-                  ],
+                      if (count > 0) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          '$count',
+                          style: AppTextStyle.base(
+                            11,
+                            color: selected
+                                ? accent.ctaForeground.withValues(alpha: 0.9)
+                                : accent.icon,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ),

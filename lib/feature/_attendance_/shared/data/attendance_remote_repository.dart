@@ -202,6 +202,19 @@ class AttendanceRemoteRepository {
     return res.toString();
   });
 
+  /// Ensure company group chat + sync owner/active members; returns conversation id.
+  Future<String> openCompanyChat(String workplaceId) => _guard(() async {
+    final res = await _client.rpc(
+      'attendance_open_company_chat',
+      params: {'p_workplace_id': workplaceId},
+    );
+    final id = res?.toString().trim() ?? '';
+    if (id.isEmpty) {
+      throw const AttendanceException(AttendanceErrorCode.unknown, 'Не удалось открыть чат');
+    }
+    return id;
+  });
+
   Future<void> acceptInvite(String membershipId) => _guard(() async {
     await _client.rpc(
       'attendance_accept_invite',

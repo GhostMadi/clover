@@ -1,3 +1,4 @@
+import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_single_selctor.dart';
 import 'package:clover/feature/_catalog_/countries/data/catalog/countries_catalog.dart';
 import 'package:clover/feature/_catalog_/countries/data/models/country_code.dart';
@@ -13,6 +14,7 @@ class CountrySingleSelectField extends StatelessWidget {
     required this.onChanged,
     this.searchHint = 'Поиск страны',
     this.sheetTitle,
+    this.service,
   });
 
   final String? label;
@@ -23,6 +25,7 @@ class CountrySingleSelectField extends StatelessWidget {
   final ValueChanged<String> onChanged;
   final String searchHint;
   final String? sheetTitle;
+  final AppServiceKind? service;
 
   static List<AppSingleSelectOption<String>> get _options {
     return CountriesCatalog.countries
@@ -47,6 +50,7 @@ class CountrySingleSelectField extends StatelessWidget {
       options: _options,
       value: _normalize(value),
       onChanged: onChanged,
+      service: service,
     );
   }
 }

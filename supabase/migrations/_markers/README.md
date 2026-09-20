@@ -44,7 +44,7 @@
 | `../20260701130000_markers_address_primary_cyrillic.sql` | **`address_text`** → **`address_primary`** + **`address_cyrillic`**; обновление `list_markers_map` и `get_post_enriched`; триггер копирует адрес из `locations`. |
 | `../20260701140000_markers_add_country_city.sql` | **`country_code`** + **`city_code`** (как `locations`); FK + триггер; RPC. |
 | `../20260728150000_markers_map_pagination.sql` | **`count_markers_map`** + пагинация **`list_markers_map`** (`p_offset`, country/city). |
-| `../20260916120000_list_markers_map_clusters.sql` | **`list_markers_map_clusters`**: серверный LOD — кластеры через `ST_SnapToGrid` при zoom &lt; 13; пусто при zoom ≥ 13. |
+| `../20260916041549_list_markers_map_clusters.sql` | **`list_markers_map_clusters`**: серверный LOD — кластеры через `ST_SnapToGrid` при zoom &lt; 13; пусто при zoom ≥ 13. |
 
 ### Гео и сортировка
 

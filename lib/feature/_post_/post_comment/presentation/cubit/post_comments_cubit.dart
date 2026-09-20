@@ -221,6 +221,7 @@ class PostCommentsCubit extends Cubit<PostCommentsState> {
     final optimistic = _applyReaction(item, nextKind);
     final optimisticState = cur.copyWith(threads: _patchItemInThreads(cur.threads, optimistic));
     emit(optimisticState);
+
     await _persistLoaded(optimisticState);
 
     try {

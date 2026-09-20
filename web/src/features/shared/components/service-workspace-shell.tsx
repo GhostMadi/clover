@@ -40,6 +40,7 @@ const ASIDE_BG: Record<AppServiceKind, string> = {
   attendance: "bg-svc-attendance/25",
   resources: "bg-svc-resources/25",
   bonus: "bg-surface-muted/40",
+  venue: "bg-svc-venue/20",
 };
 
 const ACTIVE_CHIP: Record<AppServiceKind, string> = {
@@ -47,6 +48,7 @@ const ACTIVE_CHIP: Record<AppServiceKind, string> = {
   attendance: "bg-svc-attendance text-svc-attendance-ink",
   resources: "bg-svc-resources text-svc-resources-ink",
   bonus: "bg-svc-bonus text-svc-bonus-ink",
+  venue: "bg-svc-venue text-svc-venue-ink",
 };
 
 const BACK_HOVER: Record<AppServiceKind, string> = {
@@ -54,6 +56,7 @@ const BACK_HOVER: Record<AppServiceKind, string> = {
   attendance: "text-svc-attendance-ink hover:bg-svc-attendance",
   resources: "text-svc-resources-ink hover:bg-svc-resources",
   bonus: "text-svc-bonus-ink hover:bg-svc-bonus",
+  venue: "text-svc-venue-ink hover:bg-svc-venue",
 };
 
 const NAV_IDLE: Record<AppServiceKind, string> = {
@@ -61,6 +64,7 @@ const NAV_IDLE: Record<AppServiceKind, string> = {
   attendance: "text-ink hover:bg-svc-attendance/40",
   resources: "text-ink hover:bg-svc-resources/40",
   bonus: "text-ink hover:bg-svc-bonus/40",
+  venue: "text-ink hover:bg-svc-venue/40",
 };
 
 const BRAND_INK: Record<AppServiceKind, string> = {
@@ -68,6 +72,7 @@ const BRAND_INK: Record<AppServiceKind, string> = {
   attendance: "text-svc-attendance-ink",
   resources: "text-svc-resources-ink",
   bonus: "text-svc-bonus-ink",
+  venue: "text-svc-venue-ink",
 };
 
 function useIsMd(): boolean {

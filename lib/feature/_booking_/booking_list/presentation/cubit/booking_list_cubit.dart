@@ -1,4 +1,5 @@
 import 'package:clover/core/session/app_session.dart';
+import 'package:clover/feature/_booking_/booking_create/data/models/booking_service.dart';
 import 'package:clover/feature/_booking_/booking_create/data/repository/booking_services_repository.dart';
 import 'package:clover/feature/_booking_/booking_list/data/booking_host_inbox.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_date_range.dart';
@@ -179,7 +180,17 @@ class BookingListCubit extends Cubit<BookingListState> {
     try {
       final pid = _pointId;
       if (pid != null && pid.isNotEmpty) {
-        final services = await _services.listMyServices(pointId: pid);
+        final uid = _session.userId;
+        List<BookingService>? services;
+        if (uid != null && uid.isNotEmpty) {
+          services = await _cache.readMyServices(uid, pointId: pid);
+        }
+        if (services == null) {
+          services = await _services.listMyServices(pointId: pid);
+          if (uid != null && uid.isNotEmpty) {
+            await _cache.writeMyServices(uid, services, pointId: pid);
+          }
+        }
         _serviceIds = {
           for (final s in services)
             if (s.id.trim().isNotEmpty) s.id.trim(),

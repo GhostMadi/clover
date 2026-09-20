@@ -20,6 +20,7 @@
 | `../20260903120200_attendance_rpc.sql` | bootstrap, invite, ack, punch, cancel, absence |
 | `../20260905130000_attendance_payroll_duty_ot.sql` | payroll/duty jsonb, base salary, OT + RPC |
 | `../20260905200000_attendance_chat_push_analytics_correction.sql` | group chat, cards, notify/push_outbox, analytics/timesheet, correction |
+| `../20260920161956_attendance_open_company_chat.sql` | `attendance_open_company_chat` — open/ensure group + sync active members |
 | `../20260905210000_attendance_chat_card_kinds.sql` | enum kinds + `chat_message_attendance_cards` |
 | `../20260905210100_attendance_rich_chat_reinvite_corrections_list.sql` | rich cards, reinvite parity, list corrections, enriched payload |
 | `../20260906020000_booking_push_client_reschedule_attendance_duty_folders.sql` | duty_only_punch + folders bootstrap |

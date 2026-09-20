@@ -29,11 +29,17 @@ class BookingServicesCubit extends Cubit<BookingServicesState> {
     if (_pointId != null && _pointId!.isEmpty) _pointId = null;
 
     final uid = _session.userId;
+    final already = state is BookingServicesLoaded ? state as BookingServicesLoaded : null;
+    if (already != null && already.pointId == _pointId) {
+      await _syncRemote(keepRefreshing: true);
+      return;
+    }
+
     if (uid != null && uid.isNotEmpty) {
       final cachedServices = await _cache.readMyServices(uid, pointId: _pointId);
       final cachedStaff = await _cache.readMyStaff(uid);
       if (isClosed) return;
-      if (cachedServices != null && cachedServices.isNotEmpty) {
+      if (cachedServices != null) {
         emit(
           BookingServicesState.loaded(
             services: cachedServices,
@@ -63,7 +69,52 @@ class BookingServicesCubit extends Cubit<BookingServicesState> {
     await _syncRemote();
   }
 
-  Future<void> _syncRemote() async {
+  /// Мгновенно вставить/обновить услугу в списке + кэш, без ожидания сети.
+  Future<void> applyService(BookingService service) async {
+    final loaded = state is BookingServicesLoaded ? state as BookingServicesLoaded : null;
+    final staff = loaded?.staff ?? const <BookingServiceExecutor>[];
+    final prev = loaded?.services ?? const <BookingService>[];
+    final next = [
+      service,
+      ...prev.where((s) => s.id != service.id),
+    ];
+    if (!isClosed) {
+      emit(
+        BookingServicesState.loaded(
+          services: next,
+          staff: staff,
+          isFromCache: false,
+          pointId: _pointId,
+        ),
+      );
+    }
+    final uid = _session.userId;
+    if (uid != null && uid.isNotEmpty) {
+      await _cache.writeMyServices(uid, next, pointId: _pointId);
+    }
+  }
+
+  Future<void> removeService(String serviceId) async {
+    final loaded = state is BookingServicesLoaded ? state as BookingServicesLoaded : null;
+    if (loaded == null) return;
+    final id = serviceId.trim();
+    if (id.isEmpty) return;
+    final next = loaded.services.where((s) => s.id != id).toList(growable: false);
+    if (!isClosed) {
+      emit(loaded.copyWith(services: next, isFromCache: false));
+    }
+    final uid = _session.userId;
+    if (uid != null && uid.isNotEmpty) {
+      await _cache.writeMyServices(uid, next, pointId: _pointId);
+    }
+  }
+
+  Future<void> _syncRemote({bool keepRefreshing = false}) async {
+    final prev = state is BookingServicesLoaded ? state as BookingServicesLoaded : null;
+    if (keepRefreshing && prev != null && !prev.isRefreshing && !isClosed) {
+      emit(prev.copyWith(isRefreshing: true));
+    }
+
     try {
       final results = await Future.wait([
         _servicesRepository.listMyServices(pointId: _pointId),

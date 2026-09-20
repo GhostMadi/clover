@@ -58,7 +58,11 @@ class _MapMarkerPostSheetBodyState extends State<_MapMarkerPostSheetBody> {
   @override
   void initState() {
     super.initState();
-    _cubit = sl<PostDetailCubit>()..load(widget.postId);
+    _cubit = sl<PostDetailCubit>()
+      ..load(
+        widget.postId,
+        fetchRemote: true,
+      );
     _scrollController.addListener(_onScroll);
   }
 

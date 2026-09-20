@@ -86,8 +86,8 @@ enum PostAspectRatio {
   static PostAspectRatio fromUrl(String url) {
     if (url.trim().isEmpty) return PostAspectRatio.square1x1;
 
-    final path = (Uri.tryParse(url)?.path ?? url).toLowerCase();
-    final match = _aspectRe.firstMatch(path);
+    // Ищем маркер во всей строке (в т.ч. asset-путях с `__ar-4x3` перед расширением).
+    final match = _aspectRe.firstMatch(url.toLowerCase());
     if (match == null) return PostAspectRatio.square1x1;
 
     final width = int.tryParse(match.group(1) ?? '');

@@ -16,19 +16,19 @@ class BookingAnalyticsTopStaffSection extends StatelessWidget {
   Widget build(BuildContext context) {
     if (staff.isEmpty) return const SizedBox.shrink();
 
-    final maxCount = staff.map((e) => e.bookingCount).reduce((a, b) => a > b ? a : b);
+    final colors = context.colors;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Исполнители',
-          style: AppTextStyle.base(18, color: context.colors.textColor, fontWeight: FontWeight.w800),
+          'Мастера',
+          style: AppTextStyle.base(16, color: colors.textColor, fontWeight: FontWeight.w700),
         ),
-        const SizedBox(height: 12),
-        for (final member in staff) ...[
-          _StaffRow(member: member, maxCount: maxCount),
-          const SizedBox(height: 10),
+        const SizedBox(height: 10),
+        for (var i = 0; i < staff.length; i++) ...[
+          if (i > 0) const SizedBox(height: 8),
+          _StaffRow(member: staff[i]),
         ],
       ],
     );
@@ -36,60 +36,49 @@ class BookingAnalyticsTopStaffSection extends StatelessWidget {
 }
 
 class _StaffRow extends StatelessWidget {
-  const _StaffRow({
-    required this.member,
-    required this.maxCount,
-  });
+  const _StaffRow({required this.member});
 
   final BookingAnalyticsStaffStat member;
-  final int maxCount;
 
   @override
   Widget build(BuildContext context) {
-    final accent = bookingServiceAccent(context.colors);
-    final progress = maxCount == 0 ? 0.0 : member.bookingCount / maxCount;
+    final colors = context.colors;
+    final accent = bookingServiceAccent(colors);
     final revenueLabel = member.revenue == member.revenue.roundToDouble()
         ? '${member.revenue.toInt()} ₸'
         : '${member.revenue.toStringAsFixed(0)} ₸';
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       decoration: BoxDecoration(
-        color: context.colors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
+        border: Border.all(color: colors.border.withValues(alpha: 0.55)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
                   member.displayName,
-                  style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
                 ),
-              ),
-              Text(
-                revenueLabel,
-                style: AppTextStyle.base(13, color: accent.icon, fontWeight: FontWeight.w700),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '${member.bookingCount} записей · ${member.completedCount} оказано',
-            style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 8,
-              backgroundColor: context.colors.surfaceSoft,
-              color: accent.icon,
+                const SizedBox(height: 2),
+                Text(
+                  '${member.bookingCount} · ${member.completedCount} оказано',
+                  style: AppTextStyle.base(12, color: colors.subTextColor, fontWeight: FontWeight.w600),
+                ),
+              ],
             ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            revenueLabel,
+            style: AppTextStyle.base(14, color: accent.icon, fontWeight: FontWeight.w800),
           ),
         ],
       ),

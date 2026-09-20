@@ -6,7 +6,6 @@ import 'package:clover/feature/_booking_/booking_create/data/models/booking_serv
 import 'package:clover/feature/_booking_/booking_create/presentation/cubit/booking_services_cubit.dart';
 import 'package:clover/feature/_booking_/booking_create/presentation/widget/booking_service_card.dart';
 import 'package:clover/feature/_booking_/booking_create/presentation/widget/booking_services_empty_state.dart';
-import 'package:clover/feature/_booking_/booking_create/presentation/widget/booking_services_qa_checklist.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,23 +40,14 @@ class _BookingCreatePageState extends State<BookingCreatePage> {
       BookingServiceCreateRoute(pointId: widget.pointId),
     );
     if (created != null && mounted) {
-      await _cubit.refresh();
+      await _cubit.applyService(created);
     }
   }
 
   Future<void> _openEdit(BookingService service) async {
     final updated = await context.router.push<BookingService>(BookingServiceEditRoute(service: service));
     if (updated != null && mounted) {
-      await _cubit.refresh();
-    }
-  }
-
-  Future<void> _openSettings() async {
-    final saved = await context.router.push<bool>(
-      BookingScheduleSettingsRoute(pointId: widget.pointId),
-    );
-    if (saved == true && mounted) {
-      await _cubit.refresh();
+      await _cubit.applyService(updated);
     }
   }
 
@@ -83,9 +73,8 @@ class _BookingCreatePageState extends State<BookingCreatePage> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: EdgeInsets.fromLTRB(16, 8, 16, BookingScreenShell.scrollBottomGap(context)),
                     children: [
-                      const BookingServicesQaChecklist(),
                       SizedBox(height: MediaQuery.sizeOf(context).height * 0.12),
-                      const BookingServicesEmptyState(),
+                      BookingServicesEmptyState(onCreate: _openCreate),
                     ],
                   ),
                 );
@@ -96,13 +85,10 @@ class _BookingCreatePageState extends State<BookingCreatePage> {
                 child: ListView.separated(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsets.fromLTRB(16, 8, 16, BookingScreenShell.scrollBottomGap(context)),
-                  itemCount: items.length + 1,
+                  itemCount: items.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return const BookingServicesQaChecklist();
-                    }
-                    final service = items[index - 1];
+                    final service = items[index];
                     final executors = [
                       for (final id in service.executorIds)
                         if (staffById[id] != null) staffById[id]!,
@@ -127,8 +113,6 @@ class _BookingCreatePageState extends State<BookingCreatePage> {
           },
           compactBar: true,
           isLoading: isLoading || isRefreshing,
-          showSettings: true,
-          onSettingsTap: _openSettings,
           showAdd: true,
           onAddTap: _openCreate,
           body: buildBody(),

@@ -41,6 +41,17 @@ class AttendanceWorkersCubit extends Cubit<AttendanceWorkersState> {
     }
   }
 
+  Future<void> refresh() async {
+    if (_store.isRemote) {
+      await _store.refreshRemote();
+      return;
+    }
+    final workplaceId = _workplaceId;
+    final snap = _store.snapshot.value;
+    if (workplaceId == null || snap == null || isClosed) return;
+    emit(AttendanceWorkersState.loaded(workplaceId: workplaceId, snapshot: snap));
+  }
+
   void _onSnapshot() {
     if (isClosed) return;
     final workplaceId = _workplaceId;

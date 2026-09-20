@@ -141,6 +141,41 @@ Google → аккаунт Clover
 
 ---
 
+## Google native (iOS / Android)
+
+Мобилка: **Google Sign-In → idToken → Supabase** (`signInWithIdToken`), без браузера.  
+Сайт: redirect OAuth через Web client — [website.md](website.md).
+
+Все OAuth clients — **один** Google Cloud project (тот же, что «Clover Web Client» / iOS client, prefix `1041927738445`).
+
+| Клиент | Назначение |
+|--------|------------|
+| **Web** | Supabase Client ID + Secret; в приложении — `serverClientId` (audience idToken) |
+| **iOS** | Bundle `clover.mobile.com` → Info.plist `GIDClientID` |
+| **Android** | Package `clover.mobile.com` + SHA-1 fingerprint |
+
+### Supabase → Auth → Providers → Google
+
+1. **Client ID / Secret** = только **Web** (не Android).  
+2. Если есть **Authorized Client IDs** — iOS и Android Client ID через запятую.  
+3. **Skip nonce checks** — включено.
+
+Если в Client ID лежит только Android — веб и native idToken с Web audience сломаются: верни Web + Secret.
+
+### Android (чеклист)
+
+1. Google Cloud → APIs & Services → Credentials → Create **OAuth client ID** → **Android**  
+   - Package: `clover.mobile.com` (как iOS / Play)  
+   - SHA-1 debug: `CA:30:25:07:AC:A1:1F:B6:9D:2A:F0:B2:17:32:89:0F:3B:2F:95:99`  
+   - SHA-1 upload (Play): `59:5B:6E:5B:00:43:5A:57:C8:3C:1F:3D:A4:05:7C:57:F7:E8:CD:F2`  
+   - После Play App Signing — ещё SHA-1 **App signing** из Console.  
+2. Firebase project `clover-52112` → Project settings → Android app → **Add fingerprint** (тот же SHA-1) → скачать новый `google-services.json` в `android/app/` (в `oauth_client` должны появиться записи; пустой массив = Sign-In часто падает с developer error).  
+3. Пересобрать приложение после смены `google-services.json` / SHA.
+
+Код: `GoogleAuthConfig.webClientId` + `iosClientId`; init в `configureDependencies`.
+
+---
+
 ## Сессии (v1)
 
 **Решение:** параллельные сессии **разрешены**. Первый успешный вход на аккаунт = **главный** (`primary`); все следующие устройства/клиенты = **гости** (`guest`).

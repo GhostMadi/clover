@@ -1,14 +1,11 @@
-import 'dart:async';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
-import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/core/shared/app_tab.dart';
 import 'package:clover/feature/_attendance_/attendance_overtime/presentation/cubit/attendance_overtime_cubit.dart';
+import 'package:clover/feature/_attendance_/attendance_overtime/presentation/widget/attendance_overtime_entry_card.dart';
+import 'package:clover/feature/_attendance_/attendance_overtime/presentation/widget/attendance_overtime_suggestion_card.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_error.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_outbox.dart';
@@ -17,7 +14,7 @@ import 'package:clover/feature/_attendance_/shared/data/models/attendance_overti
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_record.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_snapshot.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
-import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
+import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_section_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -33,7 +30,6 @@ class AttendanceOvertimePage extends StatefulWidget {
 
 class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
   late final AttendanceOvertimeCubit _cubit;
-  int _tabIndex = 0;
 
   @override
   void initState() {
@@ -47,128 +43,51 @@ class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<AttendanceOvertimeCubit, AttendanceOvertimeState>(
-      bloc: _cubit,
-      builder: (context, state) {
-        final all = state is AttendanceOvertimeLoaded
-            ? state.entries
-            : const <AttendanceOvertimeEntry>[];
-        final pending = all.where((e) => e.status == AttendanceOvertimeStatus.pending).toList();
-        final approved = all.where((e) => e.status == AttendanceOvertimeStatus.approved).toList();
-        final rejected = all.where((e) => e.status == AttendanceOvertimeStatus.rejected).toList();
-        final list = switch (_tabIndex) {
-          1 => approved,
-          2 => rejected,
-          _ => pending,
-        };
-
-        final colors = context.colors;
-        final accent = attendanceServiceAccent(colors);
-        final yellow = attendanceYellowAccent(colors);
-        final store = sl<AttendanceContextStore>();
-        final snap = store.snapshot.value;
-        final selfId = store.selfWorkerId();
-        final workplace = snap?.workplaceById(widget.workplaceId);
-        final suggestedHours = _lateClockOutHours(
-          snap: snap,
-          workplaceId: widget.workplaceId,
-          workerId: selfId,
-          scheduledOut: workplace?.clockOutScheduledTime,
-        );
-
-        return AttendanceScreenShell(
-          title: 'Переработка',
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, AttendanceScreenShell.scrollBottomGap(context)),
-                  children: [
-                    Text(
-                      'Поздний «Ушёл» сам по себе не даёт денег. Сначала заявка, потом ваше решение.',
-                      style: AppTextStyle.base(14, color: colors.subTextColor, height: 1.35),
-                    ),
-                    const SizedBox(height: 14),
-                    _OvertimePipeline(accent: accent, yellow: yellow),
-                    const SizedBox(height: 16),
-                    if (suggestedHours != null && suggestedHours > 0)
-                      _SuggestionCard(
-                        hours: suggestedHours,
-                        onCreateRequest: () async {
-                          try {
-                            final result = await _cubit.addOvertimeRequest(
-                              AttendanceOvertimeEntry(
-                                id: 'ot_${DateTime.now().millisecondsSinceEpoch}',
-                                workplaceId: widget.workplaceId,
-                                workerId: selfId,
-                                workerName: snap?.profileDisplayNames[selfId] ?? 'Вы',
-                                date: DateTime.now(),
-                                hours: suggestedHours,
-                                status: AttendanceOvertimeStatus.pending,
-                              ),
-                            );
-                            if (!context.mounted) return;
-                            setState(() => _tabIndex = 0);
-                            AppSnackBar.show(
-                              context,
-                              message: result == AttendancePersistResult.queued
-                                  ? 'Сохранено локально, синхронизируется'
-                                  : 'Заявка создана · ждёт утверждения',
-                              kind: AppSnackBarKind.success,
-                            );
-                          } catch (e) {
-                            if (!context.mounted) return;
-                            final msg = e is AttendanceException ? e.userMessage : 'Не удалось создать заявку';
-                            AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
-                          }
-                        },
-                      )
-                    else
-                      Text(
-                        'Подсказка появится после «Ушёл» позже графика компании.',
-                        style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
-                      ),
-                    const SizedBox(height: 16),
-                    AppTab(
-                      tabs: [
-                        'Ожидают · ${pending.length}',
-                        'В ЗП · ${approved.length}',
-                        'Отклонены · ${rejected.length}',
-                      ],
-                      currentIndex: _tabIndex,
-                      onTabChanged: (i) => setState(() => _tabIndex = i),
-                    ),
-                    const SizedBox(height: 12),
-                    if (list.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 24),
-                        child: Text(
-                          switch (_tabIndex) {
-                            1 => 'Пока нет утверждённых — в зарплату нечего добавлять.',
-                            2 => 'Отклонённых заявок нет.',
-                            _ => 'Нет заявок на утверждение.',
-                          },
-                          textAlign: TextAlign.center,
-                          style: AppTextStyle.base(14, color: colors.subTextColor),
-                        ),
-                      )
-                    else
-                      for (final entry in list)
-                        _OvertimeCard(entry: entry, cubit: _cubit),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+  Future<void> _setStatus(AttendanceOvertimeEntry entry, AttendanceOvertimeStatus status) async {
+    try {
+      final result = await _cubit.setOvertimeStatus(entryId: entry.id, status: status);
+      if (!mounted) return;
+      final okMsg = status == AttendanceOvertimeStatus.approved ? 'Утверждено' : 'Отклонено';
+      AppSnackBar.show(
+        context,
+        message: result == AttendancePersistResult.queued ? 'Сохранено локально' : okMsg,
+        kind: status == AttendanceOvertimeStatus.approved
+            ? AppSnackBarKind.success
+            : AppSnackBarKind.info,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить';
+      AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
+    }
   }
 
-  /// Hours after scheduled clock-out from today's last non-cancelled clock_out.
+  Future<void> _createSuggestion(int hours, String selfId, AttendanceSnapshot? snap) async {
+    try {
+      final result = await _cubit.addOvertimeRequest(
+        AttendanceOvertimeEntry(
+          id: 'ot_${DateTime.now().millisecondsSinceEpoch}',
+          workplaceId: widget.workplaceId,
+          workerId: selfId,
+          workerName: snap?.profileDisplayNames[selfId] ?? 'Вы',
+          date: DateTime.now(),
+          hours: hours,
+          status: AttendanceOvertimeStatus.pending,
+        ),
+      );
+      if (!mounted) return;
+      AppSnackBar.show(
+        context,
+        message: result == AttendancePersistResult.queued ? 'Сохранено локально' : 'Заявка создана',
+        kind: AppSnackBarKind.success,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      final msg = e is AttendanceException ? e.userMessage : 'Не удалось создать заявку';
+      AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
+    }
+  }
+
   int? _lateClockOutHours({
     required AttendanceSnapshot? snap,
     required String workplaceId,
@@ -191,250 +110,89 @@ class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
     if (diffMin < 30) return null;
     return ((diffMin + 29) ~/ 60).clamp(1, 12);
   }
-}
-
-class _OvertimePipeline extends StatelessWidget {
-  const _OvertimePipeline({required this.accent, required this.yellow});
-
-  final AppServiceAccent accent;
-  final ({Color surface, Color icon}) yellow;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.borderSoft),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'Как считается доплата',
-            style: AppTextStyle.base(14, color: colors.textColor, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 12),
-          Row(
+    return BlocBuilder<AttendanceOvertimeCubit, AttendanceOvertimeState>(
+      bloc: _cubit,
+      builder: (context, state) {
+        final all = state is AttendanceOvertimeLoaded
+            ? state.entries
+            : const <AttendanceOvertimeEntry>[];
+        final pending = all.where((e) => e.status == AttendanceOvertimeStatus.pending).toList();
+        final approved = all.where((e) => e.status == AttendanceOvertimeStatus.approved).toList();
+        final rejected = all.where((e) => e.status == AttendanceOvertimeStatus.rejected).toList();
+
+        final store = sl<AttendanceContextStore>();
+        final snap = store.snapshot.value;
+        final selfId = store.selfWorkerId();
+        final workplace = snap?.workplaceById(widget.workplaceId);
+        final suggestedHours = _lateClockOutHours(
+          snap: snap,
+          workplaceId: widget.workplaceId,
+          workerId: selfId,
+          scheduledOut: workplace?.clockOutScheduledTime,
+        );
+        final colors = context.colors;
+        final empty = pending.isEmpty && approved.isEmpty && rejected.isEmpty && suggestedHours == null;
+
+        return AttendanceScreenShell(
+          title: 'Переработка',
+          body: ListView(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, AttendanceScreenShell.scrollBottomGap(context)),
             children: [
-              Expanded(child: _PipeStep(label: 'Подсказка\n/ заявка', color: yellow.icon)),
-              Icon(AppIcons.chevronRight.icon, size: 16, color: colors.iconMuted),
-              Expanded(child: _PipeStep(label: 'Ожидает\nваш ok', color: yellow.icon)),
-              Icon(AppIcons.chevronRight.icon, size: 16, color: colors.iconMuted),
-              Expanded(child: _PipeStep(label: 'В зарплате\nтолько ok', color: accent.icon)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PipeStep extends StatelessWidget {
-  const _PipeStep({required this.label, required this.color});
-
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: AppTextStyle.base(11, color: context.colors.subTextColor, height: 1.2),
-        ),
-      ],
-    );
-  }
-}
-
-class _SuggestionCard extends StatelessWidget {
-  const _SuggestionCard({required this.hours, required this.onCreateRequest});
-
-  final int hours;
-  final FutureOr<void> Function() onCreateRequest;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final yellow = attendanceYellowAccent(colors);
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: yellow.surface.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: yellow.icon.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Icon(AppIcons.accessTime.icon, color: yellow.icon, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Подсказка (ещё не деньги)',
-                  style: AppTextStyle.base(14, color: colors.textColor, fontWeight: FontWeight.w700),
+              if (suggestedHours != null && suggestedHours > 0) ...[
+                AttendanceOvertimeSuggestionCard(
+                  hours: suggestedHours,
+                  onCreateRequest: () => _createSuggestion(suggestedHours, selfId, snap),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Уход позже графика · ~$hours ч. Это не доплата, пока нет заявки и утверждения.',
-            style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
-          ),
-          const SizedBox(height: 12),
-          AttendancePrimaryButton(
-            text: 'Создать заявку на $hours ч',
-            height: 44,
-            isExpanded: true,
-            onTap: onCreateRequest,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OvertimeCard extends StatelessWidget {
-  const _OvertimeCard({required this.entry, required this.cubit});
-
-  final AttendanceOvertimeEntry entry;
-  final AttendanceOvertimeCubit cubit;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final accent = attendanceServiceAccent(colors);
-    final yellow = attendanceYellowAccent(colors);
-    final statusColor = switch (entry.status) {
-      AttendanceOvertimeStatus.pending => yellow.icon,
-      AttendanceOvertimeStatus.approved => accent.icon,
-      AttendanceOvertimeStatus.rejected => colors.destructive,
-    };
-    final statusHint = switch (entry.status) {
-      AttendanceOvertimeStatus.pending => 'Пока не в зарплате',
-      AttendanceOvertimeStatus.approved => 'Учтено в расчёте ЗП',
-      AttendanceOvertimeStatus.rejected => 'Доплаты не будет',
-    };
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.borderSoft),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  entry.workerName,
-                  style: AppTextStyle.base(16, color: colors.textColor, fontWeight: FontWeight.w700),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  entry.status.labelRu,
-                  style: AppTextStyle.base(12, color: statusColor, fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '${entry.date.day.toString().padLeft(2, '0')}.${entry.date.month.toString().padLeft(2, '0')} · ${entry.hours} ч',
-            style: AppTextStyle.base(14, color: colors.subTextColor),
-          ),
-          const SizedBox(height: 2),
-          Text(statusHint, style: AppTextStyle.base(12, color: colors.subTextColor)),
-          if (entry.status == AttendanceOvertimeStatus.pending) ...[
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: AttendancePrimaryButton(
-                    text: 'Утвердить',
-                    height: 44,
-                    onTap: () async {
-                      try {
-                        final result = await cubit.setOvertimeStatus(
-                          entryId: entry.id,
-                          status: AttendanceOvertimeStatus.approved,
-                        );
-                        if (!context.mounted) return;
-                        AppSnackBar.show(
-                          context,
-                          message: result == AttendancePersistResult.queued
-                              ? 'Сохранено локально, синхронизируется'
-                              : 'В зарплате появится доплата',
-                          kind: AppSnackBarKind.success,
-                        );
-                      } catch (e) {
-                        if (!context.mounted) return;
-                        final msg = e is AttendanceException ? e.userMessage : 'Не удалось утвердить';
-                        AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: AppOutlinedButton(
-                    text: 'Отклонить',
-                    height: 44,
-                    service: kAttendanceService,
-                    onTap: () async {
-                      try {
-                        final result = await cubit.setOvertimeStatus(
-                          entryId: entry.id,
-                          status: AttendanceOvertimeStatus.rejected,
-                        );
-                        if (!context.mounted) return;
-                        AppSnackBar.show(
-                          context,
-                          message: result == AttendancePersistResult.queued
-                              ? 'Сохранено локально, синхронизируется'
-                              : 'Отклонено · без доплаты',
-                          kind: result == AttendancePersistResult.queued
-                              ? AppSnackBarKind.success
-                              : AppSnackBarKind.info,
-                        );
-                      } catch (e) {
-                        if (!context.mounted) return;
-                        final msg = e is AttendanceException ? e.userMessage : 'Не удалось отклонить';
-                        AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
-                      }
-                    },
-                  ),
-                ),
+                const SizedBox(height: 16),
               ],
-            ),
-          ],
-        ],
-      ),
+              if (empty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
+                  child: Text(
+                    'Нет заявок на переработку',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyle.base(14, color: colors.subTextColor),
+                  ),
+                )
+              else ...[
+                if (pending.isNotEmpty) ...[
+                  const AttendanceSectionTitle('Ожидают'),
+                  const SizedBox(height: 8),
+                  for (final entry in pending) ...[
+                    AttendanceOvertimeEntryCard(
+                      entry: entry,
+                      onApprove: () => _setStatus(entry, AttendanceOvertimeStatus.approved),
+                      onReject: () => _setStatus(entry, AttendanceOvertimeStatus.rejected),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  const SizedBox(height: 12),
+                ],
+                if (approved.isNotEmpty) ...[
+                  const AttendanceSectionTitle('В зарплате'),
+                  const SizedBox(height: 8),
+                  for (final entry in approved) ...[
+                    AttendanceOvertimeEntryCard(entry: entry),
+                    const SizedBox(height: 8),
+                  ],
+                  if (rejected.isNotEmpty) const SizedBox(height: 12),
+                ],
+                if (rejected.isNotEmpty) ...[
+                  const AttendanceSectionTitle('Отклонены'),
+                  const SizedBox(height: 8),
+                  for (final entry in rejected) ...[
+                    AttendanceOvertimeEntryCard(entry: entry),
+                    const SizedBox(height: 8),
+                  ],
+                ],
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 }

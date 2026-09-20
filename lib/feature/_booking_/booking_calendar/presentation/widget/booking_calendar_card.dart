@@ -48,7 +48,7 @@ class BookingCalendarCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(item.serviceEmoji, style: const TextStyle(fontSize: 28)),
+              Text(item.serviceEmoji, style: AppTextStyle.emoji(28)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

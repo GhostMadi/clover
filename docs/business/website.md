@@ -12,10 +12,10 @@
 Публичная точка входа и legal для магазинов. Продуктовая идея лендинга:
 
 **Clover — помощник для бизнеса:** набор сервисов в одном приложении (маркетинг / посты+ресурсы, запись, посещаемость).  
-В планах: **бронь мест по схеме зала** ([venue-seating.md](venue-seating.md)), фильтр мест/товаров, остатки → влияние на посты.  
+В планах: **«Бронь»** — билеты / места / схема пространства, редактор только на сайте ([venue-seating.md](venue-seating.md)); фильтр мест/товаров, остатки → влияние на посты.  
 **Пока бесплатно** — на лендинге без «тарифов» и давления на оплату. Тон — для широкой публики.
 
-Цвета сервисов на сайте = акценты мобилки (жёлтый запись, синий посещаемость, сирень ресурсы, зелёный бренд).
+Цвета сервисов на сайте = акценты мобилки (жёлтый запись, coral `#FFA39E` бронь, синий посещаемость, сирень ресурсы, зелёный бренд).
 
 ## Участники / роли
 
@@ -48,12 +48,13 @@ Env: `web/.env.local` → `NEXT_PUBLIC_SUPABASE_*`.
 |------|----------|
 | JS origins | `http://localhost:3000`, `https://clover.com.kz`, `https://www.clover.com.kz` |
 | Redirect URI | `https://wewrosbaxhkukbefjwzf.supabase.co/auth/v1/callback` |
-| Client ID / Secret | только в **Supabase → Auth → Providers → Google** |
+| Client ID / Secret | только в **Supabase → Auth → Providers → Google** (тип **Web**, не Android) |
 | Redirect сайта | Supabase → Authentication → URL Configuration: |
 | | **Site URL** на проде: `https://clover.com.kz` (не localhost) |
 | | **Redirect URLs:** `http://localhost:3000/auth/callback`, `https://clover.com.kz/auth/callback`, `https://www.clover.com.kz/auth/callback` |
 
-`client_secret*.json` не в репо и не в `NEXT_PUBLIC_*` — сайт ходит в Google через Supabase.
+`client_secret*.json` не в репо и не в `NEXT_PUBLIC_*` — сайт ходит в Google через Supabase.  
+Android/iOS native — отдельно: [authentication.md](authentication.md#google-native-ios--android) (`serverClientId` = этот же Web Client ID).
 
 ### Безопасность (веб)
 

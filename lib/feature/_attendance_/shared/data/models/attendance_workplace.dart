@@ -80,6 +80,23 @@ class AttendanceWorkplace {
 
   bool get hasGeofenceCenter => latitude != null && longitude != null;
 
+  /// Компактный JSON для дискового кэша списка компаний (не полный snapshot).
+  Map<String, dynamic> toCacheJson() => {
+        'id': id,
+        'name': name,
+        'folder_id': folderId,
+        'is_admin': isAdmin,
+      };
+
+  factory AttendanceWorkplace.fromCacheJson(Map<String, dynamic> json) {
+    return AttendanceWorkplace(
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      folderId: json['folder_id']?.toString(),
+      isAdmin: json['is_admin'] == true || json['is_admin'] == null,
+    );
+  }
+
   AttendanceWorkplace copyWith({
     String? name,
     String? folderId,
@@ -130,4 +147,13 @@ class AttendanceFolder {
 
   final String id;
   final String name;
+
+  Map<String, dynamic> toCacheJson() => {'id': id, 'name': name};
+
+  factory AttendanceFolder.fromCacheJson(Map<String, dynamic> json) {
+    return AttendanceFolder(
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+    );
+  }
 }
