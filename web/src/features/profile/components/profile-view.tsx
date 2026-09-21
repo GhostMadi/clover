@@ -1,12 +1,25 @@
 "use client";
 
-import { FolderPlus, MapPin, MessageCircle, MoreHorizontal, Plus, Settings, User } from "lucide-react";
+import {
+  Ban,
+  FolderPlus,
+  MapPin,
+  MessageCircle,
+  MoreHorizontal,
+  Plus,
+  Settings,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { AppButton, AppButtonLink } from "@/components/shared/app-button";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
-import { followUser, unfollowUser } from "@/features/catalog/lib/social-api";
+import {
+  blockUser,
+  followUser,
+  unfollowUser,
+} from "@/features/catalog/lib/social-api";
 import { createDm } from "@/features/chat/lib/chat-api";
 import { ProfileFilterChips } from "@/features/resources/components/profile-filter-chips";
 import { ProfileBanner } from "@/features/profile/components/profile-banner";
@@ -17,6 +30,10 @@ import { ProfileAccountTags } from "@/features/profile/components/profile-accoun
 import { ProfileServiceShortcuts } from "@/features/profile/components/profile-service-shortcuts";
 import type { ClusterItem } from "@/features/profile/lib/clusters-api";
 import { listProfilePostsClient } from "@/features/profile/lib/posts-client";
+import {
+  clearGuestProfileCache,
+  writeGuestProfileCache,
+} from "@/features/profile/lib/profile-session-cache";
 import { formatStat, type Profile } from "@/features/profile/lib/profile-model";
 import type { FeedPost } from "@/features/post/lib/parse-feed";
 
@@ -67,6 +84,8 @@ export function ProfileView({
   const [followersCount, setFollowersCount] = useState(profile.followersCount);
   const [busy, setBusy] = useState(false);
   const [chatBusy, setChatBusy] = useState(false);
+  const [blockBusy, setBlockBusy] = useState(false);
+  const [confirmBlock, setConfirmBlock] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
@@ -79,6 +98,16 @@ export function ProfileView({
   useEffect(() => {
     setGridPosts(posts);
   }, [posts]);
+
+  useEffect(() => {
+    setFollowing(initialFollowing);
+    setFollowersCount(profile.followersCount);
+  }, [initialFollowing, profile.followersCount, profile.id]);
+
+  useEffect(() => {
+    if (!isGuest) return;
+    writeGuestProfileCache(profile, following);
+  }, [isGuest, profile, following]);
 
   useEffect(() => {
     if (!moreOpen) return;
@@ -148,6 +177,22 @@ export function ProfileView({
         setFollowersCount((n) => Math.max(0, n + (next ? -1 : 1)));
       } finally {
         setBusy(false);
+      }
+    });
+  };
+
+  const onBlock = () => {
+    if (blockBusy) return;
+    setBlockBusy(true);
+    startTransition(async () => {
+      try {
+        await blockUser(profile.id);
+        clearGuestProfileCache(profile.id);
+        setConfirmBlock(false);
+        router.back();
+      } catch {
+        setBlockBusy(false);
+        setConfirmBlock(false);
       }
     });
   };
@@ -248,6 +293,16 @@ export function ProfileView({
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-line bg-surface text-ink transition hover:bg-mint disabled:opacity-60 sm:h-12 sm:w-12"
                 >
                   <MessageCircle className="h-5 w-5" strokeWidth={2} />
+                </button>
+                <button
+                  type="button"
+                  disabled={blockBusy}
+                  onClick={() => setConfirmBlock(true)}
+                  title="Заблокировать"
+                  aria-label="Заблокировать"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-destructive/40 bg-surface text-destructive transition hover:bg-destructive/10 disabled:opacity-60 sm:h-12 sm:w-12"
+                >
+                  <Ban className="h-5 w-5" strokeWidth={2} />
                 </button>
               </div>
               {profile.tagKeys.includes("booking") ? (
@@ -390,6 +445,41 @@ export function ProfileView({
                 </Link>
               </li>
             </ul>
+          </div>
+        </div>
+      ) : null}
+
+      {confirmBlock ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-4 sm:items-center">
+          <div
+            role="dialog"
+            aria-modal
+            className="w-full max-w-sm rounded-[20px] border border-line bg-surface p-5 shadow-xl"
+          >
+            <p className="text-[16px] font-bold text-ink">Заблокировать?</p>
+            <p className="mt-2 text-[13px] leading-relaxed text-muted">
+              Подписки в обе стороны снимутся. Пока блок активен, вы не сможете
+              подписаться друг на друга.
+            </p>
+            <div className="mt-5 flex gap-2">
+              <AppButton
+                type="button"
+                variant="outline"
+                className="flex-1"
+                disabled={blockBusy}
+                onClick={() => setConfirmBlock(false)}
+              >
+                Отмена
+              </AppButton>
+              <AppButton
+                type="button"
+                className="flex-1 !bg-destructive !text-on-brand hover:!opacity-90"
+                loading={blockBusy}
+                onClick={onBlock}
+              >
+                Заблокировать
+              </AppButton>
+            </div>
           </div>
         </div>
       ) : null}

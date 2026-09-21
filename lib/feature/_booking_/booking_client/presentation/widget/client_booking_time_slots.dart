@@ -1,9 +1,10 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/feature/_booking_/shared/data/models/client_booking_slot_status.dart';
 import 'package:clover/feature/_booking_/booking_client/data/models/client_booking_slot.dart';
-import 'package:flutter/material.dart';
+import 'package:clover/feature/_booking_/booking_client/presentation/widget/client_booking_step_header.dart';
+import 'package:clover/feature/_booking_/shared/data/models/client_booking_slot_status.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
+import 'package:flutter/material.dart';
 
 class ClientBookingTimeSlots extends StatelessWidget {
   const ClientBookingTimeSlots({
@@ -20,20 +21,31 @@ class ClientBookingTimeSlots extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Время',
-          style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
+        const ClientBookingStepHeader(
+          step: 4,
+          title: 'Время',
+          subtitle: 'Свободные слоты на выбранный день',
         ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final slot in slots) _SlotChip(slot: slot, onTap: () => onSlotTap(slot)),
-          ],
-        ),
-        const SizedBox(height: 10),
-        _Legend(),
+        const SizedBox(height: 12),
+        if (slots.isEmpty)
+          Text(
+            'На этот день свободных слотов нет',
+            style: AppTextStyle.base(13, color: context.colors.subTextColor),
+          )
+        else
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final slot in slots) _SlotChip(slot: slot, onTap: () => onSlotTap(slot)),
+            ],
+          ),
+        if (slots.any((s) =>
+            s.status == ClientBookingSlotStatus.myConflict ||
+            s.status == ClientBookingSlotStatus.hostBusy)) ...[
+          const SizedBox(height: 12),
+          const _Legend(),
+        ],
       ],
     );
   }
@@ -48,32 +60,45 @@ class _SlotChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = bookingServiceAccent(context.colors);
-    final (bg, fg, border) = switch (slot.status) {
-      ClientBookingSlotStatus.selected => (accent.cta, accent.ctaForeground, accent.cta),
-      ClientBookingSlotStatus.available => (context.colors.surface, context.colors.textColor, accent.ctaBorder),
+    final (bg, fg, border, enabled) = switch (slot.status) {
+      ClientBookingSlotStatus.selected => (accent.cta, accent.ctaForeground, accent.cta, true),
+      ClientBookingSlotStatus.available => (
+          context.colors.surface,
+          context.colors.textColor,
+          context.colors.border.withValues(alpha: 0.8),
+          true,
+        ),
       ClientBookingSlotStatus.myConflict => (
           context.colors.functionalSoftRed,
           context.colors.functionalSoftRedIcon,
           context.colors.borderCardRed,
+          true,
         ),
-      ClientBookingSlotStatus.hostBusy => (context.colors.surfaceSoft, context.colors.subTextColor, context.colors.borderSoft),
+      ClientBookingSlotStatus.hostBusy => (
+          context.colors.surfaceMuted,
+          context.colors.iconMuted,
+          context.colors.borderSoft,
+          false,
+        ),
     };
 
     return Material(
       color: bg,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
-        onTap: onTap,
+        onTap: enabled || slot.status == ClientBookingSlotStatus.myConflict ? onTap : null,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          width: 72,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: border.withValues(alpha: 0.85)),
+            border: Border.all(color: border),
           ),
           child: Text(
             slot.timeLabel,
-            style: AppTextStyle.base(13, color: fg, fontWeight: FontWeight.w700),
+            style: AppTextStyle.base(14, color: fg, fontWeight: FontWeight.w700),
           ),
         ),
       ),
@@ -82,15 +107,15 @@ class _SlotChip extends StatelessWidget {
 }
 
 class _Legend extends StatelessWidget {
+  const _Legend();
+
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 12,
+      spacing: 14,
       runSpacing: 6,
       children: [
-        _LegendItem(color: bookingServiceAccent(context.colors).cta, label: 'Выбрано'),
-        _LegendItem(color: bookingServiceAccent(context.colors).ctaBorder, label: 'Свободно'),
-        _LegendItem(color: context.colors.borderCardRed, label: 'Ваш конфликт'),
+        _LegendItem(color: context.colors.borderCardRed, label: 'Конфликт с вашей записью'),
         _LegendItem(color: context.colors.borderSoft, label: 'Занято'),
       ],
     );
@@ -109,11 +134,11 @@ class _LegendItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 10,
-          height: 10,
+          width: 8,
+          height: 8,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        SizedBox(width: 6),
+        const SizedBox(width: 6),
         Text(label, style: AppTextStyle.base(11, color: context.colors.subTextColor, fontWeight: FontWeight.w600)),
       ],
     );

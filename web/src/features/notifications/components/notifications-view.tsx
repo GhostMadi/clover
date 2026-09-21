@@ -46,6 +46,10 @@ function hrefFor(item: AppNotification): string | null {
   }
 
   switch (item.kind) {
+    case "bookingAssignedStaff":
+      return item.bookingHostId
+        ? `/app/settings/booking/calendar?host=${encodeURIComponent(item.bookingHostId)}`
+        : "/app/settings/booking/calendar";
     case "bookingCreatedHost":
     case "bookingVisitStarted":
     case "bookingVisitNeedsClose":

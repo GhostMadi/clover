@@ -17,6 +17,7 @@ enum NotificationKind {
   bookingNoShowClient,
   bookingReminderClient,
   bookingRescheduled,
+  bookingAssignedStaff,
   attendanceInvite,
   attendanceRulesAck,
   attendanceDuty,

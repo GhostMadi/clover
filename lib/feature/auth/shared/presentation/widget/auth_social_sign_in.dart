@@ -1,9 +1,11 @@
 import 'package:clover/core/auth/cubit/auth_cubit.dart';
 import 'package:clover/core/auth/cubit/auth_state.dart';
 import 'package:clover/core/extension/context.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/resources.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/core/shared/platform/app_platform.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -63,6 +65,53 @@ class AuthGoogleSignInButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SvgPicture.asset(AppSvg.google, height: 22),
+                  const SizedBox(width: 12),
+                  Text(
+                    label,
+                    style: AppTextStyle.base(15, fontWeight: FontWeight.w600, color: context.colors.textColor),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+/// Native Sign in with Apple — только iOS / iPadOS (как у Google native на мобилке).
+class AuthAppleSignInButton extends StatelessWidget {
+  const AuthAppleSignInButton({
+    super.key,
+    this.label = 'Continue with Apple',
+  });
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!AppPlatform.isIOS) return const SizedBox.shrink();
+
+    final isLoading = context.select<AuthCubit, bool>((c) => c.state is AuthLoading);
+
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton(
+        onPressed: isLoading ? null : () => context.read<AuthCubit>().loginWithApple(),
+        style: OutlinedButton.styleFrom(
+          backgroundColor: context.colors.surface,
+          side: BorderSide(color: context.colors.borderInput),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        ),
+        child: isLoading
+            ? SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primary),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(AppIcons.appleLogo.icon, size: 22, color: context.colors.textColor),
                   const SizedBox(width: 12),
                   Text(
                     label,

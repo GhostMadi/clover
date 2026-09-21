@@ -1,0 +1,107 @@
+---
+description: Хост-сервис «Ресурсы» — местоположения + фильтры витрины + гайд. Не путать с clover-resources (UI-токены).
+globs:
+  - lib/feature/_catalog_/location/**
+  - lib/feature/_settings_/settings_resources/**
+  - lib/feature/_settings_/settings_filter/**
+  - web/src/features/resources/**
+  - web/src/app/**/resources/**
+  - web/src/app/**/locations/**
+  - docs/business/locations.md
+  - docs/business/filters.md
+  - docs/business/resources-guide.md
+  - docs/supabase/locations.md
+alwaysApply: false
+---
+
+# Clover Host Resources — расширение
+
+Опора: [`locations.md`](docs/business/locations.md) · [`filters.md`](docs/business/filters.md) §2 · [`resources-guide.md`](docs/business/resources-guide.md) · [`docs/supabase/locations.md`](docs/supabase/locations.md)
+
+**Не путать** с `clover-resources` / `clover-web-resources` (цвета, иконки, AppTextStyle).
+
+Стыки: `clover-backend-feature`, `clover-harmony`, `clover-catalog-l10n`, `clover-feature-discipline`.
+
+## Режим ответа
+
+| Запрос | Действие |
+|--------|----------|
+| «готов ли ресурсы», «как работает» | Только оценка. **Без кода** |
+| «делай», «доделай», «почини» | Код по маршруту ниже |
+| Неясно | Оценка или реализация? |
+
+## Маршрут новой возможности
+
+```
+1. Продукт → locations.md / filters.md / resources-guide.md (+ tag-powers)
+2. Контракт → docs/supabase/locations.md (+ MIGRATIONS_INDEX при схеме)
+3. Миграция → supabase/migrations/<timestamp>_….sql при необходимости
+4. Клиенты → Flutter location + settings_resources/filter · web features/resources/
+5. Кэш web → resources-prefs; clear на logout; invalidate после мутаций
+```
+
+Нельзя: путать с городом ленты/карты ([filters.md](docs/business/filters.md) §1); зоны delivery без продукта; публичный каталог всех локаций города.
+
+## Состав хаба
+
+| Тайл | Смысл | Тег |
+|------|--------|-----|
+| Местоположения | Личный справочник мест автора → пост/ивент | `resources` |
+| Фильтры | Категории витрины профиля (не Home filter) | `resources` |
+| Гайд | Концепция сервиса (`overview`) | — |
+
+Кнопка хаба = тег **`resources`** (admin), не prefs-ярлык.
+
+## Данные
+
+### Локации (`public.locations`)
+
+- RLS: только `owner_id = auth.uid()`.
+- Адреса: `address_cyrillic` (UI create обязателен); `address_primary` = латиница **или** кириллица fallback. Один маппинг mobile ↔ web ([docs/supabase/locations.md](docs/supabase/locations.md)).
+- Страна/город — **пара** ключей каталога или оба null.
+- Неактивное — в списке, **не** в селекторе поста.
+- Create: пин на карте; edit: координаты **не** перетаскивать (только текст/справочники).
+
+### Фильтры витрины
+
+Отдельная система от Home Event/Map. Ключи EN; подписи на клиенте. Не смешивать state ленты и профиля.
+
+## Кэш (web)
+
+| Bucket | Смысл |
+|--------|--------|
+| `locations` | список |
+| `location:{id}` | деталь |
+| `profile-filters` | категории витрины |
+
+- SWR paint → sync.
+- После create/update/delete — invalidate coalesce **и** disk (`invalidateResourcesLocationsDiskCache`).
+- Logout → `clearResourcesSessionCaches` (как booking/attendance).
+- Mobile: live Supabase + in-memory cubit — ок для v1; не плодить диск без нужды.
+
+## Клиентские слои
+
+```
+Flutter:  _catalog_/location (repo → cubit → page) · settings_resources · settings_filter
+Web:      features/resources/lib/*-api → components/*-view · ServiceWorkspaceShell
+```
+
+Виджет не ходит в Supabase напрямую в обход api/repo.
+
+## Что можно / later
+
+| Можно | Вне скоупа (пока) |
+|-------|-------------------|
+| Паритет create (страна/город на mobile create) | Зоны delivery |
+| Polish гайда / хаба | Перепин при edit |
+| Новый справочник **внутри** хаба по продукту | Публичный каталог локаций города |
+| Invalidate filters LS после save (если добавите) | Смешение с booking/attendance |
+
+## Чеклист перед «готово»
+
+- [ ] Док locations/filters/guide обновлён
+- [ ] Контракт адресов один на mobile + web
+- [ ] RLS owner-only; пара country/city
+- [ ] Web кэш + logout clear + invalidate после мутаций
+- [ ] Не сломали Home-фильтр и пост-селектор мест
+- [ ] Не путали с UI-токенами `clover-resources`

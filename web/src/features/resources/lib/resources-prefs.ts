@@ -8,6 +8,7 @@ import type { ProfileFilterCategory } from "@/features/resources/lib/profile-fil
 import {
   readServiceCache,
   writeServiceCache,
+  clearServiceCache,
 } from "@/lib/service-sync-cache";
 
 const TAB_VERSION = 1;
@@ -89,4 +90,36 @@ export function writeResourcesProfileFiltersCache(
     version: TAB_VERSION,
     data: { categories },
   });
+}
+
+/** Drop list + optional detail LS after mutation (coalesce invalidated separately). */
+export function invalidateResourcesLocationsDiskCache(
+  userId: string | null | undefined,
+  locationId?: string | null,
+): void {
+  if (!userId) return;
+  clearServiceCache({ service: "resources", bucket: "locations", userId });
+  const id = locationId?.trim();
+  if (id) {
+    clearServiceCache({ service: "resources", bucket: `location:${id}`, userId });
+  }
+}
+
+/** Clear all resources sync buckets + prefs for user (logout). */
+export function clearResourcesSessionCaches(
+  userId: string | null | undefined,
+): void {
+  if (!userId || typeof window === "undefined") return;
+  try {
+    const prefix = "clover-web-sync:resources:";
+    const suffix = `:${userId}`;
+    const keys: string[] = [];
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(prefix) && k.endsWith(suffix)) keys.push(k);
+    }
+    for (const k of keys) localStorage.removeItem(k);
+  } catch {
+    /* ignore */
+  }
 }

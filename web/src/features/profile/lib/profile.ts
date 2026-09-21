@@ -10,7 +10,6 @@ export { formatStat, usernamePolicy } from "@/features/profile/lib/profile-model
 
 const COLUMNS = `
 id,
-email,
 full_name,
 username,
 city_code,

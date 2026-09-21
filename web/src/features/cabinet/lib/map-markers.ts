@@ -7,6 +7,8 @@ export type MapMarker = {
   lat: number;
   lng: number;
   postId?: string | null;
+  /** ISO from `list_markers_map.event_time` — for client date filter. */
+  eventTime?: string | null;
   /** Server LOD cluster size from `list_markers_map_clusters`. */
   pointCount?: number | null;
 };
@@ -16,6 +18,9 @@ export type MapMarkersFilter = {
   cityCode: string;
   emoji: string | null;
   tagKeys: string[];
+  /** YYYY-MM-DD — client-side filter (как Flutter). */
+  dateFrom: string | null;
+  dateTo: string | null;
 };
 
 export type MapViewport = {
@@ -28,6 +33,8 @@ export const DEFAULT_MAP_FILTER: MapMarkersFilter = {
   cityCode: "almaty",
   emoji: null,
   tagKeys: [],
+  dateFrom: null,
+  dateTo: null,
 };
 
 const EARTH_RADIUS_M = 6_371_000;
@@ -94,7 +101,14 @@ const CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000;
 
 function filterFingerprint(filter: MapMarkersFilter): string {
   const tags = [...filter.tagKeys].sort().join(",");
-  return [filter.countryCode, filter.cityCode, filter.emoji ?? "", tags].join("|");
+  return [
+    filter.countryCode,
+    filter.cityCode,
+    filter.emoji ?? "",
+    tags,
+    filter.dateFrom ?? "",
+    filter.dateTo ?? "",
+  ].join("|");
 }
 
 /** Ключ дискового кэша — как Flutter MapMarkersLocalCache. */
@@ -131,14 +145,70 @@ export function writeMapMarkersCache(key: string, items: MapMarker[]): void {
 function mapRow(row: Record<string, unknown>): MapMarker {
   const sampleId = row.sample_marker_id ?? row.id;
   const countRaw = row.point_count;
+  const eventRaw = row.event_time;
   return {
     id: sampleId == null ? "" : String(sampleId),
     textEmoji: String(row.text_emoji ?? row.sample_emoji ?? "").trim() || "📍",
     lat: Number(row.lat),
     lng: Number(row.lng),
     postId: (row.post_id as string | null | undefined) ?? null,
+    eventTime:
+      eventRaw == null || eventRaw === ""
+        ? null
+        : typeof eventRaw === "string"
+          ? eventRaw
+          : String(eventRaw),
     pointCount: typeof countRaw === "number" ? countRaw : null,
   };
+}
+
+/** Как Flutter: даты режем на клиенте после `list_markers_map` (не на clusters). */
+export function applyMapDateFilter(
+  markers: MapMarker[],
+  filter: MapMarkersFilter,
+): MapMarker[] {
+  if (!filter.dateFrom && !filter.dateTo) return markers;
+  return markers.filter((m) => {
+    if ((m.pointCount ?? 0) >= 1) return true;
+    if (!m.eventTime) return false;
+    const t = Date.parse(m.eventTime);
+    if (!Number.isFinite(t)) return false;
+    if (filter.dateFrom) {
+      const from = Date.parse(`${filter.dateFrom}T00:00:00`);
+      if (Number.isFinite(from) && t < from) return false;
+    }
+    if (filter.dateTo) {
+      const to = Date.parse(`${filter.dateTo}T23:59:59.999`);
+      if (Number.isFinite(to) && t > to) return false;
+    }
+    return true;
+  });
+}
+
+/** Маркеры на той же точке (6 знаков) — стопка как Flutter `groupByLocation`. */
+export function markersAtLocation(
+  all: MapMarker[],
+  lat: number,
+  lng: number,
+): MapMarker[] {
+  const key = `${lat.toFixed(6)}_${lng.toFixed(6)}`;
+  return all.filter(
+    (m) =>
+      (m.pointCount ?? 0) < 1 &&
+      `${m.lat.toFixed(6)}_${m.lng.toFixed(6)}` === key,
+  );
+}
+
+export function postIdsFromMarkers(markers: MapMarker[]): string[] {
+  const ids: string[] = [];
+  const seen = new Set<string>();
+  for (const m of markers) {
+    const id = m.postId?.trim();
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    ids.push(id);
+  }
+  return ids;
 }
 
 async function fetchMapMarkerClusters(
@@ -194,7 +264,7 @@ export async function fetchMapMarkers(
   if (error) throw error;
 
   const rows = (data as Record<string, unknown>[] | null) ?? [];
-  return rows.map(mapRow);
+  return applyMapDateFilter(rows.map(mapRow), filter);
 }
 
 /** Warm disk cache for N/S/E/W (~0.5 radius). Best-effort, no UI. */

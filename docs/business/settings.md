@@ -28,6 +28,7 @@
 | **Архивы** | Архивы | [archives.md](archives.md) |
 | | Сохраненные посты | [saved-posts.md](saved-posts.md) |
 | **Аккаунт** | Аккаунт | Язык, тема, выход — ниже |
+| | Заблокированные | Список + разблокировка — [blocks.md](blocks.md) |
 | **О приложении** | О приложении | Версия, повтор [онбординга](onboarding.md) |
 
 ---
@@ -43,6 +44,7 @@
 | **Установить / сбросить пароль** | **Настройки → Аккаунт → Безопасность**. Бэк (`auth_current_user_has_password`): **нет пароля** → «Установить» (RPC каждый раз, пока не зададут); **есть** → «Сбросить» (OTP → новый). Факт «пароль есть» кэшируется локально один раз и больше не перепроверяется. С логина — «Забыли пароль?». См. [authentication.md](authentication.md) |
 | **Выйти** | Подтверждение → выход из сессии → экран входа |
 | **Усыпить аккаунт** | Confirm → `hibernate_account` → выход. Не удаление. Просыпание при следующем входе. Лимит 1/30 дней. [account-sleep.md](account-sleep.md) |
+| **Удалить аккаунт** | Confirm → RPC `soft_delete_account` (скрывает как сон, **без** cascade wipe) → выход. Пробуждение при следующем входе. [account-delete.md](account-delete.md) |
 
 Сессия между запусками: [authentication.md](authentication.md) § Повторный вход и Выход.
 
@@ -74,7 +76,6 @@
 - Полноценный переключатель языка (ARB / l10n).
 - Экран «Конфиденциальность», юридические ссылки.
 - Управление push / email из UI.
-- Hard delete in-app — legal `/delete-account` (не сон).
 
 ---
 
@@ -83,5 +84,6 @@
 - [profile.md](profile.md)
 - [authentication.md](authentication.md)
 - [account-sleep.md](account-sleep.md)
+- [account-delete.md](account-delete.md)
 - [locations.md](locations.md) · [filters.md](filters.md) · [archives.md](archives.md) · [saved-posts.md](saved-posts.md)
 - [booking.md](booking.md)

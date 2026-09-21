@@ -1,7 +1,9 @@
-import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/feature/_booking_/booking_client/presentation/widget/client_booking_step_header.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 
 class ClientBookingExecutorPicker extends StatelessWidget {
@@ -23,18 +25,19 @@ class ClientBookingExecutorPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Исполнитель',
-          style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
+        const ClientBookingStepHeader(
+          step: 2,
+          title: 'Мастер',
+          subtitle: 'Кто будет делать услугу',
         ),
-        const SizedBox(height: 10),
-        for (final executor in executors) ...[
+        const SizedBox(height: 12),
+        for (var i = 0; i < executors.length; i++) ...[
+          if (i > 0) const SizedBox(height: 8),
           _ExecutorTile(
-            executor: executor,
-            selected: executor.id == selectedId,
-            onTap: () => onSelected(executor),
+            executor: executors[i],
+            selected: executors[i].id == selectedId,
+            onTap: () => onSelected(executors[i]),
           ),
-          const SizedBox(height: 8),
         ],
       ],
     );
@@ -54,8 +57,13 @@ class _ExecutorTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = bookingServiceAccent(context.colors);
+    final initial = executor.displayName.trim().isEmpty
+        ? '?'
+        : executor.displayName.characters.first.toUpperCase();
+
     return Material(
-      color: selected ? context.colors.functionalSoftBlue : context.colors.surface,
+      color: selected ? accent.soft : context.colors.surface,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -65,29 +73,32 @@ class _ExecutorTile extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: selected ? context.colors.functionalSoftBlueIcon : context.colors.border.withValues(alpha: 0.55),
-              width: selected ? 1.5 : 1,
+              color: selected ? accent.ctaBorder : context.colors.border.withValues(alpha: 0.7),
+              width: selected ? 1.4 : 1,
             ),
           ),
           child: Row(
             children: [
               CircleAvatar(
                 radius: 18,
-                backgroundColor: context.colors.surfaceSoftGreen.withValues(alpha: 0.6),
+                backgroundColor: selected
+                    ? context.colors.surface.withValues(alpha: 0.75)
+                    : accent.soft.withValues(alpha: 0.55),
                 child: Text(
-                  executor.displayName.characters.first,
-                  style: AppTextStyle.base(14, color: context.colors.primary, fontWeight: FontWeight.w800),
+                  initial,
+                  style: AppTextStyle.base(14, color: accent.icon, fontWeight: FontWeight.w800),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   executor.displayLabel,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyle.base(14, color: context.colors.textColor, fontWeight: FontWeight.w600),
                 ),
               ),
-              if (selected)
-                Icon(AppIcons.checkCircle.icon, size: 20, color: context.colors.functionalSoftBlueIcon),
+              if (selected) Icon(AppIcons.checkCircle.icon, size: 20, color: accent.icon),
             ],
           ),
         ),

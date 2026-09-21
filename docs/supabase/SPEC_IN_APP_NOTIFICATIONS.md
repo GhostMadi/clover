@@ -60,6 +60,7 @@ Legacy rows backfilled from `notification_events` where `type = follow`.
 |------|-----------|---------|
 | `booking_created_host` | Host | `AFTER INSERT` on `bookings` |
 | `booking_booked_client` | Client | same |
+| `booking_assigned_staff` | Staff `profile_id` (≠ host/client, not null) | same insert; skip name-only staff |
 | `booking_reminder_client` | Client | Cron: **24 h** and **1 h** before `starts_at` (`confirmed` only); **in-app + FCM** |
 | `booking_rescheduled` | Other party | `reschedule_booking` → history `rescheduled`; **in-app + FCM** |
 | `booking_visit_started` | Host | Cron: `confirmed`, slot started; **in-app only** |
@@ -91,7 +92,7 @@ Migrations: `20260830220000` · reminders `20260830230000` · cycle `20260915164
 
 ### Dedupe keys
 
-- `booking:{id}:created:host` / `:created:client`
+- `booking:{id}:created:host` / `:created:client` / `:assigned:staff`
 - `booking:{id}:reminder:1440` / `:60` (legacy `:180` / `:30` cleared on status leave)
 - `booking:{id}:rescheduled` (upsert on each transfer; `created_at` refreshes)
 - `booking:{id}:visit_started`

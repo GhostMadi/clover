@@ -9,8 +9,10 @@ import 'package:clover/core/push/app_push_messaging_service.dart';
 import 'package:clover/core/session/account_session_cleanup.dart';
 import 'package:clover/core/storage/account_storage_keys.dart';
 import 'package:clover/core/storage/domain/repositories/i_app_storage.dart';
+import 'package:crypto/crypto.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 @lazySingleton
@@ -133,6 +135,69 @@ class AuthRepository {
     await _persistSession(user);
     await _reportAccountLogin();
     return UserModel.fromSupabaseUser(user);
+  }
+
+  /// Native Sign in with Apple → idToken → Supabase (iOS / macOS).
+  Future<UserModel> signInWithApple() async {
+    final available = await SignInWithApple.isAvailable();
+    if (!available) {
+      throw const AuthFailure(AuthErrorCode.appleSignInUnavailable);
+    }
+
+    final rawNonce = _supabase.auth.generateRawNonce();
+    final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+
+    final credential = await SignInWithApple.getAppleIDCredential(
+      scopes: [
+        AppleIDAuthorizationScopes.email,
+        AppleIDAuthorizationScopes.fullName,
+      ],
+      nonce: hashedNonce,
+    );
+
+    final idToken = credential.identityToken;
+    if (idToken == null || idToken.isEmpty) {
+      throw const AuthFailure(AuthErrorCode.appleIdTokenMissing);
+    }
+
+    final response = await _supabase.auth.signInWithIdToken(
+      provider: OAuthProvider.apple,
+      idToken: idToken,
+      nonce: rawNonce,
+    );
+
+    final user = response.user ?? _supabase.auth.currentUser;
+    if (user == null) {
+      throw const AuthFailure(AuthErrorCode.supabaseUserMissing);
+    }
+
+    // Apple отдаёт имя только при первом согласии — сохраняем в metadata.
+    final given = credential.givenName?.trim();
+    final family = credential.familyName?.trim();
+    if ((given != null && given.isNotEmpty) || (family != null && family.isNotEmpty)) {
+      final parts = <String>[
+        if (given != null && given.isNotEmpty) given,
+        if (family != null && family.isNotEmpty) family,
+      ];
+      try {
+        await _supabase.auth.updateUser(
+          UserAttributes(
+            data: {
+              'full_name': parts.join(' '),
+              if (given != null && given.isNotEmpty) 'given_name': given,
+              if (family != null && family.isNotEmpty) 'family_name': family,
+            },
+          ),
+        );
+      } catch (_) {
+        // Не блокируем вход, если metadata не обновилась.
+      }
+    }
+
+    final refreshed = _supabase.auth.currentUser ?? user;
+    await _persistSession(refreshed);
+    await _reportAccountLogin();
+    return UserModel.fromSupabaseUser(refreshed);
   }
 
   /// Login: ник или email + пароль.
@@ -504,6 +569,19 @@ class AuthRepository {
       throw AuthFailure(AuthErrorMapper.resolve(e));
     }
     await signOut();
+  }
+
+  /// Soft-hide like hibernate (no Auth wipe / no cascade). Then local wipe.
+  Future<void> deleteAccount() async {
+    try {
+      await _supabase.rpc('soft_delete_account');
+    } on PostgrestException catch (e) {
+      throw AuthFailure(AuthErrorMapper.resolve(e));
+    } catch (e) {
+      if (e is AuthFailure) rethrow;
+      throw AuthFailure(AuthErrorMapper.resolve(e));
+    }
+    await forceLocalSignOut();
   }
 
   /// Idempotent: hibernate → active after login / session restore.

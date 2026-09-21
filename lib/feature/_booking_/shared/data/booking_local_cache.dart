@@ -1,6 +1,8 @@
 import 'package:clover/core/storage/domain/repositories/i_app_storage.dart';
 import 'package:clover/core/storage/extensions/app_storage_extensions.dart';
 import 'package:clover/feature/_booking_/booking_analytics/data/repository/booking_analytics_repository.dart';
+import 'package:clover/feature/_booking_/booking_calendar/data/models/booking_calendar_host.dart';
+import 'package:clover/feature/_booking_/booking_calendar/data/models/booking_calendar_item.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service.dart';
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_date_range.dart';
@@ -180,6 +182,43 @@ class BookingLocalCache {
       ),
       value: result,
       toJson: (r) => r.toJson(),
+    );
+  }
+
+  String _calendarHostsKey(String userId) => 'booking_calendar_hosts_${userId.trim()}';
+
+  String _calendarItemsKey(String userId, String hostId, BookingListDateRange range) =>
+      'booking_calendar_items_${userId.trim()}_${hostId.trim()}_${_periodKey(range)}';
+
+  Future<List<BookingCalendarHost>?> readCalendarHosts(String userId) {
+    return _readList(_calendarHostsKey(userId), BookingCalendarHost.fromJson);
+  }
+
+  Future<void> writeCalendarHosts(String userId, List<BookingCalendarHost> hosts) {
+    return _writeList(_calendarHostsKey(userId), hosts, (e) => e.toJson());
+  }
+
+  Future<List<BookingCalendarItem>?> readCalendarItems(
+    String userId,
+    String hostId,
+    BookingListDateRange range,
+  ) {
+    return _readList(
+      _calendarItemsKey(userId, hostId, range),
+      BookingCalendarItem.fromJson,
+    );
+  }
+
+  Future<void> writeCalendarItems(
+    String userId,
+    String hostId,
+    BookingListDateRange range,
+    List<BookingCalendarItem> items,
+  ) {
+    return _writeList(
+      _calendarItemsKey(userId, hostId, range),
+      items,
+      (e) => e.toJson(),
     );
   }
 

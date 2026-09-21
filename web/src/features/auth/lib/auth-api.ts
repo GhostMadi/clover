@@ -271,6 +271,29 @@ export async function signInWithGoogle() {
 
 export async function signOut() {
   await detachWebPushForSignOut();
+  const { clearGuestProfileCache } = await import(
+    "@/features/profile/lib/profile-session-cache"
+  );
+  const { clearChatSessionCache } = await import(
+    "@/features/chat/lib/chat-session-cache"
+  );
+  const { clearBookingSessionCaches } = await import(
+    "@/features/booking/lib/booking-prefs"
+  );
+  const { clearAttendanceSessionCaches } = await import(
+    "@/features/attendance/lib/attendance-prefs"
+  );
+  const { clearResourcesSessionCaches } = await import(
+    "@/features/resources/lib/resources-prefs"
+  );
   const supabase = createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  clearGuestProfileCache();
+  clearChatSessionCache();
+  clearBookingSessionCaches(session?.user.id ?? null);
+  clearAttendanceSessionCaches(session?.user.id ?? null);
+  clearResourcesSessionCaches(session?.user.id ?? null);
   await supabase.auth.signOut();
 }

@@ -130,6 +130,13 @@ class SettingsPage extends StatelessWidget {
                   showChevron: true,
                   onTap: () => context.router.push(const SettingsAccountRoute()),
                 ),
+                AppTile(
+                  title: 'Заблокированные',
+                  subtitle: 'Кого вы закрыли',
+                  icon: AppIcons.block.icon,
+                  showChevron: true,
+                  onTap: () => context.router.push(const SettingsBlockedRoute()),
+                ),
               ],
             ),
             const SizedBox(height: 20),

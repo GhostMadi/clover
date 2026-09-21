@@ -1,0 +1,101 @@
+---
+description: Онбординг v2 + умные service-tips (кэш seen, каталог, resolver). Не путать «готов ли» с «делай».
+globs:
+  - lib/feature/onboarding/**
+  - docs/business/onboarding.md
+alwaysApply: false
+---
+
+# Clover Onboarding — расширение
+
+Опора: [`docs/business/onboarding.md`](docs/business/onboarding.md) · код: `lib/feature/onboarding/`
+
+Стыки: `clover-feature-discipline`, `clover-catalog-l10n` (теги EN), сервисы (`clover-booking`, `clover-attendance`, `clover-host-resources`).
+
+## Режим ответа
+
+| Запрос | Действие |
+|--------|----------|
+| «как работает онбординг», «готов ли» | Оценка / схема. **Без кода** |
+| «делай tip на хабе X», «добавь tip» | Код по маршруту |
+| Неясно | Оценка или реализация? |
+
+Не раздувать стартовый тур v2 каждым новым сервисом без явного продукта.
+
+## Два слоя
+
+| Слой | Что | Кэш |
+|------|-----|-----|
+| **v2 app tour** | Выбор сюжета feed/business/both → слайды | `OnboardingStore` id `app_v2` |
+| **v3 service tips** | Разовый tip на surface хаба/фичи | те же seen-keys + `OnboardingTipResolver` |
+
+```
+Новый сервис → TipId + OnboardingTipCatalog (+ док)
+             → вызов resolver на surface
+             → UI tip (sheet/mini) → markSeen
+```
+
+## Маршрут нового tip
+
+```
+1. Продукт → onboarding.md § v3 (или ссылка из дока сервиса)
+2. OnboardingTipId + OnboardingTipCatalog (slides, surface, gate, requiredTag, priority)
+3. Вызов OnboardingTipResolver.nextForSurface в хабе/экране (после paint из кэша профиля)
+4. UI показа + Skip/Done → markSeen
+5. features-catalog при смене статуса
+```
+
+Нельзя: хардкод «показали раз» в prefs фичи в обход `OnboardingStore`; сеть для seen; показывать tip без тега, если gate `withTag`.
+
+## Кэш
+
+| Ключ | Смысл |
+|------|--------|
+| `resource_onboarding_seen_<uid>` | set EN tip ids |
+| `resource_onboarding_path_<uid>` | последний сюжет v2 (опционально) |
+
+- Per-user; аккаунты на одном устройстве не мешают.
+- Logout **не** обязан wipe (прогресс тура остаётся) — как сейчас.
+- Sync seen между устройствами — **вне v1 tips**.
+
+## Resolver
+
+```dart
+nextForSurface(userId, surface, profileTagKeys)
+  → catalog.forSurface
+  → unseenOf(store)
+  → gate (tag)
+  → min priority
+```
+
+`profileTagKeys` — из **уже** загруженного профиля/snapshot, не отдельный GET «ради tip».
+
+## Surfaces (EN)
+
+`booking_hub` · `attendance_hub` · `resources_hub` · `map_first_open` · `bonus_hub` (+ новые по продукту)
+
+## Клиент
+
+```
+data:     OnboardingStore · TipId · TipCatalog · TipResolver · OnboardingCatalog (v2 slides)
+page:     OnboardingPage (стартовый тур)
+будущее:  sheet/coach на хабах сервисов через resolver
+```
+
+Web-слайды тура — вне приоритета сайта.
+
+## Что можно / later
+
+| Можно | Later |
+|-------|-------|
+| Wire tip UI на booking/attendance/resources hub | Server sync seen |
+| Новые TipId + тексты | Онбординг до логина |
+| Replay только v2 | А/B тексты с бэка |
+
+## Чеклист перед «готово» (новый tip)
+
+- [ ] Строка в onboarding.md
+- [ ] TipId + Catalog (EN id, surface, gate/tag)
+- [ ] Resolver вызывается с тегами из snapshot
+- [ ] markSeen на skip и complete
+- [ ] Не добавили слайд в v2 «заодно»

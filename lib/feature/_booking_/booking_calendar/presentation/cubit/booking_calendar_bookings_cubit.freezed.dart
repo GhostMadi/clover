@@ -128,12 +128,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( BookingListDateRange period,  String hostId)?  loading,TResult Function( BookingListDateRange period,  String hostId,  List<BookingCalendarItem> items,  bool isRefreshing)?  loaded,TResult Function( BookingListDateRange period,  String hostId,  String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( BookingListDateRange period,  String hostId)?  loading,TResult Function( BookingListDateRange period,  String hostId,  List<BookingCalendarItem> items,  bool isRefreshing,  bool isFromCache)?  loaded,TResult Function( BookingListDateRange period,  String hostId,  String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading(_that.period,_that.hostId);case _Loaded() when loaded != null:
-return loaded(_that.period,_that.hostId,_that.items,_that.isRefreshing);case _Error() when error != null:
+return loaded(_that.period,_that.hostId,_that.items,_that.isRefreshing,_that.isFromCache);case _Error() when error != null:
 return error(_that.period,_that.hostId,_that.message);case _:
   return orElse();
 
@@ -152,12 +152,12 @@ return error(_that.period,_that.hostId,_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( BookingListDateRange period,  String hostId)  loading,required TResult Function( BookingListDateRange period,  String hostId,  List<BookingCalendarItem> items,  bool isRefreshing)  loaded,required TResult Function( BookingListDateRange period,  String hostId,  String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( BookingListDateRange period,  String hostId)  loading,required TResult Function( BookingListDateRange period,  String hostId,  List<BookingCalendarItem> items,  bool isRefreshing,  bool isFromCache)  loaded,required TResult Function( BookingListDateRange period,  String hostId,  String message)  error,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Loading():
 return loading(_that.period,_that.hostId);case _Loaded():
-return loaded(_that.period,_that.hostId,_that.items,_that.isRefreshing);case _Error():
+return loaded(_that.period,_that.hostId,_that.items,_that.isRefreshing,_that.isFromCache);case _Error():
 return error(_that.period,_that.hostId,_that.message);case _:
   throw StateError('Unexpected subclass');
 
@@ -175,12 +175,12 @@ return error(_that.period,_that.hostId,_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( BookingListDateRange period,  String hostId)?  loading,TResult? Function( BookingListDateRange period,  String hostId,  List<BookingCalendarItem> items,  bool isRefreshing)?  loaded,TResult? Function( BookingListDateRange period,  String hostId,  String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( BookingListDateRange period,  String hostId)?  loading,TResult? Function( BookingListDateRange period,  String hostId,  List<BookingCalendarItem> items,  bool isRefreshing,  bool isFromCache)?  loaded,TResult? Function( BookingListDateRange period,  String hostId,  String message)?  error,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading(_that.period,_that.hostId);case _Loaded() when loaded != null:
-return loaded(_that.period,_that.hostId,_that.items,_that.isRefreshing);case _Error() when error != null:
+return loaded(_that.period,_that.hostId,_that.items,_that.isRefreshing,_that.isFromCache);case _Error() when error != null:
 return error(_that.period,_that.hostId,_that.message);case _:
   return null;
 
@@ -293,7 +293,7 @@ as String,
 
 
 class _Loaded implements BookingCalendarBookingsState {
-  const _Loaded({required this.period, required this.hostId, required final  List<BookingCalendarItem> items, this.isRefreshing = false}): _items = items;
+  const _Loaded({required this.period, required this.hostId, required final  List<BookingCalendarItem> items, this.isRefreshing = false, this.isFromCache = false}): _items = items;
   
 
  final  BookingListDateRange period;
@@ -306,6 +306,7 @@ class _Loaded implements BookingCalendarBookingsState {
 }
 
 @JsonKey() final  bool isRefreshing;
+@JsonKey() final  bool isFromCache;
 
 /// Create a copy of BookingCalendarBookingsState
 /// with the given fields replaced by the non-null parameter values.
@@ -317,16 +318,16 @@ _$LoadedCopyWith<_Loaded> get copyWith => __$LoadedCopyWithImpl<_Loaded>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&(identical(other.period, period) || other.period == period)&&(identical(other.hostId, hostId) || other.hostId == hostId)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.isRefreshing, isRefreshing) || other.isRefreshing == isRefreshing));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&(identical(other.period, period) || other.period == period)&&(identical(other.hostId, hostId) || other.hostId == hostId)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.isRefreshing, isRefreshing) || other.isRefreshing == isRefreshing)&&(identical(other.isFromCache, isFromCache) || other.isFromCache == isFromCache));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,period,hostId,const DeepCollectionEquality().hash(_items),isRefreshing);
+int get hashCode => Object.hash(runtimeType,period,hostId,const DeepCollectionEquality().hash(_items),isRefreshing,isFromCache);
 
 @override
 String toString() {
-  return 'BookingCalendarBookingsState.loaded(period: $period, hostId: $hostId, items: $items, isRefreshing: $isRefreshing)';
+  return 'BookingCalendarBookingsState.loaded(period: $period, hostId: $hostId, items: $items, isRefreshing: $isRefreshing, isFromCache: $isFromCache)';
 }
 
 
@@ -337,7 +338,7 @@ abstract mixin class _$LoadedCopyWith<$Res> implements $BookingCalendarBookingsS
   factory _$LoadedCopyWith(_Loaded value, $Res Function(_Loaded) _then) = __$LoadedCopyWithImpl;
 @useResult
 $Res call({
- BookingListDateRange period, String hostId, List<BookingCalendarItem> items, bool isRefreshing
+ BookingListDateRange period, String hostId, List<BookingCalendarItem> items, bool isRefreshing, bool isFromCache
 });
 
 
@@ -354,12 +355,13 @@ class __$LoadedCopyWithImpl<$Res>
 
 /// Create a copy of BookingCalendarBookingsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? period = null,Object? hostId = null,Object? items = null,Object? isRefreshing = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? period = null,Object? hostId = null,Object? items = null,Object? isRefreshing = null,Object? isFromCache = null,}) {
   return _then(_Loaded(
 period: null == period ? _self.period : period // ignore: cast_nullable_to_non_nullable
 as BookingListDateRange,hostId: null == hostId ? _self.hostId : hostId // ignore: cast_nullable_to_non_nullable
 as String,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
 as List<BookingCalendarItem>,isRefreshing: null == isRefreshing ? _self.isRefreshing : isRefreshing // ignore: cast_nullable_to_non_nullable
+as bool,isFromCache: null == isFromCache ? _self.isFromCache : isFromCache // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

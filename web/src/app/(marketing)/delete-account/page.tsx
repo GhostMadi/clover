@@ -11,16 +11,30 @@ export const metadata: Metadata = {
 
 export default function DeleteAccountPage() {
   return (
-    <LegalPage title="Удаление аккаунта Clover" updated="8 сентября 2026">
+    <LegalPage title="Удаление аккаунта Clover" updated="20 сентября 2026">
       <LegalSection title="О сервисе">
         <p>
           Эта страница относится к приложению и сайту{" "}
-          <strong className="font-semibold text-ink">{SITE.name}</strong> ({SITE.domain}). Здесь — как запросить
-          удаление аккаунта и связанных с ним данных.
+          <strong className="font-semibold text-ink">{SITE.name}</strong> ({SITE.domain}). Здесь — как удалить
+          аккаунт и связанные с ним данные.
         </p>
       </LegalSection>
 
-      <LegalSection title="Как запросить удаление аккаунта">
+      <LegalSection title="Как удалить аккаунт (в приложении или на сайте)">
+        <ol className="list-decimal space-y-2 pl-5">
+          <li>Войдите в аккаунт {SITE.name} (мобильное приложение или веб).</li>
+          <li>
+            Откройте <strong className="font-semibold text-ink">Настройки → Аккаунт</strong>.
+          </li>
+          <li>
+            Нажмите <strong className="font-semibold text-ink">«Удалить аккаунт»</strong> и подтвердите.
+            Профиль и публикации скрываются из лент (как при «уснуть»); данные не стираются
+            каскадом. При следующем входе аккаунт снова активен.
+          </li>
+        </ol>
+      </LegalSection>
+
+      <LegalSection title="Если нет доступа к аккаунту">
         <ol className="list-decimal space-y-2 pl-5">
           <li>
             Откройте страницу поддержки:{" "}

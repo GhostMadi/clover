@@ -42,6 +42,25 @@ Booking / attendance / login — тоже через outbox.
 | **Self** | Себе не шлём (лайк своего поста и т.п.), **кроме** отчёта о входе (`account_login`) |
 | **Блок / hibernate** | `notifications_should_deliver` — не доставляем, если нельзя взаимодействовать |
 
+Правило агента / каркас: [`.cursor/rules/clover-notifications.mdc`](../../.cursor/rules/clover-notifications.mdc).
+
+### Тексты и локаль
+
+- **Цель:** шаблоны фраз только в приложении (mobile + web). Бэк — EN `kind` / EN keys + payload.
+- **Payload** может содержать пользовательский текст (`service_title`, preview) — это данные, не словарь продукта.
+- **FCM tray (цель):** `title_loc_key` / `body_loc_key` + args в ресурсах приложения, без RU на сервере.
+- Если технически нельзя — **запись в реестр ниже** (при новом языке пройти весь реестр).
+
+### Реестр исключений локали
+
+Места, где человекочитаемый перевод **не** только в приложении. При добавлении EN/KK/… — обновить каждое.
+
+| Где | Что локализуется | Почему | Цель снятия |
+|-----|------------------|--------|-------------|
+| Edge `drain_push_outbox` → `localizePushTitle` / `localizePushBody` | RU title/body для шторки FCM (в т.ч. `assigned_to_you`) | ОС рисует tray из готового `notification`, без пробуждения Dart | FCM `*_loc_key` + строки в mobile; web SW — свой словарь |
+
+Пустой реестр (кроме строк выше) = все шаблоны на клиенте.
+
 ---
 
 ## Социальные уведомления
@@ -86,12 +105,14 @@ Instant booking: запись **сразу подтверждена**, отде�
 |------|-----|--------------|
 | **Хозяин** | Профиль с тегом `booking` | Новая запись, отмена клиентом, перенос (если перенёс клиент), visit_* (in-app) |
 | **Клиент** | Кто записался | Подтверждение, **напоминания**, отмена хозяином, перенос (если перенёс хозяин), итог визита |
+| **Исполнитель** | Staff с `profile_id` (аккаунт Clover), тег `bookingCalendar` для экрана | Новая запись **на меня** (`booking_assigned_staff`) |
 
 ### Жизненный цикл уведомлений одной записи
 
 | Фаза | kind (EN) | Кому | Канал |
 |------|-----------|------|-------|
 | Создали | `booking_created_host` / `booking_booked_client` | хозяин / клиент | in-app + FCM |
+| Создали (staff) | `booking_assigned_staff` | исполнитель с `profile_id` | in-app + FCM · тап → календарь |
 | Ждём визит | `booking_reminder_client` | **только клиент** | in-app + FCM · окна **24 ч** и **1 ч** до `starts_at` |
 | Перенесли | `booking_rescheduled` | **вторая сторона** (кто не жал «перенести») | in-app + FCM |
 | Слот начался | `booking_visit_started` | хозяин | **только in-app** |
@@ -203,6 +224,7 @@ host или client → reschedule_booking
 |-----------|---------------|--------|-----|-------------|
 | `post_like` / `post_dislike` / `post_comment` / `comment_*` | пост (`post_id`) | да | да | done |
 | `user_follow` | профиль actor (`actor_id`) | да | да | done |
+| `booking_assigned_staff` | календарь исполнителя (`/settings/booking/calendar`, host при `host_id`) | да | да | цикл |
 | `booking_*` (create/cancel/complete/no_show/`booking_rescheduled`) | деталь брони (`booking_id`) или inbox | да* | да* | цикл — [уведомления по записи](#уведомления-по-записи) |
 | `booking_reminder_client` | деталь брони | да | да (24 ч + 1 ч) | цикл reminder |
 | `booking_visit_*` | деталь / inbox | да | нет | осознанно без FCM |

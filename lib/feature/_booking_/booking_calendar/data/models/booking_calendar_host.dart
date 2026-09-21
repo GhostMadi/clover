@@ -31,4 +31,13 @@ class BookingCalendarHost {
       isActive: json['is_active'] as bool? ?? true,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'host_id': hostId,
+        'host_display_name': hostDisplayName,
+        'host_username': hostUsername,
+        'staff_id': staffId,
+        'staff_display_name': staffDisplayName,
+        'is_active': isActive,
+      };
 }

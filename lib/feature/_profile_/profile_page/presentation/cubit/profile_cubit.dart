@@ -21,6 +21,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   void reset() {
     final uid = _session.userId ?? state.mapOrNull(loaded: (s) => s.profile.id);
     emit(const ProfileState.initial());
+    _cache.clearSessionMemory();
     if (uid != null && uid.isNotEmpty) {
       _cache.clear(uid);
     }
@@ -39,6 +40,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     if (uid != null && uid.isNotEmpty) {
       final cached = await _cache.read(uid);
       if (!isClosed && cached != null) {
+        _cache.putMemoryProfile(cached);
         emit(ProfileState.loaded(cached));
       } else if (!isClosed) {
         emit(const ProfileState.loading());
@@ -83,6 +85,19 @@ class ProfileCubit extends Cubit<ProfileState> {
     final loaded = state.mapOrNull(loaded: (s) => s);
     if (loaded == null) return;
     final next = loaded.profile.copyWith(hasFilters: hasFilters);
+    emit(ProfileState.loaded(next));
+    _cache.write(next);
+  }
+
+  /// Optimistic ±1 к своему following_count после follow/unfollow на чужом профиле.
+  void adjustFollowingCount(int delta) {
+    if (delta == 0) return;
+    final loaded = state.mapOrNull(loaded: (s) => s);
+    if (loaded == null) return;
+    final nextCount = loaded.profile.followingCount + delta;
+    final next = loaded.profile.copyWith(
+      followingCount: nextCount < 0 ? 0 : nextCount,
+    );
     emit(ProfileState.loaded(next));
     _cache.write(next);
   }

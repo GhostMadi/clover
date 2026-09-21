@@ -14,6 +14,12 @@ abstract final class AuthErrorMessages {
         'Не удалось войти через Google. Попробуйте ещё раз.',
       AuthErrorCode.googleClientMisconfigured =>
         'Google Sign-In не настроен: проверьте Web Client ID в Google Cloud и Supabase.',
+      AuthErrorCode.appleIdTokenMissing =>
+        'Не удалось войти через Apple. Попробуйте ещё раз.',
+      AuthErrorCode.appleSignInFailed =>
+        'Не удалось войти через Apple. Попробуйте ещё раз.',
+      AuthErrorCode.appleSignInUnavailable =>
+        'Вход через Apple недоступен на этом устройстве.',
       AuthErrorCode.supabaseSignInFailed =>
         'Не удалось выполнить вход. Попробуйте позже.',
       AuthErrorCode.supabaseUserMissing =>
@@ -51,6 +57,8 @@ abstract final class AuthErrorMessages {
         'Не удалось усыпить аккаунт. Попробуйте ещё раз.',
       AuthErrorCode.hibernateRateLimited =>
         'Сон можно включать не чаще раза в 30 дней.',
+      AuthErrorCode.deleteAccountFailed =>
+        'Не удалось удалить аккаунт. Попробуйте ещё раз.',
     };
   }
 }

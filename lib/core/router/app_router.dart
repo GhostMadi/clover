@@ -78,6 +78,7 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: SettingsArchiveRoute.page),
         AutoRoute(page: SavedPostsRoute.page),
         AutoRoute(page: SettingsAccountRoute.page),
+        AutoRoute(page: SettingsBlockedRoute.page),
         AutoRoute(page: SettingsPasswordRoute.page),
         AutoRoute(page: AboutRoute.page),
         AutoRoute(page: PostArchiveRoute.page),

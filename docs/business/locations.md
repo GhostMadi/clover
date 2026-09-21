@@ -1,7 +1,9 @@
 # Местоположения пользователя
 
 **Статус:** актуально на сейчас  
-**Связано с:** [publications.md](publications.md), [settings.md](settings.md), [profile-data.md](profile-data.md)
+**Связано с:** [publications.md](publications.md), [settings.md](settings.md), [profile-data.md](profile-data.md), [resources-guide.md](resources-guide.md)
+
+Правило агента / каркас расширения: [`.cursor/rules/clover-host-resources.mdc`](../../.cursor/rules/clover-host-resources.mdc).
 
 ---
 

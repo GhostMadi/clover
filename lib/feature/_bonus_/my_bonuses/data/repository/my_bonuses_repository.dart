@@ -1,5 +1,6 @@
 import 'package:clover/feature/_bonus_/my_bonuses/data/models/bonus_account_item.dart';
 import 'package:clover/feature/_bonus_/my_bonuses/data/models/bonus_accounts_page.dart';
+import 'package:clover/feature/_bonus_/shared/data/bonus_mock.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -15,6 +16,9 @@ class MyBonusesRepositoryImpl implements MyBonusesRepository {
 
   @override
   Future<BonusAccountsPage> listMyAccounts({int limit = 50}) async {
+    if (BonusMock.enabled) {
+      return BonusAccountsPage(items: BonusMock.accounts());
+    }
     final res = await _client.rpc('list_my_bonus_accounts', params: {'p_limit': limit});
     final items = _parseRows(res);
     return BonusAccountsPage(items: items);

@@ -704,10 +704,38 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
     _channel?.unsubscribe();
     _channel = _client.channel('chat_thread_$conversationId')
       ..onBroadcast(event: 'message_enriched', callback: (payload) => _onMessageEnriched(payload))
+      ..onBroadcast(event: 'message_updated', callback: (payload) => _onMessageEnriched(payload))
+      ..onBroadcast(event: 'message_removed', callback: (payload) => _onMessageRemoved(payload))
       ..onBroadcast(event: 'peer_read', callback: (payload) => _onPeerRead(payload))
       ..onBroadcast(event: 'typing', callback: (payload) => _onTyping(payload))
       ..onBroadcast(event: 'wallpaper_changed', callback: (payload) => _onWallpaperChanged(payload))
       ..subscribe();
+  }
+
+  void _onMessageRemoved(Map<String, dynamic> payload) {
+    final conversationId = _conversationId;
+    final uid = _currentUserId;
+    if (conversationId == null) return;
+
+    final data = payload['payload'] ?? payload;
+    if (data is! Map) return;
+    if (data['conversation_id']?.toString().trim() != conversationId) return;
+
+    final messageId = data['message_id']?.toString().trim() ?? '';
+    if (messageId.isEmpty) return;
+
+    final cur = state;
+    if (cur is! ChatThreadLoaded) return;
+
+    final nextMessages = cur.messages.where((m) => m.id != messageId).toList(growable: false);
+    emit(cur.copyWith(
+      messages: nextMessages,
+      clearEditingMessage: cur.editingMessage?.id == messageId,
+    ));
+
+    if (uid != null && uid.isNotEmpty) {
+      unawaited(_persistMessages(uid, conversationId, nextMessages));
+    }
   }
 
   void _onWallpaperChanged(Map<String, dynamic> payload) {
@@ -886,6 +914,7 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
     final raw = error.toString();
     if (raw.contains('not_authenticated')) return 'Войдите в аккаунт';
     if (raw.contains('not_participant')) return 'Нет доступа к этому чату';
+    if (raw.contains('user_blocked')) return 'Переписка недоступна — пользователь в блоке';
     return 'Не удалось выполнить действие';
   }
 

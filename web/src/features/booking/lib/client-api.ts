@@ -284,3 +284,76 @@ export async function deleteBlockedSlot(id: string): Promise<void> {
   const { error } = await supabase.from("booking_blocked_slots").delete().eq("id", id);
   if (error) throw error;
 }
+
+export type BookingStaffDaySchedule = {
+  staffId: string;
+  weekday: number;
+  isWorking: boolean;
+  workStartHour: number | null;
+  workEndHour: number | null;
+};
+
+function hourFromTime(raw: unknown): number | null {
+  const s = String(raw ?? "").trim();
+  if (!s) return null;
+  const parts = s.split(":");
+  return parts.length ? Number.parseInt(parts[0]!, 10) || null : null;
+}
+
+/** Персональный график мастера (ISO weekday 1–7). Нет строки → день рабочий по умолчанию. */
+export async function listStaffSchedule(
+  staffId: string,
+): Promise<BookingStaffDaySchedule[]> {
+  const id = staffId.trim();
+  if (!id) return [];
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("booking_staff_schedule")
+    .select("staff_id, weekday, is_working, work_start_time, work_end_time")
+    .eq("staff_id", id);
+  if (error) throw error;
+  return (data ?? []).map((row) => ({
+    staffId: String(row.staff_id ?? id),
+    weekday: asNum(row.weekday) || 1,
+    isWorking: row.is_working !== false,
+    workStartHour: hourFromTime(row.work_start_time),
+    workEndHour: hourFromTime(row.work_end_time),
+  }));
+}
+
+export async function upsertStaffDay(params: {
+  staffId: string;
+  weekday: number;
+  isWorking: boolean;
+  workStartHour?: number | null;
+  workEndHour?: number | null;
+}): Promise<void> {
+  const supabase = createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
+  if (!user) throw new Error("Войдите в аккаунт");
+  const staffId = params.staffId.trim();
+  if (!staffId) throw new Error("Нет мастера");
+  const start =
+    params.isWorking && params.workStartHour != null
+      ? `${String(params.workStartHour).padStart(2, "0")}:00:00`
+      : null;
+  const end =
+    params.isWorking && params.workEndHour != null
+      ? `${String(params.workEndHour).padStart(2, "0")}:00:00`
+      : null;
+  const { error } = await supabase.from("booking_staff_schedule").upsert(
+    {
+      host_id: user.id,
+      staff_id: staffId,
+      weekday: params.weekday,
+      is_working: params.isWorking,
+      work_start_time: start,
+      work_end_time: end,
+    },
+    { onConflict: "staff_id,weekday" },
+  );
+  if (error) throw error;
+}

@@ -128,12 +128,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<BookingCalendarHost> hosts)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<BookingCalendarHost> hosts,  bool isFromCache)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading();case _Loaded() when loaded != null:
-return loaded(_that.hosts);case _Error() when error != null:
+return loaded(_that.hosts,_that.isFromCache);case _Error() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -152,12 +152,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<BookingCalendarHost> hosts)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<BookingCalendarHost> hosts,  bool isFromCache)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Loading():
 return loading();case _Loaded():
-return loaded(_that.hosts);case _Error():
+return loaded(_that.hosts,_that.isFromCache);case _Error():
 return error(_that.message);case _:
   throw StateError('Unexpected subclass');
 
@@ -175,12 +175,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<BookingCalendarHost> hosts)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<BookingCalendarHost> hosts,  bool isFromCache)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading();case _Loaded() when loaded != null:
-return loaded(_that.hosts);case _Error() when error != null:
+return loaded(_that.hosts,_that.isFromCache);case _Error() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -257,7 +257,7 @@ String toString() {
 
 
 class _Loaded implements BookingCalendarHostsState {
-  const _Loaded({required final  List<BookingCalendarHost> hosts}): _hosts = hosts;
+  const _Loaded({required final  List<BookingCalendarHost> hosts, this.isFromCache = false}): _hosts = hosts;
   
 
  final  List<BookingCalendarHost> _hosts;
@@ -267,6 +267,7 @@ class _Loaded implements BookingCalendarHostsState {
   return EqualUnmodifiableListView(_hosts);
 }
 
+@JsonKey() final  bool isFromCache;
 
 /// Create a copy of BookingCalendarHostsState
 /// with the given fields replaced by the non-null parameter values.
@@ -278,16 +279,16 @@ _$LoadedCopyWith<_Loaded> get copyWith => __$LoadedCopyWithImpl<_Loaded>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&const DeepCollectionEquality().equals(other._hosts, _hosts));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&const DeepCollectionEquality().equals(other._hosts, _hosts)&&(identical(other.isFromCache, isFromCache) || other.isFromCache == isFromCache));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_hosts));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_hosts),isFromCache);
 
 @override
 String toString() {
-  return 'BookingCalendarHostsState.loaded(hosts: $hosts)';
+  return 'BookingCalendarHostsState.loaded(hosts: $hosts, isFromCache: $isFromCache)';
 }
 
 
@@ -298,7 +299,7 @@ abstract mixin class _$LoadedCopyWith<$Res> implements $BookingCalendarHostsStat
   factory _$LoadedCopyWith(_Loaded value, $Res Function(_Loaded) _then) = __$LoadedCopyWithImpl;
 @useResult
 $Res call({
- List<BookingCalendarHost> hosts
+ List<BookingCalendarHost> hosts, bool isFromCache
 });
 
 
@@ -315,10 +316,11 @@ class __$LoadedCopyWithImpl<$Res>
 
 /// Create a copy of BookingCalendarHostsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? hosts = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? hosts = null,Object? isFromCache = null,}) {
   return _then(_Loaded(
 hosts: null == hosts ? _self._hosts : hosts // ignore: cast_nullable_to_non_nullable
-as List<BookingCalendarHost>,
+as List<BookingCalendarHost>,isFromCache: null == isFromCache ? _self.isFromCache : isFromCache // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

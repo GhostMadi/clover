@@ -1,0 +1,89 @@
+---
+description: Уведомления — тексты на клиенте, EN keys на бэке; исключения локали только с записью в док (язык-расширение).
+globs:
+  - lib/feature/_feed_/notification_page/**
+  - lib/core/push/**
+  - web/src/features/notifications/**
+  - supabase/functions/drain_push_outbox/**
+  - supabase/migrations/**notification*
+  - supabase/migrations/**push*
+  - docs/business/notifications.md
+  - docs/supabase/SPEC_IN_APP_NOTIFICATIONS*
+  - docs/supabase/SPEC_PUSH_FCM*
+alwaysApply: false
+---
+
+# Clover Notifications — создание и расширение
+
+Опора: [`docs/business/notifications.md`](docs/business/notifications.md) · [`SPEC_IN_APP_NOTIFICATIONS.md`](docs/supabase/SPEC_IN_APP_NOTIFICATIONS.md) · [`SPEC_PUSH_FCM.md`](docs/supabase/SPEC_PUSH_FCM.md)
+
+Стыки: `clover-backend-feature`, `clover-harmony`, `clover-catalog-l10n`, `clover-supabase-cycle`.
+
+## Режим ответа
+
+| Запрос | Действие |
+|--------|----------|
+| «как работают», «готов ли», «что с текстами» | Оценка / схема. **Без кода**, пока нет «делай» |
+| «делай», «добавь kind», «почини пуш» | Код по маршруту ниже |
+
+## Тексты (главное)
+
+**По умолчанию:** человекочитаемые фразы **только в приложении** (mobile + web лента).  
+Бэк / outbox: `kind` (EN) + payload (данные). **Не** русские/казахские шаблоны в SQL, RPC, Edge.
+
+| Слой | Что |
+|------|-----|
+| Postgres `notifications` / `push_outbox` | EN `kind`, EN keys в `title`/`body` outbox, jsonb payload |
+| In-app UI | Фраза по `kind` + payload (Flutter tile / web model) |
+| FCM tray (цель) | `*_loc_key` + args → строки в ресурсах приложения |
+| Payload | Свободный текст пользователя as-is (`service_title`, preview, ник) — это **не** l10n |
+
+```text
+❌ insert … title := 'Новая запись'
+❌ Edge: хардкод RU без записи в реестр исключений
+✅ kind = booking_created_host; client собирает строку
+✅ outbox title/body = new_booking / client_booked (EN keys)
+```
+
+### Если технически нельзя держать перевод только в приложении
+
+1. Не молчать — **записать исключение** в реестр в [`notifications.md`](docs/business/notifications.md) § «Реестр исключений локали» **и** одну строку в [`SPEC_PUSH_FCM.md`](docs/supabase/SPEC_PUSH_FCM.md) (если push).
+2. В записи: где код, какие ключи/фразы, почему нельзя на клиенте, что сделать при **новом языке**.
+3. При расширении языка (EN/KK/…) — **пройти реестр** и обновить каждое место, не только ARB ленты.
+
+Сейчас известное исключение: `drain_push_outbox` → `localizePushTitle` / `localizePushBody` (RU для шторки ОС). Цель — FCM loc_key; пока RU в Edge — в реестре.
+
+## Маршрут нового уведомления
+
+```
+1. Продукт → docs/business/notifications.md (+ домен: booking/chats/…)
+2. Контракт → SPEC_IN_APP (+ SPEC_PUSH, если FCM) + MIGRATIONS_INDEX
+3. Миграция → upsert kind / trigger / enqueue (EN keys)
+4. Клиенты → NotificationKind + фраза mobile + web (один open/deep link)
+5. features-catalog при необходимости
+```
+
+Один контракт mobile ↔ web: тот же `kind`, те же id в payload, тот же тап (см. таблицу open в business).
+
+## Правила «по уму»
+
+| Правило | Смысл |
+|---------|--------|
+| Один `kind` = одно событие | Не плодить «почти то же» без продукта |
+| Self | Себе не слать, кроме явных исключений (`account_login`) |
+| Блок / hibernate | Через `notifications_should_deliver`, не только скрыть кнопку |
+| Dedupe | Стабильный `dedupe_key`; снятие при отмене реакции / obsolete reminder |
+| Канал | In-app и/или FCM — явно в business; `visit_*` без FCM — осознанно |
+| Open | Kind → экран в таблице deep link; FCM `data` несёт те же id |
+| Нет второго пайплайна | Одна таблица `notifications` + `push_outbox`; не `booking_notifications` |
+| Chat DM | Не в колокольчик Home — Chat tab + push (см. chats) |
+| Шум | Не добавлять окна reminder «на всякий» без продукта |
+
+## Чеклист перед «готово»
+
+- [ ] Kind EN в business + SPEC
+- [ ] Фразы in-app на **обоих** клиентах (или явный «web later» в доке)
+- [ ] Нет локали в SQL/RPC JSON
+- [ ] Если локаль всё же на сервере — строка в **реестре исключений**
+- [ ] Open/deep link согласован; self/block учтены
+- [ ] Push: EN keys в outbox; реестр актуален

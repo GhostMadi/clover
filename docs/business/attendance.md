@@ -6,6 +6,8 @@
 
 Связано: [settings.md](settings.md) · [chats.md](chats.md) · [navigation-bars.md](navigation-bars.md) · [locations.md](locations.md) · [booking.md](booking.md) (отдельный сервис) · [tag-powers.md](tag-powers.md) · **ТЗ тегов:** [attendance-tz.md](attendance-tz.md) · [features-catalog.md](features-catalog.md) · бэк: [SPEC_ATTENDANCE_SYSTEM.md](../supabase/SPEC_ATTENDANCE_SYSTEM.md)
 
+Правило агента / каркас расширения: [`.cursor/rules/clover-attendance.mdc`](../../.cursor/rules/clover-attendance.mdc).
+
 ---
 
 ## Зачем

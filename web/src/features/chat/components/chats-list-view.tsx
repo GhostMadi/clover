@@ -15,7 +15,12 @@ import {
   type ChatConversation,
 } from "@/features/chat/lib/chat-model";
 import { chatAccentForSeed } from "@/features/chat/lib/chat-accent";
+import {
+  readConversationsCache,
+  writeConversationsCache,
+} from "@/features/chat/lib/chat-session-cache";
 import { CHAT_UNREAD_CHANGED } from "@/features/chat/lib/chat-unread";
+import { createClient } from "@/lib/supabase/client";
 
 type ChatsListViewProps = {
   initialItems: ChatConversation[];
@@ -24,7 +29,12 @@ type ChatsListViewProps = {
 /** Список диалогов + FTS поиск + создание группы. */
 export function ChatsListView({ initialItems }: ChatsListViewProps) {
   const router = useRouter();
-  const [items, setItems] = useState(initialItems);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [items, setItems] = useState(() => {
+    if (typeof window === "undefined") return initialItems;
+    // Cache paint happens after uid known; start with SSR.
+    return initialItems;
+  });
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<"chats" | "messages">("chats");
   const [hits, setHits] = useState<MessageSearchHit[]>([]);
@@ -36,17 +46,36 @@ export function ChatsListView({ initialItems }: ChatsListViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
+  useEffect(() => {
+    const supabase = createClient();
+    void supabase.auth.getSession().then(({ data }) => {
+      const uid = data.session?.user.id ?? null;
+      setUserId(uid);
+      if (!uid) return;
+      const cached = readConversationsCache(uid);
+      if (cached && cached.length > 0 && initialItems.length === 0) {
+        setItems(cached);
+      }
+    });
+  }, [initialItems.length]);
+
   const refreshList = useCallback(() => {
     void listConversationsPage()
-      .then(setItems)
+      .then((list) => {
+        setItems(list);
+        if (userId) writeConversationsCache(userId, list);
+      })
       .catch(() => {
         /* keep current */
       });
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     setItems(initialItems);
-  }, [initialItems]);
+    if (userId && initialItems.length > 0) {
+      writeConversationsCache(userId, initialItems);
+    }
+  }, [initialItems, userId]);
 
   useEffect(() => {
     refreshList();

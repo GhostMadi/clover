@@ -54,6 +54,8 @@ dependencies:
   isar_community_flutter_libs: ^3.3.2
   flutter_bloc: ^9.1.1
   google_sign_in: ^7.2.0
+  sign_in_with_apple: ^7.0.1
+  crypto: ^3.0.6
 
   freezed: ^3.2.3
   # freezed_annotation: ^3.1.0

@@ -4,29 +4,31 @@ import { X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { EventFeedCard } from "@/features/feed/components/event-feed-card";
-import { getPostEnrichedClient } from "@/features/post/lib/get-post-client";
+import { getPostsEnrichedClient } from "@/features/post/lib/get-post-client";
 import type { FeedPost } from "@/features/post/lib/parse-feed";
 import { createClient } from "@/lib/supabase/client";
 
 type MapMarkerPostSheetProps = {
-  postId: string;
+  /** Один или несколько постов стопки (как Flutter MapMarkerGroupSheet). */
+  postIds: string[];
   onClose: () => void;
 };
 
-/** Шторка маркера карты — как MapMarkerPostSheet: пост в bottom sheet. */
-export function MapMarkerPostSheet({ postId, onClose }: MapMarkerPostSheetProps) {
-  const [post, setPost] = useState<FeedPost | null>(null);
+/** Шторка маркера / стопки — лента карточек. */
+export function MapMarkerPostSheet({ postIds, onClose }: MapMarkerPostSheetProps) {
+  const ids = [...new Set(postIds.map((x) => x.trim()).filter(Boolean))];
+  const [posts, setPosts] = useState<FeedPost[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [following, setFollowing] = useState(false);
-  const [toggled, setToggled] = useState(false);
+  const [followByAuthor, setFollowByAuthor] = useState<Record<string, boolean>>({});
+  const [toggledAuthors, setToggledAuthors] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    setPost(null);
+    setPosts([]);
 
     (async () => {
       const supabase = createClient();
@@ -35,16 +37,28 @@ export function MapMarkerPostSheet({ postId, onClose }: MapMarkerPostSheetProps)
       } = await supabase.auth.getSession();
       if (!cancelled) setCurrentUserId(session?.user.id ?? null);
 
+      if (ids.length === 0) {
+        if (!cancelled) {
+          setError("У маркера нет поста");
+          setLoading(false);
+        }
+        return;
+      }
+
       try {
-        const item = await getPostEnrichedClient(postId);
+        const items = await getPostsEnrichedClient(ids);
         if (cancelled) return;
-        if (!item) {
+        if (items.length === 0) {
           setError("Пост не найден");
           return;
         }
-        setPost(item);
-        setFollowing(item.myFollowingAuthor);
-        setToggled(false);
+        setPosts(items);
+        const follow: Record<string, boolean> = {};
+        for (const p of items) {
+          follow[p.userId] = p.myFollowingAuthor;
+        }
+        setFollowByAuthor(follow);
+        setToggledAuthors(new Set());
       } catch {
         if (!cancelled) setError("Не удалось загрузить пост");
       } finally {
@@ -55,7 +69,9 @@ export function MapMarkerPostSheet({ postId, onClose }: MapMarkerPostSheetProps)
     return () => {
       cancelled = true;
     };
-  }, [postId]);
+    // ids joined — stable when same set
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ids.join(",")]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -69,6 +85,10 @@ export function MapMarkerPostSheet({ postId, onClose }: MapMarkerPostSheetProps)
       document.body.style.overflow = prev;
     };
   }, [onClose]);
+
+  const title =
+    posts.length > 1 ? `События · ${posts.length}` : "Событие";
+  const single = posts.length === 1 ? posts[0]! : null;
 
   return (
     <div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center sm:p-4">
@@ -93,10 +113,12 @@ export function MapMarkerPostSheet({ postId, onClose }: MapMarkerPostSheetProps)
           >
             <X className="h-5 w-5" strokeWidth={2.25} />
           </button>
-          <p className="min-w-0 flex-1 truncate text-center text-[15px] font-bold text-ink">Событие</p>
-          {post ? (
+          <p className="min-w-0 flex-1 truncate text-center text-[15px] font-bold text-ink">
+            {title}
+          </p>
+          {single ? (
             <Link
-              href={`/app/posts/${post.id}`}
+              href={`/app/posts/${single.id}`}
               onClick={onClose}
               className="px-2 text-[13px] font-semibold text-brand"
             >
@@ -126,18 +148,23 @@ export function MapMarkerPostSheet({ postId, onClose }: MapMarkerPostSheetProps)
                 Закрыть
               </button>
             </div>
-          ) : post ? (
-            <EventFeedCard
-              post={post}
-              currentUserId={currentUserId}
-              followingAuthor={following}
-              followToggledInSession={toggled}
-              onFollowChange={(_id, next) => {
-                setFollowing(next);
-                setToggled(true);
-              }}
-            />
-          ) : null}
+          ) : (
+            <div className="flex flex-col gap-3 px-2 py-3 sm:px-3">
+              {posts.map((post) => (
+                <EventFeedCard
+                  key={post.id}
+                  post={post}
+                  currentUserId={currentUserId}
+                  followingAuthor={followByAuthor[post.userId] ?? post.myFollowingAuthor}
+                  followToggledInSession={toggledAuthors.has(post.userId)}
+                  onFollowChange={(authorId, next) => {
+                    setFollowByAuthor((prev) => ({ ...prev, [authorId]: next }));
+                    setToggledAuthors((prev) => new Set(prev).add(authorId));
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

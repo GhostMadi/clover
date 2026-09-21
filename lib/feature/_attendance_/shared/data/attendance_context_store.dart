@@ -87,9 +87,7 @@ class AttendanceContextStore with WidgetsBindingObserver {
     }
 
     if (_loadedForUser && snapshot.value != null && _boundUserId == userId && _useRemote && !force) {
-      if (_knownNonParticipant) return;
-      // Soft re-entry: one bootstrap (peer updates), flush only if pending.
-      await flushOutboxAndRefresh();
+      // Soft re-entry: reuse memory. Fresh bootstrap — only resume / force / hub refresh.
       return;
     }
 

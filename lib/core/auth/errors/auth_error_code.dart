@@ -6,6 +6,9 @@ enum AuthErrorCode {
   googleIdTokenMissing('auth_google_id_token_missing'),
   googleSignInFailed('auth_google_sign_in_failed'),
   googleClientMisconfigured('auth_google_client_misconfigured'),
+  appleIdTokenMissing('auth_apple_id_token_missing'),
+  appleSignInFailed('auth_apple_sign_in_failed'),
+  appleSignInUnavailable('auth_apple_sign_in_unavailable'),
   supabaseSignInFailed('auth_supabase_sign_in_failed'),
   supabaseUserMissing('auth_supabase_user_missing'),
   signOutFailed('auth_sign_out_failed'),
@@ -22,7 +25,8 @@ enum AuthErrorCode {
   passwordUpdateFailed('auth_password_update_failed'),
   identifierInvalid('auth_identifier_invalid'),
   hibernateFailed('auth_hibernate_failed'),
-  hibernateRateLimited('auth_hibernate_rate_limited');
+  hibernateRateLimited('auth_hibernate_rate_limited'),
+  deleteAccountFailed('auth_delete_account_failed');
 
   const AuthErrorCode(this.value);
 

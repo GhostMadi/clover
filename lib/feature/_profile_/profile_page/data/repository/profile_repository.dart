@@ -22,7 +22,6 @@ class ProfileNewRepositoryImpl implements ProfileNewRepository {
 
   static const _baseColumns = '''
 id,
-email,
 full_name,
 username,
 city_code,
@@ -30,7 +29,6 @@ country_code,
 avatar_url,
 background_url,
 bio,
-phone,
 followers_count,
 following_count,
 cluster_count,
@@ -65,7 +63,7 @@ profile_tag_links!tag_link_id(tag_ids, tags)
 
     if (data == null) return null;
 
-    return _mapProfile(data);
+    return _mapProfile(data, forUserId: trimmed);
   }
 
   @override
@@ -75,11 +73,21 @@ profile_tag_links!tag_link_id(tag_ids, tags)
     return getById(uid);
   }
 
-  ProfileNewModel _mapProfile(Object row) {
+  ProfileNewModel _mapProfile(Object row, {required String forUserId}) {
     final normalized = _normalizeRow(row);
     final tags = _parseTags(normalized.remove('account_tags'));
-    final profile = ProfileNewModel.fromJson(normalized);
-    return profile.copyWith(tags: tags);
+    var profile = ProfileNewModel.fromJson(normalized);
+    profile = profile.copyWith(tags: tags);
+
+    // email/phone не в публичном SELECT — свой email только из Auth.
+    final authUser = _client.auth.currentUser;
+    if (authUser != null && authUser.id == forUserId) {
+      profile = profile.copyWith(
+        email: authUser.email,
+        phone: authUser.phone?.isNotEmpty == true ? authUser.phone : profile.phone,
+      );
+    }
+    return profile;
   }
 
   static bool _isMissingTagsSchema(PostgrestException error) {

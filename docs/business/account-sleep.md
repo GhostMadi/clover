@@ -19,7 +19,7 @@
 |------|-----|
 | Владелец аккаунта | Включает сон из Настройки → Аккаунт; просыпается при следующем входе |
 | Гости / лента | Не видят посты/профиль спящего (как сейчас на бэке) |
-| Support | Жёсткое удаление — только через legal `/delete-account` (вне in-app) |
+| Support | Soft «удаление» in-app ([account-delete.md](account-delete.md)) или legal `/delete-account`; hard wipe Auth — не из приложения |
 
 ---
 
@@ -38,7 +38,7 @@
 | Проснуться | После login / session restore → `wake_up_if_needed()` (идемпотентно) |
 | Лимит | Повторный сон раньше 30 дней → ошибка `hibernate_rate_limited` |
 | Сброс контента | **Не делаем** (`reset_account` отключён) |
-| Hard delete | Не in-app; форма на сайте delete-account |
+| Hard delete | Soft in-app: [account-delete.md](account-delete.md); без сессии — `/delete-account` / support. Cascade wipe Auth — вне скоупа приложения |
 
 ---
 
@@ -65,12 +65,12 @@
 
 ## Вне скоупа
 
-- Полный wipe контента (`reset_account`)
-- Soft-delete профиля / GDPR self-serve hard delete в приложении
+- Полный wipe контента (`reset_account`) без удаления auth-user
+- Hard wipe `auth.users` из приложения
 - Phone OTP (отложено)
 
 ---
 
 ## Связанные
 
-- [settings.md](settings.md) · [authentication.md](authentication.md) · marketing `/delete-account`
+- [settings.md](settings.md) · [authentication.md](authentication.md) · [account-delete.md](account-delete.md) · marketing `/delete-account`

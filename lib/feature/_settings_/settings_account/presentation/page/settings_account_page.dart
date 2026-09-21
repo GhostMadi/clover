@@ -40,9 +40,10 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
   _SettingsAccountLanguage _language = _SettingsAccountLanguage.ru;
   bool _isLoggingOut = false;
   bool _isHibernating = false;
+  bool _isDeleting = false;
   bool _hasPasswordLoading = true;
   bool? _hasPassword;
-  String? _hibernateError;
+  String? _sessionError;
 
   @override
   void initState() {
@@ -137,7 +138,7 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
   }
 
   Future<void> _confirmLogout() async {
-    if (_isLoggingOut) return;
+    if (_sessionBusy) return;
 
     final confirmed = await AppBottomSheet.show<bool>(
       context: context,
@@ -175,8 +176,10 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
     }
   }
 
+  bool get _sessionBusy => _isLoggingOut || _isHibernating || _isDeleting;
+
   Future<void> _confirmHibernate() async {
-    if (_isHibernating || _isLoggingOut) return;
+    if (_sessionBusy) return;
 
     final confirmed = await AppBottomSheet.show<bool>(
       context: context,
@@ -213,17 +216,69 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
 
     setState(() {
       _isHibernating = true;
-      _hibernateError = null;
+      _sessionError = null;
     });
-    try {
-      await context.read<AuthCubit>().hibernateAccount();
-    } catch (_) {
-      if (!mounted) return;
-      final state = context.read<AuthCubit>().state;
-      final code = state is AuthError ? state.code : AuthErrorCode.hibernateFailed;
+    await context.read<AuthCubit>().hibernateAccount();
+    if (!mounted) return;
+    final state = context.read<AuthCubit>().state;
+    if (state is AuthError) {
       setState(() {
-        _hibernateError = AuthErrorMessages.messageFor(code);
+        _sessionError = AuthErrorMessages.messageFor(state.code);
         _isHibernating = false;
+      });
+    }
+  }
+
+  Future<void> _confirmDeleteAccount() async {
+    if (_sessionBusy) return;
+
+    final confirmed = await AppBottomSheet.show<bool>(
+      context: context,
+      title: 'Удалить аккаунт',
+      content: Text(
+        'Профиль и посты скроются из лент, как при «уснуть». '
+        'Данные не стираются каскадом — при следующем входе аккаунт снова активен.',
+        style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.4),
+      ),
+      actions: [
+        Builder(
+          builder: (sheetContext) {
+            return Row(
+              children: [
+                Expanded(
+                  child: AppButton(text: 'Отмена', onTap: () => Navigator.of(sheetContext).pop(false)),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: AppButton(
+                    text: 'Удалить',
+                    onTap: () => Navigator.of(sheetContext).pop(true),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() {
+      _isDeleting = true;
+      _sessionError = null;
+    });
+    await context.read<AuthCubit>().deleteAccount();
+    if (!mounted) return;
+    final state = context.read<AuthCubit>().state;
+    if (state is AuthError) {
+      setState(() {
+        _sessionError = AuthErrorMessages.messageFor(
+          state.code == AuthErrorCode.unknown
+              ? AuthErrorCode.deleteAccountFailed
+              : state.code,
+        );
+        _isDeleting = false;
       });
     }
   }
@@ -284,7 +339,7 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
                   icon: AppIcons.logout.icon,
                   iconColor: context.colors.destructive,
                   destructive: true,
-                  enabled: !_isLoggingOut && !_isHibernating,
+                  enabled: !_sessionBusy,
                   trailing: _isLoggingOut
                       ? const SizedBox(
                           width: 18,
@@ -299,7 +354,7 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
                   subtitle: 'Скрыть профиль и посты. Не удаление.',
                   icon: AppIcons.visibilityOff.icon,
                   iconColor: context.colors.subTextColor,
-                  enabled: !_isLoggingOut && !_isHibernating,
+                  enabled: !_sessionBusy,
                   trailing: _isHibernating
                       ? const SizedBox(
                           width: 18,
@@ -309,20 +364,31 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
                       : null,
                   onTap: _confirmHibernate,
                 ),
+                AppTile(
+                  title: 'Удалить аккаунт',
+                  subtitle: 'Скрыть как сон. Без стирания данных.',
+                  icon: AppIcons.delete.icon,
+                  iconColor: context.colors.destructive,
+                  destructive: true,
+                  enabled: !_sessionBusy,
+                  trailing: _isDeleting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : null,
+                  onTap: _confirmDeleteAccount,
+                ),
               ],
             ),
-            if (_hibernateError != null) ...[
+            if (_sessionError != null) ...[
               const SizedBox(height: 12),
               Text(
-                _hibernateError!,
+                _sessionError!,
                 style: AppTextStyle.base(13, color: context.colors.destructive, height: 1.35),
               ),
             ],
-            const SizedBox(height: 16),
-            Text(
-              'Полное удаление — форма на clover.com.kz/delete-account.',
-              style: AppTextStyle.base(12, color: context.colors.subTextColor, height: 1.35),
-            ),
             SizedBox(height: SettingsScreenShell.scrollBottomGap(context)),
           ],
         ),

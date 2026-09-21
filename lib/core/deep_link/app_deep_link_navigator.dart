@@ -91,6 +91,15 @@ class AppDeepLinkNavigator {
           await router.push(const SettingsAttendanceRoute());
         }
 
+      case AppDeepLinkStaffCalendarIntent(:final hostId):
+        await _openDashboard(router);
+        final hid = hostId?.trim();
+        if (hid != null && hid.isNotEmpty) {
+          await router.push(BookingCalendarHostRoute(hostId: hid));
+        } else {
+          await router.push(const BookingCalendarRoute());
+        }
+
       case AppDeepLinkDashboardTabIntent(:final tab):
         await _openDashboard(router, tab: tab);
     }

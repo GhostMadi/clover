@@ -52,3 +52,16 @@ export async function hibernateAccount(): Promise<void> {
   }
   await signOut();
 }
+
+/**
+ * Soft «удаление»: скрыть как сон (RPC soft_delete_account) + выход.
+ * Без cascade wipe Auth. См. docs/business/account-delete.md.
+ */
+export async function deleteAccount(): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.rpc("soft_delete_account");
+  if (error) {
+    throw new Error(error.message || "Не удалось удалить аккаунт");
+  }
+  await signOut();
+}

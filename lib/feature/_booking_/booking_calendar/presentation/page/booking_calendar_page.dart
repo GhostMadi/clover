@@ -53,7 +53,7 @@ class _BookingCalendarPageState extends State<BookingCalendarPage> {
             initial: () => const SizedBox.shrink(),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (message) => Center(child: Text(message)),
-            loaded: (hosts) {
+            loaded: (hosts, _) {
               if (hosts.isEmpty) {
                 return const Center(
                   child: BookingListEmptyState(

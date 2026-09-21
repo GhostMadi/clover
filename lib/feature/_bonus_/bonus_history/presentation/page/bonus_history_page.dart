@@ -1,5 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/style.dart';
+import 'package:clover/feature/_bonus_/bonus_history/data/models/bonus_history_entry.dart';
 import 'package:clover/feature/_bonus_/bonus_history/presentation/cubit/bonus_history_cubit.dart';
 import 'package:clover/feature/_bonus_/bonus_history/presentation/widget/bonus_history_account_header.dart';
 import 'package:clover/feature/_bonus_/bonus_history/presentation/widget/bonus_history_empty_state.dart';
@@ -52,6 +55,7 @@ class _BonusHistoryPageState extends State<BonusHistoryPage> {
       builder: (context, state) {
         return SettingsScreenShell(
           title: 'История бонусов',
+          service: kBonusService,
           body: switch (state) {
             BonusHistoryInitial() => const SizedBox.shrink(),
             BonusHistoryLoading(:final account) => _BonusHistoryLoadingBody(account: account),
@@ -77,16 +81,20 @@ class _BonusHistoryPageState extends State<BonusHistoryPage> {
                       opacity: isRefreshing ? 0.7 : 1,
                       child: BonusHistoryAccountHeader(account: account),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     if (entries.isEmpty)
                       const BonusHistoryEmptyState()
                     else ...[
-                      ...entries.map(
-                        (entry) => Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: BonusHistoryEntryTile(entry: entry),
+                      Text(
+                        'Операции',
+                        style: AppTextStyle.base(
+                          13,
+                          color: context.colors.subTextColor,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
+                      const SizedBox(height: 8),
+                      _HistoryListCard(entries: entries),
                       if (isLoadingMore)
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 16),
@@ -99,6 +107,33 @@ class _BonusHistoryPageState extends State<BonusHistoryPage> {
           },
         );
       },
+    );
+  }
+}
+
+class _HistoryListCard extends StatelessWidget {
+  const _HistoryListCard({required this.entries});
+
+  final List<BonusHistoryEntry> entries;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 4, 14, 4),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: context.colors.border.withValues(alpha: 0.7)),
+      ),
+      child: Column(
+        children: [
+          for (var i = 0; i < entries.length; i++)
+            BonusHistoryEntryTile(
+              entry: entries[i],
+              showDivider: i < entries.length - 1,
+            ),
+        ],
+      ),
     );
   }
 }
@@ -141,7 +176,11 @@ class _BonusHistoryErrorBody extends StatelessWidget {
       children: [
         BonusHistoryAccountHeader(account: account),
         SizedBox(height: MediaQuery.sizeOf(context).height * 0.15),
-        Text(message, textAlign: TextAlign.center),
+        Text(
+          message,
+          textAlign: TextAlign.center,
+          style: AppTextStyle.base(14, color: context.colors.subTextColor),
+        ),
         const SizedBox(height: 16),
         Center(child: FilledButton(onPressed: onRetry, child: const Text('Повторить'))),
       ],

@@ -45,6 +45,9 @@ verify_jwt = false
 [functions.drain_push_outbox]
 verify_jwt = false
 
+[functions.delete_account]
+verify_jwt = false
+
 # Local Auth Hook (optional). Hosted: Authentication → Hooks in Dashboard.
 # Send Email (OTP gate): enable send_email_hook + SEND_EMAIL_HOOK_SECRET + RESEND_API_KEY.
 # Send SMS: set SEND_SMS_HOOK_SECRET=v1,whsec_<base64> in supabase/.env and:

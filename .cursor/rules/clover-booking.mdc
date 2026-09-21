@@ -1,0 +1,117 @@
+---
+description: Онлайн-запись — куда и как расширять (теги, точки, RPC, mobile+web+кэш+уведомления). Не путать «готов ли» с «делай».
+globs:
+  - lib/feature/_booking_/**
+  - web/src/features/booking/**
+  - web/src/app/**/booking/**
+  - web/src/app/**/book/**
+  - supabase/migrations/**booking*
+  - supabase/migrations/_booking/**
+  - docs/business/booking.md
+  - docs/business/booking-*.md
+  - docs/supabase/SPEC_BOOKING*
+  - docs/supabase/booking*
+alwaysApply: false
+---
+
+# Clover Booking — расширение
+
+Опора: [`docs/business/booking.md`](docs/business/booking.md) · [`booking-tz.md`](docs/business/booking-tz.md) · [`booking-points.md`](docs/business/booking-points.md) · [`supabase/migrations/_booking/README.md`](supabase/migrations/_booking/README.md) · [`SPEC_BOOKING_SYSTEM.md`](docs/supabase/SPEC_BOOKING_SYSTEM.md)
+
+Стыки: `clover-backend-feature`, `clover-harmony`, `clover-feature-discipline`, `clover-notifications` (kinds записи), `clover-catalog-l10n` (теги).
+
+## Режим ответа (критично)
+
+| Запрос | Действие |
+|--------|----------|
+| «готов ли запись», «как работает», «что осталось» | Только оценка / таблица / риски. **Без кода и миграций** |
+| «делай», «доделай», «почини», «добавь X» | Код по маршруту ниже |
+| Неясно | Один короткий вопрос: оценка или реализация? |
+
+Не начинать реализацию «очереди» из исследования без явного «делай».
+
+## Маршрут новой возможности
+
+```
+1. Продукт → docs/business/booking.md (+ booking-tz / booking-points / tag-powers)
+2. Контракт → SPEC_BOOKING_* + MIGRATIONS_INDEX + migrations/_booking/README
+3. Миграция → supabase/migrations/<timestamp>_….sql (RPC / RLS / enum)
+4. Клиенты → Flutter `_booking_/` + web `features/booking/` (один контракт)
+5. Кэш + уведомления + open/deep link → оба клиента; features-catalog при смене статуса
+```
+
+Нельзя: сначала UI на одном клиенте; слоты/статусы «только на фронте»; второй API «только для сайта»; путать **Запись** с **venue-seating** (бронь мест).
+
+## Роли и теги (не ломать)
+
+| Тег / роль | Смысл |
+|------------|--------|
+| `booking` | Хозяин: услуги, inbox, аналитика, CTA «Записаться» |
+| `bookingCalendar` | Исполнитель: календарь **своих** визитов (read v1) |
+| Staff по имени | Без `profile_id` — нет invite/push/календаря |
+| Staff с `profile_id` | После Accept invite; может получать `booking_assigned_staff` |
+
+- Нет «бизнес-аккаунта» — обычный профиль + теги.
+- Хозяин **не** записывается к себе.
+- Силы тегов: [`tag-powers.md`](docs/business/tag-powers.md). Кнопка хозяина = тег, **не** device prefs / localStorage-ярлык.
+
+## Данные и безопасность
+
+- Слоты и conflict — **на сервере** (`get_booking_availability`, EXCLUDE / `booking_status_blocks_slot`).
+- Создание — только `create_booking` (instant → `confirmed`).
+- Статусы визита — `update_booking_status` / host freedom; клиент — cancel/reschedule по правилам точки.
+- Settings / blocks / absences — **на точке** (`point_id`), не «весь host по умолчанию» без продукта.
+- Ключи EN в RPC/payload; подписи на клиенте.
+- Invite linked-staff: [`SPEC_BOOKING_STAFF_INVITE.md`](docs/supabase/SPEC_BOOKING_STAFF_INVITE.md) — без Accept нет `profile_id`.
+
+## Кэш (local-first)
+
+| Клиент | Эталон |
+|--------|--------|
+| Mobile | `BookingLocalCache` (inbox, my, services, staff, points, schedule, analytics, **calendar hosts/items**) |
+| Web | `booking-prefs` + `service-sync-cache` (те же bucket’ы по смыслу); clear на logout |
+
+Правила:
+
+- Paint из кэша → тихий sync RPC.
+- **Query/поиск в кэш не класть** (только период / pointId / hostId).
+- Ключи календаря исполнителя: `booking_calendar_hosts_<uid>`, `booking_calendar_items_<uid>_<hostId>_<from>_<to>`.
+- Не плодить второй кэш «только для сайта».
+
+## Уведомления
+
+- Виды и каналы — [`notifications.md`](docs/business/notifications.md); правило текстов — `clover-notifications`.
+- Новый booking-kind → business + SPEC_IN_APP + миграция + mobile tile + web message + open/deep link (+ push EN keys).
+- Staff push только при `profile_id`; name-only — без notify.
+- `visit_*` без FCM — осознанно (не добавлять «для симметрии»).
+
+## Клиентские слои
+
+```
+Flutter:  repository → cubit → page   (_booking_/… по экрану: client, list, create, settings, calendar, analytics, points, team)
+Web:      features/booking/lib/*-api → components/*-view · routes `/app/settings/booking/…`, `/app/u/[id]/book`
+```
+
+Один экран ≈ один repo/api метод. Виджет не ходит в Supabase.
+
+## Что можно расширять / что later
+
+| Можно (по продукту) | Пока вне скоупа |
+|---------------------|-----------------|
+| Паритет UX mobile ↔ web | Эквайринг / оплата картой |
+| Точки, команда, point chat | Смена статуса с экрана `bookingCalendar` (v1 = read) |
+| Новый kind уведомления записи | Иерархия «админ управляет работником» |
+| Аналитика / расписание polish | Полный inbox хозяина у исполнителя |
+| Бонусы на услуге (уже поля) | Venue-seating / отзывы / offline-outbox |
+
+Новый статус / enum: миграция → `booking_status_blocks_slot` / history → оба клиента + analytics labels.
+
+## Чеклист перед «готово»
+
+- [ ] Строка в `booking.md` / `booking-tz` / catalog (если видимая фича)
+- [ ] SPEC + `_booking/README` / INDEX обновлены
+- [ ] RLS/RPC не обходятся; слоты не считаются только на клиенте
+- [ ] Mobile и web на одних полях / open ids
+- [ ] Кэш + уведомления (если touch create/status) учтены
+- [ ] Теги `booking` / `bookingCalendar` не смешаны
+- [ ] Не смешали «оценка готовности» с незапрошенным рефакторингом

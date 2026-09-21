@@ -40,7 +40,7 @@ git push origin mobile-production
 | Где | Как |
 |-----|-----|
 | **Xcode локально** | Release: **Automatically manage signing** (`project.pbxproj`) |
-| **CI → TestFlight** | Manual override при `flutter build ipa` (Distribution + profile из secrets). **Не** `--no-codesign` — иначе entitlements (push) не вшиваются и FCM пустой |
+| **CI → TestFlight** | Перед `flutter build ipa` CI патчит Runner **Release** в `pbxproj` (Manual + Distribution + profile). Flutter 3.47+ не принимает `CODE_SIGN_*=` как xcargs. **Не** `--no-codesign` — иначе push entitlements не вшиваются |
 
 Workflow проверяет в IPA `aps-environment=production` перед upload.
 

@@ -8,6 +8,8 @@ import {
   DEFAULT_MAP_FILTER,
   fetchMapMarkers,
   mapMarkersCacheKey,
+  markersAtLocation,
+  postIdsFromMarkers,
   prefetchNeighborMapMarkers,
   readMapMarkersCache,
   shouldFetchMapViewport,
@@ -22,13 +24,68 @@ import { MarkerTagsField } from "@/features/feed/components/marker-tags-field";
 
 const ALMATY = { lat: 43.238949, lon: 76.889709 };
 
+type DatePreset = "today" | "tomorrow" | "dayAfter" | "week" | "month";
+
+const DATE_PRESETS: { id: DatePreset; label: string }[] = [
+  { id: "today", label: "Сегодня" },
+  { id: "tomorrow", label: "Завтра" },
+  { id: "dayAfter", label: "Послезавтра" },
+  { id: "week", label: "Неделя" },
+  { id: "month", label: "Месяц" },
+];
+
+function pad2(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+function toDateOnly(d: Date): string {
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
+function addDays(base: Date, days: number): Date {
+  const d = new Date(base);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+function dateOnlyToday(): Date {
+  const n = new Date();
+  return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+}
+
+function rangeForPreset(preset: DatePreset): { from: string; to: string } {
+  const today = dateOnlyToday();
+  switch (preset) {
+    case "today":
+      return { from: toDateOnly(today), to: toDateOnly(today) };
+    case "tomorrow": {
+      const d = addDays(today, 1);
+      return { from: toDateOnly(d), to: toDateOnly(d) };
+    }
+    case "dayAfter": {
+      const d = addDays(today, 2);
+      return { from: toDateOnly(d), to: toDateOnly(d) };
+    }
+    case "week":
+      return { from: toDateOnly(today), to: toDateOnly(addDays(today, 6)) };
+    case "month":
+      return { from: toDateOnly(today), to: toDateOnly(addDays(today, 29)) };
+  }
+}
+
+function matchesPreset(from: string | null, to: string | null, preset: DatePreset): boolean {
+  if (!from || !to) return false;
+  const r = rangeForPreset(preset);
+  return from === r.from && to === r.to;
+}
+
 /** Полноэкранная карта с маркерами ивентов + фильтры. */
 export function MapPane() {
   const [markers, setMarkers] = useState<MapMarker[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [openPostId, setOpenPostId] = useState<string | null>(null);
+  const [openPostIds, setOpenPostIds] = useState<string[] | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [filter, setFilter] = useState<MapMarkersFilter>(DEFAULT_MAP_FILTER);
   const [draft, setDraft] = useState<MapMarkersFilter>(DEFAULT_MAP_FILTER);
@@ -44,7 +101,9 @@ export function MapPane() {
   const viewportRef = useRef<MapViewport>({ center: ALMATY, zoom: 12 });
   const lastFetchedRef = useRef<MapViewport | null>(null);
   const filterRef = useRef(filter);
+  const markersRef = useRef(markers);
   filterRef.current = filter;
+  markersRef.current = markers;
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -83,7 +142,6 @@ export function MapPane() {
       } catch {
         if (gen !== fetchGen.current) return;
         setError("Не удалось загрузить ивенты");
-        // Старые маркеры / кэш оставляем — карта не «моргает» пустотой при сбое.
       } finally {
         if (gen === fetchGen.current) setLoading(false);
       }
@@ -105,12 +163,18 @@ export function MapPane() {
 
   const onMarkerClick = useCallback(
     (marker: MapMarker) => {
-      const postId = marker.postId?.trim();
-      if (!postId) {
+      if ((marker.pointCount ?? 0) >= 1) {
+        showToast("Приблизьте карту");
+        return;
+      }
+      const group = markersAtLocation(markersRef.current, marker.lat, marker.lng);
+      const stack = group.length > 0 ? group : [marker];
+      const ids = postIdsFromMarkers(stack);
+      if (ids.length === 0) {
         showToast("У маркера нет поста");
         return;
       }
-      setOpenPostId(postId);
+      setOpenPostIds(ids);
     },
     [showToast],
   );
@@ -143,8 +207,10 @@ export function MapPane() {
 
   const cities = citiesForCountry(draft.countryCode);
   const filterActive =
-    filter.emoji ||
+    Boolean(filter.emoji) ||
     filter.tagKeys.length > 0 ||
+    Boolean(filter.dateFrom) ||
+    Boolean(filter.dateTo) ||
     filter.countryCode !== DEFAULT_MAP_FILTER.countryCode ||
     filter.cityCode !== DEFAULT_MAP_FILTER.cityCode;
 
@@ -191,8 +257,8 @@ export function MapPane() {
         </p>
       )}
 
-      {openPostId ? (
-        <MapMarkerPostSheet postId={openPostId} onClose={() => setOpenPostId(null)} />
+      {openPostIds ? (
+        <MapMarkerPostSheet postIds={openPostIds} onClose={() => setOpenPostIds(null)} />
       ) : null}
 
       {filterOpen ? (
@@ -252,6 +318,73 @@ export function MapPane() {
                   ))}
                 </select>
               </label>
+
+              <div>
+                <p className="mb-2 text-[13px] font-semibold text-muted">Дни ивента</p>
+                <div className="flex flex-wrap gap-2">
+                  {DATE_PRESETS.map((p) => {
+                    const selected = matchesPreset(draft.dateFrom, draft.dateTo, p.id);
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => {
+                          const r = rangeForPreset(p.id);
+                          setDraft((d) => ({ ...d, dateFrom: r.from, dateTo: r.to }));
+                        }}
+                        className={`rounded-xl border px-3 py-2 text-[13px] font-semibold transition ${
+                          selected
+                            ? "border-border-card-green bg-surface-soft-green/70 text-brand"
+                            : "border-line bg-surface-muted text-ink"
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-2.5 grid grid-cols-2 gap-2">
+                  <label className="flex flex-col gap-1">
+                    <span className="px-0.5 text-[10px] font-bold uppercase tracking-[0.06em] text-muted">
+                      С
+                    </span>
+                    <input
+                      type="date"
+                      value={draft.dateFrom ?? ""}
+                      max={draft.dateTo ?? undefined}
+                      onChange={(e) => {
+                        const v = e.target.value || null;
+                        setDraft((d) => ({
+                          ...d,
+                          dateFrom: v,
+                          dateTo: d.dateTo && v && d.dateTo < v ? v : d.dateTo,
+                        }));
+                      }}
+                      className="h-9 rounded-[12px] border border-line bg-surface px-2.5 text-sm font-semibold text-ink outline-none"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1">
+                    <span className="px-0.5 text-[10px] font-bold uppercase tracking-[0.06em] text-muted">
+                      По
+                    </span>
+                    <input
+                      type="date"
+                      value={draft.dateTo ?? ""}
+                      min={draft.dateFrom ?? undefined}
+                      onChange={(e) => {
+                        const v = e.target.value || null;
+                        setDraft((d) => ({
+                          ...d,
+                          dateTo: v,
+                          dateFrom: d.dateFrom && v && d.dateFrom > v ? v : d.dateFrom,
+                        }));
+                      }}
+                      className="h-9 rounded-[12px] border border-line bg-surface px-2.5 text-sm font-semibold text-ink outline-none"
+                    />
+                  </label>
+                </div>
+              </div>
+
               <div>
                 <p className="mb-1.5 text-[13px] font-semibold text-ink">Эмодзи</p>
                 <EventEmojiField

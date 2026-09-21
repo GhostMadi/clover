@@ -164,6 +164,10 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       bookingReminderMinutesBefore:
           reminderMinutes != null && reminderMinutes > 0 ? reminderMinutes : null,
       bookingForHost: bookingForHost,
+      bookingHostId: () {
+        final hid = (payload['host_id'] as String?)?.trim();
+        return hid != null && hid.isNotEmpty ? hid : null;
+      }(),
       workplaceId: workplaceId != null && workplaceId.isNotEmpty ? workplaceId : null,
       attendanceDueKind:
           attendanceDueKind != null && attendanceDueKind.isNotEmpty ? attendanceDueKind : null,
@@ -224,6 +228,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       'booking_completed_client' => NotificationKind.bookingCompletedClient,
       'booking_no_show_client' => NotificationKind.bookingNoShowClient,
       'booking_rescheduled' => NotificationKind.bookingRescheduled,
+      'booking_assigned_staff' => NotificationKind.bookingAssignedStaff,
       'attendance_invite' => NotificationKind.attendanceInvite,
       'attendance_rules_ack' => NotificationKind.attendanceRulesAck,
       'attendance_duty' => NotificationKind.attendanceDuty,

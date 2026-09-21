@@ -225,6 +225,11 @@ class _NotificationTileState extends State<NotificationTile> {
         bold(_serviceLabel(item)),
         regular(_whenSuffix(item)),
       ],
+      NotificationKind.bookingAssignedStaff => [
+        regular('Новая запись на вас: '),
+        bold(_serviceLabel(item)),
+        regular(_whenSuffix(item)),
+      ],
       NotificationKind.attendanceInvite => [
         bold(actorsLabel),
         regular(' пригласил(-а) в команду посещаемости'),

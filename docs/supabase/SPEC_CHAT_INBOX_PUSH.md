@@ -14,6 +14,16 @@
 Inbox payload (message): `conversation_id`, `message_id`, `sender_id`, `sender_username`, `kind`, `preview`, `created_at`.  
 Inbox payload (read): `conversation_id`, `reason=peer_read`, `reader_id`.
 
+Thread events (also on `chat_thread_<conversationId>`):
+
+| Event | When |
+|-------|------|
+| `message_enriched` | INSERT (as before) |
+| `message_updated` | after `edit_message` |
+| `message_removed` | after `delete_message` |
+
+**Blocks:** DM create (new) / send / send_with_attachments call `can_user_interact` → `user_blocked` (`P0009`). Existing DM can still open for history. Migrations: `20260921161012_…`, `20260921161038_…`, `20260921161128_…`.
+
 `preview` for placeholders = **English keys** (`photo` / `file` / `post` / `message` / `system`); free text messages keep user text. Clients localize.
 
 Client:

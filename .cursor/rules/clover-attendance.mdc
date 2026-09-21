@@ -1,0 +1,124 @@
+---
+description: Посещаемость — куда и как расширять (теги, bootstrap, punch/outbox, web read-only, кэш, notify). Не путать «готов ли» с «делай».
+globs:
+  - lib/feature/_attendance_/**
+  - web/src/features/attendance/**
+  - web/src/app/**/attendance/**
+  - supabase/migrations/**attendance*
+  - supabase/migrations/_attendance/**
+  - docs/business/attendance.md
+  - docs/business/attendance-*.md
+  - docs/business/website-attendance*
+  - docs/supabase/SPEC_ATTENDANCE*
+alwaysApply: false
+---
+
+# Clover Attendance — расширение
+
+Опора: [`docs/business/attendance.md`](docs/business/attendance.md) · [`attendance-tz.md`](docs/business/attendance-tz.md) · [`website-attendance-gaps.md`](docs/business/website-attendance-gaps.md) · [`supabase/migrations/_attendance/README.md`](supabase/migrations/_attendance/README.md) · [`SPEC_ATTENDANCE_SYSTEM.md`](docs/supabase/SPEC_ATTENDANCE_SYSTEM.md)
+
+Стыки: `clover-backend-feature`, `clover-harmony`, `clover-feature-discipline`, `clover-notifications`, `clover-catalog-l10n` (теги), `clover-chat` (карточки invite/rules / company chat).
+
+## Режим ответа (критично)
+
+| Запрос | Действие |
+|--------|----------|
+| «готов ли посещаемость», «как работает», «что осталось» | Только оценка / таблица / риски. **Без кода** |
+| «делай», «доделай», «почини», «добавь X» | Код по маршруту ниже |
+| Неясно | Один короткий вопрос: оценка или реализация? |
+
+Не начинать реализацию «очереди» из исследования без явного «делай».
+
+## Маршрут новой возможности
+
+```
+1. Продукт → docs/business/attendance.md (+ attendance-tz / website-attendance-gaps)
+2. Контракт → SPEC_ATTENDANCE_* + MIGRATIONS_INDEX + migrations/_attendance/README
+3. Миграция → supabase/migrations/<timestamp>_….sql (RPC / RLS / enum)
+4. Клиенты → Flutter `_attendance_/` + web `features/attendance/` (один контракт)
+5. Кэш / outbox / notify / chat cards → по затронутому каналу; features-catalog при статусе
+```
+
+Нельзя: второй API «только для сайта»; punch/geo «только на клиенте» без RPC; путать с **booking**; делать punch на вебе без явного продукта.
+
+## Роли и теги
+
+| Тег / роль | Смысл |
+|------------|--------|
+| `attendance` | Admin: компании, настройки, табель, ЗП preview, invite |
+| `attendanceWork` | Worker: punch (mobile), worker-хаб; без тега → «Неактивен» у admin |
+| Не участник | **0** attendance-запросов (нет кнопок / sheet / badge) |
+
+Гейты create/punch — **фронт + бэк** (`profile_has_marker_tag`). Ярлык = тег, не prefs-only.
+
+## Платформы (не ломать контракт)
+
+| | Mobile | Web |
+|--|--------|-----|
+| Admin | полный | полный (A0–A9) |
+| Worker | punch + GPS + outbox + sheet | **read-only** (W0–W1); баннер «отмечайтесь в приложении» |
+| Punch / geofence check | да | **не делаем** (см. website-attendance-gaps) |
+
+Новая worker-мутация → сначала mobile + RPC; web только если продукт явно разрешил.
+
+## Данные и безопасность
+
+- Источник правды — **сервер**; клиент = snapshot + outbox.
+- Bootstrap `attendance_bootstrap_me` — редко и по делу (не на каждый кадр Home).
+- Punch / cancel / absences / OT / settings writes — **RPC**; RLS не обходить.
+- Геозона для UI punch — из **локального кэша**; сеть для отправки / flush.
+- Ключи EN в RPC/payload; подписи на клиенте.
+- Company chat: `attendance_open_company_chat`; invite/rules — chat cards + Accept/Reject.
+
+## Кэш и outbox
+
+| Клиент | Эталон |
+|--------|--------|
+| Mobile | `AttendanceLocalCache` + `AttendanceContextStore` + `AttendanceOutbox`; wipe на logout |
+| Web | `attendance-prefs` / `service-sync-cache` (hub, workplace, today, members, duty, analytics, payroll); **`clearAttendanceSessionCaches` на logout** |
+
+Правила:
+
+- UI читает локальный snapshot; сеть — pull / событие / мутация.
+- Outbox (punch, OT, absences, settings) — **только mobile** в v1.
+- Query/поиск периодов: кэш с ключом периода; не класть произвольный search.
+- После мутации — invalidate / rewrite затронутый bucket (+ bootstrap coalesce на web).
+
+## Уведомления
+
+| Есть (v1) | Вне скоупа |
+|-----------|------------|
+| invite / rules_ack / duty / correction / **punch_due** | Дайджест admin, «опоздал» |
+| auto_close + cancel reconcile | — |
+
+Новый kind → `clover-notifications` + attendance.md § уведомления + open (punch / pending / settings).  
+Тексты: клиент; FCM tray — EN keys (+ реестр, если локаль в drain).
+
+## Клиентские слои
+
+```
+Flutter:  remote + context store / outbox → cubit → page   (_attendance_/…)
+Web:      features/attendance/lib/*-api → components/*-view · `/app/settings/attendance/…`, `/app/attendance`
+```
+
+Виджет не ходит в Supabase. Не участник не дергает bootstrap «на всякий».
+
+## Что можно расширять / что later
+
+| Можно | Пока вне скоупа |
+|-------|----------------|
+| Паритет admin UX mobile ↔ web | Face / selfie / kiosk / live GPS-трек |
+| Corrections / archive detail на web | Роль manager между admin и worker |
+| Новый notify kind по продукту | Ledger / НДФЛ / full payroll |
+| Payroll preview polish | Punch на вебе |
+| Company chat / duty / OT | CRM-касса |
+
+## Чеклист перед «готово»
+
+- [ ] Строка в `attendance.md` / tz / gaps / catalog
+- [ ] SPEC + `_attendance/README` / INDEX
+- [ ] Теги + RPC гейты; не участник = 0 трафика
+- [ ] Mobile и web на одних полях (где web в скоупе)
+- [ ] Кэш + logout clear; outbox если touch punch/offline
+- [ ] Notify / chat cards, если touch invite/rules/punch_due
+- [ ] Не смешали «оценка» с незапрошенным рефакторингом

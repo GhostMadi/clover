@@ -34,6 +34,10 @@ class NotificationOpenRouter {
       return AppDeepLinkPostIntent(postId);
     }
 
+    if (item.kind == NotificationKind.bookingAssignedStaff) {
+      return AppDeepLinkStaffCalendarIntent(hostId: item.bookingHostId);
+    }
+
     if (item.kind == NotificationKind.bookingRescheduled) {
       final bookingId = item.bookingId?.trim();
       if (item.bookingForHost == true) {
@@ -105,6 +109,9 @@ class NotificationOpenRouter {
         final actorId = str('actor_id') ?? str('user_id');
         if (actorId == null) return null;
         return AppDeepLinkProfileIntent(actorId);
+
+      case 'booking_assigned_staff':
+        return AppDeepLinkStaffCalendarIntent(hostId: str('host_id'));
 
       case 'booking_created_host':
       case 'booking_visit_started':
