@@ -155,14 +155,37 @@ jobs:
           fi
 
           # Gate: IPA must carry production push entitlement (FCM needs APNs).
+          # codesign may write DER, XML, or a text dump ([Dict]/ PlistBuddy alone fails.
           TMP=$(mktemp -d)
           unzip -q "$IPA_PATH" -d "$TMP"
           APP=$(find "$TMP/Payload" -maxdepth 1 -name '*.app' | head -n 1)
-          ENT_FILE="$TMP/entitlements.plist"
-          codesign -d --entitlements "$ENT_FILE" "$APP"
+          ENT_BLOB="$TMP/entitlements.blob"
+          ENT_XML="$TMP/entitlements.xml"
+          codesign -d --entitlements "$ENT_BLOB" "$APP" 2>/dev/null || true
+
+          APS=""
+          if plutil -convert xml1 "$ENT_BLOB" -o "$ENT_XML" 2>/dev/null; then
+            APS=$(plutil -extract aps-environment raw -o - "$ENT_XML" 2>/dev/null || true)
+          fi
+          if [ -z "$APS" ]; then
+            codesign -d --entitlements :- "$APP" >"$TMP/entitlements.stdout" 2>/dev/null || true
+            if grep -q '<?xml' "$TMP/entitlements.stdout" 2>/dev/null; then
+              sed -n '/<?xml/,$p' "$TMP/entitlements.stdout" > "$ENT_XML"
+              APS=$(plutil -extract aps-environment raw -o - "$ENT_XML" 2>/dev/null || true)
+            fi
+          fi
+          if [ -z "$APS" ]; then
+            APS=$(grep -A2 'aps-environment' "$ENT_BLOB" "$TMP/entitlements.stdout" 2>/dev/null \
+              | grep -Eo 'production|development' | head -n 1 || true)
+          fi
+
           echo "--- IPA entitlements ---"
-          plutil -p "$ENT_FILE" || cat "$ENT_FILE"
-          APS=$(/usr/libexec/PlistBuddy -c 'Print :aps-environment' "$ENT_FILE" 2>/dev/null || true)
+          if [ -f "$ENT_XML" ]; then
+            plutil -p "$ENT_XML" || cat "$ENT_XML"
+          else
+            cat "$ENT_BLOB" 2>/dev/null || true
+          fi
+
           if [ "$APS" != "production" ]; then
             echo "ERROR: IPA aps-environment='$APS' (want production). FCM will not get a token on TestFlight."
             exit 1
