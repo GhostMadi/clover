@@ -106,6 +106,7 @@
 | `20260418130000_reset_account_storage_posts_clusters.sql` | Итерация `reset_account`: очистка префиксов в Storage. |
 | **`20260419000000_disable_reset_account_content_wipe.sql`** | **Финал:** `reset_account()` только `raise exception`; **`revoke execute` у `authenticated`**. Полное удаление контента с клиента отключено. |
 | **`20260920183135_soft_delete_account.sql`** | RPC **`soft_delete_account`**: soft-hide как hibernate, без лимита 30 дней, без cascade. |
+| **`20260921154124_profiles_revoke_sensitive_select.sql`** | anon/authenticated: SELECT без `email` / `phone` / `is_site_admin`. Свой email — Auth; админ — RPC/service_role. |
 
 Ремонт таблицы кластеров на проектах без ранней миграции:
 
@@ -119,6 +120,7 @@
 |------|------------|
 | `20260420120000_profile_follows_social_graph.sql` | `profile_follows`, счётчики на `profiles`, триггеры ±1, RLS, RPC `follow_user` / `unfollow_user` / `is_following_user`, списки подписчиков/подписок. |
 | `20260421100000_social_graph_blocks_notifications_feed_reconcile.sql` | `profile_blocks`, `notification_events` (dedupe), `can_user_interact`, расширенный `follow_user` (блоки, 200/h, нотификация), `list_following_feed_enriched_cursor`, `reconcile_profile_follow_counts` (service_role). |
+| **`20260921155748_social_following_batch_and_blocks_rpc.sql`** | RPC `is_following_users` (batch); `block_user` / `unblock_user` / `list_my_blocked_users`. |
 
 ### In-app уведомления
 
@@ -148,6 +150,7 @@
 | `20260915140000_push_outbox_drop_drain_cron.sql` | Снят backup `pg_cron` `push_outbox_drain_backup` — только trigger. |
 | `20260915150000_push_payload_open_ids.sql` | `booking_id` в booking payload; `actor_id` в social outbox (FCM open). |
 | `20260915164321_booking_reminder_reschedule_cycle.sql` | Reminder **24h+1h** + FCM; `booking_rescheduled` in-app + FCM (history trigger); retire 3h/30m. |
+| `20260921170919_booking_assigned_staff_notify.sql` | `booking_assigned_staff` in-app + FCM on create (staff with `profile_id` only). |
 | `20260915171336_attendance_punch_due_auto_close_cancel_reconcile.sql` | `attendance_punch_due` cron; hanging shift `auto_closed`; cancel by `client_punch_id` + revision. |
 | `20260905220000_push_outbox_drain.sql` | claim/mark RPC for Edge `drain_push_outbox` (FCM HTTP v1). |
 | `20260906010000_booking_no_auto_complete_staff_id.sql` | Auto-close only `no_show` (never completed); `staff_id` in host list. |
@@ -211,6 +214,9 @@
 | `20260908190000_chat_attachments_r2_public_url.sql` | `chat_message_attachments.public_url` + RPC attachments bucket `r2`. |
 | `20260830250000_chat_reactions_rpc.sql` | `toggle_message_reaction`; колонка `my_reactions` в `list_messages_enriched` / `get_message_enriched`. |
 | `20260830260000_chat_messenger_basics.sql` | `delete_message`, `edit_message` — soft-delete и правка текста своих сообщений. |
+| `20260921161012_chat_blocks_gate_and_message_events.sql` | `chat_assert_dm_interactable` + `create_dm` гейт `user_blocked` (новый DM). |
+| `20260921161038_chat_send_gate_and_message_events.sql` | `send_message` гейт блока; broadcast `message_removed` / `message_updated`. |
+| `20260921161128_chat_send_attachments_block_gate.sql` | `send_message_with_attachments` гейт блока. |
 | `20260830270000_chat_attachments_client_message_id.sql` | `send_message_with_attachments` + `p_client_message_id` — reconcile optimistic media/file. |
 | `20260831100000_auth_login_helpers.sql` | `auth_is_email_registered`, `auth_resolve_login_email` — OTP только новым / логин по нику. |
 | `20260831120000_auth_current_user_has_password.sql` | `auth_current_user_has_password()` — для Настроек: «Установить» vs «Сбросить пароль». |

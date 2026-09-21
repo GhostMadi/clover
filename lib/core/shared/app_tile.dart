@@ -16,6 +16,8 @@ class AppTile extends StatelessWidget {
     this.icon,
     this.iconColor,
     this.iconBackgroundColor,
+    this.backgroundColor,
+    this.borderColor,
     this.trailing,
     this.showChevron = false,
     this.onTap,
@@ -33,6 +35,8 @@ class AppTile extends StatelessWidget {
   final IconData? icon;
   final Color? iconColor;
   final Color? iconBackgroundColor;
+  final Color? backgroundColor;
+  final Color? borderColor;
   final Widget? trailing;
   final bool showChevron;
   final VoidCallback? onTap;
@@ -92,19 +96,32 @@ class AppTile extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: hPadding, vertical: vPadding),
       decoration: filled
           ? BoxDecoration(
-              color: selected ? colors.successSoft.withValues(alpha: 0.5) : colors.surface,
+              color: backgroundColor ??
+                  (selected ? colors.successSoft.withValues(alpha: 0.5) : colors.surface),
               borderRadius: BorderRadius.circular(radius),
               border: Border.all(
-                color: selected
-                    ? colors.primary.withValues(alpha: 0.38)
-                    : colors.border.withValues(alpha: 0.55),
+                color: borderColor ??
+                    (selected
+                        ? colors.primary.withValues(alpha: 0.38)
+                        : colors.border.withValues(alpha: 0.55)),
                 width: context.widthByContext(_figmaBorderWidth),
               ),
             )
           : selected
           ? BoxDecoration(
-              color: colors.successSoft.withValues(alpha: 0.35),
+              color: backgroundColor ?? colors.successSoft.withValues(alpha: 0.35),
               borderRadius: BorderRadius.circular(radius),
+            )
+          : backgroundColor != null
+          ? BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(radius),
+              border: borderColor != null
+                  ? Border.all(
+                      color: borderColor!,
+                      width: context.widthByContext(_figmaBorderWidth),
+                    )
+                  : null,
             )
           : null,
       child: Row(

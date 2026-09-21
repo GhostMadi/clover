@@ -37,9 +37,10 @@
 Техника: только бэк — `supabase/functions/whatsapp_webhook/`
 
 ### 🟢 Онбординг
-Шесть слайдов после входа; повтор из «О приложении».  
+v2: выбор сюжета (лента / бизнес / оба) после входа; повтор из «О приложении».  
+v3 каркас: умные service-tips (`OnboardingTipCatalog` + resolver + кэш seen) — wire UI по хабам позже.  
 Бизнес: [onboarding.md](onboarding.md)  
-Техника: `lib/feature/onboarding/`
+Техника: `lib/feature/onboarding/` · правило: `.cursor/rules/clover-onboarding.mdc`
 
 ### 🟢 Сессия и выход
 Остаёшься в аккаунте между запусками; выход из настроек.  
@@ -181,11 +182,10 @@ Like / dislike на постах; уведомления автору.
 ### 🟢 Подписки (follow)
 См. [Подписчики и подписки](#-подписчики-и-подписки) выше.
 
-### 🟡 Блокировки
-Бэк (`profile_blocks`); UI блокировки **нет**.  
+### 🟢 Блокировки
+Бэк (`profile_blocks` + RPC `block_user` / `unblock_user` / `list_my_blocked_users`); UI: guest profile + Настройки → Заблокированные (mobile + web).  
 Бизнес: [blocks.md](blocks.md)  
-Техника: social graph на бэке, follow в Flutter
-
+Техника: [SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md](../supabase/SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md) · `lib/feature/_settings_/settings_blocked/`, `web/.../settings/blocked`
 ---
 
 ## Запись и бонусы
@@ -258,7 +258,7 @@ Enum + catalog: страны, города, теги без sync с бэка.
 Google-вход · Apple (iOS) · **сессия/выход** · онбординг · нижний бар · лента↔карта · **фильтры** · профиль · edit · теги · **подписчики** · публикации/ивенты · **реакции** · **комментарии** · **сохранённые** · **архивы** · **кластеры** · **чаты** · **уведомления** · **настройки** · **локации** · **онлайн-запись** · **бонусы** · **сон аккаунта** · **удаление аккаунта** · **посещаемость ядро** · **web-push** (нужен Firebase Web env на Vercel)
 
 **🟡 Зазор**  
-**блокировки** (нет UI) · **сила тегов** (паттерн не везде одинаков) · сайт: чат reply/reactions · хозяин booking B4/B5/B7 polish
+**блокировки** (UI + RPC + DM gate) · **сила тегов** (паттерн не везде одинаков) · сайт: chat reply/reactions/forward
 
 **🔴 Дыра / блок**  
 Phone OTP (отложено) · **бронь мест** (блок, не начинали)

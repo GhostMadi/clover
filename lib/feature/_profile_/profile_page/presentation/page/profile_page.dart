@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/extension/context.dart';
@@ -14,7 +12,6 @@ import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_refresh.dart';
 import 'package:clover/core/shared/app_state.dart';
 import 'package:clover/core/shared/app_tile.dart';
-import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
@@ -174,25 +171,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-class _ProfileNewActions extends StatefulWidget {
+class _ProfileNewActions extends StatelessWidget {
   const _ProfileNewActions();
-
-  @override
-  State<_ProfileNewActions> createState() => _ProfileNewActionsState();
-}
-
-class _ProfileNewActionsState extends State<_ProfileNewActions> {
-  late final AttendanceContextStore _attendanceStore;
-
-  @override
-  void initState() {
-    super.initState();
-    _attendanceStore = sl<AttendanceContextStore>();
-    final uid = Supabase.instance.client.auth.currentUser?.id.trim();
-    if (uid != null && uid.isNotEmpty) {
-      unawaited(_attendanceStore.hydrate(uid, force: true));
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

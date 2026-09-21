@@ -1,5 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_bonus_/my_bonuses/data/models/bonus_account_item.dart';
 import 'package:clover/feature/_bonus_/my_bonuses/presentation/cubit/my_bonuses_cubit.dart';
 import 'package:clover/feature/_bonus_/my_bonuses/presentation/widget/bonus_account_tile.dart';
@@ -38,6 +40,7 @@ class _MyBonusesPageState extends State<MyBonusesPage> {
       builder: (context, state) {
         return SettingsScreenShell(
           title: 'Мои бонусы',
+          service: kBonusService,
           body: switch (state) {
             MyBonusesLoading() => const Center(child: CircularProgressIndicator()),
             MyBonusesError(:final message) => _MyBonusesErrorBody(message: message, onRetry: _cubit.load),
@@ -72,12 +75,24 @@ class _MyBonusesListBody extends StatelessWidget {
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: EdgeInsets.fromLTRB(16, 8, 16, SettingsScreenShell.scrollBottomGap(context)),
-      itemCount: items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (context, index) => Opacity(
-        opacity: isRefreshing ? 0.7 : 1,
-        child: BonusAccountTile(item: items[index]),
-      ),
+      itemCount: items.length + 1,
+      separatorBuilder: (_, index) => SizedBox(height: index == 0 ? 14 : 10),
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Text(
+            'Баланс у каждого мастера отдельно. Откройте карточку, чтобы увидеть историю.',
+            style: AppTextStyle.base(
+              13,
+              color: context.colors.subTextColor,
+              height: 1.4,
+            ),
+          );
+        }
+        return Opacity(
+          opacity: isRefreshing ? 0.7 : 1,
+          child: BonusAccountTile(item: items[index - 1]),
+        );
+      },
     );
   }
 }
@@ -96,7 +111,11 @@ class _MyBonusesErrorBody extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(message, textAlign: TextAlign.center),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: AppTextStyle.base(14, color: context.colors.subTextColor),
+            ),
             const SizedBox(height: 16),
             FilledButton(onPressed: onRetry, child: const Text('Повторить')),
           ],

@@ -6,6 +6,8 @@
 
 - Таблицы `chat_*` включены под **RLS**, прямой `insert/update/delete` из клиента **не задуман** (`revoke … from authenticated`).
 - Основной путь — **`SECURITY DEFINER`** RPC (`send_message`, `send_message_with_attachments`, списки, поиск и т.д.), см. `20260417161000_chat_rpc.sql` и последующие итерации.
+- DM блок: `chat_assert_dm_interactable` + `can_user_interact` в `create_dm` (новый) / send* (`20260921161012`…`61128`).
+- Delete/edit broadcast: `message_removed` / `message_updated` на `chat_thread_<id>`.
 - Вложения: байты в **Storage** bucket `chat_media`, метаданные — `chat_message_attachments`, см. `20260421103000_chat_media_storage_send_attachments.sql`.
 
 ### Миграции по порядку внедрения

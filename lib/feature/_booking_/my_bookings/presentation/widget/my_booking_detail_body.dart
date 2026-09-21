@@ -1,9 +1,12 @@
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_detail_body.dart';
 import 'package:clover/feature/_booking_/my_bookings/data/models/my_booking_item.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 
+/// Деталка записи клиента: шапка + одна практичная карточка фактов.
 class MyBookingDetailBody extends StatelessWidget {
   const MyBookingDetailBody({super.key, required this.item});
 
@@ -24,212 +27,218 @@ class MyBookingDetailBody extends StatelessWidget {
     'декабря',
   ];
 
-  String _formatDateTime(DateTime? date) {
-    if (date == null) return '—';
-    return '${date.day} ${_monthLabels[date.month - 1]} ${date.year}, '
-        '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  String _weekday(DateTime date) {
+    const labels = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
+    return labels[date.weekday - 1];
   }
 
-  String _formatTime(DateTime? date) {
+  String _time(DateTime? date) {
     if (date == null) return '—';
     return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
 
-  String get _durationLabel => '${item.durationMinutes} мин';
-
   @override
   Widget build(BuildContext context) {
+    final accent = bookingServiceAccent(context.colors);
     final start = item.startsAtDate?.toLocal();
     final end = item.endsAtDate?.toLocal();
+    final hostLine = [
+      item.hostDisplayName,
+      if (item.hostUsernameLabel.isNotEmpty) item.hostUsernameLabel,
+    ].join(' · ');
+    final whenLine = start == null
+        ? '—'
+        : '${_weekday(start)}, ${start.day} ${_monthLabels[start.month - 1]}';
+    final timeLine = start == null
+        ? '—'
+        : '${_time(start)}–${_time(end)} · ${item.durationMinutes} мин';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _HeaderCard(item: item),
-        const SizedBox(height: 16),
-        _Section(
-          title: 'Мастер / салон',
-          children: [
-            _DetailRow(label: 'Название', value: item.hostDisplayName),
-            if (item.hostUsernameLabel.isNotEmpty)
-              _DetailRow(label: 'Аккаунт', value: item.hostUsernameLabel),
-          ],
-        ),
-        const SizedBox(height: 12),
-        _Section(
-          title: 'Время',
-          children: [
-            _DetailRow(label: 'Дата и начало', value: _formatDateTime(start)),
-            _DetailRow(
-              label: 'Окончание',
-              value: end == null ? '—' : '${_formatTime(end)} · $_durationLabel',
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        _Section(
-          title: 'Услуга',
-          children: [
-            _DetailRow(label: 'Название', value: item.serviceTitle),
-            _DetailRow(label: 'Длительность', value: _durationLabel),
-            _DetailRow(label: 'Цена', value: item.priceLabel),
-          ],
-        ),
-        if (item.executorName != null && item.executorName!.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          _Section(
-            title: 'Исполнитель',
+        Container(
+          padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
+          decoration: BoxDecoration(
+            color: accent.soft,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: accent.ctaBorder.withValues(alpha: 0.55)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _DetailRow(label: 'Мастер', value: item.executorName!),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: context.colors.surface.withValues(alpha: 0.78),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Text(item.serviceEmoji, style: AppTextStyle.emoji(24)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.serviceTitle,
+                          style: AppTextStyle.base(
+                            18,
+                            color: accent.onSoft,
+                            fontWeight: FontWeight.w800,
+                            height: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          hostLine,
+                          style: AppTextStyle.base(
+                            13,
+                            color: accent.onSoft.withValues(alpha: 0.72),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                whenLine,
+                style: AppTextStyle.base(
+                  14,
+                  color: accent.onSoft.withValues(alpha: 0.78),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                timeLine,
+                style: AppTextStyle.base(
+                  26,
+                  color: accent.onSoft,
+                  fontWeight: FontWeight.w800,
+                  height: 1.1,
+                  letterSpacing: -0.4,
+                ),
+              ),
+              const SizedBox(height: 12),
+              BookingListStatusChip(
+                status: item.status,
+                label: item.statusLabel,
+                isUnmarked: item.isVisitUnmarked,
+              ),
             ],
           ),
-        ],
-        if (item.notes != null && item.notes!.trim().isNotEmpty) ...[
-          const SizedBox(height: 12),
-          _Section(
-            title: 'Заметка',
+        ),
+        const SizedBox(height: 14),
+        Container(
+          padding: const EdgeInsets.fromLTRB(14, 6, 14, 6),
+          decoration: BoxDecoration(
+            color: context.colors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: context.colors.border.withValues(alpha: 0.7)),
+          ),
+          child: Column(
             children: [
-              _DetailRow(label: 'Комментарий', value: item.notes!.trim(), multiline: true),
+              _FactRow(
+                icon: AppIcons.personRounded.icon,
+                label: 'Салон',
+                value: item.hostDisplayName,
+              ),
+              if (item.executorName != null && item.executorName!.trim().isNotEmpty)
+                _FactRow(
+                  icon: AppIcons.badge.icon,
+                  label: 'Мастер',
+                  value: item.executorName!.trim(),
+                ),
+              _FactRow(
+                icon: AppIcons.payments.icon,
+                label: 'Цена',
+                value: item.priceLabel,
+                showDivider: item.notes != null && item.notes!.trim().isNotEmpty,
+              ),
+              if (item.notes != null && item.notes!.trim().isNotEmpty)
+                _FactRow(
+                  icon: AppIcons.editOutlined.icon,
+                  label: 'Заметка',
+                  value: item.notes!.trim(),
+                  multiline: true,
+                  showDivider: false,
+                ),
             ],
           ),
-        ],
-        if (item.createdAtDate != null) ...[
-          const SizedBox(height: 12),
-          _Section(
-            title: 'Системное',
-            children: [
-              _DetailRow(label: 'Создана', value: _formatDateTime(item.createdAtDate!.toLocal())),
-            ],
-          ),
-        ],
+        ),
       ],
     );
   }
 }
 
-class _HeaderCard extends StatelessWidget {
-  const _HeaderCard({required this.item});
-
-  final MyBookingItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.colors.surfaceSoftGreen.withValues(alpha: 0.45),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: context.colors.borderCardGreen.withValues(alpha: 0.75)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: context.colors.surface,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Text(item.serviceEmoji, style: AppTextStyle.emoji(28)),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.serviceTitle,
-                  style: AppTextStyle.base(18, color: context.colors.textColor, fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  item.hostDisplayName,
-                  style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 6),
-                BookingListStatusChip(
-                  status: item.status,
-                  label: item.statusLabel,
-                  isUnmarked: item.isVisitUnmarked,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.children});
-
-  final String title;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.colors.border.withValues(alpha: 0.55)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            title,
-            style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 10),
-          ...children,
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  const _DetailRow({
+class _FactRow extends StatelessWidget {
+  const _FactRow({
+    required this.icon,
     required this.label,
     required this.value,
     this.multiline = false,
+    this.showDivider = true,
   });
 
+  final IconData icon;
   final String label;
   final String value;
   final bool multiline;
+  final bool showDivider;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        crossAxisAlignment: multiline ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 118,
-            child: Text(
-              label,
-              style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: AppTextStyle.base(
-                14,
-                color: context.colors.textColor,
-                fontWeight: FontWeight.w600,
-                height: multiline ? 1.35 : 1.2,
+    final accent = bookingServiceAccent(context.colors);
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            crossAxisAlignment: multiline ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(color: accent.soft.withValues(alpha: 0.55), shape: BoxShape.circle),
+                child: Icon(icon, size: 18, color: accent.icon),
               ),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      value,
+                      style: AppTextStyle.base(
+                        15,
+                        color: context.colors.textColor,
+                        fontWeight: FontWeight.w700,
+                        height: multiline ? 1.35 : 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        if (showDivider)
+          Divider(height: 1, thickness: 1, color: context.colors.divider.withValues(alpha: 0.8)),
+      ],
     );
   }
 }

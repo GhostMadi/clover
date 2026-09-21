@@ -1,5 +1,6 @@
 import 'package:clover/feature/_bonus_/bonus_history/data/models/bonus_history_entry.dart';
 import 'package:clover/feature/_bonus_/bonus_history/data/models/bonus_history_page_result.dart';
+import 'package:clover/feature/_bonus_/shared/data/bonus_mock.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -26,6 +27,22 @@ class BonusHistoryRepositoryImpl implements BonusHistoryRepository {
     final id = hostId.trim();
     if (id.isEmpty) {
       return const BonusHistoryPageResult(balance: 0, items: [], hasMore: false);
+    }
+
+    if (BonusMock.enabled) {
+      // Курсор на моке не нужен — одна страница.
+      if (cursorItem != null) {
+        return BonusHistoryPageResult(
+          balance: BonusMock.balanceFor(id),
+          items: const [],
+          hasMore: false,
+        );
+      }
+      return BonusHistoryPageResult(
+        balance: BonusMock.balanceFor(id),
+        items: BonusMock.historyFor(id),
+        hasMore: false,
+      );
     }
 
     final params = <String, dynamic>{

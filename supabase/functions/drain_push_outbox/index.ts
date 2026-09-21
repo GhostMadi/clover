@@ -71,6 +71,7 @@ function localizePushTitle(title: string, kind: string): string {
   const byKind: Record<string, string> = {
     booking_created_host: byKey.new_booking,
     booking_booked_client: byKey.booking_confirmed,
+    booking_assigned_staff: byKey.new_booking,
     booking_cancelled_host: byKey.booking_cancelled,
     booking_cancelled_client: byKey.booking_cancelled,
     booking_completed_client: byKey.visit_completed,
@@ -116,6 +117,7 @@ function localizePushBody(
     system: "Системное",
     client_booked: `Клиент записался на «${service}»`,
     you_are_booked: `Вы записаны на «${service}»`,
+    assigned_to_you: `Новая запись на вас: «${service}»`,
     client_cancelled: `Клиент отменил «${service}»`,
     host_cancelled: `Хозяин отменил «${service}»`,
     marked_completed: `«${service}» отмечена как оказанная`,
@@ -188,6 +190,7 @@ function localizePushBody(
   const byKindBody: Record<string, string> = {
     booking_created_host: byKey.client_booked,
     booking_booked_client: byKey.you_are_booked,
+    booking_assigned_staff: byKey.assigned_to_you,
     booking_cancelled_host: byKey.client_cancelled,
     booking_cancelled_client: byKey.host_cancelled,
     booking_completed_client: byKey.marked_completed,

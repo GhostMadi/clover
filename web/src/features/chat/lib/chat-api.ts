@@ -88,6 +88,7 @@ export async function sendTextMessage(opts: {
   conversationId: string;
   text: string;
   clientMessageId?: string;
+  replyTo?: string | null;
 }): Promise<string> {
   const body = opts.text.trim();
   if (!body) throw new Error("Пустое сообщение");
@@ -98,8 +99,15 @@ export async function sendTextMessage(opts: {
     p_text: body,
   };
   if (opts.clientMessageId) params.p_client_message_id = opts.clientMessageId;
+  if (opts.replyTo) params.p_reply_to = opts.replyTo;
   const { data, error } = await supabase.rpc("send_message", params);
-  if (error) throw error;
+  if (error) {
+    const msg = (error.message ?? "").toLowerCase();
+    if (msg.includes("user_blocked") || error.code === "P0009") {
+      throw new Error("Переписка недоступна — пользователь в блоке");
+    }
+    throw error;
+  }
   const id = String(data ?? "").trim();
   if (!id) throw new Error("Не удалось отправить");
   return id;
@@ -124,7 +132,13 @@ export async function createDm(otherUserId: string): Promise<string> {
   const { data, error } = await supabase.rpc("create_dm", {
     p_other_user_id: otherUserId,
   });
-  if (error) throw error;
+  if (error) {
+    const msg = (error.message ?? "").toLowerCase();
+    if (msg.includes("user_blocked") || error.code === "P0009") {
+      throw new Error("Переписка недоступна — пользователь в блоке");
+    }
+    throw error;
+  }
   const id = String(data ?? "").trim();
   if (!id) throw new Error("Не удалось открыть чат");
   return id;
@@ -276,3 +290,47 @@ export async function setConversationWallpaper(
     .map((x) => x.trim())
     .slice(0, 8);
 }
+
+function chatRpcError(error: { message?: string; code?: string } | null): Error {
+  const msg = (error?.message ?? "").toLowerCase();
+  if (msg.includes("user_blocked") || error?.code === "P0009") {
+    return new Error("Переписка недоступна — пользователь в блоке");
+  }
+  return new Error(error?.message || "Ошибка чата");
+}
+
+export async function deleteMessage(messageId: string): Promise<void> {
+  const id = messageId.trim();
+  if (!id) return;
+  const supabase = createClient();
+  const { error } = await supabase.rpc("delete_message", { p_message_id: id });
+  if (error) throw chatRpcError(error);
+}
+
+export async function editMessage(messageId: string, text: string): Promise<void> {
+  const id = messageId.trim();
+  const body = text.trim();
+  if (!id || !body) throw new Error("Пустой текст");
+  const supabase = createClient();
+  const { error } = await supabase.rpc("edit_message", {
+    p_message_id: id,
+    p_text: body,
+  });
+  if (error) throw chatRpcError(error);
+}
+
+export async function toggleMessageReaction(
+  messageId: string,
+  emoji: string,
+): Promise<void> {
+  const id = messageId.trim();
+  const e = emoji.trim();
+  if (!id || !e) return;
+  const supabase = createClient();
+  const { error } = await supabase.rpc("toggle_message_reaction", {
+    p_message_id: id,
+    p_emoji: e,
+  });
+  if (error) throw chatRpcError(error);
+}
+

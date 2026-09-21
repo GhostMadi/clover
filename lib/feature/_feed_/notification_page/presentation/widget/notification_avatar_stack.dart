@@ -111,7 +111,8 @@ class _ReactionBadge extends StatelessWidget {
       NotificationKind.bookingCancelledClient ||
       NotificationKind.bookingCompletedClient ||
       NotificationKind.bookingNoShowClient ||
-      NotificationKind.bookingRescheduled => (
+      NotificationKind.bookingRescheduled ||
+      NotificationKind.bookingAssignedStaff => (
         AppIcons.eventAvailable.icon,
         context.colors.primary,
         context.colors.white,

@@ -239,6 +239,7 @@ import '../../feature/dashboard_page/data/dashboard_home_mode_store.dart'
 import '../../feature/dashboard_page/presentation/cubit/dashboard_home_mode_cubit.dart'
     as _i4;
 import '../../feature/onboarding/data/onboarding_store.dart' as _i643;
+import '../../feature/onboarding/data/onboarding_tip_resolver.dart' as _i311;
 import '../auth/cubit/auth_cubit.dart' as _i575;
 import '../auth/repositories/auth_repository.dart' as _i964;
 import '../deep_link/app_deep_link_navigator.dart' as _i79;
@@ -530,6 +531,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i819.AppSession>(),
       ),
     );
+    gh.factory<_i554.GuestProfileCubit>(
+      () => _i554.GuestProfileCubit(
+        gh<_i57.ProfileNewRepository>(),
+        gh<_i469.SocialGraphRepository>(),
+        gh<_i95.ProfileCubit>(),
+        gh<_i340.ProfileLocalCache>(),
+      ),
+    );
     gh.lazySingleton<_i865.AttendanceContextStore>(
       () => _i865.AttendanceContextStore(
         gh<_i1029.IAppStorage>(),
@@ -553,16 +562,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i633.NotificationOpenBus>(),
       ),
     );
-    gh.factory<_i497.BookingCalendarBookingsCubit>(
-      () => _i497.BookingCalendarBookingsCubit(
-        gh<_i299.BookingCalendarRepository>(),
-      ),
-    );
-    gh.factory<_i104.BookingCalendarHostsCubit>(
-      () => _i104.BookingCalendarHostsCubit(
-        gh<_i299.BookingCalendarRepository>(),
-      ),
-    );
     gh.factoryParam<
       _i788.BookingListDetailCubit,
       _i381.BookingListItem,
@@ -571,12 +570,6 @@ extension GetItInjectableX on _i174.GetIt {
       (item, _) => _i788.BookingListDetailCubit(
         gh<_i152.BookingHostListRepository>(),
         item,
-      ),
-    );
-    gh.factory<_i554.GuestProfileCubit>(
-      () => _i554.GuestProfileCubit(
-        gh<_i57.ProfileNewRepository>(),
-        gh<_i469.SocialGraphRepository>(),
       ),
     );
     gh.factory<_i905.AttendanceWorkerHubCubit>(
@@ -637,6 +630,20 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i194.NotificationsRepository>(),
         gh<_i469.SocialGraphRepository>(),
         gh<_i138.NotificationsUnreadCubit>(),
+      ),
+    );
+    gh.factory<_i497.BookingCalendarBookingsCubit>(
+      () => _i497.BookingCalendarBookingsCubit(
+        gh<_i299.BookingCalendarRepository>(),
+        gh<_i984.BookingLocalCache>(),
+        gh<_i819.AppSession>(),
+      ),
+    );
+    gh.factory<_i104.BookingCalendarHostsCubit>(
+      () => _i104.BookingCalendarHostsCubit(
+        gh<_i299.BookingCalendarRepository>(),
+        gh<_i984.BookingLocalCache>(),
+        gh<_i819.AppSession>(),
       ),
     );
     gh.factory<_i978.BookingClientCubit>(
@@ -764,6 +771,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i4.DashboardHomeModeCubit>(
       () => _i4.DashboardHomeModeCubit(gh<_i501.DashboardHomeModeStore>()),
+    );
+    gh.lazySingleton<_i311.OnboardingTipResolver>(
+      () => _i311.OnboardingTipResolver(gh<_i643.OnboardingStore>()),
     );
     gh.lazySingleton<_i984.PostRepository>(
       () => _i984.PostRepository(

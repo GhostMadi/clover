@@ -7,6 +7,8 @@
 Техника (бэк): [SPEC_BOOKING_SYSTEM.md](../supabase/SPEC_BOOKING_SYSTEM.md)  
 Профиль и точки входа: [profile.md](profile.md) · теги: [profile-data.md](profile-data.md)
 
+Правило агента / каркас расширения: [`.cursor/rules/clover-booking.mdc`](../../.cursor/rules/clover-booking.mdc).
+
 **Другая фича:** **«Бронь»** — билеты, места и опц. схема пространства (кино / ресторан / театр) — [venue-seating.md](venue-seating.md), не этот документ.
 
 ---

@@ -89,4 +89,25 @@ class BookingCalendarItem {
       createdAt: json['created_at']?.toString(),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'host_id': hostId,
+        'host_display_name': hostDisplayName,
+        'host_username': hostUsername,
+        'client_id': clientId,
+        'client_name': clientName,
+        'client_username': clientUsername,
+        'service_id': serviceId,
+        'service_title': serviceTitle,
+        'service_emoji': serviceEmoji,
+        'duration_minutes': durationMinutes,
+        'price': price,
+        'staff_id': staffId,
+        'executor_name': executorName,
+        'starts_at': startsAt,
+        'status': status.dbValue,
+        'notes': notes,
+        'created_at': createdAt,
+      };
 }

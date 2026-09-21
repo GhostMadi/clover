@@ -13,7 +13,13 @@ import {
 } from "@/features/booking/lib/booking-prefs";
 import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
 import { listMyServices } from "@/features/booking/lib/services-api";
-import { listMyStaff } from "@/features/booking/lib/staff-api";
+import {
+  cancelStaffInvite,
+  listMyStaff,
+  listPendingStaffInvites,
+  setStaffActive,
+  type BookingStaffInvite,
+} from "@/features/booking/lib/staff-api";
 import type { BookingService, BookingStaff } from "@/features/booking/lib/booking-model";
 import { formatPriceKzt } from "@/features/booking/lib/booking-format";
 import { createClient } from "@/lib/supabase/client";
@@ -21,28 +27,38 @@ import { createClient } from "@/lib/supabase/client";
 export function ServicesListView({ pointId }: { pointId: string }) {
   const [services, setServices] = useState<BookingService[]>([]);
   const [staff, setStaff] = useState<BookingStaff[]>([]);
+  const [pending, setPending] = useState<BookingStaffInvite[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [staffBusyId, setStaffBusyId] = useState<string | null>(null);
 
-  const reload = useCallback(async (opts?: { soft?: boolean }) => {
-    if (!opts?.soft) setLoading(true);
-    setError(null);
-    try {
-      const {
-        data: { session },
-      } = await createClient().auth.getSession();
-      const uid = session?.user.id ?? null;
-      const [s, st] = await Promise.all([listMyServices(pointId), listMyStaff(false)]);
-      setServices(s);
-      setStaff(st);
-      writeBookingServicesCache(uid, pointId, { services: s, staff: st });
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Ошибка");
-    } finally {
-      setLoading(false);
-    }
-  }, [pointId]);
+  const reload = useCallback(
+    async (opts?: { soft?: boolean }) => {
+      if (!opts?.soft) setLoading(true);
+      setError(null);
+      try {
+        const {
+          data: { session },
+        } = await createClient().auth.getSession();
+        const uid = session?.user.id ?? null;
+        const [s, st, inv] = await Promise.all([
+          listMyServices(pointId),
+          listMyStaff(false),
+          listPendingStaffInvites(),
+        ]);
+        setServices(s);
+        setStaff(st);
+        setPending(inv);
+        writeBookingServicesCache(uid, pointId, { services: s, staff: st });
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Ошибка");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [pointId],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -66,6 +82,30 @@ export function ServicesListView({ pointId }: { pointId: string }) {
       cancelled = true;
     };
   }, [pointId, reload]);
+
+  const toggleStaff = async (s: BookingStaff) => {
+    if (staffBusyId) return;
+    setStaffBusyId(s.id);
+    setError(null);
+    try {
+      await setStaffActive(s.id, !s.isActive);
+      await reload({ soft: true });
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Не удалось обновить мастера");
+    } finally {
+      setStaffBusyId(null);
+    }
+  };
+
+  const cancelInvite = async (inviteId: string) => {
+    setError(null);
+    try {
+      await cancelStaffInvite(inviteId);
+      await reload({ soft: true });
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Не удалось отменить");
+    }
+  };
 
   return (
     <BookingWorkspaceShell
@@ -95,7 +135,18 @@ export function ServicesListView({ pointId }: { pointId: string }) {
           {loading ? (
             <BookingListShimmer rows={4} />
           ) : services.length === 0 ? (
-            <p className="text-sm text-muted">Пока нет услуг. Создайте первую.</p>
+            <div className="rounded-[14px] border border-dashed border-line bg-bg px-3.5 py-5 text-center">
+              <p className="text-sm text-muted">Пока нет услуг. Создайте первую.</p>
+              <div className="mt-3 flex justify-center">
+                <AppButtonLink
+                  href={`${bookingPointBase(pointId)}/services/new`}
+                  size="row"
+                  service="booking"
+                >
+                  Добавить услугу
+                </AppButtonLink>
+              </div>
+            </div>
           ) : (
             <ul className="overflow-hidden rounded-[16px] border border-line bg-surface">
               {services.map((s, i) => (
@@ -136,24 +187,75 @@ export function ServicesListView({ pointId }: { pointId: string }) {
               </span>
             </AppButton>
           </div>
-          {staff.length === 0 ? (
-            <p className="rounded-[14px] border border-dashed border-line bg-bg px-3.5 py-4 text-sm text-muted">
-              Пока нет мастеров. Добавьте первого.
-            </p>
+          {loading ? (
+            <BookingListShimmer rows={3} />
           ) : (
-            <ul className="space-y-1.5">
-              {staff.map((s) => (
-                <li
-                  key={s.id}
-                  className="rounded-[12px] border border-line bg-bg px-3 py-2.5 text-[14px] font-semibold text-ink"
-                >
-                  {s.displayName}
-                  {!s.isActive ? (
-                    <span className="ml-2 text-[11px] font-medium text-muted">выкл</span>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
+            <>
+              {pending.length > 0 ? (
+                <div className="mb-3 space-y-1.5">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-muted">
+                    Ожидают
+                  </p>
+                  {pending.map((inv) => {
+                    const label =
+                      inv.inviteeDisplayName.trim() ||
+                      inv.inviteeUsername?.trim() ||
+                      "Аккаунт";
+                    return (
+                      <div
+                        key={inv.id}
+                        className="flex items-center justify-between gap-2 rounded-[12px] border border-dashed border-line bg-bg px-3 py-2.5"
+                      >
+                        <span className="min-w-0 truncate text-[14px] font-semibold text-ink">
+                          {label}
+                          {inv.inviteeUsername ? (
+                            <span className="ml-1 text-[12px] font-medium text-muted">
+                              @{inv.inviteeUsername}
+                            </span>
+                          ) : null}
+                        </span>
+                        <button
+                          type="button"
+                          className="shrink-0 text-[12px] font-bold text-destructive"
+                          onClick={() => void cancelInvite(inv.id)}
+                        >
+                          Отменить
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+              {staff.length === 0 ? (
+                <p className="rounded-[14px] border border-dashed border-line bg-bg px-3.5 py-4 text-sm text-muted">
+                  Пока нет мастеров. Добавьте первого.
+                </p>
+              ) : (
+                <ul className="space-y-1.5">
+                  {staff.map((s) => (
+                    <li
+                      key={s.id}
+                      className="flex items-center justify-between gap-2 rounded-[12px] border border-line bg-bg px-3 py-2.5"
+                    >
+                      <span className="min-w-0 truncate text-[14px] font-semibold text-ink">
+                        {s.displayName}
+                        {!s.isActive ? (
+                          <span className="ml-2 text-[11px] font-medium text-muted">выкл</span>
+                        ) : null}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={staffBusyId === s.id}
+                        className="shrink-0 text-[12px] font-bold text-svc-booking-ink disabled:opacity-50"
+                        onClick={() => void toggleStaff(s)}
+                      >
+                        {s.isActive ? "Выкл" : "Вкл"}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
           )}
         </section>
       </div>
@@ -163,7 +265,7 @@ export function ServicesListView({ pointId }: { pointId: string }) {
         onClose={() => setAddOpen(false)}
         onCreated={() => {
           setError(null);
-          reload();
+          void reload({ soft: true });
         }}
       />
     </BookingWorkspaceShell>

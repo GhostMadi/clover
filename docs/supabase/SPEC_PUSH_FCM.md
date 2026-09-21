@@ -42,12 +42,15 @@ Unique: `(user_id, platform)` — один активный FCM token на пл�
 |--------|---------|
 | `user_id` | Recipient |
 | `kind` | EN event key (`booking_created_host`, `attendance_invite`, `chat_message`, …) |
-| `title` / `body` | **EN keys** (not locale). Drain localizes for FCM tray. |
+| `title` / `body` | **EN keys** (not locale). Drain сейчас разворачивает в RU для FCM tray (исключение). |
 | `payload` | Dynamic fields (`service_title`, `workplace_name`, `starts_at`, …) → FCM `data` |
 | `sent_at` | null = pending |
 | `attempts` / `last_error` | retry / diagnostics |
 
 Миграция EN keys: `20260912080000_push_outbox_booking_attendance_en_keys.sql` (+ chat preview earlier).
+
+**Локаль:** цель — без перевода на сервере (`*_loc_key` на клиенте).  
+Текущее исключение (RU в Edge): реестр в [notifications.md](../business/notifications.md) § «Реестр исключений локали». Правило: `.cursor/rules/clover-notifications.mdc`.
 
 Клиент **не** читает/пишет `push_outbox` (только service_role).
 

@@ -1,5 +1,5 @@
-import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:flutter/material.dart';
 
@@ -8,14 +8,21 @@ class MyBonusesEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = context.colors.serviceAccent(AppServiceKind.bonus);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(AppIcons.loyalty.icon, size: 56, color: context.colors.subTextColor.withValues(alpha: 0.45)),
-            const SizedBox(height: 16),
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(color: accent.soft, shape: BoxShape.circle),
+              child: Icon(AppIcons.loyalty.icon, size: 34, color: accent.icon),
+            ),
+            const SizedBox(height: 18),
             Text(
               'Бонусов пока нет',
               textAlign: TextAlign.center,
@@ -23,7 +30,7 @@ class MyBonusesEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Здесь появятся салоны и магазины, где вы копите бонусы',
+              'После визитов у мастеров с программой лояльности балансы появятся здесь',
               textAlign: TextAlign.center,
               style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.4),
             ),

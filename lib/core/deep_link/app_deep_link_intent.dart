@@ -84,6 +84,12 @@ final class AppDeepLinkAttendanceIntent extends AppDeepLinkIntent {
   final String? workplaceId;
 }
 
+final class AppDeepLinkStaffCalendarIntent extends AppDeepLinkIntent {
+  const AppDeepLinkStaffCalendarIntent({this.hostId});
+
+  final String? hostId;
+}
+
 final class AppDeepLinkDashboardTabIntent extends AppDeepLinkIntent {
   const AppDeepLinkDashboardTabIntent(this.tab);
 

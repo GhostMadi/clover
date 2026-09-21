@@ -11,6 +11,10 @@ import type {
   BookingStaff,
   HostBookingItem,
 } from "@/features/booking/lib/booking-model";
+import type {
+  BookingCalendarHost,
+  BookingCalendarItem,
+} from "@/features/booking/lib/calendar-api";
 import { lsGet, lsSet } from "@/lib/local-storage";
 import {
   readServiceCache,
@@ -193,11 +197,13 @@ export function readBookingAnalyticsCache(
   from: string,
   to: string,
   pointId?: string,
+  staffId?: string,
 ): BookingAnalytics | null {
   const pid = pointId?.trim() || "host";
+  const sid = staffId?.trim() || "all";
   return readServiceCache<BookingAnalytics>({
     service: "booking",
-    bucket: `analytics:${pid}:${from}:${to}`,
+    bucket: `analytics:${pid}:${from}:${to}:${sid}`,
     userId,
     version: TAB_VERSION,
     maxAgeMs: ANALYTICS_TTL_MS,
@@ -210,19 +216,112 @@ export function writeBookingAnalyticsCache(
   to: string,
   data: BookingAnalytics,
   pointId?: string,
+  staffId?: string,
 ): void {
   const pid = pointId?.trim() || "host";
+  const sid = staffId?.trim() || "all";
   writeServiceCache({
     service: "booking",
-    bucket: `analytics:${pid}:${from}:${to}`,
+    bucket: `analytics:${pid}:${from}:${to}:${sid}`,
     userId,
     version: TAB_VERSION,
     data,
   });
 }
 
+const CALENDAR_TTL_MS = 24 * 60 * 60 * 1000;
+
+export function readBookingCalendarHostsCache(
+  userId: string | null | undefined,
+): BookingCalendarHost[] | null {
+  return readServiceCache<BookingCalendarHost[]>({
+    service: "booking",
+    bucket: "calendar-hosts",
+    userId,
+    version: TAB_VERSION,
+    maxAgeMs: CALENDAR_TTL_MS,
+  });
+}
+
+export function writeBookingCalendarHostsCache(
+  userId: string | null | undefined,
+  hosts: BookingCalendarHost[],
+): void {
+  writeServiceCache({
+    service: "booking",
+    bucket: "calendar-hosts",
+    userId,
+    version: TAB_VERSION,
+    data: hosts,
+  });
+}
+
+export function readBookingCalendarItemsCache(
+  userId: string | null | undefined,
+  hostId: string,
+  range: { from: Date; to: Date },
+): BookingCalendarItem[] | null {
+  const data = readServiceCache<{
+    fromIso: string;
+    toIso: string;
+    items: BookingCalendarItem[];
+  }>({
+    service: "booking",
+    bucket: `calendar-items:${hostId}`,
+    userId,
+    version: TAB_VERSION,
+    maxAgeMs: CALENDAR_TTL_MS,
+  });
+  if (!data) return null;
+  if (
+    data.fromIso !== range.from.toISOString() ||
+    data.toIso !== range.to.toISOString()
+  ) {
+    // Stale window — still paint; network refreshes.
+  }
+  return data.items;
+}
+
+export function writeBookingCalendarItemsCache(
+  userId: string | null | undefined,
+  hostId: string,
+  range: { from: Date; to: Date },
+  items: BookingCalendarItem[],
+): void {
+  writeServiceCache({
+    service: "booking",
+    bucket: `calendar-items:${hostId}`,
+    userId,
+    version: TAB_VERSION,
+    data: {
+      fromIso: range.from.toISOString(),
+      toIso: range.to.toISOString(),
+      items,
+    },
+  });
+}
+
 export function bookingPointBase(pointId: string): string {
   return `/app/settings/booking/p/${pointId}`;
+}
+
+/** Clear all booking sync buckets for user (logout). */
+export function clearBookingSessionCaches(
+  userId: string | null | undefined,
+): void {
+  if (!userId || typeof window === "undefined") return;
+  try {
+    const prefix = "clover-web-sync:booking:";
+    const suffix = `:${userId}`;
+    const keys: string[] = [];
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(prefix) && k.endsWith(suffix)) keys.push(k);
+    }
+    for (const k of keys) localStorage.removeItem(k);
+  } catch {
+    /* ignore */
+  }
 }
 
 /** `/app/settings/booking/p/OLD/inbox` → `…/p/NEW/inbox` */

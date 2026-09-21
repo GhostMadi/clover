@@ -2,6 +2,7 @@
 
 import { ChevronLeft, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { BookingClientShell } from "@/features/booking/components/booking-workspace-shell";
 import { BookingListShimmer } from "@/features/booking/components/booking-shimmers";
 import {
@@ -16,32 +17,55 @@ import {
   hostInboxRange,
   statusLabelRu,
 } from "@/features/booking/lib/booking-format";
+import {
+  readBookingCalendarHostsCache,
+  readBookingCalendarItemsCache,
+  writeBookingCalendarHostsCache,
+  writeBookingCalendarItemsCache,
+} from "@/features/booking/lib/booking-prefs";
+import { createClient } from "@/lib/supabase/client";
 
 /** Календарь заказов, где текущий пользователь — исполнитель (read-only). */
 export function BookingCalendarView() {
+  const searchParams = useSearchParams();
+  const hostFromQuery = searchParams.get("host")?.trim() || null;
   const [hosts, setHosts] = useState<BookingCalendarHost[]>([]);
   const [hostsLoading, setHostsLoading] = useState(true);
-  const [selectedHostId, setSelectedHostId] = useState<string | null>(null);
+  const [selectedHostId, setSelectedHostId] = useState<string | null>(hostFromQuery);
   const [items, setItems] = useState<BookingCalendarItem[]>([]);
   const [itemsLoading, setItemsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    setHostsLoading(true);
-    void listCalendarHosts()
-      .then((list) => {
-        if (!cancelled) setHosts(list);
-      })
-      .catch((e: unknown) => {
+    void (async () => {
+      const {
+        data: { session },
+      } = await createClient().auth.getSession();
+      if (cancelled) return;
+      const uid = session?.user.id ?? null;
+      const cached = readBookingCalendarHostsCache(uid);
+      if (cached?.length) {
+        setHosts(cached);
+        setHostsLoading(false);
+      } else {
+        setHostsLoading(true);
+      }
+      try {
+        const list = await listCalendarHosts();
+        if (cancelled) return;
+        setHosts(list);
+        setError(null);
+        writeBookingCalendarHostsCache(uid, list);
+      } catch (e: unknown) {
         if (!cancelled) {
           setError(e instanceof Error ? e.message : "Не удалось загрузить источники");
-          setHosts([]);
+          if (!cached?.length) setHosts([]);
         }
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) setHostsLoading(false);
-      });
+      }
+    })();
     return () => {
       cancelled = true;
     };
@@ -53,22 +77,39 @@ export function BookingCalendarView() {
       return;
     }
     let cancelled = false;
-    setItemsLoading(true);
-    setError(null);
-    const { from, to } = hostInboxRange();
-    void listCalendarBookings({ from, to, hostId: selectedHostId })
-      .then((list) => {
-        if (!cancelled) setItems(list);
-      })
-      .catch((e: unknown) => {
+    void (async () => {
+      const {
+        data: { session },
+      } = await createClient().auth.getSession();
+      if (cancelled) return;
+      const uid = session?.user.id ?? null;
+      const range = hostInboxRange();
+      const cached = readBookingCalendarItemsCache(uid, selectedHostId, range);
+      if (cached?.length) {
+        setItems(cached);
+        setItemsLoading(false);
+      } else {
+        setItemsLoading(true);
+      }
+      setError(null);
+      try {
+        const list = await listCalendarBookings({
+          from: range.from,
+          to: range.to,
+          hostId: selectedHostId,
+        });
+        if (cancelled) return;
+        setItems(list);
+        writeBookingCalendarItemsCache(uid, selectedHostId, range, list);
+      } catch (e: unknown) {
         if (!cancelled) {
           setError(e instanceof Error ? e.message : "Не удалось загрузить записи");
-          setItems([]);
+          if (!cached?.length) setItems([]);
         }
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) setItemsLoading(false);
-      });
+      }
+    })();
     return () => {
       cancelled = true;
     };

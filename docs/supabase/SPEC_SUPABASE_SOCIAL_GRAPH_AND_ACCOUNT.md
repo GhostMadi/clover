@@ -36,6 +36,7 @@
 
 - **Сон / видимость контента:** `20260416112425_account_state_reset_hibernate.sql` и связанные файлы — `profiles.account_state`, `content_visible`, RLS на посты/кластеры/комментарии для «спящих»; RPC `hibernate_account`, `wake_up_if_needed`.
 - **Reset контента:** `20260419000000_disable_reset_account_content_wipe.sql` — `reset_account` **отключён** для `authenticated` (продуктово: приоритет **hibernate**).
+- **Публичный SELECT профиля:** `20260921154124_profiles_revoke_sensitive_select.sql` — у `anon`/`authenticated` нет SELECT на `email`, `phone`, `is_site_admin` (см. [profile-data.md](../business/profile-data.md)).
 - **Ленты / обогащённые RPC:** `list_user_feed_enriched*`, `list_hot_feed_enriched`, `get_post_enriched` и др. — см. `docs/supabase/MIGRATIONS_INDEX.md`.
 - **Черновик графа подписок:** при наличии файла `20260420120000_profile_follows_social_graph.sql` — реализация должна быть **приведена в соответствие** с настоящим ТЗ (имена RPC, блоки, уведомления, лента — см. разделы 4–7).
 
@@ -213,7 +214,11 @@ _(Историческая заметка: ранний черновик опи�
 
 ### 4.3 `public.is_following_user(p_target uuid) RETURNS boolean`
 
-- Для UI; при `auth.uid()` null → `false`
+Один target: `true`, если есть ребро `auth.uid()` → `p_target`. Для UI; при `auth.uid()` null → `false`.
+
+### 4.3b `public.is_following_users(p_targets uuid[]) RETURNS TABLE(profile_id uuid, is_following boolean)`
+
+Батч для списков подписчиков / подписок. Отсутствующие id → `is_following = false`. Клиенты: mobile `SocialGraphRepository.isFollowingUsers`, web `isFollowingUsers`.
 
 ### 4.4 `public.list_profile_followers(p_profile_id uuid, p_limit int, p_offset int)`
 
@@ -350,7 +355,7 @@ _(Историческая заметка: ранний черновик опи�
 ### 9.2 `profile_blocks`
 
 - Пользователь видит только свои блокировки (политика по `blocker_id = auth.uid()`)
-- Запись блокировки — отдельный RPC `block_user` / `unblock_user` (в скоупе отдельной задачи, но таблица — в этом ТЗ)
+- Запись / снятие / список — RPC `block_user` / `unblock_user` / `list_my_blocked_users` (миграция `20260921155748_…`); при блоке follow-рёбра в обе стороны снимаются
 
 ---
 

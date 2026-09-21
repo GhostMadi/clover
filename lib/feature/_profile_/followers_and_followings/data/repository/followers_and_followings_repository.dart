@@ -81,19 +81,24 @@ class FollowersAndFollowingsRepositoryImpl implements FollowersAndFollowingsRepo
 
   Future<List<FollowProfileRow>> _enrichWithFollowState(List<FollowProfileRow> rows) async {
     final uid = _client.auth.currentUser?.id.trim();
-    if (uid == null || uid.isEmpty) return rows;
+    if (uid == null || uid.isEmpty || rows.isEmpty) return rows;
 
-    final enriched = await Future.wait(
-      rows.map((row) async {
-        if (row.profileId == uid) return row;
-        try {
-          final following = await _socialGraph.isFollowingUser(row.profileId);
-          return row.copyWith(isFollowing: following);
-        } catch (_) {
-          return row;
-        }
-      }),
-    );
-    return enriched;
+    final targets = [
+      for (final row in rows)
+        if (row.profileId != uid) row.profileId,
+    ];
+    if (targets.isEmpty) return rows;
+
+    try {
+      final flags = await _socialGraph.isFollowingUsers(targets);
+      return [
+        for (final row in rows)
+          row.profileId == uid
+              ? row
+              : row.copyWith(isFollowing: flags[row.profileId] ?? false),
+      ];
+    } catch (_) {
+      return rows;
+    }
   }
 }

@@ -393,3 +393,23 @@ export function swapAttendanceWorkplacePath(
   if (!m) return `/app/settings/attendance/w/${nextWorkplaceId}`;
   return `${m[1]}${nextWorkplaceId}${m[2] || ""}`;
 }
+
+/** Clear prefs + sync buckets for user (logout / account switch). */
+export function clearAttendanceSessionCaches(
+  userId: string | null | undefined,
+): void {
+  if (!userId || typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(`${LAST_KEY}:${userId}`);
+    const prefix = "clover-web-sync:attendance:";
+    const suffix = `:${userId}`;
+    const keys: string[] = [];
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(prefix) && k.endsWith(suffix)) keys.push(k);
+    }
+    for (const k of keys) localStorage.removeItem(k);
+  } catch {
+    /* ignore */
+  }
+}

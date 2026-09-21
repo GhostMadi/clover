@@ -21,6 +21,7 @@ class NotificationItem {
     this.bonusEarnAmount,
     this.bookingReminderMinutesBefore,
     this.bookingForHost,
+    this.bookingHostId,
     this.workplaceId,
     this.attendanceDueKind,
     this.attendanceWorkplaceName,
@@ -49,6 +50,8 @@ class NotificationItem {
   final int? bookingReminderMinutesBefore;
   /// Payload `for_host` for [NotificationKind.bookingRescheduled].
   final bool? bookingForHost;
+  /// Payload `host_id` for [NotificationKind.bookingAssignedStaff] open.
+  final String? bookingHostId;
   /// Attendance payload workplace (invite / duty / correction / punch_due).
   final String? workplaceId;
   /// EN: clock_in | clock_out | auto_closed for punch_due.
@@ -94,6 +97,7 @@ class NotificationItem {
       bonusEarnAmount: bonusEarnAmount,
       bookingReminderMinutesBefore: bookingReminderMinutesBefore,
       bookingForHost: bookingForHost,
+      bookingHostId: bookingHostId,
       workplaceId: workplaceId,
       attendanceDueKind: attendanceDueKind,
       attendanceWorkplaceName: attendanceWorkplaceName,

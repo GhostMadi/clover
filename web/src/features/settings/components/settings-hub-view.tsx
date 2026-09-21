@@ -2,6 +2,7 @@
 
 import {
   Archive,
+  Ban,
   Bookmark,
   Building2,
   CalendarDays,
@@ -115,6 +116,12 @@ function buildSections(
           label: "Аккаунт",
           subtitle: "Тема, язык, выход",
           icon: UserRound,
+        },
+        {
+          href: "/app/settings/blocked",
+          label: "Заблокированные",
+          subtitle: "Кого вы закрыли",
+          icon: Ban,
         },
       ],
     },

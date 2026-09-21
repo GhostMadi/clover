@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 /// | [AppServiceKind.attendance] | синий |
 /// | [AppServiceKind.booking] | жёлтый `#FDF08B` |
 /// | [AppServiceKind.resources] | сиреневый / фиолет |
-/// | [AppServiceKind.bonus] | оранжевый |
+/// | [AppServiceKind.bonus] | розовый / красный |
 /// | [AppServiceKind.venue] | coral `#FFA39E` (бронь / места) |
 ///
 /// Чтобы сменить цвет сервиса — правь только [serviceAccent] и токены в [AppPalette].
@@ -26,7 +26,7 @@ enum AppServiceKind {
   /// Ресурсы — сиреневый soft + тёмный фиолет на CTA/иконках.
   resources,
 
-  /// Бонусы — оранжевый.
+  /// Бонусы — розовый soft + красный ink (как пара soft/icon у записи).
   bonus,
 
   /// Бронь / билеты / места — soft coral `#FFA39E`.
@@ -35,6 +35,9 @@ enum AppServiceKind {
 
 /// Shortcut для территории «Ресурсы».
 const AppServiceKind kResourcesService = AppServiceKind.resources;
+
+/// Shortcut для территории «Бонусы».
+const AppServiceKind kBonusService = AppServiceKind.bonus;
 
 /// Цветовой набор сервиса: CTA, обводка кнопки, мягкий фон, иконки.
 class AppServiceAccent {
@@ -98,12 +101,13 @@ extension AppServiceAccentResolver on AppPalette {
         onSoft: _onSoftInk(functionalSoftLilac),
       ),
       AppServiceKind.bonus => AppServiceAccent(
-        cta: functionalSoftOrangeIcon,
-        ctaForeground: _inkOnDark,
-        ctaBorder: functionalSoftOrange,
-        soft: functionalSoftOrange,
-        icon: functionalSoftOrangeIcon,
-        onSoft: _onSoftInk(functionalSoftOrange),
+        /// Как запись / venue: soft розовый остаётся светлым и в dark — тёмный текст читается.
+        cta: const Color(0xFFFFC1D0),
+        ctaForeground: _inkOnLight,
+        ctaBorder: const Color(0xFFF5A8B8),
+        soft: const Color(0xFFFFC1D0),
+        icon: const Color(0xFFC2185B),
+        onSoft: _inkOnLight,
       ),
       AppServiceKind.venue => AppServiceAccent(
         /// Soft coral CTA — всегда светлый, тёмный текст (как жёлтая запись).

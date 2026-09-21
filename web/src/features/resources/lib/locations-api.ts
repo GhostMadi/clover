@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/client";
 import type { SavedLocation } from "@/features/post-create/lib/post-create-model";
 import { coalesceAsync, invalidateCoalesce } from "@/lib/coalesce-async";
+import { invalidateResourcesLocationsDiskCache } from "@/features/resources/lib/resources-prefs";
 
 export type ManagedLocation = SavedLocation & {
   isActive: boolean;
@@ -8,8 +9,12 @@ export type ManagedLocation = SavedLocation & {
 
 const LOCATIONS_KEY = "resources:locations";
 
-export function invalidateResourcesLocationsCache(): void {
-  invalidateCoalesce("resources:locations");
+export function invalidateResourcesLocationsCache(
+  userId?: string | null,
+  locationId?: string | null,
+): void {
+  invalidateCoalesce(LOCATIONS_KEY);
+  invalidateResourcesLocationsDiskCache(userId, locationId);
 }
 
 function mapRow(row: Record<string, unknown>): ManagedLocation {
@@ -93,7 +98,7 @@ export async function createManagedLocation(opts: {
     .select(SELECT)
     .single();
   if (error) throw error;
-  invalidateResourcesLocationsCache();
+  invalidateResourcesLocationsCache(session.user.id);
   return mapRow(data as Record<string, unknown>);
 }
 
@@ -137,7 +142,10 @@ export async function updateManagedLocation(opts: {
     .select(SELECT)
     .single();
   if (error) throw error;
-  invalidateResourcesLocationsCache();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  invalidateResourcesLocationsCache(session?.user.id ?? null, opts.id);
   return mapRow(data as Record<string, unknown>);
 }
 
@@ -145,5 +153,8 @@ export async function deleteManagedLocation(id: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from("locations").delete().eq("id", id);
   if (error) throw error;
-  invalidateResourcesLocationsCache();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  invalidateResourcesLocationsCache(session?.user.id ?? null, id);
 }

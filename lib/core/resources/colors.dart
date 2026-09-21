@@ -4,7 +4,7 @@ import 'package:clover/core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 
 export 'package:clover/core/resources/app_service_accent.dart'
-    show AppServiceAccent, AppServiceAccentResolver, AppServiceKind, kResourcesService;
+    show AppServiceAccent, AppServiceAccentResolver, AppServiceKind, kBonusService, kResourcesService;
 export 'package:clover/core/theme/app_colors_scope.dart' show AppColorsContext, AppColorsScope;
 export 'package:clover/core/theme/app_palette.dart' show AppPalette;
 

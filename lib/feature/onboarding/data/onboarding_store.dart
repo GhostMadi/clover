@@ -50,4 +50,15 @@ class OnboardingStore {
         if (!seen.contains(id.storageValue)) id,
     ];
   }
+
+  /// Последний выбранный сюжет v2 (опционально для analytics / soft defaults).
+  static String _pathKey(String userId) => 'resource_onboarding_path_$userId';
+
+  Future<void> writeLastPath(String userId, String pathKey) {
+    return _storage.write<String>(key: _pathKey(userId), value: pathKey);
+  }
+
+  Future<String?> readLastPath(String userId) {
+    return _storage.read<String>(key: _pathKey(userId));
+  }
 }

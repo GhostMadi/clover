@@ -1,8 +1,10 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/feature/_booking_/booking_client/presentation/widget/client_booking_step_header.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 
-/// Комментарий клиента к записи — необязательное многострочное поле.
+/// Комментарий клиента к записи — необязательное поле.
 class ClientBookingCommentField extends StatefulWidget {
   const ClientBookingCommentField({
     super.key,
@@ -35,66 +37,42 @@ class _ClientBookingCommentFieldState extends State<ClientBookingCommentField> {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = _isFocused ? context.colors.fieldBorderFocused : context.colors.fieldBorder;
+    final accent = bookingServiceAccent(context.colors);
+    final borderColor = _isFocused ? accent.ctaBorder : context.colors.border.withValues(alpha: 0.7);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 6),
-          child: Text(
-            'Комментарий',
-            style: AppTextStyle.base(
-              13,
-              fontWeight: FontWeight.w600,
-              color: _isFocused ? context.colors.fieldLabelFocused : context.colors.fieldLabel,
-            ),
-          ),
+        const ClientBookingStepHeader(
+          step: 5,
+          title: 'Комментарий',
+          subtitle: 'Необязательно — пожелания мастеру',
         ),
-        Text(
-          'Необязательно — пожелания к услуге или уточнения для мастера',
-          style: AppTextStyle.base(12, color: context.colors.subTextColor, height: 1.3),
-        ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 160),
           decoration: BoxDecoration(
-            color: context.colors.fieldBackground,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: borderColor, width: _isFocused ? 1.6 : 1),
-            boxShadow: _isFocused
-                ? [
-                    BoxShadow(
-                      color: context.colors.fieldShadowFocused.withValues(alpha: 0.12),
-                      blurRadius: 14,
-                      offset: const Offset(0, 6),
-                    ),
-                  ]
-                : [
-                    BoxShadow(
-                      color: context.colors.shadowDark.withValues(alpha: 0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+            border: Border.all(color: borderColor, width: _isFocused ? 1.4 : 1),
           ),
           child: TextFormField(
             controller: widget.controller,
             focusNode: _focusNode,
-            maxLines: 4,
-            minLines: 3,
+            maxLines: 3,
+            minLines: 2,
             maxLength: widget.maxLength,
             textInputAction: TextInputAction.newline,
             keyboardType: TextInputType.multiline,
             textCapitalization: TextCapitalization.sentences,
-            style: AppTextStyle.base(16, fontWeight: FontWeight.w500, color: context.colors.fieldText, height: 1.4),
-            cursorColor: context.colors.fieldCursor,
+            style: AppTextStyle.base(15, fontWeight: FontWeight.w500, color: context.colors.textColor, height: 1.35),
+            cursorColor: accent.icon,
             decoration: InputDecoration(
-              hintText: 'Например: коротко сбоку, без фейда',
-              hintStyle: AppTextStyle.base(16, fontWeight: FontWeight.w400, color: context.colors.fieldHint),
+              hintText: 'Например: коротко сбоку',
+              hintStyle: AppTextStyle.base(15, fontWeight: FontWeight.w400, color: context.colors.subTextColor),
               border: InputBorder.none,
-              counterStyle: AppTextStyle.base(12, color: context.colors.subTextColor),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              counterStyle: AppTextStyle.base(11, color: context.colors.iconMuted),
+              contentPadding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
             ),
           ),
         ),

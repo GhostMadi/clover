@@ -9,14 +9,15 @@ import 'package:clover/feature/_booking_/booking_client/presentation/widget/clie
 import 'package:clover/feature/_booking_/booking_client/presentation/widget/client_booking_comment_field.dart';
 import 'package:clover/feature/_booking_/booking_client/presentation/widget/client_booking_executor_picker.dart';
 import 'package:clover/feature/_booking_/booking_client/presentation/widget/client_booking_service_picker.dart';
+import 'package:clover/feature/_booking_/booking_client/presentation/widget/client_booking_step_header.dart';
 import 'package:clover/feature/_booking_/booking_client/presentation/widget/client_booking_summary.dart';
 import 'package:clover/feature/_booking_/booking_client/presentation/widget/client_booking_time_slots.dart';
 import 'package:clover/feature/_booking_/booking_create/data/repository/booking_services_repository.dart';
 import 'package:clover/feature/_booking_/shared/data/booking_error.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 
 @RoutePage()
 class BookingClientPage extends StatefulWidget {
@@ -112,7 +113,7 @@ class _BookingClientPageState extends State<BookingClientPage> {
             !ready.isSubmitting;
 
         return BookingScreenShell(
-          title: 'Запись · ${widget.hostDisplayName}',
+          title: 'Запись',
           compactBar: true,
           isLoading: state.maybeMap(loading: (_) => true, orElse: () => ready?.isSubmitting ?? false),
           showSave: ready != null,
@@ -121,7 +122,16 @@ class _BookingClientPageState extends State<BookingClientPage> {
           onSaveTap: () => _confirm(state),
           body: state.maybeMap(
             loading: (_) => const BookingLoader(),
-            error: (s) => Center(child: Text(s.message)),
+            error: (s) => Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  s.message,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyle.base(14, color: context.colors.subTextColor),
+                ),
+              ),
+            ),
             orElse: () {
               if (ready == null) return const SizedBox.shrink();
 
@@ -143,32 +153,35 @@ class _BookingClientPageState extends State<BookingClientPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      'Выберите услугу, мастера, дату и время. Учитываются ваши записи на других аккаунтах.',
-                      style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
-                    ),
-                    const SizedBox(height: 16),
+                    ClientBookingHostHeader(hostDisplayName: widget.hostDisplayName),
+                    const SizedBox(height: 18),
                     ClientBookingServicePicker(
                       services: services,
                       selectedId: service?.id,
                       onSelected: _cubit.selectService,
                     ),
                     if (service != null) ...[
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 22),
                       ClientBookingExecutorPicker(
                         executors: executors,
                         selectedId: executor?.id,
                         onSelected: _cubit.selectExecutor,
                       ),
                     ],
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 22),
+                    const ClientBookingStepHeader(
+                      step: 3,
+                      title: 'Дата',
+                      subtitle: 'Выберите день визита',
+                    ),
+                    const SizedBox(height: 12),
                     AppDatePicker(
-                      label: 'Дата',
                       hint: 'Выберите день',
                       value: ready.selectedDay,
                       firstDate: _today,
                       lastDate: ready.schedule.lastBookableDay,
                       onChanged: _cubit.selectDay,
+                      service: kBookingService,
                     ),
                     if (service != null && executor != null) ...[
                       if (dayUnavailableMessage != null) ...[
@@ -178,7 +191,7 @@ class _BookingClientPageState extends State<BookingClientPage> {
                         const SizedBox(height: 20),
                         const BookingLoader(),
                       ] else ...[
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 22),
                         ClientBookingTimeSlots(slots: ready.slots, onSlotTap: _cubit.selectSlot),
                       ],
                     ],
@@ -187,10 +200,10 @@ class _BookingClientPageState extends State<BookingClientPage> {
                       ClientBookingConflictBanner(message: ready.conflictMessage!),
                     ],
                     if (service != null && executor != null) ...[
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 22),
                       ClientBookingCommentField(controller: _commentController),
                       if (service.bonusPayPercent > 0) ...[
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                         ClientBookingBonusSwitch(
                           service: service,
                           balance: ready.bonusBalanceAtHost,
@@ -200,7 +213,7 @@ class _BookingClientPageState extends State<BookingClientPage> {
                       ],
                     ],
                     if (service != null && executor != null && ready.selectedSlotStart != null) ...[
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 18),
                       ClientBookingSummary(
                         hostDisplayName: widget.hostDisplayName,
                         executor: executor,

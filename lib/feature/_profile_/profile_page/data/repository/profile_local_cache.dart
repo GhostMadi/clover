@@ -4,21 +4,26 @@ import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_mode
 import 'package:clover/feature/_profile_/profile_page/data/model/profile_new_model.dart';
 import 'package:injectable/injectable.dart';
 
-/// Дисковый кэш своего профиля (local-first → sync).
+/// Кэш профиля: свой — диск; любой userId — memory на сессию (guest local-first).
 @lazySingleton
 class ProfileLocalCache {
   ProfileLocalCache(this._storage);
 
   final IAppStorage _storage;
 
-  static String _key(String userId) => 'profile_current_$userId';
+  final Map<String, ProfileNewModel> _memoryProfiles = {};
+  final Map<String, bool> _memoryFollowing = {};
+
+  static String _diskKey(String userId) => 'profile_current_$userId';
+
+  // --- Own profile (disk) -------------------------------------------------
 
   Future<ProfileNewModel?> read(String userId) async {
     final id = userId.trim();
     if (id.isEmpty) return null;
 
     return _storage.readObject<ProfileNewModel>(
-      key: _key(id),
+      key: _diskKey(id),
       fromJson: _fromCacheJson,
     );
   }
@@ -27,8 +32,9 @@ class ProfileLocalCache {
     final id = profile.id.trim();
     if (id.isEmpty) return;
 
+    putMemoryProfile(profile);
     await _storage.writeObject(
-      key: _key(id),
+      key: _diskKey(id),
       value: profile,
       toJson: _toCacheJson,
     );
@@ -37,7 +43,41 @@ class ProfileLocalCache {
   Future<void> clear(String userId) async {
     final id = userId.trim();
     if (id.isEmpty) return;
-    await _storage.delete(key: _key(id));
+    _memoryProfiles.remove(id);
+    _memoryFollowing.remove(id);
+    await _storage.delete(key: _diskKey(id));
+  }
+
+  // --- Session memory (own + guest) ---------------------------------------
+
+  ProfileNewModel? readMemoryProfile(String userId) {
+    final id = userId.trim();
+    if (id.isEmpty) return null;
+    return _memoryProfiles[id];
+  }
+
+  void putMemoryProfile(ProfileNewModel profile) {
+    final id = profile.id.trim();
+    if (id.isEmpty) return;
+    _memoryProfiles[id] = profile;
+  }
+
+  bool? readMemoryFollowing(String userId) {
+    final id = userId.trim();
+    if (id.isEmpty) return null;
+    return _memoryFollowing[id];
+  }
+
+  void putMemoryFollowing(String userId, bool isFollowing) {
+    final id = userId.trim();
+    if (id.isEmpty) return;
+    _memoryFollowing[id] = isFollowing;
+  }
+
+  /// Выход из аккаунта: чужие профили и follow-флаги не переживают сессию.
+  void clearSessionMemory() {
+    _memoryProfiles.clear();
+    _memoryFollowing.clear();
   }
 
   static Map<String, dynamic> _toCacheJson(ProfileNewModel profile) {

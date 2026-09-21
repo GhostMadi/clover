@@ -218,8 +218,10 @@ Staff в каталоге хозяина (имя или ник) — **данны
 | Событие | v1 этого ТЗ |
 |---------|-------------|
 | Новая запись к хозяину | Как уже в [notifications.md](notifications.md) / booking notifications |
-| Новая запись на меня (исполнитель) | **После** экрана календаря (не блокер MVP тегов) |
+| Новая запись на меня (исполнитель) | kind `booking_assigned_staff` (in-app + FCM), только если staff с `profile_id`; тап → календарь. Staff только по имени — без пуша |
 | Снял тег | Без спец-уведомления |
+
+Кэш календаря исполнителя (UX): keys `booking_calendar_hosts_<uid>`, `booking_calendar_items_<uid>_<hostId>_<from>_<to>` — mobile `BookingLocalCache` + web `booking-prefs`; query в кэш не класть; clear на logout.
 
 ---
 

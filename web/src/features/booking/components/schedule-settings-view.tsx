@@ -9,7 +9,10 @@ import {
   deleteBlockedSlot,
   getScheduleSettings,
   listBlockedSlots,
+  listStaffSchedule,
   saveMyScheduleSettings,
+  upsertStaffDay,
+  type BookingStaffDaySchedule,
 } from "@/features/booking/lib/client-api";
 import {
   bookingPointBase,
@@ -50,13 +53,20 @@ export function ScheduleSettingsView({ pointId }: { pointId: string }) {
   const [absenceStaffId, setAbsenceStaffId] = useState("");
   const [absenceStart, setAbsenceStart] = useState("");
   const [absenceEnd, setAbsenceEnd] = useState("");
+  const [absenceNote, setAbsenceNote] = useState("");
   const [blockStaffId, setBlockStaffId] = useState("");
   const [blockStart, setBlockStart] = useState("");
   const [blockEnd, setBlockEnd] = useState("");
+  const [blockReason, setBlockReason] = useState("");
+  const [scheduleStaffId, setScheduleStaffId] = useState("");
+  const [staffDays, setStaffDays] = useState<BookingStaffDaySchedule[]>([]);
+  const [staffScheduleLoading, setStaffScheduleLoading] = useState(false);
+  const [staffDayBusy, setStaffDayBusy] = useState<number | null>(null);
 
   const applyStaffDefaults = (st: BookingStaff[]) => {
     if (!absenceStaffId && st[0]) setAbsenceStaffId(st[0].id);
     if (!blockStaffId && st[0]) setBlockStaffId(st[0].id);
+    if (!scheduleStaffId && st[0]) setScheduleStaffId(st[0].id);
   };
 
   const reload = useCallback(async (opts?: { soft?: boolean }) => {
@@ -112,6 +122,59 @@ export function ScheduleSettingsView({ pointId }: { pointId: string }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reload, pointId]);
+
+  useEffect(() => {
+    if (!scheduleStaffId) {
+      setStaffDays([]);
+      return;
+    }
+    let cancelled = false;
+    setStaffScheduleLoading(true);
+    void listStaffSchedule(scheduleStaffId)
+      .then((days) => {
+        if (!cancelled) setStaffDays(days);
+      })
+      .catch((e: unknown) => {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : "Не удалось загрузить график мастера");
+          setStaffDays([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setStaffScheduleLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [scheduleStaffId]);
+
+  const isStaffDayWorking = (weekday: number): boolean => {
+    const row = staffDays.find((d) => d.weekday === weekday);
+    return row?.isWorking ?? true;
+  };
+
+  const toggleStaffDay = async (weekday: number) => {
+    if (!scheduleStaffId || staffDayBusy != null) return;
+    const existing = staffDays.find((d) => d.weekday === weekday);
+    const nextWorking = !(existing?.isWorking ?? true);
+    setStaffDayBusy(weekday);
+    setError(null);
+    try {
+      await upsertStaffDay({
+        staffId: scheduleStaffId,
+        weekday,
+        isWorking: nextWorking,
+        workStartHour: nextWorking ? (existing?.workStartHour ?? 9) : null,
+        workEndHour: nextWorking ? (existing?.workEndHour ?? 20) : null,
+      });
+      const days = await listStaffSchedule(scheduleStaffId);
+      setStaffDays(days);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Не удалось обновить день");
+    } finally {
+      setStaffDayBusy(null);
+    }
+  };
 
   const toggleRest = (day: number) => {
     setSettings((s) => ({
@@ -317,6 +380,9 @@ export function ScheduleSettingsView({ pointId }: { pointId: string }) {
                     <span>
                       {staff.find((s) => s.id === a.staffId)?.displayName ?? "Мастер"} ·{" "}
                       {a.startDate} — {a.endDate}
+                      {a.note?.trim() ? (
+                        <span className="mt-0.5 block text-[12px] text-muted">{a.note}</span>
+                      ) : null}
                     </span>
                     <button
                       type="button"
@@ -359,6 +425,13 @@ export function ScheduleSettingsView({ pointId }: { pointId: string }) {
                     className={inputCls}
                   />
                 </div>
+                <input
+                  type="text"
+                  value={absenceNote}
+                  onChange={(e) => setAbsenceNote(e.target.value)}
+                  placeholder="Заметка (необязательно)"
+                  className={inputCls}
+                />
                 <AppButton
                   variant="outline"
                   size="row"
@@ -373,12 +446,13 @@ export function ScheduleSettingsView({ pointId }: { pointId: string }) {
                           staffId: absenceStaffId,
                           startDate: absenceStart,
                           endDate: absenceEnd,
-                          note: null,
+                          note: absenceNote.trim() || null,
                         },
                       ],
                     }));
                     setAbsenceStart("");
                     setAbsenceEnd("");
+                    setAbsenceNote("");
                   }}
                 >
                   Добавить отсутствие
@@ -404,6 +478,9 @@ export function ScheduleSettingsView({ pointId }: { pointId: string }) {
                     <span>
                       {staff.find((s) => s.id === b.staffId)?.displayName ?? "Мастер"} ·{" "}
                       {formatBookingWhen(b.startsAt)} → {formatBookingWhen(b.endsAt)}
+                      {b.reason?.trim() ? (
+                        <span className="mt-0.5 block text-[12px] text-muted">{b.reason}</span>
+                      ) : null}
                     </span>
                     <button
                       type="button"
@@ -445,6 +522,13 @@ export function ScheduleSettingsView({ pointId }: { pointId: string }) {
                   onChange={(e) => setBlockEnd(e.target.value)}
                   className={inputCls}
                 />
+                <input
+                  type="text"
+                  value={blockReason}
+                  onChange={(e) => setBlockReason(e.target.value)}
+                  placeholder="Причина (необязательно)"
+                  className={inputCls}
+                />
                 <AppButton
                   variant="outline"
                   size="row"
@@ -455,10 +539,12 @@ export function ScheduleSettingsView({ pointId }: { pointId: string }) {
                       staffId: blockStaffId,
                       startsAt: new Date(blockStart).toISOString(),
                       endsAt: new Date(blockEnd).toISOString(),
+                      reason: blockReason.trim() || undefined,
                     })
                       .then(() => {
                         setBlockStart("");
                         setBlockEnd("");
+                        setBlockReason("");
                         reload();
                       })
                       .catch((e: unknown) =>
@@ -469,6 +555,60 @@ export function ScheduleSettingsView({ pointId }: { pointId: string }) {
                   Заблокировать
                 </AppButton>
               </div>
+            </section>
+
+            <section>
+              <p className="mb-2 text-[12px] font-bold uppercase tracking-wide text-muted">
+                График мастера
+              </p>
+              {staff.length === 0 ? (
+                <p className="rounded-[14px] border border-dashed border-line bg-bg px-3.5 py-4 text-sm text-muted">
+                  Сначала добавьте мастеров в услугах
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  <select
+                    value={scheduleStaffId}
+                    onChange={(e) => setScheduleStaffId(e.target.value)}
+                    className={inputCls}
+                  >
+                    {staff.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.displayName}
+                      </option>
+                    ))}
+                  </select>
+                  {staffScheduleLoading ? (
+                    <p className="text-sm text-muted">Загрузка…</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {WEEKDAYS.map((day) => {
+                        const on = isStaffDayWorking(day.id);
+                        const busy = staffDayBusy === day.id;
+                        return (
+                          <button
+                            key={day.id}
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void toggleStaffDay(day.id)}
+                            className={`rounded-[12px] px-3 py-2 text-[13px] font-semibold transition disabled:opacity-50 ${
+                              on
+                                ? "bg-svc-booking text-svc-booking-ink"
+                                : "border border-line bg-surface text-muted"
+                            }`}
+                          >
+                            {day.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <p className="text-[12px] text-muted">
+                    Подсветка — рабочий день. Пустой день = как у точки (по умолчанию
+                    рабочий).
+                  </p>
+                </div>
+              )}
             </section>
           </>
         )}

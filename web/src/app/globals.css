@@ -35,8 +35,8 @@
   --svc-attendance-ink: #5b9bd5;
   --svc-resources: #ede9fb;
   --svc-resources-ink: #5c4fa8;
-  --svc-bonus: #fff3e0;
-  --svc-bonus-ink: #e65100;
+  --svc-bonus: #ffc1d0;
+  --svc-bonus-ink: #c2185b;
   --svc-venue: #ffa39e; /* functionalSoftVenue / cloverRedToken */
   --svc-venue-ink: #b54b45;
 
@@ -108,8 +108,8 @@ html[data-theme="dark"] {
   --svc-attendance-ink: #7eb6e0;
   --svc-resources: #221e36;
   --svc-resources-ink: #c4bbf0;
-  --svc-bonus: #2a1e12;
-  --svc-bonus-ink: #ffb74d;
+  --svc-bonus: #ffc1d0;
+  --svc-bonus-ink: #c2185b;
   --svc-venue: #ffa39e;
   --svc-venue-ink: #b54b45;
 

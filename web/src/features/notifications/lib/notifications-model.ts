@@ -16,6 +16,7 @@ export type NotificationKind =
   | "bookingCompletedClient"
   | "bookingNoShowClient"
   | "bookingRescheduled"
+  | "bookingAssignedStaff"
   | "attendanceInvite"
   | "attendanceRulesAck"
   | "attendanceDuty"
@@ -49,6 +50,8 @@ export type AppNotification = {
   bookingReminderMinutesBefore: number | null;
   /** Payload for_host — booking_rescheduled open target. */
   bookingForHost: boolean | null;
+  /** Payload host_id — booking_assigned_staff open. */
+  bookingHostId: string | null;
   workplaceId: string | null;
   attendanceDueKind: string | null;
   attendanceWorkplaceName: string | null;
@@ -106,6 +109,8 @@ function parseKind(kindRaw: string, isFollowingActor: boolean): NotificationKind
       return "bookingNoShowClient";
     case "booking_rescheduled":
       return "bookingRescheduled";
+    case "booking_assigned_staff":
+      return "bookingAssignedStaff";
     case "attendance_invite":
       return "attendanceInvite";
     case "attendance_rules_ack":
@@ -217,6 +222,7 @@ export function parseNotificationRow(row: Record<string, unknown>): AppNotificat
     bonusEarnAmount: bonus && bonus > 0 ? bonus : null,
     bookingReminderMinutesBefore: reminder && reminder > 0 ? reminder : null,
     bookingForHost,
+    bookingHostId: (payload.host_id as string | null | undefined)?.trim() || null,
     workplaceId,
     attendanceDueKind,
     attendanceWorkplaceName,
@@ -269,6 +275,8 @@ export function notificationMessage(item: AppNotification): string {
       return `Визит отмечен как «не пришёл»: ${service}`;
     case "bookingRescheduled":
       return `${name} перенёс(ла) запись: ${service}`;
+    case "bookingAssignedStaff":
+      return `Новая запись на вас: ${service}`;
     case "attendanceInvite":
       return `${name} пригласил(-а) в команду посещаемости`;
     case "attendanceRulesAck":

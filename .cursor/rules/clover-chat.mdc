@@ -1,0 +1,102 @@
+---
+description: Чат / сообщения — как расширять (продукт → RPC → mobile+web+кэш+realtime). Не путать «готов ли» с «делай».
+globs:
+  - lib/feature/_chat_/**
+  - web/src/features/chat/**
+  - web/src/app/**/chat/**
+  - supabase/migrations/**chat*
+  - supabase/migrations/_chat/**
+  - docs/business/chats.md
+  - docs/business/chat-*.md
+  - docs/supabase/SPEC_CHAT*
+alwaysApply: false
+---
+
+# Clover Chat — расширение
+
+Опора: [`docs/business/chats.md`](docs/business/chats.md) · [`supabase/migrations/_chat/README.md`](supabase/migrations/_chat/README.md) · [`SPEC_CHAT_INBOX_PUSH.md`](docs/supabase/SPEC_CHAT_INBOX_PUSH.md)
+
+Общие правила бэка/фичи: `clover-backend-feature`, `clover-harmony`, `clover-feature-discipline`.
+
+## Режим ответа (критично)
+
+| Запрос пользователя | Действие агента |
+|---------------------|-----------------|
+| «готов ли чат», «как работает», «что осталось» | Только оценка / таблица / риски. **Без кода и миграций** |
+| «делай», «доделай», «почини», «добавь X» | Код по маршруту ниже |
+| Неясно | Один короткий вопрос: оценка или реализация? |
+
+Не начинать реализацию «очереди» из исследования без явного «делай».
+
+## Маршрут новой возможности
+
+```
+1. Продукт → docs/business/chats.md (+ features-catalog)
+2. Контракт → docs/supabase/ SPEC / MIGRATIONS_INDEX + migrations/_chat/README
+3. Миграция → supabase/migrations/<timestamp>_….sql (только RPC / enum / RLS)
+4. Клиенты → Flutter `_chat_/` + web `features/chat/` (один контракт)
+5. Кэш + realtime → обновить оба клиента одинаково по смыслу
+```
+
+Нельзя: сначала UI на одном клиенте; прямой DML в `chat_*` с клиента; второй API «только для сайта».
+
+## Данные и безопасность
+
+- Таблицы `chat_*`: **RLS + revoke DML**; путь — **SECURITY DEFINER RPC**.
+- Участник: `chat_assert_participant`.
+- DM + блок: `can_user_interact` / `chat_assert_dm_interactable` → `user_blocked` (`P0009`) на **новый** `create_dm` и на send*. Существующий DM — история ок, отправка нет.
+- Ключи в RPC/preview — **EN**; подписи — на клиенте.
+
+## Realtime (не ломать контракт)
+
+| Topic | Event | Смысл |
+|-------|--------|--------|
+| `chat_thread_<cid>` | `message_enriched` | новое / полный enriched |
+| `chat_thread_<cid>` | `message_updated` | после `edit_message` |
+| `chat_thread_<cid>` | `message_removed` | после `delete_message` |
+| `chat_thread_<cid>` | `peer_read` / `typing` / `wallpaper_changed` | как сейчас |
+| `chat_inbox_<uid>` | `inbox_changed` | список + бейдж без открытия треда |
+
+Новое событие → док в SPEC + оба клиента подписаны. Media/file: enriched **после** attachments.
+
+## Кэш
+
+| Клиент | Эталон |
+|--------|--------|
+| Mobile | `ChatLocalCache` + watermark + `ChatThreadCacheSync` (inbox → `get_message_enriched`) |
+| Web | `chat-session-cache` (sessionStorage): список, тред, wallpaper; clear на logout |
+
+Правила:
+
+- Local-first paint → тихий sync RPC.
+- Pending / optimistic **не** писать в persistent cache.
+- Не переписывать мобильный кэш «с нуля» ради web — расширять тот же смысл.
+- После delete/edit/реакции — обновить UI **и** кэш (или invalidate).
+
+## Клиентские слои
+
+```
+Flutter:  repository → cubit → page/widgets   (_chat_/chat, chat_page, message_page, chat_info)
+Web:      features/chat/lib/*-api → components/*-view
+```
+
+Виджет не ходит в Supabase. Один экран ≈ один метод репозитория / api-функция.
+
+## Что можно расширять / что later
+
+| Можно (по продукту) | Пока вне скоупа |
+|---------------------|-----------------|
+| Паритет web ↔ mobile (reply, reactions, forward) | Pin / mute / archive |
+| Группа: админ UI поверх существующих RPC | Избранные сообщения |
+| Новые `chat_message_kind` + enriched | Блок из меню чата (есть с профиля) |
+| Поиск / инфо / wallpaper polish | Шаринг наружу |
+
+Новый kind: enum миграция → enriched list/get → mobile bubble + web bubble + cache serializer.
+
+## Чеклист перед «готово»
+
+- [ ] Есть строка в `chats.md` / catalog
+- [ ] RPC/RLS не обходятся; блок DM учтён, если touch send/create
+- [ ] Mobile и web на одних полях / событиях
+- [ ] Кэш + realtime не забыты
+- [ ] Не смешали «оценка готовности» с незапрошенным рефакторингом

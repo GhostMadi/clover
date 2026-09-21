@@ -56,6 +56,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
     final userId = auth is Authenticated ? auth.user.id : null;
     if (userId != null) {
       await sl<OnboardingStore>().markSeen(userId, OnboardingCatalog.appFlowId);
+      final path = _path;
+      if (path != null) {
+        await sl<OnboardingStore>().writeLastPath(userId, path.name);
+      }
     }
 
     if (!mounted) return;

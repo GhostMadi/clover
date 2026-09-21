@@ -46,7 +46,7 @@ export function mapProfileRow(
     row.cluster_count != null ? Number(row.cluster_count) : Number(row.collection_count ?? 0);
   return {
     id: String(row.id),
-    email: (row.email as string | null) ?? emailFallback ?? null,
+    email: emailFallback ?? (row.email as string | null) ?? null,
     fullName: (row.full_name as string | null) ?? null,
     username: (row.username as string | null) ?? null,
     cityCode,

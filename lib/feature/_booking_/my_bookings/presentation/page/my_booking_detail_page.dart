@@ -245,7 +245,7 @@ class _CancelBookingButton extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Отменить бронь',
+                      'Отменить запись',
                       style: AppTextStyle.base(
                         16,
                         fontWeight: FontWeight.w700,

@@ -26,6 +26,8 @@ import {
   useState,
 } from "react";
 import {
+  deleteMessage,
+  editMessage,
   getConversationWallpaper,
   getMessageEnriched,
   listMessagesPage,
@@ -63,6 +65,15 @@ import {
   normalizeWallpaperEmojis,
   parseWallpaperEmojis,
 } from "@/features/chat/lib/chat-emoji-wallpaper";
+import {
+  readThreadCache,
+  readWallpaperCache,
+  removeThreadMessage,
+  shouldPaintThreadCache,
+  upsertThreadMessage,
+  writeThreadCache,
+  writeWallpaperCache,
+} from "@/features/chat/lib/chat-session-cache";
 import {
   acceptAttendanceInvite,
   ackAttendanceConfig,
@@ -290,10 +301,14 @@ function MessageBubble({
   message,
   peerAccent,
   onRetry,
+  onDelete,
+  onEdit,
 }: {
   message: ChatMessage;
   peerAccent: ChatAccentClasses;
   onRetry?: (message: ChatMessage) => void;
+  onDelete?: (message: ChatMessage) => void;
+  onEdit?: (message: ChatMessage) => void;
 }) {
   const mine = message.isMine;
   const time = formatMessageTime(message.sentAt);
@@ -475,6 +490,28 @@ function MessageBubble({
           Повторить
         </button>
       ) : null}
+      {mine && !message.isPending && !failed && (onDelete || onEdit) ? (
+        <div className="flex items-center gap-1">
+          {onEdit && message.kind === "text" ? (
+            <button
+              type="button"
+              onClick={() => onEdit(message)}
+              className="rounded-full bg-surface px-2.5 py-1 text-[11px] font-semibold text-muted shadow-sm hover:text-ink"
+            >
+              Изменить
+            </button>
+          ) : null}
+          {onDelete ? (
+            <button
+              type="button"
+              onClick={() => onDelete(message)}
+              className="rounded-full bg-surface px-2.5 py-1 text-[11px] font-semibold text-destructive shadow-sm"
+            >
+              Удалить
+            </button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -488,17 +525,33 @@ export function ChatThreadView({
   currentUserId,
 }: ChatThreadViewProps) {
   const router = useRouter();
-  const [messages, setMessages] = useState(initialMessages);
+  const [messages, setMessages] = useState(() => {
+    if (typeof window === "undefined" || !currentUserId) return initialMessages;
+    const cached = readThreadCache(currentUserId, conversationId);
+    if (
+      shouldPaintThreadCache(cached) &&
+      cached &&
+      cached.messages.length > 0 &&
+      initialMessages.length === 0
+    ) {
+      return cached.messages;
+    }
+    return initialMessages;
+  });
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [text, setText] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [pending, setPending] = useState<PendingChatFile[]>([]);
   const [attachMenu, setAttachMenu] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [threadSearchOpen, setThreadSearchOpen] = useState(false);
   const [threadQuery, setThreadQuery] = useState("");
   const [threadHits, setThreadHits] = useState<MessageSearchHit[]>([]);
-  const [wallpaperEmojis, setWallpaperEmojis] = useState<string[]>([]);
+  const [wallpaperEmojis, setWallpaperEmojis] = useState<string[]>(() => {
+    if (typeof window === "undefined" || !currentUserId) return [];
+    return readWallpaperCache(currentUserId, conversationId) ?? [];
+  });
   const [wallpaperOpen, setWallpaperOpen] = useState(false);
   const [wallpaperDraft, setWallpaperDraft] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -542,7 +595,9 @@ export function ChatThreadView({
     let cancelled = false;
     void getConversationWallpaper(conversationId)
       .then((emojis) => {
-        if (!cancelled) setWallpaperEmojis(emojis);
+        if (cancelled) return;
+        setWallpaperEmojis(emojis);
+        if (currentUserId) writeWallpaperCache(currentUserId, conversationId, emojis);
       })
       .catch(() => {
         if (!cancelled) setWallpaperEmojis([]);
@@ -550,7 +605,7 @@ export function ChatThreadView({
     return () => {
       cancelled = true;
     };
-  }, [conversationId]);
+  }, [conversationId, currentUserId]);
 
   useEffect(() => {
     if (!threadSearchOpen) return;
@@ -570,7 +625,15 @@ export function ChatThreadView({
   useEffect(() => {
     setMessages(initialMessages);
     setHasMore(initialHasMore);
-  }, [initialMessages, initialHasMore, conversationId]);
+    if (currentUserId && initialMessages.length > 0) {
+      writeThreadCache(currentUserId, conversationId, initialMessages);
+    }
+  }, [initialMessages, initialHasMore, conversationId, currentUserId]);
+
+  useEffect(() => {
+    if (!currentUserId || messages.length === 0) return;
+    writeThreadCache(currentUserId, conversationId, messages);
+  }, [messages, currentUserId, conversationId]);
 
   useEffect(() => {
     const last = messages[messages.length - 1];
@@ -600,11 +663,42 @@ export function ChatThreadView({
             if (!m) return;
             stickToBottom.current = true;
             setMessages((prev) => mergeMessage(prev, m));
+            if (currentUserId) upsertThreadMessage(currentUserId, conversationId, m);
           });
           return;
         }
         stickToBottom.current = true;
         setMessages((prev) => mergeMessage(prev, parsed));
+        if (currentUserId) upsertThreadMessage(currentUserId, conversationId, parsed);
+      })
+      .on("broadcast", { event: "message_updated" }, (msg) => {
+        const raw = msg.payload as Record<string, unknown> | null;
+        if (!raw || typeof raw !== "object") return;
+        const data = (asMap(raw.payload) ?? raw) as Record<string, unknown>;
+        const parsed = parseMessageRow(data, currentUserId);
+        if (!parsed) {
+          const mid = String(asMap(data.message)?.id ?? "").trim();
+          if (!mid) return;
+          void getMessageEnriched(mid).then((m) => {
+            if (!m) return;
+            setMessages((prev) => mergeMessage(prev, m));
+            if (currentUserId) upsertThreadMessage(currentUserId, conversationId, m);
+          });
+          return;
+        }
+        setMessages((prev) => mergeMessage(prev, parsed));
+        if (currentUserId) upsertThreadMessage(currentUserId, conversationId, parsed);
+      })
+      .on("broadcast", { event: "message_removed" }, (msg) => {
+        const raw = msg.payload as Record<string, unknown> | null;
+        if (!raw) return;
+        const data = (asMap(raw.payload) ?? raw) as Record<string, unknown>;
+        if (String(data.conversation_id ?? "") !== conversationId) return;
+        const mid = String(data.message_id ?? "").trim();
+        if (!mid) return;
+        setMessages((prev) => prev.filter((m) => m.id !== mid));
+        if (currentUserId) removeThreadMessage(currentUserId, conversationId, mid);
+        setEditingId((cur) => (cur === mid ? null : cur));
       })
       .on("broadcast", { event: "peer_read" }, (msg) => {
         const raw = msg.payload as Record<string, unknown> | null;
@@ -628,7 +722,9 @@ export function ChatThreadView({
         if (!raw) return;
         const data = (asMap(raw.payload) ?? raw) as Record<string, unknown>;
         if (String(data.conversation_id ?? "") !== conversationId) return;
-        setWallpaperEmojis(parseWallpaperEmojis(data.wallpaper_emojis));
+        const next = parseWallpaperEmojis(data.wallpaper_emojis);
+        setWallpaperEmojis(next);
+        if (currentUserId) writeWallpaperCache(currentUserId, conversationId, next);
       })
       .subscribe();
 
@@ -765,14 +861,48 @@ export function ChatThreadView({
             clientMessageId,
           });
           confirmSent(clientMessageId, serverId);
-        } catch {
+        } catch (e: unknown) {
           markFailed(clientMessageId);
-          showToast("Не доставлено — можно повторить");
+          showToast(
+            e instanceof Error ? e.message : "Не доставлено — можно повторить",
+          );
         }
       })();
     },
     [confirmSent, conversationId, markFailed, showToast],
   );
+
+  const onDeleteMessage = useCallback(
+    (message: ChatMessage) => {
+      if (!message.isMine || message.isPending) return;
+      void (async () => {
+        try {
+          await deleteMessage(message.id);
+          setMessages((prev) => prev.filter((m) => m.id !== message.id));
+          if (currentUserId) {
+            removeThreadMessage(currentUserId, conversationId, message.id);
+          }
+          setEditingId((cur) => {
+            if (cur === message.id) {
+              setText("");
+              return null;
+            }
+            return cur;
+          });
+        } catch (e: unknown) {
+          showToast(e instanceof Error ? e.message : "Не удалось удалить");
+        }
+      })();
+    },
+    [conversationId, currentUserId, showToast],
+  );
+
+  const onStartEdit = useCallback((message: ChatMessage) => {
+    if (!message.isMine || message.kind !== "text") return;
+    setEditingId(message.id);
+    setText(message.text);
+    setPending([]);
+  }, []);
 
   const deliverAttachments = useCallback(
     (clientMessageId: string, body: string, filesPending: PendingChatFile[]) => {
@@ -800,6 +930,27 @@ export function ChatThreadView({
   const send = () => {
     const body = text.trim();
     if (!body && pending.length === 0) return;
+
+    if (editingId) {
+      const id = editingId;
+      void (async () => {
+        try {
+          await editMessage(id, body);
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === id
+                ? { ...m, text: body, editedAt: new Date().toISOString() }
+                : m,
+            ),
+          );
+          setEditingId(null);
+          setText("");
+        } catch (e: unknown) {
+          showToast(e instanceof Error ? e.message : "Не удалось изменить");
+        }
+      })();
+      return;
+    }
 
     const clientMessageId = newClientId();
     const pendingSnapshot = pending;
@@ -1020,6 +1171,8 @@ export function ChatThreadView({
                   message={m}
                   peerAccent={peerAccent}
                   onRetry={m.sendFailed ? retryFailed : undefined}
+                  onDelete={m.isMine ? onDeleteMessage : undefined}
+                  onEdit={m.isMine && m.kind === "text" ? onStartEdit : undefined}
                 />
               ))}
             </div>
@@ -1162,7 +1315,13 @@ export function ChatThreadView({
               }
             }}
             rows={1}
-            placeholder={pending.length > 0 ? "Подпись к файлу…" : "Сообщение"}
+            placeholder={
+              editingId
+                ? "Редактирование…"
+                : pending.length > 0
+                  ? "Подпись к файлу…"
+                  : "Сообщение"
+            }
             className="max-h-32 min-h-11 flex-1 resize-none rounded-[26px] border border-line bg-surface px-4 py-2.5 text-[15px] text-ink outline-none placeholder:text-muted focus:border-brand"
           />
           <button

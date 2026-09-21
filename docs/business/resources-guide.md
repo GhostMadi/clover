@@ -3,6 +3,8 @@
 **Статус:** актуально  
 **Связано с:** [settings.md](settings.md), [locations.md](locations.md), [filters.md](filters.md), [tag-powers.md](tag-powers.md)
 
+Правило агента: [`.cursor/rules/clover-host-resources.mdc`](../../.cursor/rules/clover-host-resources.mdc) (не путать с UI-токенами `clover-resources`).
+
 ---
 
 ## Зачем
