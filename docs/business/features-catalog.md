@@ -250,6 +250,14 @@ Enum + catalog: страны, города, теги без sync с бэка.
 Бизнес: [locations.md](locations.md) · гайд ресурсов: [resources-guide.md](resources-guide.md) · гайд всех сервисов: [services-guide.md](services-guide.md)  
 Техника: `lib/feature/_catalog_/location/` · хаб `settings_resources` (+ web)
 
+### 🔴 Привязка компании/точки к месту (план)
+Точку записи и компанию посещаемости нельзя создать без `location`; занятое место — только через перенос. Плюс фильтр постов по местоположению (иконка). **Код не начат.**  
+План: [entity-location-bind-plan.md](entity-location-bind-plan.md)
+
+### 🔴 Отзывы по точкам записи (план реализации)
+На точку; писать могут все (без гейта визита); один ответ хозяина, без веток; витрина = тег `feedback`.  
+План: [point-reviews-plan.md](point-reviews-plan.md) · mock: `lib/feature/_booking_/point_reviews/`
+
 ---
 
 ## Сводка одним взглядом

@@ -98,6 +98,9 @@ abstract class ProfileNewModel with _$ProfileNewModel {
   /// Admin ресурсы (`resources`) — местоположения и фильтры.
   bool get hasResourcesTag => hasAccountTag(MarkerTagKey.resources);
 
+  /// Сводка отзывов на витрине (`feedback`).
+  bool get hasFeedbackTag => hasAccountTag(MarkerTagKey.feedback);
+
   /// Есть хотя бы один тег силы «админ».
   bool get hasAdminPowerTag => tags.any((tag) => tag.keyEnum?.isAdminPower ?? false);
 

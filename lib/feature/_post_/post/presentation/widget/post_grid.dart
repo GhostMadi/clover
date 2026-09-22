@@ -110,6 +110,10 @@ class _PostGridCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dpr = MediaQuery.devicePixelRatioOf(context);
+    // ~половина ширины экрана (2 колонки), с запасом под tile span; clamp против iPad OOM.
+    final cacheW = ((MediaQuery.sizeOf(context).width / 2) * dpr).round().clamp(128, 720);
+
     return Material(
       color: context.colors.surfaceSoft,
       borderRadius: BorderRadius.circular(borderRadius),
@@ -124,7 +128,12 @@ class _PostGridCell extends StatelessWidget {
               borderRadius: BorderRadius.circular(borderRadius),
               child: imageUrl == null
                   ? PostImagePlaceholder(borderRadius: 0)
-                  : PostImageTile(imageUrl: imageUrl, blurHash: blurHash, borderRadius: 0),
+                  : PostImageTile(
+                      imageUrl: imageUrl,
+                      blurHash: blurHash,
+                      borderRadius: 0,
+                      memCacheWidth: cacheW,
+                    ),
             ),
             if (isSaved)
               Positioned(

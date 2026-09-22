@@ -1,5 +1,6 @@
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/extension/context.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/core/shared/app_tab.dart';
 import 'package:clover/feature/_settings_/settings_filter/data/catalog/filter_catalog.dart';
@@ -8,10 +9,11 @@ import 'package:clover/feature/_settings_/settings_filter/presentation/profile/c
 import 'package:clover/feature/_settings_/settings_filter/presentation/profile/filter_selection_sheet.dart';
 import 'package:clover/feature/_settings_/settings_filter/presentation/profile/widget/profile_active_filters_row.dart';
 import 'package:clover/feature/_settings_/settings_filter/presentation/profile/widget/profile_filter_button.dart';
+import 'package:clover/feature/_settings_/settings_filter/presentation/profile/widget/profile_location_filter_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Табы ленты профиля + кнопка фильтра и строка активных значений.
+/// Табы ленты профиля + кнопки фильтра (витрина + местоположение).
 class ProfileFeedFilterSection extends StatefulWidget {
   const ProfileFeedFilterSection({
     super.key,
@@ -22,6 +24,8 @@ class ProfileFeedFilterSection extends StatefulWidget {
     this.profileId,
     this.selectedValues = const {},
     this.onSelectedValuesChanged,
+    this.selectedLocationId,
+    this.onSelectedLocationChanged,
   });
 
   final List<String> tabs;
@@ -31,6 +35,8 @@ class ProfileFeedFilterSection extends StatefulWidget {
   final String? profileId;
   final Set<String> selectedValues;
   final ValueChanged<Set<String>>? onSelectedValuesChanged;
+  final String? selectedLocationId;
+  final ValueChanged<String?>? onSelectedLocationChanged;
 
   @override
   State<ProfileFeedFilterSection> createState() => _ProfileFeedFilterSectionState();
@@ -39,11 +45,14 @@ class ProfileFeedFilterSection extends StatefulWidget {
 class _ProfileFeedFilterSectionState extends State<ProfileFeedFilterSection> {
   late final ProfileFilterCubit _filterCubit;
   late Set<String> _selected = Set<String>.of(widget.selectedValues);
+  String? _locationId;
 
   @override
   void initState() {
     super.initState();
     _filterCubit = sl<ProfileFilterCubit>();
+    _locationId = widget.selectedLocationId?.trim();
+    if (_locationId != null && _locationId!.isEmpty) _locationId = null;
   }
 
   @override
@@ -57,6 +66,10 @@ class _ProfileFeedFilterSectionState extends State<ProfileFeedFilterSection> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedValues != widget.selectedValues) {
       _selected = Set<String>.of(widget.selectedValues);
+    }
+    if (oldWidget.selectedLocationId != widget.selectedLocationId) {
+      final next = widget.selectedLocationId?.trim();
+      _locationId = (next == null || next.isEmpty) ? null : next;
     }
     if (oldWidget.profileId != widget.profileId) {
       _filterCubit.invalidate();
@@ -92,15 +105,38 @@ class _ProfileFeedFilterSectionState extends State<ProfileFeedFilterSection> {
     }
   }
 
+  Future<void> _openLocationFilter() async {
+    final profileId = widget.profileId?.trim();
+    if (profileId == null || profileId.isEmpty) return;
+
+    final picked = await ProfileLocationFilterSheet.show(
+      context,
+      profileId: profileId,
+      selectedLocationId: _locationId,
+    );
+    if (!mounted || picked == null) return;
+
+    final next = picked.trim().isEmpty ? null : picked.trim();
+    setState(() => _locationId = next);
+    widget.onSelectedLocationChanged?.call(next);
+  }
+
   void _clearFilters() {
     setState(() => _selected = {});
     widget.onSelectedValuesChanged?.call({});
+  }
+
+  void _clearLocation() {
+    setState(() => _locationId = null);
+    widget.onSelectedLocationChanged?.call(null);
   }
 
   @override
   Widget build(BuildContext context) {
     final labels = FilterCatalog.selectionLabels(_selected);
     final showFilterButton = widget.hasFilters;
+    final hasLocation = _locationId != null && _locationId!.isNotEmpty;
+    final showLocationButton = widget.profileId != null && widget.profileId!.trim().isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -129,11 +165,26 @@ class _ProfileFeedFilterSectionState extends State<ProfileFeedFilterSection> {
                 },
               ),
             ],
+            if (showLocationButton) ...[
+              SizedBox(width: context.widthByContext(8)),
+              ProfileFilterButton(
+                activeCount: hasLocation ? 1 : 0,
+                icon: AppIcons.locationOn.icon,
+                onTap: _openLocationFilter,
+              ),
+            ],
           ],
         ),
         if (_selected.isNotEmpty) ...[
           SizedBox(height: context.heightByContext(10)),
           ProfileActiveFiltersRow(labels: labels, onClear: _clearFilters),
+        ],
+        if (hasLocation) ...[
+          SizedBox(height: context.heightByContext(10)),
+          ProfileActiveFiltersRow(
+            labels: const ['Местоположение'],
+            onClear: _clearLocation,
+          ),
         ],
       ],
     );

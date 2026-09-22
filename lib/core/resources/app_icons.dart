@@ -132,6 +132,8 @@ enum AppIcons {
   eventBusy(iconAndroid: Icons.event_busy_rounded, iconIos: CupertinoIcons.calendar_badge_minus),
   imageNotSupported(iconAndroid: Icons.image_not_supported_outlined, iconIos: CupertinoIcons.photo),
   folderOpen(iconAndroid: Icons.folder_open_rounded, iconIos: CupertinoIcons.folder_open),
+  starOutline(iconAndroid: Icons.star_outline_rounded, iconIos: CupertinoIcons.star),
+  starFilled(iconAndroid: Icons.star_rounded, iconIos: CupertinoIcons.star_fill),
   autoAwesome(iconAndroid: Icons.auto_awesome_outlined, iconIos: CupertinoIcons.sparkles);
 
   final IconData iconAndroid;

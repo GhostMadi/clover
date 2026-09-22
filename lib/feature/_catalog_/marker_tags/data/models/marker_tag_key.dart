@@ -88,6 +88,7 @@ enum MarkerTagKey {
   booking('booking', 'Принимаю запись', MarkerTagGroupKey.admin),
   attendance('attendance', 'Веду посещаемость', MarkerTagGroupKey.admin),
   resources('resources', 'Веду ресурсы', MarkerTagGroupKey.admin),
+  feedback('feedback', 'Отзывы на витрине', MarkerTagGroupKey.admin),
 
   // worker — доп. функции исполнителя
   bookingCalendar('bookingCalendar', 'Календарь заказов', MarkerTagGroupKey.worker),
@@ -125,7 +126,8 @@ enum MarkerTagKey {
   ///
   /// Витринные теги (`who` / `type` / …) → `null` (нейтральный бренд).
   AppServiceKind? get serviceKind => switch (this) {
-    MarkerTagKey.booking || MarkerTagKey.bookingCalendar => AppServiceKind.booking,
+    MarkerTagKey.booking || MarkerTagKey.bookingCalendar || MarkerTagKey.feedback =>
+      AppServiceKind.booking,
     MarkerTagKey.attendance || MarkerTagKey.attendanceWork => AppServiceKind.attendance,
     MarkerTagKey.resources => AppServiceKind.resources,
     _ => null,

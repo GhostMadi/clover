@@ -10,6 +10,7 @@ class AppProgressiveNetworkImage extends StatelessWidget {
     this.blurHash,
     this.width,
     this.height,
+    this.memCacheWidth,
     this.fit = BoxFit.cover,
     this.borderRadius,
     this.backgroundColor,
@@ -20,6 +21,7 @@ class AppProgressiveNetworkImage extends StatelessWidget {
   final String? blurHash;
   final double? width;
   final double? height;
+  final int? memCacheWidth;
   final BoxFit fit;
   final BorderRadius? borderRadius;
   final Color? backgroundColor;
@@ -62,6 +64,7 @@ class AppProgressiveNetworkImage extends StatelessWidget {
         fadeInDuration: fadeInDuration,
         fadeOutDuration: const Duration(milliseconds: 80),
         useOldImageOnUrlChange: true,
+        memCacheWidth: memCacheWidth,
         imageBuilder: (context, provider) =>
             Image(image: provider, fit: fit, gaplessPlayback: true, filterQuality: FilterQuality.low),
         placeholder: (_, __) {

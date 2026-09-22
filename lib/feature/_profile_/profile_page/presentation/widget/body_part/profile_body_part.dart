@@ -33,6 +33,7 @@ class ProfileBodyPart extends StatefulWidget {
 
 class _ProfileBodyPartState extends State<ProfileBodyPart> {
   Set<String> _selectedFilterValues = const {};
+  String? _selectedLocationId;
 
   static const _tabs = ['Публикации'];
 
@@ -84,6 +85,21 @@ class _ProfileBodyPartState extends State<ProfileBodyPart> {
     widget.publicationsFeedCubit.load(
       ownerId,
       filterSelectionKeys: values,
+      locationId: _selectedLocationId,
+      excludeWithMarker: false,
+    );
+  }
+
+  void _onLocationSelectionChanged(String? locationId) {
+    setState(() => _selectedLocationId = locationId);
+
+    final ownerId = widget.ownerId?.trim();
+    if (ownerId == null || ownerId.isEmpty) return;
+
+    widget.publicationsFeedCubit.load(
+      ownerId,
+      filterSelectionKeys: _selectedFilterValues,
+      locationId: locationId ?? '',
       excludeWithMarker: false,
     );
   }
@@ -111,6 +127,8 @@ class _ProfileBodyPartState extends State<ProfileBodyPart> {
             profileId: widget.ownerId,
             selectedValues: _selectedFilterValues,
             onSelectedValuesChanged: _onFilterSelectionChanged,
+            selectedLocationId: _selectedLocationId,
+            onSelectedLocationChanged: _onLocationSelectionChanged,
           ),
           SizedBox(height: context.heightByContext(16)),
           BlocProvider.value(

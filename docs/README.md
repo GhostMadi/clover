@@ -41,9 +41,9 @@
 | Сон аккаунта | [business/account-sleep.md](business/account-sleep.md) |
 | Гайд сервисов | [business/services-guide.md](business/services-guide.md) |
 | Гайд сервиса «Ресурсы» | [business/resources-guide.md](business/resources-guide.md) |
-| Местоположения | [business/locations.md](business/locations.md) |
+| Местоположения | [business/locations.md](business/locations.md) · план привязки к компаниям/точкам: [entity-location-bind-plan.md](business/entity-location-bind-plan.md) |
 | Блокировки (бэк) | [business/blocks.md](business/blocks.md) |
-| Онлайн-запись | [business/booking.md](business/booking.md) · план: [booking-staff-plan.md](business/booking-staff-plan.md) · **ТЗ + теги:** [booking-tz.md](business/booking-tz.md) |
+| Онлайн-запись | [business/booking.md](business/booking.md) · план: [booking-staff-plan.md](business/booking-staff-plan.md) · **ТЗ + теги:** [booking-tz.md](business/booking-tz.md) · отзывы по точкам (план): [point-reviews-plan.md](business/point-reviews-plan.md) |
 | Бронь (билеты / места / схема) | [business/venue-seating.md](business/venue-seating.md) |
 | Посещаемость (геозона, смены) | [business/attendance.md](business/attendance.md) · **ТЗ + теги:** [attendance-tz.md](business/attendance-tz.md) · хвосты сайта: [website-attendance-gaps.md](business/website-attendance-gaps.md) |
 | Бонусы (лояльность) | [business/bonuses.md](business/bonuses.md) |

@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
-import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_functional_button/app_functional_screen.dart';
@@ -10,6 +9,7 @@ import 'package:clover/core/shared/app_functional_button/functional_button_item.
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_refresh.dart';
 import 'package:clover/core/shared/app_state.dart';
+// import 'package:clover/feature/_booking_/point_reviews/presentation/widget/profile_point_reviews_strip.dart';
 import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
 import 'package:clover/feature/_cluster_/cluster/presentation/cubit/clusters_list_cubit.dart';
 import 'package:clover/feature/_post_/post/presentation/cubit/post_feed_cubit.dart';
@@ -96,6 +96,19 @@ class _GuestProfilePageState extends State<GuestProfilePage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _GuestHeaderBlock(onRetry: () => _cubit.load(_userId)),
+                    // Отзывы (feedback) — на паузе; см. PointReviewsMock / point-reviews-plan.md
+                    // BlocBuilder<GuestProfileCubit, GuestProfileState>(
+                    //   buildWhen: (prev, next) {
+                    //     final a = prev.mapOrNull(loaded: (s) => s.profile.hasFeedbackTag);
+                    //     final b = next.mapOrNull(loaded: (s) => s.profile.hasFeedbackTag);
+                    //     return a != b || prev.runtimeType != next.runtimeType;
+                    //   },
+                    //   builder: (context, state) {
+                    //     final hasFeedback =
+                    //         state.mapOrNull(loaded: (s) => s.profile.hasFeedbackTag) ?? false;
+                    //     return ProfilePointReviewsStrip(hasFeedbackTag: hasFeedback);
+                    //   },
+                    // ),
                     _GuestFollowActions(cubit: _cubit),
                     ProfileMiddlePart(
                       ownerId: _userId,

@@ -9,11 +9,15 @@ class ProfileFilterButton extends StatelessWidget {
     required this.activeCount,
     required this.onTap,
     this.isLoading = false,
+    this.icon,
   });
 
   final int activeCount;
   final VoidCallback? onTap;
   final bool isLoading;
+
+  /// По умолчанию [AppIcons.tune] (фильтры витрины). Для мест — [AppIcons.locationOn].
+  final IconData? icon;
 
   static const double size = 44;
 
@@ -45,7 +49,7 @@ class ProfileFilterButton extends StatelessWidget {
                   alignment: Alignment.center,
                   children: [
                     Icon(
-                      AppIcons.tune.icon,
+                      icon ?? AppIcons.tune.icon,
                       size: 22,
                       color: accent.icon,
                     ),

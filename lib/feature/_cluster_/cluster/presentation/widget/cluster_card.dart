@@ -16,7 +16,8 @@ const double kClusterStripHeightFigma = 164;
 
 double clusterCardWidth(BuildContext context) => context.widthByContext(kClusterCardWidthFigma);
 
-double clusterStripHeight(BuildContext context) => context.heightByContext(kClusterStripHeightFigma);
+/// Высота полосы = ширине карточки (квадрат), не heightByContext — иначе на iPad расходятся.
+double clusterStripHeight(BuildContext context) => clusterCardWidth(context);
 
 /// Карточка кластера / коллекции в стиле 1х1 с инфо-чипсами поверх фото.
 class ClusterCard extends StatefulWidget {
@@ -135,6 +136,9 @@ class _ClusterCardState extends State<ClusterCard> with SingleTickerProviderStat
                       : CachedNetworkImage(
                           imageUrl: url,
                           fit: BoxFit.cover,
+                          memCacheWidth: (cardSize * MediaQuery.devicePixelRatioOf(context))
+                              .round()
+                              .clamp(64, 512),
                           placeholder: (_, __) => ColoredBox(color: colors.surfaceSoft),
                           errorWidget: (_, __, ___) => ColoredBox(
                             color: colors.surfaceSoft,
