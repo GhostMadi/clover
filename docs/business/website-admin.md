@@ -47,7 +47,7 @@ Env: `ADMIN_SESSION_SECRET`, `SUPABASE_SERVICE_ROLE_KEY` (только серв�
 | **A** | Support inbox | 🟢 | `/admin/support` |
 | **A** | Платформенная аналитика (карточки) | 🟢 | `/admin/analytics` |
 | **A** | Honest Quiz (временное) | 🟢 | `/admin/honest` |
-| **B** | Модерация постов / жалобы | 🔴 позже | `/admin/moderation` |
+| **B** | Модерация постов / жалобы | 🟡 очередь `content_reports` (Supabase) · UI `/admin/moderation` позже | см. [ugc-safety.md](ugc-safety.md) |
 | **B** | Пользователи (поиск, флаг admin) | 🔴 позже | `/admin/users` |
 | **C** | Тренды 30д, алерты квот | 🔴 позже | analytics v2 |
 

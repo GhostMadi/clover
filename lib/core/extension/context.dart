@@ -18,9 +18,17 @@ extension ContextExtension on BuildContext {
   double get screenWidth => MediaQuery.of(this).size.width;
   double get screenHeight => MediaQuery.of(this).size.height;
 
-  double heightByContext(double value) => screenHeight * (value / designHeight);
+  double heightByContext(double value) {
+    final scale = (screenHeight / designHeight).clamp(0.75, 1.2);
+    return value * scale;
+  }
 
-  double widthByContext(double value) => screenWidth * (value / designWidth);
+  /// На iPad / широких экранах не раздуваем Figma-размеры до полной ширины
+  /// (иначе сетка профиля и кластеры декодируют огромные картинки → OOM).
+  double widthByContext(double value) {
+    final scale = (screenWidth / designWidth).clamp(0.75, 1.2);
+    return value * scale;
+  }
 
   double get bottomInset => MediaQuery.of(this).viewInsets.bottom;
 

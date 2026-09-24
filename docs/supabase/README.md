@@ -22,6 +22,7 @@
 | [booking-points.md](booking-points.md) | Точки хозяина + schedule settings per point |
 | [SPEC_IN_APP_NOTIFICATIONS.md](SPEC_IN_APP_NOTIFICATIONS.md) | In-app уведомления (соц + запись) |
 | [SPEC_POSTS_AND_EVENTS.md](SPEC_POSTS_AND_EVENTS.md) | Публикации, ивенты, enriched RPC |
+| [SPEC_CONTENT_REPORTS.md](SPEC_CONTENT_REPORTS.md) | Жалобы UGC + фильтр блока в ленте/карте |
 | [SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md](SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md) | Соцграф / аккаунт |
 | [SPEC_EMAIL_AUTH.md](SPEC_EMAIL_AUTH.md) | Email OTP: Resend SMTP, DNS clover.com.kz, Flutter |
 | [SPEC_R2_DIRECT_UPLOAD.md](SPEC_R2_DIRECT_UPLOAD.md) | Cloudflare R2: presigned upload (`get-upload-url`) |

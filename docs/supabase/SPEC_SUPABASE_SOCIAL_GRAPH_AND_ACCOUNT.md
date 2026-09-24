@@ -355,7 +355,7 @@ _(Историческая заметка: ранний черновик опи�
 ### 9.2 `profile_blocks`
 
 - Пользователь видит только свои блокировки (политика по `blocker_id = auth.uid()`)
-- Запись / снятие / список — RPC `block_user` / `unblock_user` / `list_my_blocked_users` (миграция `20260921155748_…`); при блоке follow-рёбра в обе стороны снимаются
+- Запись / снятие / список — RPC `block_user` / `unblock_user` / `list_my_blocked_users` (миграция `20260921155748_…`); при блоке follow-рёбра в обе стороны снимаются; с `20260924130309_…` блок также пишет `content_reports` и лента/карта фильтруют блок (см. [SPEC_CONTENT_REPORTS.md](SPEC_CONTENT_REPORTS.md))
 
 ---
 

@@ -45,6 +45,7 @@ class PostImageTile extends StatelessWidget {
         imageUrl: url,
         blurHash: blurHash,
         fit: BoxFit.cover,
+        memCacheWidth: memCacheWidth,
         borderRadius: BorderRadius.circular(borderRadius),
         fadeInDuration: const Duration(milliseconds: 120),
       ),

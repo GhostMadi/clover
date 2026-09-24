@@ -121,6 +121,7 @@
 | `20260420120000_profile_follows_social_graph.sql` | `profile_follows`, счётчики на `profiles`, триггеры ±1, RLS, RPC `follow_user` / `unfollow_user` / `is_following_user`, списки подписчиков/подписок. |
 | `20260421100000_social_graph_blocks_notifications_feed_reconcile.sql` | `profile_blocks`, `notification_events` (dedupe), `can_user_interact`, расширенный `follow_user` (блоки, 200/h, нотификация), `list_following_feed_enriched_cursor`, `reconcile_profile_follow_counts` (service_role). |
 | **`20260921155748_social_following_batch_and_blocks_rpc.sql`** | RPC `is_following_users` (batch); `block_user` / `unblock_user` / `list_my_blocked_users`. |
+| **`20260924130309_content_reports_and_ugc_feed_filter.sql`** | `content_reports` + `report_content`; `block_user` пишет report; фильтр блока в Event/Map RPC. Spec: [SPEC_CONTENT_REPORTS.md](SPEC_CONTENT_REPORTS.md). |
 
 ### In-app уведомления
 
@@ -248,6 +249,7 @@
 | `20260908160000_marker_tag_admin_worker_groups.sql` | Силовые теги: `group_key` `admin` / `worker` вместо `account`. |
 | `20260908194706_attendance_tag_powers_impl.sql` | Теги `attendance` / `attendanceWork`; гейты create/invite/update/punch; bootstrap `has_attendance_work_tag`. |
 | `20260909033323_resources_marker_tag.sql` | Admin-тег `resources` в `marker_tags` (местоположения / фильтры). |
+| `20260922120000_feedback_marker_tag.sql` | Admin-тег `feedback` в `marker_tags` (сводка отзывов на витрине). |
 | `20260908170000_booking_staff_invite_kinds.sql` | `chat_message_kind.booking_staff_invite` + `chat_message_booking_cards`. |
 | `20260908171000_booking_staff_invite_rpc.sql` | `booking_staff_invites` + invite/accept/reject/cancel + `booking_card` в enriched. Спека: [SPEC_BOOKING_STAFF_INVITE.md](SPEC_BOOKING_STAFF_INVITE.md) |
 | **`20260920165050_booking_open_point_chat.sql`** | `booking_points.group_conversation_id` + `booking_ensure_point_group_chat` / `booking_open_point_chat`. |

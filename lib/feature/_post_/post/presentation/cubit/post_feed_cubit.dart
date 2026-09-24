@@ -21,8 +21,10 @@ class PostFeedCubit extends Cubit<PostFeedState> {
   bool _onlyWithMarker = false;
   bool _excludeWithMarker = true;
   Set<String> _filterSelectionKeys = const {};
+  String? _locationId;
 
-  bool get _hasActiveFilters => _filterSelectionKeys.isNotEmpty;
+  bool get _hasActiveFilters =>
+      _filterSelectionKeys.isNotEmpty || (_locationId != null && _locationId!.trim().isNotEmpty);
 
   Future<void> load(
     String userId, {
@@ -31,6 +33,7 @@ class PostFeedCubit extends Cubit<PostFeedState> {
     bool onlyWithMarker = false,
     bool excludeWithMarker = true,
     Set<String>? filterSelectionKeys,
+    String? locationId,
   }) async {
     if (isClosed) return;
     final id = userId.trim();
@@ -43,6 +46,10 @@ class PostFeedCubit extends Cubit<PostFeedState> {
     _excludeWithMarker = excludeWithMarker;
     if (filterSelectionKeys != null) {
       _filterSelectionKeys = Set<String>.from(filterSelectionKeys);
+    }
+    if (locationId != null) {
+      final loc = locationId.trim();
+      _locationId = loc.isEmpty ? null : loc;
     }
 
     if (!_hasActiveFilters) {
@@ -208,6 +215,14 @@ class PostFeedCubit extends Cubit<PostFeedState> {
     );
   }
 
+  List<PostFeedItem> _applyLocationFilter(List<PostFeedItem> items) {
+    final loc = _locationId?.trim();
+    if (loc == null || loc.isEmpty) return items;
+    return items
+        .where((e) => (e.post.locationId?.trim() ?? '') == loc)
+        .toList(growable: false);
+  }
+
   Future<void> loadMore() async {
     final id = _userId;
     if (id == null) return;
@@ -230,10 +245,11 @@ class PostFeedCubit extends Cubit<PostFeedState> {
       );
       if (isClosed) return;
 
-      final merged = [...cur.posts, ...more.map((e) => e.post)];
+      final filteredMore = _applyLocationFilter(more);
+      final merged = [...cur.posts, ...filteredMore.map((e) => e.post)];
       final saved = Map<String, bool>.from(cur.savedByPostId);
       final reactions = Map<String, String?>.from(cur.reactionsByPostId);
-      for (final e in more) {
+      for (final e in filteredMore) {
         saved[e.post.id] = e.mySaved;
         reactions[e.post.id] = e.myReaction;
       }
@@ -279,9 +295,10 @@ class PostFeedCubit extends Cubit<PostFeedState> {
       );
       if (isClosed) return;
 
-      final posts = enriched.map((e) => e.post).toList(growable: false);
-      final saved = {for (final e in enriched) e.post.id: e.mySaved};
-      final reactions = {for (final e in enriched) e.post.id: e.myReaction};
+      final filtered = _applyLocationFilter(enriched);
+      final posts = filtered.map((e) => e.post).toList(growable: false);
+      final saved = {for (final e in filtered) e.post.id: e.mySaved};
+      final reactions = {for (final e in filtered) e.post.id: e.myReaction};
 
       emit(
         PostFeedState.loaded(

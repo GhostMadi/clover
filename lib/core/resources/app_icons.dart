@@ -117,6 +117,7 @@ enum AppIcons {
   mail(iconAndroid: Icons.mail_outline_rounded, iconIos: CupertinoIcons.mail),
   personOff(iconAndroid: Icons.person_off_outlined, iconIos: CupertinoIcons.person_crop_circle_badge_xmark),
   block(iconAndroid: Icons.block_rounded, iconIos: CupertinoIcons.clear),
+  flag(iconAndroid: Icons.flag_outlined, iconIos: CupertinoIcons.flag),
   gridView(iconAndroid: Icons.grid_view_rounded, iconIos: CupertinoIcons.square_grid_2x2),
   event(iconAndroid: Icons.event_outlined, iconIos: CupertinoIcons.calendar),
   personRemove(
@@ -132,6 +133,8 @@ enum AppIcons {
   eventBusy(iconAndroid: Icons.event_busy_rounded, iconIos: CupertinoIcons.calendar_badge_minus),
   imageNotSupported(iconAndroid: Icons.image_not_supported_outlined, iconIos: CupertinoIcons.photo),
   folderOpen(iconAndroid: Icons.folder_open_rounded, iconIos: CupertinoIcons.folder_open),
+  starOutline(iconAndroid: Icons.star_outline_rounded, iconIos: CupertinoIcons.star),
+  starFilled(iconAndroid: Icons.star_rounded, iconIos: CupertinoIcons.star_fill),
   autoAwesome(iconAndroid: Icons.auto_awesome_outlined, iconIos: CupertinoIcons.sparkles);
 
   final IconData iconAndroid;

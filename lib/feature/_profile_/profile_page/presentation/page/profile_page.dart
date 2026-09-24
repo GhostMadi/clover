@@ -29,6 +29,7 @@ import 'package:clover/feature/_profile_/profile_page/presentation/widget/header
 import 'package:clover/feature/_profile_/profile_page/presentation/widget/middle_part/profile_middle_part.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/widget/profile_cluster_upload_banner.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/widget/profile_post_upload_banner.dart';
+// import 'package:clover/feature/_booking_/point_reviews/presentation/widget/profile_point_reviews_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -150,6 +151,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     const ProfilePostUploadBanner(),
                     const ProfileClusterUploadBanner(),
                     const _ProfileHeaderBlock(),
+                    // Отзывы (feedback) — на паузе; см. PointReviewsMock / point-reviews-plan.md
+                    // const _ProfilePointReviewsBlock(),
                     const _ProfileNewActions(),
 
                     ProfileMiddlePart(
@@ -467,3 +470,23 @@ class _ProfileHeaderBlock extends StatelessWidget {
     );
   }
 }
+
+/// Отзывы: сила супер-тега `feedback` (mock) — на паузе.
+// class _ProfilePointReviewsBlock extends StatelessWidget {
+//   const _ProfilePointReviewsBlock();
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocBuilder<ProfileCubit, ProfileState>(
+//       buildWhen: (prev, next) {
+//         final a = prev.mapOrNull(loaded: (s) => s.profile.hasFeedbackTag);
+//         final b = next.mapOrNull(loaded: (s) => s.profile.hasFeedbackTag);
+//         return a != b || prev.runtimeType != next.runtimeType;
+//       },
+//       builder: (context, state) {
+//         final hasFeedback = state.mapOrNull(loaded: (s) => s.profile.hasFeedbackTag) ?? false;
+//         return ProfilePointReviewsStrip(hasFeedbackTag: hasFeedback);
+//       },
+//     );
+//   }
+// }

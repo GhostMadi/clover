@@ -23,7 +23,12 @@ abstract class SocialGraphRepository {
   /// Batch follow flags for [targetUserIds]. Missing ids → false.
   Future<Map<String, bool>> isFollowingUsers(List<String> targetUserIds);
 
-  Future<void> blockUser(String targetUserId);
+  Future<void> blockUser(
+    String targetUserId, {
+    String reason = 'abusive_user',
+    String? postId,
+    String? note,
+  });
 
   Future<void> unblockUser(String targetUserId);
 
@@ -85,10 +90,23 @@ class SocialGraphRepositoryImpl implements SocialGraphRepository {
   }
 
   @override
-  Future<void> blockUser(String targetUserId) async {
+  Future<void> blockUser(
+    String targetUserId, {
+    String reason = 'abusive_user',
+    String? postId,
+    String? note,
+  }) async {
     final id = targetUserId.trim();
     if (id.isEmpty) throw ArgumentError('targetUserId');
-    await _client.rpc('block_user', params: {'p_target': id});
+    await _client.rpc(
+      'block_user',
+      params: {
+        'p_target': id,
+        'p_reason': reason.trim().isEmpty ? 'abusive_user' : reason.trim(),
+        if (postId != null && postId.trim().isNotEmpty) 'p_post_id': postId.trim(),
+        if (note != null && note.trim().isNotEmpty) 'p_note': note.trim(),
+      },
+    );
   }
 
   @override

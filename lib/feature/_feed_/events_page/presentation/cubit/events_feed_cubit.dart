@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:clover/feature/_feed_/events_page/data/models/events_filter.dart';
 import 'package:clover/feature/_feed_/events_page/data/repository/events_feed_repository.dart';
 import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 import 'package:clover/feature/_post_/post/data/models/post_reaction_math.dart';
 import 'package:clover/feature/_post_/post/data/repository/post_repository.dart';
 import 'package:clover/feature/_catalog_/social_graph/data/repository/social_graph_repository.dart';
+import 'package:clover/feature/_safety_/content_report/data/ugc_block_session.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -15,13 +18,22 @@ enum EventsFeedFollowButton { subscribe, unsubscribe }
 
 @injectable
 class EventsFeedCubit extends Cubit<EventsFeedState> {
-  EventsFeedCubit(this._repository, this._postRepository, this._socialGraph, this._client)
-    : super(const EventsFeedState.initial());
+  EventsFeedCubit(
+    this._repository,
+    this._postRepository,
+    this._socialGraph,
+    this._client,
+    this._blockSession,
+  ) : super(const EventsFeedState.initial()) {
+    _blockSub = _blockSession.onBlocked.listen(removeAuthorPosts);
+  }
 
   final EventsFeedRepository _repository;
   final PostRepository _postRepository;
   final SocialGraphRepository _socialGraph;
   final SupabaseClient _client;
+  final UgcBlockSession _blockSession;
+  StreamSubscription<String>? _blockSub;
 
   static const _pageSize = 24;
 
@@ -256,6 +268,31 @@ class EventsFeedCubit extends Cubit<EventsFeedState> {
     );
   }
 
+  /// Instantly hide an author's posts after block (App Store 1.2).
+  void removeAuthorPosts(String authorId) {
+    final id = authorId.trim();
+    if (id.isEmpty || isClosed) return;
+    final cur = state.mapOrNull(loaded: (s) => s);
+    if (cur == null) return;
+
+    final next = [for (final item in cur.items) if (item.post.userId.trim() != id) item];
+    if (next.length == cur.items.length) return;
+    emit(cur.copyWith(items: next));
+  }
+
+  List<PostFeedItem> _withoutBlocked(List<PostFeedItem> items) {
+    return [
+      for (final item in items)
+        if (!_blockSession.shouldHideAuthor(item.post.userId)) item,
+    ];
+  }
+
+  @override
+  Future<void> close() {
+    unawaited(_blockSub?.cancel());
+    return super.close();
+  }
+
   Future<void> load(EventsFilter filter) async {
     if (isClosed) return;
     _filter = filter;
@@ -284,7 +321,9 @@ class EventsFeedCubit extends Cubit<EventsFeedState> {
       }
 
       final existingIds = cur.items.map((e) => e.post.id).toSet();
-      final newItems = page.items.where((item) => existingIds.add(item.post.id)).toList(growable: false);
+      final newItems = _withoutBlocked(
+        page.items.where((item) => existingIds.add(item.post.id)).toList(growable: false),
+      );
 
       if (newItems.isEmpty) {
         emit(cur.copyWith(isLoadingMore: false, isRefreshing: false, hasMore: false));
@@ -318,7 +357,7 @@ class EventsFeedCubit extends Cubit<EventsFeedState> {
       emit(
         EventsFeedState.loaded(
           filter: _filter,
-          items: page.items,
+          items: _withoutBlocked(page.items),
           hasMore: page.hasMore,
           isLoadingMore: false,
           isRefreshing: false,

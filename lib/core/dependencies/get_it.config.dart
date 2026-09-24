@@ -224,6 +224,10 @@ import '../../feature/_profile_/profile_page/presentation/cubit/guest_profile_cu
     as _i554;
 import '../../feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart'
     as _i95;
+import '../../feature/_safety_/content_report/data/repository/content_report_repository.dart'
+    as _i635;
+import '../../feature/_safety_/content_report/data/ugc_block_session.dart'
+    as _i262;
 import '../../feature/_settings_/settings_filter/data/repository/filter_repository.dart'
     as _i858;
 import '../../feature/_settings_/settings_filter/presentation/profile/cubit/profile_filter_cubit.dart'
@@ -273,6 +277,7 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i782.ChatActiveThread>(() => _i782.ChatActiveThread());
     gh.lazySingleton<_i171.ChatPushOpenBus>(() => _i171.ChatPushOpenBus());
+    gh.lazySingleton<_i262.UgcBlockSession>(() => _i262.UgcBlockSession());
     gh.lazySingleton<_i1029.IAppStorage>(() => _i814.IsarAppStorageImpl());
     gh.lazySingleton<_i460.SupabaseEdgeFunctionsInvoker>(
       () => _i460.SupabaseEdgeFunctionsInvoker(gh<_i454.SupabaseClient>()),
@@ -315,6 +320,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i324.BookingDeepLinkRepository>(
       () => _i324.BookingDeepLinkRepository(gh<_i454.SupabaseClient>()),
+    );
+    gh.lazySingleton<_i635.ContentReportRepository>(
+      () => _i635.ContentReportRepository(gh<_i454.SupabaseClient>()),
     );
     gh.lazySingleton<_i15.SavedPostsRepository>(
       () => _i15.SavedPostsRepositoryImpl(gh<_i454.SupabaseClient>()),
@@ -861,6 +869,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i984.PostRepository>(),
         gh<_i469.SocialGraphRepository>(),
         gh<_i454.SupabaseClient>(),
+        gh<_i262.UgcBlockSession>(),
       ),
     );
     gh.factory<_i575.AuthCubit>(

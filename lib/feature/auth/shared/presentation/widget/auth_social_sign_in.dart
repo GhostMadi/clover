@@ -37,9 +37,13 @@ class AuthGoogleSignInButton extends StatelessWidget {
   const AuthGoogleSignInButton({
     super.key,
     this.label = 'Continue with Google',
+    this.enabled = true,
+    this.onDisabledTap,
   });
 
   final String label;
+  final bool enabled;
+  final VoidCallback? onDisabledTap;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +53,15 @@ class AuthGoogleSignInButton extends StatelessWidget {
       width: double.infinity,
       height: 52,
       child: OutlinedButton(
-        onPressed: isLoading ? null : () => context.read<AuthCubit>().loginWithGoogle(),
+        onPressed: isLoading
+            ? null
+            : () {
+                if (!enabled) {
+                  onDisabledTap?.call();
+                  return;
+                }
+                context.read<AuthCubit>().loginWithGoogle();
+              },
         style: OutlinedButton.styleFrom(
           backgroundColor: context.colors.surface,
           side: BorderSide(color: context.colors.borderInput),
@@ -82,9 +94,13 @@ class AuthAppleSignInButton extends StatelessWidget {
   const AuthAppleSignInButton({
     super.key,
     this.label = 'Continue with Apple',
+    this.enabled = true,
+    this.onDisabledTap,
   });
 
   final String label;
+  final bool enabled;
+  final VoidCallback? onDisabledTap;
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +112,15 @@ class AuthAppleSignInButton extends StatelessWidget {
       width: double.infinity,
       height: 52,
       child: OutlinedButton(
-        onPressed: isLoading ? null : () => context.read<AuthCubit>().loginWithApple(),
+        onPressed: isLoading
+            ? null
+            : () {
+                if (!enabled) {
+                  onDisabledTap?.call();
+                  return;
+                }
+                context.read<AuthCubit>().loginWithApple();
+              },
         style: OutlinedButton.styleFrom(
           backgroundColor: context.colors.surface,
           side: BorderSide(color: context.colors.borderInput),

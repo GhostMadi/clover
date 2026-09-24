@@ -2,6 +2,7 @@
 
 import {
   Ban,
+  Flag,
   FolderPlus,
   MapPin,
   MessageCircle,
@@ -18,6 +19,7 @@ import { SignOutButton } from "@/features/auth/components/sign-out-button";
 import {
   blockUser,
   followUser,
+  reportContent,
   unfollowUser,
 } from "@/features/catalog/lib/social-api";
 import { createDm } from "@/features/chat/lib/chat-api";
@@ -293,6 +295,26 @@ export function ProfileView({
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-line bg-surface text-ink transition hover:bg-mint disabled:opacity-60 sm:h-12 sm:w-12"
                 >
                   <MessageCircle className="h-5 w-5" strokeWidth={2} />
+                </button>
+                <button
+                  type="button"
+                  disabled={blockBusy}
+                  onClick={async () => {
+                    try {
+                      await reportContent({
+                        targetUserId: profile.id,
+                        reason: "objectionable_content",
+                      });
+                      window.alert("Жалоба отправлена. Мы разберём её в течение 24 часов.");
+                    } catch {
+                      window.alert("Не удалось отправить жалобу");
+                    }
+                  }}
+                  title="Пожаловаться"
+                  aria-label="Пожаловаться"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-line bg-surface text-ink transition hover:bg-mint disabled:opacity-60 sm:h-12 sm:w-12"
+                >
+                  <Flag className="h-5 w-5" strokeWidth={2} />
                 </button>
                 <button
                   type="button"

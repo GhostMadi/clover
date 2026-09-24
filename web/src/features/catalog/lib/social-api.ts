@@ -56,7 +56,28 @@ export async function blockUser(targetUserId: string) {
   const id = targetUserId.trim();
   if (!id) throw new Error("targetUserId");
   const supabase = createClient();
-  const { error } = await supabase.rpc("block_user", { p_target: id });
+  const { error } = await supabase.rpc("block_user", {
+    p_target: id,
+    p_reason: "abusive_user",
+  });
+  if (error) throw error;
+}
+
+export async function reportContent(params: {
+  targetUserId: string;
+  reason: string;
+  postId?: string;
+  note?: string;
+}) {
+  const target = params.targetUserId.trim();
+  if (!target) throw new Error("targetUserId");
+  const supabase = createClient();
+  const { error } = await supabase.rpc("report_content", {
+    p_target_user: target,
+    p_reason: params.reason,
+    ...(params.postId?.trim() ? { p_post_id: params.postId.trim() } : {}),
+    ...(params.note?.trim() ? { p_note: params.note.trim() } : {}),
+  });
   if (error) throw error;
 }
 

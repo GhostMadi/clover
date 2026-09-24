@@ -28,11 +28,12 @@ import 'package:clover/feature/_post_/post/presentation/widget/post_media_galler
 import 'package:clover/feature/_post_/post/presentation/widget/post_media_reaction_gestures.dart';
 import 'package:clover/feature/_post_/post_comment/presentation/widget/post_comments_sheet.dart';
 import 'package:clover/feature/_post_/post_share/presentation/widget/post_share_sheet.dart';
+import 'package:clover/feature/_safety_/content_report/presentation/widget/ugc_safety_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-enum _PostMenuAction { attach, detach, archive, unarchive, delete }
+enum _PostMenuAction { attach, detach, archive, unarchive, delete, report, block }
 
 @RoutePage()
 class PostPage extends StatefulWidget {
@@ -576,6 +577,50 @@ class _PostPageState extends State<PostPage> {
                 onTap: _cubit.toggleFollow,
               ),
           ],
+          if (!isOwnPost) ...[
+            const SizedBox(width: 4),
+            AppMiniMenu<_PostMenuAction>(
+              iconPadding: const EdgeInsets.all(8),
+              items: [
+                AppMiniMenuItem(
+                  value: _PostMenuAction.report,
+                  title: 'Пожаловаться',
+                  icon: AppIcons.flag.icon,
+                ),
+                AppMiniMenuItem(
+                  value: _PostMenuAction.block,
+                  title: 'Заблокировать',
+                  icon: AppIcons.block.icon,
+                  titleColor: context.colors.error,
+                  iconColor: context.colors.error,
+                ),
+              ],
+              onSelected: (action) async {
+                switch (action) {
+                  case _PostMenuAction.report:
+                    await UgcSafetyActions.showReportSheet(
+                      context: context,
+                      targetUserId: item.post.userId,
+                      postId: item.post.id,
+                    );
+                  case _PostMenuAction.block:
+                    final blocked = await UgcSafetyActions.confirmAndBlock(
+                      context: context,
+                      targetUserId: item.post.userId,
+                      postId: item.post.id,
+                    );
+                    if (!blocked || !mounted) return;
+                    context.router.maybePop();
+                  case _PostMenuAction.attach:
+                  case _PostMenuAction.detach:
+                  case _PostMenuAction.archive:
+                  case _PostMenuAction.unarchive:
+                  case _PostMenuAction.delete:
+                    break;
+                }
+              },
+            ),
+          ],
           if (isOwnPost) ...[
             const SizedBox(width: 4),
             AppMiniMenu<_PostMenuAction>(
@@ -626,6 +671,9 @@ class _PostPageState extends State<PostPage> {
                     _unarchivePost(item);
                   case _PostMenuAction.delete:
                     _deletePost(item);
+                  case _PostMenuAction.report:
+                  case _PostMenuAction.block:
+                    break;
                 }
               },
             ),

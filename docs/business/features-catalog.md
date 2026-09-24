@@ -183,9 +183,14 @@ Like / dislike на постах; уведомления автору.
 См. [Подписчики и подписки](#-подписчики-и-подписки) выше.
 
 ### 🟢 Блокировки
-Бэк (`profile_blocks` + RPC `block_user` / `unblock_user` / `list_my_blocked_users`); UI: guest profile + Настройки → Заблокированные (mobile + web).  
-Бизнес: [blocks.md](blocks.md)  
-Техника: [SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md](../supabase/SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md) · `lib/feature/_settings_/settings_blocked/`, `web/.../settings/blocked`
+Бэк (`profile_blocks` + RPC `block_user` / `unblock_user` / `list_my_blocked_users`); UI: guest profile + Настройки → Заблокированные (mobile + web). Блок уведомляет модерацию (`content_reports`) и скрывает контент из Event/Map.
+Бизнес: [blocks.md](blocks.md) · [ugc-safety.md](ugc-safety.md)  
+Техника: [SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md](../supabase/SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md) · [SPEC_CONTENT_REPORTS.md](../supabase/SPEC_CONTENT_REPORTS.md) · `lib/feature/_settings_/settings_blocked/`, `lib/feature/_safety_/`
+
+### 🟢 Жалобы на контент (UGC)
+Пост / профиль → «Пожаловаться» → `report_content`; Terms до входа; модерация ≤ 24ч.
+Бизнес: [ugc-safety.md](ugc-safety.md)  
+Техника: [SPEC_CONTENT_REPORTS.md](../supabase/SPEC_CONTENT_REPORTS.md)
 ---
 
 ## Запись и бонусы
@@ -249,6 +254,14 @@ Enum + catalog: страны, города, теги без sync с бэка.
 Сохранённые места для постов и ивентов.  
 Бизнес: [locations.md](locations.md) · гайд ресурсов: [resources-guide.md](resources-guide.md) · гайд всех сервисов: [services-guide.md](services-guide.md)  
 Техника: `lib/feature/_catalog_/location/` · хаб `settings_resources` (+ web)
+
+### 🔴 Привязка компании/точки к месту (план)
+Точку записи и компанию посещаемости нельзя создать без `location`; занятое место — только через перенос. Плюс фильтр постов по местоположению (иконка). **Код не начат.**  
+План: [entity-location-bind-plan.md](entity-location-bind-plan.md)
+
+### 🔴 Отзывы по точкам записи (план реализации)
+На точку; писать могут все (без гейта визита); один ответ хозяина, без веток; витрина = тег `feedback`.  
+План: [point-reviews-plan.md](point-reviews-plan.md) · mock: `lib/feature/_booking_/point_reviews/`
 
 ---
 
