@@ -18,6 +18,7 @@ import 'package:clover/feature/_profile_/profile_page/presentation/widget/body_p
 import 'package:clover/feature/_profile_/profile_page/presentation/widget/header_part/parts/profile_header_from_profile.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/widget/header_part/profile_header_section.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/widget/middle_part/profile_middle_part.dart';
+import 'package:clover/feature/_safety_/content_report/presentation/widget/ugc_safety_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -262,7 +263,37 @@ class _GuestFollowActions extends StatelessWidget {
                       ],
                     ),
               const SizedBox(height: 10),
-              if (loaded.profile.hasBookingTag)
+              Row(
+                children: [
+                  Expanded(
+                    child: AppOutlinedButton(
+                      text: 'Пожаловаться',
+                      isExpanded: true,
+                      onTap: () => UgcSafetyActions.showReportSheet(
+                        context: context,
+                        targetUserId: loaded.profile.id,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: AppOutlinedButton(
+                      text: 'Заблокировать',
+                      isExpanded: true,
+                      onTap: () async {
+                        final blocked = await UgcSafetyActions.confirmAndBlock(
+                          context: context,
+                          targetUserId: loaded.profile.id,
+                        );
+                        if (!blocked || !context.mounted) return;
+                        context.router.maybePop();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              if (loaded.profile.hasBookingTag) ...[
+                const SizedBox(height: 10),
                 AppButton(
                   text: 'Записаться',
                   isExpanded: true,
@@ -270,6 +301,7 @@ class _GuestFollowActions extends StatelessWidget {
                     BookingClientRoute(hostId: loaded.profile.id, hostDisplayName: hostLabel),
                   ),
                 ),
+              ],
             ],
           ),
         );

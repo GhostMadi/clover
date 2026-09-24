@@ -8,6 +8,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/feature/auth/shared/presentation/widget/auth_email_flow_steps.dart';
 import 'package:clover/feature/auth/shared/presentation/widget/auth_social_sign_in.dart';
+import 'package:clover/feature/auth/shared/presentation/widget/auth_terms_agreement.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,6 +25,7 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
   final _otpController = TextEditingController();
   final _passwordController = TextEditingController();
   final _passwordConfirmController = TextEditingController();
+  var _termsAgreed = false;
 
   @override
   void dispose() {
@@ -32,6 +34,14 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
     _passwordController.dispose();
     _passwordConfirmController.dispose();
     super.dispose();
+  }
+
+  void _requireTerms() {
+    AppSnackBar.show(
+      context,
+      message: 'Примите условия использования, чтобы продолжить',
+      kind: AppSnackBarKind.info,
+    );
   }
 
   Widget _body(AuthState state, bool isLoading) {
@@ -80,14 +90,31 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
           isLoading: isLoading,
           hint: 'Код отправим только если email ещё не зарегистрирован.',
           buttonLabel: 'Получить код',
-          onSubmit: () => context.read<AuthCubit>().sendRegisterEmailOtp(_emailController.text),
+          onSubmit: () {
+            if (!_termsAgreed) {
+              _requireTerms();
+              return;
+            }
+            context.read<AuthCubit>().sendRegisterEmailOtp(_emailController.text);
+          },
+        ),
+        const SizedBox(height: 16),
+        AuthTermsAgreement(
+          agreed: _termsAgreed,
+          onChanged: (v) => setState(() => _termsAgreed = v),
         ),
         const SizedBox(height: 28),
         const AuthOrDivider(),
         const SizedBox(height: 24),
-        const AuthGoogleSignInButton(),
+        AuthGoogleSignInButton(
+          enabled: _termsAgreed,
+          onDisabledTap: _requireTerms,
+        ),
         const SizedBox(height: 12),
-        const AuthAppleSignInButton(),
+        AuthAppleSignInButton(
+          enabled: _termsAgreed,
+          onDisabledTap: _requireTerms,
+        ),
       ],
     );
   }

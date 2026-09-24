@@ -117,6 +117,7 @@ enum AppIcons {
   mail(iconAndroid: Icons.mail_outline_rounded, iconIos: CupertinoIcons.mail),
   personOff(iconAndroid: Icons.person_off_outlined, iconIos: CupertinoIcons.person_crop_circle_badge_xmark),
   block(iconAndroid: Icons.block_rounded, iconIos: CupertinoIcons.clear),
+  flag(iconAndroid: Icons.flag_outlined, iconIos: CupertinoIcons.flag),
   gridView(iconAndroid: Icons.grid_view_rounded, iconIos: CupertinoIcons.square_grid_2x2),
   event(iconAndroid: Icons.event_outlined, iconIos: CupertinoIcons.calendar),
   personRemove(

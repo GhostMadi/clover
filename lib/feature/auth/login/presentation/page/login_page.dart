@@ -10,6 +10,7 @@ import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/feature/auth/shared/presentation/widget/auth_social_sign_in.dart';
+import 'package:clover/feature/auth/shared/presentation/widget/auth_terms_agreement.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -25,6 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   var _obscurePassword = true;
+  var _termsAgreed = false;
 
   @override
   void dispose() {
@@ -33,7 +35,19 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  void _requireTerms() {
+    AppSnackBar.show(
+      context,
+      message: 'Примите условия использования, чтобы продолжить',
+      kind: AppSnackBarKind.info,
+    );
+  }
+
   void _login() {
+    if (!_termsAgreed) {
+      _requireTerms();
+      return;
+    }
     FocusScope.of(context).unfocus();
     context.read<AuthCubit>().loginWithPassword(
       identifier: _identifierController.text,
@@ -128,6 +142,11 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
+                AuthTermsAgreement(
+                  agreed: _termsAgreed,
+                  onChanged: (v) => setState(() => _termsAgreed = v),
+                ),
+                const SizedBox(height: 16),
                 SizedBox(
                   height: 52,
                   child: FilledButton(
@@ -158,7 +177,15 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     Text('Нет аккаунта?', style: AppTextStyle.base(14, color: context.colors.subTextColor)),
                     TextButton(
-                      onPressed: isLoading ? null : () => context.router.push(const RegisterEmailRoute()),
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              if (!_termsAgreed) {
+                                _requireTerms();
+                                return;
+                              }
+                              context.router.push(const RegisterEmailRoute());
+                            },
                       child: Text(
                         'Создать',
                         style: AppTextStyle.base(
@@ -173,9 +200,15 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(height: context.heightByContext(28)),
                 const AuthOrDivider(),
                 SizedBox(height: context.heightByContext(24)),
-                const AuthGoogleSignInButton(),
+                AuthGoogleSignInButton(
+                  enabled: _termsAgreed,
+                  onDisabledTap: _requireTerms,
+                ),
                 SizedBox(height: context.heightByContext(12)),
-                const AuthAppleSignInButton(),
+                AuthAppleSignInButton(
+                  enabled: _termsAgreed,
+                  onDisabledTap: _requireTerms,
+                ),
               ],
             ),
           ),

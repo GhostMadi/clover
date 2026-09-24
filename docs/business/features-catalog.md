@@ -183,9 +183,14 @@ Like / dislike на постах; уведомления автору.
 См. [Подписчики и подписки](#-подписчики-и-подписки) выше.
 
 ### 🟢 Блокировки
-Бэк (`profile_blocks` + RPC `block_user` / `unblock_user` / `list_my_blocked_users`); UI: guest profile + Настройки → Заблокированные (mobile + web).  
-Бизнес: [blocks.md](blocks.md)  
-Техника: [SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md](../supabase/SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md) · `lib/feature/_settings_/settings_blocked/`, `web/.../settings/blocked`
+Бэк (`profile_blocks` + RPC `block_user` / `unblock_user` / `list_my_blocked_users`); UI: guest profile + Настройки → Заблокированные (mobile + web). Блок уведомляет модерацию (`content_reports`) и скрывает контент из Event/Map.
+Бизнес: [blocks.md](blocks.md) · [ugc-safety.md](ugc-safety.md)  
+Техника: [SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md](../supabase/SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md) · [SPEC_CONTENT_REPORTS.md](../supabase/SPEC_CONTENT_REPORTS.md) · `lib/feature/_settings_/settings_blocked/`, `lib/feature/_safety_/`
+
+### 🟢 Жалобы на контент (UGC)
+Пост / профиль → «Пожаловаться» → `report_content`; Terms до входа; модерация ≤ 24ч.
+Бизнес: [ugc-safety.md](ugc-safety.md)  
+Техника: [SPEC_CONTENT_REPORTS.md](../supabase/SPEC_CONTENT_REPORTS.md)
 ---
 
 ## Запись и бонусы
