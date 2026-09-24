@@ -44,6 +44,7 @@ Index: `(status, created_at desc)` для очереди модерации.
 
 - Как раньше: insert `profile_blocks`, unfollow both ways  
 - **Плюс:** insert `content_reports` (`source='block'`, reason/post/note) — уведомление разработчику  
+- Если уже есть **open** жалоба на того же target/post — не вставляем вторую (иначе unique → 409); помечаем существующую  
 - Старый вызов только с `p_target` остаётся валидным
 
 ### Feed / map filter

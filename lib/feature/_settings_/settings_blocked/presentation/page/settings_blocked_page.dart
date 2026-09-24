@@ -3,6 +3,10 @@ import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/core/router/app_router.gr.dart';
+import 'package:clover/core/shared/app_bottom_sheet.dart';
+import 'package:clover/core/shared/app_button.dart';
+import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_catalog_/social_graph/data/repository/social_graph_repository.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
@@ -23,10 +27,19 @@ class _SettingsBlockedPageState extends State<SettingsBlockedPage> {
   String? _error;
   final Set<String> _busyIds = {};
 
+  static const double _buttonHeight = 36;
+  static const double _buttonRadius = 12;
+
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  String _displayName(BlockedProfileRow row) {
+    final username = row.username?.trim();
+    if (username != null && username.isNotEmpty) return '@$username';
+    return 'Пользователь';
   }
 
   Future<void> _load() async {
@@ -48,6 +61,38 @@ class _SettingsBlockedPageState extends State<SettingsBlockedPage> {
         _loading = false;
       });
     }
+  }
+
+  void _openProfile(BlockedProfileRow row) {
+    context.router.push(GuestProfileRoute(userId: row.profileId));
+  }
+
+  Future<void> _confirmUnblock(BlockedProfileRow row) async {
+    final id = row.profileId;
+    if (_busyIds.contains(id)) return;
+
+    final name = _displayName(row);
+    final ok = await AppBottomSheet.show<bool>(
+      context: context,
+      title: 'Разблокировать?',
+      content: Text(
+        'Разблокировать $name?',
+        style: AppTextStyle.base(15, color: context.colors.subTextColor, height: 1.35),
+      ),
+      actionsAxis: Axis.horizontal,
+      actions: [
+        AppOutlinedButton(
+          text: 'Нет',
+          onTap: () => Navigator.of(context).pop(false),
+        ),
+        AppButton(
+          text: 'Да',
+          onTap: () => Navigator.of(context).pop(true),
+        ),
+      ],
+    );
+    if (ok != true || !mounted) return;
+    await _unblock(row);
   }
 
   Future<void> _unblock(BlockedProfileRow row) async {
@@ -102,24 +147,30 @@ class _SettingsBlockedPageState extends State<SettingsBlockedPage> {
                       separatorBuilder: (_, __) => const SizedBox(height: 8),
                       itemBuilder: (context, index) {
                         final row = _rows[index];
-                        final name = (row.username?.trim().isNotEmpty == true)
-                            ? '@${row.username!.trim()}'
-                            : 'Пользователь';
+                        final name = _displayName(row);
                         final busy = _busyIds.contains(row.profileId);
+                        final avatarUrl = row.avatarUrl?.trim();
+
                         return AppTile(
+                          filled: true,
                           title: name,
-                          subtitle: 'Разблокировать',
-                          icon: AppIcons.block.icon,
-                          iconColor: context.colors.destructive,
-                          trailing: busy
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : null,
-                          enabled: !busy,
-                          onTap: () => _unblock(row),
+                          onTap: () => _openProfile(row),
+                          leading: CircleAvatar(
+                            radius: 20,
+                            backgroundColor: context.colors.surfaceSoft,
+                            backgroundImage:
+                                avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+                            child: avatarUrl == null || avatarUrl.isEmpty
+                                ? Icon(AppIcons.user.icon, color: context.colors.iconMuted, size: 20)
+                                : null,
+                          ),
+                          trailing: AppOutlinedButton(
+                            text: '  Разблокировать  ',
+                            height: _buttonHeight,
+                            borderRadius: _buttonRadius,
+                            isLoading: busy,
+                            onTap: busy ? null : () => _confirmUnblock(row),
+                          ),
                         );
                       },
                     ),
