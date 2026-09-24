@@ -3,12 +3,14 @@ import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/router/app_router.gr.dart';
+import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_functional_button/app_functional_screen.dart';
 import 'package:clover/core/shared/app_functional_button/functional_button_item.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_refresh.dart';
 import 'package:clover/core/shared/app_state.dart';
+import 'package:clover/core/shared/app_tile.dart';
 // import 'package:clover/feature/_booking_/point_reviews/presentation/widget/profile_point_reviews_strip.dart';
 import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
 import 'package:clover/feature/_cluster_/cluster/presentation/cubit/clusters_list_cubit.dart';
@@ -70,19 +72,63 @@ class _GuestProfilePageState extends State<GuestProfilePage> {
     _postFeedCubit.load(_userId, clusterId: next, excludeWithMarker: false);
   }
 
+  Future<void> _openAccountActions() async {
+    await AppBottomSheet.show<void>(
+      context: context,
+      title: 'Действия',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppTile(
+            icon: AppIcons.flag.icon,
+            title: 'Пожаловаться',
+            onTap: () async {
+              Navigator.of(context).pop();
+              if (!mounted) return;
+              await UgcSafetyActions.showReportSheet(
+                context: context,
+                targetUserId: _userId,
+              );
+            },
+          ),
+          AppTile(
+            icon: AppIcons.block.icon,
+            title: 'Заблокировать',
+            destructive: true,
+            onTap: () async {
+              Navigator.of(context).pop();
+              if (!mounted) return;
+              final blocked = await UgcSafetyActions.confirmAndBlock(
+                context: context,
+                targetUserId: _userId,
+              );
+              if (!blocked || !mounted) return;
+              context.router.maybePop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cubit,
       child: AppFunctionalScreen(
         collapsed: true,
-        collapsedBarWidthPerButton: 150,
+        collapsedBarWidthPerButton: 80,
         buttons: [
           FunctionalButtonItem(
             icon: AppIcons.back.icon,
             keepWhenCollapsed: true,
             customColor: context.colors.primary,
             onTap: () => context.router.maybePop(),
+          ),
+          FunctionalButtonItem(
+            icon: AppIcons.more.icon,
+            keepWhenCollapsed: true,
+            onTap: _openAccountActions,
           ),
         ],
         body: SafeArea(
@@ -213,6 +259,7 @@ class _GuestFollowActions extends StatelessWidget {
         final hostLabel = loaded.profile.fullName?.trim().isNotEmpty == true
             ? loaded.profile.fullName!.trim()
             : displayName;
+        final profileId = loaded.profile.id;
 
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -236,7 +283,7 @@ class _GuestFollowActions extends StatelessWidget {
                           child: AppButton(
                             text: 'Сообщения',
                             isExpanded: true,
-                            onTap: () => _openChat(context, loaded.profile.id, displayName),
+                            onTap: () => _openChat(context, profileId, displayName),
                           ),
                         ),
                       ],
@@ -256,49 +303,19 @@ class _GuestFollowActions extends StatelessWidget {
                           width: 56,
                           child: AppOutlinedButton(
                             text: ' ',
-                            onTap: () => _openChat(context, loaded.profile.id, displayName),
+                            onTap: () => _openChat(context, profileId, displayName),
                             child: Icon(AppIcons.chat.icon, color: context.colors.primary),
                           ),
                         ),
                       ],
                     ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: AppOutlinedButton(
-                      text: 'Пожаловаться',
-                      isExpanded: true,
-                      onTap: () => UgcSafetyActions.showReportSheet(
-                        context: context,
-                        targetUserId: loaded.profile.id,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: AppOutlinedButton(
-                      text: 'Заблокировать',
-                      isExpanded: true,
-                      onTap: () async {
-                        final blocked = await UgcSafetyActions.confirmAndBlock(
-                          context: context,
-                          targetUserId: loaded.profile.id,
-                        );
-                        if (!blocked || !context.mounted) return;
-                        context.router.maybePop();
-                      },
-                    ),
-                  ),
-                ],
-              ),
               if (loaded.profile.hasBookingTag) ...[
                 const SizedBox(height: 10),
                 AppButton(
                   text: 'Записаться',
                   isExpanded: true,
                   onTap: () => context.router.push(
-                    BookingClientRoute(hostId: loaded.profile.id, hostDisplayName: hostLabel),
+                    BookingClientRoute(hostId: profileId, hostDisplayName: hostLabel),
                   ),
                 ),
               ],

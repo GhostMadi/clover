@@ -12,9 +12,9 @@ class ProfileDashboardAccessories extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppFunctionalPillButton(
-      customColor: context.colors.functionalSoftBlue,
+      customColor: context.colors.primary,
       icon: AppIcons.more.icon,
-      iconColor: context.colors.functionalSoftBlueIcon,
+      iconColor: context.colors.textInverse,
       onTap: onMoreTap,
     );
   }
