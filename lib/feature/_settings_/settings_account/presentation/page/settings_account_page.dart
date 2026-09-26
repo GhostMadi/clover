@@ -234,10 +234,12 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
 
     final confirmed = await AppBottomSheet.show<bool>(
       context: context,
-      title: 'Удалить аккаунт',
+      title: 'Деактивировать аккаунт?',
       content: Text(
-        'Профиль и посты скроются из лент, как при «уснуть». '
-        'Данные не стираются каскадом — при следующем входе аккаунт снова активен.',
+        'Профиль и посты скроются из лент и поиска. '
+        'Это не безвозвратное удаление: при следующем входе аккаунт снова активен.\n\n'
+        'Чтобы навсегда удалить аккаунт и связанные данные, напишите в поддержку '
+        'на clover.com.kz/delete-account.',
         style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.4),
       ),
       actions: [
@@ -251,7 +253,7 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: AppButton(
-                    text: 'Удалить',
+                    text: 'Деактивировать',
                     onTap: () => Navigator.of(sheetContext).pop(true),
                   ),
                 ),
@@ -365,8 +367,8 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
                   onTap: _confirmHibernate,
                 ),
                 AppTile(
-                  title: 'Удалить аккаунт',
-                  subtitle: 'Скрыть как сон. Без стирания данных.',
+                  title: 'Деактивировать аккаунт',
+                  subtitle: 'Скрыть профиль. Полное удаление — через поддержку.',
                   icon: AppIcons.delete.icon,
                   iconColor: context.colors.destructive,
                   destructive: true,

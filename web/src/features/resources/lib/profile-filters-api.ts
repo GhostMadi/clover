@@ -1,6 +1,22 @@
 "use client";
 
+import { coalesceAsync, invalidateCoalesce } from "@/lib/coalesce-async";
 import { createClient } from "@/lib/supabase/client";
+import { invalidateResourcesProfileFiltersDiskCache } from "@/features/resources/lib/resources-prefs";
+
+const FILTERS_KEY_PREFIX = "resources:profile-filters:";
+
+function invalidateProfileFilters(profileId: string | null | undefined): void {
+  invalidateCoalesce(FILTERS_KEY_PREFIX);
+  invalidateResourcesProfileFiltersDiskCache(profileId);
+}
+
+async function sessionUserId(): Promise<string | null> {
+  const {
+    data: { session },
+  } = await createClient().auth.getSession();
+  return session?.user.id ?? null;
+}
 
 export type ProfileFilterCategory = {
   id: string;
@@ -39,21 +55,24 @@ function mapCategory(raw: unknown): ProfileFilterCategory | null {
   return { id, name, values };
 }
 
+/** Категории профиля: экран фильтров, чипы профиля и композер делят один запрос. */
 export async function listProfileFilterCategories(
   profileId: string,
 ): Promise<ProfileFilterCategory[]> {
-  const supabase = createClient();
-  const { data, error } = await supabase.rpc("list_profile_filter_categories", {
-    p_profile_id: profileId,
+  return coalesceAsync(`${FILTERS_KEY_PREFIX}${profileId}`, async () => {
+    const supabase = createClient();
+    const { data, error } = await supabase.rpc("list_profile_filter_categories", {
+      p_profile_id: profileId,
+    });
+    if (error) throw error;
+    const list = Array.isArray(data) ? data : [];
+    const out: ProfileFilterCategory[] = [];
+    for (const raw of list) {
+      const c = mapCategory(raw);
+      if (c) out.push(c);
+    }
+    return out;
   });
-  if (error) throw error;
-  const list = Array.isArray(data) ? data : [];
-  const out: ProfileFilterCategory[] = [];
-  for (const raw of list) {
-    const c = mapCategory(raw);
-    if (c) out.push(c);
-  }
-  return out;
 }
 
 export async function upsertProfileFilterCategory(opts: {
@@ -81,6 +100,7 @@ export async function upsertProfileFilterCategory(opts: {
   }
   const mapped = mapCategory(data);
   if (!mapped) throw new Error("Некорректный ответ сервера");
+  invalidateProfileFilters(await sessionUserId());
   return mapped;
 }
 
@@ -90,6 +110,7 @@ export async function deleteProfileFilterCategory(categoryId: string): Promise<v
     p_category_id: categoryId,
   });
   if (error) throw error;
+  invalidateProfileFilters(await sessionUserId());
 }
 
 export async function setPostProfileFilters(

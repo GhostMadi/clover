@@ -15,7 +15,7 @@ import type {
   BookingCalendarHost,
   BookingCalendarItem,
 } from "@/features/booking/lib/calendar-api";
-import { lsGet, lsSet } from "@/lib/local-storage";
+import { canUseLocalStorage, lsGet, lsRemove, lsSet } from "@/lib/local-storage";
 import {
   readServiceCache,
   writeServiceCache,
@@ -144,6 +144,23 @@ export function readBookingInboxCache(
     // Окно сдвинулось — всё равно отдать stale, сеть обновит.
   }
   return data.items;
+}
+
+/** Сбрасывает localStorage inbox всех точек пользователя (после мутации визита). */
+export function clearBookingInboxCaches(userId: string | null | undefined): void {
+  if (!userId || !canUseLocalStorage()) return;
+  const prefix = "clover-web-sync:booking:inbox:";
+  const suffix = `:${userId}`;
+  const keys: string[] = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(prefix) && key.endsWith(suffix)) keys.push(key);
+    }
+  } catch {
+    return;
+  }
+  for (const key of keys) lsRemove(key);
 }
 
 export function writeBookingInboxCache(

@@ -58,7 +58,7 @@ abstract final class AuthErrorMessages {
       AuthErrorCode.hibernateRateLimited =>
         'Сон можно включать не чаще раза в 30 дней.',
       AuthErrorCode.deleteAccountFailed =>
-        'Не удалось удалить аккаунт. Попробуйте ещё раз.',
+        'Не удалось деактивировать аккаунт. Попробуйте ещё раз.',
     };
   }
 }

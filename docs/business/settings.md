@@ -44,7 +44,7 @@
 | **Установить / сбросить пароль** | **Настройки → Аккаунт → Безопасность**. Бэк (`auth_current_user_has_password`): **нет пароля** → «Установить» (RPC каждый раз, пока не зададут); **есть** → «Сбросить» (OTP → новый). Факт «пароль есть» кэшируется локально один раз и больше не перепроверяется. С логина — «Забыли пароль?». См. [authentication.md](authentication.md) |
 | **Выйти** | Подтверждение → выход из сессии → экран входа |
 | **Усыпить аккаунт** | Confirm → `hibernate_account` → выход. Не удаление. Просыпание при следующем входе. Лимит 1/30 дней. [account-sleep.md](account-sleep.md) |
-| **Удалить аккаунт** | Confirm → RPC `soft_delete_account` (скрывает как сон, **без** cascade wipe) → выход. Пробуждение при следующем входе. [account-delete.md](account-delete.md) |
+| **Деактивировать аккаунт** | Confirm → RPC `soft_delete_account` (скрывает как сон, **без** cascade wipe) → выход. Пробуждение при следующем входе. Безвозвратное удаление — через `/delete-account` / support. [account-delete.md](account-delete.md) |
 
 Сессия между запусками: [authentication.md](authentication.md) § Повторный вход и Выход.
 

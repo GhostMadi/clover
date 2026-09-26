@@ -3,6 +3,7 @@ import {
   type BookingService,
   type BookingCatalogItem,
 } from "@/features/booking/lib/booking-model";
+import { coalesceAsync, invalidateCoalesce } from "@/lib/coalesce-async";
 import { createClient } from "@/lib/supabase/client";
 
 const STAFF_LINK =
@@ -47,8 +48,14 @@ export async function listMyServices(pointId?: string): Promise<BookingService[]
   return (data ?? []).map((row) => mapService(row as Record<string, unknown>));
 }
 
+function invalidateServiceIds(): void {
+  invalidateCoalesce("booking:service-ids:");
+}
+
 export async function listServiceIdsForPoint(pointId: string): Promise<Set<string>> {
-  const list = await listMyServices(pointId);
+  const list = await coalesceAsync(`booking:service-ids:${pointId}`, () =>
+    listMyServices(pointId),
+  );
   return new Set(list.map((s) => s.id));
 }
 
@@ -136,6 +143,7 @@ export async function createService(
   if (error) throw error;
   const service = mapService(data as Record<string, unknown>);
   await syncStaffLinks(service.id, draft.staffIds);
+  invalidateServiceIds();
   return (await getMyService(service.id)) ?? service;
 }
 
@@ -152,6 +160,7 @@ export async function updateService(id: string, draft: ServiceDraft): Promise<Bo
       p_service_id: id,
     });
     if (error) throw error;
+    invalidateServiceIds();
     const updated = await getMyService(id);
     if (!updated) throw new Error("Услуга не найдена");
     return updated;
@@ -164,6 +173,7 @@ export async function updateService(id: string, draft: ServiceDraft): Promise<Bo
     .eq("host_id", user.id);
   if (error) throw error;
   await syncStaffLinks(id, draft.staffIds);
+  invalidateServiceIds();
   const updated = await getMyService(id);
   if (!updated) throw new Error("Услуга не найдена");
   return updated;
@@ -175,4 +185,5 @@ export async function deactivateService(id: string): Promise<void> {
     p_service_id: id,
   });
   if (error) throw error;
+  invalidateServiceIds();
 }

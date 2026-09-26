@@ -19,7 +19,7 @@
 |------|-----|
 | Владелец аккаунта | Включает сон из Настройки → Аккаунт; просыпается при следующем входе |
 | Гости / лента | Не видят посты/профиль спящего (как сейчас на бэке) |
-| Support | Soft «удаление» in-app ([account-delete.md](account-delete.md)) или legal `/delete-account`; hard wipe Auth — не из приложения |
+| Support | Soft «деактивация» in-app ([account-delete.md](account-delete.md)) или legal `/delete-account`; hard wipe Auth — через support, не из приложения |
 
 ---
 
@@ -49,7 +49,7 @@
 | Настройки → Аккаунт (mobile + web) | Пункт «Усыпить аккаунт» + confirm sheet |
 | После входа | Silent `wake_up_if_needed` |
 
-Копирайт: **сон ≠ удаление**. Удаление — отдельная legal-страница.
+Копирайт: **сон ≠ удаление**. In-app «Деактивировать» тоже soft; безвозвратное удаление — `/delete-account` §2.
 
 ---
 

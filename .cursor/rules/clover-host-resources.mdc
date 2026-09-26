@@ -75,7 +75,9 @@ alwaysApply: false
 | `profile-filters` | категории витрины |
 
 - SWR paint → sync.
-- После create/update/delete — invalidate coalesce **и** disk (`invalidateResourcesLocationsDiskCache`).
+- После create/update/delete — invalidate coalesce **и** disk (`invalidateResourcesLocationsDiskCache`; фильтры — `invalidateResourcesProfileFiltersDiskCache`).
+- Карточка места берётся из того же списка (`resources:locations`), не отдельным запросом.
+- Web-хаб: rail Обзор · Местоположения · Фильтры · Гайд; Обзор — сводка, не грид тайлов ([website-host-desktop.md](docs/business/website-host-desktop.md)).
 - Logout → `clearResourcesSessionCaches` (как booking/attendance).
 - Mobile: live Supabase + in-memory cubit — ок для v1; не плодить диск без нужды.
 
@@ -95,7 +97,7 @@ Web:      features/resources/lib/*-api → components/*-view · ServiceWorkspace
 | Паритет create (страна/город на mobile create) | Зоны delivery |
 | Polish гайда / хаба | Перепин при edit |
 | Новый справочник **внутри** хаба по продукту | Публичный каталог локаций города |
-| Invalidate filters LS после save (если добавите) | Смешение с booking/attendance |
+| Новые сводки на Обзоре из тех же ключей | Смешение с booking/attendance |
 
 ## Чеклист перед «готово»
 

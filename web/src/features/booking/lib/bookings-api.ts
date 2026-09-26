@@ -1,3 +1,4 @@
+import { clearBookingInboxCaches } from "@/features/booking/lib/booking-prefs";
 import {
   mapHostBooking,
   mapMyBooking,
@@ -5,6 +6,9 @@ import {
   type HostBookingItem,
   type MyBookingItem,
 } from "@/features/booking/lib/booking-model";
+import { listServiceIdsForPoint } from "@/features/booking/lib/services-api";
+import { coalesceAsync, invalidateCoalesce } from "@/lib/coalesce-async";
+import { getSessionUserId } from "@/lib/run-service-swr";
 import { createClient } from "@/lib/supabase/client";
 
 export async function listHostBookings(params: {
@@ -73,6 +77,52 @@ export async function getBookingForViewer(
   return null;
 }
 
+export function hostInboxCoalesceKey(params: {
+  pointId: string;
+  from: Date;
+  to: Date;
+  query?: string;
+}): string {
+  const q = params.query?.trim() ?? "";
+  return `booking:inbox:${params.pointId}:${params.from.toISOString()}:${params.to.toISOString()}:${q}`;
+}
+
+/**
+ * Inbox точки: записи хозяина, отфильтрованные услугами точки.
+ * Обзор и экран «Записи» делят один in-flight ключ.
+ * Поиск (query) не держит memory-кэш — только дедуп параллельного вызова.
+ */
+export async function loadHostInbox(params: {
+  pointId: string;
+  from: Date;
+  to: Date;
+  query?: string;
+}): Promise<HostBookingItem[]> {
+  const query = params.query?.trim() || undefined;
+  return coalesceAsync(
+    hostInboxCoalesceKey({ ...params, query }),
+    async () => {
+      const [list, ids] = await Promise.all([
+        listHostBookings({
+          from: params.from,
+          to: params.to,
+          query,
+        }),
+        listServiceIdsForPoint(params.pointId),
+      ]);
+      if (ids.size === 0) return [];
+      return list.filter((b) => b.serviceId != null && ids.has(b.serviceId));
+    },
+    query ? { memoryMs: 0 } : undefined,
+  );
+}
+
+/** Сброс inbox после смены статуса / переноса — и memory, и localStorage. */
+export async function invalidateHostInbox(): Promise<void> {
+  invalidateCoalesce("booking:inbox:");
+  clearBookingInboxCaches(await getSessionUserId());
+}
+
 export async function updateBookingStatus(
   bookingId: string,
   status: BookingStatus,
@@ -83,6 +133,7 @@ export async function updateBookingStatus(
     p_status: status,
   });
   if (error) throw error;
+  await invalidateHostInbox();
 }
 
 export async function rescheduleBooking(params: {
@@ -99,6 +150,7 @@ export async function rescheduleBooking(params: {
     p_reset_status: params.resetStatus ?? "confirmed",
   });
   if (error) throw error;
+  await invalidateHostInbox();
 }
 
 export async function revertBookingStatus(bookingId: string): Promise<BookingStatus> {
@@ -107,5 +159,6 @@ export async function revertBookingStatus(bookingId: string): Promise<BookingSta
     p_booking_id: bookingId,
   });
   if (error) throw error;
+  await invalidateHostInbox();
   return String(data ?? "confirmed") as BookingStatus;
 }

@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { AppButton, AppButtonLink } from "@/components/shared/app-button";
 import { AddStaffModal } from "@/features/booking/components/add-staff-modal";
 import { BookingListShimmer } from "@/features/booking/components/booking-shimmers";
@@ -22,6 +22,11 @@ import {
 } from "@/features/booking/lib/staff-api";
 import type { BookingService, BookingStaff } from "@/features/booking/lib/booking-model";
 import { formatPriceKzt } from "@/features/booking/lib/booking-format";
+import {
+  ServiceEmpty,
+  ServiceInformer,
+  ServiceSection,
+} from "@/features/shared/components/service-page";
 import { createClient } from "@/lib/supabase/client";
 
 export function ServicesListView({ pointId }: { pointId: string }) {
@@ -31,7 +36,9 @@ export function ServicesListView({ pointId }: { pointId: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [staffToRemove, setStaffToRemove] = useState<BookingStaff | null>(null);
   const [staffBusyId, setStaffBusyId] = useState<string | null>(null);
+  const removeTitleId = useId();
 
   const reload = useCallback(
     async (opts?: { soft?: boolean }) => {
@@ -44,7 +51,7 @@ export function ServicesListView({ pointId }: { pointId: string }) {
         const uid = session?.user.id ?? null;
         const [s, st, inv] = await Promise.all([
           listMyServices(pointId),
-          listMyStaff(false),
+          listMyStaff(true),
           listPendingStaffInvites(),
         ]);
         setServices(s);
@@ -71,7 +78,7 @@ export function ServicesListView({ pointId }: { pointId: string }) {
       const cached = readBookingServicesCache(uid, pointId);
       if (cached) {
         setServices(cached.services);
-        setStaff(cached.staff);
+        setStaff(cached.staff.filter((s) => s.isActive));
         setLoading(false);
         await reload({ soft: true });
       } else {
@@ -83,15 +90,20 @@ export function ServicesListView({ pointId }: { pointId: string }) {
     };
   }, [pointId, reload]);
 
-  const toggleStaff = async (s: BookingStaff) => {
-    if (staffBusyId) return;
+  const removeStaff = async (s: BookingStaff): Promise<boolean> => {
+    if (staffBusyId) return false;
     setStaffBusyId(s.id);
     setError(null);
+    const previous = staff;
+    setStaff((list) => list.filter((item) => item.id !== s.id));
     try {
-      await setStaffActive(s.id, !s.isActive);
+      await setStaffActive(s.id, false);
       await reload({ soft: true });
+      return true;
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Не удалось обновить мастера");
+      setStaff(previous);
+      setError(e instanceof Error ? e.message : "Не удалось убрать мастера");
+      return false;
     } finally {
       setStaffBusyId(null);
     }
@@ -111,6 +123,7 @@ export function ServicesListView({ pointId }: { pointId: string }) {
     <BookingWorkspaceShell
       pointId={pointId}
       title="Услуги"
+      lead="Что клиент может забронировать и кто это делает."
       trailing={
         <AppButtonLink
           href={`${bookingPointBase(pointId)}/services/new`}
@@ -123,21 +136,36 @@ export function ServicesListView({ pointId }: { pointId: string }) {
         </AppButtonLink>
       }
     >
-      <div className="space-y-6 md:grid md:grid-cols-2 md:gap-6 md:space-y-0">
+      <div className="mx-auto max-w-3xl space-y-4">
         {error ? (
-          <p className="text-sm text-destructive md:col-span-2">{error}</p>
+          <ServiceInformer service="booking" tone="warning">
+            {error}
+          </ServiceInformer>
         ) : null}
 
-        <section>
-          <p className="mb-2 text-[12px] font-bold uppercase tracking-wide text-muted">
-            Каталог
-          </p>
+        <section className="space-y-3 rounded-[16px] border border-line bg-surface p-4">
+          <ServiceSection
+            title="Каталог"
+            action={
+              <AppButtonLink
+                href={`${bookingPointBase(pointId)}/services/new`}
+                size="row"
+                service="booking"
+              >
+                Новая услуга
+              </AppButtonLink>
+            }
+          >
+            <ServiceInformer service="booking">
+              Что клиент выбирает при записи: название, длительность и цена. Нажмите
+              строку, чтобы изменить услугу.
+            </ServiceInformer>
+          </ServiceSection>
           {loading ? (
             <BookingListShimmer rows={4} />
           ) : services.length === 0 ? (
-            <div className="rounded-[14px] border border-dashed border-line bg-bg px-3.5 py-5 text-center">
-              <p className="text-sm text-muted">Пока нет услуг. Создайте первую.</p>
-              <div className="mt-3 flex justify-center">
+            <ServiceEmpty
+              action={
                 <AppButtonLink
                   href={`${bookingPointBase(pointId)}/services/new`}
                   size="row"
@@ -145,10 +173,12 @@ export function ServicesListView({ pointId }: { pointId: string }) {
                 >
                   Добавить услугу
                 </AppButtonLink>
-              </div>
-            </div>
+              }
+            >
+              Пока нет услуг. Создайте первую — клиент увидит её при записи.
+            </ServiceEmpty>
           ) : (
-            <ul className="overflow-hidden rounded-[16px] border border-line bg-surface">
+            <ul className="overflow-hidden rounded-[16px] border border-line bg-bg">
               {services.map((s, i) => (
                 <li key={s.id} className={i > 0 ? "border-t border-line" : ""}>
                   <Link
@@ -161,7 +191,7 @@ export function ServicesListView({ pointId }: { pointId: string }) {
                         {s.title}
                         {!s.isActive ? (
                           <span className="ml-2 text-[11px] font-semibold text-muted">
-                            неактивна
+                            скрыта
                           </span>
                         ) : null}
                       </span>
@@ -177,25 +207,30 @@ export function ServicesListView({ pointId }: { pointId: string }) {
           )}
         </section>
 
-        <section>
-          <div className="mb-2 flex items-center justify-between gap-2 px-0.5">
-            <p className="text-[12px] font-bold uppercase tracking-wide text-muted">Мастера</p>
-            <AppButton size="row" service="booking" onClick={() => setAddOpen(true)}>
-              <span className="inline-flex items-center gap-1.5">
-                <Plus className="h-4 w-4" strokeWidth={2.5} />
-                Добавить
-              </span>
-            </AppButton>
-          </div>
+        <section className="space-y-3 rounded-[16px] border border-line bg-surface p-4">
+          <ServiceSection
+            title="Мастера"
+            action={
+              <AppButton size="row" service="booking" onClick={() => setAddOpen(true)}>
+                <span className="inline-flex items-center gap-1.5">
+                  <Plus className="h-4 w-4" strokeWidth={2.5} />
+                  Добавить
+                </span>
+              </AppButton>
+            }
+          >
+            <ServiceInformer service="booking">
+              Кто принимает клиентов. «Убрать» скрывает мастера из новой записи. Прошлые
+              визиты остаются.
+            </ServiceInformer>
+          </ServiceSection>
           {loading ? (
             <BookingListShimmer rows={3} />
           ) : (
             <>
               {pending.length > 0 ? (
-                <div className="mb-3 space-y-1.5">
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-muted">
-                    Ожидают
-                  </p>
+                <div className="space-y-1.5">
+                  <p className="text-[12px] font-semibold text-muted">Ждут ответ в чате</p>
                   {pending.map((inv) => {
                     const label =
                       inv.inviteeDisplayName.trim() ||
@@ -227,9 +262,7 @@ export function ServicesListView({ pointId }: { pointId: string }) {
                 </div>
               ) : null}
               {staff.length === 0 ? (
-                <p className="rounded-[14px] border border-dashed border-line bg-bg px-3.5 py-4 text-sm text-muted">
-                  Пока нет мастеров. Добавьте первого.
-                </p>
+                <ServiceEmpty>Пока нет мастеров. Добавьте, кто принимает клиентов.</ServiceEmpty>
               ) : (
                 <ul className="space-y-1.5">
                   {staff.map((s) => (
@@ -239,17 +272,14 @@ export function ServicesListView({ pointId }: { pointId: string }) {
                     >
                       <span className="min-w-0 truncate text-[14px] font-semibold text-ink">
                         {s.displayName}
-                        {!s.isActive ? (
-                          <span className="ml-2 text-[11px] font-medium text-muted">выкл</span>
-                        ) : null}
                       </span>
                       <button
                         type="button"
                         disabled={staffBusyId === s.id}
-                        className="shrink-0 text-[12px] font-bold text-svc-booking-ink disabled:opacity-50"
-                        onClick={() => void toggleStaff(s)}
+                        className="shrink-0 text-[12px] font-bold text-destructive disabled:opacity-50"
+                        onClick={() => setStaffToRemove(s)}
                       >
-                        {s.isActive ? "Выкл" : "Вкл"}
+                        {staffBusyId === s.id ? "Убираем…" : "Убрать"}
                       </button>
                     </li>
                   ))}
@@ -259,6 +289,68 @@ export function ServicesListView({ pointId }: { pointId: string }) {
           )}
         </section>
       </div>
+
+      {staffToRemove ? (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/50 p-0 sm:items-center sm:p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={removeTitleId}
+          onClick={() => {
+            if (!staffBusyId) setStaffToRemove(null);
+          }}
+        >
+          <div
+            className="w-full max-w-md rounded-t-2xl border border-line bg-surface shadow-elevate-lg sm:rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 border-b border-line px-3 py-2.5">
+              <h2 id={removeTitleId} className="min-w-0 flex-1 text-[16px] font-bold text-ink">
+                Убрать мастера?
+              </h2>
+              <button
+                type="button"
+                onClick={() => setStaffToRemove(null)}
+                disabled={staffBusyId === staffToRemove.id}
+                className="flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-bg disabled:opacity-50"
+                aria-label="Закрыть"
+              >
+                <X className="h-5 w-5" strokeWidth={2} />
+              </button>
+            </div>
+            <div className="space-y-4 px-4 py-4">
+              <p className="text-[14px] leading-snug text-ink">
+                {staffToRemove.displayName} больше не появится в новой записи. Прошлые
+                визиты останутся.
+              </p>
+              {error ? <p className="text-[13px] text-destructive">{error}</p> : null}
+              <div className="flex gap-2">
+                <AppButton
+                  variant="outline"
+                  className="flex-1"
+                  disabled={staffBusyId === staffToRemove.id}
+                  onClick={() => setStaffToRemove(null)}
+                >
+                  Оставить
+                </AppButton>
+                <AppButton
+                  service="booking"
+                  className="flex-1"
+                  loading={staffBusyId === staffToRemove.id}
+                  onClick={() => {
+                    const person = staffToRemove;
+                    void removeStaff(person).then((ok) => {
+                      if (ok) setStaffToRemove(null);
+                    });
+                  }}
+                >
+                  Убрать
+                </AppButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <AddStaffModal
         open={addOpen}

@@ -7,8 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { BookingWorkspaceShell } from "@/features/booking/components/booking-workspace-shell";
 import { BookingListShimmer } from "@/features/booking/components/booking-shimmers";
 import { HostBookingDetailPanel } from "@/features/booking/components/host-booking-detail-panel";
-import { listHostBookings } from "@/features/booking/lib/bookings-api";
-import { listServiceIdsForPoint } from "@/features/booking/lib/services-api";
+import { loadHostInbox } from "@/features/booking/lib/bookings-api";
 import {
   bookingPointBase,
   readBookingInboxCache,
@@ -25,7 +24,11 @@ import {
   startOfLocalDay,
   statusLabelRu,
 } from "@/features/booking/lib/booking-format";
-import { createClient } from "@/lib/supabase/client";
+import {
+  ServiceEmpty,
+  ServiceInformer,
+} from "@/features/shared/components/service-page";
+import { runServiceSwr } from "@/lib/run-service-swr";
 
 type Tab = "calendar" | "now" | "archive";
 
@@ -88,47 +91,42 @@ export function HostInboxView({ pointId }: { pointId: string }) {
     const t = setTimeout(() => {
       void (async () => {
         const range = hostInboxRange();
-        const {
-          data: { session },
-        } = await createClient().auth.getSession();
-        if (cancelled) return;
-        const uid = session?.user.id ?? null;
-
-        if (!searching) {
-          const cached = readBookingInboxCache(uid, pointId, range);
-          if (cached) {
-            setItems(cached);
-            setLoading(false);
-          } else {
-            setLoading(true);
+        if (searching) {
+          if (!cancelled) setLoading(true);
+          try {
+            const list = await loadHostInbox({
+              pointId,
+              from: range.from,
+              to: range.to,
+              query: query.trim(),
+            });
+            if (cancelled) return;
+            setItems(list);
+            setError(null);
+          } catch (e: unknown) {
+            if (!cancelled) {
+              setError(e instanceof Error ? e.message : "Не удалось загрузить");
+            }
+          } finally {
+            if (!cancelled) setLoading(false);
           }
-        } else {
-          setLoading(true);
+          return;
         }
 
-        try {
-          const list = await listHostBookings({
-            from: range.from,
-            to: range.to,
-            query: searching ? query.trim() : undefined,
-          });
-          if (cancelled) return;
-          const ids = await listServiceIdsForPoint(pointId);
-          const withPoint =
-            ids.size > 0
-              ? list.filter((b) => b.serviceId != null && ids.has(b.serviceId))
-              : [];
-          if (cancelled) return;
-          setItems(withPoint);
-          setError(null);
-          if (!searching) {
-            writeBookingInboxCache(uid, pointId, range, withPoint);
-          }
-        } catch (e: unknown) {
-          if (!cancelled) setError(e instanceof Error ? e.message : "Ошибка");
-        } finally {
-          if (!cancelled) setLoading(false);
-        }
+        await runServiceSwr({
+          read: (uid) => readBookingInboxCache(uid, pointId, range),
+          fetch: () => loadHostInbox({ pointId, from: range.from, to: range.to }),
+          write: (uid, data) => writeBookingInboxCache(uid, pointId, range, data),
+          apply: (data) => {
+            if (!cancelled) setItems(data);
+          },
+          setLoading: (value) => {
+            if (!cancelled) setLoading(value);
+          },
+          setError: (message) => {
+            if (!cancelled) setError(message);
+          },
+        });
       })();
     }, searching ? 300 : 0);
     return () => {
@@ -153,6 +151,7 @@ export function HostInboxView({ pointId }: { pointId: string }) {
     () => items.filter((b) => isInChair(b, now)),
     [items, now],
   );
+  const todayCount = countsByDay.get(todayKey) ?? 0;
 
   const archive = useMemo(
     () =>
@@ -295,7 +294,7 @@ export function HostInboxView({ pointId }: { pointId: string }) {
               })}
             </div>
             <p className="mt-3 text-[11px] text-muted">
-              Точки — дни с записями · всего в окне {items.length}
+              Точка на дне — в этот день есть записи · в окне {items.length}
             </p>
           </section>
 
@@ -336,14 +335,12 @@ export function HostInboxView({ pointId }: { pointId: string }) {
             ) : null}
 
             {dayBookings.length === 0 ? (
-              <p className="py-10 text-center text-[13px] text-muted">
-                На этот день записей нет.
-                {selectedDay === todayKey ? (
-                  <>
-                    {" "}
+              <ServiceEmpty
+                action={
+                  selectedDay === todayKey ? (
                     <button
                       type="button"
-                      className="font-bold text-svc-booking-ink hover:underline"
+                      className="text-[13px] font-bold text-svc-booking-ink hover:underline"
                       onClick={() => {
                         const next = addDays(startOfLocalDay(), 1);
                         setSelectedDay(dateKeyLocal(next));
@@ -354,9 +351,11 @@ export function HostInboxView({ pointId }: { pointId: string }) {
                     >
                       Смотреть завтра
                     </button>
-                  </>
-                ) : null}
-              </p>
+                  ) : undefined
+                }
+              >
+                На этот день записей нет.
+              </ServiceEmpty>
             ) : (
               <ul className="space-y-2">
                 {dayBookings.map((item) => (
@@ -377,7 +376,11 @@ export function HostInboxView({ pointId }: { pointId: string }) {
   );
 
   return (
-    <BookingWorkspaceShell pointId={pointId} title="Записи">
+    <BookingWorkspaceShell
+      pointId={pointId}
+      title="Записи"
+      lead="Кто записан на выбранный день и кто уже в кресле."
+    >
       <div className="space-y-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <input
@@ -398,7 +401,7 @@ export function HostInboxView({ pointId }: { pointId: string }) {
               {(
                 [
                   ["calendar", "Календарь"],
-                  ["now", "Сейчас"],
+                  ["now", "В кресле"],
                   ["archive", "Архив"],
                 ] as const
               ).map(([id, label]) => (
@@ -420,7 +423,18 @@ export function HostInboxView({ pointId }: { pointId: string }) {
           </div>
         </div>
 
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        {error ? (
+          <ServiceInformer service="booking" tone="warning">
+            {error}
+          </ServiceInformer>
+        ) : !loading || items.length > 0 ? (
+          <ServiceInformer
+            service="booking"
+            tone={inChair.length > 0 ? "next" : "info"}
+          >
+            {`Сегодня ${todayCount} ${recordsLabel(todayCount)} · в кресле ${inChair.length}.`}
+          </ServiceInformer>
+        ) : null}
 
         {loading ? (
           <BookingListShimmer rows={8} />
@@ -459,9 +473,7 @@ export function HostInboxView({ pointId }: { pointId: string }) {
                     </Link>
                   </>
                 ) : (
-                  <p className="py-12 text-center text-[13px] text-muted">
-                    Выберите запись слева — детали появятся здесь.
-                  </p>
+                  <ServiceEmpty>Выберите запись слева — здесь появятся клиент и статус.</ServiceEmpty>
                 )}
               </div>
             </aside>
@@ -470,6 +482,14 @@ export function HostInboxView({ pointId }: { pointId: string }) {
       </div>
     </BookingWorkspaceShell>
   );
+}
+
+function recordsLabel(n: number): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return "запись";
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "записи";
+  return "записей";
 }
 
 function NowList({
@@ -482,7 +502,7 @@ function NowList({
   onSelect: (id: string) => void;
 }) {
   if (items.length === 0) {
-    return <p className="text-sm text-muted">Сейчас никто не в кресле.</p>;
+    return <ServiceEmpty>Сейчас никто не в кресле.</ServiceEmpty>;
   }
   return (
     <ul className="space-y-2">
@@ -512,7 +532,7 @@ function AgendaList({
   onSelect: (id: string) => void;
 }) {
   if (items.length === 0) {
-    return <p className="text-sm text-muted">{empty}</p>;
+    return <ServiceEmpty>{empty}</ServiceEmpty>;
   }
   return (
     <ul className="space-y-2">

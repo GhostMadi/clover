@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, Pencil, Smartphone } from "lucide-react";
+import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppButtonLink } from "@/components/shared/app-button";
@@ -13,6 +13,7 @@ import {
   renameWorkplace,
 } from "@/features/attendance/lib/attendance-api";
 import {
+  ABSENCE_KIND_LABEL,
   dayKey,
   formatDateKey,
   onDutyFor,
@@ -27,9 +28,22 @@ import {
   serializePunches,
   writeAttendanceTodayCache,
 } from "@/features/attendance/lib/attendance-prefs";
-import { getSessionUserId } from "@/lib/run-service-swr";
+import {
+  ServiceEmpty,
+  ServiceInformer,
+  ServiceSection,
+} from "@/features/shared/components/service-page";
+import { runServiceSwr } from "@/lib/run-service-swr";
 
 type MemberRow = { id: string; name: string; username: string };
+
+type TodaySnapshot = {
+  workplace: AttendanceWorkplace;
+  members: MemberRow[];
+  punches: AttendancePunchRecord[];
+  absences: AttendanceAbsence[];
+  overtime: AttendanceOvertime[];
+};
 
 function sameLocalDay(a: Date, b: Date): boolean {
   return (
@@ -56,69 +70,68 @@ export function AttendanceTodayView({ workplaceId }: { workplaceId: string }) {
   const today = useMemo(() => dayKey(new Date()), []);
   const todayKey = useMemo(() => formatDateKey(today), [today]);
 
-  const reload = useCallback(async (opts?: { soft?: boolean }) => {
-    if (!opts?.soft) setLoading(true);
-    setError(null);
-    try {
-      const uid = await getSessionUserId();
-      const boot = await fetchBootstrap();
-      const w =
-        boot.workplaces.find((x) => x.id === workplaceId && x.isAdmin) ?? null;
-      if (!w) {
-        setError("Компания не найдена или нет прав admin");
-        setWorkplace(null);
-        return;
-      }
-      const active = boot.memberships.filter(
-        (m) => m.workplaceId === workplaceId && m.status === "active",
-      );
-      const ids = active.map((m) => m.profileId);
-      const lab = await loadProfileLabels(ids);
-      const nextMembers = active.map((m) => ({
-        id: m.profileId,
-        name: lab.get(m.profileId)?.name ?? m.profileId.slice(0, 8),
-        username: lab.get(m.profileId)?.username ?? "",
-      }));
-      const nextPunches = boot.punches.filter((p) => p.workplaceId === workplaceId);
-      const nextAbsences = boot.absences.filter((a) => a.workplaceId === workplaceId);
-      const nextOt = boot.overtimeEntries.filter((o) => o.workplaceId === workplaceId);
-      setMembers(nextMembers);
-      setWorkplace(w);
-      setPunches(nextPunches);
-      setAbsences(nextAbsences);
-      setOvertime(nextOt);
-      writeAttendanceTodayCache(uid, workplaceId, {
-        dayKey: todayKey,
-        workplace: w,
-        members: nextMembers,
-        punches: serializePunches(nextPunches),
-        absences: nextAbsences,
-        overtime: nextOt,
-      });
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Не удалось загрузить");
-    } finally {
-      setLoading(false);
-    }
-  }, [workplaceId, todayKey]);
+  const applySnapshot = useCallback((data: TodaySnapshot) => {
+    setWorkplace(data.workplace);
+    setMembers(data.members);
+    setPunches(data.punches);
+    setAbsences(data.absences);
+    setOvertime(data.overtime);
+  }, []);
+
+  const reload = useCallback(async () => {
+    await runServiceSwr<TodaySnapshot>({
+      read: (uid) => {
+        const cached = readAttendanceTodayCache(uid, workplaceId, todayKey);
+        if (!cached) return null;
+        return {
+          workplace: cached.workplace,
+          members: cached.members,
+          punches: revivePunches(cached.punches),
+          absences: cached.absences,
+          overtime: cached.overtime,
+        };
+      },
+      fetch: async () => {
+        const boot = await fetchBootstrap();
+        const w =
+          boot.workplaces.find((x) => x.id === workplaceId && x.isAdmin) ?? null;
+        if (!w) throw new Error("Компания не найдена или нет прав admin");
+        const active = boot.memberships.filter(
+          (m) => m.workplaceId === workplaceId && m.status === "active",
+        );
+        const lab = await loadProfileLabels(active.map((m) => m.profileId));
+        return {
+          workplace: w,
+          members: active.map((m) => ({
+            id: m.profileId,
+            name: lab.get(m.profileId)?.name ?? m.profileId.slice(0, 8),
+            username: lab.get(m.profileId)?.username ?? "",
+          })),
+          punches: boot.punches.filter((p) => p.workplaceId === workplaceId),
+          absences: boot.absences.filter((a) => a.workplaceId === workplaceId),
+          overtime: boot.overtimeEntries.filter((o) => o.workplaceId === workplaceId),
+        };
+      },
+      write: (uid, data) => {
+        writeAttendanceTodayCache(uid, workplaceId, {
+          dayKey: todayKey,
+          workplace: data.workplace,
+          members: data.members,
+          punches: serializePunches(data.punches),
+          absences: data.absences,
+          overtime: data.overtime,
+        });
+      },
+      apply: applySnapshot,
+      setLoading,
+      setError,
+    });
+  }, [applySnapshot, todayKey, workplaceId]);
 
   useEffect(() => {
-    void (async () => {
-      const uid = await getSessionUserId();
-      const cached = readAttendanceTodayCache(uid, workplaceId, todayKey);
-      if (cached) {
-        setWorkplace(cached.workplace);
-        setMembers(cached.members);
-        setPunches(revivePunches(cached.punches));
-        setAbsences(cached.absences);
-        setOvertime(cached.overtime);
-        setLoading(false);
-        await reload({ soft: true });
-      } else {
-        await reload();
-      }
-    })();
-  }, [reload, workplaceId, todayKey]);
+    void reload();
+  }, [reload]);
+
   const todayPunches = useMemo(
     () => punches.filter((p) => sameLocalDay(p.punchedAt, today) && !p.cancelled),
     [punches, today],
@@ -155,6 +168,7 @@ export function AttendanceTodayView({ workplaceId }: { workplaceId: string }) {
   const punchedNotOnRoster = members.filter(
     (m) => punchedInIds.has(m.id) && !onDutyIds.includes(m.id),
   );
+  const punchedToday = members.filter((m) => punchedInIds.has(m.id));
 
   if (loading) {
     return (
@@ -172,7 +186,7 @@ export function AttendanceTodayView({ workplaceId }: { workplaceId: string }) {
             {error ?? "Компания не найдена или нет прав admin"}
           </p>
           <AppButtonLink href="/app/settings/attendance/companies" service="attendance">
-            К хабу
+            К компаниям
           </AppButtonLink>
         </div>
       </AttendanceWorkspaceShell>
@@ -183,7 +197,7 @@ export function AttendanceTodayView({ workplaceId }: { workplaceId: string }) {
     <AttendanceWorkspaceShell
       workplaceId={workplaceId}
       title="Сегодня"
-      brandSubtitle="Сегодня по компании"
+      lead="Кто сейчас на смене и кто ещё не отметился."
       companyName={workplace.name}
       trailing={
         <button
@@ -198,121 +212,105 @@ export function AttendanceTodayView({ workplaceId }: { workplaceId: string }) {
       }
     >
       <div className="space-y-5">
-        <div className="flex flex-wrap items-start justify-between gap-3 rounded-[16px] border border-line bg-svc-attendance/30 px-4 py-3">
-          <div className="flex gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-svc-attendance text-svc-attendance-ink">
-              <Smartphone className="h-5 w-5" strokeWidth={2} />
-            </span>
-            <div>
-              <p className="text-[14px] font-bold text-ink">Отметки — в приложении</p>
-              <p className="mt-0.5 text-[12px] text-muted">
-                На сайте — день компании: кто на смене, кто не отметился, заявки.
-              </p>
-            </div>
-          </div>
-          {workplace.groupConversationId ? (
-            <Link
-              href={`/app/chat/${workplace.groupConversationId}`}
-              className="inline-flex items-center gap-1.5 rounded-[12px] border border-line bg-surface px-3 py-2 text-[12px] font-bold text-svc-attendance-ink hover:bg-svc-attendance/40"
-            >
-              <MessageCircle className="h-4 w-4" strokeWidth={2} />
-              Чат
-            </Link>
-          ) : null}
-        </div>
+        <ServiceInformer service="attendance" tone="next">
+          На смене {onShift.length} · не отметились {missingPunch.length} · отсутствия{" "}
+          {absentToday.length}
+        </ServiceInformer>
+        <ServiceInformer service="attendance" tone="warning">
+          Отметки ставят в приложении. Здесь видно день компании.
+        </ServiceInformer>
 
-        <div className="grid gap-4 sm:grid-cols-3">
-          <StatCard label="На смене / отметились" value={String(onShift.length)} />
-          <StatCard label="Не отметились" value={String(missingPunch.length)} warn />
-          <StatCard label="OT на проверке" value={String(pendingOt.length)} />
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-2">
+          <PeopleCard
+            title="На смене"
+            hint="В графике на сегодня или уже отметились."
+            empty="На сегодня никого нет в графике и нет отметок."
+            rows={onShift}
+          />
           <PeopleCard
             title="Не отметились"
-            empty="Все дежурные уже отметились"
+            hint="Дежурные, у которых ещё нет отметки прихода."
+            empty="Все дежурные уже отметились."
             rows={missingPunch}
-            tone="warn"
+            warn
+          />
+          <PeopleCard
+            title="Отметились вне графика"
+            hint="Приход есть, но человека нет в очереди на сегодня."
+            empty="Все отметки совпали с графиком."
+            rows={punchedNotOnRoster}
           />
           <PeopleCard
             title="Отметились сегодня"
-            empty="Пока нет отметок за сегодня"
-            rows={members.filter((m) => punchedInIds.has(m.id))}
-          />
-          <PeopleCard
-            title="На дежурстве (ростер)"
-            empty="На сегодня никто не в ростере"
-            rows={members.filter((m) => onDutyIds.includes(m.id))}
+            hint="Кто уже поставил приход."
+            empty="Пока нет отметок за сегодня."
+            rows={punchedToday}
           />
         </div>
 
-        {punchedNotOnRoster.length > 0 ? (
-          <PeopleCard
-            title="Отметились вне ростера"
-            empty=""
-            rows={punchedNotOnRoster}
-          />
-        ) : null}
-
-        {absentToday.length > 0 ? (
-          <section className="rounded-[16px] border border-line bg-surface p-4">
-            <h2 className="text-[13px] font-bold uppercase tracking-wide text-muted">
-              Отсутствия сегодня
-            </h2>
-            <ul className="mt-3 space-y-2">
-              {absentToday.map((a) => {
-                const m = members.find((x) => x.id === a.profileId);
-                return (
-                  <li
-                    key={a.id}
-                    className="flex justify-between gap-2 rounded-[12px] border border-line px-3 py-2 text-[13px]"
-                  >
-                    <span className="font-semibold text-ink">
-                      {m?.name ?? a.profileId.slice(0, 8)}
-                    </span>
-                    <span className="text-muted">{a.kind}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        ) : null}
-
-        <section className="rounded-[16px] border border-line bg-surface p-4">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-[13px] font-bold uppercase tracking-wide text-muted">
-              Заявки на исправление / OT
-            </h2>
+        <ServiceSection
+          title="Отсутствия"
+          action={
             <Link
               href={`/app/settings/attendance/w/${workplaceId}/duty`}
               className="text-[12px] font-bold text-svc-attendance-ink hover:underline"
             >
               К дежурствам
             </Link>
-          </div>
-          {pendingOt.length === 0 ? (
-            <p className="mt-3 text-[13px] text-muted">
-              Нет ожидающих OT. Inbox исправлений отметок — в догоне (см. gaps).
-            </p>
+          }
+        >
+          <p className="mb-3 text-[12px] leading-snug text-muted">
+            Выходной, отпуск или больничный на сегодня.
+          </p>
+          {absentToday.length === 0 ? (
+            <ServiceEmpty>Сегодня оформленных отсутствий нет.</ServiceEmpty>
           ) : (
-            <ul className="mt-3 space-y-2">
-              {pendingOt.slice(0, 8).map((o) => {
-                const m = members.find((x) => x.id === o.profileId);
+            <ul className="space-y-1.5">
+              {absentToday.map((a) => {
+                const m = members.find((x) => x.id === a.profileId);
                 return (
                   <li
-                    key={o.id}
-                    className="rounded-[12px] border border-line px-3 py-2 text-[13px]"
+                    key={a.id}
+                    className="flex justify-between gap-2 rounded-[12px] border border-line bg-surface px-3 py-2 text-[13px]"
                   >
                     <span className="font-semibold text-ink">
-                      {m?.name ?? o.profileId.slice(0, 8)}
+                      {m?.name ?? a.profileId.slice(0, 8)}
                     </span>
-                    <span className="text-muted"> · ожидает проверки</span>
+                    <span className="text-muted">
+                      {ABSENCE_KIND_LABEL[a.kind] ?? a.kind}
+                    </span>
                   </li>
                 );
               })}
             </ul>
           )}
-        </section>
+        </ServiceSection>
+
+        <ServiceSection title="Заявки на переработку">
+          <p className="mb-3 text-[12px] leading-snug text-muted">
+            Ждут решения. Принять или отклонить можно в дежурствах.
+          </p>
+          {pendingOt.length === 0 ? (
+            <ServiceEmpty>Нет заявок, которые ждут решения.</ServiceEmpty>
+          ) : (
+            <ul className="space-y-1.5">
+              {pendingOt.slice(0, 8).map((o) => {
+                const m = members.find((x) => x.id === o.profileId);
+                return (
+                  <li
+                    key={o.id}
+                    className="rounded-[12px] border border-line bg-surface px-3 py-2 text-[13px]"
+                  >
+                    <span className="font-semibold text-ink">
+                      {m?.name ?? o.profileId.slice(0, 8)}
+                    </span>
+                    <span className="text-muted"> · ждёт решения</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </ServiceSection>
       </div>
 
       <AttendanceNameModal
@@ -331,51 +329,33 @@ export function AttendanceTodayView({ workplaceId }: { workplaceId: string }) {
   );
 }
 
-function StatCard({
-  label,
-  value,
-  warn,
-}: {
-  label: string;
-  value: string;
-  warn?: boolean;
-}) {
-  return (
-    <div
-      className={`rounded-[16px] border px-4 py-3 ${
-        warn
-          ? "border-svc-attendance-ink/25 bg-svc-attendance"
-          : "border-line bg-surface"
-      }`}
-    >
-      <p className="text-[11px] font-bold uppercase tracking-wide text-muted">{label}</p>
-      <p className="mt-1 font-display text-[28px] font-semibold text-ink">{value}</p>
-    </div>
-  );
-}
-
 function PeopleCard({
   title,
+  hint,
   empty,
   rows,
-  tone,
+  warn,
 }: {
   title: string;
+  hint: string;
   empty: string;
   rows: MemberRow[];
-  tone?: "warn";
+  warn?: boolean;
 }) {
   return (
     <section
       className={`rounded-[16px] border p-4 ${
-        tone === "warn"
+        warn && rows.length > 0
           ? "border-svc-attendance-ink/30 bg-svc-attendance/40"
           : "border-line bg-surface"
       }`}
     >
-      <h2 className="text-[13px] font-bold uppercase tracking-wide text-muted">{title}</h2>
+      <h2 className="text-[14px] font-bold text-ink">{title}</h2>
+      <p className="mt-1 text-[12px] leading-snug text-muted">{hint}</p>
       {rows.length === 0 ? (
-        <p className="mt-3 text-[13px] text-muted">{empty}</p>
+        <div className="mt-3">
+          <ServiceEmpty>{empty}</ServiceEmpty>
+        </div>
       ) : (
         <ul className="mt-3 max-h-64 space-y-1.5 overflow-y-auto">
           {rows.map((m) => (
@@ -384,9 +364,7 @@ function PeopleCard({
               className="rounded-[10px] border border-line bg-bg px-3 py-2 text-[13px]"
             >
               <span className="font-semibold text-ink">{m.name}</span>
-              {m.username ? (
-                <span className="text-muted"> · {m.username}</span>
-              ) : null}
+              {m.username ? <span className="text-muted"> · {m.username}</span> : null}
             </li>
           ))}
         </ul>

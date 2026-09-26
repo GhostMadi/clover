@@ -252,12 +252,12 @@ export function SettingsAccountView() {
               className="!border-destructive/40 !text-destructive hover:!bg-destructive/10"
               onClick={() => setConfirmDelete(true)}
             >
-              Удалить аккаунт
+              Деактивировать аккаунт
             </AppButton>
             <p className="px-1 text-[11px] leading-snug text-muted">
-              Сон и «удалить» скрывают профиль из лент — данные не стираются каскадом.
-              При следующем входе аккаунт просыпается. Без входа — поддержка на
-              /delete-account.
+              Сон и деактивация скрывают профиль из лент — данные не стираются каскадом.
+              При следующем входе аккаунт просыпается. Безвозвратное удаление данных —
+              через поддержку на /delete-account.
             </p>
           </div>
         </section>
@@ -304,10 +304,11 @@ export function SettingsAccountView() {
             aria-modal
             className="w-full max-w-sm rounded-[20px] border border-line bg-surface p-5 shadow-xl"
           >
-            <p className="text-[16px] font-bold text-ink">Удалить аккаунт?</p>
+            <p className="text-[16px] font-bold text-ink">Деактивировать аккаунт?</p>
             <p className="mt-2 text-[13px] leading-relaxed text-muted">
-              Профиль и публикации скроются из лент, как при сне. Данные не стираются
-              каскадом — при следующем входе аккаунт снова активен.
+              Профиль и публикации скроются из лент, как при сне. Это не безвозвратное
+              удаление — при следующем входе аккаунт снова активен. Чтобы навсегда удалить
+              данные, напишите в поддержку на /delete-account.
             </p>
             <div className="mt-5 flex gap-2">
               <AppButton
@@ -324,7 +325,7 @@ export function SettingsAccountView() {
                 className="!bg-destructive !text-on-media hover:!bg-destructive/90"
                 onClick={onDelete}
               >
-                Удалить
+                Деактивировать
               </AppButton>
             </div>
           </div>

@@ -105,6 +105,13 @@ export function invalidateResourcesLocationsDiskCache(
   }
 }
 
+export function invalidateResourcesProfileFiltersDiskCache(
+  userId: string | null | undefined,
+): void {
+  if (!userId) return;
+  clearServiceCache({ service: "resources", bucket: "profile-filters", userId });
+}
+
 /** Clear all resources sync buckets + prefs for user (logout). */
 export function clearResourcesSessionCaches(
   userId: string | null | undefined,

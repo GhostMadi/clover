@@ -92,6 +92,9 @@ type ChatThreadViewProps = {
   initialHasMore: boolean;
   conversation: ChatConversation | null;
   currentUserId: string;
+  /** Внутри рабочего стола сервиса: высота колонки, «назад» закрывает панель. */
+  embedded?: boolean;
+  onClose?: () => void;
 };
 
 function dayKey(iso: string): string {
@@ -523,6 +526,8 @@ export function ChatThreadView({
   initialHasMore,
   conversation,
   currentUserId,
+  embedded = false,
+  onClose,
 }: ChatThreadViewProps) {
   const router = useRouter();
   const [messages, setMessages] = useState(() => {
@@ -1049,13 +1054,19 @@ export function ChatThreadView({
   }, [messages]);
 
   return (
-    <div className="flex h-[calc(100dvh-3rem-4.25rem)] flex-col bg-bg md:h-dvh">
+    <div
+      className={
+        embedded
+          ? "flex h-full min-h-0 flex-col bg-bg"
+          : "flex h-[calc(100dvh-3rem-4.25rem)] flex-col bg-bg md:h-dvh"
+      }
+    >
       <header className="flex h-[52px] shrink-0 items-center gap-1.5 border-b border-line bg-surface/95 px-2 backdrop-blur-md">
         <button
           type="button"
-          onClick={() => router.push("/app/chat")}
+          onClick={() => (onClose ? onClose() : router.push("/app/chat"))}
           className="flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-bg"
-          aria-label="Назад"
+          aria-label={onClose ? "Закрыть чат" : "Назад"}
         >
           <ArrowLeft className="h-5 w-5" strokeWidth={2} />
         </button>

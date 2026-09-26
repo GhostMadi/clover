@@ -21,7 +21,8 @@ type MapboxPinMapProps = {
   pin: LngLat;
   /** Радиус геозоны в метрах (круг вокруг pin). */
   geofenceRadiusM?: number;
-  onPinChange: (pin: LngLat) => void;
+  /** Без обработчика карта только показывает пин (превью). */
+  onPinChange?: (pin: LngLat) => void;
   onReadyError?: (message: string) => void;
 };
 
@@ -74,7 +75,7 @@ function ensureGeofenceLayers(
   });
 }
 
-/** Кликовая карта с пином (и опционально геозоной) на Mapbox Standard. */
+/** Карта с пином (и опционально геозоной) на Mapbox Standard; клик двигает пин, если есть `onPinChange`. */
 export function MapboxPinMap({
   className = "",
   hostId,
@@ -131,7 +132,7 @@ export function MapboxPinMap({
     map.on("style.load", paintGeofence);
 
     map.on("click", (e) => {
-      onPinChangeRef.current({ lat: e.lngLat.lat, lon: e.lngLat.lng });
+      onPinChangeRef.current?.({ lat: e.lngLat.lat, lon: e.lngLat.lng });
     });
 
     map.on("error", () => onReadyError?.("Карта недоступна"));
@@ -150,14 +151,15 @@ export function MapboxPinMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mount once
   }, [token, hostId]);
 
+  const { lat: pinLat, lon: pinLon } = pin;
   useEffect(() => {
     const map = mapRef.current;
     const marker = markerRef.current;
     if (!map || !marker) return;
-    marker.setLngLat([pin.lon, pin.lat]);
-    map.easeTo({ center: [pin.lon, pin.lat], duration: 150 });
-    ensureGeofenceLayers(map, hostId, pin, geofenceRadiusM);
-  }, [pin, geofenceRadiusM, hostId]);
+    marker.setLngLat([pinLon, pinLat]);
+    map.easeTo({ center: [pinLon, pinLat], duration: 150 });
+    ensureGeofenceLayers(map, hostId, { lat: pinLat, lon: pinLon }, geofenceRadiusM);
+  }, [pinLat, pinLon, geofenceRadiusM, hostId]);
 
   if (!token) {
     return (

@@ -12,6 +12,7 @@ import { createManagedLocation } from "@/features/resources/lib/locations-api";
 import { ResourcesWorkspaceShell } from "@/features/resources/components/resources-workspace-shell";
 
 const ALMATY = { lat: 43.238949, lon: 76.889709 };
+const CARD = "rounded-[16px] border border-line bg-surface p-4";
 
 export function LocationCreateView() {
   const router = useRouter();
@@ -42,7 +43,6 @@ export function LocationCreateView() {
           cityCode,
         });
         router.push("/app/settings/resources/locations");
-        router.refresh();
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Не удалось сохранить");
         setSaving(false);
@@ -53,12 +53,15 @@ export function LocationCreateView() {
   return (
     <ResourcesWorkspaceShell
       title="Новое место"
+      lead="Поставьте пин и укажите адрес. Место сразу можно будет выбрать в посте."
       backHref="/app/settings/resources/locations"
     >
-      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
-        <div>
-          <p className="mb-2 text-[13px] font-semibold text-ink">Точка на карте</p>
-          <p className="mb-2 text-[12px] text-muted">Тапните карту, чтобы поставить пин</p>
+      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
+        <section className={CARD}>
+          <h2 className="text-[15px] font-bold text-ink">Точка на карте</h2>
+          <p className="mb-3 mt-1 text-[12px] leading-snug text-muted">
+            Нажмите на карту, чтобы переставить пин. Координаты потом не меняются.
+          </p>
           {mapError ? (
             <p className="rounded-[12px] border border-line bg-surface-muted px-3 py-8 text-center text-[13px] text-muted">
               {mapError}
@@ -76,7 +79,7 @@ export function LocationCreateView() {
           <p className="mt-1.5 text-[11px] text-muted">
             {pin.lat.toFixed(5)}, {pin.lon.toFixed(5)}
           </p>
-        </div>
+        </section>
 
         <div className="flex flex-col gap-4">
           {error ? (
@@ -85,64 +88,80 @@ export function LocationCreateView() {
             </p>
           ) : null}
 
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold text-ink">
-              Адрес (кириллица)
-            </span>
-            <input
-              value={addressCyrillic}
-              onChange={(e) => setAddressCyrillic(e.target.value)}
-              placeholder="ул. Абая, 150, Алматы"
-              className="h-12 w-full rounded-[14px] border border-line bg-surface px-4 text-[15px] text-ink outline-none focus:border-svc-resources-ink"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold text-ink">
-              Адрес (латиница)
-            </span>
-            <input
-              value={addressLatin}
-              onChange={(e) => setAddressLatin(e.target.value)}
-              placeholder="Abay ave, 150, Almaty — по желанию"
-              className="h-12 w-full rounded-[14px] border border-line bg-surface px-4 text-[15px] text-ink outline-none focus:border-svc-resources-ink"
-            />
-          </label>
+          <section className={`${CARD} space-y-4`}>
+            <div>
+              <h2 className="text-[15px] font-bold text-ink">Адрес</h2>
+              <p className="mt-1 text-[12px] leading-snug text-muted">
+                Кириллица обязательна. Латиница — по желанию, для гостей без русской раскладки.
+              </p>
+            </div>
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-semibold text-ink">
+                Адрес (кириллица)
+              </span>
+              <input
+                value={addressCyrillic}
+                onChange={(e) => setAddressCyrillic(e.target.value)}
+                placeholder="ул. Абая, 150, Алматы"
+                className="h-12 w-full rounded-[14px] border border-line bg-bg px-4 text-[15px] text-ink outline-none focus:border-svc-resources-ink"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-semibold text-ink">
+                Адрес (латиница)
+              </span>
+              <input
+                value={addressLatin}
+                onChange={(e) => setAddressLatin(e.target.value)}
+                placeholder="Abay ave, 150, Almaty — по желанию"
+                className="h-12 w-full rounded-[14px] border border-line bg-bg px-4 text-[15px] text-ink outline-none focus:border-svc-resources-ink"
+              />
+            </label>
+          </section>
 
-          <div className="grid grid-cols-2 gap-3">
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-semibold text-ink">Страна</span>
-              <select
-                value={countryCode}
-                onChange={(e) => {
-                  const cc = e.target.value;
-                  setCountryCode(cc);
-                  const first = citiesForCountry(cc)[0];
-                  setCityCode(first?.code ?? "");
-                }}
-                className="h-12 w-full rounded-[14px] border border-line bg-surface px-3 text-[15px] text-ink outline-none focus:border-svc-resources-ink"
-              >
-                {COUNTRY_OPTIONS.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-semibold text-ink">Город</span>
-              <select
-                value={cityCode}
-                onChange={(e) => setCityCode(e.target.value)}
-                className="h-12 w-full rounded-[14px] border border-line bg-surface px-3 text-[15px] text-ink outline-none focus:border-svc-resources-ink"
-              >
-                {cities.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+          <section className={`${CARD} space-y-3`}>
+            <div>
+              <h2 className="text-[15px] font-bold text-ink">Страна и город</h2>
+              <p className="mt-1 text-[12px] leading-snug text-muted">
+                По ним место попадает в нужный город на карте.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-semibold text-ink">Страна</span>
+                <select
+                  value={countryCode}
+                  onChange={(e) => {
+                    const cc = e.target.value;
+                    setCountryCode(cc);
+                    const first = citiesForCountry(cc)[0];
+                    setCityCode(first?.code ?? "");
+                  }}
+                  className="h-12 w-full rounded-[14px] border border-line bg-bg px-3 text-[15px] text-ink outline-none focus:border-svc-resources-ink"
+                >
+                  {COUNTRY_OPTIONS.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-semibold text-ink">Город</span>
+                <select
+                  value={cityCode}
+                  onChange={(e) => setCityCode(e.target.value)}
+                  className="h-12 w-full rounded-[14px] border border-line bg-bg px-3 text-[15px] text-ink outline-none focus:border-svc-resources-ink"
+                >
+                  {cities.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </section>
 
           <AppButton
             type="button"

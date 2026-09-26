@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BookOpen,
   LayoutGrid,
   MapPin,
   SlidersHorizontal,
@@ -11,34 +12,42 @@ import {
   type ServiceWorkspaceNavItem,
 } from "@/features/shared/components/service-workspace-shell";
 
+const BASE = "/app/settings/resources";
+
 const NAV: ServiceWorkspaceNavItem[] = [
   {
-    href: "/app/settings/resources",
+    href: BASE,
     label: "Обзор",
-    match: (p) =>
-      p === "/app/settings/resources" ||
-      p.startsWith("/app/settings/resources/guide"),
+    match: (p) => p === BASE || p === `${BASE}/`,
     Icon: LayoutGrid,
     group: "main",
   },
   {
-    href: "/app/settings/resources/locations",
-    label: "Локации",
-    match: (p) => p.startsWith("/app/settings/resources/locations"),
+    href: `${BASE}/locations`,
+    label: "Местоположения",
+    match: (p) => p.startsWith(`${BASE}/locations`),
     Icon: MapPin,
     group: "main",
   },
   {
-    href: "/app/settings/resources/filters",
+    href: `${BASE}/filters`,
     label: "Фильтры",
-    match: (p) => p.startsWith("/app/settings/resources/filters"),
+    match: (p) => p.startsWith(`${BASE}/filters`),
     Icon: SlidersHorizontal,
+    group: "main",
+  },
+  {
+    href: `${BASE}/guide/overview`,
+    label: "Гайд",
+    match: (p) => p.startsWith(`${BASE}/guide`),
+    Icon: BookOpen,
     group: "main",
   },
 ];
 
 type ResourcesWorkspaceShellProps = {
   title: string;
+  lead?: string;
   children: ReactNode;
   trailing?: ReactNode;
   backHref?: string;
@@ -47,18 +56,20 @@ type ResourcesWorkspaceShellProps = {
 /** Workspace «Ресурсы» — тот же каркас, что Запись / Посещаемость. */
 export function ResourcesWorkspaceShell({
   title,
+  lead,
   children,
   trailing,
-  backHref = "/app/settings/resources",
+  backHref = BASE,
 }: ResourcesWorkspaceShellProps) {
   return (
     <ServiceWorkspaceShell
       service="resources"
       brandTitle="Ресурсы"
-      brandSubtitle="Справочник хозяина"
+      brandSubtitle="Справочник витрины"
       title={title}
+      lead={lead}
       nav={NAV}
-      hubPath="/app/settings/resources"
+      hubPath={BASE}
       backHref={backHref}
       trailing={trailing}
       maxWidthClassName="max-w-[1400px]"

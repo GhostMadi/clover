@@ -1,8 +1,14 @@
 "use client";
 
-import { Plus, SlidersHorizontal, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { AppButton } from "@/components/shared/app-button";
+import {
+  ServiceConfirmDialog,
+  ServiceEmpty,
+  ServiceInformer,
+  ServiceListShimmer,
+} from "@/features/shared/components/service-page";
 import {
   deleteProfileFilterCategory,
   listProfileFilterCategories,
@@ -26,6 +32,9 @@ export function ProfileFiltersSettingsView() {
   const [name, setName] = useState("");
   const [valuesText, setValuesText] = useState("");
   const [saving, setSaving] = useState(false);
+  const [toDelete, setToDelete] = useState<ProfileFilterCategory | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   const load = useCallback(async (profileId: string, opts?: { soft?: boolean }) => {
@@ -100,7 +109,7 @@ export function ProfileFiltersSettingsView() {
           categoryId: editing?.id,
         });
         closeForm();
-        load(uid);
+        await load(uid, { soft: true });
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Не удалось сохранить");
       } finally {
@@ -109,15 +118,22 @@ export function ProfileFiltersSettingsView() {
     });
   };
 
-  const remove = (c: ProfileFilterCategory) => {
-    if (!uid || !confirm(`Удалить категорию «${c.name}»?`)) return;
+  const remove = () => {
+    const c = toDelete;
+    if (!uid || !c) return;
+    setDeleting(true);
+    setDeleteError(null);
     startTransition(async () => {
       try {
         await deleteProfileFilterCategory(c.id);
         if (editing?.id === c.id) closeForm();
-        load(uid);
+        setItems((prev) => prev.filter((x) => x.id !== c.id));
+        setToDelete(null);
+        await load(uid, { soft: true });
       } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "Не удалось удалить");
+        setDeleteError(e instanceof Error ? e.message : "Не удалось удалить");
+      } finally {
+        setDeleting(false);
       }
     });
   };
@@ -127,6 +143,7 @@ export function ProfileFiltersSettingsView() {
   return (
     <ResourcesWorkspaceShell
       title="Фильтры"
+      lead="Категории над сеткой профиля: гости сужают по ним посты, вы отмечаете их при публикации."
       backHref="/app/settings/resources"
       trailing={
         !formOpen ? (
@@ -141,7 +158,12 @@ export function ProfileFiltersSettingsView() {
         ) : null
       }
     >
-      <div className="pb-6">
+      <div className="mx-auto max-w-3xl space-y-4 pb-10">
+        {!loading && items.length > 0 && !formOpen ? (
+          <ServiceInformer service="resources">
+            Категорий {items.length}. Нажмите на категорию, чтобы изменить её значения.
+          </ServiceInformer>
+        ) : null}
         {error ? (
           <p className="mb-3 rounded-[12px] bg-destructive/10 px-3 py-2 text-center text-[12px] font-semibold text-destructive">
             {error}
@@ -149,10 +171,16 @@ export function ProfileFiltersSettingsView() {
         ) : null}
 
         {formOpen ? (
-          <div className="mb-6 space-y-3 rounded-[16px] border border-line bg-surface p-4">
-            <p className="text-[14px] font-bold text-svc-resources-ink">
-              {editing ? "Редактировать категорию" : "Новая категория"}
-            </p>
+          <div className="space-y-3 rounded-[16px] border border-line bg-surface p-4">
+            <div>
+              <h2 className="text-[15px] font-bold text-ink">
+                {editing ? "Изменить категорию" : "Новая категория"}
+              </h2>
+              <p className="mt-1 text-[12px] leading-snug text-muted">
+                Название — заголовок группы на профиле, значения — чипы внутри неё.
+                Сохраняется кнопкой «Сохранить».
+              </p>
+            </div>
             <label className="block">
               <span className="mb-1.5 block text-sm font-semibold text-ink">Название</span>
               <input
@@ -187,7 +215,7 @@ export function ProfileFiltersSettingsView() {
               </AppButton>
               <AppButton
                 type="button"
-               
+                service="resources"
                 className="flex-1"
                 loading={saving}
                 disabled={saving || !name.trim()}
@@ -200,22 +228,24 @@ export function ProfileFiltersSettingsView() {
         ) : null}
 
         {loading ? (
-          <p className="py-16 text-center text-sm text-muted">Загрузка…</p>
+          <ServiceListShimmer rows={3} />
         ) : items.length === 0 && !formOpen ? (
-          <div className="py-16 text-center">
-            <SlidersHorizontal
-              className="mx-auto h-8 w-8 text-svc-resources-ink/50"
-              strokeWidth={1.5}
-            />
-            <p className="mt-3 text-sm font-semibold text-ink">Нет категорий</p>
-            <button
-              type="button"
-              onClick={openCreate}
-              className="mt-2 text-[13px] font-bold text-svc-resources-ink"
-            >
-              Создать фильтр
-            </button>
-          </div>
+          <ServiceEmpty
+            action={
+              <AppButton
+                type="button"
+                service="resources"
+                size="row"
+                className="gap-1.5"
+                onClick={openCreate}
+              >
+                <Plus className="h-4 w-4" strokeWidth={2.5} />
+                Создать фильтр
+              </AppButton>
+            }
+          >
+            Пока нет фильтров. Например: «Услуга» — стрижка, окрашивание.
+          </ServiceEmpty>
         ) : (
           <ul className="space-y-2">
             {items.map((c) => (
@@ -236,7 +266,10 @@ export function ProfileFiltersSettingsView() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => remove(c)}
+                    onClick={() => {
+                      setDeleteError(null);
+                      setToDelete(c);
+                    }}
                     className="flex h-9 w-9 items-center justify-center rounded-full text-destructive hover:bg-destructive/10"
                     aria-label="Удалить"
                   >
@@ -248,6 +281,17 @@ export function ProfileFiltersSettingsView() {
           </ul>
         )}
       </div>
+
+      <ServiceConfirmDialog
+        open={Boolean(toDelete)}
+        title="Удалить фильтр?"
+        body={`Категория «${toDelete?.name ?? ""}» пропадёт с витрины профиля, и её метки снимутся с постов.`}
+        confirmLabel="Удалить"
+        busy={deleting}
+        error={deleteError}
+        onConfirm={remove}
+        onCancel={() => setToDelete(null)}
+      />
     </ResourcesWorkspaceShell>
   );
 }
