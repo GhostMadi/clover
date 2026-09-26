@@ -3,6 +3,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Заголовок шага во флоу записи клиента.
 class ClientBookingStepHeader extends StatelessWidget {
@@ -95,7 +96,7 @@ class ClientBookingHostHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Запись к',
+                  context.l10n.booking_book_with,
                   style: AppTextStyle.base(
                     12,
                     color: accent.onSoft.withValues(alpha: 0.7),

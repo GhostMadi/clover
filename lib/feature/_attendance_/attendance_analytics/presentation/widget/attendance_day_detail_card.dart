@@ -1,3 +1,5 @@
+import 'package:clover/core/extension/context.dart';
+import 'package:clover/core/locale/app_date_format.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -19,13 +21,13 @@ class AttendanceDayDetailCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         AttendanceAnalyticsSectionHeader(
-          title: 'День',
+          title: context.l10n.common_day,
           subtitle: _formatDate(record.date),
           trailing: AttendanceStatusBadge(status: record.status),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         AnimatedSwitcher(
-          duration: const Duration(milliseconds: 280),
+          duration: Duration(milliseconds: 280),
           switchInCurve: Curves.easeOutCubic,
           switchOutCurve: Curves.easeInCubic,
           child: AttendanceAnalyticsCard(
@@ -40,33 +42,34 @@ class AttendanceDayDetailCard extends StatelessWidget {
                       tint: accent,
                       bg: attendanceStatusSurface(colors, record.status),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             record.totalLabel,
-                            style: AppTextStyle.base(22, color: colors.textColor, fontWeight: FontWeight.w800),
+                            style: AppTextStyle.base(
+                              22,
+                              color: colors.textColor,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
-                          Text(
-                            switch (record.status) {
-                              AttendanceDayStatus.off => 'Выходной',
-                              AttendanceDayStatus.excused => 'Оформленное отсутствие',
-                              AttendanceDayStatus.absent => 'Пропуск',
-                              _ => 'Отработано за день',
-                            },
-                            style: AppTextStyle.base(13, color: colors.subTextColor),
-                          ),
+                          Text(switch (record.status) {
+                            AttendanceDayStatus.off => context.l10n.attendance_absence_kind_day_off,
+                            AttendanceDayStatus.excused => context.l10n.attendance_analytics_excused_absence,
+                            AttendanceDayStatus.absent => context.l10n.attendance_day_status_absent,
+                            _ => context.l10n.attendance_analytics_worked_today,
+                          }, style: AppTextStyle.base(13, color: colors.subTextColor)),
                         ],
                       ),
                     ),
                   ],
                 ),
                 if (record.punches.isNotEmpty) ...[
-                  const SizedBox(height: 18),
+                  SizedBox(height: 18),
                   Text(
-                    'Отметки',
+                    context.l10n.attendance_analytics_punches,
                     style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 12),
@@ -83,14 +86,7 @@ class AttendanceDayDetailCard extends StatelessWidget {
     );
   }
 
-  static String _formatDate(DateTime d) {
-    const weekdays = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
-    const months = [
-      'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
-      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря',
-    ];
-    return '${d.day} ${months[d.month - 1]}, ${weekdays[d.weekday - 1]}';
-  }
+  static String _formatDate(DateTime d) => AppDateFormat.current().dayMonthWeekday(d);
 }
 
 class _PunchTimeline extends StatelessWidget {
@@ -116,8 +112,7 @@ class _PunchTimeline extends StatelessWidget {
                     height: 10,
                     decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
                   ),
-                  if (i < punches.length - 1)
-                    Container(width: 2, height: 36, color: colors.borderSoft),
+                  if (i < punches.length - 1) Container(width: 2, height: 36, color: colors.borderSoft),
                 ],
               ),
               const SizedBox(width: 12),
@@ -166,10 +161,13 @@ class _EmptyDayMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (icon, text) = switch (status) {
-      AttendanceDayStatus.absent => (AppIcons.eventBusy.icon, 'Отметок не было'),
-      AttendanceDayStatus.excused => (AppIcons.eventAvailable.icon, 'Отсутствие оформлено — не пропуск'),
-      AttendanceDayStatus.off => (AppIcons.eventAvailable.icon, 'Выходной день'),
-      _ => (AppIcons.infoOutline.icon, 'Нет данных'),
+      AttendanceDayStatus.absent => (AppIcons.eventBusy.icon, context.l10n.attendance_analytics_no_punches),
+      AttendanceDayStatus.excused => (
+        AppIcons.eventAvailable.icon,
+        context.l10n.attendance_analytics_excused_not_miss,
+      ),
+      AttendanceDayStatus.off => (AppIcons.eventAvailable.icon, context.l10n.attendance_analytics_day_off),
+      _ => (AppIcons.infoOutline.icon, context.l10n.common_no_data),
     };
 
     return Row(

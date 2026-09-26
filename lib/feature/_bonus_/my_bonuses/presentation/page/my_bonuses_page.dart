@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -39,7 +40,7 @@ class _MyBonusesPageState extends State<MyBonusesPage> {
       bloc: _cubit,
       builder: (context, state) {
         return SettingsScreenShell(
-          title: 'Мои бонусы',
+          title: context.l10n.bonus_my_title,
           service: kBonusService,
           body: switch (state) {
             MyBonusesLoading() => const Center(child: CircularProgressIndicator()),
@@ -80,7 +81,7 @@ class _MyBonusesListBody extends StatelessWidget {
       itemBuilder: (context, index) {
         if (index == 0) {
           return Text(
-            'Баланс у каждого мастера отдельно. Откройте карточку, чтобы увидеть историю.',
+            context.l10n.bonus_my_subtitle,
             style: AppTextStyle.base(
               13,
               color: context.colors.subTextColor,
@@ -117,7 +118,7 @@ class _MyBonusesErrorBody extends StatelessWidget {
               style: AppTextStyle.base(14, color: context.colors.subTextColor),
             ),
             const SizedBox(height: 16),
-            FilledButton(onPressed: onRetry, child: const Text('Повторить')),
+            FilledButton(onPressed: onRetry, child: Text(context.l10n.common_retry)),
           ],
         ),
       ),

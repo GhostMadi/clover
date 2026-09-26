@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/auth/cubit/auth_cubit.dart';
 import 'package:clover/core/auth/errors/auth_error_code.dart';
 import 'package:clover/core/auth/errors/auth_error_messages.dart';
@@ -167,7 +168,7 @@ class _AuthOtpStepState extends State<AuthOtpStep> {
     if (code != null) {
       AppSnackBar.show(
         context,
-        message: AuthErrorMessages.messageFor(code, retryAfterSeconds: left > 0 ? left : null),
+        message: AuthErrorMessages.messageFor(code, context.l10n, retryAfterSeconds: left > 0 ? left : null),
         kind: AppSnackBarKind.error,
       );
     }
@@ -188,18 +189,18 @@ class _AuthOtpStepState extends State<AuthOtpStep> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Код отправлен на ${widget.email}',
+          context.l10n.auth_email_code_sent_to(widget.email),
           style: AppTextStyle.base(14, color: context.colors.textColor, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 6),
         Text(
-          'Письмо с welcome@clover.com.kz',
+          context.l10n.auth_email_welcome_from,
           style: AppTextStyle.base(13, color: context.colors.subTextColor),
         ),
         const SizedBox(height: 16),
         AppField(
           controller: widget.otpController,
-          labelText: 'Код из письма',
+          labelText: context.l10n.auth_email_code_label,
           hintText: '123456',
           keyboardType: TextInputType.number,
           textInputAction: TextInputAction.done,
@@ -222,7 +223,7 @@ class _AuthOtpStepState extends State<AuthOtpStep> {
                     child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.white),
                   )
                 : Text(
-                    'Подтвердить',
+                    context.l10n.common_confirm,
                     style: AppTextStyle.base(15, fontWeight: FontWeight.w600, color: context.colors.white),
                   ),
           ),
@@ -231,7 +232,7 @@ class _AuthOtpStepState extends State<AuthOtpStep> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Text(
-              _bootstrapping ? 'Проверяем…' : 'Повторная отправка через $_countdownLabel',
+              _bootstrapping ? context.l10n.common_checking : context.l10n.auth_email_resend_countdown(_countdownLabel),
               textAlign: TextAlign.center,
               style: AppTextStyle.base(13, color: context.colors.subTextColor),
             ),
@@ -240,7 +241,7 @@ class _AuthOtpStepState extends State<AuthOtpStep> {
           TextButton(
             onPressed: busy ? null : _resend,
             child: Text(
-              'Отправить код снова',
+              context.l10n.auth_email_resend,
               style: AppTextStyle.base(13, color: context.colors.primary, fontWeight: FontWeight.w600),
             ),
           ),
@@ -281,8 +282,8 @@ class AuthPasswordStep extends StatelessWidget {
         const SizedBox(height: 16),
         AppField(
           controller: passwordController,
-          labelText: 'Пароль',
-          hintText: 'минимум ${AuthRepository.minPasswordLength} символов',
+          labelText: context.l10n.common_password,
+          hintText: context.l10n.auth_email_password_hint(AuthRepository.minPasswordLength),
           obscureText: true,
           textInputAction: TextInputAction.next,
           isEnabled: !isLoading,
@@ -290,7 +291,7 @@ class AuthPasswordStep extends StatelessWidget {
         const SizedBox(height: 14),
         AppField(
           controller: confirmController,
-          labelText: 'Повтор пароля',
+          labelText: context.l10n.auth_email_password_repeat,
           hintText: '••••••••',
           obscureText: true,
           textInputAction: TextInputAction.done,
@@ -312,7 +313,7 @@ class AuthPasswordStep extends StatelessWidget {
                     child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.white),
                   )
                 : Text(
-                    'Сохранить пароль',
+                    context.l10n.auth_email_save_password,
                     style: AppTextStyle.base(15, fontWeight: FontWeight.w600, color: context.colors.white),
                   ),
           ),

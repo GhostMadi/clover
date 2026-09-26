@@ -1,0 +1,2485 @@
+{
+  "@@locale": "en",
+  "common_save": "Save",
+  "common_cancel": "Cancel",
+  "common_edit": "Edit",
+  "common_delete": "Delete",
+  "common_back": "Back",
+  "common_next": "Next",
+  "common_done": "Done",
+  "common_close": "Close",
+  "common_confirm": "Confirm",
+  "common_continue": "Continue",
+  "common_retry": "Retry",
+  "common_error": "Error",
+  "common_loading": "Loading…",
+  "common_yes": "Yes",
+  "common_no": "No",
+  "common_ok": "OK",
+  "common_show": "Show",
+  "common_hide": "Hide",
+  "common_or": "or",
+  "common_search": "Search",
+  "common_empty": "Nothing here yet",
+  "common_share": "Share",
+  "common_copy": "Copy",
+  "common_send": "Send",
+  "common_add": "Add",
+  "common_remove": "Remove",
+  "common_create": "Create",
+  "common_skip": "Skip",
+  "common_start": "Get started",
+  "common_logout": "Log out",
+  "common_password": "Password",
+  "common_checking": "Checking…",
+  "common_user": "User",
+  "common_version": "Version {version}",
+  "@common_version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "common_theme_system": "System",
+  "common_theme_light": "Light",
+  "common_theme_dark": "Dark",
+  "settings_title": "Settings",
+  "settings_section_services": "Services",
+  "settings_section_archives": "Archives",
+  "settings_section_account": "Account",
+  "settings_section_about": "About",
+  "settings_guide_title": "Guide",
+  "settings_guide_subtitle": "How to enable and use services",
+  "settings_booking_title": "Booking",
+  "settings_booking_subtitle": "Services, inbox and schedule",
+  "settings_attendance_title": "Attendance",
+  "settings_attendance_subtitle": "Companies, geofence and workers",
+  "settings_resources_title": "Resources",
+  "settings_resources_subtitle": "Locations and filters",
+  "settings_archives_title": "Archives",
+  "settings_archives_subtitle": "Posts and clusters",
+  "settings_saved_posts_title": "Saved posts",
+  "settings_saved_posts_subtitle": "Posts you saved",
+  "settings_account_title": "Account",
+  "settings_account_subtitle": "Language, theme and sign out",
+  "settings_blocked_title": "Blocked",
+  "settings_blocked_subtitle": "People you blocked",
+  "settings_about_title": "About",
+  "settings_about_subtitle": "Version and onboarding",
+  "settings_account_page_title": "Account",
+  "settings_account_section_general": "General",
+  "settings_account_section_security": "Security",
+  "settings_account_section_session": "Session",
+  "settings_account_language": "Language",
+  "settings_account_theme": "Theme",
+  "settings_account_reset_password": "Reset password",
+  "settings_account_set_password": "Set password",
+  "settings_account_password_reset_hint": "Email code → new password",
+  "settings_account_password_set_hint": "Set a password for email or username sign-in",
+  "settings_account_password_check_failed": "Couldn’t check password status",
+  "settings_account_logout_title": "Sign out",
+  "settings_account_logout_confirm": "Sign out of this device?",
+  "settings_account_logout_action": "Sign out",
+  "settings_account_hibernate_title": "Sleep account",
+  "settings_account_hibernate_body": "Your profile and posts are hidden from feeds and search. This is not deletion — signing in again wakes the account. Sleep again at most once every 30 days.",
+  "settings_account_hibernate_action": "Sleep",
+  "settings_account_hibernate_subtitle": "Hide profile and posts. Not deletion.",
+  "settings_account_deactivate_title": "Deactivate account?",
+  "settings_account_deactivate_body": "Your profile and posts will be hidden from feeds and search. This is not permanent deletion: signing in again wakes the account.\n\nTo permanently delete your account and data, contact support at clover.com.kz/delete-account.",
+  "settings_account_deactivate_action": "Deactivate",
+  "settings_account_deactivate_tile": "Deactivate account",
+  "settings_account_deactivate_subtitle": "Hide profile. Permanent delete via support.",
+  "settings_about_page_title": "About",
+  "settings_about_tagline": "Events, map, chat and business services — brighter life, simpler work.",
+  "settings_about_section_help": "Help",
+  "settings_about_onboarding_title": "Onboarding",
+  "settings_about_onboarding_subtitle": "Show the app introduction again",
+  "settings_blocked_page_title": "Blocked",
+  "settings_blocked_unblock_title": "Unblock?",
+  "settings_blocked_unblock_confirm": "Unblock {name}?",
+  "@settings_blocked_unblock_confirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "auth_login_terms_required": "Accept the terms to continue",
+  "auth_login_identifier_label": "Username or email",
+  "auth_login_identifier_hint": "@username or email",
+  "auth_login_forgot_password": "Forgot password?",
+  "auth_login_submit": "Sign in",
+  "auth_login_no_account": "No account?",
+  "auth_login_create": "Create",
+  "auth_terms_prefix": "I agree to the ",
+  "auth_terms_terms": "Terms of Use",
+  "auth_terms_and": " and ",
+  "auth_terms_privacy": "Privacy Policy",
+  "auth_register_title": "Sign up",
+  "auth_register_password_title": "Create a password",
+  "auth_register_password_subtitle": "Then you can sign in with email or username.",
+  "auth_register_password_mismatch": "Passwords don’t match",
+  "auth_register_email_hint": "We’ll send a code only if this email isn’t registered yet.",
+  "auth_register_get_code": "Get code",
+  "auth_register_code_already_sent": "Code already sent — enter it from the email",
+  "auth_email_welcome_from": "Email from welcome@clover.com.kz",
+  "auth_email_code_label": "Code from email",
+  "auth_email_resend_countdown": "Resend in {countdown}",
+  "@auth_email_resend_countdown": {
+    "placeholders": {
+      "countdown": {
+        "type": "String"
+      }
+    }
+  },
+  "auth_email_resend": "Send code again",
+  "auth_email_password_hint": "at least {count} characters",
+  "@auth_email_password_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "auth_email_password_repeat": "Confirm password",
+  "auth_email_save_password": "Save password",
+  "auth_forgot_title": "Reset password",
+  "onboarding_skip": "Skip",
+  "onboarding_path_title": "Who are you in Clover?",
+  "onboarding_path_subtitle": "A short tour tailored to you",
+  "onboarding_path_feed": "Feed",
+  "onboarding_path_business": "Business",
+  "onboarding_path_both": "Both feed and business",
+  "onboarding_tip_booking_title": "Online booking",
+  "onboarding_tip_booking_body": "Services, staff, inbox and clients from your profile — in one place.",
+  "onboarding_tip_booking_tip": "The “Accept booking” super-tag opens the hub.",
+  "onboarding_tip_attendance_title": "Attendance",
+  "onboarding_tip_attendance_body": "Companies, shifts and team check-ins. Workers punch in the app.",
+  "onboarding_tip_attendance_tip": "The “Attendance” super-tag opens management.",
+  "onboarding_tip_resources_title": "Resources",
+  "onboarding_tip_resources_body": "Your places for posts and profile showcase filters — a personal directory.",
+  "onboarding_tip_resources_tip": "Not the same as the feed city.",
+  "onboarding_tip_bonus_title": "Bonuses",
+  "onboarding_tip_bonus_body": "Earn and spend where the host enabled bonuses on a service.",
+  "onboarding_tip_bonus_tip": "Details are in the services guide.",
+  "onboarding_tip_feed_map_title": "Feed and map",
+  "onboarding_tip_feed_map_body": "Double-tap Home to switch between the city feed and map.",
+  "onboarding_tip_feed_map_tip": "Filters on the left, notifications on the right.",
+  "onboarding_slide_feed_1_title": "What’s happening",
+  "onboarding_slide_feed_1_body": "Events, news, the city’s rhythm — close and calm.",
+  "onboarding_slide_feed_1_tip": "Feed and map in one Clover.",
+  "onboarding_slide_feed_2_title": "Places nearby",
+  "onboarding_slide_feed_2_body": "Peek into a salon, café or shop — gently discover their world.",
+  "onboarding_slide_feed_2_tip": "Place pages in Clover.",
+  "onboarding_slide_feed_3_title": "Booking and bonuses",
+  "onboarding_slide_feed_3_body": "Book services. Earn and spend bonuses where available.",
+  "onboarding_slide_feed_3_tip": "Everything for you — without extra steps.",
+  "onboarding_slide_feed_4_title": "Share with people close to you",
+  "onboarding_slide_feed_4_body": "Message a friend. Invite to an event. Warm chat nearby.",
+  "onboarding_slide_feed_4_tip": "Conversation without fuss.",
+  "onboarding_slide_feed_5_title": "Find your own",
+  "onboarding_slide_feed_5_body": "Filters cut the noise and leave what resonates.",
+  "onboarding_slide_feed_5_tip": "Quiet. Precise. Yours.",
+  "onboarding_slide_feed_6_body": "Browse · book · chat · earn bonuses. Easy and warm.",
+  "onboarding_slide_feed_6_tip": "Replay the tour: Settings → About.",
+  "onboarding_slide_biz_1_title": "For business",
+  "onboarding_slide_biz_1_body": "One account — showcase and services. Calm and practical.",
+  "onboarding_slide_biz_1_tip": "Face first, tools next.",
+  "onboarding_slide_biz_2_title": "Super-tags",
+  "onboarding_slide_biz_2_body": "Turn on a tag — unlock power. Booking, team, locations.",
+  "onboarding_slide_biz_2_tip": "Few tags — clear focus.",
+  "onboarding_slide_biz_3_title": "Living showcase",
+  "onboarding_slide_biz_3_body": "A profile people want to return to. Trust without shouting.",
+  "onboarding_slide_biz_3_tip": "Beauty and clarity.",
+  "onboarding_slide_biz_4_title": "Services at hand",
+  "onboarding_slide_biz_4_body": "Booking, service bonuses — all nearby.",
+  "onboarding_slide_biz_4_tip": "Guides live in Settings → Services.",
+  "onboarding_slide_biz_5_title": "Clients find you",
+  "onboarding_slide_biz_5_body": "In the feed, on the map, through booking. You’re already in Clover.",
+  "onboarding_slide_biz_5_tip": "A gentle path to people.",
+  "onboarding_slide_both_1_title": "Both feed and business",
+  "onboarding_slide_both_1_body": "For you — city and booking. For work — showcase and services.",
+  "onboarding_slide_both_1_tip": "One Clover. Two rhythms.",
+  "onboarding_slide_both_2_title": "Like for yourself",
+  "onboarding_slide_both_2_body": "Events, places, booking, bonuses, filters — all open.",
+  "onboarding_slide_both_2_tip": "Live the city calmly.",
+  "onboarding_slide_both_3_title": "When you run a business",
+  "onboarding_slide_both_3_body": "Super-tags turn on booking and other services.",
+  "onboarding_slide_both_3_tip": "Enable as you need.",
+  "onboarding_slide_both_4_title": "One showcase",
+  "onboarding_slide_both_4_body": "Your profile is both face and entry point for clients.",
+  "onboarding_slide_both_4_tip": "Soft and clear.",
+  "onboarding_slide_both_5_title": "A small start",
+  "onboarding_slide_both_5_body": "Set up yourself. Browse the feed. Enable a service when ready.",
+  "onboarding_slide_both_5_tip": "Replay the tour: Settings → About.",
+  "error_auth_unknown": "Something went wrong. Please try again.",
+  "error_auth_check_failed": "Couldn’t restore the session. Sign in again.",
+  "error_auth_sign_in_canceled": "Sign-in canceled.",
+  "error_auth_google_token_missing": "Couldn’t sign in with Google. Please try again.",
+  "error_auth_google_failed": "Couldn’t sign in with Google. Please try again.",
+  "error_auth_google_misconfigured": "Google Sign-In isn’t configured: check the Web Client ID in Google Cloud and Supabase.",
+  "error_auth_apple_token_missing": "Couldn’t sign in with Apple. Please try again.",
+  "error_auth_apple_failed": "Couldn’t sign in with Apple. Please try again.",
+  "error_auth_apple_unavailable": "Sign in with Apple isn’t available on this device.",
+  "error_auth_supabase_sign_in_failed": "Couldn’t sign in. Try again later.",
+  "error_auth_supabase_user_missing": "Couldn’t load the profile after sign-in.",
+  "error_auth_sign_out_failed": "Couldn’t sign out. Please try again.",
+  "error_auth_network": "Network error. Check your connection and try again.",
+  "error_auth_email_invalid": "Enter a valid email.",
+  "error_auth_email_otp_send_failed": "Couldn’t send the email code. Try again later.",
+  "error_auth_email_otp_verify_failed": "Invalid or expired code. Request a new one.",
+  "error_auth_email_otp_rate_limited": "Too many emails. Wait and try again.",
+  "error_auth_email_otp_wait": "Wait {countdown} before sending again.",
+  "@error_auth_email_otp_wait": {
+    "placeholders": {
+      "countdown": {
+        "type": "String"
+      }
+    }
+  },
+  "error_auth_email_already_registered": "This email is already registered. Sign in or reset your password.",
+  "error_auth_email_not_registered": "No account with this email. Create one.",
+  "error_auth_invalid_credentials": "Wrong username or password.",
+  "error_auth_password_invalid": "Password is too short. Minimum 8 characters.",
+  "error_auth_password_mismatch": "Passwords don’t match.",
+  "error_auth_password_update_failed": "Couldn’t save the password. Please try again.",
+  "error_auth_identifier_invalid": "Enter a username or email.",
+  "error_auth_hibernate_failed": "Couldn’t sleep the account. Please try again.",
+  "error_auth_hibernate_rate_limited": "Sleep can be enabled at most once every 30 days.",
+  "error_auth_delete_account_failed": "Couldn’t deactivate the account. Please try again.",
+  "push_chat_fallback_title": "Chat",
+  "catalog_country_kz": "Kazakhstan",
+  "catalog_country_ru": "Russia",
+  "catalog_city_almaty": "Almaty",
+  "catalog_city_astana": "Astana",
+  "catalog_city_shymkent": "Shymkent",
+  "catalog_city_kazan": "Kazan",
+  "catalog_city_moscow": "Moscow",
+  "catalog_city_saint_petersburg": "Saint Petersburg",
+  "catalog_tag_business": "Business",
+  "catalog_tag_individual": "Individual",
+  "catalog_tag_community": "Community",
+  "catalog_tag_brand": "Brand",
+  "catalog_tag_salon": "Salon",
+  "catalog_tag_barbershop": "Barbershop",
+  "catalog_tag_music": "Music",
+  "catalog_tag_sports": "Sports",
+  "catalog_tag_food": "Food",
+  "catalog_tag_tech": "Tech",
+  "catalog_tag_store": "Store",
+  "catalog_tag_kids": "Kids",
+  "catalog_tag_teens": "Teens",
+  "catalog_tag_adults": "Adults",
+  "catalog_tag_seniors": "Seniors",
+  "catalog_tag_families": "Families",
+  "catalog_tag_couples": "Couples",
+  "catalog_tag_students": "Students",
+  "catalog_tag_professionals": "Professionals",
+  "catalog_tag_men_only": "Men only",
+  "catalog_tag_women_only": "Women only",
+  "catalog_tag_restaurant": "Restaurant",
+  "catalog_tag_cafe": "Café",
+  "catalog_tag_bar": "Bar",
+  "catalog_tag_cinema": "Cinema",
+  "catalog_tag_club": "Club",
+  "catalog_tag_shop": "Shop",
+  "catalog_tag_beauty": "Beauty",
+  "catalog_tag_fitness": "Fitness",
+  "catalog_tag_medical": "Medical",
+  "catalog_tag_education": "Education",
+  "catalog_tag_coworking": "Coworking",
+  "catalog_tag_hotel": "Hotel",
+  "catalog_tag_mall": "Mall",
+  "catalog_tag_party": "Party",
+  "catalog_tag_networking": "Networking",
+  "catalog_tag_workshop": "Workshop",
+  "catalog_tag_lecture": "Lecture",
+  "catalog_tag_festival": "Festival",
+  "catalog_tag_concert": "Concert",
+  "catalog_tag_exhibition": "Exhibition",
+  "catalog_tag_movie_night": "Movie night",
+  "catalog_tag_game_night": "Game night",
+  "catalog_tag_dating": "Dating",
+  "catalog_tag_kids_event": "Kids event",
+  "catalog_tag_sport_event": "Sport event",
+  "catalog_tag_sale": "Sale",
+  "catalog_tag_grand_opening": "Grand opening",
+  "catalog_tag_indoor": "Indoor",
+  "catalog_tag_outdoor": "Outdoor",
+  "catalog_tag_online": "Online",
+  "catalog_tag_active": "Active",
+  "catalog_tag_chill": "Chill",
+  "catalog_tag_extreme": "Extreme",
+  "catalog_tag_creative": "Creative",
+  "catalog_tag_educational": "Educational",
+  "catalog_tag_entertainment": "Entertainment",
+  "catalog_tag_free": "Free",
+  "catalog_tag_paid": "Paid",
+  "catalog_tag_reservation": "By appointment",
+  "catalog_tag_limited_spots": "Limited spots",
+  "catalog_tag_pet_friendly": "Pet-friendly",
+  "catalog_tag_eco": "Eco",
+  "catalog_tag_plus18": "18+",
+  "catalog_tag_night": "Night",
+  "catalog_tag_new_event": "New",
+  "catalog_tag_popular": "Popular",
+  "catalog_tag_booking": "Accept booking",
+  "catalog_tag_attendance": "Run attendance",
+  "catalog_tag_resources": "Run resources",
+  "catalog_tag_feedback": "Showcase reviews",
+  "catalog_tag_booking_calendar": "Order calendar",
+  "catalog_tag_attendance_work": "My check-ins",
+  "ugc_report_spam": "Spam",
+  "ugc_report_harassment": "Harassment",
+  "ugc_report_hate": "Hate",
+  "ugc_report_violence": "Violence",
+  "ugc_report_nudity": "Nudity",
+  "ugc_report_scam": "Scam",
+  "ugc_report_other": "Other",
+  "feed_events_title": "Events",
+  "feed_map_title": "Map",
+  "feed_notifications_title": "Notifications",
+  "profile_title": "Profile",
+  "profile_edit_title": "Edit profile",
+  "chat_title": "Chats",
+  "chat_empty": "No conversations yet",
+  "chat_input_hint": "Message",
+  "booking_hub_title": "Booking",
+  "booking_inbox_title": "Inbox",
+  "attendance_hub_title": "Attendance",
+  "resources_hub_title": "Resources",
+  "bonus_hub_title": "Bonuses",
+  "archive_hub_title": "Archives",
+  "venue_hub_title": "Venue",
+  "auth_terms_suffix": ". Unacceptable content and abusive behavior are not allowed.",
+  "settings_blocked_unblock_action": "Unblock",
+  "onboarding_slide_feed_6_title": "Clover with you",
+  "auth_email_code_sent_to": "Code sent to {email}",
+  "@auth_email_code_sent_to": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "auth_forgot_email_hint": "We’ll send a code only to an already registered email.",
+  "auth_forgot_send_code": "Send code",
+  "auth_forgot_new_password_title": "New password",
+  "auth_forgot_new_password_subtitle": "Choose a new password for sign-in.",
+  "settings_password_set_toast": "Password set",
+  "settings_password_reset_toast": "Password reset",
+  "settings_password_enter_code": "Enter the code from the email",
+  "settings_password_entry_title": "Sign-in password",
+  "settings_password_entry_subtitle": "Needed if you signed in with Google — then you can also sign in with a password.",
+  "settings_password_reset_section": "Reset password",
+  "settings_password_no_email": "This account has no email — code reset isn’t available.",
+  "settings_password_send_to_email": "We’ll send a code to {email}. After confirming, you’ll set a new password.",
+  "@settings_password_send_to_email": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "ugc_report_objectionable": "Objectionable content",
+  "ugc_report_abusive": "Abusive behavior",
+  "ugc_report_harassment_threats": "Harassment / threats",
+  "catalog_group_who": "Who",
+  "catalog_group_type": "Type",
+  "catalog_group_for": "For whom",
+  "catalog_group_place": "Place",
+  "catalog_group_event": "Event",
+  "catalog_group_format": "Format",
+  "catalog_group_conditions": "Conditions",
+  "catalog_group_admin": "Admin",
+  "catalog_group_worker": "Worker",
+  "catalog_city_search_hint": "Search city",
+  "catalog_city_pick_country_first": "Select a country first",
+  "catalog_city_sheet_title": "City",
+  "catalog_country_search_hint": "Search country",
+  "catalog_country_sheet_title": "Country",
+  "ugc_report_title": "Report",
+  "ugc_report_sent": "Report sent. We’ll review it within 24 hours.",
+  "ugc_report_failed": "Couldn’t send the report",
+  "ugc_block_title": "Block?",
+  "ugc_block_body": "This user’s content will disappear from your feed immediately. We’ll be notified and review within 24 hours.",
+  "ugc_block_confirm": "Block",
+  "ugc_block_success": "User blocked",
+  "ugc_block_failed": "Couldn’t block the user",
+  "chat_action_reply": "Reply",
+  "chat_action_forward": "Forward",
+  "chat_action_star": "Star",
+  "chat_action_more": "More",
+  "chat_reply_bar_title": "Reply",
+  "chat_edit_bar_title": "Edit",
+  "chat_preview_photo": "Photo",
+  "chat_preview_file": "File",
+  "chat_preview_post": "Post",
+  "chat_preview_system": "System",
+  "chat_preview_message": "Message",
+  "profile_fallback_name": "Profile",
+  "common_cancel_action": "Cancel",
+  "booking_services_label": "Services",
+  "booking_analytics_label": "Analytics",
+  "attendance_punch_clock_in": "Clock in",
+  "attendance_punch_clock_out": "Clock out",
+  "nav_tab_events": "Event",
+  "nav_tab_map": "Map",
+  "nav_tab_chat": "Chat",
+  "nav_tab_profile": "Profile",
+  "common_date": "Date",
+  "common_today": "Today",
+  "common_yesterday": "Yesterday",
+  "common_tomorrow": "Tomorrow",
+  "common_start_label": "Start",
+  "common_end_label": "End",
+  "common_duration": "Duration: {duration}",
+  "common_event_period": "Event period",
+  "common_end_after_start": "End must be after start",
+  "common_max_duration": "Maximum {duration}",
+  "booking_rest_days": "Days off",
+  "booking_days": "Days",
+  "booking_select": "Select",
+  "booking_horizon": "Horizon",
+  "booking_horizon_mode": "Mode",
+  "booking_horizon_days_ahead": "For a period",
+  "booking_horizon_until_date": "Until date",
+  "booking_horizon_how_far": "How far ahead",
+  "booking_horizon_period": "Period",
+  "booking_horizon_forward": "Book ahead",
+  "booking_until_date": "Until date",
+  "booking_hours_title": "Working hours",
+  "booking_from": "From",
+  "booking_to": "To",
+  "booking_to_inclusive": "Until",
+  "booking_more_settings": "More settings",
+  "booking_cancel_visits_title": "Cancel & visits",
+  "booking_client_cancel": "Client cancellation",
+  "booking_cancel_before_start": "Until start",
+  "booking_hours_before": "{hours}h before",
+  "@booking_hours_before": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_auto_no_show": "Auto no-show",
+  "booking_auto_status": "Auto status",
+  "booking_off": "Off",
+  "booking_after_hours": "After {hours}h",
+  "booking_absences_title": "Time off / absences",
+  "booking_master": "Specialist",
+  "booking_comment": "Comment",
+  "booking_optional": "Optional",
+  "booking_week_1": "1 week",
+  "booking_weeks_n": "{count} weeks",
+  "booking_month_1": "1 month",
+  "booking_months_n": "{count} months",
+  "booking_inbox_now": "Now",
+  "booking_inbox_upcoming": "Upcoming",
+  "booking_inbox_archive": "Archive",
+  "booking_inbox_now_chair": "In chair now",
+  "booking_inbox_past_archive": "Past & archive",
+  "booking_range_this_week": "This week",
+  "booking_range_next_week": "Next week",
+  "booking_range_this_month": "This month",
+  "booking_range_next_month": "Next month",
+  "booking_range_all": "All bookings",
+  "booking_range_recent": "Recent",
+  "booking_my_bookings": "My bookings",
+  "booking_no_bookings": "No bookings yet",
+  "booking_no_bookings_hint": "When you book with a specialist, visits will appear here by day",
+  "booking_my_bookings_hint": "Your visits with specialists. Pick a day — open a card to reschedule or cancel.",
+  "booking_day_none": "{label} · no bookings",
+  "booking_day_one": "{label} · 1 booking",
+  "booking_day_few": "{label} · {count} bookings",
+  "booking_day_many": "{label} · {count} bookings",
+  "booking_no_day_bookings": "No bookings this day",
+  "booking_pick_another_day": "Pick another day on the calendar",
+  "booking_client": "Client",
+  "booking_service": "Service",
+  "booking_services": "Services",
+  "booking_team": "Team",
+  "booking_schedule": "Schedule",
+  "booking_price": "Price",
+  "booking_duration": "Duration",
+  "booking_minutes": "{count} min",
+  "booking_cancel_booking": "Cancel booking",
+  "booking_reschedule": "Reschedule",
+  "booking_reschedule_done": "Booking rescheduled",
+  "booking_reschedule_action": "Reschedule",
+  "booking_time": "Time",
+  "booking_day": "Day",
+  "booking_pick_day": "Pick a day",
+  "booking_note": "Note",
+  "booking_reason": "Reason",
+  "booking_executor": "Assignee",
+  "booking_executors": "Assignees",
+  "booking_name": "Name",
+  "booking_point": "Point",
+  "booking_order": "Order",
+  "booking_load_failed": "Failed to load",
+  "booking_chat_open_failed": "Could not open chat",
+  "booking_empty": "Nothing here yet",
+  "booking_account": "Account",
+  "booking_clover_account": "Clover account",
+  "booking_waiting_chat": "Waiting for a chat reply",
+  "booking_in_team": "On the team",
+  "booking_request_cancelled": "Request cancelled",
+  "booking_cancel_service": "Cancel service",
+  "booking_master_already_added": "This specialist is already added",
+  "booking_date_and_start": "Date and start",
+  "booking_created_at": "Created",
+  "common_back_arrow": "← Back",
+  "common_follow": "Follow",
+  "common_unfollow": "Unfollow",
+  "common_following": "Following",
+  "common_apply": "Apply",
+  "common_reset": "Reset",
+  "common_accept": "Accept",
+  "common_reject": "Decline",
+  "common_archive": "Archive",
+  "common_unarchive": "Unarchive",
+  "common_download": "Download",
+  "common_name": "Name",
+  "common_description": "Description",
+  "common_active": "Active",
+  "common_address": "Address",
+  "common_filters": "Filters",
+  "common_copied": "Copied",
+  "common_just_now": "just now",
+  "common_minutes_short": "{count} min",
+  "@common_minutes_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_hours_short": "{count} h",
+  "@common_hours_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_days_short": "{count} d",
+  "@common_days_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_days_plural": "{count, plural, one{{count} day} other{{count} days}}",
+  "@common_days_plural": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_minutes_unit": "{count} min",
+  "@common_minutes_unit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_hours_unit": "{count} h",
+  "@common_hours_unit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_hours_minutes": "{hours} h {minutes} min",
+  "@common_hours_minutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "common_zero_minutes": "0 min",
+  "common_nothing_found": "Nothing found",
+  "common_try_other_query": "Try a different query",
+  "common_try_change_filter": "Try changing the filter",
+  "common_sign_in_required": "Sign in",
+  "common_no_one_found": "No one found",
+  "common_and": "and",
+  "common_and_more": "and {count} more",
+  "@common_and_more": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_someone": "Someone",
+  "common_saving": "Saving…",
+  "common_actions": "Actions",
+  "common_messages": "Messages",
+  "common_publications": "Posts",
+  "common_country": "Country",
+  "common_city": "City",
+  "common_pick_country": "Select a country",
+  "common_pick_city": "Select a city",
+  "common_from": "From",
+  "common_to": "To",
+  "common_day_after_tomorrow": "Day after tomorrow",
+  "common_week": "Week",
+  "common_month": "Month",
+  "common_inactive_suffix": "inactive",
+  "common_total_count": "Total: {count}",
+  "@common_total_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_delete_confirm_irreversible": "This can’t be undone.",
+  "common_could_not_save": "Couldn’t save",
+  "common_could_not_delete": "Couldn’t delete",
+  "common_could_not_load": "Couldn’t load",
+  "common_new_notification": "New notification",
+  "common_new_message": "New message",
+  "common_location_permission": "Allow location access in Settings",
+  "common_location_failed": "Couldn’t determine location",
+  "feed_notif_empty": "No notifications",
+  "feed_notif_last_30_days": "Showing notifications from the last 30 days",
+  "feed_notif_section_last7": "Last 7 days",
+  "feed_notif_section_last30": "Last 30 days",
+  "feed_notif_login_its_me": "It’s me",
+  "feed_notif_login_revoke": "Revoke",
+  "feed_notif_login_change_password": "Change password",
+  "feed_notif_login_confirmed": "Marked: it’s you",
+  "feed_notif_login_revoked": "Session revoked",
+  "feed_notif_login_resolved": "Handled",
+  "feed_notif_followed_you": " followed you",
+  "feed_notif_you_followed": "You followed ",
+  "feed_notif_mutual_follow": " followed you. You’re following each other",
+  "feed_notif_verb_liked": "liked",
+  "feed_notif_verb_disliked": "disliked",
+  "feed_notif_verb_replied": "replied",
+  "feed_notif_verb_commented": "commented on",
+  "feed_notif_target_your_post": "your post",
+  "feed_notif_target_your_comment": "your comment",
+  "feed_notif_target_on_your_comment": "to your comment",
+  "feed_notif_booking_created_host": " booked: {service}{when}",
+  "@feed_notif_booking_created_host": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_booking_booked_client_prefix": "You’re booked: ",
+  "feed_notif_booking_reminder_at_host": " with {host}{when}",
+  "@feed_notif_booking_reminder_at_host": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_visit_started_prefix": "Visit in progress — ",
+  "feed_notif_visit_started_suffix": "{when}. Mark whether the client arrived",
+  "@feed_notif_visit_started_suffix": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_visit_close_prefix": "Close the visit — ",
+  "feed_notif_cancelled_host": " cancelled the booking: {service}{when}",
+  "@feed_notif_cancelled_host": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_cancelled_client": " cancelled your booking: {service}{when}",
+  "@feed_notif_cancelled_client": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_completed_prefix": "Visit completed: ",
+  "feed_notif_bonus_earn": " · +{amount} bonuses",
+  "@feed_notif_bonus_earn": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "feed_notif_no_show_prefix": "Visit marked as no-show: ",
+  "feed_notif_rescheduled": " rescheduled the booking: ",
+  "feed_notif_assigned_staff_prefix": "New booking for you: ",
+  "feed_notif_attendance_invite": " invited you to the attendance team",
+  "feed_notif_attendance_rules": "New company rules — please accept",
+  "feed_notif_attendance_duty": "Duty roster updated",
+  "feed_notif_attendance_correction": "Correction request",
+  "feed_notif_login_prefix": "Account sign-in from ",
+  "feed_notif_login_new_device": "a new device",
+  "feed_notif_service_fallback": "booking",
+  "feed_notif_host_fallback": "the host",
+  "feed_notif_reminder_tomorrow": "Booking tomorrow: ",
+  "feed_notif_reminder_3h": "In 3 hours: ",
+  "feed_notif_reminder_2h": "In 2 hours: ",
+  "feed_notif_reminder_1h": "In an hour: ",
+  "feed_notif_reminder_30m": "In 30 min: ",
+  "feed_notif_reminder_15m": "In 15 min: ",
+  "feed_notif_reminder_minutes": "In {minutes} min: ",
+  "@feed_notif_reminder_minutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "feed_notif_reminder_default": "Reminder: ",
+  "feed_notif_punch_clock_out": "Time to clock out{place}",
+  "@feed_notif_punch_clock_out": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_punch_auto_closed": "Shift closed automatically{place}",
+  "@feed_notif_punch_auto_closed": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_punch_clock_in": "Time to clock in{place}",
+  "@feed_notif_punch_clock_in": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_map_no_post": "This marker has no post",
+  "feed_map_empty_posts": "No posts",
+  "feed_events_empty_title": "Nothing found",
+  "feed_events_empty_subtitle": "Try changing the filter",
+  "feed_events_no_more": "No more posts",
+  "feed_filter_title": "Filter",
+  "feed_filter_map_title": "Map filter",
+  "feed_filter_event_days": "Event days",
+  "feed_filter_emoji_label": "Event emoji",
+  "feed_filter_emoji_hint": "Any — leave empty",
+  "feed_filter_tags_label": "Marker tags",
+  "feed_filter_tags_hint": "Any — leave empty",
+  "feed_filter_tags_search": "Search tags",
+  "feed_filter_start_hint": "Start",
+  "feed_filter_end_hint": "End",
+  "booking_point_label": "Point",
+  "booking_point_not_found": "Point not found",
+  "booking_point_default_name": "Main",
+  "booking_point_new_title": "New point",
+  "booking_point_new_subtitle": "Salon, branch, or room",
+  "booking_point_card_subtitle": "Services, schedule, bookings",
+  "booking_point_create_failed": "Couldn’t create point",
+  "booking_point_name_label": "Name",
+  "booking_my_bookings_title": "My bookings",
+  "booking_my_bookings_subtitle": "Calendar and visits",
+  "booking_services_subtitle": "Prices and duration",
+  "booking_team_title": "Team",
+  "booking_team_subtitle": "Staff and invites",
+  "booking_chat_title": "Chat",
+  "booking_chat_subtitle": "Point team",
+  "booking_analytics_subtitle": "Bookings and services",
+  "booking_schedule_title": "Schedule",
+  "booking_schedule_subtitle": "Hours and absences",
+  "booking_master_label": "Specialist",
+  "booking_masters_label": "Specialists",
+  "booking_all_masters": "All specialists",
+  "booking_client_label": "Client",
+  "booking_executor_label": "Assignee",
+  "booking_executors_label": "Assignees",
+  "booking_service_label": "Service",
+  "booking_price_label": "Price",
+  "booking_price_tenge_label": "Price ₸",
+  "booking_duration_label": "Duration",
+  "booking_minutes_short": "{count} min",
+  "@booking_minutes_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_note_label": "Note",
+  "booking_client_note_title": "Client note",
+  "booking_salon_label": "Salon",
+  "booking_comment_label": "Comment",
+  "booking_reason_label": "Reason",
+  "booking_reason_optional_label": "Reason (optional)",
+  "booking_name_label": "Name",
+  "booking_username_label": "Username",
+  "booking_phone_label": "Phone",
+  "booking_status_label": "Status",
+  "booking_when_label": "When",
+  "booking_time_label": "Time",
+  "booking_day_label": "Day",
+  "booking_days_label": "Days",
+  "booking_hour_label": "Hour",
+  "booking_period_label": "Period",
+  "booking_start_label": "Start",
+  "booking_end_label": "End",
+  "booking_from_label": "From",
+  "booking_to_label": "To",
+  "booking_until_label": "Until",
+  "booking_until_date_label": "Until date",
+  "booking_description_label": "Description",
+  "booking_emoji_label": "Emoji",
+  "booking_method_label": "Method",
+  "booking_optional_hint": "Optional",
+  "booking_pick_hint": "Select",
+  "booking_pick_day_hint": "Pick a day",
+  "booking_apply": "Apply",
+  "booking_select_action": "Select",
+  "booking_all": "All",
+  "booking_inactive": "inactive",
+  "booking_on_site": "on site",
+  "booking_empty_yet": "Nothing yet",
+  "booking_back_arrow": "← Back",
+  "booking_inbox_tab_now_short": "Now",
+  "booking_inbox_tab_upcoming_short": "Upcoming",
+  "booking_inbox_tab_archive_short": "Archive",
+  "booking_inbox_tab_now": "In chair now",
+  "booking_inbox_tab_upcoming": "Upcoming",
+  "booking_inbox_tab_archive": "Past and archive",
+  "booking_point_chat_title": "Booking · {name}",
+  "@booking_point_chat_title": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_open_chat_failed": "Couldn’t open chat",
+  "booking_my_empty_title": "No bookings yet",
+  "booking_my_empty_subtitle": "When you book a specialist, visits will show up here by day",
+  "booking_my_intro": "Your visits with specialists. Pick a day — open a card to reschedule or cancel.",
+  "booking_my_day_empty_title": "No bookings on this day",
+  "booking_my_day_empty_subtitle": "Pick another day in the calendar",
+  "booking_count_none": "{label} · no bookings",
+  "@booking_count_none": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_count_one": "{label} · 1 booking",
+  "@booking_count_one": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_count_few": "{label} · {count} bookings",
+  "@booking_count_few": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_count_many": "{label} · {count} bookings",
+  "@booking_count_many": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_cancel_booking_title": "Cancel booking",
+  "booking_cancel_too_late": "Too close to the visit to cancel",
+  "booking_cancel_success": "Booking cancelled",
+  "booking_reschedule_too_late": "Too close to the visit to reschedule",
+  "booking_reschedule_missing_parties": "Can’t reschedule: missing service, specialist, or booking owner",
+  "booking_reschedule_title": "Reschedule booking",
+  "booking_reschedule_success": "Booking rescheduled",
+  "booking_cancel_preset_plans": "Plans changed — I can’t make it",
+  "booking_cancel_preset_wrong_time": "Wrong time or date",
+  "booking_cancel_preset_other_time": "I’ll book another time",
+  "booking_cancel_preset_not_needed": "I no longer need this service",
+  "booking_cancel_body": "“{service}” with {host} will be cancelled. The slot will free up for other clients.",
+  "@booking_cancel_body": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_ready_messages": "Quick messages",
+  "booking_reason_hint": "Write your own message or pick one above",
+  "booking_available_times": "Available times",
+  "booking_no_free_times_day": "No free times on this day",
+  "booking_book_action": "Book",
+  "booking_confirmed_toast": "Booking confirmed",
+  "booking_day_unavailable_rest": "Booking unavailable this day — day off",
+  "booking_day_unavailable_executor": "{name} is unavailable this day",
+  "@booking_day_unavailable_executor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_day_unavailable": "Booking unavailable this day",
+  "booking_slot_conflict_self": "This time overlaps another of your bookings",
+  "booking_slot_taken_by": "This time is already taken with {name}",
+  "@booking_slot_taken_by": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_conflict_with_yours": "Conflicts with your booking",
+  "booking_busy": "Busy",
+  "booking_no_free_slots_day": "No free slots on this day",
+  "booking_slots_for_day": "Free slots for the selected day",
+  "booking_pick_visit_day": "Pick a visit day",
+  "booking_review_before_book": "Review before booking",
+  "booking_who_does_service": "Who will do the service",
+  "booking_comment_hint": "Optional — notes for the specialist",
+  "booking_comment_example_hint": "E.g. short on the sides",
+  "booking_pay_with_bonuses": "Pay with bonuses",
+  "booking_no_bonus_spend": "No bonus spend",
+  "booking_bonus_balance_no_spend": "Balance {balance}. We won’t spend bonuses on this visit.",
+  "@booking_bonus_balance_no_spend": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_balance_spend": "Balance {balance}. After the visit we’ll spend up to {spend}",
+  "@booking_bonus_balance_spend": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      },
+      "spend": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_spend_zero": "Spend 0 (insufficient balance)",
+  "booking_bonus_spend_amount": "Spend −{amount} {word}",
+  "@booking_bonus_spend_amount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_earn_amount": "Earn +{amount} {word}",
+  "@booking_bonus_earn_amount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_percent_of_price": "({percent}% of price). Rest on site.",
+  "@booking_bonus_percent_of_price": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_max_people_short": "up to {count} people",
+  "@booking_max_people_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_time_range_minutes": "{start}–{end} · {minutes} min",
+  "@booking_time_range_minutes": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_master_with_name": "Specialist: {name}",
+  "@booking_master_with_name": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_comment_with_text": "Comment: {text}",
+  "@booking_comment_with_text": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_service_new_title": "New service",
+  "booking_service_edit_title": "Edit",
+  "booking_service_added": "Service added",
+  "booking_service_saved": "Service saved",
+  "booking_service_active": "Service active",
+  "booking_service_hidden": "Hidden from booking",
+  "booking_show_to_clients": "Show to clients",
+  "booking_add_service": "Add service",
+  "booking_services_empty_title": "No services yet",
+  "booking_services_empty_subtitle": "Add the first — name, duration, and price",
+  "booking_my_services_title": "My services",
+  "booking_service_title_hint": "Men’s haircut",
+  "booking_buffer_after_min": "Buffer after, min",
+  "booking_buffer_create_only": "Buffer can only be changed when creating",
+  "booking_max_participants": "Max participants",
+  "booking_bonuses_per_visit": "Bonuses per visit",
+  "booking_bonus_pay_percent": "Pay with bonuses, %",
+  "booking_minutes_field": "Minutes",
+  "booking_add_executor": "Add assignee",
+  "booking_executors_count": "{count} specialist(s)",
+  "@booking_executors_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_executor_already_added": "This specialist is already added",
+  "booking_cancel_service_title": "Cancel service",
+  "booking_cancel_service_body": "“{service}” will stop showing to clients. New bookings won’t be available.",
+  "@booking_cancel_service_body": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_cancel_service_preset_plans": "Plans changed — service temporarily unavailable",
+  "booking_cancel_service_preset_master": "Specialist unavailable",
+  "booking_cancel_service_preset_stopped": "We no longer offer this service",
+  "booking_cancel_service_preset_updating": "Updating schedule and prices",
+  "booking_team_empty_title": "Team is empty",
+  "booking_team_empty_subtitle": "Invite a Clover account or add a name for slots",
+  "booking_find_account": "Find account",
+  "booking_already_in_team": "Already on the team",
+  "booking_invited": "Invited",
+  "booking_invite_sent_chat": "Invite sent to chat",
+  "booking_invite_cancelled": "Request cancelled",
+  "booking_removed_from_team": "Removed from team",
+  "booking_remove_from_team": "Remove from team",
+  "booking_cancel_invite": "Cancel request",
+  "booking_team_empty_hint": "Nobody yet — invite a Clover account or add a name.",
+  "booking_team_invite_or_name": "Invite from Clover or add a name-only for slots.",
+  "booking_pending_replies": "Awaiting reply",
+  "booking_pending_short": "Pending",
+  "booking_waiting_plural": "Waiting",
+  "booking_invite_from_clover": "Invite from Clover",
+  "booking_add_name_only": "Add name only",
+  "booking_invite_chat_hint": "We’ll send a request to DMs. After Accept you can assign to a service.",
+  "booking_search_user_hint": "Search by username or name",
+  "booking_nobody_found": "Nobody found",
+  "booking_invite_action": "Invite",
+  "booking_name_only_hint": "Without a Clover account — name only in slots. No calendar for the assignee.",
+  "booking_executor_name_hint": "Assignee name",
+  "booking_account_clover": "Clover account",
+  "booking_account_label": "Account",
+  "booking_name_only_short": "Name only",
+  "booking_name_only_slots": "Name only in slots",
+  "booking_waiting_chat_reply": "Waiting for chat reply",
+  "booking_waiting_chat_reply_user": "@{username} · waiting for chat reply",
+  "@booking_waiting_chat_reply_user": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_add_masters_first": "Add specialists in services first",
+  "booking_rest_days_title": "Days off",
+  "booking_horizon_title": "Horizon",
+  "booking_book_ahead_title": "Book ahead",
+  "booking_cancel_and_visits_title": "Cancel & visits",
+  "booking_master_schedule": "Specialist schedule",
+  "booking_time_blocks_title": "Time blocks",
+  "booking_time_block_title": "Time block",
+  "booking_no_blocks": "No blocks",
+  "booking_block_time": "Block",
+  "booking_time_blocked": "Time blocked",
+  "booking_end_after_start": "End must be after start",
+  "booking_settings_saved": "Settings saved",
+  "booking_system_section": "System",
+  "booking_client_cancel_label": "Client cancel",
+  "booking_auto_no_show_label": "Auto no-show",
+  "booking_auto_status_sheet": "Auto status",
+  "booking_how_far_ahead": "How far ahead",
+  "booking_ending_label": "End",
+  "booking_before_start": "Before start",
+  "booking_hours_after": "{hours} h after",
+  "@booking_hours_after": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_weeks_count": "{count} weeks",
+  "@booking_weeks_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_week_one": "1 week",
+  "booking_weeks_two": "2 weeks",
+  "booking_weeks_three": "3 weeks",
+  "booking_month_one": "1 month",
+  "booking_months_two": "2 months",
+  "booking_months_three": "3 months",
+  "booking_block_reason_hint": "Lunch, meeting…",
+  "booking_week_label": "Week",
+  "booking_month_label": "Month",
+  "booking_assigned_label": "Assigned",
+  "booking_created_label": "Created",
+  "booking_participants_label": "Participants",
+  "booking_complete_visit_q": "Complete visit?",
+  "booking_complete_action": "Complete",
+  "booking_complete_visit_now": "Complete visit now",
+  "booking_complete_body": "The booking will be closed and the slot freed for other clients.",
+  "booking_no_show_q": "Client no-show?",
+  "booking_no_show_action": "Client no-show",
+  "booking_no_show_short": "No-show",
+  "booking_no_show_body": "The slot will free up. You can cancel anytime, even if the service already started.",
+  "booking_undo_last_step_q": "Undo last step?",
+  "booking_undo_action": "Undo",
+  "booking_undo_body": "The booking will go back one step — e.g. if you marked “Client arrived” by mistake.",
+  "booking_host_closes_only": "Only you mark the service as completed. The system won’t do it automatically.",
+  "booking_cancel_visit_q": "Cancel visit?",
+  "booking_cancel_visit_action": "Cancel visit",
+  "booking_reschedule_missing_service": "Can’t reschedule: missing service or assignee. Refresh the list.",
+  "booking_reschedule_no_session": "Can’t reschedule: session not found. Sign in again.",
+  "booking_status_updated": "Status updated",
+  "booking_status_reverted": "Status reverted",
+  "booking_status_update_failed": "Couldn’t update status",
+  "booking_visit_ended_unmarked": "Visit ended, status not marked yet",
+  "booking_visit_ended_hint": "Booking time has passed. Complete the visit or mark no-show — the system won’t close it as done.",
+  "booking_client_already_arrived": "Client already arrived (unconfirmed)",
+  "booking_visit_marks_title": "Visit marks",
+  "booking_marked_arrived": "Marked: showed up",
+  "booking_marked_no_show": "Marked: no-show",
+  "booking_was_short": "Showed up",
+  "booking_view_only_status": "View only. Visit status is changed by the account that runs the booking.",
+  "booking_client_profile": "Client profile",
+  "booking_client_profile_unavailable": "Client profile unavailable",
+  "booking_what_to_do": "What do you want to do",
+  "booking_order_label": "Order",
+  "booking_create_booking": "Create booking",
+  "booking_book_with": "Book with",
+  "booking_all_bookings": "All bookings",
+  "booking_search_bookings_hint": "Client, service, phone…",
+  "booking_filter_by_date": "Filter by date",
+  "booking_quick_pick": "Quick pick",
+  "booking_or_custom_period": "Or custom period",
+  "booking_this_week": "This week",
+  "booking_next_week": "Next week",
+  "booking_this_month": "This month",
+  "booking_next_month": "Next month",
+  "booking_start_date": "Start date",
+  "booking_end_date": "End date",
+  "booking_archive_empty": "Archive is empty",
+  "booking_no_completed_yet": "No completed visits yet",
+  "booking_no_cancelled": "No cancelled bookings",
+  "booking_cancelled_section": "Cancelled",
+  "booking_need_closing": "Need closing",
+  "booking_history_title": "Booking history",
+  "booking_no_upcoming": "No upcoming bookings",
+  "booking_upcoming_empty_hint": "Confirmed future visits will appear here",
+  "booking_create_first_hint": "Create the first booking — it will show up here",
+  "booking_now_empty_title": "Nobody in chair now",
+  "booking_now_empty_subtitle": "A client will appear here when their visit starts",
+  "booking_pick_other_day_feed": "Pick another day in the feed or open the calendar",
+  "booking_day_orders_empty": "No orders on this day",
+  "booking_orders_title": "Orders",
+  "booking_orders_for_you": "Orders for you",
+  "booking_orders_empty": "No orders yet",
+  "booking_orders_empty_hint": "When you’re added as assignee on another account’s booking, it will show here",
+  "booking_orders_calendar": "Orders calendar",
+  "booking_no_sources_yet": "No sources yet",
+  "booking_when_booked_to_you": "When someone books with you, visits will show here",
+  "booking_analytics_empty_period": "No bookings in this period",
+  "booking_revenue_label": "Revenue",
+  "booking_avg_check_label": "Average check",
+  "booking_analytics_summary": "{total} bookings · {completed} completed",
+  "@booking_analytics_summary": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "completed": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_analytics_cancelled_part": " · {count} cancelled",
+  "@booking_analytics_cancelled_part": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_analytics_pending_part": " · {count} pending",
+  "@booking_analytics_pending_part": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_staff_completed_line": "{bookings} · {completed} completed",
+  "@booking_staff_completed_line": {
+    "placeholders": {
+      "bookings": {
+        "type": "int"
+      },
+      "completed": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_rate_visit": "Rate visit",
+  "booking_thanks_review": "Thanks for the review",
+  "booking_review_mock_hint": "In mock it goes nowhere — UI only. In prod it will show on the point and profile summary.",
+  "booking_review_demo_title": "Haircut · Salon on Abay · 21 Mar",
+  "booking_reviews_count": "{count} reviews",
+  "@booking_reviews_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_reviews_strip_subtitle": "Across booking points · feedback tag",
+  "booking_reviews_title": "Reviews",
+  "booking_how_was_it": "How was it?",
+  "booking_review_optional_hint": "Tell us how it went (optional)",
+  "booking_send_review": "Send review",
+  "booking_demo_leave_review": "Demo: leave a review",
+  "booking_point_reply_title": "Reply as the point",
+  "booking_point_reply_label": "Point reply",
+  "booking_save_reply": "Save reply",
+  "booking_edit_reply": "Edit reply",
+  "booking_delete_reply": "Delete reply",
+  "booking_mock_no_backend": "Mock · not saved to backend",
+  "booking_mock_host_reply": "Mock · host reply",
+  "booking_reply_action": "Reply",
+  "common_open": "Open",
+  "common_refresh": "Refresh",
+  "common_you": "You",
+  "common_not_found": "Not found",
+  "common_time": "Time",
+  "common_later": "Later",
+  "common_details": "Details",
+  "common_got_it": "Got it",
+  "common_approve": "Approve",
+  "common_approved": "Approved",
+  "common_rejected": "Rejected",
+  "common_pending": "Pending",
+  "common_type": "Type",
+  "common_chat": "Chat",
+  "common_rules": "Rules",
+  "common_settings": "Settings",
+  "common_saved": "Saved",
+  "common_save_failed": "Could not save",
+  "common_day": "Day",
+  "common_team": "Team",
+  "common_hours": "Hours",
+  "common_no_data": "No data",
+  "attendance_day_status_full": "Full shift",
+  "attendance_day_status_late": "Late",
+  "attendance_day_status_partial": "Partial",
+  "attendance_day_status_absent": "Absent",
+  "attendance_day_status_excused": "Excused",
+  "attendance_day_status_off": "Day off",
+  "attendance_day_status_full_short": "Full",
+  "attendance_day_status_late_short": "Late",
+  "attendance_day_status_partial_short": "Partial",
+  "attendance_absence_kind_day_off": "Day off",
+  "attendance_absence_kind_vacation": "Vacation",
+  "attendance_absence_kind_sick": "Sick leave",
+  "attendance_worker_status_accepted": "Accepted",
+  "attendance_worker_status_pending": "Pending invite",
+  "attendance_worker_status_archived": "Archived",
+  "attendance_worker_status_declined": "Declined",
+  "attendance_overtime_status_pending": "Pending",
+  "attendance_overtime_status_approved": "Approved",
+  "attendance_overtime_status_rejected": "Rejected",
+  "attendance_correction_status_pending": "Pending",
+  "attendance_correction_status_approved": "Approved",
+  "attendance_correction_status_rejected": "Rejected",
+  "attendance_saved_locally": "Saved locally",
+  "attendance_saved_locally_syncing": "Saved locally, syncing",
+  "attendance_company_not_found": "Company not found",
+  "attendance_company_default_name": "Company",
+  "attendance_company_fallback": "the company",
+  "attendance_hub_admin_tag_required": "Enable the “Manage attendance” tag in your profile",
+  "attendance_hub_new_company": "New company",
+  "attendance_hub_company_created": "Company created",
+  "attendance_hub_company_create_failed": "Could not create company",
+  "attendance_hub_companies": "Companies",
+  "attendance_hub_empty_hint": "Create a company: geofence, workers, and punches. Use “+” above.",
+  "attendance_hub_shifts": "Shifts",
+  "attendance_hub_my_attendance": "My attendance",
+  "attendance_hub_my_attendance_subtitle": "Punches and shifts",
+  "attendance_hub_empty_admin": "Create a company: geofence, workers, and punches. Profile button — “Manage attendance” tag.",
+  "attendance_company_team_invites": "Team and invites",
+  "attendance_company_geofence_punches": "Geofence and punches",
+  "attendance_company_duty_queue": "Daily duty queue",
+  "attendance_company_leave_sick": "Leave and sick days",
+  "attendance_company_ot_approval": "Overtime approval",
+  "attendance_company_punch_edits": "Punch corrections",
+  "attendance_company_export_month": "Monthly export",
+  "attendance_company_hours_team": "Hours and team",
+  "attendance_company_invite_rules": "Invites and rules",
+  "attendance_punch_title": "Punch",
+  "attendance_punch_admin_disabled_system": "Admin has not enabled Clock in/out. Only custom punches below.",
+  "attendance_punch_custom_types": "Custom punches",
+  "attendance_punch_cancel_last": "Cancel last punch",
+  "attendance_punch_sim_out_of_zone": "Simulate out of zone",
+  "attendance_punch_sim_in_zone": "Simulate in zone",
+  "attendance_punch_sim_gps_off": "Simulate GPS off",
+  "attendance_punch_sim_gps_on": "Simulate GPS on",
+  "attendance_punch_history": "Punch history",
+  "attendance_punch_history_empty": "No punches yet",
+  "attendance_punch_saved": "{type} — saved",
+  "@attendance_punch_saved": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_punch_save_failed": "Could not save punch",
+  "attendance_punch_cancel_title": "Cancel punch",
+  "attendance_punch_cancel_hint": "Comment optional — e.g. punched by mistake.",
+  "attendance_punch_cancel_comment": "Comment (optional)",
+  "attendance_punch_cancelled": "Punch cancelled",
+  "attendance_punch_request_correction": "Request correction",
+  "attendance_punch_no_correction_target": "No punch to correct",
+  "attendance_punch_correction_sent": "Correction request sent",
+  "attendance_punch_request_failed": "Could not send request",
+  "attendance_punch_accept_rules": "Accept rules v{version} via the company chat card.",
+  "@attendance_punch_accept_rules": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_punch_cancelled_suffix": " · cancelled",
+  "attendance_punch_clock_in_at": "Clock in {time}",
+  "@attendance_punch_clock_in_at": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_punch_clock_out_at": "Clock out {time}",
+  "@attendance_punch_clock_out_at": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_punch_types_not_configured": "Types not configured",
+  "attendance_punch_types_enabled": "Enabled: {list}",
+  "@attendance_punch_types_enabled": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_punch_locating": "Getting location…",
+  "attendance_punch_gps_unavailable": "GPS unavailable",
+  "attendance_punch_in_zone": "You are in the zone ({radiusM} m)",
+  "@attendance_punch_in_zone": {
+    "placeholders": {
+      "radiusM": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_punch_out_of_zone": "You are out of the zone",
+  "attendance_punch_refresh_gps": "Refresh GPS",
+  "attendance_punch_shift_already_open": "Shift already open — clock out first",
+  "attendance_punch_open_chat": "Open chat",
+  "attendance_pending_out_of_zone": "Out of zone — open the punch screen",
+  "attendance_pending_locating": "Getting GPS…",
+  "attendance_pending_in_zone": "In zone · {radiusM} m",
+  "@attendance_pending_in_zone": {
+    "placeholders": {
+      "radiusM": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_pending_out_zone_radius": "Out of zone · {radiusM} m",
+  "@attendance_pending_out_zone_radius": {
+    "placeholders": {
+      "radiusM": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_pending_expected_in": "Expected at",
+  "attendance_pending_new_rules": "New rules",
+  "attendance_pending_accept_update": "{workplace}: accept update v{version} via the company chat card.",
+  "@attendance_pending_accept_update": {
+    "placeholders": {
+      "workplace": {
+        "type": "String"
+      },
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_punch_types_title": "Punches",
+  "attendance_punch_types_shift": "Shift",
+  "attendance_punch_types_enable_system": "Enable Clock in or Clock out",
+  "attendance_punch_types_custom": "Custom",
+  "attendance_punch_types_custom_empty": "No custom punches. Use “+” above.",
+  "attendance_punch_types_add_title": "Custom punch",
+  "attendance_punch_types_hint_lunch": "Lunch",
+  "attendance_punch_types_already_exists": "Already exists",
+  "attendance_punch_types_at_time": "at {time}",
+  "@attendance_punch_types_at_time": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_analytics_title": "Analytics",
+  "attendance_analytics_no_period_data": "No data for this period",
+  "attendance_analytics_calendar": "Calendar",
+  "attendance_analytics_calendar_legend": "Color = status · ✓ punched · ✗ no show",
+  "attendance_analytics_avg": "Average",
+  "attendance_analytics_people_count": "{count} ppl",
+  "@attendance_analytics_people_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_late_abbr": "{count} late",
+  "@attendance_analytics_late_abbr": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_missed_abbr": "{count} missed",
+  "@attendance_analytics_missed_abbr": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_late_suffix": " · {count} late",
+  "@attendance_analytics_late_suffix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_missed_suffix": " · {count} missed",
+  "@attendance_analytics_missed_suffix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_swipe_weeks": "Swipe by week",
+  "attendance_analytics_worked_today": "Worked today",
+  "attendance_analytics_excused_absence": "Excused absence",
+  "attendance_analytics_punches": "Punches",
+  "attendance_analytics_no_punches": "No punches",
+  "attendance_analytics_excused_not_miss": "Absence is excused — not a miss",
+  "attendance_analytics_day_off": "Day off",
+  "attendance_analytics_today_marked": "Today · {marked} / {total}",
+  "@attendance_analytics_today_marked": {
+    "placeholders": {
+      "marked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_not_punched": "Not punched",
+  "attendance_analytics_total": "Total {total}",
+  "@attendance_analytics_total": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_analytics_journal": "Journal",
+  "attendance_analytics_journal_subtitle": "Quick day overview — tap a row",
+  "attendance_analytics_today_suffix": "· today",
+  "attendance_analytics_employee": "Employee",
+  "attendance_analytics_absences": "Absences",
+  "attendance_analytics_absences_subtitle": "Excused periods · not counted as misses",
+  "attendance_analytics_history_subtitle": "Latest events from device",
+  "attendance_analytics_worked_month": "worked this month",
+  "attendance_analytics_shifts": "Shifts",
+  "attendance_analytics_lates": "Lates",
+  "attendance_analytics_misses": "Misses",
+  "attendance_analytics_payroll": "Payroll",
+  "attendance_analytics_payroll_subtitle": "Period calculation",
+  "attendance_analytics_base_salary": "Base salary",
+  "attendance_analytics_deductions": "Deductions",
+  "attendance_analytics_bonuses": "Bonuses",
+  "attendance_analytics_payout": "Payout",
+  "attendance_worker_no_companies": "No active companies. Accept an invite in chat.",
+  "attendance_worker_accept_rules": "{workplace}: accept rules v{version}",
+  "@attendance_worker_accept_rules": {
+    "placeholders": {
+      "workplace": {
+        "type": "String"
+      },
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_worker_on_shift": "on shift",
+  "attendance_worker_off_shift": "off shift",
+  "attendance_worker_last_punch": "Last: {label}",
+  "@attendance_worker_last_punch": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_worker_tag_required": "To punch, enable the “My punches” tag in your profile.",
+  "attendance_worker_punch_cta": "Punch in",
+  "attendance_worker_my_details": "My details",
+  "attendance_worker_lates_abbr": "Late",
+  "attendance_workers_title": "Workers",
+  "attendance_workers_archived_toast": "Archived",
+  "attendance_workers_archive_failed": "Could not archive",
+  "attendance_workers_invite_sent": "Invite sent",
+  "attendance_workers_invite_failed": "Could not send invite",
+  "attendance_workers_waiting": "Pending",
+  "attendance_workers_waiting_reply": "{user} · awaiting reply",
+  "@attendance_workers_waiting_reply": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_in_team": "In team",
+  "attendance_workers_no_tag": "{user} · no tag",
+  "@attendance_workers_no_tag": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_in_archive": "{user} · archived",
+  "@attendance_workers_in_archive": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_search_failed": "Could not find people",
+  "attendance_workers_search_hint": "Username or name",
+  "attendance_workers_search_empty": "No one found",
+  "attendance_workers_empty_title": "No one yet",
+  "attendance_workers_empty_subtitle": "Invite a Clover account — the request goes to chat",
+  "attendance_workers_clover_account": "Clover account",
+  "attendance_workers_no_work_tag": "{user} · no worker tag",
+  "@attendance_workers_no_work_tag": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_to_archive": "Archive",
+  "attendance_workers_waiting_chat": "{user} · awaiting reply in chat",
+  "@attendance_workers_waiting_chat": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_not_in_shifts": "{user} · not in shifts",
+  "@attendance_workers_not_in_shifts": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_reinvite": "Invite again",
+  "attendance_timesheet_title": "Timesheet",
+  "attendance_timesheet_export_subject": "Attendance timesheet",
+  "attendance_timesheet_no_export_data": "No data to export",
+  "attendance_timesheet_export_failed": "Could not export",
+  "attendance_timesheet_export_csv": "Export CSV",
+  "attendance_chat_title": "Company chat",
+  "attendance_chat_title_named": "Attendance · {name}",
+  "@attendance_chat_title_named": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_chat_system_intro": "Company group chat. Invites and rules — cards only.",
+  "attendance_chat_no_cards": "No active cards. Add a worker or simulate a rules update.",
+  "attendance_chat_accepted": "{name} accepted · in active team and chat",
+  "@attendance_chat_accepted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_chat_declined": "Declined · out of team",
+  "attendance_chat_rules_accepted": "Rules v{version} accepted",
+  "@attendance_chat_rules_accepted": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_chat_join_team": "Join the team",
+  "attendance_chat_invite_body": "Invite for {name} ({username}). After accepting — shifts, hours, and company chat.",
+  "@attendance_chat_invite_body": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_chat_rules_updated": "Rules updated · v{version}",
+  "@attendance_chat_rules_updated": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_chat_rules_body": "Geofence or punch types changed. Until you accept — punching is unavailable.",
+  "attendance_chat_rules_accept_cta": "Got it, I accept",
+  "attendance_chat_open_failed": "Could not open chat",
+  "attendance_corrections_title": "Corrections",
+  "attendance_corrections_load_failed": "Could not load requests",
+  "attendance_corrections_empty": "No correction requests",
+  "attendance_corrections_approved_section": "Approved",
+  "attendance_corrections_rejected_section": "Rejected",
+  "attendance_corrections_current_time": "now {time}",
+  "@attendance_corrections_current_time": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_geofence_title": "Geofence",
+  "attendance_geofence_permission": "Allow location access in Settings",
+  "attendance_geofence_locate_failed": "Could not determine location",
+  "attendance_geofence_saved": "Geofence saved",
+  "attendance_geofence_hint": "Tap the map to move the center. Circle is the punch zone.",
+  "attendance_geofence_radius": "Radius",
+  "attendance_geofence_radius_m": "{radius} m",
+  "@attendance_geofence_radius_m": {
+    "placeholders": {
+      "radius": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_geofence_radius_m_named": "Radius {radius} m",
+  "@attendance_geofence_radius_m_named": {
+    "placeholders": {
+      "radius": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_geofence_point_unset": "Point not set",
+  "attendance_overtime_title": "Overtime",
+  "attendance_overtime_empty": "No overtime requests",
+  "attendance_overtime_pending_section": "Pending",
+  "attendance_overtime_in_payroll": "In payroll",
+  "attendance_overtime_rejected_section": "Rejected",
+  "attendance_overtime_hours_line": "{date} · {hours} h",
+  "@attendance_overtime_hours_line": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_overtime_suggestion": "Left after schedule · ~{hours} h",
+  "@attendance_overtime_suggestion": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_overtime_create_request": "Create request",
+  "attendance_overtime_created": "Request created",
+  "attendance_overtime_create_failed": "Could not create request",
+  "attendance_payroll_title": "Payroll",
+  "attendance_payroll_no_workers": "No workers to calculate",
+  "attendance_payroll_lates": "Lates",
+  "attendance_payroll_overtime": "Overtime",
+  "attendance_payroll_misses": "Misses",
+  "attendance_payroll_partial_day": "Partial day",
+  "attendance_payroll_per_min": "₸ / min",
+  "attendance_payroll_per_hour": "₸ / hour",
+  "attendance_payroll_per_day": "₸ / day",
+  "attendance_payroll_percent_day": "% of day",
+  "attendance_payroll_enter_salary": "Enter salary in ₸",
+  "attendance_payroll_salary_saved": "Salary saved",
+  "attendance_payroll_salary_save_failed": "Could not save salary",
+  "attendance_payroll_salary_label": "Salary, ₸",
+  "attendance_payroll_save_salary": "Save salary",
+  "attendance_payroll_for_period": "For {period}",
+  "@attendance_payroll_for_period": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_payroll_no_adjustments": "No adjustments",
+  "attendance_payroll_summary_line": "{period} · {count} ppl",
+  "@attendance_payroll_summary_line": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_payroll_rules_hint": "Payroll rules",
+  "attendance_absences_title": "Absences",
+  "attendance_absences_empty": "No absences",
+  "attendance_absences_add_hint": "Day off, vacation, or sick leave",
+  "attendance_absences_no_workers": "No active workers",
+  "attendance_absences_worker": "Worker",
+  "attendance_absences_added": "Added",
+  "attendance_absence_title": "Absence",
+  "attendance_duty_title": "Duty roster",
+  "attendance_duty_not_today": "Not a duty day today",
+  "attendance_duty_punch_unavailable": "Punch unavailable today — no duty worker scheduled.",
+  "attendance_duty_queue_not_workday": "There is a queue, but today is not a working day.",
+  "attendance_duty_you_today": "You are on duty today",
+  "attendance_duty_today_names": "On duty today: {names}",
+  "@attendance_duty_today_names": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_duty_mode_only_you": "Duty-only mode: punching is available to you.",
+  "attendance_duty_mode_only_others_blocked": "Duty-only mode: punching is unavailable to others today.",
+  "attendance_duty_info_notify": "Info + team notification. Punching works as usual — duty is not a lock.",
+  "attendance_duty_info_anyone": "Info for the team. Any accepted worker can punch.",
+  "attendance_duty_only_duty_punches": "Only duty worker punches",
+  "attendance_duty_workdays": "Working days",
+  "attendance_duty_queue": "Queue",
+  "attendance_duty_add_workers_first": "Add workers first",
+  "attendance_duty_none": "No one on duty",
+  "attendance_duty_punch_only_duty": "Only duty worker can punch",
+  "attendance_duty_team_hint": "Team hint",
+  "attendance_settings_not_configured": "Not configured",
+  "attendance_settings_custom_count": "{count} custom",
+  "@attendance_settings_custom_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_settings_pick_time": "Pick a time",
+  "bonus_history_title": "Bonus history",
+  "bonus_history_operations": "Activity",
+  "bonus_history_empty_title": "History is empty",
+  "bonus_history_empty_subtitle": "Earns and spends appear after completed visits",
+  "bonus_balance": "Balance",
+  "bonus_redeem_hint": "You can redeem on your next booking with this host",
+  "bonus_my_title": "My bonuses",
+  "bonus_my_subtitle": "Balance is per host. Open a card to see history.",
+  "bonus_my_empty_title": "No bonuses yet",
+  "bonus_my_empty_subtitle": "After visits with hosts who have loyalty, balances appear here",
+  "profile_edit_action": "Edit",
+  "profile_add_post": "Add post",
+  "profile_add_cluster": "Add cluster",
+  "profile_manage": "Manage",
+  "profile_cluster_created": "Cluster created",
+  "profile_cluster_create_failed": "Couldn’t create cluster",
+  "profile_post_published": "Published successfully",
+  "profile_post_publish_failed": "Couldn’t publish",
+  "profile_followers": "Followers",
+  "profile_following": "Following",
+  "profile_posts_empty_own": "Add your first post",
+  "profile_posts_sign_in": "Sign in to see posts",
+  "profile_empty_bio": "empty",
+  "profile_more_suffix": " more",
+  "profile_username_saved": "Username saved",
+  "profile_saved": "Profile saved",
+  "profile_section_main": "Main",
+  "profile_name_hint": "Your name",
+  "profile_section_location": "Location",
+  "profile_banner_title": "Profile cover",
+  "profile_cover": "Cover",
+  "profile_avatar": "Avatar",
+  "profile_username_unset": "Not set",
+  "profile_username_unavailable": "Username change is unavailable right now",
+  "profile_username_charset": "Username may only contain Latin letters, digits, “_” and “.”",
+  "profile_account_tags": "Account tags",
+  "profile_pick_tags": "Select tags",
+  "profile_about": "About",
+  "profile_about_hint": "Tell about yourself",
+  "profile_change_cover": "Change cover",
+  "profile_add_cover": "Add cover",
+  "profile_invalid": "Invalid profile",
+  "profile_not_found": "Profile not found",
+  "profile_following_empty": "No following yet",
+  "profile_followers_empty": "No followers yet",
+  "profile_unfollow_padded": "  Unfollow  ",
+  "profile_follow_padded": "  Follow  ",
+  "chat_sign_in_to_see": "Sign in to see messages",
+  "chat_load_failed": "Couldn’t load chats",
+  "chat_search_hint": "Search chats and messages",
+  "chat_list_empty_title": "No chats yet",
+  "chat_list_empty_subtitle": "Start a chat from another profile",
+  "chat_search_in_messages": "In messages",
+  "chat_search_no_message_hits": "No matches in message text",
+  "chat_new_group": "New group",
+  "chat_group_name_required": "Enter a group name",
+  "chat_group_members_required": "Select members",
+  "chat_group_name_hint": "Group name",
+  "chat_group_search_members": "Search members",
+  "chat_group_from_following": "Members from following",
+  "chat_group_create": "Create group",
+  "chat_forward_search": "Search recipient",
+  "chat_members_load_failed": "Couldn’t load members",
+  "chat_not_ready": "Chat isn’t ready yet",
+  "chat_not_created": "Chat isn’t created yet",
+  "chat_wallpaper_save_failed": "Couldn’t save wallpaper",
+  "chat_info_title": "Info",
+  "chat_wallpaper": "Chat wallpaper",
+  "chat_dm_subtitle": "Direct message",
+  "chat_members": "Members",
+  "chat_members_empty": "No members yet",
+  "chat_group": "Group",
+  "chat_invalid_user": "Invalid user",
+  "chat_invalid": "Invalid chat",
+  "chat_no_access": "No access to this chat",
+  "chat_blocked": "Messaging unavailable — user is blocked",
+  "chat_action_failed": "Couldn’t complete the action",
+  "chat_star_soon": "Starred messages — coming soon",
+  "chat_photo_read_failed": "Couldn’t read the photo",
+  "chat_file_read_failed": "Couldn’t read the document",
+  "chat_typing": "typing…",
+  "chat_thread_search_hint": "Search messages",
+  "chat_opening": "Opening chat…",
+  "chat_first_message": "Send the first message",
+  "chat_failed": "Couldn’t complete",
+  "chat_wallpaper_with_emojis": "Chat wallpaper · {emojis}",
+  "@chat_wallpaper_with_emojis": {
+    "placeholders": {
+      "emojis": {
+        "type": "String"
+      }
+    }
+  },
+  "chat_member_you": "{handle} (you)",
+  "@chat_member_you": {
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "chat_members_one": "{count} member",
+  "@chat_members_one": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chat_members_few": "{count} members",
+  "@chat_members_few": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chat_members_many": "{count} members",
+  "@chat_members_many": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalog_locations_load_failed": "Couldn’t load locations",
+  "catalog_locations_title": "Locations",
+  "catalog_location_new": "New location",
+  "catalog_locations_empty": "Empty — add your first location",
+  "catalog_location_save_failed": "Couldn’t save changes",
+  "catalog_location_delete_title": "Delete location?",
+  "catalog_location": "Location",
+  "catalog_location_not_found": "Location not found",
+  "catalog_address_cyrillic": "Address (Cyrillic)",
+  "catalog_address_hint": "Abay St. 150, Almaty (optional)",
+  "catalog_binding": "Binding",
+  "catalog_bound_yes": "Country and city are linked to this address",
+  "catalog_bound_no": "Select a country and city for this address",
+  "catalog_location_active_on": "Location is visible and available",
+  "catalog_location_active_off": "Location is hidden and unavailable",
+  "catalog_accept_changes": "Accept changes",
+  "catalog_location_added": "Location added",
+  "catalog_address_search": "Search address",
+  "catalog_locations_none_active": "No active locations",
+  "catalog_address_tap": "Address · tap to enter",
+  "catalog_tags_none": "No tags available",
+  "booking_minutes_plain": "{count} min",
+  "booking_stats_line": "{total} bookings · {completed} completed",
+  "booking_stats_cancelled": " · {count} cancelled",
+  "booking_stats_pending": " · {count} pending",
+  "booking_staff_completed": "{bookings} · {completed} completed",
+  "booking_slot_taken": "This time is already taken with {name}",
+  "booking_executor_absent": "{name} is unavailable this day",
+  "booking_bonus_will_spend": "Balance {balance}. After the visit we’ll deduct up to {spend} ({percent}% of price). Pay the rest on site.",
+  "booking_bonus_no_spend": "Balance {balance}. Bonuses won’t be deducted for this visit.",
+  "booking_bonus_spend": "Deduct −{amount} {word}",
+  "booking_bonus_earn": "Earn +{amount} {word}",
+  "booking_comment_prefix": "Comment: {text}",
+  "booking_service_cancel_body": "“{title}” will no longer show to clients. New bookings will be unavailable.",
+  "booking_masters_count": "{count} specialist(s)",
+  "booking_max_people": "up to {count} people",
+  "booking_master_prefix": "Specialist: {name}",
+  "booking_ops_slot_line": "{name} · {start}–{end}",
+  "booking_invite_waiting": "@{username} · waiting for a chat reply",
+  "booking_cancel_visit_body": "“{title}” with {host} will be cancelled. The slot will free up for others.",
+  "booking_chat_title_named": "Booking · {name}",
+  "booking_time_duration": "{range} · {minutes} min",
+  "post_booking_service": "Booking service",
+  "post_unavailable": "Post unavailable",
+  "post_invalid_id": "Invalid post id",
+  "post_not_found": "Post not found",
+  "post_create_cluster_first": "Create a cluster first",
+  "post_untitled": "Untitled",
+  "post_linked_to_cluster": "Post linked to cluster",
+  "post_link_failed": "Couldn’t link the post",
+  "post_unlinked_from_cluster": "Post unlinked from cluster",
+  "post_unlink_failed": "Couldn’t unlink the post",
+  "post_archive_event_title": "Archive event?",
+  "post_archive_publication_title": "Archive post?",
+  "post_archive_event_body": "The event will disappear from the feed and map.",
+  "post_archive_publication_body": "The post will disappear from your profile.",
+  "post_event_archived": "Event archived",
+  "post_publication_archived": "Post archived",
+  "post_unarchive_event_title": "Unarchive event?",
+  "post_unarchive_publication_title": "Unarchive post?",
+  "post_unarchive_event_body": "The event will reappear in the feed and on the map.",
+  "post_unarchive_publication_body": "The post will reappear on your profile.",
+  "post_event_unarchived": "Event unarchived",
+  "post_publication_unarchived": "Post unarchived",
+  "post_unarchive_failed": "Couldn’t unarchive",
+  "post_delete_event_title": "Delete event?",
+  "post_delete_publication_title": "Delete post?",
+  "post_delete_event_body": "The event, post, and media will be permanently deleted.",
+  "post_delete_publication_body": "The post and media will be permanently deleted.",
+  "post_event_deleted": "Event deleted",
+  "post_publication_deleted": "Post deleted",
+  "post_unlink_cluster": "Unlink from cluster",
+  "post_link_cluster": "Link to cluster",
+  "post_author": "Author",
+  "post_service_loading": "Loading service…",
+  "post_book_service": "Book a service",
+  "post_book_this_service": "Book this service",
+  "post_host": "Host",
+  "post_likes_count": "{count} likes",
+  "@post_likes_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_dislikes_count": "{count} dislikes",
+  "@post_dislikes_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_datetime_section": "DATE & TIME",
+  "post_completed": "Completed",
+  "post_now": "now",
+  "post_hide_replies": "Hide replies",
+  "post_view_replies": "View replies ({count})",
+  "@post_view_replies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_comments_title": "Comments",
+  "post_comment_send_failed": "Couldn’t send comment",
+  "post_comments_empty": "No comments yet.\nBe the first!",
+  "post_reply_for": "Reply to {username}",
+  "@post_reply_for": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "post_comment_hint": "Add a comment…",
+  "post_reply_hint": "Reply to {username}…",
+  "@post_reply_hint": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "post_create_title": "New post",
+  "post_publication": "Post",
+  "post_publish": "Publish",
+  "post_title_label": "Title",
+  "post_title_hint": "Add a title",
+  "post_emoji_hint": "Add an emoji",
+  "post_tags": "Tags",
+  "post_pick_location": "Select a location",
+  "post_event_period_required": "Map event — set start and end",
+  "post_period_optional": "Optional — without a period it’s a regular post",
+  "post_body_hint": "Tell about the post",
+  "post_create_service_first": "Create a service in bookings first",
+  "post_no_service": "No service",
+  "post_service_unlinked": "Not linked",
+  "post_shared": "Post sent",
+  "post_share_no_following": "No following to send to",
+  "post_share_message_hint": "Write a message…",
+  "post_address_section": "ADDRESS & LANDMARK",
+  "cluster_delete_title": "Delete cluster?",
+  "cluster_delete_body": "The cover will be deleted too.",
+  "cluster_deleted": "Cluster deleted",
+  "cluster_title": "Cluster",
+  "cluster_archive_title": "Archive cluster?",
+  "cluster_archive_body": "It will disappear from the profile list.",
+  "cluster_archived": "Cluster archived",
+  "cluster_archive_hub_title": "Cluster archive",
+  "cluster_archive_empty": "Cluster archive is empty",
+  "cluster_unarchive_title": "Unarchive cluster?",
+  "cluster_unarchive_body": "It will reappear on the profile.",
+  "cluster_unarchived": "Cluster unarchived",
+  "cluster_name_label": "Cluster name",
+  "cluster_desc_hint": "Short description (optional)",
+  "cluster_create_action": "Create cluster",
+  "cluster_cover": "Cluster cover",
+  "cluster_new": "New cluster",
+  "cluster_tab": "Clusters",
+  "archive_events_title": "Event archive",
+  "archive_events_empty": "Event archive is empty",
+  "archive_posts_title": "Post archive",
+  "archive_posts_empty": "Post archive is empty",
+  "archive_content": "Content",
+  "archive_posts_events_subtitle": "Archived posts and events",
+  "archive_clusters_subtitle": "Archived collections",
+  "chat_invite_team": "Team invite",
+  "chat_company_rules": "Company rules",
+  "chat_invite_declined": "Invite declined",
+  "chat_invite_booking": "Booking invite",
+  "chat_on_team": "You’re on the team",
+  "chat_accept_rules": "Accept rules",
+  "chat_rules_accepted": "Rules accepted",
+  "chat_you_are_staff": "You’re staff",
+  "chat_attachment": "Attachment",
+  "chat_document": "Document",
+  "chat_wallpaper_hint": "Add emojis — everyone in this chat will see the wallpaper",
+  "chat_wallpaper_preview": "Wallpaper preview",
+  "chat_wallpaper_example": "E.g. 🍀✨💬",
+  "chat_edited_short": "edited",
+  "chat_photo_permission": "Allow photo access to save",
+  "chat_saved_to_gallery": "Saved to Gallery",
+  "chat_photo_download_failed": "Couldn’t download photo",
+  "chat_members_count": "{count, plural, one{{count} member} other{{count} members}}",
+  "@chat_members_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chat_member_you_label": "{handle} (you)",
+  "@chat_member_you_label": {
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "chat_wallpaper_emojis": "Chat wallpaper · {emojis}",
+  "@chat_wallpaper_emojis": {
+    "placeholders": {
+      "emojis": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_filters_load_failed": "Couldn’t load filters",
+  "settings_filters_search": "Search filters",
+  "settings_filters_values_word": "values",
+  "settings_wait_loading": "Please wait for loading",
+  "settings_guide_topic_missing": "Guide topic not found",
+  "settings_companies_load_failed": "Couldn’t load companies",
+  "settings_companies_empty": "No companies yet. Tap “Add”.",
+  "settings_post_filters_title": "Post filters",
+  "settings_pick_filters": "Select filters",
+  "settings_filters_selected": "Filters selected",
+  "settings_filters_categories_hint": "Size, color, brand and other categories",
+  "settings_filter_value_one": "value",
+  "settings_filter_value_few": "values",
+  "settings_location_filter_own_only": "Location filter is available on your own profile",
+  "settings_places_load_failed": "Couldn’t load places",
+  "settings_all_places": "All places",
+  "settings_no_address_filter": "No address filter",
+  "settings_add_place_hint": "Add a place in Resources → Locations to filter posts.",
+  "settings_no_session": "No session",
+  "settings_new_category": "New category",
+  "settings_category": "Category",
+  "settings_category_name": "Category name",
+  "settings_category_name_hint": "E.g. Size, Color, Brand",
+  "settings_values": "Values",
+  "settings_values_hint": "XS, Black, Nike…",
+  "settings_add_one_value": "Add at least one value",
+  "settings_save_category": "Save category",
+  "settings_save_changes": "Save changes",
+  "settings_deletion": "Deletion",
+  "settings_filter_categories_title": "Filter categories",
+  "settings_filter_categories_intro": "Create a category, name it, and add value options. After the first category, the filter appears on the profile.",
+  "settings_create_category": "Create category",
+  "settings_no_categories": "No categories yet",
+  "settings_categories_example": "E.g. Size → XS, S, M\nColor → Black, White",
+  "settings_create_first_category": "Create first category",
+  "settings_guide_services_intro": "A short guide to Clover services. You can activate the host tag right away.",
+  "settings_activate": "Activate",
+  "settings_service_enabled": "Service enabled on profile",
+  "settings_activate_failed": "Couldn’t activate",
+  "settings_resources_addresses": "Addresses and map points",
+  "settings_resources_showcase": "Profile showcase categories",
+  "settings_resources_what": "What are resources",
+  "settings_saved_posts_empty": "No saved posts yet",
+  "settings_saved_posts_tile": "Saved posts",
+  "venue_my_bookings": "My reservations",
+  "venue_guests": "Guests",
+  "venue_establishment": "Venue",
+  "venue_tickets_fares": "Tickets / fares",
+  "venue_places_list": "Places as list",
+  "venue_plan_schema": "Plan / layout",
+  "venue_sessions_slots": "Sessions / slots",
+  "venue_hub_mock_subtitle": "Mocks · tickets, seats and layout. Plan editor is on the website.",
+  "venue_establishments": "Venues",
+  "venue_requests_confirmed": "Requests and confirmed (mock)",
+  "venue_process_doc": "Process: docs/business/venue-seating.md",
+  "venue_mocks_no_backend": "Mocks · no backend",
+  "venue_client_requests_mock": "Client request list (mock).",
+  "venue_client_schema_hint": "Client sees the site layout (JSON) · select and request only.",
+  "venue_client_flow": "Client: layout and/or list → request, not payment.",
+  "venue_session": "Session",
+  "venue_pick_place": "Select a seat",
+  "venue_send_request": "Send request",
+  "venue_mock_request_sent": "Mock: request sent · soft-hold",
+  "venue_not_found": "Venue not found",
+  "venue_catalog": "Catalog",
+  "venue_level_a": "Level A",
+  "venue_level_b": "Level B",
+  "venue_level_c_preview": "Level C · preview",
+  "venue_no_schema_hint": "No layout · hint",
+  "venue_when_bookable": "When you can book",
+  "venue_requests_to_confirm": "Requests → confirmation",
+  "venue_client_view": "How the client sees it",
+  "venue_request_preview": "Booking request preview",
+  "venue_request": "Request",
+  "venue_request_not_found": "Request not found",
+  "venue_actions_mock": "Actions are mocked — no backend.",
+  "venue_mock_confirmed": "Mock: confirmed",
+  "venue_mock_rejected": "Mock: rejected",
+  "venue_extra_pay": "Extra payment needed (outside Clover)",
+  "venue_mock_extra_pay": "Mock: extra payment condition",
+  "venue_soft_hold_flow": "Request → soft-hold → admin decides. Not auto-confirm.",
+  "venue_tab_empty": "Empty in this tab",
+  "venue_plan_load_failed": "Couldn’t load plan",
+  "venue_plan_load_error": "Plan load error",
+  "venue_plan_site_only": "Site draws → mobile only views (JSON from site, mock).",
+  "venue_plan_preview": "Layout preview. Draw and edit only on the website.",
+  "venue_no_schema_tickets": "No layout. Host can stay on tickets / list.",
+  "venue_empty_canvas": "Empty canvas. A Figma-like editor will appear on the site.",
+  "venue_level_b_bookable": "Level B · same bookables as on the layout.",
+  "venue_no_seats_tickets_only": "This venue has no seats yet — tickets only.",
+  "venue_occasion_hint": "Occasion: movie session or restaurant slot.",
+  "venue_no_sessions": "No sessions",
+  "venue_level_a_no_schema": "Level A · no layout. Client picks fare and qty.",
+  "venue_mock_badge": "mock",
+  "settings_attendance_enable_tag": "Enable the “I manage attendance” tag on your profile",
+  "settings_attendance_company": "Company",
+  "settings_attendance_new_company": "New company",
+  "settings_attendance_company_created": "Company created",
+  "settings_attendance_company_create_failed": "Couldn’t create company",
+  "settings_attendance_companies": "Companies",
+  "settings_attendance_shifts": "Shifts",
+  "settings_attendance_my_title": "My attendance",
+  "settings_attendance_my_subtitle": "Punches and shifts",
+  "settings_filter_delete_confirm": "Tap to delete “{name}”",
+  "@settings_filter_delete_confirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_filter_deleted": "“{name}” deleted",
+  "@settings_filter_deleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_saved_categories_count": "Saved categories ({count})",
+  "@settings_saved_categories_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settings_venue_client": "Client",
+  "venue_when": "When",
+  "venue_status": "Status",
+  "venue_empty_for_now": "Empty for now",
+  "venue_seat_capacity": "up to {count} guests",
+  "@venue_seat_capacity": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "venue_session_free": "{when} · free {free}/{total}",
+  "@venue_session_free": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "free": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "venue_ticket_remaining": "{price} · {remaining} left",
+  "@venue_ticket_remaining": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "post_share_sent_to": "Post sent to {count} recipients",
+  "@post_share_sent_to": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_in_days": "in {label}",
+  "@post_in_days": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "catalog_total_count": "Total: {count}",
+  "@catalog_total_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalog_inactive_dot": "{subtitle} · inactive",
+  "@catalog_inactive_dot": {
+    "placeholders": {
+      "subtitle": {
+        "type": "String"
+      }
+    }
+  },
+  "common_from_short": "From",
+  "attendance_rules_accepted": "Rules v{version} accepted",
+  "attendance_invite_body": "Invite for {name} ({username}). After accept — shift, hours, and company chat.",
+  "attendance_rules_updated": "Rules updated · v{version}",
+  "attendance_rules_changed_body": "Geofence or punch types changed. Until you accept, clock-in is unavailable.",
+  "attendance_correction_now": "now {time}",
+  "attendance_meters": "{meters} m",
+  "attendance_in_zone": "You’re in the zone · {meters} m",
+  "attendance_out_zone": "You’re outside the zone · {meters} m",
+  "attendance_in_zone_paren": "You’re in the zone ({meters} m)",
+  "attendance_enabled_types": "Enabled: {list}",
+  "attendance_at_time": "at {time}",
+  "attendance_radius_label": "Radius {meters} m",
+  "attendance_clock_in_at": "Clock-in {time}",
+  "attendance_clock_out_at": "Clock-out {time}",
+  "attendance_custom_count": "{count} custom",
+  "attendance_duty_today_named": "On duty today: {names}",
+  "attendance_pending_accept": "{workplace}: accept update v{version} via the company chat card.",
+  "common_days_one": "{count} day",
+  "common_days_few": "{count} days",
+  "common_days_many": "{count} days",
+  "post_archive_failed": "Could not archive",
+  "post_empty": "No posts",
+  "post_relative_minutes": "{count} min",
+  "post_relative_hours": "{count} h",
+  "post_relative_days": "{count} d",
+  "post_emoji_label": "Emoji",
+  "post_shared_to": "Post sent to {count} recipients",
+  "chat_create_group": "Create group",
+  "chat_wallpaper_label": "Chat wallpaper · {preview}",
+  "chat_you_suffix": "{handle} (you)",
+  "chat_join_workplace": "Join “{name}”",
+  "chat_join_booking_staff": "Become staff · “{name}”",
+  "profile_name_label": "Name",
+  "profile_section_account": "Account",
+  "profile_username": "Username",
+  "profile_book": "Book",
+  "profile_calendar": "Calendar",
+  "venue_operations": "Operations",
+  "venue_comment": "Comment",
+  "settings_filters_count": "Filters ({count})",
+  "@settings_filters_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_nothing_here": "Nothing here",
+  "common_something_wrong": "Something went wrong",
+  "common_options": "Options",
+  "common_emoji_hint": "Pick or type an emoji"
+}

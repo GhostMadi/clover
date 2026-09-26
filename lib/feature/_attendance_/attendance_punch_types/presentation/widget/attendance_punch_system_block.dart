@@ -5,6 +5,7 @@ import 'package:clover/feature/_attendance_/shared/data/models/attendance_day_ti
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_time_picker_field.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Блок системной отметки (Пришёл / Ушёл).
 class AttendancePunchSystemBlock extends StatelessWidget {
@@ -29,7 +30,7 @@ class AttendancePunchSystemBlock extends StatelessWidget {
     final scheduleOn = scheduledTime != null;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+      padding: EdgeInsets.fromLTRB(14, 12, 10, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -45,12 +46,12 @@ class AttendancePunchSystemBlock extends StatelessWidget {
             ],
           ),
           if (enabled) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
                   child: Text(
-                    'Время',
+                    context.l10n.common_time,
                     style: AppTextStyle.base(14, color: colors.subTextColor),
                   ),
                 ),

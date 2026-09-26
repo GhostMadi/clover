@@ -3,6 +3,7 @@ import 'package:clover/core/shared/image_select/app_image_selector_page.dart';
 import 'package:clover/feature/_post_/post_create/extension/post_create_router_extension.dart';
 import 'package:clover/feature/_post_/post_create/post_create_flow.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class PostCreatePage extends StatelessWidget {
@@ -13,8 +14,8 @@ class PostCreatePage extends StatelessWidget {
     final flow = PostCreateFlow.instance;
 
     return AppImageSelectorPage(
-      title: 'Новая публикация',
-      confirmLabel: 'Далее',
+      title: context.l10n.post_create_title,
+      confirmLabel: context.l10n.common_next,
       maxSelectionCount: PostCreateFlow.maxPhotos,
       onClose: () {
         flow.reset();

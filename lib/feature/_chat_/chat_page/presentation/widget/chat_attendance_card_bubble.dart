@@ -1,4 +1,5 @@
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
@@ -40,7 +41,7 @@ class _ChatAttendanceCardBubbleState extends State<ChatAttendanceCardBubble> {
       AppSnackBar.show(context, message: okLabel, kind: AppSnackBarKind.success);
     } catch (e) {
       if (!mounted) return;
-      final msg = e is AttendanceException ? e.userMessage : 'Не удалось выполнить';
+      final msg = e is AttendanceException ? e.userMessage : context.l10n.chat_failed;
       AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -51,9 +52,9 @@ class _ChatAttendanceCardBubbleState extends State<ChatAttendanceCardBubble> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final accent = attendanceServiceAccent(colors);
-    final title = widget.card.isInvite ? 'Приглашение в команду' : 'Правила компании';
+    final title = widget.card.isInvite ? context.l10n.chat_invite_team : context.l10n.chat_company_rules;
     final subtitle = widget.card.isInvite
-        ? 'Стать частью «${widget.card.workplaceName}»'
+        ? context.l10n.chat_join_workplace(widget.card.workplaceName)
         : '«${widget.card.workplaceName}» · v${widget.card.configVersion ?? 1}';
 
     return Container(
@@ -71,42 +72,42 @@ class _ChatAttendanceCardBubbleState extends State<ChatAttendanceCardBubble> {
           Text(subtitle, style: AppTextStyle.base(13, color: colors.subTextColor)),
           if (_done) ...[
             const SizedBox(height: 12),
-            Text(_doneLabel ?? 'Готово', style: AppTextStyle.base(13, color: accent.icon, fontWeight: FontWeight.w600)),
+            Text(_doneLabel ?? context.l10n.common_done, style: AppTextStyle.base(13, color: accent.icon, fontWeight: FontWeight.w600)),
           ] else if (!widget.isMine) ...[
             const SizedBox(height: 12),
             if (widget.card.isInvite) ...[
               AttendancePrimaryButton(
-                text: _busy ? '…' : 'Принять',
+                text: _busy ? '…' : context.l10n.common_accept,
                 height: 44,
                 isExpanded: true,
                 interactive: !_busy,
                 onTap: () {
                   final mid = widget.card.membershipId;
                   if (mid == null || mid.isEmpty) return;
-                  _run(() => sl<AttendanceRemoteRepository>().acceptInvite(mid), 'Вы в команде');
+                  _run(() => sl<AttendanceRemoteRepository>().acceptInvite(mid), context.l10n.chat_on_team);
                 },
               ),
               const SizedBox(height: 8),
               AppOutlinedButton(
-                text: 'Отклонить',
+                text: context.l10n.common_reject,
                 height: 44,
                 isExpanded: true,
                 service: kAttendanceService,
                 onTap: () {
                   final mid = widget.card.membershipId;
                   if (mid == null || mid.isEmpty) return;
-                  _run(() => sl<AttendanceRemoteRepository>().rejectInvite(mid), 'Приглашение отклонено');
+                  _run(() => sl<AttendanceRemoteRepository>().rejectInvite(mid), context.l10n.chat_invite_declined);
                 },
               ),
             ] else ...[
               AttendancePrimaryButton(
-                text: _busy ? '…' : 'Принять правила',
+                text: _busy ? '…' : context.l10n.chat_accept_rules,
                 height: 44,
                 isExpanded: true,
                 interactive: !_busy,
                 onTap: () => _run(
                   () => sl<AttendanceRemoteRepository>().ackConfig(widget.card.workplaceId),
-                  'Правила приняты',
+                  context.l10n.chat_rules_accepted,
                 ),
               ),
             ],

@@ -6,6 +6,7 @@ import 'package:clover/feature/_attendance_/shared/presentation/widget/attendanc
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Список работников за период — тап → календарь.
 class AttendanceAnalyticsTeamSection extends StatelessWidget {
@@ -25,7 +26,7 @@ class AttendanceAnalyticsTeamSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const AttendanceSectionTitle('Команда'),
+        AttendanceSectionTitle(context.l10n.common_team),
         const SizedBox(height: 8),
         for (final worker in workers) ...[
           _WorkerTile(
@@ -54,8 +55,8 @@ class _WorkerTile extends StatelessWidget {
     final accent = attendanceServiceAccent(colors);
     final username = worker.username.trim();
     final lateMiss = [
-      if (worker.lateDays > 0) '${worker.lateDays} опозд.',
-      if (worker.missedDays > 0) '${worker.missedDays} проп.',
+      if (worker.lateDays > 0) context.l10n.attendance_analytics_late_abbr(worker.lateDays),
+      if (worker.missedDays > 0) context.l10n.attendance_analytics_missed_abbr(worker.missedDays),
     ].join(' · ');
     final subtitle = [
       if (username.isNotEmpty) (username.startsWith('@') ? username : '@$username'),

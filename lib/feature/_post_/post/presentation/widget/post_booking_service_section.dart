@@ -5,6 +5,7 @@ import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/feature/_post_/post/data/models/post_booking_service_summary.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// CTA «Записаться на эту услугу» на деталке поста.
 class PostBookingServiceSection extends StatelessWidget {
@@ -44,7 +45,7 @@ class PostBookingServiceSection extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                'Загрузка услуги…',
+                context.l10n.post_service_loading,
                 style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
               ),
             ],
@@ -69,7 +70,7 @@ class PostBookingServiceSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Запись на услугу',
+              context.l10n.post_book_service,
               style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),
@@ -80,7 +81,7 @@ class PostBookingServiceSection extends StatelessWidget {
             if (showBookAction) ...[
               const SizedBox(height: 12),
               AppButton(
-                text: 'Записаться на эту услугу',
+                text: context.l10n.post_book_this_service,
                 isExpanded: true,
                 onTap: () => context.router.push(
                   BookingClientRoute(

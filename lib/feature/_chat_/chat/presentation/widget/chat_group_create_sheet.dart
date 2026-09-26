@@ -10,6 +10,7 @@ import 'package:clover/feature/_post_/post_share/data/models/post_share_recipien
 import 'package:clover/feature/_post_/post_share/presentation/cubit/post_share_recipients_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 abstract final class ChatGroupCreateSheet {
   static Future<({String conversationId, String title})?> show(BuildContext context) async {
@@ -19,7 +20,7 @@ abstract final class ChatGroupCreateSheet {
     try {
       return await AppBottomSheet.show<({String conversationId, String title})>(
         context: context,
-        title: 'Новая группа',
+        title: context.l10n.chat_new_group,
         upperCaseTitle: false,
         expandBody: true,
         contentHeight: MediaQuery.sizeOf(context).height * 0.72,
@@ -73,11 +74,11 @@ class _ChatGroupCreateBodyState extends State<_ChatGroupCreateBody> {
     if (_submitting) return;
     final title = _titleController.text.trim();
     if (title.isEmpty) {
-      AppSnackBar.show(context, message: 'Укажите название группы', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.chat_group_name_required, kind: AppSnackBarKind.error);
       return;
     }
     if (_selectedIds.isEmpty) {
-      AppSnackBar.show(context, message: 'Выберите участников', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.chat_group_members_required, kind: AppSnackBarKind.error);
       return;
     }
 
@@ -109,20 +110,20 @@ class _ChatGroupCreateBodyState extends State<_ChatGroupCreateBody> {
         children: [
           AppField(
             controller: _titleController,
-            hintText: 'Название группы',
+            hintText: context.l10n.chat_group_name_hint,
             prefixIcon: AppIcons.groupOutlined.icon,
             textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: 12),
           AppField(
             controller: _searchController,
-            hintText: 'Поиск участников',
+            hintText: context.l10n.chat_group_search_members,
             prefixIcon: AppIcons.searchRounded.icon,
             textInputAction: TextInputAction.search,
           ),
           const SizedBox(height: 12),
           Text(
-            'Участники из подписок',
+            context.l10n.chat_group_from_following,
             style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
@@ -161,7 +162,7 @@ class _ChatGroupCreateBodyState extends State<_ChatGroupCreateBody> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.white),
                   )
-                : const Text('Создать группу'),
+                : Text(context.l10n.chat_create_group),
           ),
         ],
       ),
@@ -185,7 +186,7 @@ class _RecipientsList extends StatelessWidget {
     if (recipients.isEmpty) {
       return Center(
         child: Text(
-          'Никого не найдено',
+          context.l10n.common_no_one_found,
           style: AppTextStyle.base(14, color: context.colors.subTextColor),
         ),
       );

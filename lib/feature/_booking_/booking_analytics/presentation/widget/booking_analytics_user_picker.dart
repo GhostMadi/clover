@@ -1,4 +1,5 @@
 import 'package:clover/core/shared/app_single_selctor.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/feature/_booking_/booking_analytics/data/models/booking_analytics_user.dart';
 import 'package:flutter/material.dart';
 
@@ -19,15 +20,15 @@ class BookingAnalyticsUserPicker extends StatelessWidget {
     if (users.length < 2) return const SizedBox.shrink();
 
     final options = [
-      const AppSingleSelectOption<String?>(value: null, label: 'Все'),
+      AppSingleSelectOption<String?>(value: null, label: context.l10n.booking_all),
       for (final user in users)
         AppSingleSelectOption<String?>(value: user.id, label: user.displayLabel),
     ];
 
     return AppSingleSelect<String?>(
-      hint: 'Все мастера',
-      sheetTitle: 'Мастер',
-      searchHint: 'Поиск',
+      hint: context.l10n.booking_all_masters,
+      sheetTitle: context.l10n.booking_master,
+      searchHint: context.l10n.common_search,
       options: options,
       value: selectedUserId,
       onChanged: onChanged,

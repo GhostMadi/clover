@@ -10,13 +10,14 @@ import 'package:clover/feature/_booking_/point_reviews/presentation/widget/point
 import 'package:clover/feature/_booking_/point_reviews/presentation/widget/reply_point_review_sheet.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Список отзывов с фильтром по точке (mock).
 abstract final class PointReviewsListSheet {
   static Future<void> show(BuildContext context) {
     return AppBottomSheet.show(
       context: context,
-      title: 'Отзывы',
+      title: context.l10n.booking_reviews_title,
       contentHeight: MediaQuery.sizeOf(context).height * 0.72,
       content: _PointReviewsListBody(hostContext: context),
     );
@@ -60,7 +61,7 @@ class _PointReviewsListBodyState extends State<_PointReviewsListBody> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                '${PointReviewsMock.totalCount} отзывов',
+                context.l10n.booking_reviews_count(PointReviewsMock.totalCount),
                 style: AppTextStyle.base(13, color: colors.subTextColor),
               ),
             ),
@@ -159,7 +160,7 @@ class _PointReviewsListBodyState extends State<_PointReviewsListBody> {
                               Icon(AppIcons.replyOutlined.icon, size: 14, color: accent.icon),
                               const SizedBox(width: 6),
                               Text(
-                                'Ответ точки',
+                                context.l10n.booking_point_reply_label,
                                 style: AppTextStyle.base(
                                   12,
                                   fontWeight: FontWeight.w600,
@@ -181,7 +182,7 @@ class _PointReviewsListBodyState extends State<_PointReviewsListBody> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: AppOutlinedButton(
-                      text: hasReply ? 'Изменить ответ' : 'Ответить',
+                      text: hasReply ? context.l10n.booking_edit_reply : context.l10n.booking_reply_action,
                       onTap: () => _reply(r),
                     ),
                   ),
@@ -192,7 +193,7 @@ class _PointReviewsListBodyState extends State<_PointReviewsListBody> {
         ),
         const SizedBox(height: 8),
         AppButton(
-          text: 'Демо: оставить отзыв',
+          text: context.l10n.booking_demo_leave_review,
           isExpanded: true,
           onTap: () {
             final host = widget.hostContext;

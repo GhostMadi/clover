@@ -16,6 +16,7 @@ import 'package:clover/feature/_attendance_/shared/presentation/widget/attendanc
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class AttendanceDutyRosterPage extends StatefulWidget {
@@ -50,7 +51,7 @@ class _AttendanceDutyRosterPageState extends State<AttendanceDutyRosterPage> {
 
   String _username(AttendanceWorkerListItem worker) {
     final raw = worker.username.trim();
-    if (raw.isEmpty) return 'Аккаунт Clover';
+    if (raw.isEmpty) return context.l10n.attendance_workers_clover_account;
     return raw.startsWith('@') ? raw : '@$raw';
   }
 
@@ -62,13 +63,13 @@ class _AttendanceDutyRosterPageState extends State<AttendanceDutyRosterPage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: result == AttendancePersistResult.queued ? 'Сохранено локально' : 'Сохранено',
+        message: result == AttendancePersistResult.queued ? context.l10n.attendance_saved_locally : context.l10n.common_saved,
         kind: AppSnackBarKind.success,
       );
       context.router.maybePop();
     } catch (e) {
       if (!mounted) return;
-      final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить';
+      final msg = e is AttendanceException ? e.userMessage : context.l10n.common_save_failed;
       AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -96,7 +97,7 @@ class _AttendanceDutyRosterPageState extends State<AttendanceDutyRosterPage> {
             .toList(growable: false);
 
         return AttendanceScreenShell(
-          title: 'Дежурные',
+          title: context.l10n.attendance_duty_title,
           showSave: true,
           isSaving: _saving,
           onSaveTap: _save,
@@ -109,7 +110,7 @@ class _AttendanceDutyRosterPageState extends State<AttendanceDutyRosterPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Только дежурный отмечает',
+                      context.l10n.attendance_duty_only_duty_punches,
                       style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -121,7 +122,7 @@ class _AttendanceDutyRosterPageState extends State<AttendanceDutyRosterPage> {
                         await _cubit.setDutyOnlyPunch(v);
                       } catch (e) {
                         if (!context.mounted) return;
-                        final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить';
+                        final msg = e is AttendanceException ? e.userMessage : context.l10n.common_save_failed;
                         AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
                       }
                     },
@@ -130,7 +131,7 @@ class _AttendanceDutyRosterPageState extends State<AttendanceDutyRosterPage> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Рабочие дни',
+                context.l10n.attendance_duty_workdays,
                 style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
@@ -140,7 +141,7 @@ class _AttendanceDutyRosterPageState extends State<AttendanceDutyRosterPage> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Очередь',
+                context.l10n.attendance_duty_queue,
                 style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
@@ -148,7 +149,7 @@ class _AttendanceDutyRosterPageState extends State<AttendanceDutyRosterPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Text(
-                    'Сначала добавьте работников',
+                    context.l10n.attendance_duty_add_workers_first,
                     style: AppTextStyle.base(14, color: colors.subTextColor),
                   ),
                 )

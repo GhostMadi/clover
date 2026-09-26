@@ -1,4 +1,5 @@
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_date_picker.dart';
@@ -67,8 +68,8 @@ class _BookingRescheduleSheetState extends State<BookingRescheduleSheet> {
               child: ListView(
                 children: [
                   AppDatePicker(
-                    label: 'Дата',
-                    hint: 'Выберите день',
+                    label: context.l10n.common_date,
+                    hint: context.l10n.booking_pick_day,
                     value: state.day,
                     firstDate: today,
                     lastDate: today.add(const Duration(days: 90)),
@@ -77,7 +78,7 @@ class _BookingRescheduleSheetState extends State<BookingRescheduleSheet> {
                   ),
                   const SizedBox(height: 18),
                   Text(
-                    'Доступное время',
+                    context.l10n.booking_available_times,
                     style: AppTextStyle.base(
                       14,
                       color: context.colors.subTextColor,
@@ -95,7 +96,7 @@ class _BookingRescheduleSheetState extends State<BookingRescheduleSheet> {
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       child: Text(
                         state.dayUnavailableReason ??
-                            'На этот день нет свободного времени',
+                            context.l10n.booking_no_free_times_day,
                         textAlign: TextAlign.center,
                         style: AppTextStyle.base(
                           14,
@@ -124,7 +125,7 @@ class _BookingRescheduleSheetState extends State<BookingRescheduleSheet> {
             ),
             const SizedBox(height: 16),
             BookingPrimaryButton(
-              text: 'Сохранить',
+              text: context.l10n.common_save,
               height: 48,
               isExpanded: true,
               interactive: selected != null,

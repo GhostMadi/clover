@@ -5,6 +5,7 @@ import 'package:clover/feature/_cluster_/cluster_create/cluster_create_flow.dart
 import 'package:clover/feature/_cluster_/cluster_create/extension/cluster_create_router_extension.dart';
 import 'package:clover/feature/_cluster_/cluster_create/presentation/widget/cluster_create_step_guard.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class ClusterCreateEditorPage extends StatelessWidget {
@@ -19,7 +20,7 @@ class ClusterCreateEditorPage extends StatelessWidget {
       canShow: draft.canOpenEditor,
       child: AppImageEditorPage(
         assets: draft.selectedAssets,
-        title: 'Обложка кластера',
+        title: context.l10n.cluster_cover,
         lockedAspectRatio: PostAspectRatio.square1x1,
         onClose: () => context.router.maybePop(),
         onDone: (results) {

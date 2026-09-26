@@ -1,0 +1,35 @@
+---
+description: Правила ключей и процесса l10n (ru/en/kk) для мобилки Clover
+globs: lib/**/*.dart, lib/l10n/*.arb
+alwaysApply: false
+---
+
+# App localization (ru / en / kk)
+
+Полный процесс: [`docs/business/app-localization.md`](../../docs/business/app-localization.md).  
+Справочники бэка — только EN-ключи: `clover-catalog-l10n`.
+
+## Стек
+
+- ARB: `lib/l10n/app_ru.arb` (шаблон), `app_en.arb`, `app_kk.arb`
+- UI: `context.l10n` (не сырой RU/EN в виджете)
+- Локаль: `AppLocaleCubit` → `MaterialApp.locale`
+
+## Ключи
+
+| Тип | Префикс | Пример |
+|-----|---------|--------|
+| Общие короткие | `common_` | `common_save`, `common_cancel` |
+| Экран / фича | `{area}_` | `settings_account_`, `auth_login_` |
+| Каталоги | `catalog_` | `catalog_city_almaty` |
+| Ошибки / push | `error_`, `push_` | `error_auth_network` |
+
+- Сомневаешься — **не** `common_`.
+- Плейсхолдеры `{name}`, не конкатенация.
+- Новая строка: ru → en → kk → код.
+
+## Запрещено
+
+- Хардкод UI-строк в feature/shared после миграции экрана
+- `labelRu` как единственный источник для справочника (→ `label(l10n)` / `catalog_*`)
+- Перевод UGC / ников / EN-ключей с бэка

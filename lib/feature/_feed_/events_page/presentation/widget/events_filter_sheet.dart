@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
@@ -12,6 +13,7 @@ import 'package:clover/feature/_feed_/events_page/data/models/events_content_kin
 import 'package:clover/feature/_feed_/events_page/data/models/events_filter.dart';
 import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_group_key.dart';
 import 'package:clover/feature/_catalog_/marker_tags/presentation/widget/multi_marker_tags.dart';
+import 'package:clover/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 abstract final class EventsFilterSheet {
@@ -22,7 +24,7 @@ abstract final class EventsFilterSheet {
   }) {
     return AppBottomSheet.show<EventsFilter>(
       context: context,
-      title: mode == EventsFilterSheetMode.map ? 'Фильтр карты' : 'Фильтр',
+      title: mode == EventsFilterSheetMode.map ? context.l10n.feed_filter_map_title : context.l10n.feed_filter_title,
       upperCaseTitle: false,
       showCloseButton: true,
       content: _EventsFilterContent(initial: initial, mode: mode),
@@ -39,12 +41,12 @@ enum _EventsDatePreset {
   week,
   month;
 
-  String get label => switch (this) {
-        _EventsDatePreset.today => 'Сегодня',
-        _EventsDatePreset.tomorrow => 'Завтра',
-        _EventsDatePreset.dayAfterTomorrow => 'Послезавтра',
-        _EventsDatePreset.week => 'Неделя',
-        _EventsDatePreset.month => 'Месяц',
+  String label(AppLocalizations l10n) => switch (this) {
+        _EventsDatePreset.today => l10n.common_today,
+        _EventsDatePreset.tomorrow => l10n.common_tomorrow,
+        _EventsDatePreset.dayAfterTomorrow => l10n.common_day_after_tomorrow,
+        _EventsDatePreset.week => l10n.common_week,
+        _EventsDatePreset.month => l10n.common_month,
       };
 }
 
@@ -236,15 +238,15 @@ class _EventsFilterContentState extends State<_EventsFilterContent> {
       mainAxisSize: MainAxisSize.min,
       children: [
         CountrySingleSelectField(
-          label: 'Страна',
-          hint: 'Выберите страну',
+          label: context.l10n.catalog_country_sheet_title,
+          hint: context.l10n.common_pick_country,
           value: _countryCode,
           onChanged: _onCountryChanged,
         ),
         const SizedBox(height: 12),
         CitySingleSelectField(
-          label: 'Город',
-          hint: 'Выберите город',
+          label: context.l10n.catalog_city_sheet_title,
+          hint: context.l10n.common_pick_city,
           countryCode: _countryCode,
           value: _cityCode,
           onChanged: (code) => setState(() => _cityCode = code),
@@ -260,7 +262,7 @@ class _EventsFilterContentState extends State<_EventsFilterContent> {
         if (_showEventFilters) ...[
           if (!_isMapMode) const SizedBox(height: 16),
           Text(
-            'Дни ивента',
+            context.l10n.feed_filter_event_days,
             style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
@@ -270,7 +272,7 @@ class _EventsFilterContentState extends State<_EventsFilterContent> {
             children: [
               for (final preset in _EventsDatePreset.values)
                 _DatePresetChip(
-                  label: preset.label,
+                  label: preset.label(context.l10n),
                   selected: _matchesPreset(preset),
                   onTap: () => _applyDatePreset(preset),
                 ),
@@ -281,8 +283,8 @@ class _EventsFilterContentState extends State<_EventsFilterContent> {
             children: [
               Expanded(
                 child: AppDatePicker(
-                  label: 'С',
-                  hint: 'Начало',
+                  label: context.l10n.common_from_short,
+                  hint: context.l10n.common_start_label,
                   value: _dateFrom,
                   lastDate: _dateTo,
                   onChanged: (value) => setState(() {
@@ -296,8 +298,8 @@ class _EventsFilterContentState extends State<_EventsFilterContent> {
               const SizedBox(width: 10),
               Expanded(
                 child: AppDatePicker(
-                  label: 'По',
-                  hint: 'Конец',
+                  label: context.l10n.common_to,
+                  hint: context.l10n.common_end_label,
                   value: _dateTo,
                   firstDate: _dateFrom,
                   onChanged: (value) => setState(() {
@@ -313,18 +315,18 @@ class _EventsFilterContentState extends State<_EventsFilterContent> {
           const SizedBox(height: 16),
           AppSmilePicker(
             controller: _emojiController,
-            label: 'Эмодзи ивента',
-            hintText: 'Любое — оставьте пустым',
+            label: context.l10n.feed_filter_emoji_label,
+            hintText: context.l10n.feed_filter_emoji_hint,
             emojis: _eventEmojis,
             shuffleStrip: false,
             maxLength: 1,
           ),
           const SizedBox(height: 16),
           MultiMarkerTags(
-            label: 'Теги маркера',
-            hint: 'Любые — оставьте пустым',
-            sheetTitle: 'Теги маркера',
-            searchHint: 'Поиск тега',
+            label: context.l10n.feed_filter_tags_label,
+            hint: context.l10n.feed_filter_tags_hint,
+            sheetTitle: context.l10n.feed_filter_tags_label,
+            searchHint: context.l10n.feed_filter_tags_search,
             values: _selectedTagIds,
             excludeGroupKeys: MarkerTagGroupKey.servicePowerGroups,
             onChanged: (value) => setState(() => _selectedTagIds = value),
@@ -334,11 +336,11 @@ class _EventsFilterContentState extends State<_EventsFilterContent> {
         Row(
           children: [
             Expanded(
-              child: AppOutlinedButton(text: 'Сбросить', height: 48, onTap: _reset),
+              child: AppOutlinedButton(text: context.l10n.common_reset, height: 48, onTap: _reset),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: AppButton(text: 'Применить', height: 48, onTap: _apply),
+              child: AppButton(text: context.l10n.common_apply, height: 48, onTap: _apply),
             ),
           ],
         ),

@@ -4,6 +4,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_payroll_models.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class AttendancePayrollSummaryCard extends StatelessWidget {
   const AttendancePayrollSummaryCard({super.key, required this.summary});
@@ -44,7 +45,7 @@ class AttendancePayrollSummaryCard extends StatelessWidget {
                       style: AppTextStyle.base(22, color: colors.textColor, fontWeight: FontWeight.w800),
                     ),
                     Text(
-                      '${summary.periodLabel} · ${summary.workerCount} чел.',
+                      context.l10n.attendance_payroll_summary_line(summary.periodLabel, summary.workerCount),
                       style: AppTextStyle.base(13, color: colors.subTextColor),
                     ),
                   ],
@@ -53,16 +54,16 @@ class AttendancePayrollSummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          _Row(label: 'Оклад', value: attendanceFormatMoney(summary.totalBase)),
+          _Row(label: context.l10n.attendance_analytics_base_salary, value: attendanceFormatMoney(summary.totalBase)),
           const SizedBox(height: 6),
           _Row(
-            label: 'Списания',
+            label: context.l10n.attendance_analytics_deductions,
             value: '−${attendanceFormatMoney(summary.totalDeductions)}',
             valueColor: colors.functionalSoftYellowIcon,
           ),
           const SizedBox(height: 6),
           _Row(
-            label: 'Доплаты',
+            label: context.l10n.attendance_analytics_bonuses,
             value: '+${attendanceFormatMoney(summary.totalBonuses)}',
             valueColor: accent.icon,
           ),

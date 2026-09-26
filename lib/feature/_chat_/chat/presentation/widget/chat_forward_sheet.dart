@@ -11,6 +11,7 @@ import 'package:clover/feature/_post_/post_share/data/models/post_share_recipien
 import 'package:clover/feature/_post_/post_share/presentation/cubit/post_share_recipients_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 abstract final class ChatForwardSheet {
   static Future<bool> show(
@@ -23,7 +24,7 @@ abstract final class ChatForwardSheet {
     try {
       final result = await AppBottomSheet.show<bool>(
         context: context,
-        title: 'Переслать',
+        title: context.l10n.chat_action_forward,
         upperCaseTitle: false,
         expandBody: true,
         contentHeight: MediaQuery.sizeOf(context).height * 0.72,
@@ -104,7 +105,7 @@ class _ChatForwardBodyState extends State<_ChatForwardBody> {
         children: [
           AppField(
             controller: _searchController,
-            hintText: 'Поиск получателя',
+            hintText: context.l10n.chat_forward_search,
             prefixIcon: AppIcons.searchRounded.icon,
             textInputAction: TextInputAction.search,
           ),

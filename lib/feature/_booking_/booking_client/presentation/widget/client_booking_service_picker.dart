@@ -5,6 +5,7 @@ import 'package:clover/feature/_booking_/booking_client/presentation/widget/clie
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class ClientBookingServicePicker extends StatelessWidget {
   const ClientBookingServicePicker({
@@ -23,10 +24,10 @@ class ClientBookingServicePicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ClientBookingStepHeader(
+        ClientBookingStepHeader(
           step: 1,
-          title: 'Услуга',
-          subtitle: 'Что хотите сделать',
+          title: context.l10n.booking_service,
+          subtitle: context.l10n.booking_what_to_do,
         ),
         const SizedBox(height: 12),
         for (var i = 0; i < services.length; i++) ...[

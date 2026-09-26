@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
@@ -7,6 +8,7 @@ import 'package:clover/feature/_attendance_/attendance_punch_types/presentation/
 import 'package:clover/feature/_attendance_/attendance_punch_types/presentation/widget/attendance_punch_custom_row.dart';
 import 'package:clover/feature/_attendance_/attendance_punch_types/presentation/widget/attendance_punch_system_block.dart';
 import 'package:clover/feature/_attendance_/attendance_workplace_settings/presentation/cubit/attendance_workplace_settings_cubit.dart';
+import 'package:clover/feature/_attendance_/shared/attendance_l10n.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_error.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_outbox.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_custom_punch_config.dart';
@@ -74,13 +76,13 @@ class _AttendancePunchTypesPageState extends State<AttendancePunchTypesPage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: result == AttendancePersistResult.queued ? 'Сохранено локально' : 'Сохранено',
+        message: result == AttendancePersistResult.queued ? context.l10n.attendance_saved_locally : context.l10n.common_saved,
         kind: AppSnackBarKind.success,
       );
       context.router.maybePop();
     } catch (e) {
       if (!mounted) return;
-      final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить';
+      final msg = e is AttendanceException ? e.userMessage : context.l10n.common_save_failed;
       AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -99,7 +101,7 @@ class _AttendancePunchTypesPageState extends State<AttendancePunchTypesPage> {
     final colors = context.colors;
 
     return AttendanceScreenShell(
-      title: 'Отметки',
+      title: context.l10n.attendance_analytics_punches,
       showSave: true,
       canSave: _canSave && !_saving,
       isSaving: _saving,
@@ -110,10 +112,10 @@ class _AttendancePunchTypesPageState extends State<AttendancePunchTypesPage> {
         padding: EdgeInsets.fromLTRB(16, 0, 16, AttendanceScreenShell.scrollBottomGap(context)),
         children: [
           AttendanceSettingsSurface(
-            title: 'Смена',
+            title: context.l10n.attendance_punch_types_shift,
             children: [
               AttendancePunchSystemBlock(
-                title: AttendanceSystemPunchCode.clockIn.labelRu,
+                title: AttendanceSystemPunchCode.clockIn.label(context.l10n),
                 enabled: _clockInEnabled,
                 scheduledTime: _clockInTime,
                 onEnabledChanged: (v) => setState(() {
@@ -124,7 +126,7 @@ class _AttendancePunchTypesPageState extends State<AttendancePunchTypesPage> {
               ),
               Divider(height: 1, color: colors.divider),
               AttendancePunchSystemBlock(
-                title: AttendanceSystemPunchCode.clockOut.labelRu,
+                title: AttendanceSystemPunchCode.clockOut.label(context.l10n),
                 enabled: _clockOutEnabled,
                 scheduledTime: _clockOutTime,
                 onEnabledChanged: (v) => setState(() {
@@ -136,23 +138,23 @@ class _AttendancePunchTypesPageState extends State<AttendancePunchTypesPage> {
             ],
           ),
           if (!_canSave) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Text(
-              'Включите «Пришёл» или «Ушёл»',
+              context.l10n.attendance_punch_types_enable_system,
               style: AppTextStyle.base(13, color: colors.destructive, fontWeight: FontWeight.w600),
             ),
           ],
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Text(
-            'Свои',
+            context.l10n.attendance_punch_types_custom,
             style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           if (_customPunches.isEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: EdgeInsets.symmetric(vertical: 16),
               child: Text(
-                'Нет своих отметок. «+» сверху.',
+                context.l10n.attendance_punch_types_custom_empty,
                 style: AppTextStyle.base(14, color: colors.subTextColor),
               ),
             )

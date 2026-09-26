@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
@@ -48,7 +49,7 @@ class _AttendanceWorkerHubPageState extends State<AttendanceWorkerHubPage> {
       builder: (context, state) {
         if (state is AttendanceWorkerHubInitial || state is AttendanceWorkerHubLoading) {
           return AttendanceScreenShell(
-            title: 'Посещаемость',
+            title: context.l10n.attendance_hub_title,
             body: Center(
               child: CircularProgressIndicator(
                 color: context.colors.serviceAccent(kAttendanceService).icon,
@@ -63,13 +64,13 @@ class _AttendanceWorkerHubPageState extends State<AttendanceWorkerHubPage> {
         final snap = state is AttendanceWorkerHubLoaded ? state.snapshot : null;
 
         return AttendanceScreenShell(
-          title: 'Посещаемость',
+          title: context.l10n.attendance_hub_title,
           body: memberships.isEmpty
               ? Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(24),
+                    padding: EdgeInsets.all(24),
                     child: Text(
-                      'Нет активных компаний. Примите приглашение в чате.',
+                      context.l10n.attendance_worker_no_companies,
                       textAlign: TextAlign.center,
                       style: AppTextStyle.base(15, color: context.colors.subTextColor),
                     ),
@@ -116,14 +117,14 @@ class _AckBanner extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              '${membership.workplaceName}: примите правила v${membership.configVersion}',
+              context.l10n.attendance_worker_accept_rules(membership.workplaceName, membership.configVersion),
               style: AppTextStyle.base(14, color: colors.textColor),
             ),
           ),
           TextButton(
             onPressed: () => openAttendanceCompanyChat(context, membership.workplaceId),
             child: Text(
-              'Чат',
+              context.l10n.common_chat,
               style: AppTextStyle.base(14, color: colors.functionalSoftBlueIcon, fontWeight: FontWeight.w600),
             ),
           ),
@@ -200,7 +201,7 @@ class _WorkerCompanyCard extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        onShift ? 'на смене' : 'не на смене',
+                        onShift ? context.l10n.attendance_worker_on_shift : context.l10n.attendance_worker_off_shift,
                         style: AppTextStyle.base(
                           12,
                           color: onShift ? colors.functionalSoftBlueIcon : colors.subTextColor,
@@ -216,7 +217,7 @@ class _WorkerCompanyCard extends StatelessWidget {
           if (membership.lastPunchLabel != null) ...[
             const SizedBox(height: 8),
             Text(
-              'Последнее: ${membership.lastPunchLabel}',
+              context.l10n.attendance_worker_last_punch(membership.lastPunchLabel!),
               style: AppTextStyle.base(13, color: colors.subTextColor),
             ),
           ],
@@ -240,9 +241,9 @@ class _WorkerCompanyCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Expanded(child: _MiniStat(label: 'Часы', value: analytics.totalHoursLabel)),
-                  Expanded(child: _MiniStat(label: 'Смены', value: '${analytics.daysWorked}')),
-                  Expanded(child: _MiniStat(label: 'Опозд.', value: '${analytics.lateDays}')),
+                  Expanded(child: _MiniStat(label: context.l10n.common_hours, value: analytics.totalHoursLabel)),
+                  Expanded(child: _MiniStat(label: context.l10n.attendance_analytics_shifts, value: '${analytics.daysWorked}')),
+                  Expanded(child: _MiniStat(label: context.l10n.attendance_worker_lates_abbr, value: '${analytics.lateDays}')),
                 ],
               ),
             ),
@@ -252,12 +253,12 @@ class _WorkerCompanyCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
-                'Чтобы отметиться, включите тег «Мои отметки» в профиле.',
+                context.l10n.attendance_worker_tag_required,
                 style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
               ),
             ),
           AttendancePrimaryButton(
-            text: 'Отметиться',
+            text: context.l10n.attendance_worker_punch_cta,
             isExpanded: true,
             onTap: membership.needsAck || !membership.hasAttendanceWorkTag
                 ? null
@@ -265,7 +266,7 @@ class _WorkerCompanyCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           AppOutlinedButton(
-            text: 'Мои детали',
+            text: context.l10n.attendance_worker_my_details,
             isExpanded: true,
             service: kAttendanceService,
             onTap: () => context.router.push(

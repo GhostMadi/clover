@@ -4,6 +4,7 @@ import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
+import 'package:clover/core/extension/context.dart';
 
 class BookingListActionCard extends StatelessWidget {
   const BookingListActionCard({
@@ -63,7 +64,7 @@ class BookingListActionCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          item.clientName.isEmpty ? 'Клиент' : item.clientName,
+                          item.clientName.isEmpty ? context.l10n.booking_client : item.clientName,
                           style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w800),
                         ),
                         const SizedBox(height: 4),

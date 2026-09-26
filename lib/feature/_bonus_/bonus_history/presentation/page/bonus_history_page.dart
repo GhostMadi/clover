@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -54,7 +55,7 @@ class _BonusHistoryPageState extends State<BonusHistoryPage> {
       bloc: _cubit,
       builder: (context, state) {
         return SettingsScreenShell(
-          title: 'История бонусов',
+          title: context.l10n.bonus_history_title,
           service: kBonusService,
           body: switch (state) {
             BonusHistoryInitial() => const SizedBox.shrink(),
@@ -86,7 +87,7 @@ class _BonusHistoryPageState extends State<BonusHistoryPage> {
                       const BonusHistoryEmptyState()
                     else ...[
                       Text(
-                        'Операции',
+                        context.l10n.bonus_history_operations,
                         style: AppTextStyle.base(
                           13,
                           color: context.colors.subTextColor,
@@ -182,7 +183,7 @@ class _BonusHistoryErrorBody extends StatelessWidget {
           style: AppTextStyle.base(14, color: context.colors.subTextColor),
         ),
         const SizedBox(height: 16),
-        Center(child: FilledButton(onPressed: onRetry, child: const Text('Повторить'))),
+        Center(child: FilledButton(onPressed: onRetry, child: Text(context.l10n.common_retry))),
       ],
     );
   }

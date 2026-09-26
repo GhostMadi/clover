@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
@@ -20,7 +21,7 @@ abstract final class EditProfileUsernameSheet {
   }) {
     return AppBottomSheet.show<ProfileNewModel>(
       context: context,
-      title: 'Никнейм',
+      title: context.l10n.profile_username,
       upperCaseTitle: false,
       contentPadding: const EdgeInsets.all(16),
       sheetOuterPadding: const EdgeInsets.fromLTRB(16, 48, 16, 12),
@@ -101,7 +102,7 @@ class _EditProfileUsernameSheetBodyState extends State<_EditProfileUsernameSheet
     if (!_policy.canChange) {
       AppSnackBar.show(
         context,
-        message: _policy.statusHint ?? 'Смена никнейма сейчас недоступна',
+        message: _policy.statusHint ?? context.l10n.profile_username_unavailable,
         kind: AppSnackBarKind.info,
       );
       return;
@@ -109,7 +110,7 @@ class _EditProfileUsernameSheetBodyState extends State<_EditProfileUsernameSheet
     if (!_isValidFormat) {
       AppSnackBar.show(
         context,
-        message: 'Никнейм может содержать только латиницу, цифры, «_» и «.»',
+        message: context.l10n.profile_username_charset,
         kind: AppSnackBarKind.error,
       );
     }
@@ -132,7 +133,7 @@ class _EditProfileUsernameSheetBodyState extends State<_EditProfileUsernameSheet
         ],
         AppField(
           controller: _controller,
-          labelText: 'Никнейм',
+          labelText: context.l10n.profile_username,
           hintText: 'username',
           prefixIcon: AppIcons.alternateEmail.icon,
           textInputAction: TextInputAction.done,
@@ -147,7 +148,7 @@ class _EditProfileUsernameSheetBodyState extends State<_EditProfileUsernameSheet
           children: [
             Expanded(
               child: AppOutlinedButton(
-                text: 'Отмена',
+                text: context.l10n.common_cancel,
                 isExpanded: true,
                 onTap: _cancel,
               ),
@@ -155,7 +156,7 @@ class _EditProfileUsernameSheetBodyState extends State<_EditProfileUsernameSheet
             const SizedBox(width: 12),
             Expanded(
               child: AppButton(
-                text: 'Сохранить',
+                text: context.l10n.common_save,
                 isExpanded: true,
                 isLoading: _isSubmitting,
                 interactive: _canSave,

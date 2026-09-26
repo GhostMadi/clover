@@ -1,15 +1,18 @@
 import 'dart:async';
 
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_time_picker.dart';
 import 'package:clover/feature/_catalog_/city/data/models/city_code.dart';
 import 'package:clover/feature/_catalog_/countries/data/models/country_code.dart';
 import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_model.dart';
+import 'package:clover/feature/_catalog_/shared/catalog_l10n.dart';
 import 'package:clover/feature/_post_/post/data/models/post_marker_summary.dart';
 import 'package:clover/feature/_post_/post/data/models/post_profile_filter_value.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_marker_details_shimmer.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_profile_filter_chips.dart';
+import 'package:clover/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 /// Компонент-обертка, добавляющий фирменную вертикальную линию слева от контента.
@@ -80,8 +83,8 @@ class PostMarkerInfoSection extends StatelessWidget {
     final titleText = title?.trim() ?? '';
     final descriptionText = description?.trim() ?? '';
     final authorName = _displayUsername(username);
-    final likesLabel = _likesLabel(likesCount);
-    final dislikesLabel = _dislikesLabel(dislikesCount);
+    final likesLabel = _likesLabel(context.l10n, likesCount);
+    final dislikesLabel = _dislikesLabel(context.l10n, dislikesCount);
     final markerData = marker;
     final hasPostDetails = markerData == null && _hasPostPublicationDetails;
     final hasCaption =
@@ -134,14 +137,14 @@ class PostMarkerInfoSection extends StatelessWidget {
     return value;
   }
 
-  static String? _likesLabel(int count) {
+  static String? _likesLabel(AppLocalizations l10n, int count) {
     if (count <= 0) return null;
-    return 'нравится $count';
+    return l10n.post_likes_count(count);
   }
 
-  static String? _dislikesLabel(int count) {
+  static String? _dislikesLabel(AppLocalizations l10n, int count) {
     if (count <= 0) return null;
-    return 'не нравится $count';
+    return l10n.post_dislikes_count(count);
   }
 
   bool get _hasPostPublicationDetails {
@@ -259,21 +262,23 @@ class _PostPublicationDetailsBlock extends StatelessWidget {
   final String? countryCode;
   final String? cityCode;
 
-  String? get _countryLabel => CountryCode.tryParse(countryCode)?.labelRu;
+  String? _countryLabel(AppLocalizations l10n) =>
+      CountryCode.tryParse(countryCode)?.label(l10n);
 
-  String? get _cityLabel {
+  String? _cityLabel(AppLocalizations l10n) {
     final country = countryCode?.trim();
     final city = cityCode?.trim();
     if (country == null || country.isEmpty || city == null || city.isEmpty) return null;
-    return CityCode.tryParse(countryCode: country, cityCode: city)?.labelRu ?? city;
+    return CityCode.tryParse(countryCode: country, cityCode: city)?.label(l10n) ?? city;
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final l10n = context.l10n;
     final emoji = textEmoji?.trim() ?? '';
-    final country = _countryLabel;
-    final city = _cityLabel;
+    final country = _countryLabel(l10n);
+    final city = _cityLabel(l10n);
     final primary = addressPrimary?.trim();
     final secondaryRaw = addressCyrillic?.trim();
     final secondary = (secondaryRaw != null && secondaryRaw.isNotEmpty && secondaryRaw != primary)
@@ -321,7 +326,7 @@ class _PostPublicationDetailsBlock extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'АДРЕС И ОРИЕНТИР',
+                  context.l10n.post_address_section,
                   style: AppTextStyle.base(
                     10,
                     fontWeight: FontWeight.w700,
@@ -413,7 +418,7 @@ class _MarkerDetailsBlock extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'АДРЕС И ОРИЕНТИР',
+                  context.l10n.post_address_section,
                   style: AppTextStyle.base(
                     10,
                     fontWeight: FontWeight.w700,
@@ -452,7 +457,7 @@ class _MarkerDetailsBlock extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'ДАТА И ВРЕМЯ',
+                        context.l10n.post_datetime_section,
                         style: AppTextStyle.base(
                           10,
                           fontWeight: FontWeight.w700,
@@ -552,11 +557,13 @@ class _PostMarkerCountdownState extends State<_PostMarkerCountdown> {
 
     final value = switch (phase) {
       _MarkerCountdownPhase.beforeStartDays =>
-        'через ${AppTimePicker.formatDaysRemaining(start.difference(_now).inDays)}',
+        context.l10n.post_in_days(
+          AppTimePicker.formatDaysRemaining(start.difference(_now).inDays, context.l10n),
+        ),
       _MarkerCountdownPhase.beforeStartHours => AppTimePicker.formatCountdown(start.difference(_now)),
       _MarkerCountdownPhase.live =>
         end == null ? 'LIVE' : AppTimePicker.formatCountdown(end.difference(_now)),
-      _MarkerCountdownPhase.finished => 'Завершено',
+      _MarkerCountdownPhase.finished => context.l10n.post_completed,
     };
 
     final isLive = phase == _MarkerCountdownPhase.live;
@@ -601,7 +608,7 @@ class _MarkerTagChips extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              '#${tag.labelRu.toLowerCase()}',
+              '#${(tag.keyEnum?.label(context.l10n) ?? tag.labelRu).toLowerCase()}',
               style: AppTextStyle.base(11, fontWeight: FontWeight.w700, color: context.colors.primary),
             ),
           ),

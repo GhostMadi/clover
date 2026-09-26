@@ -7,6 +7,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 part 'guest_profile_cubit.freezed.dart';
 
@@ -36,7 +39,7 @@ class GuestProfileCubit extends Cubit<GuestProfileState> {
   Future<void> load(String userId) async {
     final id = userId.trim();
     if (id.isEmpty) {
-      emit(const GuestProfileState.error('Некорректный профиль'));
+      emit(GuestProfileState.error(lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).profile_invalid));
       return;
     }
     _userId = id;
@@ -76,7 +79,7 @@ class GuestProfileCubit extends Cubit<GuestProfileState> {
       final profile = await _repository.getById(id);
       if (profile == null) {
         if (showErrorIfEmpty && !isClosed) {
-          emit(const GuestProfileState.error('Профиль не найден'));
+          emit(GuestProfileState.error(lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).profile_not_found));
         }
         return;
       }

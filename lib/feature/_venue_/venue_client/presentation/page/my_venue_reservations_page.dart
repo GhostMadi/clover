@@ -7,6 +7,7 @@ import 'package:clover/feature/_venue_/shared/presentation/widget/venue_mock_wid
 import 'package:clover/feature/_venue_/shared/presentation/widget/venue_screen_shell.dart';
 import 'package:clover/feature/_venue_/shared/presentation/widget/venue_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class MyVenueReservationsPage extends StatelessWidget {
@@ -21,11 +22,11 @@ class MyVenueReservationsPage extends StatelessWidget {
     ];
 
     return VenueScreenShell(
-      title: 'Мои брони',
+      title: context.l10n.venue_my_bookings,
       body: ListView(
         padding: EdgeInsets.fromLTRB(16, 8, 16, VenueScreenShell.scrollBottomGap(context)),
         children: [
-          const VenueMockBanner(text: 'Клиентский список запросов (мок).'),
+          VenueMockBanner(text: context.l10n.venue_client_requests_mock),
           const SizedBox(height: 16),
           AppTileGroup(
             children: [
@@ -41,7 +42,7 @@ class MyVenueReservationsPage extends StatelessWidget {
           ),
           if (mine.isEmpty)
             Text(
-              'Пока пусто',
+              context.l10n.venue_empty_for_now,
               style: AppTextStyle.base(14, color: context.colors.subTextColor),
             ),
         ],

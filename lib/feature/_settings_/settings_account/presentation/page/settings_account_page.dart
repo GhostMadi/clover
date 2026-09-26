@@ -3,6 +3,9 @@ import 'package:clover/core/auth/cubit/auth_cubit.dart';
 import 'package:clover/core/auth/cubit/auth_state.dart';
 import 'package:clover/core/auth/errors/auth_error_code.dart';
 import 'package:clover/core/auth/errors/auth_error_messages.dart';
+import 'package:clover/core/extension/context.dart';
+import 'package:clover/core/locale/app_locale.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -17,17 +20,6 @@ import 'package:clover/feature/_settings_/settings/presentation/widget/settings_
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-enum _SettingsAccountLanguage {
-  ru('ru', 'Русский'),
-  en('en', 'English'),
-  kk('kk', 'Қазақша');
-
-  const _SettingsAccountLanguage(this.code, this.label);
-
-  final String code;
-  final String label;
-}
-
 @RoutePage()
 class SettingsAccountPage extends StatefulWidget {
   const SettingsAccountPage({super.key});
@@ -37,7 +29,6 @@ class SettingsAccountPage extends StatefulWidget {
 }
 
 class _SettingsAccountPageState extends State<SettingsAccountPage> {
-  _SettingsAccountLanguage _language = _SettingsAccountLanguage.ru;
   bool _isLoggingOut = false;
   bool _isHibernating = false;
   bool _isDeleting = false;
@@ -70,23 +61,25 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
   }
 
   Future<void> _pickLanguage() async {
-    final picked = await _showOptionSheet<_SettingsAccountLanguage>(
-      title: 'Язык',
-      options: _SettingsAccountLanguage.values,
-      selected: _language,
-      label: (option) => option.label,
+    final cubit = context.read<AppLocaleCubit>();
+    final picked = await _showOptionSheet<AppLocale>(
+      title: context.l10n.settings_account_language,
+      options: AppLocale.values,
+      selected: cubit.state,
+      label: (option) => option.endonym,
     );
     if (picked == null || !mounted) return;
-    setState(() => _language = picked);
+    await cubit.setLocale(picked);
   }
 
   Future<void> _pickTheme() async {
     final cubit = context.read<AppThemeCubit>();
+    final l10n = context.l10n;
     final picked = await _showOptionSheet<AppThemeMode>(
-      title: 'Тема',
+      title: l10n.settings_account_theme,
       options: AppThemeMode.values,
       selected: cubit.state,
-      label: (option) => option.labelRu,
+      label: (option) => option.label(l10n),
     );
     if (picked == null || !mounted) return;
     await cubit.setMode(picked);
@@ -125,26 +118,29 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
   }
 
   String get _passwordTileTitle {
-    if (_hasPassword == true) return 'Сбросить пароль';
-    if (_hasPassword == false) return 'Установить пароль';
-    return 'Пароль';
+    final l10n = context.l10n;
+    if (_hasPassword == true) return l10n.settings_account_reset_password;
+    if (_hasPassword == false) return l10n.settings_account_set_password;
+    return l10n.common_password;
   }
 
   String get _passwordTileSubtitle {
-    if (_hasPasswordLoading) return 'Проверяем…';
-    if (_hasPassword == true) return 'Код на email → новый пароль';
-    if (_hasPassword == false) return 'Задать пароль для входа по email или нику';
-    return 'Не удалось проверить статус пароля';
+    final l10n = context.l10n;
+    if (_hasPasswordLoading) return l10n.common_checking;
+    if (_hasPassword == true) return l10n.settings_account_password_reset_hint;
+    if (_hasPassword == false) return l10n.settings_account_password_set_hint;
+    return l10n.settings_account_password_check_failed;
   }
 
   Future<void> _confirmLogout() async {
     if (_sessionBusy) return;
+    final l10n = context.l10n;
 
     final confirmed = await AppBottomSheet.show<bool>(
       context: context,
-      title: 'Выход',
+      title: l10n.settings_account_logout_title,
       content: Text(
-        'Выйти из аккаунта на этом устройстве?',
+        l10n.settings_account_logout_confirm,
         style: TextStyle(color: context.colors.subTextColor, fontSize: 14, height: 1.4),
       ),
       actions: [
@@ -153,11 +149,17 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
             return Row(
               children: [
                 Expanded(
-                  child: AppButton(text: 'Отмена', onTap: () => Navigator.of(sheetContext).pop(false)),
+                  child: AppButton(
+                    text: l10n.common_cancel,
+                    onTap: () => Navigator.of(sheetContext).pop(false),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: AppButton(text: 'Выйти', onTap: () => Navigator.of(sheetContext).pop(true)),
+                  child: AppButton(
+                    text: l10n.common_logout,
+                    onTap: () => Navigator.of(sheetContext).pop(true),
+                  ),
                 ),
               ],
             );
@@ -180,14 +182,13 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
 
   Future<void> _confirmHibernate() async {
     if (_sessionBusy) return;
+    final l10n = context.l10n;
 
     final confirmed = await AppBottomSheet.show<bool>(
       context: context,
-      title: 'Усыпить аккаунт',
+      title: l10n.settings_account_hibernate_title,
       content: Text(
-        'Профиль и посты скрываются из лент и поиска. Это не удаление — '
-        'при следующем входе аккаунт снова активен. '
-        'Повторный сон — не чаще раза в 30 дней.',
+        l10n.settings_account_hibernate_body,
         style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.4),
       ),
       actions: [
@@ -196,12 +197,15 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
             return Row(
               children: [
                 Expanded(
-                  child: AppButton(text: 'Отмена', onTap: () => Navigator.of(sheetContext).pop(false)),
+                  child: AppButton(
+                    text: l10n.common_cancel,
+                    onTap: () => Navigator.of(sheetContext).pop(false),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: AppButton(
-                    text: 'Усыпить',
+                    text: l10n.settings_account_hibernate_action,
                     onTap: () => Navigator.of(sheetContext).pop(true),
                   ),
                 ),
@@ -223,7 +227,7 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
     final state = context.read<AuthCubit>().state;
     if (state is AuthError) {
       setState(() {
-        _sessionError = AuthErrorMessages.messageFor(state.code);
+        _sessionError = AuthErrorMessages.messageFor(state.code, context.l10n);
         _isHibernating = false;
       });
     }
@@ -231,15 +235,13 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
 
   Future<void> _confirmDeleteAccount() async {
     if (_sessionBusy) return;
+    final l10n = context.l10n;
 
     final confirmed = await AppBottomSheet.show<bool>(
       context: context,
-      title: 'Деактивировать аккаунт?',
+      title: l10n.settings_account_deactivate_title,
       content: Text(
-        'Профиль и посты скроются из лент и поиска. '
-        'Это не безвозвратное удаление: при следующем входе аккаунт снова активен.\n\n'
-        'Чтобы навсегда удалить аккаунт и связанные данные, напишите в поддержку '
-        'на clover.com.kz/delete-account.',
+        l10n.settings_account_deactivate_body,
         style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.4),
       ),
       actions: [
@@ -248,12 +250,15 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
             return Row(
               children: [
                 Expanded(
-                  child: AppButton(text: 'Отмена', onTap: () => Navigator.of(sheetContext).pop(false)),
+                  child: AppButton(
+                    text: l10n.common_cancel,
+                    onTap: () => Navigator.of(sheetContext).pop(false),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: AppButton(
-                    text: 'Деактивировать',
+                    text: l10n.settings_account_deactivate_action,
                     onTap: () => Navigator.of(sheetContext).pop(true),
                   ),
                 ),
@@ -279,6 +284,7 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
           state.code == AuthErrorCode.unknown
               ? AuthErrorCode.deleteAccountFailed
               : state.code,
+          context.l10n,
         );
         _isDeleting = false;
       });
@@ -288,27 +294,29 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
   @override
   Widget build(BuildContext context) {
     final themeMode = context.watch<AppThemeCubit>().state;
+    final locale = context.watch<AppLocaleCubit>().state;
+    final l10n = context.l10n;
 
     return SettingsScreenShell(
-      title: 'Аккаунт',
+      title: l10n.settings_account_page_title,
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SettingsTileSectionTitle('Общее'),
+            SettingsTileSectionTitle(l10n.settings_account_section_general),
             AppTileGroup(
               children: [
                 AppTile(
-                  title: 'Язык',
-                  subtitle: _language.label,
+                  title: l10n.settings_account_language,
+                  subtitle: locale.endonym,
                   icon: AppIcons.language.icon,
                   showChevron: true,
                   onTap: _pickLanguage,
                 ),
                 AppTile(
-                  title: 'Тема',
-                  subtitle: themeMode.labelRu,
+                  title: l10n.settings_account_theme,
+                  subtitle: themeMode.label(l10n),
                   icon: AppIcons.theme.icon,
                   showChevron: true,
                   onTap: _pickTheme,
@@ -316,7 +324,7 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
               ],
             ),
             const SizedBox(height: 20),
-            const SettingsTileSectionTitle('Безопасность'),
+            SettingsTileSectionTitle(l10n.settings_account_section_security),
             AppTileGroup(
               children: [
                 AppTile(
@@ -333,11 +341,11 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
               ],
             ),
             const SizedBox(height: 20),
-            const SettingsTileSectionTitle('Сессия'),
+            SettingsTileSectionTitle(l10n.settings_account_section_session),
             AppTileGroup(
               children: [
                 AppTile(
-                  title: 'Выйти из аккаунта',
+                  title: l10n.settings_account_logout_action,
                   icon: AppIcons.logout.icon,
                   iconColor: context.colors.destructive,
                   destructive: true,
@@ -352,8 +360,8 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
                   onTap: _confirmLogout,
                 ),
                 AppTile(
-                  title: 'Усыпить аккаунт',
-                  subtitle: 'Скрыть профиль и посты. Не удаление.',
+                  title: l10n.settings_account_hibernate_title,
+                  subtitle: l10n.settings_account_hibernate_subtitle,
                   icon: AppIcons.visibilityOff.icon,
                   iconColor: context.colors.subTextColor,
                   enabled: !_sessionBusy,
@@ -367,8 +375,8 @@ class _SettingsAccountPageState extends State<SettingsAccountPage> {
                   onTap: _confirmHibernate,
                 ),
                 AppTile(
-                  title: 'Деактивировать аккаунт',
-                  subtitle: 'Скрыть профиль. Полное удаление — через поддержку.',
+                  title: l10n.settings_account_deactivate_tile,
+                  subtitle: l10n.settings_account_deactivate_subtitle,
                   icon: AppIcons.delete.icon,
                   iconColor: context.colors.destructive,
                   destructive: true,

@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -14,7 +15,7 @@ class AttendanceAnalyticsCalendar extends StatefulWidget {
     required this.daysByKey,
     required this.onDaySelected,
     this.focusedMonth,
-    this.title = 'Календарь',
+    this.title,
     this.compact = false,
   });
 
@@ -22,7 +23,7 @@ class AttendanceAnalyticsCalendar extends StatefulWidget {
   final Map<DateTime, AttendanceWorkerDayRecord> daysByKey;
   final ValueChanged<DateTime> onDaySelected;
   final DateTime? focusedMonth;
-  final String title;
+  final String? title;
 
   /// Компактный режим: меньше высота, без легенды — для экрана работника.
   final bool compact;
@@ -32,12 +33,6 @@ class AttendanceAnalyticsCalendar extends StatefulWidget {
 }
 
 class _AttendanceAnalyticsCalendarState extends State<AttendanceAnalyticsCalendar> {
-  static const _weekdayLabels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-  static const _monthLabels = [
-    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
-  ];
-
   late DateTime _focusedMonth;
 
   @override
@@ -88,7 +83,7 @@ class _AttendanceAnalyticsCalendarState extends State<AttendanceAnalyticsCalenda
               ),
               Expanded(
                 child: Text(
-                  '${_monthLabels[_focusedMonth.month - 1]} ${_focusedMonth.year}',
+                  context.dateFormat.monthYear(_focusedMonth),
                   textAlign: TextAlign.center,
                   style: AppTextStyle.base(
                     compact ? 14 : 16,
@@ -107,7 +102,7 @@ class _AttendanceAnalyticsCalendarState extends State<AttendanceAnalyticsCalenda
           SizedBox(height: compact ? 8 : 12),
           Row(
             children: [
-              for (final label in _weekdayLabels)
+              for (final label in context.dateFormat.weekdayShortLabels())
                 Expanded(
                   child: Text(
                     label,
@@ -161,16 +156,16 @@ class _AttendanceAnalyticsCalendarState extends State<AttendanceAnalyticsCalenda
             },
           ),
           if (!compact) ...[
-            const SizedBox(height: 14),
-            const Wrap(
+            SizedBox(height: 14),
+            Wrap(
               spacing: 10,
               runSpacing: 8,
               children: [
-                _LegendChip(status: AttendanceDayStatus.full, label: 'Полная'),
-                _LegendChip(status: AttendanceDayStatus.late, label: 'Опозд.'),
-                _LegendChip(status: AttendanceDayStatus.partial, label: 'Неполная'),
-                _LegendChip(status: AttendanceDayStatus.absent, label: 'Пропуск'),
-                _LegendChip(status: AttendanceDayStatus.excused, label: 'Оформлено'),
+                _LegendChip(status: AttendanceDayStatus.full, label: context.l10n.attendance_day_status_full_short),
+                _LegendChip(status: AttendanceDayStatus.late, label: context.l10n.attendance_worker_lates_abbr),
+                _LegendChip(status: AttendanceDayStatus.partial, label: context.l10n.attendance_day_status_partial_short),
+                _LegendChip(status: AttendanceDayStatus.absent, label: context.l10n.attendance_day_status_absent),
+                _LegendChip(status: AttendanceDayStatus.excused, label: context.l10n.attendance_day_status_excused),
               ],
             ),
           ],
@@ -184,8 +179,8 @@ class _AttendanceAnalyticsCalendarState extends State<AttendanceAnalyticsCalenda
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         AttendanceAnalyticsSectionHeader(
-          title: widget.title,
-          subtitle: 'Цвет = статус · ✓ отметился · ✗ не пришёл',
+          title: widget.title ?? context.l10n.attendance_analytics_calendar,
+          subtitle: context.l10n.attendance_analytics_calendar_legend,
         ),
         const SizedBox(height: 12),
         calendarBody,

@@ -4,6 +4,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_duty_roster.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Инфо-баннер: кто дежурит сегодня. При [dutyOnlyPunch] — предупреждение о замке.
 class AttendanceDutyTodayBanner extends StatelessWidget {
@@ -38,10 +39,10 @@ class AttendanceDutyTodayBanner extends StatelessWidget {
         iconColor: colors.subTextColor,
         bg: colors.surfaceMuted,
         border: colors.borderSoft,
-        title: 'Сегодня не день дежурства',
+        title: context.l10n.attendance_duty_not_today,
         subtitle: dutyOnlyPunch
-            ? 'Отметка сегодня недоступна — нет дежурного по расписанию.'
-            : 'Очередь есть, но сегодня не рабочий день по настройке.',
+            ? context.l10n.attendance_duty_punch_unavailable
+            : context.l10n.attendance_duty_queue_not_workday,
       );
     }
 
@@ -60,14 +61,16 @@ class AttendanceDutyTodayBanner extends StatelessWidget {
       iconColor: accent.icon,
       bg: accent.soft.withValues(alpha: 0.85),
       border: accent.icon.withValues(alpha: 0.25),
-      title: iAmOnDuty ? 'Сегодня дежурите вы' : 'Сегодня дежурит: $names',
+      title: iAmOnDuty
+          ? context.l10n.attendance_duty_you_today
+          : context.l10n.attendance_duty_today_named(names),
       subtitle: dutyOnlyPunch
           ? (iAmOnDuty
-              ? 'Режим «только дежурный»: отметка доступна вам.'
-              : 'Режим «только дежурный»: отметка другим сегодня недоступна.')
+              ? context.l10n.attendance_duty_mode_only_you
+              : context.l10n.attendance_duty_mode_only_others_blocked)
           : (iAmOnDuty
-              ? 'Инфо + уведомление команде. Отметка доступна как обычно — дежурство не замок.'
-              : 'Инфо для команды. Отметиться может любой принятый работник.'),
+              ? context.l10n.attendance_duty_info_notify
+              : context.l10n.attendance_duty_info_anyone),
     );
   }
 }

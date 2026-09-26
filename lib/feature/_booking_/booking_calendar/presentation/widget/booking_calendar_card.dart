@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_calendar/data/models/booking_calendar_item.dart';
@@ -13,26 +14,11 @@ class BookingCalendarCard extends StatelessWidget {
   final BookingCalendarItem item;
   final VoidCallback? onTap;
 
-  static const _monthLabels = [
-    'янв',
-    'фев',
-    'мар',
-    'апр',
-    'май',
-    'июн',
-    'июл',
-    'авг',
-    'сен',
-    'окт',
-    'ноя',
-    'дек',
-  ];
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final date = item.startsAtDate?.toLocal();
-    final dateLabel = date != null ? '${date.day} ${_monthLabels[date.month - 1]}' : '—';
+    final dateLabel = date != null ? context.dateFormat.dayMonth(date) : '—';
     final timeLabel = date != null
         ? '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}'
         : '—';
@@ -66,7 +52,7 @@ class BookingCalendarCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      item.clientName.trim().isEmpty ? 'Клиент' : item.clientName,
+                      item.clientName.trim().isEmpty ? context.l10n.booking_client : item.clientName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyle.base(14, color: colors.subTextColor),

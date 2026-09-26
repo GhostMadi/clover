@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -83,7 +84,7 @@ class _BookingClientPageState extends State<BookingClientPage> {
     if (!mounted) return;
 
     if (ok) {
-      AppSnackBar.show(context, message: 'Запись подтверждена', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.booking_confirmed_toast, kind: AppSnackBarKind.success);
       context.router.maybePop(true);
       return;
     }
@@ -113,12 +114,12 @@ class _BookingClientPageState extends State<BookingClientPage> {
             !ready.isSubmitting;
 
         return BookingScreenShell(
-          title: 'Запись',
+          title: context.l10n.booking_hub_title,
           compactBar: true,
           isLoading: state.maybeMap(loading: (_) => true, orElse: () => ready?.isSubmitting ?? false),
           showSave: ready != null,
           canSave: canConfirm,
-          saveLabel: 'Записаться',
+          saveLabel: context.l10n.booking_book_action,
           onSaveTap: () => _confirm(state),
           body: state.maybeMap(
             loading: (_) => const BookingLoader(),
@@ -142,9 +143,11 @@ class _BookingClientPageState extends State<BookingClientPage> {
               final reason = ready.dayUnavailableReason;
               if (reason != null && reason.isNotEmpty) {
                 dayUnavailableMessage = switch (reason) {
-                  'rest_day' => 'В этот день запись недоступна — выходной',
-                  'executor_absent' => '${executor?.displayName ?? 'Мастер'} недоступен в этот день',
-                  _ => 'В этот день запись недоступна',
+                  'rest_day' => context.l10n.booking_day_unavailable_rest,
+                  'executor_absent' => context.l10n.booking_day_unavailable_executor(
+                    executor?.displayName ?? context.l10n.booking_master,
+                  ),
+                  _ => context.l10n.booking_day_unavailable,
                 };
               }
 
@@ -169,14 +172,14 @@ class _BookingClientPageState extends State<BookingClientPage> {
                       ),
                     ],
                     const SizedBox(height: 22),
-                    const ClientBookingStepHeader(
+                    ClientBookingStepHeader(
                       step: 3,
-                      title: 'Дата',
-                      subtitle: 'Выберите день визита',
+                      title: context.l10n.common_date,
+                      subtitle: context.l10n.booking_pick_visit_day,
                     ),
                     const SizedBox(height: 12),
                     AppDatePicker(
-                      hint: 'Выберите день',
+                      hint: context.l10n.booking_pick_day,
                       value: ready.selectedDay,
                       firstDate: _today,
                       lastDate: ready.schedule.lastBookableDay,

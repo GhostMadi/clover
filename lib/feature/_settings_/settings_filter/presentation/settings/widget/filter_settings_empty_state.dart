@@ -3,6 +3,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class FilterSettingsEmptyState extends StatelessWidget {
   const FilterSettingsEmptyState({super.key, required this.onCreate});
@@ -35,18 +36,18 @@ class FilterSettingsEmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Пока нет категорий',
+            context.l10n.settings_no_categories,
             style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 6),
           Text(
-            'Например: Размер → XS, S, M\nЦвет → Черный, Белый',
+            context.l10n.settings_categories_example,
             textAlign: TextAlign.center,
             style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
           ),
           const SizedBox(height: 16),
           AppButton(
-            text: 'Создать первую категорию',
+            text: context.l10n.settings_create_first_category,
             isExpanded: true,
             service: kResourcesService,
             onTap: onCreate,

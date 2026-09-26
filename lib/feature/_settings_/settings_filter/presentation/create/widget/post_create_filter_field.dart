@@ -8,6 +8,7 @@ import 'package:clover/feature/_settings_/settings_filter/data/models/filter_cat
 import 'package:clover/feature/_settings_/settings_filter/data/repository/filter_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Множественный выбор значений из категорий фильтров профиля (шаг публикации поста).
 class PostCreateFilterField extends StatefulWidget {
@@ -72,7 +73,7 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
       if (!mounted) return;
       setState(() {
         _loading = false;
-        _error = 'Не удалось загрузить фильтры';
+        _error = context.l10n.settings_filters_load_failed;
       });
     }
   }
@@ -94,11 +95,11 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
 
     final picked = await AppMultiSelect.showSheet<String>(
       context: context,
-      title: 'Фильтры публикации',
+      title: context.l10n.settings_post_filters_title,
       groups: _groups,
       selected: _normalizeValues(),
-      searchHint: 'Поиск по фильтрам',
-      confirmLabel: 'Готово',
+      searchHint: context.l10n.settings_filters_search,
+      confirmLabel: context.l10n.common_done,
     );
 
     if (!mounted || picked == null) return;
@@ -178,7 +179,7 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                selected.isEmpty ? 'Выберите фильтры' : 'Фильтры выбраны',
+                                selected.isEmpty ? context.l10n.settings_pick_filters : context.l10n.settings_filters_selected,
                                 style: AppTextStyle.base(
                                   15,
                                   color: context.colors.textColor,
@@ -188,8 +189,8 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
                               const SizedBox(height: 2),
                               Text(
                                 selected.isEmpty
-                                    ? 'Размер, цвет, бренд и другие категории'
-                                    : '${selected.length} ${_countLabel(selected.length)}',
+                                    ? context.l10n.settings_filters_categories_hint
+                                    : '${selected.length} ${_countLabel(context, selected.length)}',
                                 style: AppTextStyle.base(13, color: context.colors.subTextColor),
                               ),
                             ],
@@ -237,13 +238,13 @@ class _PostCreateFilterFieldState extends State<PostCreateFilterField> {
     );
   }
 
-  static String _countLabel(int count) {
+  static String _countLabel(BuildContext context, int count) {
     final mod10 = count % 10;
     final mod100 = count % 100;
-    if (mod100 >= 11 && mod100 <= 14) return 'значений';
-    if (mod10 == 1) return 'значение';
-    if (mod10 >= 2 && mod10 <= 4) return 'значения';
-    return 'значений';
+    if (mod100 >= 11 && mod100 <= 14) return context.l10n.settings_filters_values_word;
+    if (mod10 == 1) return context.l10n.settings_filter_value_one;
+    if (mod10 >= 2 && mod10 <= 4) return context.l10n.settings_filter_value_few;
+    return context.l10n.settings_filters_values_word;
   }
 }
 
@@ -260,7 +261,7 @@ class _SectionShell extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 6),
           child: Text(
-            'Фильтры',
+            context.l10n.common_filters,
             style: AppTextStyle.base(
               13,
               fontWeight: FontWeight.w600,

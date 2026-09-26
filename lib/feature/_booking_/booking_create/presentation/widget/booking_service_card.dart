@@ -5,6 +5,7 @@ import 'package:clover/feature/_booking_/booking_create/data/models/booking_serv
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Компактная строка услуги в списке хозяина.
 class BookingServiceCard extends StatelessWidget {
@@ -19,10 +20,10 @@ class BookingServiceCard extends StatelessWidget {
   final List<BookingServiceExecutor> executors;
   final VoidCallback? onTap;
 
-  String? get _staffLine {
+  String? _staffLine(BuildContext context) {
     if (executors.isEmpty) {
       if (service.executorIds.isEmpty) return null;
-      return '${service.executorIds.length} мастер(ов)';
+      return context.l10n.booking_masters_count(service.executorIds.length);
     }
     if (executors.length == 1) return executors.first.displayName;
     final names = executors.take(2).map((e) => e.displayName).join(', ');
@@ -34,12 +35,12 @@ class BookingServiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final accent = bookingServiceAccent(colors);
-    final staffLine = _staffLine;
+    final staffLine = _staffLine(context);
     final active = service.isActive;
 
     final metaParts = <String>[
-      '${service.durationMinutes} мин',
-      if (service.maxParticipants > 1) 'до ${service.maxParticipants} чел.',
+      context.l10n.booking_minutes_plain(service.durationMinutes),
+      if (service.maxParticipants > 1) context.l10n.booking_max_people(service.maxParticipants),
     ];
 
     return Opacity(
@@ -87,7 +88,7 @@ class BookingServiceCard extends StatelessWidget {
                             if (!active) ...[
                               const SizedBox(width: 8),
                               Text(
-                                'Выкл',
+                                context.l10n.booking_off,
                                 style: AppTextStyle.base(
                                   12,
                                   color: colors.subTextColor,

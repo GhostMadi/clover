@@ -153,7 +153,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (!mounted) return;
 
     setState(() {});
-    AppSnackBar.show(context, message: 'Никнейм сохранён', kind: AppSnackBarKind.success);
+    AppSnackBar.show(context, message: context.l10n.profile_username_saved, kind: AppSnackBarKind.success);
   }
 
   Future<void> _onSave() async {
@@ -176,7 +176,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (!mounted) return;
 
     setState(() {});
-    AppSnackBar.show(context, message: 'Профиль сохранён', kind: AppSnackBarKind.success);
+    AppSnackBar.show(context, message: context.l10n.profile_saved, kind: AppSnackBarKind.success);
   }
 
   @override
@@ -212,7 +212,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             return BlocBuilder<EditProfileCubit, EditProfileState>(
               builder: (context, editState) {
                 return SettingsScreenShell(
-                  title: 'Редактировать профиль',
+                  title: context.l10n.profile_edit_title,
                   extraButtons: [
                     if (state.mapOrNull(loaded: (_) => true) ?? false)
                       FunctionalButtonItem(
@@ -249,11 +249,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  const SettingsTileSectionTitle('Основное'),
+                                  SettingsTileSectionTitle(context.l10n.profile_section_main),
                                   AppField(
                                     controller: _fullNameController,
-                                    labelText: 'Имя',
-                                    hintText: 'Как вас зовут',
+                                    labelText: context.l10n.profile_name_label,
+                                    hintText: context.l10n.profile_name_hint,
                                     prefixIcon: AppIcons.badge.icon,
                                     textInputAction: TextInputAction.next,
                                   ),
@@ -266,23 +266,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   const SizedBox(height: 12),
                                   _EditProfileEmailRow(email: profile.email),
                                   const SizedBox(height: 20),
-                                  const SettingsTileSectionTitle('Локация'),
+                                  SettingsTileSectionTitle(context.l10n.profile_section_location),
                                   CountrySingleSelectField(
-                                    label: 'Страна',
-                                    hint: 'Выберите страну',
+                                    label: context.l10n.catalog_country_sheet_title,
+                                    hint: context.l10n.common_pick_country,
                                     value: _countryCode,
                                     onChanged: _onCountryChanged,
                                   ),
                                   const SizedBox(height: 12),
                                   CitySingleSelectField(
-                                    label: 'Город',
-                                    hint: 'Выберите город',
+                                    label: context.l10n.catalog_city_sheet_title,
+                                    hint: context.l10n.common_pick_city,
                                     countryCode: _countryCode,
                                     value: _cityCode,
                                     onChanged: _onCityChanged,
                                   ),
                                   const SizedBox(height: 20),
-                                  const SettingsTileSectionTitle('Аккаунт'),
+                                  SettingsTileSectionTitle(context.l10n.profile_section_account),
                                   EditProfileTagsField(
                                     values: _tagIds,
                                     onChanged: _onTagsChanged,
@@ -384,7 +384,7 @@ class _EditProfileError extends StatelessWidget {
           children: [
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 12),
-            TextButton(onPressed: onRetry, child: const Text('Повторить')),
+            TextButton(onPressed: onRetry, child: Text(context.l10n.common_retry)),
           ],
         ),
       ),

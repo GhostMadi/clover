@@ -11,6 +11,9 @@ import 'package:clover/feature/_chat_/chat_page/data/models/chat_search_hit.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 @injectable
 class ChatThreadCubit extends Cubit<ChatThreadState> {
@@ -44,13 +47,13 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
 
     final peerId = otherUserId.trim();
     if (peerId.isEmpty) {
-      emit(const ChatThreadState.error('Некорректный пользователь'));
+      emit(ChatThreadState.error(lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).chat_invalid_user));
       return;
     }
 
     final uid = _currentUserId;
     if (uid == null || uid.isEmpty) {
-      emit(const ChatThreadState.error('Войдите в аккаунт'));
+      emit(ChatThreadState.error(lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).common_sign_in_required));
       return;
     }
 
@@ -92,13 +95,13 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
 
     final id = conversationId.trim();
     if (id.isEmpty) {
-      emit(const ChatThreadState.error('Некорректный чат'));
+      emit(ChatThreadState.error(lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).chat_invalid));
       return;
     }
 
     final uid = _currentUserId;
     if (uid == null || uid.isEmpty) {
-      emit(const ChatThreadState.error('Войдите в аккаунт'));
+      emit(ChatThreadState.error(lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).common_sign_in_required));
       return;
     }
 
@@ -769,7 +772,9 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
     final id = _conversationId;
     final uid = _currentUserId;
     if (id == null || id.isEmpty) {
-      throw const ChatRepositoryException('Чат ещё не создан');
+      throw ChatRepositoryException(
+        lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).chat_not_created,
+      );
     }
     final saved = await _repository.setConversationWallpaper(
       conversationId: id,
@@ -912,10 +917,10 @@ class ChatThreadCubit extends Cubit<ChatThreadState> {
   String _messageFor(Object error) {
     if (error is ChatRepositoryException) return error.message;
     final raw = error.toString();
-    if (raw.contains('not_authenticated')) return 'Войдите в аккаунт';
-    if (raw.contains('not_participant')) return 'Нет доступа к этому чату';
-    if (raw.contains('user_blocked')) return 'Переписка недоступна — пользователь в блоке';
-    return 'Не удалось выполнить действие';
+    if (raw.contains('not_authenticated')) return lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).common_sign_in_required;
+    if (raw.contains('not_participant')) return lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).chat_no_access;
+    if (raw.contains('user_blocked')) return lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).chat_blocked;
+    return lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).chat_action_failed;
   }
 
   @override

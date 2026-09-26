@@ -13,6 +13,7 @@ import 'package:clover/feature/_settings_/settings_filter/presentation/settings/
 import 'package:clover/feature/_settings_/settings_filter/presentation/settings/widget/filter_settings_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class SettingsFiltersPage extends StatefulWidget {
@@ -66,8 +67,8 @@ class _SettingsFiltersPageState extends State<SettingsFiltersPage> {
   void _requestDeleteCategory(FilterCategory category) {
     AppSnackBar.show(
       context,
-      title: 'Удаление',
-      message: 'Нажмите, чтобы удалить «${category.name}»',
+      title: context.l10n.settings_deletion,
+      message: context.l10n.settings_filter_delete_confirm(category.name),
       kind: AppSnackBarKind.error,
       duration: const Duration(seconds: 5),
       onTap: () async {
@@ -78,7 +79,7 @@ class _SettingsFiltersPageState extends State<SettingsFiltersPage> {
           AppSnackBar.show(context, message: error, kind: AppSnackBarKind.error);
           return;
         }
-        AppSnackBar.show(context, message: '«${category.name}» удалена', kind: AppSnackBarKind.success);
+        AppSnackBar.show(context, message: context.l10n.settings_filter_deleted(category.name), kind: AppSnackBarKind.success);
       },
     );
   }
@@ -88,7 +89,7 @@ class _SettingsFiltersPageState extends State<SettingsFiltersPage> {
     return BlocProvider.value(
       value: _cubit,
       child: SettingsScreenShell(
-        title: 'Фильтры',
+        title: context.l10n.common_filters,
         service: kResourcesService,
         body: BlocBuilder<SettingsFiltersCubit, SettingsFiltersState>(
           builder: (context, state) {
@@ -113,7 +114,7 @@ class _SettingsFiltersPageState extends State<SettingsFiltersPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Категории фильтров',
+                            context.l10n.settings_filter_categories_title,
                             style: AppTextStyle.base(
                               15,
                               color: context.colors.textColor,
@@ -122,7 +123,7 @@ class _SettingsFiltersPageState extends State<SettingsFiltersPage> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Создайте категорию, укажите название и добавьте варианты значений. После первой категории фильтр появится в профиле.',
+                            context.l10n.settings_filter_categories_intro,
                             style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
                           ),
                         ],
@@ -130,14 +131,14 @@ class _SettingsFiltersPageState extends State<SettingsFiltersPage> {
                     ),
                     const SizedBox(height: 16),
                     AppButton(
-                      text: 'Создать категорию',
+                      text: context.l10n.settings_create_category,
                       isExpanded: true,
                       isLoading: isMutating,
                       service: kResourcesService,
                       onTap: isMutating ? null : _createCategory,
                     ),
                     const SizedBox(height: 20),
-                    SettingsTileSectionTitle('Сохранённые категории (${categories.length})'),
+                    SettingsTileSectionTitle(context.l10n.settings_saved_categories_count(categories.length)),
                     if (categories.isEmpty)
                       FilterSettingsEmptyState(onCreate: isMutating ? () {} : _createCategory)
                     else
@@ -184,7 +185,7 @@ class _SettingsFiltersError extends StatelessWidget {
             style: AppTextStyle.base(14, color: context.colors.subTextColor),
           ),
           const SizedBox(height: 16),
-          AppButton(text: 'Повторить', isExpanded: true, service: kResourcesService, onTap: onRetry),
+          AppButton(text: context.l10n.common_retry, isExpanded: true, service: kResourcesService, onTap: onRetry),
         ],
       ),
     );

@@ -1,3 +1,5 @@
+import 'package:clover/core/locale/app_date_format.dart';
+
 /// Правила влияния посещаемости на зарплату (хранятся на workplace, preview — RPC).
 class AttendancePayrollRules {
   const AttendancePayrollRules({
@@ -176,23 +178,10 @@ String _payrollLineDetailRu(String code, String detail) {
 String attendancePayrollPeriodLabelRu(String periodKey) {
   final m = RegExp(r'^(\d{4})-(\d{2})$').firstMatch(periodKey.trim());
   if (m == null) return periodKey;
-  const months = [
-    'Январь',
-    'Февраль',
-    'Март',
-    'Апрель',
-    'Май',
-    'Июнь',
-    'Июль',
-    'Август',
-    'Сентябрь',
-    'Октябрь',
-    'Ноябрь',
-    'Декабрь',
-  ];
   final month = int.tryParse(m.group(2)!) ?? 0;
   if (month < 1 || month > 12) return periodKey;
-  return '${months[month - 1]} ${m.group(1)}';
+  final year = int.tryParse(m.group(1)!) ?? DateTime.now().year;
+  return AppDateFormat.current().monthYear(DateTime(year, month));
 }
 
 enum AttendancePayrollLineKind {

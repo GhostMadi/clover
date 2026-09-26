@@ -10,6 +10,7 @@ import 'package:clover/feature/_booking_/shared/presentation/widget/booking_scre
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Аккаунты, которые дают заказы текущему пользователю как исполнителю.
 @RoutePage()
@@ -46,7 +47,7 @@ class _BookingCalendarPageState extends State<BookingCalendarPage> {
         final isLoading = state.maybeMap(loading: (_) => true, orElse: () => false);
 
         return BookingScreenShell(
-          title: 'Календарь заказов',
+          title: context.l10n.booking_orders_calendar,
           compactBar: true,
           isLoading: isLoading,
           body: state.when(
@@ -55,11 +56,11 @@ class _BookingCalendarPageState extends State<BookingCalendarPage> {
             error: (message) => Center(child: Text(message)),
             loaded: (hosts, _) {
               if (hosts.isEmpty) {
-                return const Center(
+                return Center(
                   child: BookingListEmptyState(
-                    title: 'Пока нет источников',
+                    title: context.l10n.booking_no_sources_yet,
                     subtitle:
-                        'Когда вас добавят исполнителем в запись другого аккаунта, он появится здесь',
+                        context.l10n.booking_orders_empty_hint,
                     showCreateButton: false,
                   ),
                 );
@@ -75,14 +76,14 @@ class _BookingCalendarPageState extends State<BookingCalendarPage> {
                     final host = hosts[index];
                     final subtitle = [
                       if (host.hostUsernameLabel.isNotEmpty) host.hostUsernameLabel,
-                      if (!host.isActive) 'неактивен',
+                      if (!host.isActive) context.l10n.booking_inactive,
                     ].join(' · ');
 
                     return AppTile(
                       title: host.hostDisplayName.trim().isEmpty
-                          ? (host.hostUsernameLabel.isEmpty ? 'Аккаунт' : host.hostUsernameLabel)
+                          ? (host.hostUsernameLabel.isEmpty ? context.l10n.booking_account : host.hostUsernameLabel)
                           : host.hostDisplayName,
-                      subtitle: subtitle.isEmpty ? 'Заказы для вас' : subtitle,
+                      subtitle: subtitle.isEmpty ? context.l10n.booking_orders_for_you : subtitle,
                       icon: AppIcons.calendarToday.icon,
                       iconColor: accent.icon,
                       iconBackgroundColor: accent.soft,

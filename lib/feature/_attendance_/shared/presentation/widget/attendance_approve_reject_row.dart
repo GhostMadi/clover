@@ -1,6 +1,7 @@
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Пара кнопок Утвердить / Отклонить.
 class AttendanceApproveRejectRow extends StatelessWidget {
@@ -19,15 +20,15 @@ class AttendanceApproveRejectRow extends StatelessWidget {
       children: [
         Expanded(
           child: AttendancePrimaryButton(
-            text: 'Утвердить',
+            text: context.l10n.common_approve,
             height: 44,
             onTap: onApprove,
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Expanded(
           child: AppOutlinedButton(
-            text: 'Отклонить',
+            text: context.l10n.common_reject,
             height: 44,
             service: kAttendanceService,
             onTap: onReject,

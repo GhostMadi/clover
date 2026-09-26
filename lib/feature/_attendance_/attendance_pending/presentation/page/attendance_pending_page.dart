@@ -20,6 +20,7 @@ import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_workplace.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/feature/_attendance_/shared/attendance_l10n.dart';
 
 /// Полноэкранное напоминание «Надо отметиться» (карта + CTA).
 @RoutePage()
@@ -66,13 +67,13 @@ class _AttendancePendingPageState extends State<AttendancePendingPage> {
       case AppMapMyLocationResult.permissionDenied:
         AppSnackBar.show(
           context,
-          message: 'Разрешите доступ к геолокации в настройках',
+          message: context.l10n.attendance_geofence_permission,
           kind: AppSnackBarKind.error,
         );
       case AppMapMyLocationResult.unavailable:
         AppSnackBar.show(
           context,
-          message: 'Не удалось определить местоположение',
+          message: context.l10n.attendance_geofence_locate_failed,
           kind: AppSnackBarKind.error,
         );
     }
@@ -97,7 +98,7 @@ class _AttendancePendingPageState extends State<AttendancePendingPage> {
 
   Future<void> _quickPunch(AttendancePendingPunch pending, {required bool inZone}) async {
     if (!inZone) {
-      AppSnackBar.show(context, message: 'Вы вне зоны — откройте экран отметки', kind: AppSnackBarKind.info);
+      AppSnackBar.show(context, message: context.l10n.attendance_pending_out_of_zone, kind: AppSnackBarKind.info);
       context.router.replace(AttendancePunchRoute(workplaceId: pending.workplaceId));
       return;
     }
@@ -108,10 +109,10 @@ class _AttendancePendingPageState extends State<AttendancePendingPage> {
     final ok = await _cubit.punch(type);
     if (!mounted) return;
     if (ok) {
-      AppSnackBar.show(context, message: '${type.labelRu} — сохранено', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.attendance_punch_saved(type.label(context.l10n)), kind: AppSnackBarKind.success);
       context.router.maybePop();
     } else {
-      AppSnackBar.show(context, message: 'Не удалось сохранить отметку', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.attendance_punch_save_failed, kind: AppSnackBarKind.error);
     }
   }
 
@@ -229,20 +230,20 @@ class _AttendancePendingPageState extends State<AttendancePendingPage> {
                 child: _FloatingActionsPanel(
                   children: [
                     AttendancePrimaryButton(
-                      text: locating ? 'Определяем GPS…' : pending.actionLabel,
+                      text: locating ? context.l10n.attendance_pending_locating : pending.actionLabel,
                       isExpanded: true,
                       interactive: !locating,
                       onTap: locating ? () {} : () => _quickPunch(pending, inZone: inZone),
                     ),
                     const SizedBox(height: 10),
                     AppOutlinedButton(
-                      text: 'Подробнее',
+                      text: context.l10n.common_details,
                       isExpanded: true,
                       onTap: () => context.router.push(AttendancePunchRoute(workplaceId: pending.workplaceId)),
                     ),
                     const SizedBox(height: 10),
                     AppOutlinedButton(
-                      text: 'Позже',
+                      text: context.l10n.common_later,
                       isExpanded: true,
                       onTap: _snooze,
                     ),
@@ -330,7 +331,9 @@ class _ZoneBadge extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           child: Text(
-            inZone ? 'Вы в зоне · $radiusM м' : 'Вы вне зоны · $radiusM м',
+            inZone
+                ? context.l10n.attendance_in_zone(radiusM)
+                : context.l10n.attendance_out_zone(radiusM),
             style: AppTextStyle.base(13, color: fg, fontWeight: FontWeight.w700),
           ),
         ),

@@ -3,6 +3,7 @@ import 'package:clover/feature/_cluster_/cluster_create/presentation/cubit/clust
 import 'package:clover/feature/_profile_/profile_page/presentation/widget/profile_post_upload_progress.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 class ProfileClusterUploadBanner extends StatelessWidget {
   const ProfileClusterUploadBanner({super.key});
@@ -19,15 +20,15 @@ class ProfileClusterUploadBanner extends StatelessWidget {
               status: ProfilePostUploadStatus.uploading,
               progress: progress,
               localImagePath: thumbnailPath,
-              successLabel: 'Кластер создан',
-              failureLabel: 'Не удалось создать кластер',
+              successLabel: context.l10n.profile_cluster_created,
+              failureLabel: context.l10n.profile_cluster_create_failed,
             ),
           ClusterCreateUploadSuccess(:final title, :final thumbnailPath) => ProfilePostUploadProgress(
             title: title,
             status: ProfilePostUploadStatus.success,
             localImagePath: thumbnailPath,
-            successLabel: 'Кластер создан',
-            failureLabel: 'Не удалось создать кластер',
+            successLabel: context.l10n.profile_cluster_created,
+            failureLabel: context.l10n.profile_cluster_create_failed,
           ),
           ClusterCreateUploadFailure(:final title, :final thumbnailPath, :final message) =>
             ProfilePostUploadProgress(
@@ -35,8 +36,8 @@ class ProfileClusterUploadBanner extends StatelessWidget {
               status: ProfilePostUploadStatus.failure,
               statusMessage: message,
               localImagePath: thumbnailPath,
-              successLabel: 'Кластер создан',
-              failureLabel: 'Не удалось создать кластер',
+              successLabel: context.l10n.profile_cluster_created,
+              failureLabel: context.l10n.profile_cluster_create_failed,
             ),
         };
       },

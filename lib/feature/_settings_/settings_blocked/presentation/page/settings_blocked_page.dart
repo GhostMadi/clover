@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -39,7 +40,7 @@ class _SettingsBlockedPageState extends State<SettingsBlockedPage> {
   String _displayName(BlockedProfileRow row) {
     final username = row.username?.trim();
     if (username != null && username.isNotEmpty) return '@$username';
-    return 'Пользователь';
+    return context.l10n.common_user;
   }
 
   Future<void> _load() async {
@@ -71,22 +72,23 @@ class _SettingsBlockedPageState extends State<SettingsBlockedPage> {
     final id = row.profileId;
     if (_busyIds.contains(id)) return;
 
+    final l10n = context.l10n;
     final name = _displayName(row);
     final ok = await AppBottomSheet.show<bool>(
       context: context,
-      title: 'Разблокировать?',
+      title: l10n.settings_blocked_unblock_title,
       content: Text(
-        'Разблокировать $name?',
+        l10n.settings_blocked_unblock_confirm(name),
         style: AppTextStyle.base(15, color: context.colors.subTextColor, height: 1.35),
       ),
       actionsAxis: Axis.horizontal,
       actions: [
         AppOutlinedButton(
-          text: 'Нет',
+          text: l10n.common_no,
           onTap: () => Navigator.of(context).pop(false),
         ),
         AppButton(
-          text: 'Да',
+          text: l10n.common_yes,
           onTap: () => Navigator.of(context).pop(true),
         ),
       ],
@@ -114,8 +116,9 @@ class _SettingsBlockedPageState extends State<SettingsBlockedPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SettingsScreenShell(
-      title: 'Заблокированные',
+      title: l10n.settings_blocked_page_title,
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -132,7 +135,7 @@ class _SettingsBlockedPageState extends State<SettingsBlockedPage> {
               : _rows.isEmpty
                   ? Center(
                       child: Text(
-                        'Список пуст',
+                        l10n.common_empty,
                         style: AppTextStyle.base(14, color: context.colors.subTextColor),
                       ),
                     )
@@ -165,7 +168,7 @@ class _SettingsBlockedPageState extends State<SettingsBlockedPage> {
                                 : null,
                           ),
                           trailing: AppOutlinedButton(
-                            text: '  Разблокировать  ',
+                            text: '  ${l10n.settings_blocked_unblock_action}  ',
                             height: _buttonHeight,
                             borderRadius: _buttonRadius,
                             isLoading: busy,

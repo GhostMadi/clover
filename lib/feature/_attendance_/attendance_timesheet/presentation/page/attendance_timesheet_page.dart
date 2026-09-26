@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
@@ -23,11 +24,6 @@ class AttendanceTimesheetPage extends StatefulWidget {
 }
 
 class _AttendanceTimesheetPageState extends State<AttendanceTimesheetPage> {
-  static const _monthNames = [
-    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
-  ];
-
   late final AttendanceTimesheetCubit _cubit;
 
   @override
@@ -44,14 +40,14 @@ class _AttendanceTimesheetPageState extends State<AttendanceTimesheetPage> {
 
   Future<void> _export() async {
     try {
-      final ok = await _cubit.exportCsv();
+      final ok = await _cubit.exportCsv(subject: context.l10n.attendance_timesheet_export_subject);
       if (!mounted) return;
       if (!ok) {
-        AppSnackBar.show(context, message: 'Нет данных для экспорта', kind: AppSnackBarKind.info);
+        AppSnackBar.show(context, message: context.l10n.attendance_timesheet_no_export_data, kind: AppSnackBarKind.info);
       }
     } catch (_) {
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'Не удалось экспортировать', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.attendance_timesheet_export_failed, kind: AppSnackBarKind.error);
     }
   }
 
@@ -68,31 +64,31 @@ class _AttendanceTimesheetPageState extends State<AttendanceTimesheetPage> {
         final workers = overview?.workers ?? const [];
 
         return AttendanceScreenShell(
-          title: 'Табель',
+          title: context.l10n.attendance_timesheet_title,
           body: loading
-              ? const AttendanceLoader()
+              ? AttendanceLoader()
               : ListView(
                   padding: EdgeInsets.fromLTRB(16, 0, 16, AttendanceScreenShell.scrollBottomGap(context)),
                   children: [
                     Text(
-                      '${_monthNames[now.month - 1]} ${now.year}',
+                      context.dateFormat.monthYear(now),
                       style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w700),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                     AttendancePrimaryButton(
-                      text: 'Экспорт CSV',
+                      text: context.l10n.attendance_timesheet_export_csv,
                       isExpanded: true,
                       height: 48,
                       onTap: _export,
                     ),
-                    const SizedBox(height: 20),
-                    const AttendanceSectionTitle('Часы'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 20),
+                    AttendanceSectionTitle(context.l10n.common_hours),
+                    SizedBox(height: 8),
                     if (workers.isEmpty)
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        padding: EdgeInsets.symmetric(vertical: 24),
                         child: Text(
-                          'Нет данных за период',
+                          context.l10n.attendance_analytics_no_period_data,
                           style: AppTextStyle.base(14, color: colors.subTextColor),
                         ),
                       )

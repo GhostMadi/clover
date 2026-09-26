@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -11,26 +12,6 @@ class MyBookingDetailBody extends StatelessWidget {
   const MyBookingDetailBody({super.key, required this.item});
 
   final MyBookingItem item;
-
-  static const _monthLabels = [
-    'января',
-    'февраля',
-    'марта',
-    'апреля',
-    'мая',
-    'июня',
-    'июля',
-    'августа',
-    'сентября',
-    'октября',
-    'ноября',
-    'декабря',
-  ];
-
-  String _weekday(DateTime date) {
-    const labels = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
-    return labels[date.weekday - 1];
-  }
 
   String _time(DateTime? date) {
     if (date == null) return '—';
@@ -46,12 +27,10 @@ class MyBookingDetailBody extends StatelessWidget {
       item.hostDisplayName,
       if (item.hostUsernameLabel.isNotEmpty) item.hostUsernameLabel,
     ].join(' · ');
-    final whenLine = start == null
-        ? '—'
-        : '${_weekday(start)}, ${start.day} ${_monthLabels[start.month - 1]}';
+    final whenLine = start == null ? '—' : context.dateFormat.fullWeekdayDayMonth(start);
     final timeLine = start == null
         ? '—'
-        : '${_time(start)}–${_time(end)} · ${item.durationMinutes} мин';
+        : context.l10n.booking_time_range_minutes(_time(start), _time(end ?? start), item.durationMinutes);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -148,25 +127,25 @@ class MyBookingDetailBody extends StatelessWidget {
             children: [
               _FactRow(
                 icon: AppIcons.personRounded.icon,
-                label: 'Салон',
+                label: context.l10n.booking_salon_label,
                 value: item.hostDisplayName,
               ),
               if (item.executorName != null && item.executorName!.trim().isNotEmpty)
                 _FactRow(
                   icon: AppIcons.badge.icon,
-                  label: 'Мастер',
+                  label: context.l10n.booking_master,
                   value: item.executorName!.trim(),
                 ),
               _FactRow(
                 icon: AppIcons.payments.icon,
-                label: 'Цена',
+                label: context.l10n.booking_price,
                 value: item.priceLabel,
                 showDivider: item.notes != null && item.notes!.trim().isNotEmpty,
               ),
               if (item.notes != null && item.notes!.trim().isNotEmpty)
                 _FactRow(
                   icon: AppIcons.editOutlined.icon,
-                  label: 'Заметка',
+                  label: context.l10n.booking_note,
                   value: item.notes!.trim(),
                   multiline: true,
                   showDivider: false,

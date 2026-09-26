@@ -1,3 +1,4 @@
+import 'package:clover/core/locale/app_date_format.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_worker.dart';
 import 'package:clover/feature/_attendance_/attendance_analytics/data/attendance_analytics.dart';
 import 'package:clover/feature/_attendance_/attendance_analytics/data/models/attendance_analytics_models.dart';
@@ -11,11 +12,7 @@ import 'package:clover/feature/_attendance_/shared/data/models/attendance_workpl
 abstract final class AttendancePayrollCalc {
   static String periodLabel([DateTime? now]) {
     final n = now ?? DateTime.now();
-    const months = [
-      'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
-    ];
-    return '${months[n.month - 1]} ${n.year}';
+    return AppDateFormat.current().monthYear(n);
   }
 
   static List<AttendanceWorkerPayroll> forWorkplace(

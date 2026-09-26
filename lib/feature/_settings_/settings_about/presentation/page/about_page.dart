@@ -19,9 +19,10 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final l10n = context.l10n;
 
     return SettingsScreenShell(
-      title: 'О приложении',
+      title: l10n.settings_about_page_title,
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
         child: Column(
@@ -46,7 +47,7 @@ class AboutPage extends StatelessWidget {
                   ),
                   SizedBox(height: context.heightByContext(6)),
                   Text(
-                    'Версия $_appVersion',
+                    l10n.common_version(_appVersion),
                     style: AppTextStyle.base(
                       14,
                       color: colors.subTextColor,
@@ -58,8 +59,7 @@ class AboutPage extends StatelessWidget {
             ),
             SizedBox(height: context.heightByContext(20)),
             Text(
-              'События, карта, чат и сервисы для бизнеса — '
-              'чтобы жизнь была ярче, а работа проще.',
+              l10n.settings_about_tagline,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(
                 15,
@@ -69,12 +69,12 @@ class AboutPage extends StatelessWidget {
               ),
             ),
             SizedBox(height: context.heightByContext(28)),
-            const SettingsTileSectionTitle('Помощь'),
+            SettingsTileSectionTitle(l10n.settings_about_section_help),
             AppTileGroup(
               children: [
                 AppTile(
-                  title: 'Онбординг',
-                  subtitle: 'Показать знакомство с приложением',
+                  title: l10n.settings_about_onboarding_title,
+                  subtitle: l10n.settings_about_onboarding_subtitle,
                   icon: AppIcons.autoAwesome.icon,
                   showChevron: true,
                   onTap: () => context.router.push(OnboardingRoute(replay: true)),

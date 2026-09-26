@@ -2,6 +2,7 @@ import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class BonusHistoryEmptyState extends StatelessWidget {
   const BonusHistoryEmptyState({super.key});
@@ -15,13 +16,13 @@ class BonusHistoryEmptyState extends StatelessWidget {
           Icon(AppIcons.accessTime.icon, size: 40, color: context.colors.iconMuted),
           const SizedBox(height: 12),
           Text(
-            'История пока пуста',
+            context.l10n.bonus_history_empty_title,
             textAlign: TextAlign.center,
             style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
-            'Начисления и списания появятся после завершённых визитов',
+            context.l10n.bonus_history_empty_subtitle,
             textAlign: TextAlign.center,
             style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
           ),

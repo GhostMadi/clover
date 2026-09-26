@@ -3,6 +3,7 @@ import 'package:clover/feature/_post_/post/presentation/widget/post_booking_serv
 import 'package:clover/feature/_post_/post/presentation/widget/post_marker_info_section.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Текстовый блок карточки поста под медиа — как на [PostPage].
 class PostFeedCardDetails extends StatelessWidget {
@@ -25,7 +26,7 @@ class PostFeedCardDetails extends StatelessWidget {
     final title = post.title?.trim();
     final description = post.description?.trim();
     final username = item.authorUsername?.trim();
-    final hostLabel = (username != null && username.isNotEmpty) ? username : 'Хост';
+    final hostLabel = (username != null && username.isNotEmpty) ? username : context.l10n.post_host;
 
     final uid = Supabase.instance.client.auth.currentUser?.id.trim();
     final isOwnPost = uid != null && uid.isNotEmpty && post.userId.trim() == uid;

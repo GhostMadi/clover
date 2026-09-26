@@ -4,6 +4,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:clover/core/extension/context.dart';
 
 class AttendanceAnalyticsPeriodPicker extends StatelessWidget {
   const AttendanceAnalyticsPeriodPicker({
@@ -41,14 +42,14 @@ class AttendanceAnalyticsPeriodPicker extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(4),
+            padding: EdgeInsets.all(4),
             child: Row(
               children: [
                 Expanded(
-                  child: _Segment(label: 'Неделя', selected: !isMonth, onTap: onWeek, accent: accent),
+                  child: _Segment(label: context.l10n.common_week, selected: !isMonth, onTap: onWeek, accent: accent),
                 ),
                 Expanded(
-                  child: _Segment(label: 'Месяц', selected: isMonth, onTap: onMonth, accent: accent),
+                  child: _Segment(label: context.l10n.common_month, selected: isMonth, onTap: onMonth, accent: accent),
                 ),
               ],
             ),

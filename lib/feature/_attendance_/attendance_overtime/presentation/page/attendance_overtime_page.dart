@@ -17,6 +17,7 @@ import 'package:clover/feature/_attendance_/shared/presentation/widget/attendanc
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_section_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class AttendanceOvertimePage extends StatefulWidget {
@@ -47,17 +48,17 @@ class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
     try {
       final result = await _cubit.setOvertimeStatus(entryId: entry.id, status: status);
       if (!mounted) return;
-      final okMsg = status == AttendanceOvertimeStatus.approved ? 'Утверждено' : 'Отклонено';
+      final okMsg = status == AttendanceOvertimeStatus.approved ? context.l10n.attendance_correction_status_approved : context.l10n.attendance_correction_status_rejected;
       AppSnackBar.show(
         context,
-        message: result == AttendancePersistResult.queued ? 'Сохранено локально' : okMsg,
+        message: result == AttendancePersistResult.queued ? context.l10n.attendance_saved_locally : okMsg,
         kind: status == AttendanceOvertimeStatus.approved
             ? AppSnackBarKind.success
             : AppSnackBarKind.info,
       );
     } catch (e) {
       if (!mounted) return;
-      final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить';
+      final msg = e is AttendanceException ? e.userMessage : context.l10n.common_save_failed;
       AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
     }
   }
@@ -69,7 +70,7 @@ class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
           id: 'ot_${DateTime.now().millisecondsSinceEpoch}',
           workplaceId: widget.workplaceId,
           workerId: selfId,
-          workerName: snap?.profileDisplayNames[selfId] ?? 'Вы',
+          workerName: snap?.profileDisplayNames[selfId] ?? context.l10n.common_you,
           date: DateTime.now(),
           hours: hours,
           status: AttendanceOvertimeStatus.pending,
@@ -78,12 +79,12 @@ class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: result == AttendancePersistResult.queued ? 'Сохранено локально' : 'Заявка создана',
+        message: result == AttendancePersistResult.queued ? context.l10n.attendance_saved_locally : context.l10n.attendance_overtime_created,
         kind: AppSnackBarKind.success,
       );
     } catch (e) {
       if (!mounted) return;
-      final msg = e is AttendanceException ? e.userMessage : 'Не удалось создать заявку';
+      final msg = e is AttendanceException ? e.userMessage : context.l10n.attendance_overtime_create_failed;
       AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
     }
   }
@@ -137,7 +138,7 @@ class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
         final empty = pending.isEmpty && approved.isEmpty && rejected.isEmpty && suggestedHours == null;
 
         return AttendanceScreenShell(
-          title: 'Переработка',
+          title: context.l10n.attendance_payroll_overtime,
           body: ListView(
             padding: EdgeInsets.fromLTRB(16, 0, 16, AttendanceScreenShell.scrollBottomGap(context)),
             children: [
@@ -152,14 +153,14 @@ class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 40),
                   child: Text(
-                    'Нет заявок на переработку',
+                    context.l10n.attendance_overtime_empty,
                     textAlign: TextAlign.center,
                     style: AppTextStyle.base(14, color: colors.subTextColor),
                   ),
                 )
               else ...[
                 if (pending.isNotEmpty) ...[
-                  const AttendanceSectionTitle('Ожидают'),
+                  AttendanceSectionTitle(context.l10n.attendance_overtime_pending_section),
                   const SizedBox(height: 8),
                   for (final entry in pending) ...[
                     AttendanceOvertimeEntryCard(
@@ -172,7 +173,7 @@ class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
                   const SizedBox(height: 12),
                 ],
                 if (approved.isNotEmpty) ...[
-                  const AttendanceSectionTitle('В зарплате'),
+                  AttendanceSectionTitle(context.l10n.attendance_overtime_in_payroll),
                   const SizedBox(height: 8),
                   for (final entry in approved) ...[
                     AttendanceOvertimeEntryCard(entry: entry),
@@ -181,7 +182,7 @@ class _AttendanceOvertimePageState extends State<AttendanceOvertimePage> {
                   if (rejected.isNotEmpty) const SizedBox(height: 12),
                 ],
                 if (rejected.isNotEmpty) ...[
-                  const AttendanceSectionTitle('Отклонены'),
+                  AttendanceSectionTitle(context.l10n.attendance_overtime_rejected_section),
                   const SizedBox(height: 8),
                   for (final entry in rejected) ...[
                     AttendanceOvertimeEntryCard(entry: entry),

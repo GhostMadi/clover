@@ -1,3 +1,8 @@
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_date_format.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
+
 class BookingListDateRange {
   const BookingListDateRange({required this.start, required this.end});
 
@@ -81,41 +86,29 @@ class BookingListDateRange {
   }
 
   String get label {
-    const months = [
-      'янв',
-      'фев',
-      'мар',
-      'апр',
-      'май',
-      'июн',
-      'июл',
-      'авг',
-      'сен',
-      'окт',
-      'ноя',
-      'дек',
-    ];
+    final dates = AppDateFormat.current();
+    final l10n = lookupAppLocalizations(sl<AppLocaleCubit>().state.locale);
 
     final from = _day(start);
     final to = _day(end);
     final today = _today();
 
-    if (sameDayRange(BookingListDateRange.today())) return 'Сегодня';
-    if (sameDayRange(BookingListDateRange.tomorrow())) return 'Завтра';
-    if (sameDayRange(BookingListDateRange.thisWeek())) return 'Эта неделя';
-    if (sameDayRange(BookingListDateRange.nextWeek())) return 'След. неделя';
-    if (sameDayRange(BookingListDateRange.thisMonth())) return 'Этот месяц';
-    if (sameDayRange(BookingListDateRange.nextMonth())) return 'След. месяц';
-    if (sameDayRange(BookingListDateRange.hostInbox())) return 'Все записи';
-    if (sameDayRange(BookingListDateRange.recentAndUpcoming())) return 'Недавние';
+    if (sameDayRange(BookingListDateRange.today())) return l10n.common_today;
+    if (sameDayRange(BookingListDateRange.tomorrow())) return l10n.common_tomorrow;
+    if (sameDayRange(BookingListDateRange.thisWeek())) return l10n.booking_range_this_week;
+    if (sameDayRange(BookingListDateRange.nextWeek())) return l10n.booking_range_next_week;
+    if (sameDayRange(BookingListDateRange.thisMonth())) return l10n.booking_range_this_month;
+    if (sameDayRange(BookingListDateRange.nextMonth())) return l10n.booking_range_next_month;
+    if (sameDayRange(BookingListDateRange.hostInbox())) return l10n.booking_range_all;
+    if (sameDayRange(BookingListDateRange.recentAndUpcoming())) return l10n.booking_range_recent;
 
     if (from == to) {
-      if (from == today) return 'Сегодня';
-      return '${from.day} ${months[from.month - 1]}';
+      if (from == today) return l10n.common_today;
+      return dates.dayMonth(from);
     }
 
-    final startLabel = '${from.day} ${months[from.month - 1]}';
-    final endLabel = '${to.day} ${months[to.month - 1]}';
+    final startLabel = dates.dayMonth(from);
+    final endLabel = dates.dayMonth(to);
     if (from.year == to.year) {
       return '$startLabel — $endLabel ${from.year}';
     }

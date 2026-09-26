@@ -1,8 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/deep_link/app_deep_link_intent.dart';
 import 'package:clover/core/deep_link/app_deep_link_navigator.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
 import 'package:clover/feature/_feed_/notification_page/data/models/notification_item.dart';
 import 'package:clover/feature/_feed_/notification_page/data/models/notification_kind.dart';
+import 'package:clover/l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 
 /// Maps notification EN `kind` + ids → [AppDeepLinkIntent] (FCM / bell / snack).
@@ -147,7 +150,8 @@ class NotificationOpenRouter {
       case 'chat_message':
         final conversationId = str('conversation_id');
         if (conversationId == null) return null;
-        final peer = str('peer_username') ?? 'Чат';
+        final peer = str('peer_username') ??
+            lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).push_chat_fallback_title;
         final isGroup = str('is_group') == 'true';
         return AppDeepLinkChatIntent(
           chatId: conversationId,

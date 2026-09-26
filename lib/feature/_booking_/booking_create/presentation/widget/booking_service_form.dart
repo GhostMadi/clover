@@ -9,6 +9,7 @@ import 'package:clover/feature/_booking_/shared/presentation/widget/booking_scre
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Форма услуги: сверху суть (название, emoji, время, цена, мастера), остальное — в «Ещё».
 class BookingServiceForm extends StatefulWidget {
@@ -85,8 +86,8 @@ class _BookingServiceFormState extends State<BookingServiceForm> {
         children: [
           BookingField(
             controller: widget.titleController,
-            labelText: 'Название',
-            hintText: 'Стрижка мужская',
+            labelText: context.l10n.booking_name,
+            hintText: context.l10n.booking_service_title_hint,
             textInputAction: TextInputAction.next,
             isEnabled: enabled,
             onChanged: (_) => widget.onDraftChanged(),
@@ -94,8 +95,8 @@ class _BookingServiceFormState extends State<BookingServiceForm> {
           const SizedBox(height: 14),
           AppSmilePicker(
             controller: widget.emojiController,
-            label: 'Эмодзи',
-            hintText: 'Выберите',
+            label: context.l10n.booking_emoji_label,
+            hintText: context.l10n.booking_select,
             enabled: enabled,
             onChanged: (_) => widget.onDraftChanged(),
           ),
@@ -106,7 +107,7 @@ class _BookingServiceFormState extends State<BookingServiceForm> {
               Expanded(
                 child: BookingField(
                   controller: widget.durationController,
-                  labelText: 'Минуты',
+                  labelText: context.l10n.booking_minutes_field,
                   hintText: '30',
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.next,
@@ -119,7 +120,7 @@ class _BookingServiceFormState extends State<BookingServiceForm> {
               Expanded(
                 child: BookingField(
                   controller: widget.priceController,
-                  labelText: 'Цена ₸',
+                  labelText: context.l10n.booking_price_tenge_label,
                   hintText: '0',
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   textInputAction: TextInputAction.next,
@@ -132,7 +133,7 @@ class _BookingServiceFormState extends State<BookingServiceForm> {
           ),
           const SizedBox(height: 18),
           Text(
-            'Исполнители',
+            context.l10n.booking_executors,
             style: AppTextStyle.base(14, color: colors.textColor, fontWeight: FontWeight.w700),
           ),
           if (widget.selectedExecutors.isNotEmpty) ...[
@@ -154,7 +155,7 @@ class _BookingServiceFormState extends State<BookingServiceForm> {
           ],
           const SizedBox(height: 10),
           AppOutlinedButton(
-            text: 'Добавить исполнителя',
+            text: context.l10n.booking_add_executor,
             height: 48,
             isExpanded: true,
             service: kBookingService,
@@ -169,7 +170,7 @@ class _BookingServiceFormState extends State<BookingServiceForm> {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'Найти аккаунт',
+                  context.l10n.booking_find_account,
                   style: AppTextStyle.base(
                     16,
                     fontWeight: FontWeight.w700,
@@ -181,8 +182,8 @@ class _BookingServiceFormState extends State<BookingServiceForm> {
           ),
           const SizedBox(height: 8),
           BookingSwitchRow(
-            title: 'Показывать клиентам',
-            subtitle: draft.isActive ? 'Услуга активна' : 'Скрыта из записи',
+            title: context.l10n.booking_show_to_clients,
+            subtitle: draft.isActive ? context.l10n.booking_service_active : context.l10n.booking_service_hidden,
             value: draft.isActive,
             enabled: enabled,
             onChanged: enabled ? widget.onActiveChanged : null,
@@ -203,7 +204,7 @@ class _BookingServiceFormState extends State<BookingServiceForm> {
                   children: [
                     Expanded(
                       child: Text(
-                        'Ещё настройки',
+                        context.l10n.booking_more_settings,
                         style: AppTextStyle.base(
                           14,
                           color: colors.textColor,
@@ -225,7 +226,7 @@ class _BookingServiceFormState extends State<BookingServiceForm> {
             const SizedBox(height: 14),
             BookingField(
               controller: widget.maxParticipantsController,
-              labelText: 'Макс. участников',
+              labelText: context.l10n.booking_max_participants,
               hintText: '1',
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.next,
@@ -236,7 +237,7 @@ class _BookingServiceFormState extends State<BookingServiceForm> {
             const SizedBox(height: 14),
             BookingField(
               controller: widget.bufferAfterController,
-              labelText: 'Буфер после, мин',
+              labelText: context.l10n.booking_buffer_after_min,
               hintText: '0',
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.next,
@@ -247,15 +248,15 @@ class _BookingServiceFormState extends State<BookingServiceForm> {
             if (widget.bufferAfterLocked) ...[
               const SizedBox(height: 6),
               Text(
-                'Буфер меняется только при создании',
+                context.l10n.booking_buffer_create_only,
                 style: AppTextStyle.base(12, color: colors.subTextColor, height: 1.3),
               ),
             ],
             const SizedBox(height: 14),
             BookingField(
               controller: widget.descriptionController,
-              labelText: 'Описание',
-              hintText: 'Необязательно',
+              labelText: context.l10n.booking_description_label,
+              hintText: context.l10n.booking_optional,
               textInputAction: TextInputAction.next,
               keyboardType: TextInputType.multiline,
               isEnabled: enabled,
@@ -264,7 +265,7 @@ class _BookingServiceFormState extends State<BookingServiceForm> {
             const SizedBox(height: 14),
             BookingField(
               controller: widget.bonusEarnAmountController,
-              labelText: 'Бонусов за визит',
+              labelText: context.l10n.booking_bonuses_per_visit,
               hintText: '0',
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.next,
@@ -275,7 +276,7 @@ class _BookingServiceFormState extends State<BookingServiceForm> {
             const SizedBox(height: 14),
             BookingField(
               controller: widget.bonusPayPercentController,
-              labelText: 'Оплата бонусами, %',
+              labelText: context.l10n.booking_bonus_pay_percent,
               hintText: '0',
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.done,

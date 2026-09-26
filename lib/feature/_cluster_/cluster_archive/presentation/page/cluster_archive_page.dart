@@ -1,20 +1,20 @@
 import 'dart:async';
-import 'package:clover/core/resources/app_icons.dart';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/extension/context.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_dialog.dart';
 import 'package:clover/core/shared/app_mini_menu.dart';
 import 'package:clover/core/shared/app_refresh.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
-import 'package:clover/feature/_cluster_/shared/presentation/widget/archive_cluster_grid_shimmer.dart';
 import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
-import 'package:clover/feature/_cluster_/cluster/presentation/cubit/archived_clusters_cubit.dart';
 import 'package:clover/feature/_cluster_/cluster/presentation/cluster_list_refresh.dart';
+import 'package:clover/feature/_cluster_/cluster/presentation/cubit/archived_clusters_cubit.dart';
 import 'package:clover/feature/_cluster_/cluster/presentation/widget/cluster_card.dart';
+import 'package:clover/feature/_cluster_/shared/presentation/widget/archive_cluster_grid_shimmer.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -61,7 +61,7 @@ class _ClusterArchivePageState extends State<ClusterArchivePage> {
     return BlocProvider.value(
       value: _cubit,
       child: SettingsScreenShell(
-        title: 'Архив кластеров',
+        title: context.l10n.cluster_archive_hub_title,
         body: AppRefresh(
           onRefresh: _refresh,
           child: BlocBuilder<ArchivedClustersCubit, ArchivedClustersState>(
@@ -78,8 +78,11 @@ class _ClusterArchivePageState extends State<ClusterArchivePage> {
                         height: context.heightByContext(240),
                         child: Center(
                           child: Text(
-                            'Архив кластеров пуст',
-                            style: TextStyle(color: context.colors.subTextColor, fontSize: context.heightByContext(14)),
+                            context.l10n.cluster_archive_empty,
+                            style: TextStyle(
+                              color: context.colors.subTextColor,
+                              fontSize: context.heightByContext(14),
+                            ),
                           ),
                         ),
                       ),
@@ -95,10 +98,7 @@ class _ClusterArchivePageState extends State<ClusterArchivePage> {
                       runSpacing: gap,
                       children: [
                         for (final cluster in items)
-                          _ArchivedClusterCard(
-                            cluster: cluster,
-                            onChanged: _refresh,
-                          ),
+                          _ArchivedClusterCard(cluster: cluster, onChanged: _refresh),
                       ],
                     ),
                   );
@@ -119,23 +119,27 @@ class _ArchivedClusterCard extends StatelessWidget {
   final ClusterModel cluster;
   final Future<void> Function() onChanged;
 
-  static List<AppMiniMenuItem<String>> _menuItems(AppPalette colors) => [
-    AppMiniMenuItem(value: 'unarchive', title: 'Разархивировать', icon: AppIcons.unarchive.icon),
-    AppMiniMenuItem(
-      value: 'delete',
-      title: 'Удалить',
-      icon: AppIcons.delete.icon,
-      titleColor: colors.error,
-      iconColor: colors.error,
-    ),
-  ];
+  static List<AppMiniMenuItem<String>> _menuItems(BuildContext context) {
+    final colors = context.colors;
+    final l10n = context.l10n;
+    return [
+      AppMiniMenuItem(value: 'unarchive', title: context.l10n.common_unarchive, icon: AppIcons.unarchive.icon),
+      AppMiniMenuItem(
+        value: 'delete',
+        title: l10n.common_delete,
+        icon: AppIcons.delete.icon,
+        titleColor: colors.error,
+        iconColor: colors.error,
+      ),
+    ];
+  }
 
   Future<void> _unarchive(BuildContext context, ArchivedClustersCubit cubit) async {
     final ok = await AppDialog.showConfirm(
       context: context,
-      title: 'Разархивировать кластер?',
-      message: 'Он снова появится в профиле.',
-      confirmLabel: 'Разархивировать',
+      title: context.l10n.cluster_unarchive_title,
+      message: context.l10n.cluster_unarchive_body,
+      confirmLabel: context.l10n.common_unarchive,
       upperCaseTitle: false,
     );
     if (ok != true || !context.mounted) return;
@@ -144,7 +148,7 @@ class _ArchivedClusterCard extends StatelessWidget {
       await cubit.unarchive(cluster.id);
       clusterListRefreshTick.value++;
       if (!context.mounted) return;
-      AppSnackBar.show(context, message: 'Кластер разархивирован', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.cluster_unarchived, kind: AppSnackBarKind.success);
       await onChanged();
     } catch (e) {
       if (!context.mounted) return;
@@ -155,9 +159,9 @@ class _ArchivedClusterCard extends StatelessWidget {
   Future<void> _delete(BuildContext context, ArchivedClustersCubit cubit) async {
     final ok = await AppDialog.showConfirm(
       context: context,
-      title: 'Удалить кластер?',
-      message: 'Обложка тоже будет удалена.',
-      confirmLabel: 'Удалить',
+      title: context.l10n.cluster_delete_title,
+      message: context.l10n.cluster_delete_body,
+      confirmLabel: context.l10n.common_delete,
       confirmIsDestructive: true,
       upperCaseTitle: false,
     );
@@ -167,7 +171,7 @@ class _ArchivedClusterCard extends StatelessWidget {
       await cubit.delete(cluster.id);
       clusterListRefreshTick.value++;
       if (!context.mounted) return;
-      AppSnackBar.show(context, message: 'Кластер удалён', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.cluster_deleted, kind: AppSnackBarKind.success);
       await onChanged();
     } catch (e) {
       if (!context.mounted) return;
@@ -192,7 +196,7 @@ class _ArchivedClusterCard extends StatelessWidget {
       subtitle: cluster.subtitle,
       coverUrl: cluster.coverUrl,
       countLabel: cluster.postsCountLabel,
-      menuItems: _menuItems(context.colors),
+      menuItems: _menuItems(context),
       onMenuSelected: (v) => _onMenu(context, cubit, v),
     );
   }
@@ -210,9 +214,13 @@ class _ArchiveError extends StatelessWidget {
       padding: EdgeInsets.all(24),
       child: Column(
         children: [
-          Text(message, textAlign: TextAlign.center, style: TextStyle(color: context.colors.subTextColor)),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: context.colors.subTextColor),
+          ),
           const SizedBox(height: 12),
-          AppButton(text: 'Повторить', onTap: onRetry),
+          AppButton(text: context.l10n.common_retry, onTap: onRetry),
         ],
       ),
     );

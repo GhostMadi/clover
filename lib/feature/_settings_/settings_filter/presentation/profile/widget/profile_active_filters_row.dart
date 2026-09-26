@@ -35,7 +35,7 @@ class ProfileActiveFiltersRow extends StatelessWidget {
           GestureDetector(
             onTap: onClear,
             child: Text(
-              'Сбросить',
+              context.l10n.common_reset,
               style: AppTextStyle.base(
                 12,
                 color: context.colors.serviceAccent(kResourcesService).icon,

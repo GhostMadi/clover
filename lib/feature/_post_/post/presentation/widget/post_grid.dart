@@ -16,11 +16,11 @@ class PostGrid extends StatelessWidget {
     required this.posts,
     this.savedByPostId,
     this.onPostTap,
-    this.emptyMessage = 'Нет публикаций',
+    this.emptyMessage,
     this.emptySubtitle,
     this.emptyIcon,
     this.onEmptyAction,
-    this.emptyActionLabel = 'Создать',
+    this.emptyActionLabel,
     this.spacing = 3,
     this.crossAxisCount = PostMediaLayout.gridCrossAxisCount,
   });
@@ -28,11 +28,11 @@ class PostGrid extends StatelessWidget {
   final List<PostModel> posts;
   final Map<String, bool>? savedByPostId;
   final ValueChanged<PostModel>? onPostTap;
-  final String emptyMessage;
+  final String? emptyMessage;
   final String? emptySubtitle;
   final IconData? emptyIcon;
   final VoidCallback? onEmptyAction;
-  final String emptyActionLabel;
+  final String? emptyActionLabel;
   final double spacing;
   final int crossAxisCount;
 
@@ -51,10 +51,10 @@ class PostGrid extends StatelessWidget {
         child: AppState(
           state: AppScreenState.empty,
           emptyIcon: emptyIcon ?? AppIcons.collections.icon,
-          emptyTitle: emptyMessage,
+          emptyTitle: emptyMessage ?? context.l10n.post_empty,
           emptySubtitle: emptySubtitle,
           onEmptyAction: onEmptyAction,
-          emptyActionLabel: emptyActionLabel,
+          emptyActionLabel: emptyActionLabel ?? context.l10n.common_create,
           child: const SizedBox.shrink(),
         ),
       );

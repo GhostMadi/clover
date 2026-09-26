@@ -10,6 +10,7 @@ import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/feature/_catalog_/location/data/repository/location_repository.dart';
 import 'package:clover/feature/_catalog_/location/presentation/widget/location_create_map_view.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class LocationCreatePage extends StatefulWidget {
@@ -72,12 +73,12 @@ class _LocationCreatePageState extends State<LocationCreatePage> {
       );
 
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'Местоположение добавлено', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.catalog_location_added, kind: AppSnackBarKind.success);
       context.router.maybePop(true);
     } catch (_) {
       if (!mounted) return;
       setState(() => _submitting = false);
-      AppSnackBar.show(context, message: 'Не удалось сохранить', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.common_could_not_save, kind: AppSnackBarKind.error);
     }
   }
 
@@ -91,13 +92,13 @@ class _LocationCreatePageState extends State<LocationCreatePage> {
       case AppMapMyLocationResult.permissionDenied:
         AppSnackBar.show(
           context,
-          message: 'Разрешите доступ к геолокации в настройках',
+          message: context.l10n.common_location_permission,
           kind: AppSnackBarKind.error,
         );
       case AppMapMyLocationResult.unavailable:
         AppSnackBar.show(
           context,
-          message: 'Не удалось определить местоположение',
+          message: context.l10n.common_location_failed,
           kind: AppSnackBarKind.error,
         );
     }
@@ -134,7 +135,7 @@ class _LocationCreatePageState extends State<LocationCreatePage> {
         if (_canProceed || _submitting)
           FunctionalButtonItem(
             icon: AppIcons.arrowForward.icon,
-            label: 'Далее',
+            label: context.l10n.common_next,
             customColor: accent.cta,
             iconColor: accent.ctaForeground,
             textColor: accent.ctaForeground,

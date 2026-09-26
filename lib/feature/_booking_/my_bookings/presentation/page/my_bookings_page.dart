@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
@@ -27,21 +28,6 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
   late final MyBookingsCubit _cubit;
   late DateTime _selectedDay;
 
-  static const _monthLabels = [
-    'января',
-    'февраля',
-    'марта',
-    'апреля',
-    'мая',
-    'июня',
-    'июля',
-    'августа',
-    'сентября',
-    'октября',
-    'ноября',
-    'декабря',
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -55,15 +41,16 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
     super.dispose();
   }
 
-  String _dayCaption(DateTime day, int count) {
+  String _dayCaption(BuildContext context, DateTime day, int count) {
     final today = BookingHostInbox.dayKey(DateTime.now());
     final label = day == today
-        ? 'Сегодня'
-        : '${day.day} ${_monthLabels[day.month - 1]}';
-    if (count == 0) return '$label · нет записей';
-    if (count == 1) return '$label · 1 запись';
-    if (count >= 2 && count <= 4) return '$label · $count записи';
-    return '$label · $count записей';
+        ? context.l10n.common_today
+        : context.dateFormat.dayMonthLong(day);
+    final l10n = context.l10n;
+    if (count == 0) return l10n.booking_day_none(label);
+    if (count == 1) return l10n.booking_day_one(label);
+    if (count >= 2 && count <= 4) return l10n.booking_day_few(label, count);
+    return l10n.booking_day_many(label, count);
   }
 
   @override
@@ -93,10 +80,10 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
             ),
             orElse: () {
               if (items.isEmpty && !isLoading) {
-                return const Center(
+                return Center(
                   child: BookingListEmptyState(
-                    title: 'Записей пока нет',
-                    subtitle: 'Когда запишетесь к мастеру, визиты появятся здесь по дням',
+                    title: context.l10n.booking_no_bookings,
+                    subtitle: context.l10n.booking_no_bookings_hint,
                     showCreateButton: false,
                   ),
                 );
@@ -111,7 +98,7 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                         child: Text(
-                          'Ваши визиты к мастерам. Выберите день — откройте карточку для переноса или отмены.',
+                          context.l10n.booking_my_intro,
                           style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.4),
                         ),
                       ),
@@ -138,7 +125,7 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                         child: Text(
-                          _dayCaption(_selectedDay, dayItems.length),
+                          _dayCaption(context, _selectedDay, dayItems.length),
                           style: AppTextStyle.base(
                             13,
                             color: accent.icon,
@@ -148,12 +135,12 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                       ),
                     ),
                     if (dayItems.isEmpty)
-                      const SliverToBoxAdapter(
+                      SliverToBoxAdapter(
                         child: Padding(
                           padding: EdgeInsets.only(top: 24),
                           child: BookingListEmptyState(
-                            title: 'На этот день записей нет',
-                            subtitle: 'Выберите другой день в календаре',
+                            title: context.l10n.booking_no_day_bookings,
+                            subtitle: context.l10n.booking_pick_another_day,
                             showCreateButton: false,
                           ),
                         ),
@@ -192,7 +179,7 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
         }
 
         return BookingScreenShell(
-          title: 'Мои записи',
+          title: context.l10n.booking_my_bookings,
           compactBar: true,
           isLoading: isLoading || isRefreshing,
           body: buildBody(),

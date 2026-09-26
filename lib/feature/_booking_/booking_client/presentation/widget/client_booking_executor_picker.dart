@@ -5,6 +5,7 @@ import 'package:clover/feature/_booking_/booking_client/presentation/widget/clie
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service_executor.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class ClientBookingExecutorPicker extends StatelessWidget {
   const ClientBookingExecutorPicker({
@@ -25,10 +26,10 @@ class ClientBookingExecutorPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ClientBookingStepHeader(
+        ClientBookingStepHeader(
           step: 2,
-          title: 'Мастер',
-          subtitle: 'Кто будет делать услугу',
+          title: context.l10n.booking_master,
+          subtitle: context.l10n.booking_who_does_service,
         ),
         const SizedBox(height: 12),
         for (var i = 0; i < executors.length; i++) ...[

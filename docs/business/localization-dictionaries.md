@@ -63,16 +63,16 @@ city_name    = "Алматы"      ❌
 1. Для каждого такого справочника — **enum** (или аналог с фиксированными значениями).
 2. У значения enum:
    - **ключ** = то, что пришло с бэка / уйдёт на бэк;
-   - **подпись** = перевод для текущего языка UI (сейчас в основном `labelRu`).
+   - **подпись** = `label(AppLocalizations)` / `catalog_*` в ARB (см. [app-localization.md](app-localization.md)); legacy `labelRu` — только fallback.
 3. Смена языка приложения = смена подписей на фронте, **без** миграций и без новых колонок на бэке.
-4. Новые языки = новые строки/ресурсы на фронте, не таблицы переводов в Supabase для этих справочников.
+4. Новые языки = новые строки ARB на фронте, не таблицы переводов в Supabase для этих справочников.
 
 Пример мысли:
 
 ```
-CountryCode.kz  → code: "kz",  label: "Казахстан" (на фронте)
-CityCode.almaty → code: "almaty", label: "Алматы" (на фронте)
-MarkerTagKey.salon → "salon" / "Салон"
+CountryCode.kz  → code: "kz",  label(l10n): catalog_country_kz
+CityCode.almaty → code: "almaty", label(l10n): catalog_city_almaty
+MarkerTagKey.salon → "salon" / catalog_tag_salon
 ```
 
 ---

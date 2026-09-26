@@ -4,6 +4,7 @@ import 'package:clover/core/shared/app_date_picker.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:clover/core/extension/context.dart';
 
 class BookingAnalyticsPeriodPicker extends StatelessWidget {
   const BookingAnalyticsPeriodPicker({
@@ -49,7 +50,7 @@ class BookingAnalyticsPeriodPicker extends StatelessWidget {
           children: [
             Expanded(
               child: _PresetChip(
-                label: 'Неделя',
+                label: context.l10n.booking_week_label,
                 selected: _isWeek,
                 onTap: onWeekPreset,
               ),
@@ -57,7 +58,7 @@ class BookingAnalyticsPeriodPicker extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: _PresetChip(
-                label: 'Месяц',
+                label: context.l10n.booking_month_label,
                 selected: _isMonth,
                 onTap: onMonthPreset,
               ),
@@ -69,8 +70,8 @@ class BookingAnalyticsPeriodPicker extends StatelessWidget {
           children: [
             Expanded(
               child: AppDatePicker(
-                label: 'С',
-                hint: 'Начало',
+                label: context.l10n.booking_from,
+                hint: context.l10n.booking_start_label,
                 value: start,
                 lastDate: end,
                 service: kBookingService,
@@ -82,8 +83,8 @@ class BookingAnalyticsPeriodPicker extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: AppDatePicker(
-                label: 'По',
-                hint: 'Конец',
+                label: context.l10n.booking_to_label,
+                hint: context.l10n.booking_end_label,
                 value: end,
                 firstDate: start,
                 service: kBookingService,

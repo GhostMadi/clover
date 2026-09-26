@@ -13,6 +13,7 @@ import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_reactio
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_reply_quote.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_structured_card_shell.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class ChatMessageBubble extends StatelessWidget {
   const ChatMessageBubble({
@@ -98,7 +99,7 @@ class ChatMessageBubble extends StatelessWidget {
         return ChatAttendanceCardBubble(card: message.attendanceCard!, isMine: isMine);
       }
       return ChatStructuredCardShell(
-        title: message.kind == 'attendance_rules' ? 'Правила компании' : 'Приглашение в команду',
+        title: message.kind == 'attendance_rules' ? context.l10n.chat_company_rules : context.l10n.chat_invite_team,
         subtitle: message.text.isNotEmpty ? message.text : null,
       );
     }
@@ -108,7 +109,7 @@ class ChatMessageBubble extends StatelessWidget {
         return ChatBookingStaffCardBubble(card: message.bookingStaffCard!, isMine: isMine);
       }
       return ChatStructuredCardShell(
-        title: 'Приглашение в запись',
+        title: context.l10n.chat_invite_booking,
         subtitle: message.text.isNotEmpty ? message.text : null,
       );
     }
@@ -297,7 +298,7 @@ class _TimeRow extends StatelessWidget {
           if (message.isEdited) ...[
             const SizedBox(width: 4),
             Text(
-              'изм.',
+              context.l10n.chat_edited_short,
               style: AppTextStyle.base(10, color: metaColor, fontWeight: FontWeight.w600),
             ),
           ],

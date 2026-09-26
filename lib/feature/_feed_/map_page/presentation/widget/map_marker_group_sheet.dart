@@ -14,6 +14,7 @@ import 'package:clover/feature/_post_/post/presentation/widget/post_feed_shimmer
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Шторка стопки: вертикальная лента постов (как events feed).
 abstract final class MapMarkerGroupSheet {
@@ -100,7 +101,7 @@ class _MapMarkerStackFeedBodyState extends State<_MapMarkerStackFeedBody> {
               MapMarkerStackFeedLoaded(:final items) when items.isEmpty => AppState(
                 state: AppScreenState.empty,
                 variant: AppStateVariant.inline,
-                emptyTitle: 'Нет публикаций',
+                emptyTitle: context.l10n.feed_map_empty_posts,
                 child: const SizedBox.shrink(),
               ),
               MapMarkerStackFeedLoaded(:final items) => ListView.separated(

@@ -32,6 +32,7 @@ import 'package:clover/feature/_safety_/content_report/presentation/widget/ugc_s
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:clover/core/extension/context.dart';
 
 enum _PostMenuAction { attach, detach, archive, unarchive, delete, report, block }
 
@@ -185,19 +186,19 @@ class _PostPageState extends State<PostPage> {
       if (!mounted) return;
 
       if (clusters.isEmpty) {
-        AppSnackBar.show(context, message: 'Сначала создайте кластер', kind: AppSnackBarKind.info);
+        AppSnackBar.show(context, message: context.l10n.post_create_cluster_first, kind: AppSnackBarKind.info);
         return;
       }
 
       final selectedId = await AppBottomSheet.show<String>(
         context: context,
-        title: 'Кластер',
+        title: context.l10n.cluster_title,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             for (final cluster in clusters)
               AppTile(
-                title: cluster.title.isNotEmpty ? cluster.title : 'Без названия',
+                title: cluster.title.isNotEmpty ? cluster.title : context.l10n.post_untitled,
                 subtitle: cluster.postsCountLabel,
                 onTap: () => Navigator.of(context).pop(cluster.id),
               ),
@@ -211,10 +212,10 @@ class _PostPageState extends State<PostPage> {
       if (!mounted) return;
 
       _syncClusterToProfileFeed();
-      AppSnackBar.show(context, message: 'Пост привязан к кластеру', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.post_linked_to_cluster, kind: AppSnackBarKind.success);
     } catch (_) {
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'Не удалось привязать пост', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.post_link_failed, kind: AppSnackBarKind.error);
     }
   }
 
@@ -224,10 +225,10 @@ class _PostPageState extends State<PostPage> {
       if (!mounted) return;
 
       _syncClusterToProfileFeed();
-      AppSnackBar.show(context, message: 'Пост отвязан от кластера', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.post_unlinked_from_cluster, kind: AppSnackBarKind.success);
     } catch (_) {
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'Не удалось отвязать пост', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.post_unlink_failed, kind: AppSnackBarKind.error);
     }
   }
 
@@ -241,9 +242,9 @@ class _PostPageState extends State<PostPage> {
     final isEvent = item.isEvent;
     final ok = await AppDialog.showConfirm(
       context: context,
-      title: isEvent ? 'Архивировать ивент?' : 'Архивировать публикацию?',
-      message: isEvent ? 'Событие пропадёт из ленты и карты.' : 'Публикация пропадёт из профиля.',
-      confirmLabel: 'Архивировать',
+      title: isEvent ? context.l10n.post_archive_event_title : context.l10n.post_archive_publication_title,
+      message: isEvent ? context.l10n.post_archive_event_body : context.l10n.post_archive_publication_body,
+      confirmLabel: context.l10n.common_archive,
       upperCaseTitle: false,
     );
     if (ok != true || !mounted) return;
@@ -255,13 +256,13 @@ class _PostPageState extends State<PostPage> {
       _removeFromProfileFeed(item.post.id);
       AppSnackBar.show(
         context,
-        message: isEvent ? 'Ивент архивирован' : 'Публикация архивирована',
+        message: isEvent ? context.l10n.post_event_archived : context.l10n.post_publication_archived,
         kind: AppSnackBarKind.success,
       );
       context.router.maybePop();
     } catch (_) {
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'Не удалось архивировать', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.post_archive_failed, kind: AppSnackBarKind.error);
     }
   }
 
@@ -269,11 +270,11 @@ class _PostPageState extends State<PostPage> {
     final isEvent = widget.archiveContext == PostArchiveContext.event;
     final ok = await AppDialog.showConfirm(
       context: context,
-      title: isEvent ? 'Разархивировать ивент?' : 'Разархивировать публикацию?',
+      title: isEvent ? context.l10n.post_unarchive_event_title : context.l10n.post_unarchive_publication_title,
       message: isEvent
-          ? 'Событие снова появится в ленте и на карте.'
-          : 'Публикация снова появится в профиле.',
-      confirmLabel: 'Разархивировать',
+          ? context.l10n.post_unarchive_event_body
+          : context.l10n.post_unarchive_publication_body,
+      confirmLabel: context.l10n.common_unarchive,
       upperCaseTitle: false,
     );
     if (ok != true || !mounted) return;
@@ -284,13 +285,13 @@ class _PostPageState extends State<PostPage> {
 
       AppSnackBar.show(
         context,
-        message: isEvent ? 'Ивент разархивирован' : 'Публикация разархивирована',
+        message: isEvent ? context.l10n.post_event_unarchived : context.l10n.post_publication_unarchived,
         kind: AppSnackBarKind.success,
       );
       context.router.maybePop(true);
     } catch (_) {
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'Не удалось разархивировать', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.post_unarchive_failed, kind: AppSnackBarKind.error);
     }
   }
 
@@ -298,11 +299,11 @@ class _PostPageState extends State<PostPage> {
     final isEvent = item.isEvent;
     final ok = await AppDialog.showConfirm(
       context: context,
-      title: isEvent ? 'Удалить ивент?' : 'Удалить публикацию?',
+      title: isEvent ? context.l10n.post_delete_event_title : context.l10n.post_delete_publication_title,
       message: isEvent
-          ? 'Событие, пост и медиа будут удалены безвозвратно.'
-          : 'Публикация и медиа будут удалены безвозвратно.',
-      confirmLabel: 'Удалить',
+          ? context.l10n.post_delete_event_body
+          : context.l10n.post_delete_publication_body,
+      confirmLabel: context.l10n.common_delete,
       confirmIsDestructive: true,
       upperCaseTitle: false,
     );
@@ -316,13 +317,13 @@ class _PostPageState extends State<PostPage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: isEvent ? 'Ивент удалён' : 'Публикация удалена',
+        message: isEvent ? context.l10n.post_event_deleted : context.l10n.post_publication_deleted,
         kind: AppSnackBarKind.success,
       );
       context.router.maybePop();
     } catch (_) {
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'Не удалось удалить', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.common_could_not_delete, kind: AppSnackBarKind.error);
     }
   }
 
@@ -432,7 +433,7 @@ class _PostPageState extends State<PostPage> {
                           style: AppTextStyle.base(14, color: context.colors.subTextColor),
                         ),
                         const SizedBox(height: 12),
-                        AppButton(text: 'Повторить', onTap: _cubit.reload),
+                        AppButton(text: context.l10n.common_retry, onTap: _cubit.reload),
                       ],
                     ),
                   ),
@@ -562,7 +563,7 @@ class _PostPageState extends State<PostPage> {
             const SizedBox(width: 8),
             if (isFollowing)
               AppOutlinedButton(
-                text: 'Отписаться',
+                text: context.l10n.common_unfollow,
                 height: 40,
                 borderRadius: 14,
                 isLoading: isFollowUpdating,
@@ -570,7 +571,7 @@ class _PostPageState extends State<PostPage> {
               )
             else
               AppButton(
-                text: 'Подписаться',
+                text: context.l10n.common_follow,
                 height: 40,
                 borderRadius: 14,
                 isLoading: isFollowUpdating,
@@ -584,12 +585,12 @@ class _PostPageState extends State<PostPage> {
               items: [
                 AppMiniMenuItem(
                   value: _PostMenuAction.report,
-                  title: 'Пожаловаться',
+                  title: context.l10n.ugc_report_title,
                   icon: AppIcons.flag.icon,
                 ),
                 AppMiniMenuItem(
                   value: _PostMenuAction.block,
-                  title: 'Заблокировать',
+                  title: context.l10n.ugc_block_confirm,
                   icon: AppIcons.block.icon,
                   titleColor: context.colors.error,
                   iconColor: context.colors.error,
@@ -629,7 +630,7 @@ class _PostPageState extends State<PostPage> {
                   ? [
                       AppMiniMenuItem(
                         value: _PostMenuAction.unarchive,
-                        title: 'Разархивировать',
+                        title: context.l10n.common_unarchive,
                         icon: AppIcons.unarchive.icon,
                       ),
                     ]
@@ -637,23 +638,23 @@ class _PostPageState extends State<PostPage> {
                       if (_hasCluster(item))
                         AppMiniMenuItem(
                           value: _PostMenuAction.detach,
-                          title: 'Отвязать от кластера',
+                          title: context.l10n.post_unlink_cluster,
                           icon: AppIcons.linkOff.icon,
                         )
                       else
                         AppMiniMenuItem(
                           value: _PostMenuAction.attach,
-                          title: 'Привязать к кластеру',
+                          title: context.l10n.post_link_cluster,
                           icon: AppIcons.collectionsFilled.icon,
                         ),
                       AppMiniMenuItem(
                         value: _PostMenuAction.archive,
-                        title: 'Архивировать',
+                        title: context.l10n.common_archive,
                         icon: AppIcons.archive.icon,
                       ),
                       AppMiniMenuItem(
                         value: _PostMenuAction.delete,
-                        title: 'Удалить',
+                        title: context.l10n.common_delete,
                         icon: AppIcons.delete.icon,
                         titleColor: context.colors.error,
                         iconColor: context.colors.error,

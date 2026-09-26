@@ -3,6 +3,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_analytics/data/models/booking_analytics_popular_service.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class BookingAnalyticsPopularServicesSection extends StatelessWidget {
   const BookingAnalyticsPopularServicesSection({
@@ -22,7 +23,7 @@ class BookingAnalyticsPopularServicesSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Услуги',
+          context.l10n.booking_services_label,
           style: AppTextStyle.base(16, color: colors.textColor, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),

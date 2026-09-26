@@ -42,7 +42,7 @@ class ProfileHeaderIdentity extends StatelessWidget {
         ],
         if (!hasNick)
           Text(
-            'пусто',
+            context.l10n.profile_empty_bio,
             style: AppTextStyle.base(nickFont, color: context.colors.iconMuted, fontWeight: FontWeight.w600),
           )
         else
@@ -99,7 +99,7 @@ class _ProfileHeaderBioState extends State<ProfileHeaderBio> {
                 TextSpan(text: bio.length > 90 && !expanded ? '${bio.substring(0, 90)}...' : bio),
                 if (bio.length > 90 && !expanded)
                   TextSpan(
-                    text: ' еще',
+                    text: context.l10n.profile_more_suffix,
                     style: AppTextStyle.base(fontSize, color: context.colors.primary, fontWeight: FontWeight.bold),
                   ),
               ],

@@ -7,6 +7,7 @@ import 'package:clover/feature/_venue_/shared/presentation/widget/venue_mock_wid
 import 'package:clover/feature/_venue_/shared/presentation/widget/venue_screen_shell.dart';
 import 'package:clover/feature/_venue_/shared/presentation/widget/venue_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class VenueSeatsPage extends StatelessWidget {
@@ -20,17 +21,17 @@ class VenueSeatsPage extends StatelessWidget {
     final colors = context.colors;
 
     return VenueScreenShell(
-      title: 'Места списком',
+      title: context.l10n.venue_places_list,
       body: ListView(
         padding: EdgeInsets.fromLTRB(16, 8, 16, VenueScreenShell.scrollBottomGap(context)),
         children: [
-          const VenueMockBanner(text: 'Уровень B · те же bookable, что на схеме.'),
+          VenueMockBanner(text: context.l10n.venue_level_b_bookable),
           const SizedBox(height: 12),
           const VenueStateLegend(),
           const SizedBox(height: 16),
           if (seats.isEmpty)
             Text(
-              'У этого заведения пока нет мест — только билеты.',
+              context.l10n.venue_no_seats_tickets_only,
               style: AppTextStyle.base(14, color: colors.subTextColor),
             )
           else
@@ -40,7 +41,7 @@ class VenueSeatsPage extends StatelessWidget {
                   AppTile(
                     title: seat.label,
                     subtitle: [
-                      'до ${seat.capacity} гост.',
+                      context.l10n.venue_seat_capacity(seat.capacity),
                       if (seat.priceHint != null) seat.priceHint!,
                       VenueMockCatalog.stateLabel(seat.state),
                     ].join(' · '),

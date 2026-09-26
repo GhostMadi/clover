@@ -3,6 +3,7 @@ import 'package:clover/feature/_booking_/booking_client/data/client_booking_bonu
 import 'package:clover/feature/_booking_/booking_create/data/models/booking_service.dart';
 import 'package:flutter/material.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
+import 'package:clover/core/extension/context.dart';
 
 class ClientBookingBonusSwitch extends StatelessWidget {
   const ClientBookingBonusSwitch({
@@ -30,12 +31,15 @@ class ClientBookingBonusSwitch extends StatelessWidget {
     );
 
     final subtitle = value
-        ? 'На балансе $balanceLabel. После визита спишем до $expectedSpend '
-            '(${service.bonusPayPercent}% цены). Остаток — на месте.'
-        : 'На балансе $balanceLabel. Бонусы за этот визит не списываем.';
+        ? context.l10n.booking_bonus_will_spend(
+            balanceLabel,
+            '$expectedSpend',
+            service.bonusPayPercent,
+          )
+        : context.l10n.booking_bonus_no_spend(balanceLabel);
 
     return BookingSwitchRow(
-      title: 'Оплатить бонусами',
+      title: context.l10n.booking_pay_with_bonuses,
       subtitle: subtitle,
       value: value,
       onChanged: onChanged,

@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -39,9 +40,9 @@ class AppMultiSelect<T> extends StatelessWidget {
     this.groups = const [],
     required this.values,
     required this.onChanged,
-    this.searchHint = 'Поиск',
+    this.searchHint,
     this.sheetTitle,
-    this.confirmLabel = 'Готово',
+    this.confirmLabel,
     this.emptySelectionHint,
   }) : assert(groups.isNotEmpty || options.isNotEmpty, 'Provide options or groups');
 
@@ -60,9 +61,9 @@ class AppMultiSelect<T> extends StatelessWidget {
   final Set<T> values;
   final ValueChanged<Set<T>> onChanged;
 
-  final String searchHint;
+  final String? searchHint;
   final String? sheetTitle;
-  final String confirmLabel;
+  final String? confirmLabel;
 
   /// Подсказка в поле, когда выбрано 0 (перекрывает [hint] только для отображения счётчика).
   final String? emptySelectionHint;
@@ -75,6 +76,7 @@ class AppMultiSelect<T> extends StatelessWidget {
   }
 
   Future<Set<T>?> _showSheet(BuildContext context) {
+    final l10n = context.l10n;
     return AppBottomSheet.show<Set<T>>(
       context: context,
       title: sheetTitle ?? label ?? hint,
@@ -83,11 +85,11 @@ class AppMultiSelect<T> extends StatelessWidget {
       contentHeight: _contentHeight(context),
       contentBottomSpacing: 12,
       content: AppMultiSelectSheetContent<T>(
-        searchHint: searchHint,
+        searchHint: searchHint ?? l10n.common_search,
         options: _hasGroups ? const [] : options,
         groups: _hasGroups ? groups : const [],
         selected: values,
-        confirmLabel: confirmLabel,
+        confirmLabel: confirmLabel ?? l10n.common_done,
       ),
     );
   }
@@ -185,11 +187,12 @@ class AppMultiSelect<T> extends StatelessWidget {
     List<AppMultiSelectOption<T>> options = const [],
     List<AppMultiSelectGroup<T>> groups = const [],
     Set<T> selected = const {},
-    String searchHint = 'Поиск',
-    String confirmLabel = 'Готово',
+    String? searchHint,
+    String? confirmLabel,
     AppServiceKind? service,
   }) async {
     assert(groups.isNotEmpty || options.isNotEmpty, 'Provide options or groups');
+    final l10n = context.l10n;
 
     return AppBottomSheet.show<Set<T>>(
       context: context,
@@ -200,11 +203,11 @@ class AppMultiSelect<T> extends StatelessWidget {
       contentBottomSpacing: 12,
       service: service,
       content: AppMultiSelectSheetContent<T>(
-        searchHint: searchHint,
+        searchHint: searchHint ?? l10n.common_search,
         options: groups.isNotEmpty ? const [] : options,
         groups: groups,
         selected: selected,
-        confirmLabel: confirmLabel,
+        confirmLabel: confirmLabel ?? l10n.common_done,
         service: service,
       ),
     );
@@ -384,7 +387,7 @@ class _AppMultiSelectSheetContentState<T> extends State<AppMultiSelectSheetConte
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Text(
-                      'Ничего не найдено',
+                      context.l10n.common_nothing_found,
                       style: AppTextStyle.base(14, color: colors.subTextColor),
                     ),
                   ),

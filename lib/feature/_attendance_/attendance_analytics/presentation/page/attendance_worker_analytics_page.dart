@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_date_format.dart';
 import 'package:clover/core/resources/app_icons.dart';
-import 'package:clover/core/resources/app_service_accent.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_attendance_/attendance_analytics/data/attendance_analytics.dart';
@@ -19,6 +19,7 @@ import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class AttendanceWorkerAnalyticsPage extends StatefulWidget {
@@ -66,9 +67,9 @@ class _AttendanceWorkerAnalyticsPageState extends State<AttendanceWorkerAnalytic
 
         if (worker == null) {
           return AttendanceScreenShell(
-            title: 'Сотрудник',
+            title: context.l10n.attendance_analytics_employee,
             body: Center(
-              child: Text('Не найден', style: AppTextStyle.base(15, color: context.colors.subTextColor)),
+              child: Text(context.l10n.common_not_found, style: AppTextStyle.base(15, color: context.colors.subTextColor)),
             ),
           );
         }
@@ -115,17 +116,17 @@ class _AttendanceWorkerAnalyticsPageState extends State<AttendanceWorkerAnalytic
                   accent: workerAccent,
                   serviceAccent: accent,
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
                 _MonthMetricsGrid(worker: worker),
                 if (payroll != null) ...[
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   _PayrollPreviewCard(payroll: payroll),
                 ],
                 if (absences.isNotEmpty) ...[
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   AttendanceAnalyticsSectionHeader(
-                    title: 'Отсутствия',
-                    subtitle: 'Оформленные периоды · не считаются пропуском',
+                    title: context.l10n.attendance_absences_title,
+                    subtitle: context.l10n.attendance_analytics_absences_subtitle,
                   ),
                   const SizedBox(height: 12),
                   for (final a in absences)
@@ -163,7 +164,7 @@ class _AttendanceWorkerAnalyticsPageState extends State<AttendanceWorkerAnalytic
                 ],
                 const SizedBox(height: 20),
                 AttendanceAnalyticsSectionHeader(
-                  title: 'Календарь',
+                  title: context.l10n.attendance_analytics_calendar,
                   subtitle: monthLabel,
                 ),
                 const SizedBox(height: 12),
@@ -188,8 +189,8 @@ class _AttendanceWorkerAnalyticsPageState extends State<AttendanceWorkerAnalytic
                 if (punches.isNotEmpty) ...[
                   const SizedBox(height: 20),
                   AttendanceAnalyticsSectionHeader(
-                    title: 'История отметок',
-                    subtitle: 'Последние события с устройства',
+                    title: context.l10n.attendance_punch_history,
+                    subtitle: context.l10n.attendance_analytics_history_subtitle,
                   ),
                   const SizedBox(height: 12),
                   AttendanceAnalyticsCard(
@@ -213,13 +214,7 @@ class _AttendanceWorkerAnalyticsPageState extends State<AttendanceWorkerAnalytic
     );
   }
 
-  static String _monthLabel(DateTime d) {
-    const months = [
-      'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
-    ];
-    return '${months[d.month - 1]} ${d.year}';
-  }
+  static String _monthLabel(DateTime d) => AppDateFormat.current().monthYear(d);
 
   static String _shortDate(DateTime d) {
     final dd = d.day.toString().padLeft(2, '0');
@@ -314,7 +309,7 @@ class _WorkerHeroCard extends StatelessWidget {
                         style: AppTextStyle.base(24, color: colors.textColor, fontWeight: FontWeight.w800),
                       ),
                       Text(
-                        'отработано за месяц',
+                        context.l10n.attendance_analytics_worked_month,
                         style: AppTextStyle.base(13, color: colors.subTextColor),
                       ),
                     ],
@@ -344,7 +339,7 @@ class _MonthMetricsGrid extends StatelessWidget {
       children: [
         Expanded(
           child: _MetricTile(
-            label: 'Смены',
+            label: context.l10n.attendance_analytics_shifts,
             value: '${worker.daysWorked}',
             icon: AppIcons.eventAvailable.icon,
             tint: accent.icon,
@@ -354,7 +349,7 @@ class _MonthMetricsGrid extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: _MetricTile(
-            label: 'Опоздания',
+            label: context.l10n.attendance_payroll_lates,
             value: '${worker.lateDays}',
             icon: AppIcons.accessTime.icon,
             tint: yellow.icon,
@@ -364,7 +359,7 @@ class _MonthMetricsGrid extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: _MetricTile(
-            label: 'Пропуски',
+            label: context.l10n.attendance_payroll_misses,
             value: '${worker.missedDays}',
             icon: AppIcons.eventBusy.icon,
             tint: colors.destructive,
@@ -424,20 +419,20 @@ class _PayrollPreviewCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const AttendanceAnalyticsSectionHeader(
-          title: 'Зарплата',
-          subtitle: 'Расчёт за период',
+        AttendanceAnalyticsSectionHeader(
+          title: context.l10n.attendance_payroll_title,
+          subtitle: context.l10n.attendance_analytics_payroll_subtitle,
         ),
         const SizedBox(height: 12),
         AttendanceAnalyticsCard(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              _PayRow(label: 'Оклад', value: attendanceFormatMoney(payroll.baseSalary)),
+              _PayRow(label: context.l10n.attendance_analytics_base_salary, value: attendanceFormatMoney(payroll.baseSalary)),
               if (payroll.totalDeductions > 0) ...[
                 const SizedBox(height: 8),
                 _PayRow(
-                  label: 'Списания',
+                  label: context.l10n.attendance_analytics_deductions,
                   value: '−${attendanceFormatMoney(payroll.totalDeductions)}',
                   valueColor: yellow.icon,
                 ),
@@ -445,7 +440,7 @@ class _PayrollPreviewCard extends StatelessWidget {
               if (payroll.totalBonuses > 0) ...[
                 const SizedBox(height: 8),
                 _PayRow(
-                  label: 'Доплаты',
+                  label: context.l10n.attendance_analytics_bonuses,
                   value: '+${attendanceFormatMoney(payroll.totalBonuses)}',
                   valueColor: accent.icon,
                 ),
@@ -454,7 +449,7 @@ class _PayrollPreviewCard extends StatelessWidget {
               const Divider(height: 1),
               const SizedBox(height: 12),
               _PayRow(
-                label: 'К выплате',
+                label: context.l10n.attendance_analytics_payout,
                 value: attendanceFormatMoney(payroll.netPay),
                 valueColor: accent.icon,
                 bold: true,

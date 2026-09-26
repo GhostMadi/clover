@@ -9,6 +9,7 @@ import 'package:clover/feature/_post_/post_comment/presentation/cubit/post_comme
 import 'package:clover/feature/_post_/post_comment/presentation/widget/post_comment_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Шторка комментариев (~70% экрана), стиль Instagram.
 abstract final class PostCommentsSheet {
@@ -20,7 +21,7 @@ abstract final class PostCommentsSheet {
     try {
       await AppBottomSheet.show<void>(
         context: context,
-        title: 'Комментарии',
+        title: context.l10n.post_comments_title,
         upperCaseTitle: false,
         contentHeight: height,
         expandBody: true,
@@ -89,7 +90,7 @@ class _PostCommentsSheetBodyState extends State<_PostCommentsSheetBody> {
       _cubit.setReplyTarget(null);
     } catch (_) {
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'Не удалось отправить комментарий', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.post_comment_send_failed, kind: AppSnackBarKind.error);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -134,7 +135,7 @@ class _PostCommentsSheetBodyState extends State<_PostCommentsSheetBody> {
                         child: threads.isEmpty
                             ? Center(
                                 child: Text(
-                                  'Комментариев пока нет.\nБудьте первым!',
+                                  context.l10n.post_comments_empty,
                                   textAlign: TextAlign.center,
                                   style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.4),
                                 ),
@@ -227,7 +228,7 @@ class _ReplyBanner extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              'Ответ для $username',
+              context.l10n.post_reply_for(username),
               style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
             ),
           ),
@@ -263,7 +264,9 @@ class _CommentInputBar extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
         child: AppField(
           controller: controller,
-          hintText: replyUsername == null ? 'Добавьте комментарий…' : 'Ответить $replyUsername…',
+          hintText: replyUsername == null
+              ? context.l10n.post_comment_hint
+              : context.l10n.post_reply_hint(replyUsername!),
           textInputAction: TextInputAction.send,
           isEnabled: !submitting,
           suffixIcon: IconButton(

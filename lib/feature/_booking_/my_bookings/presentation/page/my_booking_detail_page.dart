@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
@@ -48,7 +49,7 @@ class _MyBookingDetailPageState extends State<MyBookingDetailPage> {
     if (!item.canClientCancel) {
       AppSnackBar.show(
         context,
-        message: 'Отменить запись уже нельзя — слишком близко к визиту',
+        message: context.l10n.booking_cancel_too_late,
         kind: AppSnackBarKind.error,
       );
       return;
@@ -66,7 +67,7 @@ class _MyBookingDetailPageState extends State<MyBookingDetailPage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: 'Запись отменена',
+        message: context.l10n.booking_cancel_success,
         kind: AppSnackBarKind.success,
       );
       context.router.maybePop(true);
@@ -87,7 +88,7 @@ class _MyBookingDetailPageState extends State<MyBookingDetailPage> {
     if (!item.canClientReschedule) {
       AppSnackBar.show(
         context,
-        message: 'Перенести запись уже нельзя — слишком близко к визиту',
+        message: context.l10n.booking_reschedule_too_late,
         kind: AppSnackBarKind.error,
       );
       return;
@@ -102,7 +103,7 @@ class _MyBookingDetailPageState extends State<MyBookingDetailPage> {
         staffId.isEmpty) {
       AppSnackBar.show(
         context,
-        message: 'Нельзя перенести: нет услуги, мастера или владельца записи',
+        message: context.l10n.booking_reschedule_missing_parties,
         kind: AppSnackBarKind.error,
       );
       return;
@@ -112,7 +113,7 @@ class _MyBookingDetailPageState extends State<MyBookingDetailPage> {
 
     final picked = await AppBottomSheet.show<DateTime>(
       context: context,
-      title: 'Перенести запись',
+      title: context.l10n.booking_reschedule,
       service: kBookingService,
       contentHeight: 420,
       content: BookingRescheduleSheet(
@@ -131,7 +132,7 @@ class _MyBookingDetailPageState extends State<MyBookingDetailPage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: 'Запись перенесена',
+        message: context.l10n.booking_reschedule_done,
         kind: AppSnackBarKind.success,
       );
     } catch (e) {
@@ -155,11 +156,11 @@ class _MyBookingDetailPageState extends State<MyBookingDetailPage> {
         final showReschedule = item.canClientReschedule;
 
         return BookingScreenShell(
-          title: 'Запись',
+          title: context.l10n.booking_hub_title,
           compactBar: true,
           isLoading: state.isBusy,
           showCancel: showCancel,
-          cancelLabel: 'Отменить',
+          cancelLabel: context.l10n.common_cancel_action,
           cancelIcon: AppIcons.delete.icon,
           onCancelTap: _cancelBooking,
           body: SingleChildScrollView(
@@ -171,7 +172,7 @@ class _MyBookingDetailPageState extends State<MyBookingDetailPage> {
                 if (showReschedule) ...[
                   const SizedBox(height: 16),
                   BookingPrimaryButton(
-                    text: 'Перенести',
+                    text: context.l10n.booking_reschedule_action,
                     isExpanded: true,
                     onTap: _reschedule,
                   ),
@@ -245,7 +246,7 @@ class _CancelBookingButton extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Отменить запись',
+                      context.l10n.booking_cancel_booking,
                       style: AppTextStyle.base(
                         16,
                         fontWeight: FontWeight.w700,

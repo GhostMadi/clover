@@ -1,64 +1,50 @@
 import 'package:clover/core/auth/errors/auth_error_code.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 /// User-facing auth error texts resolved by [AuthErrorCode].
 abstract final class AuthErrorMessages {
-  static String messageFor(AuthErrorCode code, {int? retryAfterSeconds}) {
+  static String messageFor(
+    AuthErrorCode code,
+    AppLocalizations l10n, {
+    int? retryAfterSeconds,
+  }) {
     return switch (code) {
-      AuthErrorCode.unknown => 'Что-то пошло не так. Попробуйте ещё раз.',
-      AuthErrorCode.checkAuthFailed =>
-        'Не удалось восстановить сессию. Войдите снова.',
-      AuthErrorCode.signInCanceled => 'Вход отменён.',
-      AuthErrorCode.googleIdTokenMissing =>
-        'Не удалось войти через Google. Попробуйте ещё раз.',
-      AuthErrorCode.googleSignInFailed =>
-        'Не удалось войти через Google. Попробуйте ещё раз.',
-      AuthErrorCode.googleClientMisconfigured =>
-        'Google Sign-In не настроен: проверьте Web Client ID в Google Cloud и Supabase.',
-      AuthErrorCode.appleIdTokenMissing =>
-        'Не удалось войти через Apple. Попробуйте ещё раз.',
-      AuthErrorCode.appleSignInFailed =>
-        'Не удалось войти через Apple. Попробуйте ещё раз.',
-      AuthErrorCode.appleSignInUnavailable =>
-        'Вход через Apple недоступен на этом устройстве.',
-      AuthErrorCode.supabaseSignInFailed =>
-        'Не удалось выполнить вход. Попробуйте позже.',
-      AuthErrorCode.supabaseUserMissing =>
-        'Не удалось загрузить профиль после входа.',
-      AuthErrorCode.signOutFailed =>
-        'Не удалось выйти из аккаунта. Попробуйте ещё раз.',
-      AuthErrorCode.networkError =>
-        'Ошибка сети. Проверьте подключение и попробуйте снова.',
-      AuthErrorCode.emailInvalid => 'Введите корректный email.',
-      AuthErrorCode.emailOtpSendFailed =>
-        'Не удалось отправить код на email. Попробуйте позже.',
-      AuthErrorCode.emailOtpVerifyFailed =>
-        'Неверный или просроченный код. Запросите новый.',
+      AuthErrorCode.unknown => l10n.error_auth_unknown,
+      AuthErrorCode.checkAuthFailed => l10n.error_auth_check_failed,
+      AuthErrorCode.signInCanceled => l10n.error_auth_sign_in_canceled,
+      AuthErrorCode.googleIdTokenMissing => l10n.error_auth_google_token_missing,
+      AuthErrorCode.googleSignInFailed => l10n.error_auth_google_failed,
+      AuthErrorCode.googleClientMisconfigured => l10n.error_auth_google_misconfigured,
+      AuthErrorCode.appleIdTokenMissing => l10n.error_auth_apple_token_missing,
+      AuthErrorCode.appleSignInFailed => l10n.error_auth_apple_failed,
+      AuthErrorCode.appleSignInUnavailable => l10n.error_auth_apple_unavailable,
+      AuthErrorCode.supabaseSignInFailed => l10n.error_auth_supabase_sign_in_failed,
+      AuthErrorCode.supabaseUserMissing => l10n.error_auth_supabase_user_missing,
+      AuthErrorCode.signOutFailed => l10n.error_auth_sign_out_failed,
+      AuthErrorCode.networkError => l10n.error_auth_network,
+      AuthErrorCode.emailInvalid => l10n.error_auth_email_invalid,
+      AuthErrorCode.emailOtpSendFailed => l10n.error_auth_email_otp_send_failed,
+      AuthErrorCode.emailOtpVerifyFailed => l10n.error_auth_email_otp_verify_failed,
       AuthErrorCode.emailOtpRateLimited => () {
         final sec = retryAfterSeconds ?? 0;
         if (sec <= 0) {
-          return 'Слишком много писем. Подождите и попробуйте снова.';
+          return l10n.error_auth_email_otp_rate_limited;
         }
         final m = sec ~/ 60;
         final s = sec % 60;
-        return 'Подождите $m:${s.toString().padLeft(2, '0')} перед повторной отправкой.';
+        final countdown = '$m:${s.toString().padLeft(2, '0')}';
+        return l10n.error_auth_email_otp_wait(countdown);
       }(),
-      AuthErrorCode.emailAlreadyRegistered =>
-        'Этот email уже зарегистрирован. Войдите или сбросьте пароль.',
-      AuthErrorCode.emailNotRegistered =>
-        'Аккаунт с этим email не найден. Создайте аккаунт.',
-      AuthErrorCode.invalidCredentials => 'Неверный логин или пароль.',
-      AuthErrorCode.passwordInvalid =>
-        'Пароль слишком короткий. Минимум 8 символов.',
-      AuthErrorCode.passwordMismatch => 'Пароли не совпадают.',
-      AuthErrorCode.passwordUpdateFailed =>
-        'Не удалось сохранить пароль. Попробуйте ещё раз.',
-      AuthErrorCode.identifierInvalid => 'Введите ник или email.',
-      AuthErrorCode.hibernateFailed =>
-        'Не удалось усыпить аккаунт. Попробуйте ещё раз.',
-      AuthErrorCode.hibernateRateLimited =>
-        'Сон можно включать не чаще раза в 30 дней.',
-      AuthErrorCode.deleteAccountFailed =>
-        'Не удалось деактивировать аккаунт. Попробуйте ещё раз.',
+      AuthErrorCode.emailAlreadyRegistered => l10n.error_auth_email_already_registered,
+      AuthErrorCode.emailNotRegistered => l10n.error_auth_email_not_registered,
+      AuthErrorCode.invalidCredentials => l10n.error_auth_invalid_credentials,
+      AuthErrorCode.passwordInvalid => l10n.error_auth_password_invalid,
+      AuthErrorCode.passwordMismatch => l10n.error_auth_password_mismatch,
+      AuthErrorCode.passwordUpdateFailed => l10n.error_auth_password_update_failed,
+      AuthErrorCode.identifierInvalid => l10n.error_auth_identifier_invalid,
+      AuthErrorCode.hibernateFailed => l10n.error_auth_hibernate_failed,
+      AuthErrorCode.hibernateRateLimited => l10n.error_auth_hibernate_rate_limited,
+      AuthErrorCode.deleteAccountFailed => l10n.error_auth_delete_account_failed,
     };
   }
 }

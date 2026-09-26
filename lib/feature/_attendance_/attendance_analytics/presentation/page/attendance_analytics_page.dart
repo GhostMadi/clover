@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
@@ -25,11 +26,6 @@ class AttendanceAnalyticsPage extends StatefulWidget {
 }
 
 class _AttendanceAnalyticsPageState extends State<AttendanceAnalyticsPage> {
-  static const _monthNames = [
-    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
-  ];
-
   late final AttendanceAnalyticsCubit _cubit;
   late DateTime _start;
   late DateTime _end;
@@ -105,9 +101,9 @@ class _AttendanceAnalyticsPageState extends State<AttendanceAnalyticsPage> {
     return _end.isBefore(_today);
   }
 
-  String _periodLabel() {
+  String _periodLabel(BuildContext context) {
     if (_isMonth && _start.day == 1 && _start.year == _end.year && _start.month == _end.month) {
-      return '${_monthNames[_start.month - 1]} ${_start.year}';
+      return context.dateFormat.monthYear(_start);
     }
     return '${_fmt(_start)} — ${_fmt(_end)}';
   }
@@ -129,9 +125,9 @@ class _AttendanceAnalyticsPageState extends State<AttendanceAnalyticsPage> {
       builder: (context, state) {
         if (state is AttendanceAnalyticsMissing || state is AttendanceAnalyticsInitial) {
           return AttendanceScreenShell(
-            title: 'Аналитика',
+            title: context.l10n.attendance_analytics_title,
             body: Center(
-              child: Text('Нет данных', style: AppTextStyle.base(15, color: context.colors.subTextColor)),
+              child: Text(context.l10n.common_no_data, style: AppTextStyle.base(15, color: context.colors.subTextColor)),
             ),
           );
         }
@@ -140,7 +136,7 @@ class _AttendanceAnalyticsPageState extends State<AttendanceAnalyticsPage> {
         final loading = state is AttendanceAnalyticsLoading || overview == null;
 
         return AttendanceScreenShell(
-          title: 'Аналитика',
+          title: context.l10n.attendance_analytics_title,
           body: loading
               ? const AttendanceLoader()
               : ListView(
@@ -150,7 +146,7 @@ class _AttendanceAnalyticsPageState extends State<AttendanceAnalyticsPage> {
                       isMonth: _isMonth,
                       onWeek: () => _applyWeek(anchor: _end.isAfter(_today) ? _today : _end),
                       onMonth: () => _applyMonth(anchor: _start),
-                      periodLabel: _periodLabel(),
+                      periodLabel: _periodLabel(context),
                       onPrevious: () => _shiftPeriod(-1),
                       onNext: () => _shiftPeriod(1),
                       canGoNext: _canGoNext,
@@ -183,7 +179,7 @@ class _AttendanceAnalyticsPageState extends State<AttendanceAnalyticsPage> {
                       Padding(
                         padding: const EdgeInsets.only(top: 24),
                         child: Text(
-                          'Нет данных за период',
+                          context.l10n.attendance_analytics_no_period_data,
                           textAlign: TextAlign.center,
                           style: AppTextStyle.base(14, color: context.colors.subTextColor),
                         ),

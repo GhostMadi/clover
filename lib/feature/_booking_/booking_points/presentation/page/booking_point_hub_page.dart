@@ -10,6 +10,7 @@ import 'package:clover/feature/_booking_/shared/presentation/widget/booking_hub_
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class BookingPointHubPage extends StatefulWidget {
@@ -34,7 +35,7 @@ class _BookingPointHubPageState extends State<BookingPointHubPage> {
     _pointsCubit = sl<BookingPointsCubit>();
     final hint = widget.pointName?.trim();
     final hasHint = hint != null && hint.isNotEmpty;
-    _title = hasHint ? hint : 'Точка';
+    _title = hasHint ? hint : context.l10n.booking_point;
     _loading = !hasHint;
     _bootstrap();
   }
@@ -89,10 +90,10 @@ class _BookingPointHubPageState extends State<BookingPointHubPage> {
 
     if (_missing) {
       return BookingScreenShell(
-        title: 'Точка',
+        title: context.l10n.booking_point,
         compactBar: true,
         body: Center(
-          child: Text('Точка не найдена', style: AppTextStyle.base(15, color: context.colors.subTextColor)),
+          child: Text(context.l10n.booking_point_not_found, style: AppTextStyle.base(15, color: context.colors.subTextColor)),
         ),
       );
     }
@@ -107,26 +108,26 @@ class _BookingPointHubPageState extends State<BookingPointHubPage> {
         child: BookingHubNavGrid(
           children: [
             BookingHubNavCard(
-              title: 'Мои записи',
-              subtitle: 'Календарь и визиты',
+              title: context.l10n.booking_my_bookings,
+              subtitle: context.l10n.booking_my_bookings_subtitle,
               icon: AppIcons.calendarMonth.icon,
               onTap: () => context.router.push(BookingListRoute(pointId: pointId)),
             ),
             BookingHubNavCard(
-              title: 'Услуги',
-              subtitle: 'Цены и длительность',
+              title: context.l10n.booking_services_label,
+              subtitle: context.l10n.booking_services_subtitle,
               icon: AppIcons.designServices.icon,
               onTap: () => context.router.push(BookingCreateRoute(pointId: pointId)),
             ),
             BookingHubNavCard(
-              title: 'Команда',
-              subtitle: 'Мастера и приглашения',
+              title: context.l10n.booking_team,
+              subtitle: context.l10n.booking_team_subtitle,
               icon: AppIcons.groupOutlined.icon,
               onTap: () => context.router.push(BookingTeamRoute(pointId: pointId)),
             ),
             BookingHubNavCard(
-              title: 'Чат',
-              subtitle: 'Команда точки',
+              title: context.l10n.booking_chat_title,
+              subtitle: context.l10n.booking_chat_subtitle,
               icon: AppIcons.chat.icon,
               onTap: () => openBookingPointChat(
                 context,
@@ -135,14 +136,14 @@ class _BookingPointHubPageState extends State<BookingPointHubPage> {
               ),
             ),
             BookingHubNavCard(
-              title: 'Аналитика',
-              subtitle: 'Записи и услуги',
+              title: context.l10n.booking_analytics_label,
+              subtitle: context.l10n.booking_analytics_subtitle,
               icon: AppIcons.insights.icon,
               onTap: () => context.router.push(BookingAnalyticsRoute(pointId: pointId)),
             ),
             BookingHubNavCard(
-              title: 'Расписание',
-              subtitle: 'Часы и отсутствия',
+              title: context.l10n.booking_schedule,
+              subtitle: context.l10n.booking_schedule_subtitle,
               icon: AppIcons.settingsOutlined.icon,
               onTap: () => context.router.push(BookingScheduleSettingsRoute(pointId: pointId)),
             ),

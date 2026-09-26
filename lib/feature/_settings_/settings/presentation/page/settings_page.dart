@@ -1,10 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_tile.dart';
-// import 'package:clover/feature/_venue_/shared/presentation/widget/venue_service_ui.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
@@ -19,13 +19,13 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final booking = bookingServiceAccent(context.colors);
     final attendance = attendanceServiceAccent(context.colors);
     final resources = context.colors.serviceAccent(kResourcesService);
-    // final venue = venueServiceAccent(context.colors); // «Бронь» — скрыто до релиза
 
     return SettingsScreenShell(
-      title: 'Настройки',
+      title: l10n.settings_title,
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
         child: Column(
@@ -42,12 +42,12 @@ class SettingsPage extends StatelessWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SettingsTileSectionTitle('Сервисы'),
+                    SettingsTileSectionTitle(l10n.settings_section_services),
                     AppTileGroup(
                       children: [
                         AppTile(
-                          title: 'Гайд',
-                          subtitle: 'Как включить и пользоваться сервисами',
+                          title: l10n.settings_guide_title,
+                          subtitle: l10n.settings_guide_subtitle,
                           icon: AppIcons.infoOutline.icon,
                           iconColor: context.colors.primary,
                           iconBackgroundColor: context.colors.successSoft,
@@ -56,28 +56,18 @@ class SettingsPage extends StatelessWidget {
                         ),
                         if (hasBooking)
                           AppTile(
-                            title: 'Запись',
-                            subtitle: 'Услуги, inbox и расписание',
+                            title: l10n.settings_booking_title,
+                            subtitle: l10n.settings_booking_subtitle,
                             icon: AppIcons.calendarMonth.icon,
                             iconColor: booking.icon,
                             iconBackgroundColor: booking.soft,
                             showChevron: true,
                             onTap: () => context.router.push(const SettingsBookingRoute()),
                           ),
-                        // Прод: вход в «Бронь» скрыт, пока сервис не готов.
-                        // AppTile(
-                        //   title: 'Бронь',
-                        //   subtitle: 'Моки · билеты, места и схема',
-                        //   icon: AppIcons.ticket.icon,
-                        //   iconColor: venue.icon,
-                        //   iconBackgroundColor: venue.soft,
-                        //   showChevron: true,
-                        //   onTap: () => context.router.push(const SettingsVenueRoute()),
-                        // ),
                         if (hasAttendance)
                           AppTile(
-                            title: 'Посещаемость',
-                            subtitle: 'Компании, геозона и работники',
+                            title: l10n.settings_attendance_title,
+                            subtitle: l10n.settings_attendance_subtitle,
                             icon: AppIcons.schedule.icon,
                             iconColor: attendance.icon,
                             iconBackgroundColor: attendance.soft,
@@ -86,8 +76,8 @@ class SettingsPage extends StatelessWidget {
                           ),
                         if (hasResources)
                           AppTile(
-                            title: 'Ресурсы',
-                            subtitle: 'Местоположения и фильтры',
+                            title: l10n.settings_resources_title,
+                            subtitle: l10n.settings_resources_subtitle,
                             icon: AppIcons.inventory.icon,
                             iconColor: resources.icon,
                             iconBackgroundColor: resources.soft,
@@ -101,38 +91,38 @@ class SettingsPage extends StatelessWidget {
                 );
               },
             ),
-            const SettingsTileSectionTitle('Архивы'),
+            SettingsTileSectionTitle(l10n.settings_section_archives),
             AppTileGroup(
               children: [
                 AppTile(
-                  title: 'Архивы',
-                  subtitle: 'Публикации и кластеры',
+                  title: l10n.settings_archives_title,
+                  subtitle: l10n.settings_archives_subtitle,
                   icon: AppIcons.archive.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const SettingsArchiveRoute()),
                 ),
                 AppTile(
-                  title: 'Сохраненные посты',
-                  subtitle: 'Посты, которые вы сохранили',
+                  title: l10n.settings_saved_posts_title,
+                  subtitle: l10n.settings_saved_posts_subtitle,
                   icon: AppIcons.bookmarkOutline.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const SavedPostsRoute()),
                 ),
               ],
             ),
-            const SettingsTileSectionTitle('Аккаунт'),
+            SettingsTileSectionTitle(l10n.settings_section_account),
             AppTileGroup(
               children: [
                 AppTile(
-                  title: 'Аккаунт',
-                  subtitle: 'Язык, тема и выход',
+                  title: l10n.settings_account_title,
+                  subtitle: l10n.settings_account_subtitle,
                   icon: AppIcons.personOutline.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const SettingsAccountRoute()),
                 ),
                 AppTile(
-                  title: 'Заблокированные',
-                  subtitle: 'Кого вы закрыли',
+                  title: l10n.settings_blocked_title,
+                  subtitle: l10n.settings_blocked_subtitle,
                   icon: AppIcons.block.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const SettingsBlockedRoute()),
@@ -140,12 +130,12 @@ class SettingsPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            const SettingsTileSectionTitle('О приложении'),
+            SettingsTileSectionTitle(l10n.settings_section_about),
             AppTileGroup(
               children: [
                 AppTile(
-                  title: 'О приложении',
-                  subtitle: 'Версия и онбординг',
+                  title: l10n.settings_about_title,
+                  subtitle: l10n.settings_about_subtitle,
                   icon: AppIcons.infoOutline.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const AboutRoute()),

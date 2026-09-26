@@ -1,4 +1,5 @@
 import 'package:clover/feature/_feed_/notification_page/data/models/notification_item.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 enum NotificationDateSection {
   today,
@@ -20,11 +21,11 @@ abstract final class NotificationDateGrouping {
   static bool isWithinRetention(DateTime createdAt) =>
       !createdAt.toLocal().isBefore(retentionCutoff);
 
-  static String title(NotificationDateSection section) => switch (section) {
-        NotificationDateSection.today => 'Сегодня',
-        NotificationDateSection.yesterday => 'Вчера',
-        NotificationDateSection.last7Days => 'Последние 7 дней',
-        NotificationDateSection.last30Days => 'Последние 30 дней',
+  static String title(NotificationDateSection section, AppLocalizations l10n) => switch (section) {
+        NotificationDateSection.today => l10n.common_today,
+        NotificationDateSection.yesterday => l10n.common_yesterday,
+        NotificationDateSection.last7Days => l10n.feed_notif_section_last7,
+        NotificationDateSection.last30Days => l10n.feed_notif_section_last30,
       };
 
   static NotificationDateSection? sectionFor(DateTime createdAt) {

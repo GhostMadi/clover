@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -66,7 +67,7 @@ class _PostArchivePageState extends State<PostArchivePage> {
     return BlocProvider.value(
       value: _cubit,
       child: SettingsScreenShell(
-        title: 'Архив публикаций',
+        title: context.l10n.archive_posts_title,
         body: AppRefresh(
           onRefresh: _refresh,
           child: BlocBuilder<PostArchiveCubit, PostArchiveState>(
@@ -79,7 +80,7 @@ class _PostArchivePageState extends State<PostArchivePage> {
                   padding: EdgeInsets.fromLTRB(3, 8, 3, SettingsScreenShell.scrollBottomGap(context)),
                   child: PostGrid(
                     posts: [for (final item in items) item.post],
-                    emptyMessage: 'Архив публикаций пуст',
+                    emptyMessage: context.l10n.archive_posts_empty,
                     onPostTap: (post) {
                       for (final item in items) {
                         if (item.post.id == post.id) {
@@ -117,7 +118,7 @@ class _ArchiveError extends StatelessWidget {
             style: AppTextStyle.base(14, color: context.colors.subTextColor),
           ),
           const SizedBox(height: 12),
-          AppButton(text: 'Повторить', onTap: onRetry),
+          AppButton(text: context.l10n.common_retry, onTap: onRetry),
         ],
       ),
     );

@@ -6,6 +6,7 @@ import 'package:clover/feature/_booking_/point_reviews/presentation/widget/point
 import 'package:clover/feature/_booking_/point_reviews/presentation/widget/point_reviews_list_sheet.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Полоска отзывов на профиле.
 ///
@@ -59,7 +60,7 @@ class ProfilePointReviewsStrip extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${PointReviewsMock.totalCount} отзывов',
+                        context.l10n.booking_reviews_count(PointReviewsMock.totalCount),
                         style: AppTextStyle.base(
                           14,
                           fontWeight: FontWeight.w600,
@@ -67,7 +68,7 @@ class ProfilePointReviewsStrip extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'По точкам записи · тег feedback',
+                        context.l10n.booking_reviews_strip_subtitle,
                         style: AppTextStyle.base(12, color: colors.subTextColor),
                       ),
                     ],

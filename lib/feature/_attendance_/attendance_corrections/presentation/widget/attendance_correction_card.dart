@@ -1,6 +1,8 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
+import 'package:clover/feature/_attendance_/shared/attendance_l10n.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_correction_request.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_approve_reject_row.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_section_title.dart';
@@ -38,7 +40,7 @@ class AttendanceCorrectionCard extends StatelessWidget {
     final proposed = item.proposedPunchedAt;
     final note = item.note?.trim();
     final timeLine = [
-      if (punched != null) 'сейчас ${formatTime(punched)}',
+          if (punched != null) context.l10n.attendance_correction_now(formatTime(punched)),
       if (proposed != null) '→ ${formatTime(proposed)}',
     ].join(' ');
 
@@ -101,7 +103,7 @@ class AttendanceCorrectionCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  AttendanceStatusChip(label: item.status.labelRu, color: statusColor),
+                  AttendanceStatusChip(label: item.status.label(context.l10n), color: statusColor),
                 ],
               ),
               if (item.status == AttendanceCorrectionStatus.pending &&

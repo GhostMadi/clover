@@ -65,7 +65,7 @@ class _PostPreviewCardState extends State<PostPreviewCard> {
       return Padding(
         padding: EdgeInsets.all(context.widthByContext(16)),
         child: Text(
-          'Пост недоступен',
+          context.l10n.post_unavailable,
           style: AppTextStyle.base(context.heightByContext(14), color: context.colors.subTextColor),
         ),
       );

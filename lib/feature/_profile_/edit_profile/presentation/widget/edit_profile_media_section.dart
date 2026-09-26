@@ -74,7 +74,7 @@ class EditProfileMediaSection extends StatelessWidget {
                     Center(
                       child: _MediaActionChip(
                         icon: AppIcons.photoCamera.icon,
-                        label: _coverLabel(coverUrl, coverPreview),
+                        label: _coverLabel(context, coverUrl, coverPreview),
                       ),
                     ),
                   ],
@@ -125,20 +125,16 @@ class EditProfileMediaSection extends StatelessWidget {
     );
   }
 
-  static String _coverLabel(String? coverUrl, AppImageEditorResult? coverPreview) {
-    if (coverPreview != null) return 'Изменить обложку';
+  static String _coverLabel(BuildContext context, String? coverUrl, AppImageEditorResult? coverPreview) {
+    if (coverPreview != null) return context.l10n.profile_change_cover;
     final url = coverUrl?.trim();
-    if (url != null && url.isNotEmpty) return 'Изменить обложку';
-    return 'Добавить обложку';
+    if (url != null && url.isNotEmpty) return context.l10n.profile_change_cover;
+    return context.l10n.profile_add_cover;
   }
 }
 
 class _AvatarImage extends StatelessWidget {
-  const _AvatarImage({
-    required this.avatarUrl,
-    required this.avatarPreview,
-    required this.radius,
-  });
+  const _AvatarImage({required this.avatarUrl, required this.avatarPreview, required this.radius});
 
   final String? avatarUrl;
   final AppImageEditorResult? avatarPreview;

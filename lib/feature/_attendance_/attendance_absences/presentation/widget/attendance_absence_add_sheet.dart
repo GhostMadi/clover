@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
 import 'package:clover/feature/_attendance_/attendance_absences/presentation/cubit/attendance_absences_cubit.dart';
@@ -19,7 +20,7 @@ abstract final class AttendanceAbsenceAddSheet {
     if (workers.isEmpty) {
       await AttendanceBottomSheet.show(
         context: context,
-        title: 'Отсутствие',
+        title: context.l10n.attendance_absence_title,
         upperCaseTitle: false,
         showCloseButton: true,
         contentBottomSpacing: 8,
@@ -30,12 +31,12 @@ abstract final class AttendanceAbsenceAddSheet {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Нет активных работников',
+                  context.l10n.attendance_absences_no_workers,
                   style: AppTextStyle.base(14, color: sheetContext.colors.subTextColor),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 AttendancePrimaryButton(
-                  text: 'Закрыть',
+                  text: context.l10n.common_close,
                   isExpanded: true,
                   height: 48,
                   onTap: () => Navigator.of(sheetContext).pop(),
@@ -54,7 +55,7 @@ abstract final class AttendanceAbsenceAddSheet {
 
     await AttendanceBottomSheet.show(
       context: context,
-      title: 'Отсутствие',
+      title: context.l10n.attendance_absence_title,
       upperCaseTitle: false,
       showCloseButton: true,
       contentBottomSpacing: 8,
@@ -66,31 +67,31 @@ abstract final class AttendanceAbsenceAddSheet {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Работник',
+                context.l10n.attendance_absences_worker,
                 style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               for (final w in workers)
                 AttendanceServiceTile(
                   title: w.displayName,
                   selected: w.id == workerId,
                   onTap: () => setSheetState(() => workerId = w.id),
                 ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Text(
-                'Тип',
+                context.l10n.common_type,
                 style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               for (final k in AttendanceAbsenceKind.values)
                 AttendanceServiceTile(
                   title: k.labelRu,
                   selected: k == kind,
                   onTap: () => setSheetState(() => kind = k),
                 ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               AttendancePrimaryButton(
-                text: 'Сохранить',
+                text: context.l10n.common_save,
                 isExpanded: true,
                 height: 48,
                 onTap: () async {
@@ -110,13 +111,13 @@ abstract final class AttendanceAbsenceAddSheet {
                     AppSnackBar.show(
                       context,
                       message: result == AttendancePersistResult.queued
-                          ? 'Сохранено локально'
-                          : 'Добавлено',
+                          ? context.l10n.attendance_saved_locally
+                          : context.l10n.attendance_absences_added,
                       kind: AppSnackBarKind.success,
                     );
                   } catch (e) {
                     if (!sheetContext.mounted) return;
-                    final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить';
+                    final msg = e is AttendanceException ? e.userMessage : context.l10n.common_save_failed;
                     AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
                   }
                 },

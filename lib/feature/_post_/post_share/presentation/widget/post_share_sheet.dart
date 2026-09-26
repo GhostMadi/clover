@@ -11,6 +11,7 @@ import 'package:clover/feature/_post_/post_share/data/repository/post_share_repo
 import 'package:clover/feature/_post_/post_share/presentation/cubit/post_share_recipients_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Шторка «Поделиться» — сетка подписок и поле сообщения (Instagram-style).
 abstract final class PostShareSheet {
@@ -23,7 +24,7 @@ abstract final class PostShareSheet {
     try {
       return await AppBottomSheet.show<int>(
         context: context,
-        title: 'Поделиться',
+        title: context.l10n.common_share,
         upperCaseTitle: false,
         contentHeight: height,
         expandBody: true,
@@ -100,8 +101,8 @@ class _PostShareSheetBodyState extends State<_PostShareSheetBody> {
       AppSnackBar.show(
         context,
         message: result.sharedCount == 1
-            ? 'Пост отправлен'
-            : 'Пост отправлен ${result.sharedCount} получателям',
+            ? context.l10n.post_shared
+            : context.l10n.post_shared_to(result.sharedCount),
         kind: AppSnackBarKind.success,
       );
       Navigator.of(context).pop(result.sendsCount);
@@ -162,7 +163,7 @@ class _PostShareSheetBodyState extends State<_PostShareSheetBody> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: AppField(
                 controller: _searchController,
-                hintText: 'Поиск',
+                hintText: context.l10n.common_search,
                 prefixIcon: AppIcons.searchRounded.icon,
                 textInputAction: TextInputAction.search,
               ),
@@ -212,7 +213,7 @@ class _PostShareSheetBodyState extends State<_PostShareSheetBody> {
     if (recipients.isEmpty) {
       return Center(
         child: Text(
-          query.isEmpty ? 'Нет подписок для отправки' : 'Никого не найдено',
+          query.isEmpty ? context.l10n.post_share_no_following : context.l10n.common_no_one_found,
           style: AppTextStyle.base(14, color: context.colors.subTextColor),
         ),
       );
@@ -336,7 +337,7 @@ class _ShareMessageInputBar extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
         child: AppField(
           controller: controller,
-          hintText: 'Напишите сообщение…',
+          hintText: context.l10n.post_share_message_hint,
           textInputAction: TextInputAction.send,
           isEnabled: !submitting,
           suffixIcon: IconButton(

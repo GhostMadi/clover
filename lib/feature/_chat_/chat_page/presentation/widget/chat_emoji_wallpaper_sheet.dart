@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_field.dart';
@@ -17,7 +18,7 @@ abstract final class ChatEmojiWallpaperSheet {
   }) {
     return AppBottomSheet.show<List<String>?>(
       context: context,
-      title: 'Фон чата',
+      title: context.l10n.chat_wallpaper,
       contentHeight: 360,
       contentBottomSpacing: 0,
       content: _ChatEmojiWallpaperForm(
@@ -72,7 +73,7 @@ class _ChatEmojiWallpaperFormState extends State<_ChatEmojiWallpaperForm> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Вставь смайлики — фон увидят все в этом чате',
+          context.l10n.chat_wallpaper_hint,
           style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.3),
         ),
         const SizedBox(height: 12),
@@ -92,7 +93,7 @@ class _ChatEmojiWallpaperFormState extends State<_ChatEmojiWallpaperForm> {
                 if (_emojis.isEmpty)
                   Center(
                     child: Text(
-                      'Превью фона',
+                      context.l10n.chat_wallpaper_preview,
                       style: AppTextStyle.base(13, color: colors.subTextColor),
                     ),
                   ),
@@ -103,7 +104,7 @@ class _ChatEmojiWallpaperFormState extends State<_ChatEmojiWallpaperForm> {
         const SizedBox(height: 12),
         AppField(
           controller: _controller,
-          hintText: 'Например 🍀✨💬',
+          hintText: context.l10n.chat_wallpaper_example,
           onChanged: _onChanged,
         ),
         if (_emojis.isNotEmpty) ...[
@@ -130,7 +131,7 @@ class _ChatEmojiWallpaperFormState extends State<_ChatEmojiWallpaperForm> {
           children: [
             Expanded(
               child: AppOutlinedButton(
-                text: 'Убрать',
+                text: context.l10n.common_remove,
                 onTap: () => Navigator.of(context).pop(<String>[]),
                 height: 48,
                 borderRadius: 14,
@@ -146,7 +147,7 @@ class _ChatEmojiWallpaperFormState extends State<_ChatEmojiWallpaperForm> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
                 child: Text(
-                  'Сохранить',
+                  context.l10n.common_save,
                   style: AppTextStyle.base(15, color: colors.white, fontWeight: FontWeight.w700),
                 ),
               ),

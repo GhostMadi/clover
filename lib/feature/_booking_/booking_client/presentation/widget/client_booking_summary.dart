@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_bonus_/shared/data/bonus_format.dart';
@@ -29,31 +30,6 @@ class ClientBookingSummary extends StatelessWidget {
   final bool useBonuses;
   final int bonusBalance;
 
-  static const _months = [
-    'января',
-    'февраля',
-    'марта',
-    'апреля',
-    'мая',
-    'июня',
-    'июля',
-    'августа',
-    'сентября',
-    'октября',
-    'ноября',
-    'декабря',
-  ];
-
-  static const _weekdays = [
-    'понедельник',
-    'вторник',
-    'среда',
-    'четверг',
-    'пятница',
-    'суббота',
-    'воскресенье',
-  ];
-
   @override
   Widget build(BuildContext context) {
     final accent = bookingServiceAccent(context.colors);
@@ -63,8 +39,11 @@ class ClientBookingSummary extends StatelessWidget {
       bufferAfterMinutes: service.bufferAfterMinutes,
     );
 
-    final whenLine = '${_weekdays[startsAt.weekday - 1]}, ${startsAt.day} ${_months[startsAt.month - 1]}';
-    final timeLine = '${_time(startsAt)}–${_time(end)} · ${service.durationMinutes} мин';
+    final whenLine = context.dateFormat.fullWeekdayDayMonth(startsAt);
+    final timeLine = context.l10n.booking_time_duration(
+      '${_time(startsAt)}–${_time(end)}',
+      service.durationMinutes,
+    );
 
     final expectedSpend = ClientBookingBonusPreview.expectedSpend(
       service: service,
@@ -85,7 +64,7 @@ class ClientBookingSummary extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Проверьте перед записью',
+            context.l10n.booking_review_before_book,
             style: AppTextStyle.base(
               12,
               color: accent.onSoft.withValues(alpha: 0.7),
@@ -135,7 +114,7 @@ class ClientBookingSummary extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'на месте',
+                context.l10n.booking_on_site,
                 style: AppTextStyle.base(
                   12,
                   color: accent.onSoft.withValues(alpha: 0.65),
@@ -156,23 +135,29 @@ class ClientBookingSummary extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Бонусы',
+                    context.l10n.bonus_hub_title,
                     style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 4),
                   if (service.bonusPayPercent > 0)
                     Text(
                       useBonuses && expectedSpend > 0
-                          ? 'Списать −$expectedSpend ${BonusFormat.bonusWord(expectedSpend)}'
+                          ? context.l10n.booking_bonus_spend(
+                              '$expectedSpend',
+                              BonusFormat.bonusWord(expectedSpend),
+                            )
                           : useBonuses
-                              ? 'Списать 0 (недостаточно на балансе)'
-                              : 'Без списания бонусов',
+                              ? context.l10n.booking_bonus_spend_zero
+                              : context.l10n.booking_no_bonus_spend,
                       style: AppTextStyle.base(13, color: context.colors.textColor, fontWeight: FontWeight.w600),
                     ),
                   if (expectedEarn > 0) ...[
                     const SizedBox(height: 2),
                     Text(
-                      'Начислить +$expectedEarn ${BonusFormat.bonusWord(expectedEarn)}',
+                      context.l10n.booking_bonus_earn(
+                        '$expectedEarn',
+                        BonusFormat.bonusWord(expectedEarn),
+                      ),
                       style: AppTextStyle.base(13, color: context.colors.textColor, fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -183,7 +168,7 @@ class ClientBookingSummary extends StatelessWidget {
           if (clientComment != null && clientComment!.trim().isNotEmpty) ...[
             const SizedBox(height: 10),
             Text(
-              'Комментарий: ${clientComment!.trim()}',
+              context.l10n.booking_comment_prefix(clientComment!.trim()),
               style: AppTextStyle.base(
                 13,
                 color: accent.onSoft.withValues(alpha: 0.8),

@@ -12,6 +12,7 @@ import 'package:clover/feature/_settings_/settings/presentation/widget/settings_
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_tile_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class LocationPage extends StatelessWidget {
@@ -40,7 +41,7 @@ class LocationPage extends StatelessWidget {
     return BlocProvider(
       create: (_) => sl<LocationCubit>()..load(),
       child: SettingsScreenShell(
-        title: 'Местоположения',
+        title: context.l10n.catalog_locations_title,
         service: kResourcesService,
         body: BlocBuilder<LocationCubit, LocationState>(
           builder: (context, state) {
@@ -77,8 +78,8 @@ class LocationPage extends StatelessWidget {
                         AppTileGroup(
                           children: [
                             AppTile(
-                              title: 'Добавить',
-                              subtitle: 'Новое местоположение',
+                              title: context.l10n.common_add,
+                              subtitle: context.l10n.catalog_location_new,
                               icon: AppIcons.addRounded.icon,
                               iconColor: accent.icon,
                               iconBackgroundColor: accent.soft,
@@ -88,12 +89,12 @@ class LocationPage extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 20),
-                        SettingsTileSectionTitle('Всего: ${items.length}'),
+                        SettingsTileSectionTitle(context.l10n.catalog_total_count(items.length)),
                         if (items.isEmpty)
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 32),
                             child: Text(
-                              'Пока пусто — добавьте первое местоположение',
+                              context.l10n.catalog_locations_empty,
                               textAlign: TextAlign.center,
                               style: AppTextStyle.base(14, color: context.colors.subTextColor),
                             ),
@@ -106,7 +107,7 @@ class LocationPage extends StatelessWidget {
                                   title: item.displayTitle,
                                   subtitle: item.isActive
                                       ? item.displaySubtitle
-                                      : '${item.displaySubtitle} · неактивно',
+                                      : context.l10n.catalog_inactive_dot(item.displaySubtitle),
                                   icon: AppIcons.locationOn.icon,
                                   iconColor: item.hasGeoBinding ? accent.icon : context.colors.iconMuted,
                                   iconBackgroundColor: item.hasGeoBinding ? accent.soft : null,

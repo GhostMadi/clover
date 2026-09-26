@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:clover/core/debug/app_log.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
 import 'package:clover/feature/_chat_/chat/data/repository/chat_repository.dart';
 import 'package:clover/feature/_chat_/chat/data/repository/chat_thread_cache_sync.dart';
 import 'package:clover/feature/_chat_/chat/presentation/chat_active_thread.dart';
 import 'package:clover/feature/_chat_/chat/presentation/chat_push_open_bus.dart';
+import 'package:clover/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -163,7 +166,7 @@ class ChatUnreadCubit extends Cubit<int> {
     if (_activeThread.isOpen(conversationId)) return;
 
     final peerRaw = (data['sender_username'] ?? data['peer_username'] ?? 'chat').toString().trim();
-    final peer = peerRaw == 'chat' || peerRaw.isEmpty ? 'Чат' : peerRaw;
+    final peer = peerRaw == 'chat' || peerRaw.isEmpty ? lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).push_chat_fallback_title : peerRaw;
     final preview = _localizeInboxPreview(
       data['preview']?.toString().trim(),
       kind: data['kind']?.toString().trim(),
@@ -181,27 +184,28 @@ class ChatUnreadCubit extends Cubit<int> {
     );
   }
 
-  /// EN keys from inbox broadcast (`photo` / `file` / …) → RU label; free text as-is.
+  /// EN keys from inbox broadcast (`photo` / `file` / …) → localized label; free text as-is.
   String _localizeInboxPreview(String? preview, {String? kind}) {
     final raw = preview?.trim() ?? '';
     final key = raw.toLowerCase();
-    const labels = <String, String>{
-      'photo': 'Фото',
-      'file': 'Файл',
-      'post': 'Пост',
-      'message': 'Сообщение',
-      'system': 'Системное',
+    final l10n = lookupAppLocalizations(sl<AppLocaleCubit>().state.locale);
+    final labels = <String, String>{
+      'photo': l10n.chat_preview_photo,
+      'file': l10n.chat_preview_file,
+      'post': l10n.chat_preview_post,
+      'message': l10n.chat_preview_message,
+      'system': l10n.chat_preview_system,
     };
     if (labels.containsKey(key)) return labels[key]!;
 
     final k = kind?.trim() ?? '';
     if (raw.isEmpty) {
       return switch (k) {
-        'media' => 'Фото',
-        'file' => 'Файл',
-        'post_ref' => 'Пост',
-        'system' => 'Системное',
-        _ => 'Новое сообщение',
+        'media' => l10n.chat_preview_photo,
+        'file' => l10n.chat_preview_file,
+        'post_ref' => l10n.chat_preview_post,
+        'system' => l10n.chat_preview_system,
+        _ => l10n.chat_preview_message,
       };
     }
     return raw;

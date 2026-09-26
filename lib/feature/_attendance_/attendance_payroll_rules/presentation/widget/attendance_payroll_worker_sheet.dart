@@ -8,6 +8,7 @@ import 'package:clover/feature/_attendance_/shared/data/models/attendance_payrol
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:clover/core/extension/context.dart';
 
 abstract final class AttendancePayrollWorkerSheet {
   static Future<void> show(
@@ -61,7 +62,7 @@ class _BodyState extends State<_Body> {
   Future<void> _saveSalary() async {
     final parsed = int.tryParse(_salaryController.text.trim());
     if (parsed == null || parsed <= 0) {
-      AppSnackBar.show(context, message: 'Укажите оклад в ₸', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.attendance_payroll_enter_salary, kind: AppSnackBarKind.error);
       return;
     }
     try {
@@ -72,13 +73,13 @@ class _BodyState extends State<_Body> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: result == AttendancePersistResult.queued ? 'Сохранено локально' : 'Оклад сохранён',
+        message: result == AttendancePersistResult.queued ? context.l10n.attendance_saved_locally : context.l10n.attendance_payroll_salary_saved,
         kind: AppSnackBarKind.success,
       );
       setState(() {});
     } catch (e) {
       if (!mounted) return;
-      final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить оклад';
+      final msg = e is AttendanceException ? e.userMessage : context.l10n.attendance_payroll_salary_save_failed;
       AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
     }
   }
@@ -103,20 +104,20 @@ class _BodyState extends State<_Body> {
         const SizedBox(height: 12),
         AttendanceField(
           controller: _salaryController,
-          labelText: 'Оклад, ₸',
+          labelText: context.l10n.attendance_payroll_salary_label,
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         ),
         const SizedBox(height: 10),
-        AttendancePrimaryButton(text: 'Сохранить оклад', isExpanded: true, height: 48, onTap: _saveSalary),
+        AttendancePrimaryButton(text: context.l10n.attendance_payroll_save_salary, isExpanded: true, height: 48, onTap: _saveSalary),
         const SizedBox(height: 16),
         Text(
-          'За ${widget.cubit.state.summary.periodLabel}',
+          context.l10n.attendance_payroll_for_period(widget.cubit.state.summary.periodLabel),
           style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
         if (payroll.lines.isEmpty)
-          Text('Без корректировок', style: AppTextStyle.base(14, color: colors.subTextColor))
+          Text(context.l10n.attendance_payroll_no_adjustments, style: AppTextStyle.base(14, color: colors.subTextColor))
         else
           for (final line in payroll.lines)
             Padding(
@@ -145,7 +146,7 @@ class _BodyState extends State<_Body> {
           children: [
             Expanded(
               child: Text(
-                'К выплате',
+                context.l10n.attendance_analytics_payout,
                 style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
               ),
             ),

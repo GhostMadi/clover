@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -61,7 +62,7 @@ class AttendanceScreenShell extends StatelessWidget {
         if (showSave)
           FunctionalButtonItem(
             icon: AppIcons.checkRounded.icon,
-            label: 'Сохранить',
+            label: context.l10n.common_save,
             keepWhenCollapsed: true,
             customColor: accent.cta,
             iconColor: accent.ctaForeground,

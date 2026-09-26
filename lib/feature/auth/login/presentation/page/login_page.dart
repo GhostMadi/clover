@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
   void _requireTerms() {
     AppSnackBar.show(
       context,
-      message: 'Примите условия использования, чтобы продолжить',
+      message: context.l10n.auth_login_terms_required,
       kind: AppSnackBarKind.info,
     );
   }
@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
         if (state is! AuthError) return;
         AppSnackBar.show(
           context,
-          message: AuthErrorMessages.messageFor(state.code),
+          message: AuthErrorMessages.messageFor(state.code, context.l10n),
           kind: AppSnackBarKind.error,
         );
       },
@@ -101,8 +101,8 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(height: context.heightByContext(40)),
                 AppField(
                   controller: _identifierController,
-                  labelText: 'Ник или email',
-                  hintText: '@username или email',
+                  labelText: context.l10n.auth_login_identifier_label,
+                  hintText: context.l10n.auth_login_identifier_hint,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   isEnabled: !isLoading,
@@ -110,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 14),
                 AppField(
                   controller: _passwordController,
-                  labelText: 'Пароль',
+                  labelText: context.l10n.common_password,
                   hintText: '••••••••',
                   obscureText: _obscurePassword,
                   textInputAction: TextInputAction.done,
@@ -118,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                   suffixIcon: TextButton(
                     onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                     child: Text(
-                      _obscurePassword ? 'Показать' : 'Скрыть',
+                      _obscurePassword ? context.l10n.common_show : context.l10n.common_hide,
                       style: AppTextStyle.base(
                         12,
                         color: context.colors.primary,
@@ -132,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: TextButton(
                     onPressed: isLoading ? null : () => context.router.push(const ForgotPasswordRoute()),
                     child: Text(
-                      'Забыли пароль?',
+                      context.l10n.auth_login_forgot_password,
                       style: AppTextStyle.base(
                         13,
                         color: context.colors.primary,
@@ -162,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                             child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.white),
                           )
                         : Text(
-                            'Войти',
+                            context.l10n.auth_login_submit,
                             style: AppTextStyle.base(
                               15,
                               fontWeight: FontWeight.w600,
@@ -175,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Нет аккаунта?', style: AppTextStyle.base(14, color: context.colors.subTextColor)),
+                    Text(context.l10n.auth_login_no_account, style: AppTextStyle.base(14, color: context.colors.subTextColor)),
                     TextButton(
                       onPressed: isLoading
                           ? null
@@ -187,7 +187,7 @@ class _LoginPageState extends State<LoginPage> {
                               context.router.push(const RegisterEmailRoute());
                             },
                       child: Text(
-                        'Создать',
+                        context.l10n.auth_login_create,
                         style: AppTextStyle.base(
                           14,
                           color: context.colors.primary,

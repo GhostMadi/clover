@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
@@ -28,14 +29,14 @@ class VenueHubPage extends StatelessWidget {
     final accent = venueServiceAccent(context.colors);
     final title = venueName?.trim().isNotEmpty == true
         ? venueName!.trim()
-        : (venue?.name ?? 'Заведение');
+        : (venue?.name ?? context.l10n.venue_establishment);
 
     if (venue == null) {
       return VenueScreenShell(
-        title: 'Заведение',
+        title: context.l10n.venue_establishment,
         body: Center(
           child: Text(
-            'Заведение не найдено',
+            context.l10n.venue_not_found,
             style: AppTextStyle.base(15, color: context.colors.subTextColor),
           ),
         ),
@@ -49,12 +50,12 @@ class VenueHubPage extends StatelessWidget {
         children: [
           VenueMockBanner(text: venue.subtitle),
           const SizedBox(height: 16),
-          const SettingsTileSectionTitle('Каталог'),
+          SettingsTileSectionTitle(context.l10n.venue_catalog),
           AppTileGroup(
             children: [
               AppTile(
-                title: 'Билеты / тарифы',
-                subtitle: 'Уровень A',
+                title: context.l10n.venue_tickets_fares,
+                subtitle: context.l10n.venue_level_a,
                 icon: AppIcons.ticket.icon,
                 iconColor: accent.icon,
                 iconBackgroundColor: accent.soft,
@@ -62,8 +63,8 @@ class VenueHubPage extends StatelessWidget {
                 onTap: () => context.router.push(VenueTicketsRoute(venueId: venueId)),
               ),
               AppTile(
-                title: 'Места списком',
-                subtitle: 'Уровень B',
+                title: context.l10n.venue_places_list,
+                subtitle: context.l10n.venue_level_b,
                 icon: AppIcons.eventSeat.icon,
                 iconColor: accent.icon,
                 iconBackgroundColor: accent.soft,
@@ -71,8 +72,8 @@ class VenueHubPage extends StatelessWidget {
                 onTap: () => context.router.push(VenueSeatsRoute(venueId: venueId)),
               ),
               AppTile(
-                title: 'План / схема',
-                subtitle: venue.hasPlan ? 'Уровень C · превью' : 'Нет схемы · подсказка',
+                title: context.l10n.venue_plan_schema,
+                subtitle: venue.hasPlan ? context.l10n.venue_level_c_preview : context.l10n.venue_no_schema_hint,
                 icon: AppIcons.layers.icon,
                 iconColor: accent.icon,
                 iconBackgroundColor: accent.soft,
@@ -80,8 +81,8 @@ class VenueHubPage extends StatelessWidget {
                 onTap: () => context.router.push(VenuePlanRoute(venueId: venueId)),
               ),
               AppTile(
-                title: 'Сеансы / слоты',
-                subtitle: 'Когда можно бронировать',
+                title: context.l10n.venue_sessions_slots,
+                subtitle: context.l10n.venue_when_bookable,
                 icon: AppIcons.event.icon,
                 iconColor: accent.icon,
                 iconBackgroundColor: accent.soft,
@@ -91,12 +92,12 @@ class VenueHubPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          const SettingsTileSectionTitle('Операции'),
+          SettingsTileSectionTitle(context.l10n.venue_operations),
           AppTileGroup(
             children: [
               AppTile(
-                title: 'Inbox',
-                subtitle: 'Запросы → подтверждение',
+                title: context.l10n.booking_inbox_title,
+                subtitle: context.l10n.venue_requests_to_confirm,
                 icon: AppIcons.mail.icon,
                 iconColor: accent.icon,
                 iconBackgroundColor: accent.soft,
@@ -104,8 +105,8 @@ class VenueHubPage extends StatelessWidget {
                 onTap: () => context.router.push(VenueInboxRoute(venueId: venueId)),
               ),
               AppTile(
-                title: 'Как видит клиент',
-                subtitle: 'Превью запроса брони',
+                title: context.l10n.venue_client_view,
+                subtitle: context.l10n.venue_request_preview,
                 icon: AppIcons.visibility.icon,
                 iconColor: accent.icon,
                 iconBackgroundColor: accent.soft,

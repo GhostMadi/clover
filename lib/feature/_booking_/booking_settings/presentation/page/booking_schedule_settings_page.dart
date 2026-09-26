@@ -10,6 +10,7 @@ import 'package:clover/feature/_booking_/shared/presentation/widget/booking_scre
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class BookingScheduleSettingsPage extends StatefulWidget {
@@ -44,7 +45,7 @@ class _BookingScheduleSettingsPageState extends State<BookingScheduleSettingsPag
     final ok = await _cubit.save(settings);
     if (!mounted || !ok) return;
 
-    AppSnackBar.show(context, message: 'Настройки сохранены', kind: AppSnackBarKind.success);
+    AppSnackBar.show(context, message: context.l10n.booking_settings_saved, kind: AppSnackBarKind.success);
     context.router.maybePop(true);
   }
 
@@ -63,7 +64,7 @@ class _BookingScheduleSettingsPageState extends State<BookingScheduleSettingsPag
         final staff = loaded?.staff ?? const <BookingServiceExecutor>[];
 
         return BookingScreenShell(
-          title: 'Расписание',
+          title: context.l10n.booking_schedule,
           pointId: widget.pointId,
           onPointChanged: (nextId) {
             context.router.replace(BookingScheduleSettingsRoute(pointId: nextId));

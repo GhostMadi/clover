@@ -2,12 +2,15 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:clover/core/debug/app_log.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
 import 'package:clover/core/push/app_push_config.dart';
 import 'package:clover/core/push/firebase_messaging_background.dart';
 import 'package:clover/core/push/push_device_platform.dart';
 import 'package:clover/core/push/push_device_token_repository.dart';
 import 'package:clover/core/push/notification_open_bus.dart';
 import 'package:clover/feature/_chat_/chat/presentation/chat_push_open_bus.dart';
+import 'package:clover/l10n/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -283,7 +286,8 @@ class AppPushMessagingService {
     final conversationId = (data['conversation_id'] ?? '').toString().trim();
     if (conversationId.isEmpty) return;
 
-    final peer = (data['peer_username'] ?? message.notification?.title ?? 'Чат')
+    final chatFallback = lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).push_chat_fallback_title;
+    final peer = (data['peer_username'] ?? message.notification?.title ?? chatFallback)
         .toString()
         .trim();
     final preview = (message.notification?.body ?? data['body'] ?? '').toString().trim();
@@ -291,7 +295,7 @@ class AppPushMessagingService {
     _chatOpenBus.emit(
       ChatPushOpenRequest(
         conversationId: conversationId,
-        peerUsername: peer.isEmpty ? 'Чат' : peer,
+        peerUsername: peer.isEmpty ? chatFallback : peer,
         isGroup: (data['is_group'] ?? '').toString() == 'true',
         autoOpen: false,
         preview: preview.isEmpty ? null : preview,

@@ -5,6 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 part 'settings_filters_cubit.freezed.dart';
 
@@ -20,7 +23,9 @@ class SettingsFiltersCubit extends Cubit<SettingsFiltersState> {
   Future<void> load() async {
     final uid = _client.auth.currentUser?.id.trim();
     if (uid == null || uid.isEmpty) {
-      emit(const SettingsFiltersState.error('Нет сессии'));
+      emit(SettingsFiltersState.error(
+        lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).settings_no_session,
+      ));
       return;
     }
 
@@ -40,7 +45,7 @@ class SettingsFiltersCubit extends Cubit<SettingsFiltersState> {
 
   Future<String?> upsert(FilterCategory draft) async {
     final loaded = state.mapOrNull(loaded: (s) => s);
-    if (loaded == null) return 'Подождите загрузку';
+    if (loaded == null) return lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).settings_wait_loading;
 
     emit(loaded.copyWith(isMutating: true));
     try {
@@ -74,7 +79,7 @@ class SettingsFiltersCubit extends Cubit<SettingsFiltersState> {
 
   Future<String?> deleteCategory(String categoryId) async {
     final loaded = state.mapOrNull(loaded: (s) => s);
-    if (loaded == null) return 'Подождите загрузку';
+    if (loaded == null) return lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).settings_wait_loading;
 
     emit(loaded.copyWith(isMutating: true));
     try {

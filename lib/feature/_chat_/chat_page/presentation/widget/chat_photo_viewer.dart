@@ -9,6 +9,7 @@ import 'package:clover/feature/_chat_/chat_page/data/models/chat_message_attachm
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:photo_manager/photo_manager.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Полноэкранный просмотр фото чата: fade + Hero, pinch-zoom, скачать в галерею.
 class ChatPhotoViewer {
@@ -132,7 +133,7 @@ class _ChatPhotoViewerPageState extends State<_ChatPhotoViewerPage> {
         if (!mounted) return;
         AppSnackBar.show(
           context,
-          message: 'Разрешите доступ к фото, чтобы сохранить',
+          message: context.l10n.chat_photo_permission,
           kind: AppSnackBarKind.error,
         );
         return;
@@ -151,14 +152,14 @@ class _ChatPhotoViewerPageState extends State<_ChatPhotoViewerPage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: 'Сохранено в Галерею',
+        message: context.l10n.chat_saved_to_gallery,
         kind: AppSnackBarKind.success,
       );
     } catch (_) {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: 'Не удалось скачать фото',
+        message: context.l10n.chat_photo_download_failed,
         kind: AppSnackBarKind.error,
       );
     } finally {
@@ -253,7 +254,7 @@ class _ChatPhotoViewerPageState extends State<_ChatPhotoViewerPage> {
                     const Spacer(),
                     IconButton(
                       onPressed: _saving ? null : _download,
-                      tooltip: 'Скачать',
+                      tooltip: context.l10n.common_download,
                       icon: _saving
                           ? SizedBox(
                               width: 22,
@@ -291,7 +292,7 @@ class _ChatPhotoViewerPageState extends State<_ChatPhotoViewerPage> {
                             Icon(AppIcons.download.icon, color: colors.textInverse, size: 20),
                             const SizedBox(width: 8),
                             Text(
-                              'Скачать',
+                              context.l10n.common_download,
                               style: AppTextStyle.base(
                                 15,
                                 color: colors.textInverse,

@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_mini_menu.dart';
@@ -90,16 +91,16 @@ class _ChatComposerState extends State<ChatComposer> {
         children: [
           if (widget.onAttachmentSelected != null) ...[
             AppMiniMenu<ChatAttachmentAction>(
-              menuTooltip: 'Вложение',
+              menuTooltip: context.l10n.chat_attachment,
               items: [
                 AppMiniMenuItem(
                   value: ChatAttachmentAction.photo,
-                  title: 'Фото',
+                  title: context.l10n.chat_preview_photo,
                   icon: AppIcons.imageOutlined.icon,
                 ),
                 AppMiniMenuItem(
                   value: ChatAttachmentAction.document,
-                  title: 'Документ',
+                  title: context.l10n.chat_document,
                   icon: AppIcons.description.icon,
                 ),
               ],
@@ -138,7 +139,7 @@ class _ChatComposerState extends State<ChatComposer> {
                 onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                 scrollPadding: const EdgeInsets.only(bottom: 80),
                 decoration: InputDecoration(
-                  hintText: 'Сообщение',
+                  hintText: context.l10n.chat_input_hint,
                   hintStyle: AppTextStyle.base(16, color: context.colors.subTextColor),
                   filled: true,
                   fillColor: context.colors.surface,

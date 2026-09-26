@@ -12,8 +12,7 @@ import 'package:clover/feature/_settings_/settings/presentation/widget/settings_
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-const _followListTabs = ['Подписки', 'Подписчики'];
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class FollowersAndFollowingsPage extends StatefulWidget {
@@ -51,7 +50,7 @@ class _FollowersAndFollowingsPageState extends State<FollowersAndFollowingsPage>
   String get _pageTitle {
     final username = widget.username?.trim();
     if (username != null && username.isNotEmpty) return '@$username';
-    return 'Подписки';
+    return context.l10n.profile_following;
   }
 
   String? get _currentUserId => Supabase.instance.client.auth.currentUser?.id.trim();
@@ -150,7 +149,7 @@ class _LoadedBodyState extends State<_LoadedBody> {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
           child: AppTab(
-            tabs: _followListTabs,
+            tabs: [context.l10n.profile_following, context.l10n.profile_followers],
             currentIndex: widget.state.tabIndex,
             onTabChanged: _onTabTap,
           ),
@@ -165,7 +164,7 @@ class _LoadedBodyState extends State<_LoadedBody> {
                 rows: widget.state.following,
                 isLoading: widget.state.followingLoading,
                 error: widget.state.followingError,
-                emptyMessage: 'Пока нет подписок',
+                emptyMessage: context.l10n.profile_following_empty,
                 currentUserId: widget.currentUserId,
                 onRefresh: widget.onRefresh,
                 onToggleFollow: (row) => widget.onToggleFollow(row, true),
@@ -174,7 +173,7 @@ class _LoadedBodyState extends State<_LoadedBody> {
                 rows: widget.state.followers,
                 isLoading: widget.state.followersLoading,
                 error: widget.state.followersError,
-                emptyMessage: 'Пока нет подписчиков',
+                emptyMessage: context.l10n.profile_followers_empty,
                 currentUserId: widget.currentUserId,
                 onRefresh: widget.onRefresh,
                 onToggleFollow: (row) => widget.onToggleFollow(row, false),

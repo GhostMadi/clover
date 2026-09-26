@@ -14,6 +14,7 @@ import 'package:clover/feature/_feed_/events_page/presentation/widget/event_feed
 import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class EventsPage extends StatefulWidget {
@@ -149,8 +150,8 @@ class _EventsPageState extends State<EventsPage> {
                         errorMessage: errorMessage,
                         onRetry: () => _cubit.load(_lastFilter ?? EventsFilter.defaults),
                         emptyIcon: AppIcons.filterList.icon,
-                        emptyTitle: 'Ничего не найдено',
-                        emptySubtitle: 'Попробуйте изменить фильтр',
+                        emptyTitle: context.l10n.common_nothing_found,
+                        emptySubtitle: context.l10n.common_try_change_filter,
                         child: const SizedBox.shrink(),
                       )
                     else ...[
@@ -186,7 +187,7 @@ class _EventsPageState extends State<EventsPage> {
                           child: Padding(
                             padding: EdgeInsets.fromLTRB(24, 8, 24, 24),
                             child: Text(
-                              'Больше публикаций нет',
+                              context.l10n.feed_events_no_more,
                               textAlign: TextAlign.center,
                               style: AppTextStyle.base(13, color: context.colors.subTextColor),
                             ),

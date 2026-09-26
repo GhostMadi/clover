@@ -4,6 +4,9 @@ import 'package:clover/feature/_catalog_/social_graph/data/repository/social_gra
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 @injectable
 class FollowersAndFollowingsCubit extends Cubit<FollowersAndFollowingsState> {
@@ -21,7 +24,7 @@ class FollowersAndFollowingsCubit extends Cubit<FollowersAndFollowingsState> {
 
     final id = profileId.trim();
     if (id.isEmpty) {
-      emit(const FollowersAndFollowingsState.error('Некорректный профиль'));
+      emit(FollowersAndFollowingsState.error(lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).profile_invalid));
       return;
     }
 

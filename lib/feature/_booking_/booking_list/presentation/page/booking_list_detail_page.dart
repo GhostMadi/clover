@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -56,7 +57,7 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: 'Статус обновлён',
+        message: context.l10n.booking_status_updated,
         kind: AppSnackBarKind.success,
       );
     } catch (e) {
@@ -80,11 +81,11 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
         backgroundColor: context.colors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: Text(
-          'Отменить последний шаг?',
+          context.l10n.booking_undo_last_step_q,
           style: AppTextStyle.base(18, fontWeight: FontWeight.w700),
         ),
         content: Text(
-          'Запись вернётся на предыдущий этап. Например, если случайно отметили «Клиент пришёл».',
+          context.l10n.booking_undo_body,
           style: AppTextStyle.base(
             14,
             color: context.colors.subTextColor,
@@ -95,14 +96,14 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(
-              'Назад',
+              context.l10n.common_back,
               style: AppTextStyle.base(14, color: context.colors.subTextColor),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(
-              'Вернуть',
+              context.l10n.booking_undo_action,
               style: AppTextStyle.base(
                 14,
                 fontWeight: FontWeight.w700,
@@ -120,7 +121,7 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: 'Статус возвращён',
+        message: context.l10n.booking_status_reverted,
         kind: AppSnackBarKind.success,
       );
     } catch (e) {
@@ -163,7 +164,7 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
     if (hostId == null || hostId.isEmpty) {
       AppSnackBar.show(
         context,
-        message: 'Нельзя перенести: сессия не найдена. Войдите снова.',
+        message: context.l10n.booking_reschedule_no_session,
         kind: AppSnackBarKind.error,
       );
       return;
@@ -175,7 +176,7 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
       AppSnackBar.show(
         context,
         message:
-            'Нельзя перенести: нет услуги или исполнителя. Обновите список записей.',
+            context.l10n.booking_reschedule_missing_service,
         kind: AppSnackBarKind.error,
       );
       return;
@@ -185,7 +186,7 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
 
     final picked = await AppBottomSheet.show<DateTime>(
       context: context,
-      title: 'Перенести запись',
+      title: context.l10n.booking_reschedule,
       service: kBookingService,
       contentHeight: 420,
       content: BookingRescheduleSheet(
@@ -204,7 +205,7 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: 'Запись перенесена',
+        message: context.l10n.booking_reschedule_done,
         kind: AppSnackBarKind.success,
       );
     } catch (e) {
@@ -222,19 +223,19 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
   ) async {
     final (title, message, confirmLabel) = switch (action) {
       BookingHostEmergencyAction.complete => (
-        'Завершить визит?',
-        'Только вы закрываете услугу как оказанную. Система сама этого не делает.',
-        'Завершить',
+        context.l10n.booking_complete_visit_q,
+        context.l10n.booking_host_closes_only,
+        context.l10n.booking_complete_action,
       ),
       BookingHostEmergencyAction.cancel => (
-        'Отменить визит?',
-        'Слот освободится. Отменить можно в любой момент, даже если услуга уже началась.',
-        'Отменить',
+        context.l10n.booking_cancel_visit_q,
+        context.l10n.booking_no_show_body,
+        context.l10n.common_cancel_action,
       ),
       BookingHostEmergencyAction.noShow => (
-        'Клиент не пришёл?',
-        'Запись будет закрыта, слот освободится для других клиентов.',
-        'Подтвердить',
+        context.l10n.booking_no_show_q,
+        context.l10n.booking_complete_body,
+        context.l10n.common_confirm,
       ),
       BookingHostEmergencyAction.reschedule => ('', '', ''),
     };
@@ -260,7 +261,7 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(
-              'Назад',
+              context.l10n.common_back,
               style: AppTextStyle.base(14, color: context.colors.subTextColor),
             ),
           ),
@@ -296,7 +297,7 @@ class _BookingListDetailPageState extends State<BookingListDetailPage> {
             _popWithResult();
           },
           child: BookingScreenShell(
-            title: 'Запись',
+            title: context.l10n.booking_hub_title,
             compactBar: true,
             onBackTap: _popWithResult,
             body: SingleChildScrollView(

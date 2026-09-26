@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/push/app_push_messaging_service.dart';
 import 'package:clover/core/push/notification_open_bus.dart';
 import 'package:clover/core/push/notification_open_router.dart';
@@ -162,7 +163,7 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
       AppSnackBar.show(
         context,
         title: banner.title,
-        message: banner.body.isEmpty ? 'Новое уведомление' : banner.body,
+        message: banner.body.isEmpty ? context.l10n.common_new_notification : banner.body,
         kind: AppSnackBarKind.info,
         placement: AppSnackBarPlacement.top,
         duration: const Duration(seconds: 5),
@@ -201,7 +202,7 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
     AppSnackBar.show(
       context,
       title: title.isEmpty ? 'Clover' : title,
-      message: body.isEmpty ? 'Новое уведомление' : body,
+      message: body.isEmpty ? context.l10n.common_new_notification : body,
       kind: AppSnackBarKind.info,
       placement: AppSnackBarPlacement.top,
       duration: const Duration(seconds: 5),
@@ -225,8 +226,8 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
     final preview = (request.preview ?? '').trim();
     AppSnackBar.show(
       context,
-      title: request.peerUsername ?? 'Чат',
-      message: preview.isEmpty ? 'Новое сообщение' : preview,
+      title: request.peerUsername ?? context.l10n.push_chat_fallback_title,
+      message: preview.isEmpty ? context.l10n.common_new_message : preview,
       kind: AppSnackBarKind.chat,
       placement: AppSnackBarPlacement.top,
       duration: const Duration(seconds: 5),
@@ -239,7 +240,7 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
     await context.router.push(
       ChatRoute(
         chatId: request.conversationId,
-        username: request.peerUsername ?? 'Чат',
+        username: request.peerUsername ?? context.l10n.push_chat_fallback_title,
         isGroup: request.isGroup,
       ),
     );
@@ -344,6 +345,7 @@ class _AppDashboardPageState extends State<AppDashboardPage> with WidgetsBinding
                                       currentIndex: activeIndex,
                                       items: DashboardTabConfig.navItemsFor(
                                         homeMode,
+                                        context.l10n,
                                         showChatBadge: chatBadge,
                                       ),
                                       onTabTap: (index) => _handleTabTap(tabsRouter, index),

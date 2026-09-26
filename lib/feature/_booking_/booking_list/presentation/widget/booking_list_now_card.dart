@@ -5,6 +5,7 @@ import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_i
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_action_card.dart';
 import 'package:flutter/material.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
+import 'package:clover/core/extension/context.dart';
 
 class BookingListNowCard extends StatelessWidget {
   const BookingListNowCard({
@@ -42,12 +43,12 @@ class BookingListNowCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Сейчас в кресле',
+                context.l10n.booking_inbox_tab_now,
                 style: AppTextStyle.base(13, color: bookingServiceAccent(context.colors).icon, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 10),
               Text(
-                item.clientName.isEmpty ? 'Клиент' : item.clientName,
+                item.clientName.isEmpty ? context.l10n.booking_client : item.clientName,
                 style: AppTextStyle.base(22, color: context.colors.textColor, fontWeight: FontWeight.w800),
               ),
               if (item.clientUsernameLabel.isNotEmpty) ...[
@@ -70,7 +71,7 @@ class BookingListNowCard extends StatelessWidget {
               if (item.executorName?.trim().isNotEmpty == true) ...[
                 const SizedBox(height: 4),
                 Text(
-                  'Мастер: ${item.executorName}',
+                  context.l10n.booking_master_prefix(item.executorName!),
                   style: AppTextStyle.base(13, color: context.colors.subTextColor),
                 ),
               ],
@@ -84,7 +85,7 @@ class BookingListNowCard extends StatelessWidget {
               if (onOpenProfile != null) ...[
                 const SizedBox(height: 16),
                 AppOutlinedButton(
-                  text: 'Профиль клиента',
+                  text: context.l10n.booking_client_profile,
                   height: 48,
                   borderRadius: 14,
                   isExpanded: true,

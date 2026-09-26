@@ -14,6 +14,7 @@ import 'package:clover/feature/_booking_/booking_points/data/booking_point_title
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class BookingAnalyticsPage extends StatefulWidget {
@@ -30,11 +31,12 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage> {
   late DateTime _start;
   late DateTime _end;
   String? _selectedUserId;
-  String _title = 'Аналитика';
+  late String _title;
 
   @override
   void initState() {
     super.initState();
+    _title = context.l10n.booking_analytics_label;
     _cubit = sl<BookingAnalyticsCubit>();
     _applyMonthPreset();
     _resolveTitle();
@@ -166,7 +168,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage> {
                       if (result.totalBookings == 0) ...[
                         const SizedBox(height: 24),
                         Text(
-                          'За период записей нет',
+                          context.l10n.booking_analytics_empty_period,
                           textAlign: TextAlign.center,
                           style: AppTextStyle.base(14, color: context.colors.subTextColor),
                         ),

@@ -8,6 +8,9 @@ import 'package:clover/feature/_post_/post/data/repository/post_repository.dart'
 import 'package:clover/feature/_catalog_/social_graph/data/repository/social_graph_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 /// Экран одного поста: мгновенно из [initialPost] / кэша ленты; RPC только без seed или по refresh/reload.
 @injectable
@@ -46,7 +49,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
     if (isClosed) return;
     final id = postId.trim();
     if (id.isEmpty) {
-      emit(const PostDetailState.error('Некорректный id поста'));
+      emit(PostDetailState.error(lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).post_invalid_id));
       return;
     }
 
@@ -88,7 +91,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
     if (fetchRemote) {
       await _fetchRemote();
     } else {
-      emit(const PostDetailState.error('Пост не найден'));
+      emit(PostDetailState.error(lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).post_not_found));
     }
   }
 
@@ -434,7 +437,7 @@ class PostDetailCubit extends Cubit<PostDetailState> {
           emit(cur.copyWith(isRefreshing: false));
           return;
         }
-        emit(const PostDetailState.error('Пост недоступен'));
+        emit(PostDetailState.error(lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).post_unavailable));
         return;
       }
 

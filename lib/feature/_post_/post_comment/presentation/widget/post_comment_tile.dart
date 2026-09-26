@@ -6,6 +6,7 @@ import 'package:clover/feature/_post_/post_comment/data/models/comment_item.dart
 import 'package:clover/feature/_post_/post_comment/data/models/comment_model.dart';
 import 'package:clover/feature/_post_/post_comment/presentation/widget/comment_time_format.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class PostCommentTile extends StatelessWidget {
   const PostCommentTile({
@@ -77,7 +78,7 @@ class PostCommentTile extends StatelessWidget {
                       onTap: onReplyTap,
                       behavior: HitTestBehavior.opaque,
                       child: Text(
-                        'Ответить',
+                        context.l10n.chat_action_reply,
                         style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
                       ),
                     ),
@@ -133,10 +134,10 @@ class PostCommentRepliesToggle extends StatelessWidget {
     if (repliesCount <= 0 && !expanded) return const SizedBox.shrink();
 
     final label = loading
-        ? 'Загрузка…'
+        ? context.l10n.common_loading
         : expanded
-        ? 'Скрыть ответы'
-        : 'Посмотреть ответы ($repliesCount)';
+        ? context.l10n.post_hide_replies
+        : context.l10n.post_view_replies(repliesCount);
 
     return Padding(
       padding: const EdgeInsets.only(left: 58, top: 4, bottom: 4),

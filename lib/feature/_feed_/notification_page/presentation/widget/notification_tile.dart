@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
@@ -7,6 +8,7 @@ import 'package:clover/feature/_feed_/notification_page/data/models/notification
 import 'package:clover/feature/_feed_/notification_page/data/models/notification_item.dart';
 import 'package:clover/feature/_feed_/notification_page/data/models/notification_kind.dart';
 import 'package:clover/feature/_feed_/notification_page/presentation/widget/notification_avatar_stack.dart';
+import 'package:clover/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class NotificationTile extends StatefulWidget {
@@ -51,8 +53,9 @@ class _NotificationTileState extends State<NotificationTile> {
   @override
   Widget build(BuildContext context) {
     final item = widget.item;
-    final text = _buildMessage(item);
-    final timeLabel = _formatRelativeTime(item.createdAt);
+    final l10n = context.l10n;
+    final text = _buildMessage(item, l10n);
+    final timeLabel = _formatRelativeTime(item.createdAt, l10n);
     final showPostPreview = item.postPreviewUrl != null &&
         (item.kind == NotificationKind.like ||
             item.kind == NotificationKind.dislike ||
@@ -103,14 +106,14 @@ class _NotificationTileState extends State<NotificationTile> {
                         children: [
                           if (item.loginActions.contains('confirm') || item.loginActions.isEmpty)
                             AppButton(
-                              text: 'Это я',
+                              text: l10n.feed_notif_login_its_me,
                               height: 32,
                               borderRadius: 10,
                               onTap: widget.onLoginConfirm,
                             ),
                           if (item.loginActions.contains('revoke') || item.loginActions.isEmpty)
                             AppOutlinedButton(
-                              text: 'Прервать',
+                              text: l10n.feed_notif_login_revoke,
                               height: 32,
                               borderRadius: 10,
                               onTap: widget.onLoginRevoke,
@@ -118,7 +121,7 @@ class _NotificationTileState extends State<NotificationTile> {
                           if (item.loginActions.contains('change_password') ||
                               item.loginActions.isEmpty)
                             AppOutlinedButton(
-                              text: 'Сменить пароль',
+                              text: l10n.feed_notif_login_change_password,
                               height: 32,
                               borderRadius: 10,
                               onTap: widget.onLoginChangePassword,
@@ -130,9 +133,9 @@ class _NotificationTileState extends State<NotificationTile> {
                       const SizedBox(height: 6),
                       Text(
                         switch (item.loginResolved) {
-                          'confirmed' => 'Отмечено: это вы',
-                          'revoked' || 'revoked_others' => 'Сессия прервана',
-                          _ => 'Обработано',
+                          'confirmed' => l10n.feed_notif_login_confirmed,
+                          'revoked' || 'revoked_others' => l10n.feed_notif_login_revoked,
+                          _ => l10n.feed_notif_login_resolved,
                         },
                         style: AppTextStyle.base(12, color: context.colors.subTextColor),
                       ),
@@ -152,8 +155,8 @@ class _NotificationTileState extends State<NotificationTile> {
     );
   }
 
-  List<InlineSpan> _buildMessage(NotificationItem item) {
-    final actorsLabel = _actorsLabel(item.actors);
+  List<InlineSpan> _buildMessage(NotificationItem item, AppLocalizations l10n) {
+    final actorsLabel = _actorsLabel(item.actors, l10n);
     final bold = (String text) => TextSpan(
       text: text,
       style: AppTextStyle.base(14, color: context.colors.textColor, fontWeight: FontWeight.w700, height: 1.35),
@@ -164,103 +167,139 @@ class _NotificationTileState extends State<NotificationTile> {
     );
 
     return switch (item.kind) {
-      NotificationKind.followedYou => [bold(actorsLabel), regular(' подписался(-ась) на вас')],
-      NotificationKind.youFollowed => [regular('Вы подписались на '), bold(actorsLabel)],
+      NotificationKind.followedYou => [bold(actorsLabel), regular(l10n.feed_notif_followed_you)],
+      NotificationKind.youFollowed => [regular(l10n.feed_notif_you_followed), bold(actorsLabel)],
       NotificationKind.mutualFollow => [
         bold(actorsLabel),
-        regular(' подписался(-ась) на вас. Вы подписаны друг на друга'),
+        regular(l10n.feed_notif_mutual_follow),
       ],
-      NotificationKind.like => _reactionMessage(actorsLabel, 'лайкнули', 'ваш пост', bold, regular),
-      NotificationKind.dislike => _reactionMessage(actorsLabel, 'дизлайкнули', 'ваш пост', bold, regular),
+      NotificationKind.like => _reactionMessage(
+        actorsLabel,
+        l10n.feed_notif_verb_liked,
+        l10n.feed_notif_target_your_post,
+        bold,
+        regular,
+      ),
+      NotificationKind.dislike => _reactionMessage(
+        actorsLabel,
+        l10n.feed_notif_verb_disliked,
+        l10n.feed_notif_target_your_post,
+        bold,
+        regular,
+      ),
       NotificationKind.comment => item.isReply
-          ? _reactionMessage(actorsLabel, 'ответил(а)', 'на ваш комментарий', bold, regular)
-          : _reactionMessage(actorsLabel, 'прокомментировал(а)', 'ваш пост', bold, regular),
-      NotificationKind.commentLike => _reactionMessage(actorsLabel, 'лайкнули', 'ваш комментарий', bold, regular),
-      NotificationKind.commentDislike => _reactionMessage(actorsLabel, 'дизлайкнули', 'ваш комментарий', bold, regular),
+          ? _reactionMessage(
+              actorsLabel,
+              l10n.feed_notif_verb_replied,
+              l10n.feed_notif_target_on_your_comment,
+              bold,
+              regular,
+            )
+          : _reactionMessage(
+              actorsLabel,
+              l10n.feed_notif_verb_commented,
+              l10n.feed_notif_target_your_post,
+              bold,
+              regular,
+            ),
+      NotificationKind.commentLike => _reactionMessage(
+        actorsLabel,
+        l10n.feed_notif_verb_liked,
+        l10n.feed_notif_target_your_comment,
+        bold,
+        regular,
+      ),
+      NotificationKind.commentDislike => _reactionMessage(
+        actorsLabel,
+        l10n.feed_notif_verb_disliked,
+        l10n.feed_notif_target_your_comment,
+        bold,
+        regular,
+      ),
       NotificationKind.bookingCreatedHost => [
         bold(actorsLabel),
-        regular(' записался(-ась): ${_serviceLabel(item)}${_whenSuffix(item)}'),
+        regular(l10n.feed_notif_booking_created_host(_serviceLabel(item, l10n), _whenSuffix(item))),
       ],
       NotificationKind.bookingBookedClient => [
-        regular('Вы записаны: '),
-        bold(_serviceLabel(item)),
+        regular(l10n.feed_notif_booking_booked_client_prefix),
+        bold(_serviceLabel(item, l10n)),
         regular(_whenSuffix(item)),
       ],
       NotificationKind.bookingReminderClient => [
-        regular(_reminderLead(item)),
-        bold(_serviceLabel(item)),
-        regular(' у ${_hostLabel(item)}${_whenSuffix(item)}'),
+        regular(_reminderLead(item, l10n)),
+        bold(_serviceLabel(item, l10n)),
+        regular(l10n.feed_notif_booking_reminder_at_host(_hostLabel(item, l10n), _whenSuffix(item))),
       ],
       NotificationKind.bookingVisitStarted => [
-        regular('Сейчас визит — '),
-        bold(_serviceLabel(item)),
-        regular('${_whenSuffix(item)}. Отметьте, пришёл ли клиент'),
+        regular(l10n.feed_notif_visit_started_prefix),
+        bold(_serviceLabel(item, l10n)),
+        regular(l10n.feed_notif_visit_started_suffix(_whenSuffix(item))),
       ],
       NotificationKind.bookingVisitNeedsClose => [
-        regular('Закройте визит — '),
-        bold(_serviceLabel(item)),
-        regular('${_whenSuffix(item)}'),
+        regular(l10n.feed_notif_visit_close_prefix),
+        bold(_serviceLabel(item, l10n)),
+        regular(_whenSuffix(item)),
       ],
       NotificationKind.bookingCancelledHost => [
         bold(actorsLabel),
-        regular(' отменил(а) запись: ${_serviceLabel(item)}${_whenSuffix(item)}'),
+        regular(l10n.feed_notif_cancelled_host(_serviceLabel(item, l10n), _whenSuffix(item))),
       ],
       NotificationKind.bookingCancelledClient => [
         bold(actorsLabel),
-        regular(' отменил(а) вашу запись: ${_serviceLabel(item)}${_whenSuffix(item)}'),
+        regular(l10n.feed_notif_cancelled_client(_serviceLabel(item, l10n), _whenSuffix(item))),
       ],
       NotificationKind.bookingCompletedClient => [
-        regular('Визит завершён: '),
-        bold(_serviceLabel(item)),
-        if (item.bonusEarnAmount case final bonus?) regular(' · +$bonus бонусов') else regular(''),
+        regular(l10n.feed_notif_completed_prefix),
+        bold(_serviceLabel(item, l10n)),
+        if (item.bonusEarnAmount case final bonus?) regular(l10n.feed_notif_bonus_earn(bonus)) else regular(''),
       ],
       NotificationKind.bookingNoShowClient => [
-        regular('Визит отмечен как «не пришёл»: '),
-        bold(_serviceLabel(item)),
+        regular(l10n.feed_notif_no_show_prefix),
+        bold(_serviceLabel(item, l10n)),
         regular(_whenSuffix(item)),
       ],
       NotificationKind.bookingRescheduled => [
         bold(actorsLabel),
-        regular(' перенёс(ла) запись: '),
-        bold(_serviceLabel(item)),
+        regular(l10n.feed_notif_rescheduled),
+        bold(_serviceLabel(item, l10n)),
         regular(_whenSuffix(item)),
       ],
       NotificationKind.bookingAssignedStaff => [
-        regular('Новая запись на вас: '),
-        bold(_serviceLabel(item)),
+        regular(l10n.feed_notif_assigned_staff_prefix),
+        bold(_serviceLabel(item, l10n)),
         regular(_whenSuffix(item)),
       ],
       NotificationKind.attendanceInvite => [
         bold(actorsLabel),
-        regular(' пригласил(-а) в команду посещаемости'),
+        regular(l10n.feed_notif_attendance_invite),
       ],
       NotificationKind.attendanceRulesAck => [
-        regular('Новые правила компании — нужно принять'),
+        regular(l10n.feed_notif_attendance_rules),
       ],
       NotificationKind.attendanceDuty => [
-        regular('Обновлён список дежурных'),
+        regular(l10n.feed_notif_attendance_duty),
       ],
       NotificationKind.attendanceCorrection => [
-        regular('Запрос на исправление отметки'),
+        regular(l10n.feed_notif_attendance_correction),
       ],
       NotificationKind.attendancePunchDue => [
-        regular(_attendancePunchDueLead(item)),
+        regular(_attendancePunchDueLead(item, l10n)),
       ],
       NotificationKind.accountLogin => [
-        regular('Вход в аккаунт с '),
+        regular(l10n.feed_notif_login_prefix),
         bold(
           item.loginWhere?.trim().isNotEmpty == true
               ? item.loginWhere!
-              : 'нового устройства',
+              : l10n.feed_notif_login_new_device,
         ),
       ],
     };
   }
 
-  String _serviceLabel(NotificationItem item) {
+  String _serviceLabel(NotificationItem item, AppLocalizations l10n) {
     final title = item.bookingServiceTitle?.trim();
     if (title != null && title.isNotEmpty) return title;
-    return 'запись';
+    return l10n.feed_notif_service_fallback;
   }
 
   String _whenSuffix(NotificationItem item) {
@@ -271,32 +310,32 @@ class _NotificationTileState extends State<NotificationTile> {
     return ', $time';
   }
 
-  String _hostLabel(NotificationItem item) {
+  String _hostLabel(NotificationItem item, AppLocalizations l10n) {
     if (item.actors.isNotEmpty) return item.actors.first.displayName;
-    return 'мастера';
+    return l10n.feed_notif_host_fallback;
   }
 
-  String _reminderLead(NotificationItem item) {
+  String _reminderLead(NotificationItem item, AppLocalizations l10n) {
     final minutes = item.bookingReminderMinutesBefore;
     return switch (minutes) {
-      1440 => 'Завтра запись: ',
-      180 => 'Через 3 часа: ',
-      120 => 'Через 2 часа: ',
-      60 => 'Через час: ',
-      30 => 'Через 30 мин: ',
-      15 => 'Через 15 мин: ',
-      final m? when m > 0 => 'Через $m мин: ',
-      _ => 'Напоминание: ',
+      1440 => l10n.feed_notif_reminder_tomorrow,
+      180 => l10n.feed_notif_reminder_3h,
+      120 => l10n.feed_notif_reminder_2h,
+      60 => l10n.feed_notif_reminder_1h,
+      30 => l10n.feed_notif_reminder_30m,
+      15 => l10n.feed_notif_reminder_15m,
+      final m? when m > 0 => l10n.feed_notif_reminder_minutes(m),
+      _ => l10n.feed_notif_reminder_default,
     };
   }
 
-  String _attendancePunchDueLead(NotificationItem item) {
+  String _attendancePunchDueLead(NotificationItem item, AppLocalizations l10n) {
     final place = item.attendanceWorkplaceName?.trim();
     final suffix = (place != null && place.isNotEmpty) ? ' · $place' : '';
     return switch (item.attendanceDueKind) {
-      'clock_out' => 'Пора отметиться на выход$suffix',
-      'auto_closed' => 'Смена закрыта автоматически$suffix',
-      _ => 'Пора отметиться на вход$suffix',
+      'clock_out' => l10n.feed_notif_punch_clock_out(suffix),
+      'auto_closed' => l10n.feed_notif_punch_auto_closed(suffix),
+      _ => l10n.feed_notif_punch_clock_in(suffix),
     };
   }
 
@@ -310,19 +349,21 @@ class _NotificationTileState extends State<NotificationTile> {
     return [bold(actorsLabel), regular(' $verb $target')];
   }
 
-  String _actorsLabel(List<NotificationActor> actors) {
-    if (actors.isEmpty) return 'Кто-то';
+  String _actorsLabel(List<NotificationActor> actors, AppLocalizations l10n) {
+    if (actors.isEmpty) return l10n.common_someone;
     if (actors.length == 1) return actors.first.displayName;
-    if (actors.length == 2) return '${actors[0].displayName} и ${actors[1].displayName}';
-    return '${actors[0].displayName}, ${actors[1].displayName} и ещё ${actors.length - 2}';
+    if (actors.length == 2) {
+      return '${actors[0].displayName} ${l10n.common_and} ${actors[1].displayName}';
+    }
+    return '${actors[0].displayName}, ${actors[1].displayName} ${l10n.common_and_more(actors.length - 2)}';
   }
 
-  String _formatRelativeTime(DateTime date) {
+  String _formatRelativeTime(DateTime date, AppLocalizations l10n) {
     final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 1) return 'только что';
-    if (diff.inMinutes < 60) return '${diff.inMinutes} мин.';
-    if (diff.inHours < 24) return '${diff.inHours} ч.';
-    if (diff.inDays < 7) return '${diff.inDays} д.';
+    if (diff.inMinutes < 1) return l10n.common_just_now;
+    if (diff.inMinutes < 60) return l10n.common_minutes_short(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.common_hours_short(diff.inHours);
+    if (diff.inDays < 7) return l10n.common_days_short(diff.inDays);
     return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}';
   }
 }
@@ -335,9 +376,10 @@ class _FollowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     if (isFollowing) {
       return AppOutlinedButton(
-        text: 'Подписаны',
+        text: l10n.common_following,
         height: 34,
         borderRadius: 10,
         onTap: onTap,
@@ -345,7 +387,7 @@ class _FollowButton extends StatelessWidget {
     }
 
     return AppButton(
-      text: 'Подписаться',
+      text: l10n.common_follow,
       height: 34,
       borderRadius: 10,
       onTap: onTap,

@@ -1,0 +1,2485 @@
+{
+  "@@locale": "kk",
+  "common_save": "Сақтау",
+  "common_cancel": "Бас тарту",
+  "common_edit": "Өзгерту",
+  "common_delete": "Жою",
+  "common_back": "Артқа",
+  "common_next": "Келесі",
+  "common_done": "Дайын",
+  "common_close": "Жабу",
+  "common_confirm": "Растау",
+  "common_continue": "Жалғастыру",
+  "common_retry": "Қайталау",
+  "common_error": "Қате",
+  "common_loading": "Жүктелуде…",
+  "common_yes": "Иә",
+  "common_no": "Жоқ",
+  "common_ok": "OK",
+  "common_show": "Көрсету",
+  "common_hide": "Жасыру",
+  "common_or": "немесе",
+  "common_search": "Іздеу",
+  "common_empty": "Тізім бос",
+  "common_share": "Бөлісу",
+  "common_copy": "Көшіру",
+  "common_send": "Жіберу",
+  "common_add": "Қосу",
+  "common_remove": "Алып тастау",
+  "common_create": "Жасау",
+  "common_skip": "Өткізіп жіберу",
+  "common_start": "Бастау",
+  "common_logout": "Шығу",
+  "common_password": "Құпия сөз",
+  "common_checking": "Тексерілуде…",
+  "common_user": "Пайдаланушы",
+  "common_version": "Нұсқа {version}",
+  "@common_version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "common_theme_system": "Жүйелік",
+  "common_theme_light": "Жарық",
+  "common_theme_dark": "Қараңғы",
+  "settings_title": "Баптаулар",
+  "settings_section_services": "Сервистер",
+  "settings_section_archives": "Мұрағаттар",
+  "settings_section_account": "Аккаунт",
+  "settings_section_about": "Қосымша туралы",
+  "settings_guide_title": "Гайд",
+  "settings_guide_subtitle": "Сервистерді қалай қосу және пайдалану",
+  "settings_booking_title": "Жазылу",
+  "settings_booking_subtitle": "Қызметтер, inbox және кесте",
+  "settings_attendance_title": "Қатысу",
+  "settings_attendance_subtitle": "Компаниялар, геозона және қызметкерлер",
+  "settings_resources_title": "Ресурстар",
+  "settings_resources_subtitle": "Орналасулар және сүзгілер",
+  "settings_archives_title": "Мұрағаттар",
+  "settings_archives_subtitle": "Жарияланымдар және кластерлер",
+  "settings_saved_posts_title": "Сақталған посттар",
+  "settings_saved_posts_subtitle": "Сіз сақтаған посттар",
+  "settings_account_title": "Аккаунт",
+  "settings_account_subtitle": "Тіл, тема және шығу",
+  "settings_blocked_title": "Бұғатталғандар",
+  "settings_blocked_subtitle": "Сіз жапқан адамдар",
+  "settings_about_title": "Қосымша туралы",
+  "settings_about_subtitle": "Нұсқа және онбординг",
+  "settings_account_page_title": "Аккаунт",
+  "settings_account_section_general": "Жалпы",
+  "settings_account_section_security": "Қауіпсіздік",
+  "settings_account_section_session": "Сессия",
+  "settings_account_language": "Тіл",
+  "settings_account_theme": "Тема",
+  "settings_account_reset_password": "Құпия сөзді қалпына келтіру",
+  "settings_account_set_password": "Құпия сөз орнату",
+  "settings_account_password_reset_hint": "Email коды → жаңа құпия сөз",
+  "settings_account_password_set_hint": "Email немесе никпен кіру үшін құпия сөз орнатыңыз",
+  "settings_account_password_check_failed": "Құпия сөз күйін тексеру мүмкін болмады",
+  "settings_account_logout_title": "Шығу",
+  "settings_account_logout_confirm": "Осы құрылғыдан аккаунттан шығу керек пе?",
+  "settings_account_logout_action": "Аккаунттан шығу",
+  "settings_account_hibernate_title": "Аккаунтты ұйықтату",
+  "settings_account_hibernate_body": "Профиль мен посттар лента мен іздеуден жасырылады. Бұл жою емес — келесі кіргенде аккаунт қайта белсенді. Қайта ұйықтату — 30 күнде бір реттен көп емес.",
+  "settings_account_hibernate_action": "Ұйықтату",
+  "settings_account_hibernate_subtitle": "Профиль мен посттарды жасыру. Жою емес.",
+  "settings_account_deactivate_title": "Аккаунтты өшіру керек пе?",
+  "settings_account_deactivate_body": "Профиль мен посттар лента мен іздеуден жасырылады. Бұл біржола жою емес: келесі кіргенде аккаунт қайта белсенді.\n\nАккаунт пен деректерді біржола жою үшін clover.com.kz/delete-account арқылы қолдауға жазыңыз.",
+  "settings_account_deactivate_action": "Өшіру",
+  "settings_account_deactivate_tile": "Аккаунтты өшіру",
+  "settings_account_deactivate_subtitle": "Профильді жасыру. Толық жою — қолдау арқылы.",
+  "settings_about_page_title": "Қосымша туралы",
+  "settings_about_tagline": "Оқиғалар, карта, чат және бизнес сервистері — өмір жарқын, жұмыс жеңіл.",
+  "settings_about_section_help": "Көмек",
+  "settings_about_onboarding_title": "Онбординг",
+  "settings_about_onboarding_subtitle": "Қосымшамен танысуды көрсету",
+  "settings_blocked_page_title": "Бұғатталғандар",
+  "settings_blocked_unblock_title": "Бұғаттан шығару?",
+  "settings_blocked_unblock_confirm": "{name} бұғатын алу керек пе?",
+  "@settings_blocked_unblock_confirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "auth_login_terms_required": "Жалғастыру үшін пайдалану шарттарын қабылдаңыз",
+  "auth_login_identifier_label": "Ник немесе email",
+  "auth_login_identifier_hint": "@username немесе email",
+  "auth_login_forgot_password": "Құпия сөзді ұмыттыңыз ба?",
+  "auth_login_submit": "Кіру",
+  "auth_login_no_account": "Аккаунт жоқ па?",
+  "auth_login_create": "Жасау",
+  "auth_terms_prefix": "Мен келісемін: ",
+  "auth_terms_terms": "пайдалану шарттары",
+  "auth_terms_and": " және ",
+  "auth_terms_privacy": "құпиялылық саясаты",
+  "auth_register_title": "Тіркелу",
+  "auth_register_password_title": "Құпия сөз ойлап табыңыз",
+  "auth_register_password_subtitle": "Одан кейін email немесе никпен кіре аласыз.",
+  "auth_register_password_mismatch": "Құпия сөздер сәйкес емес",
+  "auth_register_email_hint": "Кодты тек email әлі тіркелмеген болса жібереміз.",
+  "auth_register_get_code": "Код алу",
+  "auth_register_code_already_sent": "Код жіберілді — хаттан енгізіңіз",
+  "auth_email_welcome_from": "Хат welcome@clover.com.kz-тен",
+  "auth_email_code_label": "Хаттағы код",
+  "auth_email_resend_countdown": "Қайта жіберу: {countdown}",
+  "@auth_email_resend_countdown": {
+    "placeholders": {
+      "countdown": {
+        "type": "String"
+      }
+    }
+  },
+  "auth_email_resend": "Кодты қайта жіберу",
+  "auth_email_password_hint": "кемінде {count} таңба",
+  "@auth_email_password_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "auth_email_password_repeat": "Құпия сөзді қайталау",
+  "auth_email_save_password": "Құпия сөзді сақтау",
+  "auth_forgot_title": "Құпия сөзді қалпына келтіру",
+  "onboarding_skip": "Өткізіп жіберу",
+  "onboarding_path_title": "Clover-де кімсің?",
+  "onboarding_path_subtitle": "Саған арналған қысқа тур",
+  "onboarding_path_feed": "Лента",
+  "onboarding_path_business": "Бизнес және кәсіпорындар",
+  "onboarding_path_both": "Лента да, іс те",
+  "onboarding_tip_booking_title": "Онлайн-жазылу",
+  "onboarding_tip_booking_body": "Қызметтер, мастерлер, inbox және клиент — бір сервисте.",
+  "onboarding_tip_booking_tip": "«Жазылу қабылдаймын» супер-тегі хабты ашады.",
+  "onboarding_tip_attendance_title": "Қатысу",
+  "onboarding_tip_attendance_body": "Компаниялар, ауысымдар және команда белгілері. Қызметкер қолданбада белгілейді.",
+  "onboarding_tip_attendance_tip": "«Қатысу» супер-тегі басқаруды ашады.",
+  "onboarding_tip_resources_title": "Ресурстар",
+  "onboarding_tip_resources_body": "Посттарға арналған орындар және профиль витрина сүзгілері — жеке анықтамалық.",
+  "onboarding_tip_resources_tip": "Лента қаласымен шатастырмаңыз.",
+  "onboarding_tip_bonus_title": "Бонустар",
+  "onboarding_tip_bonus_body": "Иесі қызметте бонус қосқан жерде жинаңыз және жұмсаңыз.",
+  "onboarding_tip_bonus_tip": "Толығырақ — сервистер гайдында.",
+  "onboarding_tip_feed_map_title": "Лента және карта",
+  "onboarding_tip_feed_map_body": "Home-ға екі рет басу — лента мен қала картасын ауыстырады.",
+  "onboarding_tip_feed_map_tip": "Сүзгілер сол жақта, хабарламалар оң жақта.",
+  "onboarding_slide_feed_1_title": "Не болып жатыр",
+  "onboarding_slide_feed_1_body": "Ивенттер, жаңалықтар, қала ырғағы — жұмсақ және жақын.",
+  "onboarding_slide_feed_1_tip": "Лента мен карта бір Clover-де.",
+  "onboarding_slide_feed_2_title": "Жақын орындар",
+  "onboarding_slide_feed_2_body": "Салон, кафе немесе дүкенге қараңыз — олардың әлемін жұмсақ таныңыз.",
+  "onboarding_slide_feed_2_tip": "Clover-дегі орын беті.",
+  "onboarding_slide_feed_3_title": "Жазылу және бонустар",
+  "onboarding_slide_feed_3_body": "Қызметтерге жазылыңыз. Қолжетімді жерде бонус жинаңыз және жұмсаңыз.",
+  "onboarding_slide_feed_3_tip": "Барлығы сізге — артық қадамсыз.",
+  "onboarding_slide_feed_4_title": "Жақындарыңызбен бөлісіңіз",
+  "onboarding_slide_feed_4_body": "Досыңызға жазыңыз. Ивентке шақырыңыз. Жылы чат — жақында.",
+  "onboarding_slide_feed_4_tip": "Әңгіме шусыз.",
+  "onboarding_slide_feed_5_title": "Өзіңіздікін табыңыз",
+  "onboarding_slide_feed_5_body": "Сүзгілер шуды азайтып, үндес нәрсені қалдырады.",
+  "onboarding_slide_feed_5_tip": "Тыныш. Дәл. Өзіңізше.",
+  "onboarding_slide_feed_6_body": "Қараңыз · жазылыңыз · жазыңыз · бонус жинаңыз. Оңай және жылы.",
+  "onboarding_slide_feed_6_tip": "Турды қайталау: Баптаулар → Қосымша туралы.",
+  "onboarding_slide_biz_1_title": "Бизнес үшін",
+  "onboarding_slide_biz_1_body": "Бір аккаунт — витрина және сервистер. Сабырлы және іске сай.",
+  "onboarding_slide_biz_1_tip": "Алдымен бет, кейін құралдар.",
+  "onboarding_slide_biz_2_title": "Супер-тегтер",
+  "onboarding_slide_biz_2_body": "Тег қосасыз — күш ашылады. Жазылу, команда, нүктелер.",
+  "onboarding_slide_biz_2_tip": "Аз тег — анық фокус.",
+  "onboarding_slide_biz_3_title": "Тірі витрина",
+  "onboarding_slide_biz_3_body": "Қайта оралғыңыз келетін профиль. Айқайсыз сенім.",
+  "onboarding_slide_biz_3_tip": "Сұлулық пен айқындық.",
+  "onboarding_slide_biz_4_title": "Жақын сервистер",
+  "onboarding_slide_biz_4_body": "Жазылу, қызмет бонустары — қол астында.",
+  "onboarding_slide_biz_4_tip": "Гайдтар — Баптаулар → Сервистер.",
+  "onboarding_slide_biz_5_title": "Клиент сізді табады",
+  "onboarding_slide_biz_5_body": "Лентада, картада, жазылу арқылы. Сіз Clover-десіз.",
+  "onboarding_slide_biz_5_tip": "Адамдарға жұмсақ жол.",
+  "onboarding_slide_both_1_title": "Лента да, іс те",
+  "onboarding_slide_both_1_body": "Өзіңізге — қала мен жазылу. Іске — витрина мен сервистер.",
+  "onboarding_slide_both_1_tip": "Бір Clover. Екі ырғақ.",
+  "onboarding_slide_both_2_title": "Өзіңізгедей",
+  "onboarding_slide_both_2_body": "Ивенттер, орындар, жазылу, бонустар, сүзгілер — бәрі ашық.",
+  "onboarding_slide_both_2_tip": "Қалада сабырлы өмір.",
+  "onboarding_slide_both_3_title": "Іс жүргізгенде",
+  "onboarding_slide_both_3_body": "Супер-тегтер жазылу мен басқа сервистерді қосады.",
+  "onboarding_slide_both_3_tip": "Қажет болғанда қосыңыз.",
+  "onboarding_slide_both_4_title": "Бір витрина",
+  "onboarding_slide_both_4_body": "Профиль — бет те, клиенттерге кіру нүктесі де.",
+  "onboarding_slide_both_4_tip": "Жұмсақ және түсінікті.",
+  "onboarding_slide_both_5_title": "Кішкентай бастау",
+  "onboarding_slide_both_5_body": "Өзіңізді рәсімдеңіз. Лентаны қараңыз. Дайын болғанда сервисті қосыңыз.",
+  "onboarding_slide_both_5_tip": "Турды қайталау: Баптаулар → Қосымша туралы.",
+  "error_auth_unknown": "Бірдеңе дұрыс болмады. Қайта көріңіз.",
+  "error_auth_check_failed": "Сессияны қалпына келтіру мүмкін болмады. Қайта кіріңіз.",
+  "error_auth_sign_in_canceled": "Кіру тоқтатылды.",
+  "error_auth_google_token_missing": "Google арқылы кіру мүмкін болмады. Қайта көріңіз.",
+  "error_auth_google_failed": "Google арқылы кіру мүмкін болмады. Қайта көріңіз.",
+  "error_auth_google_misconfigured": "Google Sign-In бапталмаған: Google Cloud және Supabase-те Web Client ID тексеріңіз.",
+  "error_auth_apple_token_missing": "Apple арқылы кіру мүмкін болмады. Қайта көріңіз.",
+  "error_auth_apple_failed": "Apple арқылы кіру мүмкін болмады. Қайта көріңіз.",
+  "error_auth_apple_unavailable": "Бұл құрылғыда Apple арқылы кіру қолжетімсіз.",
+  "error_auth_supabase_sign_in_failed": "Кіру мүмкін болмады. Кейінірек көріңіз.",
+  "error_auth_supabase_user_missing": "Кіргеннен кейін профильді жүктеу мүмкін болмады.",
+  "error_auth_sign_out_failed": "Аккаунттан шығу мүмкін болмады. Қайта көріңіз.",
+  "error_auth_network": "Желі қатесі. Байланысты тексеріп, қайта көріңіз.",
+  "error_auth_email_invalid": "Дұрыс email енгізіңіз.",
+  "error_auth_email_otp_send_failed": "Email-ге код жіберу мүмкін болмады. Кейінірек көріңіз.",
+  "error_auth_email_otp_verify_failed": "Қате немесе мерзімі өткен код. Жаңасын сұраңыз.",
+  "error_auth_email_otp_rate_limited": "Тым көп хат. Күтіп, қайта көріңіз.",
+  "error_auth_email_otp_wait": "Қайта жібермес бұрын {countdown} күтіңіз.",
+  "@error_auth_email_otp_wait": {
+    "placeholders": {
+      "countdown": {
+        "type": "String"
+      }
+    }
+  },
+  "error_auth_email_already_registered": "Бұл email тіркелген. Кіріңіз немесе құпия сөзді қалпына келтіріңіз.",
+  "error_auth_email_not_registered": "Осы email-мен аккаунт табылмады. Аккаунт жасаңыз.",
+  "error_auth_invalid_credentials": "Қате логин немесе құпия сөз.",
+  "error_auth_password_invalid": "Құпия сөз тым қысқа. Кемінде 8 таңба.",
+  "error_auth_password_mismatch": "Құпия сөздер сәйкес емес.",
+  "error_auth_password_update_failed": "Құпия сөзді сақтау мүмкін болмады. Қайта көріңіз.",
+  "error_auth_identifier_invalid": "Ник немесе email енгізіңіз.",
+  "error_auth_hibernate_failed": "Аккаунтты ұйықтату мүмкін болмады. Қайта көріңіз.",
+  "error_auth_hibernate_rate_limited": "Ұйқыны 30 күнде бір реттен көп қосуға болмайды.",
+  "error_auth_delete_account_failed": "Аккаунтты өшіру мүмкін болмады. Қайта көріңіз.",
+  "push_chat_fallback_title": "Чат",
+  "catalog_country_kz": "Қазақстан",
+  "catalog_country_ru": "Ресей",
+  "catalog_city_almaty": "Алматы",
+  "catalog_city_astana": "Астана",
+  "catalog_city_shymkent": "Шымкент",
+  "catalog_city_kazan": "Қазан",
+  "catalog_city_moscow": "Мәскеу",
+  "catalog_city_saint_petersburg": "Санкт-Петербург",
+  "catalog_tag_business": "Бизнес",
+  "catalog_tag_individual": "Жеке тұлға",
+  "catalog_tag_community": "Қауымдастық",
+  "catalog_tag_brand": "Бренд",
+  "catalog_tag_salon": "Салон",
+  "catalog_tag_barbershop": "Барбершоп",
+  "catalog_tag_music": "Музыка",
+  "catalog_tag_sports": "Спорт",
+  "catalog_tag_food": "Тағам",
+  "catalog_tag_tech": "Технологиялар",
+  "catalog_tag_store": "Дүкен",
+  "catalog_tag_kids": "Балалар",
+  "catalog_tag_teens": "Жасөспірімдер",
+  "catalog_tag_adults": "Ересектер",
+  "catalog_tag_seniors": "Қариялар",
+  "catalog_tag_families": "Отбасылар",
+  "catalog_tag_couples": "Жұптар",
+  "catalog_tag_students": "Студенттер",
+  "catalog_tag_professionals": "Кәсібилер",
+  "catalog_tag_men_only": "Тек ерлер",
+  "catalog_tag_women_only": "Тек әйелдер",
+  "catalog_tag_restaurant": "Мейрамхана",
+  "catalog_tag_cafe": "Кафе",
+  "catalog_tag_bar": "Бар",
+  "catalog_tag_cinema": "Кино",
+  "catalog_tag_club": "Клуб",
+  "catalog_tag_shop": "Дүкен",
+  "catalog_tag_beauty": "Сұлулық",
+  "catalog_tag_fitness": "Фитнес",
+  "catalog_tag_medical": "Медицина",
+  "catalog_tag_education": "Білім",
+  "catalog_tag_coworking": "Коворкинг",
+  "catalog_tag_hotel": "Қонақүй",
+  "catalog_tag_mall": "Сауда орталығы",
+  "catalog_tag_party": "Кеш",
+  "catalog_tag_networking": "Нетворкинг",
+  "catalog_tag_workshop": "Воркшоп",
+  "catalog_tag_lecture": "Дәріс",
+  "catalog_tag_festival": "Фестиваль",
+  "catalog_tag_concert": "Концерт",
+  "catalog_tag_exhibition": "Көрме",
+  "catalog_tag_movie_night": "Кинокеш",
+  "catalog_tag_game_night": "Ойын кеші",
+  "catalog_tag_dating": "Танысу",
+  "catalog_tag_kids_event": "Балалар оқиғасы",
+  "catalog_tag_sport_event": "Спорт оқиғасы",
+  "catalog_tag_sale": "Жеңілдік",
+  "catalog_tag_grand_opening": "Ашылу",
+  "catalog_tag_indoor": "Үй ішінде",
+  "catalog_tag_outdoor": "Ашық аспан астында",
+  "catalog_tag_online": "Онлайн",
+  "catalog_tag_active": "Белсенді демалыс",
+  "catalog_tag_chill": "Демалыс",
+  "catalog_tag_extreme": "Экстрим",
+  "catalog_tag_creative": "Шығармашылық",
+  "catalog_tag_educational": "Оқыту",
+  "catalog_tag_entertainment": "Ойын-сауық",
+  "catalog_tag_free": "Тегін",
+  "catalog_tag_paid": "Ақылы",
+  "catalog_tag_reservation": "Жазылу бойынша",
+  "catalog_tag_limited_spots": "Орын саны шектеулі",
+  "catalog_tag_pet_friendly": "Үй жануарларымен болады",
+  "catalog_tag_eco": "Эко",
+  "catalog_tag_plus18": "18+",
+  "catalog_tag_night": "Түнгі",
+  "catalog_tag_new_event": "Жаңа",
+  "catalog_tag_popular": "Танымал",
+  "catalog_tag_booking": "Жазылу қабылдаймын",
+  "catalog_tag_attendance": "Қатысуды жүргіземін",
+  "catalog_tag_resources": "Ресурстарды жүргіземін",
+  "catalog_tag_feedback": "Витринадағы пікірлер",
+  "catalog_tag_booking_calendar": "Тапсырыс күнтізбесі",
+  "catalog_tag_attendance_work": "Менің белгілерім",
+  "ugc_report_spam": "Спам",
+  "ugc_report_harassment": "Қорлау",
+  "ugc_report_hate": "Жеккөрушілік",
+  "ugc_report_violence": "Зорлық",
+  "ugc_report_nudity": "Интимді контент",
+  "ugc_report_scam": "Алаяқтық",
+  "ugc_report_other": "Басқа",
+  "feed_events_title": "Оқиғалар",
+  "feed_map_title": "Карта",
+  "feed_notifications_title": "Хабарламалар",
+  "profile_title": "Профиль",
+  "profile_edit_title": "Профильді өңдеу",
+  "chat_title": "Чаттар",
+  "chat_empty": "Әзірге диалог жоқ",
+  "chat_input_hint": "Хабарлама",
+  "booking_hub_title": "Жазылу",
+  "booking_inbox_title": "Inbox",
+  "attendance_hub_title": "Қатысу",
+  "resources_hub_title": "Ресурстар",
+  "bonus_hub_title": "Бонустар",
+  "archive_hub_title": "Мұрағаттар",
+  "venue_hub_title": "Бронь",
+  "auth_terms_suffix": ". Қабылданбайтын контент пен қорлайтын мінез-құлыққа жол берілмейді.",
+  "settings_blocked_unblock_action": "Бұғаттан шығару",
+  "onboarding_slide_feed_6_title": "Clover сенімен",
+  "auth_email_code_sent_to": "Код {email} мекенжайына жіберілді",
+  "@auth_email_code_sent_to": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "auth_forgot_email_hint": "Кодты тек тіркелген email-ге жібереміз.",
+  "auth_forgot_send_code": "Код жіберу",
+  "auth_forgot_new_password_title": "Жаңа құпия сөз",
+  "auth_forgot_new_password_subtitle": "Кіру үшін жаңа құпия сөз ойлап табыңыз.",
+  "settings_password_set_toast": "Құпия сөз орнатылды",
+  "settings_password_reset_toast": "Құпия сөз қалпына келтірілді",
+  "settings_password_enter_code": "Хаттағы кодты енгізіңіз",
+  "settings_password_entry_title": "Кіру құпия сөзі",
+  "settings_password_entry_subtitle": "Google арқылы кірсеңіз керек — кейін құпия сөзбен де кіруге болады.",
+  "settings_password_reset_section": "Құпия сөзді қалпына келтіру",
+  "settings_password_no_email": "Аккаунтта email жоқ — кодпен қалпына келтіру қолжетімсіз.",
+  "settings_password_send_to_email": "{email} мекенжайына код жібереміз. Растағаннан кейін жаңа құпия сөз орнатасыз.",
+  "@settings_password_send_to_email": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "ugc_report_objectionable": "Қабылданбайтын контент",
+  "ugc_report_abusive": "Қорлайтын мінез-құлық",
+  "ugc_report_harassment_threats": "Қудалау / қауіп",
+  "catalog_group_who": "Кім",
+  "catalog_group_type": "Түрі",
+  "catalog_group_for": "Кімге",
+  "catalog_group_place": "Орын",
+  "catalog_group_event": "Оқиға",
+  "catalog_group_format": "Формат",
+  "catalog_group_conditions": "Шарттар",
+  "catalog_group_admin": "Админ",
+  "catalog_group_worker": "Worker",
+  "catalog_city_search_hint": "Қаланы іздеу",
+  "catalog_city_pick_country_first": "Алдымен елді таңдаңыз",
+  "catalog_city_sheet_title": "Қала",
+  "catalog_country_search_hint": "Елді іздеу",
+  "catalog_country_sheet_title": "Ел",
+  "ugc_report_title": "Шағымдану",
+  "ugc_report_sent": "Шағым жіберілді. 24 сағат ішінде қараймыз.",
+  "ugc_report_failed": "Шағымды жіберу мүмкін болмады",
+  "ugc_block_title": "Бұғаттау?",
+  "ugc_block_body": "Пайдаланушы контенті лентаңыздан бірден жоғалады. Бізге хабарлама келеді, 24 сағат ішінде қараймыз.",
+  "ugc_block_confirm": "Бұғаттау",
+  "ugc_block_success": "Пайдаланушы бұғатталды",
+  "ugc_block_failed": "Бұғаттау мүмкін болмады",
+  "chat_action_reply": "Жауап беру",
+  "chat_action_forward": "Қайта жіберу",
+  "chat_action_star": "Таңдаулыға",
+  "chat_action_more": "Тағы",
+  "chat_reply_bar_title": "Жауап",
+  "chat_edit_bar_title": "Өңдеу",
+  "chat_preview_photo": "Фото",
+  "chat_preview_file": "Файл",
+  "chat_preview_post": "Пост",
+  "chat_preview_system": "Жүйелік",
+  "chat_preview_message": "Хабарлама",
+  "profile_fallback_name": "Профиль",
+  "common_cancel_action": "Болдырмау",
+  "booking_services_label": "Қызметтер",
+  "booking_analytics_label": "Аналитика",
+  "attendance_punch_clock_in": "Келді",
+  "attendance_punch_clock_out": "Кетті",
+  "nav_tab_events": "Оқиғалар",
+  "nav_tab_map": "Карта",
+  "nav_tab_chat": "Чат",
+  "nav_tab_profile": "Профиль",
+  "common_date": "Күн",
+  "common_today": "Бүгін",
+  "common_yesterday": "Кеше",
+  "common_tomorrow": "Ертең",
+  "common_start_label": "Басталуы",
+  "common_end_label": "Аяқталуы",
+  "common_duration": "Ұзақтығы: {duration}",
+  "common_event_period": "Оқиға кезеңі",
+  "common_end_after_start": "Аяқталуы басталуынан кейін болуы керек",
+  "common_max_duration": "Максимум {duration}",
+  "booking_rest_days": "Демалыс күндері",
+  "booking_days": "Күндер",
+  "booking_select": "Таңдаңыз",
+  "booking_horizon": "Көкжиек",
+  "booking_horizon_mode": "Тәсіл",
+  "booking_horizon_days_ahead": "Кезеңге",
+  "booking_horizon_until_date": "Күнге дейін",
+  "booking_horizon_how_far": "Қанша алға",
+  "booking_horizon_period": "Кезең",
+  "booking_horizon_forward": "Алдын ала жазылу",
+  "booking_until_date": "Күнге дейін",
+  "booking_hours_title": "Жұмыс сағаттары",
+  "booking_from": "Бастап",
+  "booking_to": "Дейін",
+  "booking_to_inclusive": "Дейін",
+  "booking_more_settings": "Қосымша баптаулар",
+  "booking_cancel_visits_title": "Бас тарту және визиттер",
+  "booking_client_cancel": "Клиент бас тартуы",
+  "booking_cancel_before_start": "Басталғанға дейін",
+  "booking_hours_before": "{hours} сағ бұрын",
+  "@booking_hours_before": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_auto_no_show": "Авто «Келмеді»",
+  "booking_auto_status": "Авто мәртебе",
+  "booking_off": "Өшірулі",
+  "booking_after_hours": "{hours} сағ кейін",
+  "booking_absences_title": "Демалыс / жоқ болу",
+  "booking_master": "Шебер",
+  "booking_comment": "Пікір",
+  "booking_optional": "Міндетті емес",
+  "booking_week_1": "1 апта",
+  "booking_weeks_n": "{count} апта",
+  "booking_month_1": "1 ай",
+  "booking_months_n": "{count} ай",
+  "booking_inbox_now": "Қазір",
+  "booking_inbox_upcoming": "Алдағы",
+  "booking_inbox_archive": "Мұрағат",
+  "booking_inbox_now_chair": "Қазір креслода",
+  "booking_inbox_past_archive": "Өткен және мұрағат",
+  "booking_range_this_week": "Осы апта",
+  "booking_range_next_week": "Келесі апта",
+  "booking_range_this_month": "Осы ай",
+  "booking_range_next_month": "Келесі ай",
+  "booking_range_all": "Барлық жазбалар",
+  "booking_range_recent": "Жақындағы",
+  "booking_my_bookings": "Менің жазбаларым",
+  "booking_no_bookings": "Жазбалар әзірше жоқ",
+  "booking_no_bookings_hint": "Шеберге жазылғанда визиттер осында күн бойынша пайда болады",
+  "booking_my_bookings_hint": "Шеберлерге визиттеріңіз. Күнді таңдаңыз — ауыстыру немесе бас тарту үшін картаны ашыңыз.",
+  "booking_day_none": "{label} · жазба жоқ",
+  "booking_day_one": "{label} · 1 жазба",
+  "booking_day_few": "{label} · {count} жазба",
+  "booking_day_many": "{label} · {count} жазба",
+  "booking_no_day_bookings": "Бұл күні жазба жоқ",
+  "booking_pick_another_day": "Күнтізбеден басқа күнді таңдаңыз",
+  "booking_client": "Клиент",
+  "booking_service": "Қызмет",
+  "booking_services": "Қызметтер",
+  "booking_team": "Команда",
+  "booking_schedule": "Кесте",
+  "booking_price": "Баға",
+  "booking_duration": "Ұзақтық",
+  "booking_minutes": "{count} мин",
+  "booking_cancel_booking": "Жазбаны болдырмау",
+  "booking_reschedule": "Жазбаны ауыстыру",
+  "booking_reschedule_done": "Жазба ауыстырылды",
+  "booking_reschedule_action": "Ауыстыру",
+  "booking_time": "Уақыт",
+  "booking_day": "Күн",
+  "booking_pick_day": "Күнді таңдаңыз",
+  "booking_note": "Жазба",
+  "booking_reason": "Себеп",
+  "booking_executor": "Орындаушы",
+  "booking_executors": "Орындаушылар",
+  "booking_name": "Атауы",
+  "booking_point": "Нүкте",
+  "booking_order": "Тапсырыс",
+  "booking_load_failed": "Жүктеу сәтсіз",
+  "booking_chat_open_failed": "Чатты ашу мүмкін болмады",
+  "booking_empty": "Әзірше бос",
+  "booking_account": "Аккаунт",
+  "booking_clover_account": "Clover аккаунты",
+  "booking_waiting_chat": "Чатта жауап күтуде",
+  "booking_in_team": "Командада",
+  "booking_request_cancelled": "Өтінім болдырылды",
+  "booking_cancel_service": "Қызметті болдырмау",
+  "booking_master_already_added": "Бұл шебер қосылған",
+  "booking_date_and_start": "Күн және басталуы",
+  "booking_created_at": "Жасалды",
+  "common_back_arrow": "← Артқа",
+  "common_follow": "Жазылу",
+  "common_unfollow": "Жазылудан бас тарту",
+  "common_following": "Жазылғансыз",
+  "common_apply": "Қолдану",
+  "common_reset": "Тастау",
+  "common_accept": "Қабылдау",
+  "common_reject": "Бас тарту",
+  "common_archive": "Мұрағаттау",
+  "common_unarchive": "Мұрағаттан шығару",
+  "common_download": "Жүктеу",
+  "common_name": "Атауы",
+  "common_description": "Сипаттама",
+  "common_active": "Белсенді",
+  "common_address": "Мекенжай",
+  "common_filters": "Сүзгілер",
+  "common_copied": "Көшірілді",
+  "common_just_now": "жаңа ғана",
+  "common_minutes_short": "{count} мин.",
+  "@common_minutes_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_hours_short": "{count} сағ.",
+  "@common_hours_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_days_short": "{count} к.",
+  "@common_days_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_days_plural": "{count, plural, one{{count} күн} other{{count} күн}}",
+  "@common_days_plural": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_minutes_unit": "{count} мин",
+  "@common_minutes_unit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_hours_unit": "{count} сағ",
+  "@common_hours_unit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_hours_minutes": "{hours} сағ {minutes} мин",
+  "@common_hours_minutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "common_zero_minutes": "0 мин",
+  "common_nothing_found": "Ештеңе табылмады",
+  "common_try_other_query": "Басқа сұрауды қолданып көріңіз",
+  "common_try_change_filter": "Сүзгіні өзгертіп көріңіз",
+  "common_sign_in_required": "Аккаунтқа кіріңіз",
+  "common_no_one_found": "Ешкім табылмады",
+  "common_and": "және",
+  "common_and_more": "және тағы {count}",
+  "@common_and_more": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_someone": "Біреу",
+  "common_saving": "Сақталуда…",
+  "common_actions": "Әрекеттер",
+  "common_messages": "Хабарламалар",
+  "common_publications": "Жарияланымдар",
+  "common_country": "Ел",
+  "common_city": "Қала",
+  "common_pick_country": "Елді таңдаңыз",
+  "common_pick_city": "Қаланы таңдаңыз",
+  "common_from": "Бастап",
+  "common_to": "Дейін",
+  "common_day_after_tomorrow": "Бүрсігүні",
+  "common_week": "Апта",
+  "common_month": "Ай",
+  "common_inactive_suffix": "белсенді емес",
+  "common_total_count": "Барлығы: {count}",
+  "@common_total_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_delete_confirm_irreversible": "Бұл әрекетті болдырмауға болмайды.",
+  "common_could_not_save": "Сақтау мүмкін болмады",
+  "common_could_not_delete": "Жою мүмкін болмады",
+  "common_could_not_load": "Жүктеу мүмкін болмады",
+  "common_new_notification": "Жаңа хабарлама",
+  "common_new_message": "Жаңа хабарлама",
+  "common_location_permission": "Параметрлерде геолокацияға рұқсат беріңіз",
+  "common_location_failed": "Орналасқан жерді анықтау мүмкін болмады",
+  "feed_notif_empty": "Хабарлама жоқ",
+  "feed_notif_last_30_days": "Соңғы 30 күндегі хабарламалар көрсетіледі",
+  "feed_notif_section_last7": "Соңғы 7 күн",
+  "feed_notif_section_last30": "Соңғы 30 күн",
+  "feed_notif_login_its_me": "Бұл мен",
+  "feed_notif_login_revoke": "Үзу",
+  "feed_notif_login_change_password": "Құпия сөзді өзгерту",
+  "feed_notif_login_confirmed": "Белгіленді: бұл сіз",
+  "feed_notif_login_revoked": "Сессия үзілді",
+  "feed_notif_login_resolved": "Өңделді",
+  "feed_notif_followed_you": " сізге жазылды",
+  "feed_notif_you_followed": "Сіз жазылдыңыз: ",
+  "feed_notif_mutual_follow": " сізге жазылды. Сіз бір-біріңізге жазылғансыз",
+  "feed_notif_verb_liked": "лайк басты",
+  "feed_notif_verb_disliked": "дизлайк басты",
+  "feed_notif_verb_replied": "жауап берді",
+  "feed_notif_verb_commented": "пікір қалдырды",
+  "feed_notif_target_your_post": "постыңызды",
+  "feed_notif_target_your_comment": "пікіріңізді",
+  "feed_notif_target_on_your_comment": "пікіріңізге",
+  "feed_notif_booking_created_host": " жазылды: {service}{when}",
+  "@feed_notif_booking_created_host": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_booking_booked_client_prefix": "Сіз жазылдыңыз: ",
+  "feed_notif_booking_reminder_at_host": " · {host}{when}",
+  "@feed_notif_booking_reminder_at_host": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_visit_started_prefix": "Қазір визит — ",
+  "feed_notif_visit_started_suffix": "{when}. Клиент келді ме белгілеңіз",
+  "@feed_notif_visit_started_suffix": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_visit_close_prefix": "Визитті жабыңыз — ",
+  "feed_notif_cancelled_host": " жазбаны болдырмады: {service}{when}",
+  "@feed_notif_cancelled_host": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_cancelled_client": " жазбаңызды болдырмады: {service}{when}",
+  "@feed_notif_cancelled_client": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_completed_prefix": "Визит аяқталды: ",
+  "feed_notif_bonus_earn": " · +{amount} бонус",
+  "@feed_notif_bonus_earn": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "feed_notif_no_show_prefix": "Визит «келмеді» деп белгіленді: ",
+  "feed_notif_rescheduled": " жазбаны ауыстырды: ",
+  "feed_notif_assigned_staff_prefix": "Сізге жаңа жазба: ",
+  "feed_notif_attendance_invite": " қатысу командасына шақырды",
+  "feed_notif_attendance_rules": "Компанияның жаңа ережелері — қабылдау керек",
+  "feed_notif_attendance_duty": "Кезекшілер тізімі жаңартылды",
+  "feed_notif_attendance_correction": "Белгіні түзету сұрауы",
+  "feed_notif_login_prefix": "Аккаунтқа кіру: ",
+  "feed_notif_login_new_device": "жаңа құрылғыдан",
+  "feed_notif_service_fallback": "жазба",
+  "feed_notif_host_fallback": "шебер",
+  "feed_notif_reminder_tomorrow": "Ертең жазба: ",
+  "feed_notif_reminder_3h": "3 сағаттан кейін: ",
+  "feed_notif_reminder_2h": "2 сағаттан кейін: ",
+  "feed_notif_reminder_1h": "Бір сағаттан кейін: ",
+  "feed_notif_reminder_30m": "30 мин кейін: ",
+  "feed_notif_reminder_15m": "15 мин кейін: ",
+  "feed_notif_reminder_minutes": "{minutes} мин кейін: ",
+  "@feed_notif_reminder_minutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "feed_notif_reminder_default": "Еске салу: ",
+  "feed_notif_punch_clock_out": "Шығу белгісін қою керек{place}",
+  "@feed_notif_punch_clock_out": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_punch_auto_closed": "Ауысым автоматты жабылды{place}",
+  "@feed_notif_punch_auto_closed": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_punch_clock_in": "Кіру белгісін қою керек{place}",
+  "@feed_notif_punch_clock_in": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_map_no_post": "Маркерде пост жоқ",
+  "feed_map_empty_posts": "Жарияланым жоқ",
+  "feed_events_empty_title": "Ештеңе табылмады",
+  "feed_events_empty_subtitle": "Сүзгіні өзгертіп көріңіз",
+  "feed_events_no_more": "Басқа жарияланым жоқ",
+  "feed_filter_title": "Сүзгі",
+  "feed_filter_map_title": "Карта сүзгісі",
+  "feed_filter_event_days": "Оқиға күндері",
+  "feed_filter_emoji_label": "Оқиға эмодзиі",
+  "feed_filter_emoji_hint": "Кез келген — бос қалдырыңыз",
+  "feed_filter_tags_label": "Маркер тегтері",
+  "feed_filter_tags_hint": "Кез келген — бос қалдырыңыз",
+  "feed_filter_tags_search": "Тег іздеу",
+  "feed_filter_start_hint": "Басы",
+  "feed_filter_end_hint": "Соңы",
+  "booking_point_label": "Нүкте",
+  "booking_point_not_found": "Нүкте табылмады",
+  "booking_point_default_name": "Негізгі",
+  "booking_point_new_title": "Жаңа нүкте",
+  "booking_point_new_subtitle": "Салон, филиал немесе кабинет",
+  "booking_point_card_subtitle": "Қызметтер, кесте, жазылулар",
+  "booking_point_create_failed": "Нүкте құру мүмкін болмады",
+  "booking_point_name_label": "Атауы",
+  "booking_my_bookings_title": "Менің жазылуларым",
+  "booking_my_bookings_subtitle": "Күнтізбе және визиттер",
+  "booking_services_subtitle": "Бағалар мен ұзақтық",
+  "booking_team_title": "Команда",
+  "booking_team_subtitle": "Шеберлер мен шақырулар",
+  "booking_chat_title": "Чат",
+  "booking_chat_subtitle": "Нүкте командасы",
+  "booking_analytics_subtitle": "Жазылулар мен қызметтер",
+  "booking_schedule_title": "Кесте",
+  "booking_schedule_subtitle": "Сағаттар мен жоқтық",
+  "booking_master_label": "Шебер",
+  "booking_masters_label": "Шеберлер",
+  "booking_all_masters": "Барлық шеберлер",
+  "booking_client_label": "Клиент",
+  "booking_executor_label": "Орындаушы",
+  "booking_executors_label": "Орындаушылар",
+  "booking_service_label": "Қызмет",
+  "booking_price_label": "Баға",
+  "booking_price_tenge_label": "Баға ₸",
+  "booking_duration_label": "Ұзақтық",
+  "booking_minutes_short": "{count} мин",
+  "@booking_minutes_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_note_label": "Ескертпе",
+  "booking_client_note_title": "Клиент ескертпесі",
+  "booking_salon_label": "Салон",
+  "booking_comment_label": "Пікір",
+  "booking_reason_label": "Себеп",
+  "booking_reason_optional_label": "Себеп (міндетті емес)",
+  "booking_name_label": "Аты",
+  "booking_username_label": "Никнейм",
+  "booking_phone_label": "Телефон",
+  "booking_status_label": "Мәртебе",
+  "booking_when_label": "Қашан",
+  "booking_time_label": "Уақыт",
+  "booking_day_label": "Күн",
+  "booking_days_label": "Күндер",
+  "booking_hour_label": "Сағат",
+  "booking_period_label": "Кезең",
+  "booking_start_label": "Басы",
+  "booking_end_label": "Соңы",
+  "booking_from_label": "Бастап",
+  "booking_to_label": "Дейін",
+  "booking_until_label": "Дейін",
+  "booking_until_date_label": "Күнге дейін",
+  "booking_description_label": "Сипаттама",
+  "booking_emoji_label": "Эмодзи",
+  "booking_method_label": "Әдіс",
+  "booking_optional_hint": "Міндетті емес",
+  "booking_pick_hint": "Таңдаңыз",
+  "booking_pick_day_hint": "Күнді таңдаңыз",
+  "booking_apply": "Қолдану",
+  "booking_select_action": "Таңдау",
+  "booking_all": "Барлығы",
+  "booking_inactive": "белсенді емес",
+  "booking_on_site": "орнында",
+  "booking_empty_yet": "Әзірге бос",
+  "booking_back_arrow": "← Артқа",
+  "booking_inbox_tab_now_short": "Қазір",
+  "booking_inbox_tab_upcoming_short": "Алдағы",
+  "booking_inbox_tab_archive_short": "Мұрағат",
+  "booking_inbox_tab_now": "Қазір креслода",
+  "booking_inbox_tab_upcoming": "Алдағы",
+  "booking_inbox_tab_archive": "Өткен және мұрағат",
+  "booking_point_chat_title": "Жазылу · {name}",
+  "@booking_point_chat_title": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_open_chat_failed": "Чатты ашу мүмкін болмады",
+  "booking_my_empty_title": "Жазылулар әлі жоқ",
+  "booking_my_empty_subtitle": "Шеберге жазылғанда визиттер осында күн бойынша көрінеді",
+  "booking_my_intro": "Шеберлерге визиттеріңіз. Күнді таңдаңыз — ауыстыру немесе болдырмау үшін картаны ашыңыз.",
+  "booking_my_day_empty_title": "Бұл күні жазылу жоқ",
+  "booking_my_day_empty_subtitle": "Күнтізбеден басқа күнді таңдаңыз",
+  "booking_count_none": "{label} · жазылу жоқ",
+  "@booking_count_none": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_count_one": "{label} · 1 жазылу",
+  "@booking_count_one": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_count_few": "{label} · {count} жазылу",
+  "@booking_count_few": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_count_many": "{label} · {count} жазылу",
+  "@booking_count_many": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_cancel_booking_title": "Жазылуды болдырмау",
+  "booking_cancel_too_late": "Визитке тым жақын — болдырмауға болмайды",
+  "booking_cancel_success": "Жазылу болдырылмады",
+  "booking_reschedule_too_late": "Визитке тым жақын — ауыстыруға болмайды",
+  "booking_reschedule_missing_parties": "Ауыстыруға болмайды: қызмет, шебер немесе жазылу иесі жоқ",
+  "booking_reschedule_title": "Жазылуды ауыстыру",
+  "booking_reschedule_success": "Жазылу ауыстырылды",
+  "booking_cancel_preset_plans": "Жоспар өзгерді — келе алмаймын",
+  "booking_cancel_preset_wrong_time": "Уақыт немесе күн қате",
+  "booking_cancel_preset_other_time": "Басқа уақытқа жазыламын",
+  "booking_cancel_preset_not_needed": "Бұл қызмет енді қажет емес",
+  "booking_cancel_body": "«{service}» {host} жанында болдырылмайды. Слот басқа клиенттерге босайды.",
+  "@booking_cancel_body": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_ready_messages": "Дайын хабарламалар",
+  "booking_reason_hint": "Өз хабарламаңызды жазыңыз немесе жоғарыдан таңдаңыз",
+  "booking_available_times": "Қолжетімді уақыт",
+  "booking_no_free_times_day": "Бұл күні бос уақыт жоқ",
+  "booking_book_action": "Жазылу",
+  "booking_confirmed_toast": "Жазылу расталды",
+  "booking_day_unavailable_rest": "Бұл күні жазылу жоқ — демалыс",
+  "booking_day_unavailable_executor": "{name} бұл күні қолжетімсіз",
+  "@booking_day_unavailable_executor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_day_unavailable": "Бұл күні жазылу қолжетімсіз",
+  "booking_slot_conflict_self": "Бұл уақыт басқа жазылуыңызбен қиылысады",
+  "booking_slot_taken_by": "Бұл уақыт {name} жанында бос емес",
+  "@booking_slot_taken_by": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_conflict_with_yours": "Жазылуыңызбен қайшылық",
+  "booking_busy": "Бос емес",
+  "booking_no_free_slots_day": "Бұл күні бос слот жоқ",
+  "booking_slots_for_day": "Таңдалған күндегі бос слоттар",
+  "booking_pick_visit_day": "Визит күнін таңдаңыз",
+  "booking_review_before_book": "Жазылу алдында тексеріңіз",
+  "booking_who_does_service": "Қызметті кім жасайды",
+  "booking_comment_hint": "Міндетті емес — шеберге тілектер",
+  "booking_comment_example_hint": "Мысалы: бүйірінен қысқа",
+  "booking_pay_with_bonuses": "Бонуспен төлеу",
+  "booking_no_bonus_spend": "Бонус шегерілмейді",
+  "booking_bonus_balance_no_spend": "Баланста {balance}. Бұл визитте бонус шегерілмейді.",
+  "@booking_bonus_balance_no_spend": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_balance_spend": "Баланста {balance}. Визиттен кейін {spend} дейін шегереміз",
+  "@booking_bonus_balance_spend": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      },
+      "spend": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_spend_zero": "0 шегеру (баланс жеткіліксіз)",
+  "booking_bonus_spend_amount": "−{amount} {word} шегеру",
+  "@booking_bonus_spend_amount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_earn_amount": "+{amount} {word} есептеу",
+  "@booking_bonus_earn_amount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_percent_of_price": "(бағаның {percent}%). Қалғаны — орнында.",
+  "@booking_bonus_percent_of_price": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_max_people_short": "{count} адамға дейін",
+  "@booking_max_people_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_time_range_minutes": "{start}–{end} · {minutes} мин",
+  "@booking_time_range_minutes": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_master_with_name": "Шебер: {name}",
+  "@booking_master_with_name": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_comment_with_text": "Пікір: {text}",
+  "@booking_comment_with_text": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_service_new_title": "Жаңа қызмет",
+  "booking_service_edit_title": "Өңдеу",
+  "booking_service_added": "Қызмет қосылды",
+  "booking_service_saved": "Қызмет сақталды",
+  "booking_service_active": "Қызмет белсенді",
+  "booking_service_hidden": "Жазылудан жасырылған",
+  "booking_show_to_clients": "Клиенттерге көрсету",
+  "booking_add_service": "Қызмет қосу",
+  "booking_services_empty_title": "Қызметтер әлі жоқ",
+  "booking_services_empty_subtitle": "Біріншісін қосыңыз — атау, ұзақтық және баға",
+  "booking_my_services_title": "Менің қызметтерім",
+  "booking_service_title_hint": "Ерлер шаш қиюы",
+  "booking_buffer_after_min": "Кейінгі буфер, мин",
+  "booking_buffer_create_only": "Буфер тек құру кезінде өзгереді",
+  "booking_max_participants": "Макс. қатысушылар",
+  "booking_bonuses_per_visit": "Визит үшін бонус",
+  "booking_bonus_pay_percent": "Бонуспен төлеу, %",
+  "booking_minutes_field": "Минут",
+  "booking_add_executor": "Орындаушы қосу",
+  "booking_executors_count": "{count} шебер",
+  "@booking_executors_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_executor_already_added": "Бұл шебер әлдеқашан қосылған",
+  "booking_cancel_service_title": "Қызметті болдырмау",
+  "booking_cancel_service_body": "«{service}» клиенттерге көрсетілмейді. Жаңа жазылулар қолжетімсіз болады.",
+  "@booking_cancel_service_body": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_cancel_service_preset_plans": "Жоспар өзгерді — қызмет уақытша қолжетімсіз",
+  "booking_cancel_service_preset_master": "Шебер қолжетімсіз",
+  "booking_cancel_service_preset_stopped": "Бұл қызметті енді ұсынбаймыз",
+  "booking_cancel_service_preset_updating": "Кесте мен прайсты жаңартамыз",
+  "booking_team_empty_title": "Команда бос",
+  "booking_team_empty_subtitle": "Clover аккаунтын шақырыңыз немесе слоттар үшін ат қосыңыз",
+  "booking_find_account": "Аккаунт іздеу",
+  "booking_already_in_team": "Әлдеқашан командада",
+  "booking_invited": "Шақырылған",
+  "booking_invite_sent_chat": "Шақыру чатқа жіберілді",
+  "booking_invite_cancelled": "Өтінім болдырылмады",
+  "booking_removed_from_team": "Командадан алынды",
+  "booking_remove_from_team": "Командадан алу",
+  "booking_cancel_invite": "Өтінімді болдырмау",
+  "booking_team_empty_hint": "Әзірге ешкім жоқ — Clover аккаунтын шақырыңыз немесе ат қосыңыз.",
+  "booking_team_invite_or_name": "Clover-ден шақырыңыз немесе слоттар үшін тек ат қосыңыз.",
+  "booking_pending_replies": "Жауап күтуде",
+  "booking_pending_short": "Күтуде",
+  "booking_waiting_plural": "Күтуде",
+  "booking_invite_from_clover": "Clover-ден шақыру",
+  "booking_add_name_only": "Тек ат қосу",
+  "booking_invite_chat_hint": "Жеке чатқа өтінім жібереміз. «Қабылдау» кейін қызметке тағайындай аласыз.",
+  "booking_search_user_hint": "Никнейм немесе ат бойынша іздеу",
+  "booking_nobody_found": "Ешкім табылмады",
+  "booking_invite_action": "Шақыру",
+  "booking_name_only_hint": "Clover аккаунтынсыз — слоттарда тек ат. Орындаушының күнтізбесі болмайды.",
+  "booking_executor_name_hint": "Орындаушы аты",
+  "booking_account_clover": "Clover аккаунты",
+  "booking_account_label": "Аккаунт",
+  "booking_name_only_short": "Тек ат",
+  "booking_name_only_slots": "Слоттарда тек ат",
+  "booking_waiting_chat_reply": "Чатта жауап күтуде",
+  "booking_waiting_chat_reply_user": "@{username} · чатта жауап күтуде",
+  "@booking_waiting_chat_reply_user": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_add_masters_first": "Алдымен қызметтерде шеберлерді қосыңыз",
+  "booking_rest_days_title": "Демалыс күндері",
+  "booking_horizon_title": "Горизонт",
+  "booking_book_ahead_title": "Алдағы жазылу",
+  "booking_cancel_and_visits_title": "Болдырмау және визиттер",
+  "booking_master_schedule": "Шебер кестесі",
+  "booking_time_blocks_title": "Уақыт блоктары",
+  "booking_time_block_title": "Уақыт блогы",
+  "booking_no_blocks": "Блок жоқ",
+  "booking_block_time": "Бұғаттау",
+  "booking_time_blocked": "Уақыт бұғатталды",
+  "booking_end_after_start": "Соңы басталуынан кейін болуы керек",
+  "booking_settings_saved": "Баптаулар сақталды",
+  "booking_system_section": "Жүйелік",
+  "booking_client_cancel_label": "Клиент болдырмауы",
+  "booking_auto_no_show_label": "Авто «Келмеді»",
+  "booking_auto_status_sheet": "Авто мәртебе",
+  "booking_how_far_ahead": "Қанша алға",
+  "booking_ending_label": "Аяқталуы",
+  "booking_before_start": "Басталғанға дейін",
+  "booking_hours_after": "{hours} сағ кейін",
+  "@booking_hours_after": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_weeks_count": "{count} апта",
+  "@booking_weeks_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_week_one": "1 апта",
+  "booking_weeks_two": "2 апта",
+  "booking_weeks_three": "3 апта",
+  "booking_month_one": "1 ай",
+  "booking_months_two": "2 ай",
+  "booking_months_three": "3 ай",
+  "booking_block_reason_hint": "Түскі ас, жиналыс…",
+  "booking_week_label": "Апта",
+  "booking_month_label": "Ай",
+  "booking_assigned_label": "Тағайындалған",
+  "booking_created_label": "Құрылған",
+  "booking_participants_label": "Қатысушылар",
+  "booking_complete_visit_q": "Визитті аяқтау?",
+  "booking_complete_action": "Аяқтау",
+  "booking_complete_visit_now": "Визитті қазір аяқтау",
+  "booking_complete_body": "Жазылу жабылады, слот басқа клиенттерге босайды.",
+  "booking_no_show_q": "Клиент келмеді ме?",
+  "booking_no_show_action": "Клиент келмеді",
+  "booking_no_show_short": "Келмеді",
+  "booking_no_show_body": "Слот босайды. Қызмет басталса да кез келген уақытта болдырмауға болады.",
+  "booking_undo_last_step_q": "Соңғы қадамды болдырмау?",
+  "booking_undo_action": "Қайтару",
+  "booking_undo_body": "Жазылу алдыңғы кезеңге қайтады. Мысалы, қате «Клиент келді» деп белгілесеңіз.",
+  "booking_host_closes_only": "Қызметті орындалды деп тек сіз жабасыз. Жүйе өзі істемейді.",
+  "booking_cancel_visit_q": "Визитті болдырмау?",
+  "booking_cancel_visit_action": "Визитті болдырмау",
+  "booking_reschedule_missing_service": "Ауыстыруға болмайды: қызмет немесе орындаушы жоқ. Тізімді жаңартыңыз.",
+  "booking_reschedule_no_session": "Ауыстыруға болмайды: сессия жоқ. Қайта кіріңіз.",
+  "booking_status_updated": "Мәртебе жаңартылды",
+  "booking_status_reverted": "Мәртебе қайтарылды",
+  "booking_status_update_failed": "Мәртебені жаңарту мүмкін болмады",
+  "booking_visit_ended_unmarked": "Визит аяқталды, мәртебе әлі белгіленбеген",
+  "booking_visit_ended_hint": "Жазылу уақыты өтті. Визитті өзіңіз аяқтаңыз немесе «келмеді» деп белгілеңіз — жүйе қызметті орындалды деп жаппайды.",
+  "booking_client_already_arrived": "Клиент әлдеқашан келді (растаусыз)",
+  "booking_visit_marks_title": "Визит белгілері",
+  "booking_marked_arrived": "Белгіленді: болды",
+  "booking_marked_no_show": "Белгіленді: келмеді",
+  "booking_was_short": "Болды",
+  "booking_view_only_status": "Тек қарау. Визит мәртебесін жазылуды жүргізетін аккаунт өзгертеді.",
+  "booking_client_profile": "Клиент профилі",
+  "booking_client_profile_unavailable": "Клиент профилі қолжетімсіз",
+  "booking_what_to_do": "Не істегіңіз келеді",
+  "booking_order_label": "Тапсырыс",
+  "booking_create_booking": "Жазылу құру",
+  "booking_book_with": "Жазылу:",
+  "booking_all_bookings": "Барлық жазылулар",
+  "booking_search_bookings_hint": "Клиент, қызмет, телефон…",
+  "booking_filter_by_date": "Күн бойынша сүзгі",
+  "booking_quick_pick": "Жылдам таңдау",
+  "booking_or_custom_period": "Немесе өз кезеңіңіз",
+  "booking_this_week": "Осы апта",
+  "booking_next_week": "Келесі апта",
+  "booking_this_month": "Осы ай",
+  "booking_next_month": "Келесі ай",
+  "booking_start_date": "Басталу күні",
+  "booking_end_date": "Аяқталу күні",
+  "booking_archive_empty": "Мұрағат әзірге бос",
+  "booking_no_completed_yet": "Аяқталған визиттер әлі жоқ",
+  "booking_no_cancelled": "Болдырылмаған жазылу жоқ",
+  "booking_cancelled_section": "Болдырылмағандар",
+  "booking_need_closing": "Жабуды қажет етеді",
+  "booking_history_title": "Жазылу тарихы",
+  "booking_no_upcoming": "Алдағы жазылу жоқ",
+  "booking_upcoming_empty_hint": "Расталған болашақ визиттер осында пайда болады",
+  "booking_create_first_hint": "Бірінші жазылуды құрыңыз — ол осында пайда болады",
+  "booking_now_empty_title": "Қазір ешкім жоқ",
+  "booking_now_empty_subtitle": "Визит басталғанда клиент осында пайда болады",
+  "booking_pick_other_day_feed": "Таспадан басқа күнді таңдаңыз немесе күнтізбені ашыңыз",
+  "booking_day_orders_empty": "Бұл күні тапсырыс жоқ",
+  "booking_orders_title": "Тапсырыстар",
+  "booking_orders_for_you": "Сізге тапсырыстар",
+  "booking_orders_empty": "Тапсырыстар әлі жоқ",
+  "booking_orders_empty_hint": "Басқа аккаунттың жазылуына орындаушы етіп қосқанда ол осында пайда болады",
+  "booking_orders_calendar": "Тапсырыстар күнтізбесі",
+  "booking_no_sources_yet": "Әзірге дереккөз жоқ",
+  "booking_when_booked_to_you": "Сізге жазылғанда визиттер осында пайда болады",
+  "booking_analytics_empty_period": "Кезеңде жазылу жоқ",
+  "booking_revenue_label": "Түсім",
+  "booking_avg_check_label": "Орташа чек",
+  "booking_analytics_summary": "{total} жазылу · {completed} орындалды",
+  "@booking_analytics_summary": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "completed": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_analytics_cancelled_part": " · {count} болдырылмады",
+  "@booking_analytics_cancelled_part": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_analytics_pending_part": " · {count} күтуде",
+  "@booking_analytics_pending_part": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_staff_completed_line": "{bookings} · {completed} орындалды",
+  "@booking_staff_completed_line": {
+    "placeholders": {
+      "bookings": {
+        "type": "int"
+      },
+      "completed": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_rate_visit": "Визитті бағалау",
+  "booking_thanks_review": "Пікіріңізге рахмет",
+  "booking_review_mock_hint": "Mock-та ешқайда кетпейді — тек UI. Продта нүктеде және профиль жиынтығында көрінеді.",
+  "booking_review_demo_title": "Шаш қию · Абайдағы салон · 21 нау",
+  "booking_reviews_count": "{count} пікір",
+  "@booking_reviews_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_reviews_strip_subtitle": "Жазылу нүктелері бойынша · feedback тегі",
+  "booking_reviews_title": "Пікірлер",
+  "booking_how_was_it": "Қалай өтті?",
+  "booking_review_optional_hint": "Қалай өткенін жазыңыз (міндетті емес)",
+  "booking_send_review": "Пікір жіберу",
+  "booking_demo_leave_review": "Демо: пікір қалдыру",
+  "booking_point_reply_title": "Нүкте атынан жауап",
+  "booking_point_reply_label": "Нүкте жауабы",
+  "booking_save_reply": "Жауапты сақтау",
+  "booking_edit_reply": "Жауапты өзгерту",
+  "booking_delete_reply": "Жауапты жою",
+  "booking_mock_no_backend": "Mock · бэкке жазылмайды",
+  "booking_mock_host_reply": "Mock · иесінің жауабы",
+  "booking_reply_action": "Жауап беру",
+  "common_open": "Ашу",
+  "common_refresh": "Жаңарту",
+  "common_you": "Сіз",
+  "common_not_found": "Табылмады",
+  "common_time": "Уақыт",
+  "common_later": "Кейінірек",
+  "common_details": "Толығырақ",
+  "common_got_it": "Түсінікті",
+  "common_approve": "Бекіту",
+  "common_approved": "Бекітілді",
+  "common_rejected": "Қабылданбады",
+  "common_pending": "Күтуде",
+  "common_type": "Түрі",
+  "common_chat": "Чат",
+  "common_rules": "Ережелер",
+  "common_settings": "Баптаулар",
+  "common_saved": "Сақталды",
+  "common_save_failed": "Сақтау мүмкін болмады",
+  "common_day": "Күн",
+  "common_team": "Топ",
+  "common_hours": "Сағат",
+  "common_no_data": "Дерек жоқ",
+  "attendance_day_status_full": "Толық ауысым",
+  "attendance_day_status_late": "Кешігу",
+  "attendance_day_status_partial": "Жартылай",
+  "attendance_day_status_absent": "Қатыспау",
+  "attendance_day_status_excused": "Рәсімделген",
+  "attendance_day_status_off": "Демалыс",
+  "attendance_day_status_full_short": "Толық",
+  "attendance_day_status_late_short": "Кеш.",
+  "attendance_day_status_partial_short": "Жартылай",
+  "attendance_absence_kind_day_off": "Демалыс",
+  "attendance_absence_kind_vacation": "Демалыс",
+  "attendance_absence_kind_sick": "Аурухана",
+  "attendance_worker_status_accepted": "Қабылданды",
+  "attendance_worker_status_pending": "Шақыруды күтуде",
+  "attendance_worker_status_archived": "Мұрағатта",
+  "attendance_worker_status_declined": "Қабылданбады",
+  "attendance_overtime_status_pending": "Күтуде",
+  "attendance_overtime_status_approved": "Бекітілді",
+  "attendance_overtime_status_rejected": "Қабылданбады",
+  "attendance_correction_status_pending": "Күтуде",
+  "attendance_correction_status_approved": "Бекітілді",
+  "attendance_correction_status_rejected": "Қабылданбады",
+  "attendance_saved_locally": "Жергілікті сақталды",
+  "attendance_saved_locally_syncing": "Жергілікті сақталды, синхрондалуда",
+  "attendance_company_not_found": "Компания табылмады",
+  "attendance_company_default_name": "Компания",
+  "attendance_company_fallback": "компанияны",
+  "attendance_hub_admin_tag_required": "Профильде «Қатысуды жүргіземін» тегін қосыңыз",
+  "attendance_hub_new_company": "Жаңа компания",
+  "attendance_hub_company_created": "Компания жасалды",
+  "attendance_hub_company_create_failed": "Компанияны жасау мүмкін болмады",
+  "attendance_hub_companies": "Компаниялар",
+  "attendance_hub_empty_hint": "Компания жасаңыз: геозона, қызметкерлер және белгілер. Жоғарыдағы «+» батырмасы.",
+  "attendance_hub_shifts": "Ауысымдар",
+  "attendance_hub_my_attendance": "Менің қатысуым",
+  "attendance_hub_my_attendance_subtitle": "Белгілер мен ауысымдар",
+  "attendance_hub_empty_admin": "Компания жасаңыз: геозона, қызметкерлер және белгілер. Профильдегі батырма — «Қатысуды жүргіземін» тегі.",
+  "attendance_company_team_invites": "Топ және шақырулар",
+  "attendance_company_geofence_punches": "Геозона және белгілер",
+  "attendance_company_duty_queue": "Күндер бойынша кезек",
+  "attendance_company_leave_sick": "Демалыс пен аурухана",
+  "attendance_company_ot_approval": "Қосымша төлемді бекіту",
+  "attendance_company_punch_edits": "Белгі түзетулері",
+  "attendance_company_export_month": "Айлық экспорт",
+  "attendance_company_hours_team": "Сағат пен топ",
+  "attendance_company_invite_rules": "Шақыру мен ережелер",
+  "attendance_punch_title": "Белгі",
+  "attendance_punch_admin_disabled_system": "Әкім «Келді» мен «Кетті» қоспаған. Тек төмендегі өз белгілері.",
+  "attendance_punch_custom_types": "Өз белгілері",
+  "attendance_punch_cancel_last": "Соңғы белгіні болдырмау",
+  "attendance_punch_sim_out_of_zone": "«Аймақтан тыс» симуляциясы",
+  "attendance_punch_sim_in_zone": "«Аймақта» симуляциясы",
+  "attendance_punch_sim_gps_off": "GPS өшіру симуляциясы",
+  "attendance_punch_sim_gps_on": "GPS қосу симуляциясы",
+  "attendance_punch_history": "Белгілер тарихы",
+  "attendance_punch_history_empty": "Әзірге белгі жоқ",
+  "attendance_punch_saved": "{type} — сақталды",
+  "@attendance_punch_saved": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_punch_save_failed": "Белгіні сақтау мүмкін болмады",
+  "attendance_punch_cancel_title": "Белгіні болдырмау",
+  "attendance_punch_cancel_hint": "Пікір міндетті емес — мысалы, қате белгі.",
+  "attendance_punch_cancel_comment": "Пікір (міндетті емес)",
+  "attendance_punch_cancelled": "Белгі болдырылмады",
+  "attendance_punch_request_correction": "Түзету сұрау",
+  "attendance_punch_no_correction_target": "Түзетуге белгі жоқ",
+  "attendance_punch_correction_sent": "Түзету сұрауы жіберілді",
+  "attendance_punch_request_failed": "Сұрау жіберу мүмкін болмады",
+  "attendance_punch_accept_rules": "Компания чатындағы карта арқылы v{version} ережелерін қабылдаңыз.",
+  "@attendance_punch_accept_rules": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_punch_cancelled_suffix": " · болдырылмады",
+  "attendance_punch_clock_in_at": "Келді {time}",
+  "@attendance_punch_clock_in_at": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_punch_clock_out_at": "Кетті {time}",
+  "@attendance_punch_clock_out_at": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_punch_types_not_configured": "Түрлер бапталмаған",
+  "attendance_punch_types_enabled": "Қосылған: {list}",
+  "@attendance_punch_types_enabled": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_punch_locating": "Орналасқан жер анықталуда…",
+  "attendance_punch_gps_unavailable": "GPS қолжетімсіз",
+  "attendance_punch_in_zone": "Сіз аймақтасыз ({radiusM} м)",
+  "@attendance_punch_in_zone": {
+    "placeholders": {
+      "radiusM": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_punch_out_of_zone": "Сіз аймақтан тыссыз",
+  "attendance_punch_refresh_gps": "GPS жаңарту",
+  "attendance_punch_shift_already_open": "Ауысым ашық — алдымен «Кетті» белгілеңіз",
+  "attendance_punch_open_chat": "Чатты ашу",
+  "attendance_pending_out_of_zone": "Аймақтан тыссыз — белгі экранын ашыңыз",
+  "attendance_pending_locating": "GPS анықталуда…",
+  "attendance_pending_in_zone": "Аймақта · {radiusM} м",
+  "@attendance_pending_in_zone": {
+    "placeholders": {
+      "radiusM": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_pending_out_zone_radius": "Аймақтан тыс · {radiusM} м",
+  "@attendance_pending_out_zone_radius": {
+    "placeholders": {
+      "radiusM": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_pending_expected_in": "Күтіледі",
+  "attendance_pending_new_rules": "Жаңа ережелер",
+  "attendance_pending_accept_update": "{workplace}: компания чатындағы карта арқылы v{version} жаңартуын қабылдаңыз.",
+  "@attendance_pending_accept_update": {
+    "placeholders": {
+      "workplace": {
+        "type": "String"
+      },
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_punch_types_title": "Белгілер",
+  "attendance_punch_types_shift": "Ауысым",
+  "attendance_punch_types_enable_system": "«Келді» немесе «Кетті» қосыңыз",
+  "attendance_punch_types_custom": "Өздері",
+  "attendance_punch_types_custom_empty": "Өз белгілері жоқ. Жоғарыдағы «+».",
+  "attendance_punch_types_add_title": "Өз белгісі",
+  "attendance_punch_types_hint_lunch": "Түскі ас",
+  "attendance_punch_types_already_exists": "Қазірдің өзінде бар",
+  "attendance_punch_types_at_time": "{time}",
+  "@attendance_punch_types_at_time": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_analytics_title": "Аналитика",
+  "attendance_analytics_no_period_data": "Кезеңде дерек жоқ",
+  "attendance_analytics_calendar": "Күнтізбе",
+  "attendance_analytics_calendar_legend": "Түс = мәртебе · ✓ белгіленді · ✗ келмеді",
+  "attendance_analytics_avg": "Орташа",
+  "attendance_analytics_people_count": "{count} адам",
+  "@attendance_analytics_people_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_late_abbr": "{count} кеш.",
+  "@attendance_analytics_late_abbr": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_missed_abbr": "{count} қат.",
+  "@attendance_analytics_missed_abbr": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_late_suffix": " · {count} кеш.",
+  "@attendance_analytics_late_suffix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_missed_suffix": " · {count} қат.",
+  "@attendance_analytics_missed_suffix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_swipe_weeks": "Апта бойынша сырғытыңыз",
+  "attendance_analytics_worked_today": "Бүгін жұмыс істелді",
+  "attendance_analytics_excused_absence": "Рәсімделген қатыспау",
+  "attendance_analytics_punches": "Белгілер",
+  "attendance_analytics_no_punches": "Белгі болмады",
+  "attendance_analytics_excused_not_miss": "Қатыспау рәсімделген — қатыспау емес",
+  "attendance_analytics_day_off": "Демалыс күні",
+  "attendance_analytics_today_marked": "Бүгін · {marked} / {total}",
+  "@attendance_analytics_today_marked": {
+    "placeholders": {
+      "marked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_not_punched": "Белгіленбеді",
+  "attendance_analytics_total": "Барлығы {total}",
+  "@attendance_analytics_total": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_analytics_journal": "Журнал",
+  "attendance_analytics_journal_subtitle": "Күндер бойынша шолу — жолды басыңыз",
+  "attendance_analytics_today_suffix": "· бүгін",
+  "attendance_analytics_employee": "Қызметкер",
+  "attendance_analytics_absences": "Қатыспаулар",
+  "attendance_analytics_absences_subtitle": "Рәсімделген кезеңдер · қатыспау деп есептелмейді",
+  "attendance_analytics_history_subtitle": "Құрылғыдағы соңғы оқиғалар",
+  "attendance_analytics_worked_month": "айда жұмыс істелді",
+  "attendance_analytics_shifts": "Ауысымдар",
+  "attendance_analytics_lates": "Кешігулер",
+  "attendance_analytics_misses": "Қатыспаулар",
+  "attendance_analytics_payroll": "Жалақы",
+  "attendance_analytics_payroll_subtitle": "Кезең есебі",
+  "attendance_analytics_base_salary": "Жалақы",
+  "attendance_analytics_deductions": "Ұстап қалулар",
+  "attendance_analytics_bonuses": "Қосымша төлемдер",
+  "attendance_analytics_payout": "Төлемге",
+  "attendance_worker_no_companies": "Белсенді компания жоқ. Чаттағы шақыруды қабылдаңыз.",
+  "attendance_worker_accept_rules": "{workplace}: v{version} ережелерін қабылдаңыз",
+  "@attendance_worker_accept_rules": {
+    "placeholders": {
+      "workplace": {
+        "type": "String"
+      },
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_worker_on_shift": "ауысымда",
+  "attendance_worker_off_shift": "ауысымнан тыс",
+  "attendance_worker_last_punch": "Соңғы: {label}",
+  "@attendance_worker_last_punch": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_worker_tag_required": "Белгілеу үшін профильде «Менің белгілерім» тегін қосыңыз.",
+  "attendance_worker_punch_cta": "Белгілеу",
+  "attendance_worker_my_details": "Менің мәліметтерім",
+  "attendance_worker_lates_abbr": "Кеш.",
+  "attendance_workers_title": "Қызметкерлер",
+  "attendance_workers_archived_toast": "Мұрағатта",
+  "attendance_workers_archive_failed": "Мұрағаттау мүмкін болмады",
+  "attendance_workers_invite_sent": "Шақыру жіберілді",
+  "attendance_workers_invite_failed": "Шақыру жіберу мүмкін болмады",
+  "attendance_workers_waiting": "Күтуде",
+  "attendance_workers_waiting_reply": "{user} · жауап күтуде",
+  "@attendance_workers_waiting_reply": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_in_team": "Топта",
+  "attendance_workers_no_tag": "{user} · тег жоқ",
+  "@attendance_workers_no_tag": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_in_archive": "{user} · мұрағатта",
+  "@attendance_workers_in_archive": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_search_failed": "Адамдарды табу мүмкін болмады",
+  "attendance_workers_search_hint": "Ник немесе есім",
+  "attendance_workers_search_empty": "Ешкім табылмады",
+  "attendance_workers_empty_title": "Әзірге ешкім жоқ",
+  "attendance_workers_empty_subtitle": "Clover аккаунтын шақырыңыз — өтінім чатқа кетеді",
+  "attendance_workers_clover_account": "Clover аккаунты",
+  "attendance_workers_no_work_tag": "{user} · қызметкер тегі жоқ",
+  "@attendance_workers_no_work_tag": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_to_archive": "Мұрағатқа",
+  "attendance_workers_waiting_chat": "{user} · чатта жауап күтуде",
+  "@attendance_workers_waiting_chat": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_not_in_shifts": "{user} · ауысымда емес",
+  "@attendance_workers_not_in_shifts": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_reinvite": "Қайта шақыру",
+  "attendance_timesheet_title": "Табель",
+  "attendance_timesheet_export_subject": "Қатысу табелі",
+  "attendance_timesheet_no_export_data": "Экспортқа дерек жоқ",
+  "attendance_timesheet_export_failed": "Экспорт мүмкін болмады",
+  "attendance_timesheet_export_csv": "CSV экспорт",
+  "attendance_chat_title": "Компания чаты",
+  "attendance_chat_title_named": "Қатысу · {name}",
+  "@attendance_chat_title_named": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_chat_system_intro": "Компания топтық чаты. Шақыру мен ережелер — тек карталармен.",
+  "attendance_chat_no_cards": "Белсенді карта жоқ. Қызметкер қосыңыз немесе ереже жаңартуын симуляциялаңыз.",
+  "attendance_chat_accepted": "{name} қабылданды · белсенді топ пен чатта",
+  "@attendance_chat_accepted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_chat_declined": "Қабылданбады · топтан тыс",
+  "attendance_chat_rules_accepted": "v{version} ережелері қабылданды",
+  "@attendance_chat_rules_accepted": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_chat_join_team": "Топқа қосылу",
+  "attendance_chat_invite_body": "{name} ({username}) үшін шақыру. Қабылдағаннан кейін — ауысым, сағат және компания чаты.",
+  "@attendance_chat_invite_body": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_chat_rules_updated": "Ережелер жаңартылды · v{version}",
+  "@attendance_chat_rules_updated": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_chat_rules_body": "Геозона немесе белгі түрлері өзгерді. Қабылдамайынша — белгі қолжетімсіз.",
+  "attendance_chat_rules_accept_cta": "Түсінікті, қабылдаймын",
+  "attendance_chat_open_failed": "Чатты ашу мүмкін болмады",
+  "attendance_corrections_title": "Түзетулер",
+  "attendance_corrections_load_failed": "Сұрауларды жүктеу мүмкін болмады",
+  "attendance_corrections_empty": "Түзету сұраулары жоқ",
+  "attendance_corrections_approved_section": "Бекітілгендер",
+  "attendance_corrections_rejected_section": "Қабылданбағандар",
+  "attendance_corrections_current_time": "қазір {time}",
+  "@attendance_corrections_current_time": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_geofence_title": "Геозона",
+  "attendance_geofence_permission": "Баптауларда геолокацияға рұқсат беріңіз",
+  "attendance_geofence_locate_failed": "Орналасқан жерді анықтау мүмкін болмады",
+  "attendance_geofence_saved": "Геозона сақталды",
+  "attendance_geofence_hint": "Картаны басып ортаны жылжытыңыз. Шеңбер — белгі аймағы.",
+  "attendance_geofence_radius": "Радиус",
+  "attendance_geofence_radius_m": "{radius} м",
+  "@attendance_geofence_radius_m": {
+    "placeholders": {
+      "radius": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_geofence_radius_m_named": "Радиус {radius} м",
+  "@attendance_geofence_radius_m_named": {
+    "placeholders": {
+      "radius": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_geofence_point_unset": "Нүкте орнатылмаған",
+  "attendance_overtime_title": "Қосымша жұмыс",
+  "attendance_overtime_empty": "Қосымша жұмыс өтінімдері жоқ",
+  "attendance_overtime_pending_section": "Күтуде",
+  "attendance_overtime_in_payroll": "Жалақыда",
+  "attendance_overtime_rejected_section": "Қабылданбағандар",
+  "attendance_overtime_hours_line": "{date} · {hours} сағ",
+  "@attendance_overtime_hours_line": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_overtime_suggestion": "Кестеден кейін кету · ~{hours} сағ",
+  "@attendance_overtime_suggestion": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_overtime_create_request": "Өтінім жасау",
+  "attendance_overtime_created": "Өтінім жасалды",
+  "attendance_overtime_create_failed": "Өтінім жасау мүмкін болмады",
+  "attendance_payroll_title": "Жалақы",
+  "attendance_payroll_no_workers": "Есептеуге қызметкер жоқ",
+  "attendance_payroll_lates": "Кешігулер",
+  "attendance_payroll_overtime": "Қосымша жұмыс",
+  "attendance_payroll_misses": "Қатыспаулар",
+  "attendance_payroll_partial_day": "Жартылай күн",
+  "attendance_payroll_per_min": "₸ / мин",
+  "attendance_payroll_per_hour": "₸ / сағ",
+  "attendance_payroll_per_day": "₸ / күн",
+  "attendance_payroll_percent_day": "күннің %",
+  "attendance_payroll_enter_salary": "₸-мен жалақыны енгізіңіз",
+  "attendance_payroll_salary_saved": "Жалақы сақталды",
+  "attendance_payroll_salary_save_failed": "Жалақыны сақтау мүмкін болмады",
+  "attendance_payroll_salary_label": "Жалақы, ₸",
+  "attendance_payroll_save_salary": "Жалақыны сақтау",
+  "attendance_payroll_for_period": "{period} үшін",
+  "@attendance_payroll_for_period": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_payroll_no_adjustments": "Түзетусіз",
+  "attendance_payroll_summary_line": "{period} · {count} адам",
+  "@attendance_payroll_summary_line": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_payroll_rules_hint": "Есептеу ережелері",
+  "attendance_absences_title": "Қатыспаулар",
+  "attendance_absences_empty": "Қатыспау жоқ",
+  "attendance_absences_add_hint": "Демалыс, демалыс немесе аурухана",
+  "attendance_absences_no_workers": "Белсенді қызметкер жоқ",
+  "attendance_absences_worker": "Қызметкер",
+  "attendance_absences_added": "Қосылды",
+  "attendance_absence_title": "Қатыспау",
+  "attendance_duty_title": "Кезекшілер",
+  "attendance_duty_not_today": "Бүгін кезекшілік күні емес",
+  "attendance_duty_punch_unavailable": "Бүгін белгі қолжетімсіз — кестеде кезекші жоқ.",
+  "attendance_duty_queue_not_workday": "Кезек бар, бірақ бүгін жұмыс күні емес.",
+  "attendance_duty_you_today": "Бүгін сіз кезекшісіз",
+  "attendance_duty_today_names": "Бүгін кезекші: {names}",
+  "@attendance_duty_today_names": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_duty_mode_only_you": "«Тек кезекші» режимі: белгі сізге қолжетімді.",
+  "attendance_duty_mode_only_others_blocked": "«Тек кезекші» режимі: басқаларға бүгін белгі қолжетімсіз.",
+  "attendance_duty_info_notify": "Ақпарат + топқа хабарлама. Белгі әдеттегідей — кезекшілік құлып емес.",
+  "attendance_duty_info_anyone": "Топқа ақпарат. Кез келген қабылданған қызметкер белгілей алады.",
+  "attendance_duty_only_duty_punches": "Тек кезекші белгілейді",
+  "attendance_duty_workdays": "Жұмыс күндері",
+  "attendance_duty_queue": "Кезек",
+  "attendance_duty_add_workers_first": "Алдымен қызметкерлерді қосыңыз",
+  "attendance_duty_none": "Кезекші жоқ",
+  "attendance_duty_punch_only_duty": "Белгі тек кезекшіде",
+  "attendance_duty_team_hint": "Топқа кеңес",
+  "attendance_settings_not_configured": "Бапталмаған",
+  "attendance_settings_custom_count": "{count} өз",
+  "@attendance_settings_custom_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_settings_pick_time": "Уақытты таңдаңыз",
+  "bonus_history_title": "Бонус тарихы",
+  "bonus_history_operations": "Операциялар",
+  "bonus_history_empty_title": "Тарих әзірге бос",
+  "bonus_history_empty_subtitle": "Есептеулер мен есептен шығарулар аяқталған визиттерден кейін пайда болады",
+  "bonus_balance": "Баланс",
+  "bonus_redeem_hint": "Келесі жазбада осы шеберге жұмсауға болады",
+  "bonus_my_title": "Менің бонустарым",
+  "bonus_my_subtitle": "Әр шеберде баланс бөлек. Тарихты көру үшін картаны ашыңыз.",
+  "bonus_my_empty_title": "Әзірге бонус жоқ",
+  "bonus_my_empty_subtitle": "Лоялдылық бағдарламасы бар шеберлерге визиттен кейін баланстар осында пайда болады",
+  "profile_edit_action": "Өңдеу",
+  "profile_add_post": "Пост қосу",
+  "profile_add_cluster": "Кластер қосу",
+  "profile_manage": "Басқару",
+  "profile_cluster_created": "Кластер жасалды",
+  "profile_cluster_create_failed": "Кластер жасау мүмкін болмады",
+  "profile_post_published": "Сәтті жарияланды",
+  "profile_post_publish_failed": "Жариялау мүмкін болмады",
+  "profile_followers": "Жазылушылар",
+  "profile_following": "Жазылымдар",
+  "profile_posts_empty_own": "Алғашқы жарияланымды қосыңыз",
+  "profile_posts_sign_in": "Жарияланымдарды көру үшін кіріңіз",
+  "profile_empty_bio": "бос",
+  "profile_more_suffix": " тағы",
+  "profile_username_saved": "Никнейм сақталды",
+  "profile_saved": "Профиль сақталды",
+  "profile_section_main": "Негізгі",
+  "profile_name_hint": "Атыңыз",
+  "profile_section_location": "Орналасқан жері",
+  "profile_banner_title": "Профиль мұқабасы",
+  "profile_cover": "Мұқаба",
+  "profile_avatar": "Аватар",
+  "profile_username_unset": "Берілмеген",
+  "profile_username_unavailable": "Никнеймді өзгерту қазір қолжетімсіз",
+  "profile_username_charset": "Никнеймде тек латын әріптері, цифрлар, «_» және «.» болуы мүмкін",
+  "profile_account_tags": "Аккаунт тегтері",
+  "profile_pick_tags": "Тегтерді таңдаңыз",
+  "profile_about": "Өзім туралы",
+  "profile_about_hint": "Өзіңіз туралы айтыңыз",
+  "profile_change_cover": "Мұқабаны өзгерту",
+  "profile_add_cover": "Мұқаба қосу",
+  "profile_invalid": "Жарамсыз профиль",
+  "profile_not_found": "Профиль табылмады",
+  "profile_following_empty": "Әзірге жазылым жоқ",
+  "profile_followers_empty": "Әзірге жазылушы жоқ",
+  "profile_unfollow_padded": "  Жазылудан бас тарту  ",
+  "profile_follow_padded": "  Жазылу  ",
+  "chat_sign_in_to_see": "Хабарламаларды көру үшін кіріңіз",
+  "chat_load_failed": "Чаттарды жүктеу мүмкін болмады",
+  "chat_search_hint": "Чат пен хабарлама іздеу",
+  "chat_list_empty_title": "Әзірге чат жоқ",
+  "chat_list_empty_subtitle": "Басқа профильден хат жазыңыз",
+  "chat_search_in_messages": "Хабарламаларда",
+  "chat_search_no_message_hits": "Хабарлама мәтінінде сәйкестік жоқ",
+  "chat_new_group": "Жаңа топ",
+  "chat_group_name_required": "Топ атауын енгізіңіз",
+  "chat_group_members_required": "Қатысушыларды таңдаңыз",
+  "chat_group_name_hint": "Топ атауы",
+  "chat_group_search_members": "Қатысушы іздеу",
+  "chat_group_from_following": "Жазылымдардан қатысушылар",
+  "chat_group_create": "Топ құру",
+  "chat_forward_search": "Алушыны іздеу",
+  "chat_members_load_failed": "Қатысушыларды жүктеу мүмкін болмады",
+  "chat_not_ready": "Чат әлі дайын емес",
+  "chat_not_created": "Чат әлі жасалмаған",
+  "chat_wallpaper_save_failed": "Фонды сақтау мүмкін болмады",
+  "chat_info_title": "Ақпарат",
+  "chat_wallpaper": "Чат фоны",
+  "chat_dm_subtitle": "Жеке чат",
+  "chat_members": "Қатысушылар",
+  "chat_members_empty": "Әзірге қатысушы жоқ",
+  "chat_group": "Топ",
+  "chat_invalid_user": "Жарамсыз пайдаланушы",
+  "chat_invalid": "Жарамсыз чат",
+  "chat_no_access": "Бұл чатқа қолжетімділік жоқ",
+  "chat_blocked": "Хат жазу қолжетімсіз — пайдаланушы бұғатталған",
+  "chat_action_failed": "Әрекетті орындау мүмкін болмады",
+  "chat_star_soon": "Таңдаулы хабарламалар — жақында",
+  "chat_photo_read_failed": "Фотоны оқу мүмкін болмады",
+  "chat_file_read_failed": "Құжатты оқу мүмкін болмады",
+  "chat_typing": "терүде…",
+  "chat_thread_search_hint": "Хабарлама іздеу",
+  "chat_opening": "Чат ашылуда…",
+  "chat_first_message": "Алғашқы хабарламаны жазыңыз",
+  "chat_failed": "Орындау мүмкін болмады",
+  "chat_wallpaper_with_emojis": "Чат фоны · {emojis}",
+  "@chat_wallpaper_with_emojis": {
+    "placeholders": {
+      "emojis": {
+        "type": "String"
+      }
+    }
+  },
+  "chat_member_you": "{handle} (сіз)",
+  "@chat_member_you": {
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "chat_members_one": "{count} қатысушы",
+  "@chat_members_one": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chat_members_few": "{count} қатысушы",
+  "@chat_members_few": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chat_members_many": "{count} қатысушы",
+  "@chat_members_many": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalog_locations_load_failed": "Орналасқан жерлерді жүктеу мүмкін болмады",
+  "catalog_locations_title": "Орналасқан жерлер",
+  "catalog_location_new": "Жаңа орналасқан жер",
+  "catalog_locations_empty": "Бос — алғашқы орналасқан жерді қосыңыз",
+  "catalog_location_save_failed": "Өзгерістерді сақтау мүмкін болмады",
+  "catalog_location_delete_title": "Орналасқан жерді жою керек пе?",
+  "catalog_location": "Орналасқан жер",
+  "catalog_location_not_found": "Орын табылмады",
+  "catalog_address_cyrillic": "Мекенжай (кириллица)",
+  "catalog_address_hint": "Абай к., 150, Алматы (міндетті емес)",
+  "catalog_binding": "Байланыстыру",
+  "catalog_bound_yes": "Ел мен қала осы мекенжайға байланыстырылған",
+  "catalog_bound_no": "Осы мекенжай үшін ел мен қаланы таңдаңыз",
+  "catalog_location_active_on": "Орын көрінеді және қолжетімді",
+  "catalog_location_active_off": "Орын жасырын және қолжетімсіз",
+  "catalog_accept_changes": "Өзгерістерді қабылдау",
+  "catalog_location_added": "Орналасқан жер қосылды",
+  "catalog_address_search": "Мекенжай іздеу",
+  "catalog_locations_none_active": "Белсенді орналасқан жер жоқ",
+  "catalog_address_tap": "Мекенжай · енгізу үшін басыңыз",
+  "catalog_tags_none": "Қолжетімді тег жоқ",
+  "booking_minutes_plain": "{count} мин",
+  "booking_stats_line": "{total} жазба · {completed} орындалды",
+  "booking_stats_cancelled": " · {count} болдырылды",
+  "booking_stats_pending": " · {count} күтуде",
+  "booking_staff_completed": "{bookings} · {completed} орындалды",
+  "booking_slot_taken": "Бұл уақыт {name} үшін бос емес",
+  "booking_executor_absent": "{name} бұл күні қолжетімсіз",
+  "booking_bonus_will_spend": "Баланс {balance}. Визиттен кейін {spend} дейін ({percent}% баға) шегереміз. Қалғаны орнында.",
+  "booking_bonus_no_spend": "Баланс {balance}. Бұл визит үшін бонус шегерілмейді.",
+  "booking_bonus_spend": "Шегеру −{amount} {word}",
+  "booking_bonus_earn": "Қосу +{amount} {word}",
+  "booking_comment_prefix": "Пікір: {text}",
+  "booking_service_cancel_body": "«{title}» клиенттерге көрсетілмейді. Жаңа жазбалар қолжетімсіз.",
+  "booking_masters_count": "{count} шебер",
+  "booking_max_people": "{count} адамға дейін",
+  "booking_master_prefix": "Шебер: {name}",
+  "booking_ops_slot_line": "{name} · {start}–{end}",
+  "booking_invite_waiting": "@{username} · чатта жауап күтуде",
+  "booking_cancel_visit_body": "«{title}» {host} жазбасы болдырылады. Слот басқа клиенттерге босатылады.",
+  "booking_chat_title_named": "Жазба · {name}",
+  "booking_time_duration": "{range} · {minutes} мин",
+  "post_booking_service": "Жазба қызметі",
+  "post_unavailable": "Пост қолжетімсіз",
+  "post_invalid_id": "Пост id жарамсыз",
+  "post_not_found": "Пост табылмады",
+  "post_create_cluster_first": "Алдымен кластер жасаңыз",
+  "post_untitled": "Атаусыз",
+  "post_linked_to_cluster": "Пост кластерге байланыстырылды",
+  "post_link_failed": "Постты байланыстыру мүмкін болмады",
+  "post_unlinked_from_cluster": "Пост кластерден ажыратылды",
+  "post_unlink_failed": "Постты ажырату мүмкін болмады",
+  "post_archive_event_title": "Оқиғаны мұрағаттау керек пе?",
+  "post_archive_publication_title": "Жарияланымды мұрағаттау керек пе?",
+  "post_archive_event_body": "Оқиға лента мен картадан жоғалады.",
+  "post_archive_publication_body": "Жарияланым профильден жоғалады.",
+  "post_event_archived": "Оқиға мұрағатталды",
+  "post_publication_archived": "Жарияланым мұрағатталды",
+  "post_unarchive_event_title": "Оқиғаны мұрағаттан шығару керек пе?",
+  "post_unarchive_publication_title": "Жарияланымды мұрағаттан шығару керек пе?",
+  "post_unarchive_event_body": "Оқиға қайта лента мен картада пайда болады.",
+  "post_unarchive_publication_body": "Жарияланым қайта профильде пайда болады.",
+  "post_event_unarchived": "Оқиға мұрағаттан шығарылды",
+  "post_publication_unarchived": "Жарияланым мұрағаттан шығарылды",
+  "post_unarchive_failed": "Мұрағаттан шығару мүмкін болмады",
+  "post_delete_event_title": "Оқиғаны жою керек пе?",
+  "post_delete_publication_title": "Жарияланымды жою керек пе?",
+  "post_delete_event_body": "Оқиға, пост және медиа біржола жойылады.",
+  "post_delete_publication_body": "Жарияланым мен медиа біржола жойылады.",
+  "post_event_deleted": "Оқиға жойылды",
+  "post_publication_deleted": "Жарияланым жойылды",
+  "post_unlink_cluster": "Кластерден ажырату",
+  "post_link_cluster": "Кластерге байланыстыру",
+  "post_author": "Автор",
+  "post_service_loading": "Қызмет жүктелуде…",
+  "post_book_service": "Қызметке жазылу",
+  "post_book_this_service": "Осы қызметке жазылу",
+  "post_host": "Хост",
+  "post_likes_count": "{count} ұнайды",
+  "@post_likes_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_dislikes_count": "{count} ұнамайды",
+  "@post_dislikes_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_datetime_section": "КҮН ЖӘНЕ УАҚЫТ",
+  "post_completed": "Аяқталды",
+  "post_now": "қазір",
+  "post_hide_replies": "Жауаптарды жасыру",
+  "post_view_replies": "Жауаптарды көру ({count})",
+  "@post_view_replies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_comments_title": "Пікірлер",
+  "post_comment_send_failed": "Пікір жіберу мүмкін болмады",
+  "post_comments_empty": "Әзірге пікір жоқ.\nБірінші болыңыз!",
+  "post_reply_for": "{username} үшін жауап",
+  "@post_reply_for": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "post_comment_hint": "Пікір қосыңыз…",
+  "post_reply_hint": "{username} жауап…",
+  "@post_reply_hint": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "post_create_title": "Жаңа жарияланым",
+  "post_publication": "Жарияланым",
+  "post_publish": "Жариялау",
+  "post_title_label": "Тақырып",
+  "post_title_hint": "Тақырып қосыңыз",
+  "post_emoji_hint": "Эмодзи қосыңыз",
+  "post_tags": "Тегтер",
+  "post_pick_location": "Орналасқан жерді таңдаңыз",
+  "post_event_period_required": "Картадағы оқиға — басы мен соңын көрсетіңіз",
+  "post_period_optional": "Міндетті емес — кезеңсіз қарапайым жарияланым",
+  "post_body_hint": "Жарияланым туралы айтыңыз",
+  "post_create_service_first": "Алдымен жазбаларда қызмет жасаңыз",
+  "post_no_service": "Қызметсіз",
+  "post_service_unlinked": "Байланыстырылмаған",
+  "post_shared": "Пост жіберілді",
+  "post_share_no_following": "Жіберетін жазылым жоқ",
+  "post_share_message_hint": "Хабарлама жазыңыз…",
+  "post_address_section": "МЕКЕНЖАЙ ЖӘНЕ БАҒДАР",
+  "cluster_delete_title": "Кластерді жою керек пе?",
+  "cluster_delete_body": "Мұқаба да жойылады.",
+  "cluster_deleted": "Кластер жойылды",
+  "cluster_title": "Кластер",
+  "cluster_archive_title": "Кластерді мұрағаттау керек пе?",
+  "cluster_archive_body": "Профиль тізімінен жоғалады.",
+  "cluster_archived": "Кластер мұрағатталды",
+  "cluster_archive_hub_title": "Кластер мұрағаты",
+  "cluster_archive_empty": "Кластер мұрағаты бос",
+  "cluster_unarchive_title": "Кластерді мұрағаттан шығару керек пе?",
+  "cluster_unarchive_body": "Профильде қайта пайда болады.",
+  "cluster_unarchived": "Кластер мұрағаттан шығарылды",
+  "cluster_name_label": "Кластер атауы",
+  "cluster_desc_hint": "Қысқа сипаттама (міндетті емес)",
+  "cluster_create_action": "Кластер жасау",
+  "cluster_cover": "Кластер мұқабасы",
+  "cluster_new": "Жаңа кластер",
+  "cluster_tab": "Кластерлер",
+  "archive_events_title": "Оқиғалар мұрағаты",
+  "archive_events_empty": "Оқиғалар мұрағаты бос",
+  "archive_posts_title": "Жарияланымдар мұрағаты",
+  "archive_posts_empty": "Жарияланымдар мұрағаты бос",
+  "archive_content": "Мазмұн",
+  "archive_posts_events_subtitle": "Мұрағатталған посттар мен оқиғалар",
+  "archive_clusters_subtitle": "Мұрағатталған жинақтар",
+  "chat_invite_team": "Командаға шақыру",
+  "chat_company_rules": "Компания ережелері",
+  "chat_invite_declined": "Шақыру қабылданбады",
+  "chat_invite_booking": "Жазбаға шақыру",
+  "chat_on_team": "Сіз командадасыз",
+  "chat_accept_rules": "Ережелерді қабылдау",
+  "chat_rules_accepted": "Ережелер қабылданды",
+  "chat_you_are_staff": "Сіз орындаушысыз",
+  "chat_attachment": "Тіркеме",
+  "chat_document": "Құжат",
+  "chat_wallpaper_hint": "Смайлик қойыңыз — фонды осы чаттағылардың бәрі көреді",
+  "chat_wallpaper_preview": "Фон үлгісі",
+  "chat_wallpaper_example": "Мысалы 🍀✨💬",
+  "chat_edited_short": "өзг.",
+  "chat_photo_permission": "Сақтау үшін фотоға рұқсат беріңіз",
+  "chat_saved_to_gallery": "Галереяға сақталды",
+  "chat_photo_download_failed": "Фотоны жүктеу мүмкін болмады",
+  "chat_members_count": "{count, plural, one{{count} қатысушы} other{{count} қатысушы}}",
+  "@chat_members_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chat_member_you_label": "{handle} (сіз)",
+  "@chat_member_you_label": {
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "chat_wallpaper_emojis": "Чат фоны · {emojis}",
+  "@chat_wallpaper_emojis": {
+    "placeholders": {
+      "emojis": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_filters_load_failed": "Сүзгілерді жүктеу мүмкін болмады",
+  "settings_filters_search": "Сүзгі іздеу",
+  "settings_filters_values_word": "мән",
+  "settings_wait_loading": "Жүктелуді күтіңіз",
+  "settings_guide_topic_missing": "Гайд тақырыбы табылмады",
+  "settings_companies_load_failed": "Компанияларды жүктеу мүмкін болмады",
+  "settings_companies_empty": "Әзірге компания жоқ. «Қосу» басыңыз.",
+  "settings_post_filters_title": "Жарияланым сүзгілері",
+  "settings_pick_filters": "Сүзгілерді таңдаңыз",
+  "settings_filters_selected": "Сүзгілер таңдалды",
+  "settings_filters_categories_hint": "Өлшем, түс, бренд және басқа санаттар",
+  "settings_filter_value_one": "мән",
+  "settings_filter_value_few": "мән",
+  "settings_location_filter_own_only": "Орын сүзгісі өз профиліңізде қолжетімді",
+  "settings_places_load_failed": "Орындарды жүктеу мүмкін болмады",
+  "settings_all_places": "Барлық орындар",
+  "settings_no_address_filter": "Мекенжай сүзгісіз",
+  "settings_add_place_hint": "Ресурстар → Орналасқан жерлерге орын қосыңыз — сонда посттарды сүзуге болады.",
+  "settings_no_session": "Сессия жоқ",
+  "settings_new_category": "Жаңа санат",
+  "settings_category": "Санат",
+  "settings_category_name": "Санат атауы",
+  "settings_category_name_hint": "Мысалы: Өлшем, Түс, Бренд",
+  "settings_values": "Мәндер",
+  "settings_values_hint": "XS, Қара, Nike…",
+  "settings_add_one_value": "Кемінде бір мән қосыңыз",
+  "settings_save_category": "Санатты сақтау",
+  "settings_save_changes": "Өзгерістерді сақтау",
+  "settings_deletion": "Жою",
+  "settings_filter_categories_title": "Сүзгі санаттары",
+  "settings_filter_categories_intro": "Санат жасаңыз, атауын көрсетіңіз және мән нұсқаларын қосыңыз. Алғашқы санаттан кейін сүзгі профильде пайда болады.",
+  "settings_create_category": "Санат жасау",
+  "settings_no_categories": "Әзірге санат жоқ",
+  "settings_categories_example": "Мысалы: Өлшем → XS, S, M\nТүс → Қара, Ақ",
+  "settings_create_first_category": "Алғашқы санатты жасау",
+  "settings_guide_services_intro": "Clover сервистері туралы қысқаша. Хозяин тегін бірден белсендіруге болады.",
+  "settings_activate": "Белсендіру",
+  "settings_service_enabled": "Сервис профильде қосылды",
+  "settings_activate_failed": "Белсендіру мүмкін болмады",
+  "settings_resources_addresses": "Мекенжайлар мен карта нүктелері",
+  "settings_resources_showcase": "Профиль витрина санаттары",
+  "settings_resources_what": "Ресурстар дегеніміз не",
+  "settings_saved_posts_empty": "Әзірге сақталған пост жоқ",
+  "settings_saved_posts_tile": "Сақталған посттар",
+  "venue_my_bookings": "Менің брондарым",
+  "venue_guests": "Қонақтар",
+  "venue_establishment": "Мекеме",
+  "venue_tickets_fares": "Билеттер / тарифтер",
+  "venue_places_list": "Орындар тізіммен",
+  "venue_plan_schema": "Жоспар / схема",
+  "venue_sessions_slots": "Сеанстар / слоттар",
+  "venue_hub_mock_subtitle": "Мок · билеттер, орындар және схема. Жоспар редакторы — сайтта.",
+  "venue_establishments": "Мекемелер",
+  "venue_requests_confirmed": "Сұраулар мен расталғандар (мок)",
+  "venue_process_doc": "Процесс: docs/business/venue-seating.md",
+  "venue_mocks_no_backend": "Мок · бэксіз",
+  "venue_client_requests_mock": "Клиент сұраулары тізімі (мок).",
+  "venue_client_schema_hint": "Клиент сайт схемасын көреді (JSON) · тек таңдау және сұрау.",
+  "venue_client_flow": "Клиент: схема және/немесе тізім → сұрау, төлем емес.",
+  "venue_session": "Сеанс",
+  "venue_pick_place": "Орынды таңдаңыз",
+  "venue_send_request": "Сұрау жіберу",
+  "venue_mock_request_sent": "Мок: сұрау жіберілді · soft-hold",
+  "venue_not_found": "Мекеме табылмады",
+  "venue_catalog": "Каталог",
+  "venue_level_a": "A деңгейі",
+  "venue_level_b": "B деңгейі",
+  "venue_level_c_preview": "C деңгейі · үлгі",
+  "venue_no_schema_hint": "Схема жоқ · кеңес",
+  "venue_when_bookable": "Қашан брондауға болады",
+  "venue_requests_to_confirm": "Сұраулар → растау",
+  "venue_client_view": "Клиент қалай көреді",
+  "venue_request_preview": "Брон сұрауы үлгісі",
+  "venue_request": "Сұрау",
+  "venue_request_not_found": "Сұрау табылмады",
+  "venue_actions_mock": "Әрекеттер мок — бэк жоқ.",
+  "venue_mock_confirmed": "Мок: расталды",
+  "venue_mock_rejected": "Мок: қабылданбады",
+  "venue_extra_pay": "Қосымша төлем керек (Clover сыртында)",
+  "venue_mock_extra_pay": "Мок: қосымша төлем шарты",
+  "venue_soft_hold_flow": "Сұрау → soft-hold → админ шешеді. Auto-confirm емес.",
+  "venue_tab_empty": "Бұл қойындыда бос",
+  "venue_plan_load_failed": "Жоспарды жүктеу мүмкін болмады",
+  "venue_plan_load_error": "Жоспар жүктеу қатесі",
+  "venue_plan_site_only": "Сайт сызады → мобилка тек қарайды (сайт JSON, мок).",
+  "venue_plan_preview": "Схема үлгісі. Сызу мен өңдеу — тек сайтта.",
+  "venue_no_schema_tickets": "Схема жоқ. Хозяин билет / тізімде қала алады.",
+  "venue_empty_canvas": "Бос кенеп. Сайтта «Figma сияқты» редактор пайда болады.",
+  "venue_level_b_bookable": "B деңгейі · схемадағыдай bookable.",
+  "venue_no_seats_tickets_only": "Бұл мекемеде әзірге орын жоқ — тек билеттер.",
+  "venue_occasion_hint": "Occasion: кино сеансы немесе ресторан слоты.",
+  "venue_no_sessions": "Сеанс жоқ",
+  "venue_level_a_no_schema": "A деңгейі · схемасыз. Клиент тариф пен qty таңдайды.",
+  "venue_mock_badge": "мок",
+  "settings_attendance_enable_tag": "Профильде «Қатысуды жүргіземін» тегін қосыңыз",
+  "settings_attendance_company": "Компания",
+  "settings_attendance_new_company": "Жаңа компания",
+  "settings_attendance_company_created": "Компания жасалды",
+  "settings_attendance_company_create_failed": "Компания жасау мүмкін болмады",
+  "settings_attendance_companies": "Компаниялар",
+  "settings_attendance_shifts": "Ауысымдар",
+  "settings_attendance_my_title": "Менің қатысуым",
+  "settings_attendance_my_subtitle": "Белгілер мен ауысымдар",
+  "settings_filter_delete_confirm": "«{name}» жою үшін басыңыз",
+  "@settings_filter_delete_confirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_filter_deleted": "«{name}» жойылды",
+  "@settings_filter_deleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_saved_categories_count": "Сақталған санаттар ({count})",
+  "@settings_saved_categories_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settings_venue_client": "Клиент",
+  "venue_when": "Қашан",
+  "venue_status": "Мәртебе",
+  "venue_empty_for_now": "Әзірге бос",
+  "venue_seat_capacity": "{count} қонаққа дейін",
+  "@venue_seat_capacity": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "venue_session_free": "{when} · бос {free}/{total}",
+  "@venue_session_free": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "free": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "venue_ticket_remaining": "{price} · қалды {remaining}",
+  "@venue_ticket_remaining": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "post_share_sent_to": "Пост {count} алушыға жіберілді",
+  "@post_share_sent_to": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_in_days": "{label} кейін",
+  "@post_in_days": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "catalog_total_count": "Барлығы: {count}",
+  "@catalog_total_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalog_inactive_dot": "{subtitle} · белсенді емес",
+  "@catalog_inactive_dot": {
+    "placeholders": {
+      "subtitle": {
+        "type": "String"
+      }
+    }
+  },
+  "common_from_short": "Бастап",
+  "attendance_rules_accepted": "Ережелер v{version} қабылданды",
+  "attendance_invite_body": "{name} ({username}) шақыруы. Қабылдағаннан кейін — ауысым, сағат және компания чаты.",
+  "attendance_rules_updated": "Ережелер жаңартылды · v{version}",
+  "attendance_rules_changed_body": "Геоаймақ немесе белгі түрлері өзгерді. Қабылдамайынша белгі қолжетімсіз.",
+  "attendance_correction_now": "қазір {time}",
+  "attendance_meters": "{meters} м",
+  "attendance_in_zone": "Аймақтасыз · {meters} м",
+  "attendance_out_zone": "Аймақтан тыс · {meters} м",
+  "attendance_in_zone_paren": "Аймақтасыз ({meters} м)",
+  "attendance_enabled_types": "Қосулы: {list}",
+  "attendance_at_time": "{time}",
+  "attendance_radius_label": "Радиус {meters} м",
+  "attendance_clock_in_at": "Келді {time}",
+  "attendance_clock_out_at": "Кетті {time}",
+  "attendance_custom_count": "{count} өз",
+  "attendance_duty_today_named": "Бүгін кезекші: {names}",
+  "attendance_pending_accept": "{workplace}: v{version} жаңартуын компания чатындағы карта арқылы қабылдаңыз.",
+  "common_days_one": "{count} күн",
+  "common_days_few": "{count} күн",
+  "common_days_many": "{count} күн",
+  "post_archive_failed": "Мұрағаттау сәтсіз",
+  "post_empty": "Жарияланым жоқ",
+  "post_relative_minutes": "{count} мин.",
+  "post_relative_hours": "{count} сағ.",
+  "post_relative_days": "{count} к.",
+  "post_emoji_label": "Эмодзи",
+  "post_shared_to": "Пост {count} алушыға жіберілді",
+  "chat_create_group": "Топ құру",
+  "chat_wallpaper_label": "Чат фоны · {preview}",
+  "chat_you_suffix": "{handle} (сіз)",
+  "chat_join_workplace": "«{name}» бөлігі болу",
+  "chat_join_booking_staff": "Орындаушы болу · «{name}»",
+  "profile_name_label": "Аты",
+  "profile_section_account": "Аккаунт",
+  "profile_username": "Никнейм",
+  "profile_book": "Жазылу",
+  "profile_calendar": "Күнтізбе",
+  "venue_operations": "Операциялар",
+  "venue_comment": "Пікір",
+  "settings_filters_count": "Сүзгілер ({count})",
+  "@settings_filters_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_nothing_here": "Ештеңе жоқ",
+  "common_something_wrong": "Бірдеңе дұрыс болмады",
+  "common_options": "Опциялар",
+  "common_emoji_hint": "Эмодзи таңдаңыз немесе енгізіңіз"
+}

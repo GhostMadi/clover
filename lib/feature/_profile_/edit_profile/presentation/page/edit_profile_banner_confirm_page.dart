@@ -66,7 +66,7 @@ class _EditProfileBannerConfirmBody extends StatelessWidget {
           onPressed: () => context.router.maybePop(),
         ),
         title: Text(
-          'Обложка',
+          context.l10n.profile_cover,
           style: AppTextStyle.base(
             EditProfileBannerConfirmPage._figmaAppBarTitleFont,
             fontWeight: FontWeight.w700,
@@ -74,7 +74,7 @@ class _EditProfileBannerConfirmBody extends StatelessWidget {
           ),
         ),
         actions: [
-          AppTextButton(text: 'Принять', onTap: () => _accept(context)),
+          AppTextButton(text: context.l10n.common_accept, onTap: () => _accept(context)),
         ],
       ),
       body: SafeArea(
@@ -105,7 +105,7 @@ class _EditProfileBannerConfirmBody extends StatelessWidget {
                 horizontal,
                 context.heightByContext(16) + MediaQuery.paddingOf(context).bottom,
               ),
-              child: AppButton(text: 'Принять', isExpanded: true, onTap: () => _accept(context)),
+              child: AppButton(text: context.l10n.common_accept, isExpanded: true, onTap: () => _accept(context)),
             ),
           ],
         ),

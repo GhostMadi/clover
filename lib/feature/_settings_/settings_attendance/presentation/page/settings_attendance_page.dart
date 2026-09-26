@@ -17,6 +17,7 @@ import 'package:clover/feature/_settings_/settings/presentation/widget/settings_
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_tile_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Настройки «Посещаемость»: список компаний гридом (как Запись → точки).
 @RoutePage()
@@ -59,26 +60,26 @@ class _SettingsAttendancePageState extends State<SettingsAttendancePage> {
     if (!hasTag) {
       AppSnackBar.show(
         context,
-        message: 'Включите тег «Веду посещаемость» в профиле',
+        message: context.l10n.settings_attendance_enable_tag,
         kind: AppSnackBarKind.error,
       );
       return;
     }
 
-    final nameController = TextEditingController(text: 'Компания');
+    final nameController = TextEditingController(text: context.l10n.settings_attendance_company);
     try {
       final name = await AttendanceBottomSheet.show<String>(
         context: context,
-        title: 'Новая компания',
+        title: context.l10n.settings_attendance_new_company,
         content: AttendanceField(
           controller: nameController,
-          labelText: 'Название',
+          labelText: context.l10n.common_name,
           textInputAction: TextInputAction.done,
         ),
         actions: [
           Builder(
             builder: (sheetContext) => AttendancePrimaryButton(
-              text: 'Создать',
+              text: context.l10n.common_create,
               isExpanded: true,
               onTap: () {
                 final value = nameController.text.trim();
@@ -96,7 +97,9 @@ class _SettingsAttendancePageState extends State<SettingsAttendancePage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: ok ? 'Компания создана' : 'Не удалось создать компанию',
+        message: ok
+            ? context.l10n.settings_attendance_company_created
+            : context.l10n.settings_attendance_company_create_failed,
         kind: ok ? AppSnackBarKind.success : AppSnackBarKind.error,
       );
     } finally {
@@ -110,7 +113,7 @@ class _SettingsAttendancePageState extends State<SettingsAttendancePage> {
     final accent = attendanceServiceAccent(colors);
 
     return SettingsScreenShell(
-      title: 'Посещаемость',
+      title: context.l10n.settings_attendance_title,
       service: kAttendanceService,
       body: BlocBuilder<AttendanceHubCubit, AttendanceHubState>(
         bloc: _hubCubit,
@@ -134,12 +137,12 @@ class _SettingsAttendancePageState extends State<SettingsAttendancePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Не удалось загрузить компании',
+                    context.l10n.settings_companies_load_failed,
                     style: AppTextStyle.base(14, color: colors.subTextColor),
                   ),
                   const SizedBox(height: 12),
                   AppOutlinedButton(
-                    text: 'Обновить',
+                    text: context.l10n.common_refresh,
                     isExpanded: true,
                     service: kAttendanceService,
                     onTap: _hubCubit.load,
@@ -161,14 +164,14 @@ class _SettingsAttendancePageState extends State<SettingsAttendancePage> {
                       children: [
                         Expanded(
                           child: Text(
-                            'Компании',
+                            context.l10n.settings_attendance_companies,
                             style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600),
                           ),
                         ),
                         TextButton(
                           onPressed: () => _createWorkplace(),
                           child: Text(
-                            'Добавить',
+                            context.l10n.common_add,
                             style: AppTextStyle.base(
                               13,
                               color: accent.icon,
@@ -183,7 +186,7 @@ class _SettingsAttendancePageState extends State<SettingsAttendancePage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 24),
                         child: Text(
-                          'Пока нет компаний. Нажмите «Добавить».',
+                          context.l10n.settings_companies_empty,
                           style: AppTextStyle.base(14, color: colors.subTextColor, height: 1.35),
                         ),
                       )
@@ -193,7 +196,7 @@ class _SettingsAttendancePageState extends State<SettingsAttendancePage> {
                           for (final workplace in workplaces)
                             AttendanceHubNavCard(
                               title: workplace.name,
-                              subtitle: 'Открыть',
+                              subtitle: context.l10n.common_open,
                               icon: AppIcons.inventory.icon,
                               onTap: () => _openCompany(workplace),
                             ),
@@ -201,12 +204,12 @@ class _SettingsAttendancePageState extends State<SettingsAttendancePage> {
                       ),
                     if (worker) ...[
                       const SizedBox(height: 20),
-                      const SettingsTileSectionTitle('Смены'),
+                      SettingsTileSectionTitle(context.l10n.settings_attendance_shifts),
                       AppTileGroup(
                         children: [
                           AppTile(
-                            title: 'Моя посещаемость',
-                            subtitle: 'Отметки и смены',
+                            title: context.l10n.settings_attendance_my_title,
+                            subtitle: context.l10n.settings_attendance_my_subtitle,
                             icon: AppIcons.accessTime.icon,
                             iconColor: accent.icon,
                             iconBackgroundColor: accent.soft,

@@ -6,6 +6,7 @@ import 'package:clover/feature/_attendance_/attendance_workplace_settings/presen
 import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class AttendanceWorkplaceSettingsPage extends StatelessWidget {
@@ -23,10 +24,10 @@ class AttendanceWorkplaceSettingsPage extends StatelessWidget {
         final workplace = snap?.workplaceById(workplaceId);
         if (workplace == null) {
           return AttendanceScreenShell(
-            title: 'Настройки',
+            title: context.l10n.common_settings,
             body: Center(
               child: Text(
-                'Компания не найдена',
+                context.l10n.attendance_company_not_found,
                 style: AppTextStyle.base(15, color: context.colors.subTextColor),
               ),
             ),
@@ -34,7 +35,7 @@ class AttendanceWorkplaceSettingsPage extends StatelessWidget {
         }
 
         return AttendanceScreenShell(
-          title: 'Настройки',
+          title: context.l10n.common_settings,
           body: ListView(
             padding: EdgeInsets.fromLTRB(16, 0, 16, AttendanceScreenShell.scrollBottomGap(context)),
             children: [

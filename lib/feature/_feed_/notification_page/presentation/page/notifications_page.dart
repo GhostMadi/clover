@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/push/notification_open_router.dart';
@@ -88,7 +89,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           }
         },
         child: SettingsScreenShell(
-          title: 'Уведомления',
+          title: context.l10n.feed_notifications_title,
           body: BlocBuilder<NotificationsCubit, NotificationsState>(
             builder: (context, state) {
               return switch (state) {
@@ -158,7 +159,7 @@ class _LoadedBody extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.all(24),
                 child: Text(
-                  'Уведомлений нет',
+                  context.l10n.feed_notif_empty,
                   textAlign: TextAlign.center,
                   style: AppTextStyle.base(15, color: context.colors.subTextColor),
                 ),
@@ -207,7 +208,7 @@ class _LoadedBody extends StatelessWidget {
           return Padding(
             padding: EdgeInsets.fromLTRB(24, 8, 24, 24),
             child: Text(
-              'Показаны уведомления за последние 30 дней',
+              context.l10n.feed_notif_last_30_days,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(13, color: context.colors.subTextColor),
             ),
@@ -238,7 +239,9 @@ class _LoadedBody extends StatelessWidget {
     var cursor = 0;
     for (final (section, sectionItems) in sections) {
       if (index == cursor) {
-        return NotificationSectionHeader(title: NotificationDateGrouping.title(section));
+        return NotificationSectionHeader(
+          title: NotificationDateGrouping.title(section, context.l10n),
+        );
       }
       cursor++;
 
@@ -297,7 +300,7 @@ class _NotificationsError extends StatelessWidget {
             FilledButton(
               onPressed: onRetry,
               style: FilledButton.styleFrom(backgroundColor: context.colors.primary),
-              child: const Text('Повторить'),
+              child: Text(context.l10n.common_retry),
             ),
           ],
         ),

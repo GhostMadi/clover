@@ -10,6 +10,7 @@ import 'package:clover/core/debug/app_shake_logger_host.dart';
 import 'package:clover/core/debug/app_talker.dart';
 import 'package:clover/core/deep_link/app_deep_link_service.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
 import 'package:clover/core/network/supabase_logging_http_client.dart';
 import 'package:clover/core/push/app_push_messaging_service.dart';
 import 'package:clover/core/router/app_router.dart';
@@ -18,11 +19,13 @@ import 'package:clover/core/theme/app_colors_scope.dart';
 import 'package:clover/core/theme/app_palette.dart';
 import 'package:clover/core/theme/app_theme.dart';
 import 'package:clover/core/theme/app_theme_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -81,6 +84,7 @@ Future<void> main() async {
       await sl<AppPushMessagingService>().init();
       await initAppStorage();
       await sl<AppThemeCubit>().load();
+      await sl<AppLocaleCubit>().load();
       await sl<AppDeepLinkService>().init();
 
       if (AppShakeLoggerConfig.enabled) {
@@ -107,6 +111,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => sl<AuthCubit>()..checkAuth()),
         BlocProvider.value(value: sl<AppThemeCubit>()),
+        BlocProvider.value(value: sl<AppLocaleCubit>()),
       ],
       child: const _MyAppView(),
     );
@@ -138,6 +143,7 @@ class _MyAppViewState extends State<_MyAppView> {
   @override
   Widget build(BuildContext context) {
     final themeMode = context.watch<AppThemeCubit>().state;
+    final appLocale = context.watch<AppLocaleCubit>().state;
 
     return MaterialApp.router(
       routerConfig: _appRouter.config(
@@ -149,6 +155,14 @@ class _MyAppViewState extends State<_MyAppView> {
       ),
       title: 'Clover',
       debugShowCheckedModeBanner: false,
+      locale: appLocale.locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: themeMode.material,

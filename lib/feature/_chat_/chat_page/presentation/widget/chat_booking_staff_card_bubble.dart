@@ -1,4 +1,5 @@
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
@@ -38,7 +39,7 @@ class _ChatBookingStaffCardBubbleState extends State<ChatBookingStaffCardBubble>
       AppSnackBar.show(context, message: okLabel, kind: AppSnackBarKind.success);
     } catch (e) {
       if (!mounted) return;
-      final msg = e is BookingException ? e.userMessage : 'Не удалось выполнить';
+      final msg = e is BookingException ? e.userMessage : context.l10n.chat_failed;
       AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -61,41 +62,41 @@ class _ChatBookingStaffCardBubbleState extends State<ChatBookingStaffCardBubble>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Приглашение в запись',
+            context.l10n.chat_invite_booking,
             style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
           Text(
-            'Стать исполнителем · «${widget.card.hostDisplayName}»',
+            context.l10n.chat_join_booking_staff(widget.card.hostDisplayName),
             style: AppTextStyle.base(13, color: colors.subTextColor),
           ),
           if (_done) ...[
             const SizedBox(height: 12),
             Text(
-              _doneLabel ?? 'Готово',
+              _doneLabel ?? context.l10n.common_done,
               style: AppTextStyle.base(13, color: accent.icon, fontWeight: FontWeight.w600),
             ),
           ] else if (!widget.isMine) ...[
             const SizedBox(height: 12),
             BookingPrimaryButton(
-              text: _busy ? '…' : 'Принять',
+              text: _busy ? '…' : context.l10n.common_accept,
               height: 44,
               isExpanded: true,
               interactive: !_busy,
               onTap: () => _run(
                 () => sl<BookingStaffRepository>().acceptInvite(widget.card.inviteId),
-                'Вы исполнитель',
+                context.l10n.chat_you_are_staff,
               ),
             ),
             const SizedBox(height: 8),
             AppOutlinedButton(
-              text: 'Отклонить',
+              text: context.l10n.common_reject,
               height: 44,
               isExpanded: true,
               service: kBookingService,
               onTap: () => _run(
                 () => sl<BookingStaffRepository>().rejectInvite(widget.card.inviteId),
-                'Приглашение отклонено',
+                context.l10n.chat_invite_declined,
               ),
             ),
           ],

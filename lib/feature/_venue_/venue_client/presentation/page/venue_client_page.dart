@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
@@ -55,19 +56,19 @@ class _VenueClientPageState extends State<VenueClientPage> {
     final hasPlan = nodes.isNotEmpty;
 
     return VenueScreenShell(
-      title: venue?.name ?? 'Бронь',
+      title: venue?.name ?? context.l10n.venue_hub_title,
       body: ListView(
         padding: EdgeInsets.fromLTRB(16, 8, 16, VenueScreenShell.scrollBottomGap(context)),
         children: [
           VenueMockBanner(
             text: widget.venueId == 'cafe'
-                ? 'Клиент видит схему с сайта (JSON) · только выбор и запрос.'
-                : 'Клиент: схема и/или список → запрос, не оплата.',
+                ? context.l10n.venue_client_schema_hint
+                : context.l10n.venue_client_flow,
           ),
           const SizedBox(height: 12),
           if (sessions.isNotEmpty) ...[
             Text(
-              'Сеанс',
+              context.l10n.venue_session,
               style: AppTextStyle.base(13, fontWeight: FontWeight.w600, color: colors.subTextColor),
             ),
             const SizedBox(height: 8),
@@ -141,7 +142,7 @@ class _VenueClientPageState extends State<VenueClientPage> {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: _SelectableRow(
                   title: ticket.title,
-                  subtitle: '${ticket.priceHint} · осталось ${ticket.remaining}',
+                  subtitle: context.l10n.venue_ticket_remaining(ticket.priceHint, ticket.remaining),
                   selected: _selected.contains(ticket.id),
                   enabled: true,
                   soft: venueServiceAccent(colors).soft,
@@ -158,7 +159,7 @@ class _VenueClientPageState extends State<VenueClientPage> {
             const SizedBox(height: 12),
           ],
           Text(
-            'Гостей',
+            context.l10n.venue_guests,
             style: AppTextStyle.base(13, fontWeight: FontWeight.w600, color: colors.subTextColor),
           ),
           const SizedBox(height: 8),
@@ -183,12 +184,12 @@ class _VenueClientPageState extends State<VenueClientPage> {
           ),
           const SizedBox(height: 20),
           VenuePrimaryButton(
-            text: _selected.isEmpty ? 'Выберите место' : 'Отправить запрос',
+            text: _selected.isEmpty ? context.l10n.venue_pick_place : context.l10n.venue_send_request,
             onTap: _selected.isEmpty
                 ? null
                 : () => AppSnackBar.show(
                       context,
-                      message: 'Мок: запрос отправлен · soft-hold',
+                      message: context.l10n.venue_mock_request_sent,
                     ),
           ),
         ],

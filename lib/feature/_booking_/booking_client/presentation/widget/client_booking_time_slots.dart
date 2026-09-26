@@ -5,6 +5,7 @@ import 'package:clover/feature/_booking_/booking_client/presentation/widget/clie
 import 'package:clover/feature/_booking_/shared/data/models/client_booking_slot_status.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class ClientBookingTimeSlots extends StatelessWidget {
   const ClientBookingTimeSlots({
@@ -21,15 +22,15 @@ class ClientBookingTimeSlots extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ClientBookingStepHeader(
+        ClientBookingStepHeader(
           step: 4,
-          title: 'Время',
-          subtitle: 'Свободные слоты на выбранный день',
+          title: context.l10n.booking_time,
+          subtitle: context.l10n.booking_slots_for_day,
         ),
         const SizedBox(height: 12),
         if (slots.isEmpty)
           Text(
-            'На этот день свободных слотов нет',
+            context.l10n.booking_no_free_slots_day,
             style: AppTextStyle.base(13, color: context.colors.subTextColor),
           )
         else
@@ -115,8 +116,8 @@ class _Legend extends StatelessWidget {
       spacing: 14,
       runSpacing: 6,
       children: [
-        _LegendItem(color: context.colors.borderCardRed, label: 'Конфликт с вашей записью'),
-        _LegendItem(color: context.colors.borderSoft, label: 'Занято'),
+        _LegendItem(color: context.colors.borderCardRed, label: context.l10n.booking_conflict_with_yours),
+        _LegendItem(color: context.colors.borderSoft, label: context.l10n.booking_busy),
       ],
     );
   }

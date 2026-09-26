@@ -18,6 +18,7 @@ import 'package:clover/feature/_chat_/chat/data/repository/chat_repository.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class AttendanceWorkersPage extends StatefulWidget {
@@ -101,12 +102,12 @@ class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
         status: AttendanceWorkerInviteStatus.archived,
       );
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'В архиве', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.attendance_workers_archived_toast, kind: AppSnackBarKind.success);
     } catch (e) {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: e is AttendanceException ? e.userMessage : 'Не удалось архивировать',
+        message: e is AttendanceException ? e.userMessage : context.l10n.attendance_workers_archive_failed,
         kind: AppSnackBarKind.error,
       );
     }
@@ -133,7 +134,7 @@ class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
     try {
       final dm = await _cubit.sendChatInvite(worker);
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'Приглашение отправлено', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.attendance_workers_invite_sent, kind: AppSnackBarKind.success);
       if (dm != null) {
         openAttendanceInviteDm(context, dm: dm);
       } else {
@@ -143,7 +144,7 @@ class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
       if (!mounted) return;
       final message = e is AttendanceException
           ? e.userMessage
-          : (e is ChatRepositoryException ? e.message : 'Не удалось отправить приглашение');
+          : (e is ChatRepositoryException ? e.message : context.l10n.attendance_workers_invite_failed);
       AppSnackBar.show(context, message: message, kind: AppSnackBarKind.error);
     }
   }
@@ -161,14 +162,14 @@ class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
         final empty = pending.isEmpty && active.isEmpty && archived.isEmpty;
 
         return AttendanceScreenShell(
-          title: 'Работники',
+          title: context.l10n.attendance_workers_title,
           showAdd: true,
           onAddTap: _showAddWorker,
           body: RefreshIndicator(
             onRefresh: _cubit.refresh,
             child: empty
                 ? ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
+                    physics: AlwaysScrollableScrollPhysics(),
                     padding: EdgeInsets.fromLTRB(16, 8, 16, AttendanceScreenShell.scrollBottomGap(context)),
                     children: [
                       SizedBox(height: MediaQuery.sizeOf(context).height * 0.12),
@@ -176,16 +177,16 @@ class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
                     ],
                   )
                 : ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
+                    physics: AlwaysScrollableScrollPhysics(),
                     padding: EdgeInsets.fromLTRB(16, 8, 16, AttendanceScreenShell.scrollBottomGap(context)),
                     children: [
                       if (pending.isNotEmpty) ...[
-                        const _SectionTitle('Ожидают'),
+                        _SectionTitle(context.l10n.attendance_overtime_pending_section),
                         const SizedBox(height: 8),
                         for (final worker in pending) ...[
                           AttendanceWorkersPersonTile(
                             title: worker.displayName,
-                            subtitle: '${AttendanceWorkersSheets.usernameLine(worker)} · ждёт ответа',
+                            subtitle: context.l10n.attendance_workers_waiting_reply(AttendanceWorkersSheets.usernameLine(context, worker)),
                             onTap: () => _onPending(worker),
                           ),
                           const SizedBox(height: 8),
@@ -193,14 +194,14 @@ class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
                         const SizedBox(height: 12),
                       ],
                       if (active.isNotEmpty) ...[
-                        const _SectionTitle('В команде'),
+                        _SectionTitle(context.l10n.attendance_workers_in_team),
                         const SizedBox(height: 8),
                         for (final worker in active) ...[
                           AttendanceWorkersPersonTile(
                             title: worker.displayName,
                             subtitle: worker.isTagInactive
-                                ? '${AttendanceWorkersSheets.usernameLine(worker)} · нет тега'
-                                : AttendanceWorkersSheets.usernameLine(worker),
+                                ? context.l10n.attendance_workers_no_tag(AttendanceWorkersSheets.usernameLine(context, worker))
+                                : AttendanceWorkersSheets.usernameLine(context, worker),
                             onTap: () => _onActive(worker),
                           ),
                           const SizedBox(height: 8),
@@ -208,12 +209,12 @@ class _AttendanceWorkersPageState extends State<AttendanceWorkersPage> {
                         if (archived.isNotEmpty) const SizedBox(height: 12),
                       ],
                       if (archived.isNotEmpty) ...[
-                        const _SectionTitle('Архив'),
+                        _SectionTitle(context.l10n.common_archive),
                         const SizedBox(height: 8),
                         for (final worker in archived) ...[
                           AttendanceWorkersPersonTile(
                             title: worker.displayName,
-                            subtitle: '${AttendanceWorkersSheets.usernameLine(worker)} · в архиве',
+                            subtitle: context.l10n.attendance_workers_in_archive(AttendanceWorkersSheets.usernameLine(context, worker)),
                             muted: true,
                             onTap: () => _onArchived(worker),
                           ),

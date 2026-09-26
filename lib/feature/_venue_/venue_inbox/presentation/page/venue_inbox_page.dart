@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
@@ -30,7 +31,7 @@ class _VenueInboxPageState extends State<VenueInboxPage> {
     final items = all.where((e) => e.tab == _tab).toList();
 
     return VenueScreenShell(
-      title: 'Inbox',
+      title: context.l10n.booking_inbox_title,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -39,8 +40,8 @@ class _VenueInboxPageState extends State<VenueInboxPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const VenueMockBanner(
-                  text: 'Запрос → soft-hold → admin решает. Не auto-confirm.',
+                VenueMockBanner(
+                  text: context.l10n.venue_soft_hold_flow,
                 ),
                 const SizedBox(height: 12),
                 SingleChildScrollView(
@@ -67,7 +68,7 @@ class _VenueInboxPageState extends State<VenueInboxPage> {
             child: items.isEmpty
                 ? Center(
                     child: Text(
-                      'Пусто в этой вкладке',
+                      context.l10n.venue_tab_empty,
                       style: AppTextStyle.base(14, color: colors.subTextColor),
                     ),
                   )

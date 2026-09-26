@@ -10,6 +10,7 @@ import 'package:clover/feature/_post_/post/data/models/post_model.dart';
 import 'package:clover/feature/_post_/post/data/repository/post_repository.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_image_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Компактное превью поста внутри пузыря чата; по тапу открывает [PostRoute].
 class ChatPostRefPreview extends StatefulWidget {
@@ -115,7 +116,7 @@ class _ChatPostRefPreviewState extends State<ChatPostRefPreview> {
       return Padding(
         padding: EdgeInsets.all(14),
         child: Text(
-          'Пост недоступен',
+          context.l10n.post_unavailable,
           style: AppTextStyle.base(13, color: context.colors.subTextColor),
         ),
       );
@@ -143,7 +144,7 @@ class _ChatPostRefPreviewState extends State<ChatPostRefPreview> {
         Padding(
           padding: EdgeInsets.fromLTRB(10, 8, 10, 10),
           child: Text(
-            title?.isNotEmpty == true ? title! : 'Пост',
+            title?.isNotEmpty == true ? title! : context.l10n.chat_preview_post,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: AppTextStyle.base(13, color: context.colors.textColor, fontWeight: FontWeight.w700),

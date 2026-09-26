@@ -3,6 +3,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_attendance_/attendance_analytics/data/models/attendance_analytics_models.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Компактная сводка периода.
 class AttendanceAnalyticsSummarySection extends StatelessWidget {
@@ -25,19 +26,19 @@ class AttendanceAnalyticsSummarySection extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: _MetricTile(label: 'Часы', value: overview.totalLabel),
+              child: _MetricTile(label: context.l10n.common_hours, value: overview.totalLabel),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Expanded(
-              child: _MetricTile(label: 'В среднем', value: overview.avgLabel),
+              child: _MetricTile(label: context.l10n.attendance_analytics_avg, value: overview.avgLabel),
             ),
           ],
         ),
         const SizedBox(height: 10),
         Text(
-          '$workerCount чел.'
-          '${overview.lateDaysTotal > 0 ? ' · ${overview.lateDaysTotal} опозд.' : ''}'
-          '${overview.missedDaysTotal > 0 ? ' · ${overview.missedDaysTotal} проп.' : ''}',
+          '${context.l10n.attendance_analytics_people_count(workerCount)}'
+          '${overview.lateDaysTotal > 0 ? context.l10n.attendance_analytics_late_suffix(overview.lateDaysTotal) : ''}'
+          '${overview.missedDaysTotal > 0 ? context.l10n.attendance_analytics_missed_suffix(overview.missedDaysTotal) : ''}',
           style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600),
         ),
       ],

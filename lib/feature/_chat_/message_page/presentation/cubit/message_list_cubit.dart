@@ -8,6 +8,9 @@ import 'package:clover/feature/_chat_/message_page/data/models/message_chat_prev
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 @injectable
 class MessageListCubit extends Cubit<MessageListState> {
@@ -35,7 +38,7 @@ class MessageListCubit extends Cubit<MessageListState> {
 
     final uid = _currentUserId;
     if (uid == null || uid.isEmpty) {
-      emit(const MessageListState.error('Войдите в аккаунт, чтобы видеть сообщения'));
+      emit(MessageListState.error(lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).chat_sign_in_to_see));
       return;
     }
 
@@ -130,8 +133,8 @@ class MessageListCubit extends Cubit<MessageListState> {
   String _messageFor(Object error) {
     if (error is ChatRepositoryException) return error.message;
     final raw = error.toString();
-    if (raw.contains('not_authenticated')) return 'Войдите в аккаунт, чтобы видеть сообщения';
-    return 'Не удалось загрузить чаты';
+    if (raw.contains('not_authenticated')) return lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).chat_sign_in_to_see;
+    return lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).chat_load_failed;
   }
 }
 

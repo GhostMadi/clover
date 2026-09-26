@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
@@ -28,10 +29,10 @@ class VenueInboxDetailPage extends StatelessWidget {
 
     if (item == null) {
       return VenueScreenShell(
-        title: 'Запрос',
+        title: context.l10n.venue_request,
         body: Center(
           child: Text(
-            'Запрос не найден',
+            context.l10n.venue_request_not_found,
             style: AppTextStyle.base(15, color: colors.subTextColor),
           ),
         ),
@@ -43,31 +44,31 @@ class VenueInboxDetailPage extends StatelessWidget {
       body: ListView(
         padding: EdgeInsets.fromLTRB(16, 8, 16, VenueScreenShell.scrollBottomGap(context)),
         children: [
-          const VenueMockBanner(text: 'Действия моковые — бэка нет.'),
+          VenueMockBanner(text: context.l10n.venue_actions_mock),
           const SizedBox(height: 16),
           _InfoCard(
             rows: [
-              ('Место', item.placeLabel),
-              ('Когда', item.whenLabel),
-              ('Гостей', '${item.guests}'),
-              ('Статус', VenueMockCatalog.statusLabel(item.status)),
-              if (item.comment.trim().isNotEmpty) ('Комментарий', item.comment),
+              (context.l10n.catalog_group_place, item.placeLabel),
+              (context.l10n.venue_when, item.whenLabel),
+              (context.l10n.venue_guests, '${item.guests}'),
+              (context.l10n.venue_status, VenueMockCatalog.statusLabel(item.status)),
+              if (item.comment.trim().isNotEmpty) (context.l10n.venue_comment, item.comment),
             ],
           ),
           const SizedBox(height: 20),
           VenuePrimaryButton(
-            text: 'Подтвердить',
-            onTap: () => AppSnackBar.show(context, message: 'Мок: подтверждено'),
+            text: context.l10n.common_confirm,
+            onTap: () => AppSnackBar.show(context, message: context.l10n.venue_mock_confirmed),
           ),
           const SizedBox(height: 10),
           VenuePrimaryButton(
-            text: 'Отклонить',
-            onTap: () => AppSnackBar.show(context, message: 'Мок: отклонено'),
+            text: context.l10n.common_reject,
+            onTap: () => AppSnackBar.show(context, message: context.l10n.venue_mock_rejected),
           ),
           const SizedBox(height: 10),
           VenuePrimaryButton(
-            text: 'Нужна доплата (вне Clover)',
-            onTap: () => AppSnackBar.show(context, message: 'Мок: условие доплаты'),
+            text: context.l10n.venue_extra_pay,
+            onTap: () => AppSnackBar.show(context, message: context.l10n.venue_mock_extra_pay),
           ),
         ],
       ),

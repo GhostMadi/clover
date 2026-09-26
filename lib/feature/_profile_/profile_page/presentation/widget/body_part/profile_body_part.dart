@@ -35,8 +35,6 @@ class _ProfileBodyPartState extends State<ProfileBodyPart> {
   Set<String> _selectedFilterValues = const {};
   String? _selectedLocationId;
 
-  static const _tabs = ['Публикации'];
-
   void _openPost(BuildContext context, PostFeedItem item) {
     String? authorUsername = item.authorUsername?.trim();
     if (authorUsername != null && authorUsername.isEmpty) authorUsername = null;
@@ -120,7 +118,7 @@ class _ProfileBodyPartState extends State<ProfileBodyPart> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ProfileFeedFilterSection(
-            tabs: _tabs,
+            tabs: [context.l10n.common_publications],
             currentTabIndex: 0,
             onTabChanged: (_) {},
             hasFilters: hasFilters,
@@ -176,7 +174,7 @@ class _ProfilePublicationsTab extends StatelessWidget {
 
     return PostFeedView(
       onPostTap: onPostTap,
-      emptySubtitle: isOwnProfile ? 'Добавьте первую публикацию' : null,
+      emptySubtitle: isOwnProfile ? context.l10n.profile_posts_empty_own : null,
       onEmptyAction: isOwnProfile ? () => context.router.push(const PostCreateRoute()) : null,
     );
   }
@@ -193,7 +191,7 @@ class ProfilePostsGuestPlaceholder extends StatelessWidget {
       child: AppState(
         state: AppScreenState.empty,
         emptyIcon: AppIcons.personOutline.icon,
-        emptyTitle: 'Войдите, чтобы видеть публикации',
+        emptyTitle: context.l10n.profile_posts_sign_in,
         child: const SizedBox.shrink(),
       ),
     );

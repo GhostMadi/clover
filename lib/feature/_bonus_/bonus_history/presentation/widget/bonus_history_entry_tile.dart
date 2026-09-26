@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -10,16 +11,11 @@ class BonusHistoryEntryTile extends StatelessWidget {
   final BonusHistoryEntry entry;
   final bool showDivider;
 
-  static const _monthLabels = [
-    'янв', 'фев', 'мар', 'апр', 'май', 'июн',
-    'июл', 'авг', 'сен', 'окт', 'ноя', 'дек',
-  ];
-
   @override
   Widget build(BuildContext context) {
     final accent = context.colors.serviceAccent(AppServiceKind.bonus);
     final date = entry.occurredAt.toLocal();
-    final dateLabel = '${date.day} ${_monthLabels[date.month - 1]}, '
+    final dateLabel = '${context.dateFormat.dayMonth(date)}, '
         '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
     final amountColor = entry.isCredit ? accent.icon : context.colors.destructive;
     final badgeBg = entry.isCredit ? accent.soft : context.colors.surfaceMuted;

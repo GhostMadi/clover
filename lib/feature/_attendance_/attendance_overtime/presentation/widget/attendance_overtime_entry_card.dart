@@ -6,6 +6,8 @@ import 'package:clover/feature/_attendance_/shared/presentation/widget/attendanc
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_section_title.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/feature/_attendance_/shared/attendance_l10n.dart';
+import 'package:clover/core/extension/context.dart';
 
 class AttendanceOvertimeEntryCard extends StatelessWidget {
   const AttendanceOvertimeEntryCard({
@@ -65,13 +67,13 @@ class AttendanceOvertimeEntryCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '$date · ${entry.hours} ч',
+                          context.l10n.attendance_overtime_hours_line(date, '${entry.hours}'),
                           style: AppTextStyle.base(12, color: colors.subTextColor, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
                   ),
-                  AttendanceStatusChip(label: entry.status.labelRu, color: statusColor),
+                  AttendanceStatusChip(label: entry.status.label(context.l10n), color: statusColor),
                 ],
               ),
               if (entry.status == AttendanceOvertimeStatus.pending &&

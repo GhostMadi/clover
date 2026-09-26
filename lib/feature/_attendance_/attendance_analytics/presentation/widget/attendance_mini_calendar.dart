@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -27,22 +28,6 @@ class AttendanceMiniCalendar extends StatefulWidget {
 }
 
 class _AttendanceMiniCalendarState extends State<AttendanceMiniCalendar> {
-  static const _weekdayLabels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-  static const _monthShort = [
-    'янв',
-    'фев',
-    'мар',
-    'апр',
-    'май',
-    'июн',
-    'июл',
-    'авг',
-    'сен',
-    'окт',
-    'ноя',
-    'дек',
-  ];
-
   late PageController _pageController;
   late List<DateTime> _weekStarts;
   int _pageIndex = 0;
@@ -128,13 +113,11 @@ class _AttendanceMiniCalendarState extends State<AttendanceMiniCalendar> {
     );
   }
 
-  String _weekLabel(DateTime weekStart) {
+  String _weekLabel(BuildContext context, DateTime weekStart) {
+    final dates = context.dateFormat;
     final weekEnd = weekStart.add(const Duration(days: 6));
-    final s = '${weekStart.day} ${_monthShort[weekStart.month - 1]}';
-    if (weekStart.month == weekEnd.month) {
-      return '$s – ${weekEnd.day} ${_monthShort[weekEnd.month - 1]}';
-    }
-    return '$s – ${weekEnd.day} ${_monthShort[weekEnd.month - 1]}';
+    final s = dates.dayMonth(weekStart);
+    return '$s – ${dates.dayMonth(weekEnd)}';
   }
 
   @override
@@ -157,11 +140,11 @@ class _AttendanceMiniCalendarState extends State<AttendanceMiniCalendar> {
                 child: Column(
                   children: [
                     Text(
-                      _weekLabel(_weekStarts[_pageIndex]),
+                      _weekLabel(context, _weekStarts[_pageIndex]),
                       textAlign: TextAlign.center,
                       style: AppTextStyle.base(14, color: colors.textColor, fontWeight: FontWeight.w700),
                     ),
-                    Text('Листайте по неделям', style: AppTextStyle.base(11, color: colors.subTextColor)),
+                    Text(context.l10n.attendance_analytics_swipe_weeks, style: AppTextStyle.base(11, color: colors.subTextColor)),
                   ],
                 ),
               ),
@@ -279,7 +262,7 @@ class _WeekDayCell extends StatelessWidget {
       textColor = colors.textColor;
     }
 
-    final weekdayLabel = _AttendanceMiniCalendarState._weekdayLabels[day.weekday - 1];
+    final weekdayLabel = context.dateFormat.shortWeekday(day);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2),

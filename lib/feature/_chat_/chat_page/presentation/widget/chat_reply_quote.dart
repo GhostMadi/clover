@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
@@ -35,7 +36,7 @@ class ChatReplyQuote extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Ответ',
+            context.l10n.chat_reply_bar_title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTextStyle.base(
@@ -71,24 +72,27 @@ class ChatComposerContextBar extends StatelessWidget {
   final VoidCallback onClose;
 
   factory ChatComposerContextBar.reply({
+    required BuildContext context,
     required ChatMessage message,
     required VoidCallback onClose,
   }) {
+    final l10n = context.l10n;
     return ChatComposerContextBar(
-      title: 'Ответ',
+      title: l10n.chat_reply_bar_title,
       subtitle: message.text.trim().isNotEmpty
           ? message.text.trim()
-          : (message.replyPreview?.previewText ?? 'Сообщение'),
+          : (message.replyPreview?.previewText ?? l10n.chat_input_hint),
       onClose: onClose,
     );
   }
 
   factory ChatComposerContextBar.edit({
+    required BuildContext context,
     required ChatMessage message,
     required VoidCallback onClose,
   }) {
     return ChatComposerContextBar(
-      title: 'Редактирование',
+      title: context.l10n.chat_edit_bar_title,
       subtitle: message.text,
       onClose: onClose,
     );

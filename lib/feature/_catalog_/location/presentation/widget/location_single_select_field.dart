@@ -5,6 +5,7 @@ import 'package:clover/core/shared/app_single_selctor.dart';
 import 'package:clover/feature/_catalog_/location/data/models/location_model.dart';
 import 'package:clover/feature/_catalog_/location/data/repository/location_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Одиночный выбор активного местоположения пользователя.
 class LocationSingleSelectField extends StatefulWidget {
@@ -14,7 +15,7 @@ class LocationSingleSelectField extends StatefulWidget {
     required this.hint,
     required this.value,
     required this.onChanged,
-    this.searchHint = 'Поиск адреса',
+    this.searchHint,
     this.sheetTitle,
     this.enabled = true,
   });
@@ -25,7 +26,7 @@ class LocationSingleSelectField extends StatefulWidget {
   /// Id местоположения (`locations.id`).
   final String? value;
   final ValueChanged<LocationModel> onChanged;
-  final String searchHint;
+  final String? searchHint;
   final String? sheetTitle;
   final bool enabled;
 
@@ -64,7 +65,7 @@ class _LocationSingleSelectFieldState extends State<LocationSingleSelectField> {
       if (!mounted) return;
       setState(() {
         _loading = false;
-        _error = 'Не удалось загрузить местоположения';
+        _error = context.l10n.catalog_locations_load_failed;
       });
     }
   }
@@ -137,7 +138,7 @@ class _LocationSingleSelectFieldState extends State<LocationSingleSelectField> {
       );
     }
 
-    final emptyHint = _locations.isEmpty ? 'Нет активных местоположений' : widget.hint;
+    final emptyHint = _locations.isEmpty ? context.l10n.catalog_locations_none_active : widget.hint;
 
     return AbsorbPointer(
       absorbing: !widget.enabled,
@@ -146,8 +147,8 @@ class _LocationSingleSelectFieldState extends State<LocationSingleSelectField> {
         child: AppSingleSelect<String>(
           label: widget.label,
           hint: emptyHint,
-          sheetTitle: widget.sheetTitle ?? widget.label ?? 'Местоположение',
-          searchHint: widget.searchHint,
+          sheetTitle: widget.sheetTitle ?? widget.label ?? context.l10n.catalog_location,
+          searchHint: widget.searchHint ?? context.l10n.catalog_address_search,
           options: _options,
           value: _normalizeValue(widget.value),
           onChanged: (id) {

@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
@@ -15,8 +16,8 @@ Future<void> openAttendanceCompanyChat(BuildContext context, String workplaceId)
   final snap = store.snapshot.value;
   final workplace = snap?.workplaceById(workplaceId);
   final title = workplace?.name.trim().isNotEmpty == true
-      ? 'Посещаемость · ${workplace!.name}'
-      : 'Посещаемость';
+      ? context.l10n.attendance_chat_title_named(workplace!.name)
+      : context.l10n.attendance_hub_title;
 
   var convId = workplace?.groupConversationId?.trim() ?? '';
 
@@ -28,7 +29,7 @@ Future<void> openAttendanceCompanyChat(BuildContext context, String workplaceId)
       store.patchWorkplaceGroupChat(workplaceId, convId);
     } catch (e) {
       if (!context.mounted) return;
-      final msg = e is AttendanceException ? e.userMessage : 'Не удалось открыть чат';
+      final msg = e is AttendanceException ? e.userMessage : context.l10n.attendance_chat_open_failed;
       AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
       return;
     }

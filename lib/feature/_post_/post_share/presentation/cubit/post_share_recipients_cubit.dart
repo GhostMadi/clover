@@ -4,6 +4,9 @@ import 'package:clover/feature/_post_/post_share/data/repository/post_share_repo
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 @injectable
 class PostShareRecipientsCubit extends Cubit<PostShareRecipientsState> {
@@ -21,7 +24,7 @@ class PostShareRecipientsCubit extends Cubit<PostShareRecipientsState> {
 
     final uid = _currentUserId;
     if (uid == null || uid.isEmpty) {
-      emit(const PostShareRecipientsState.error('Войдите в аккаунт'));
+      emit(PostShareRecipientsState.error(lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).common_sign_in_required));
       return;
     }
 

@@ -12,6 +12,7 @@ import 'package:clover/feature/_settings_/settings/presentation/widget/settings_
 import 'package:clover/feature/_settings_/settings_guide/data/services_guide_catalog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class SettingsGuideTopicPage extends StatefulWidget {
@@ -47,7 +48,7 @@ class _SettingsGuideTopicPageState extends State<SettingsGuideTopicPage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: 'Сервис включён на профиле',
+        message: context.l10n.settings_service_enabled,
         kind: AppSnackBarKind.success,
       );
     } on EditProfileError catch (e) {
@@ -61,7 +62,7 @@ class _SettingsGuideTopicPageState extends State<SettingsGuideTopicPage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: 'Не удалось активировать',
+        message: context.l10n.settings_activate_failed,
         kind: AppSnackBarKind.error,
       );
     } finally {
@@ -85,10 +86,10 @@ class _SettingsGuideTopicPageState extends State<SettingsGuideTopicPage> {
     final content = ServicesGuideCatalog.tryByKey(widget.topicKey);
     if (content == null) {
       return SettingsScreenShell(
-        title: 'Гайд',
+        title: context.l10n.settings_guide_title,
         body: Center(
           child: Text(
-            'Тема гайда не найдена',
+            context.l10n.settings_guide_topic_missing,
             style: AppTextStyle.base(15, color: context.colors.subTextColor),
           ),
         ),

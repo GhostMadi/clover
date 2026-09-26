@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_snack_bar.dart';
@@ -16,13 +17,13 @@ Future<void> openBookingPointChat(
   _opening = true;
 
   final name = pointName?.trim();
-  final title = (name != null && name.isNotEmpty) ? 'Запись · $name' : 'Запись';
+  final title = (name != null && name.isNotEmpty) ? context.l10n.booking_point_chat_title(name) : context.l10n.booking_hub_title;
 
   try {
     final convId = await sl<BookingPointsRepository>().openPointChat(pointId);
     if (!context.mounted) return;
     if (convId.isEmpty) {
-      AppSnackBar.show(context, message: 'Не удалось открыть чат', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.booking_chat_open_failed, kind: AppSnackBarKind.error);
       return;
     }
     context.router.push(
@@ -34,7 +35,7 @@ Future<void> openBookingPointChat(
     );
   } catch (e) {
     if (!context.mounted) return;
-    final msg = e is BookingException ? e.userMessage : 'Не удалось открыть чат';
+    final msg = e is BookingException ? e.userMessage : context.l10n.booking_chat_open_failed;
     AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
   } finally {
     _opening = false;

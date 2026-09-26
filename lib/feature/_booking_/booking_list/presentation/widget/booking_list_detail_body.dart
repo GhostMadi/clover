@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_item.dart';
@@ -22,24 +23,10 @@ class BookingListDetailBody extends StatelessWidget {
   final ValueChanged<BookingHostEmergencyAction>? onEmergencyAction;
   final VoidCallback? onRevertVisit;
 
-  static const _monthLabels = [
-    'января',
-    'февраля',
-    'марта',
-    'апреля',
-    'мая',
-    'июня',
-    'июля',
-    'августа',
-    'сентября',
-    'октября',
-    'ноября',
-    'декабря',
-  ];
-
-  String _formatDateTime(DateTime? date) {
+  String _formatDateTime(BuildContext context, DateTime? date) {
     if (date == null) return '—';
-    return '${date.day} ${_monthLabels[date.month - 1]} ${date.year}, '
+    final d = context.dateFormat.dayMonthLong(date);
+    return '$d ${date.year}, '
         '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
 
@@ -59,61 +46,61 @@ class BookingListDetailBody extends StatelessWidget {
           _HeaderCard(item: item),
           const SizedBox(height: 16),
           _Section(
-            title: 'Клиент',
+            title: context.l10n.booking_client,
             children: [
-              _DetailRow(label: 'Имя', value: item.clientName),
+              _DetailRow(label: context.l10n.booking_name_label, value: item.clientName),
               if (item.clientPhone != null && item.clientPhone!.isNotEmpty)
-                _DetailRow(label: 'Телефон', value: item.clientPhone!),
+                _DetailRow(label: context.l10n.booking_phone_label, value: item.clientPhone!),
               if (item.clientUsernameLabel.isNotEmpty)
-                _DetailRow(label: 'Никнейм', value: item.clientUsernameLabel),
+                _DetailRow(label: context.l10n.booking_username_label, value: item.clientUsernameLabel),
             ],
           ),
           const SizedBox(height: 12),
           _Section(
-            title: 'Время',
+            title: context.l10n.booking_time,
             children: [
-              _DetailRow(label: 'Дата и начало', value: _formatDateTime(start)),
+              _DetailRow(label: context.l10n.booking_date_and_start, value: _formatDateTime(context, start)),
               _DetailRow(
-                label: 'Окончание',
-                value: end == null ? '—' : '${_formatTime(end)} · $durationLabel',
+                label: context.l10n.booking_ending_label,
+                value: end == null ? '—' : '${_formatTime(end)} · ${durationLabel(context)}',
               ),
             ],
           ),
           const SizedBox(height: 12),
           _Section(
-            title: 'Услуга',
+            title: context.l10n.booking_service,
             children: [
-              _DetailRow(label: 'Название', value: item.serviceTitle),
-              _DetailRow(label: 'Длительность', value: durationLabel),
-              _DetailRow(label: 'Цена', value: item.priceLabel),
+              _DetailRow(label: context.l10n.booking_name, value: item.serviceTitle),
+              _DetailRow(label: context.l10n.booking_duration, value: durationLabel(context)),
+              _DetailRow(label: context.l10n.booking_price, value: item.priceLabel),
               if (item.participantsCount > 1)
-                _DetailRow(label: 'Участников', value: '${item.participantsCount}'),
+                _DetailRow(label: context.l10n.booking_participants_label, value: '${item.participantsCount}'),
             ],
           ),
           if (item.executorName != null && item.executorName!.isNotEmpty) ...[
             const SizedBox(height: 12),
             _Section(
-              title: 'Исполнитель',
+              title: context.l10n.booking_executor,
               children: [
-                _DetailRow(label: 'Назначен', value: item.executorName!),
+                _DetailRow(label: context.l10n.booking_assigned_label, value: item.executorName!),
               ],
             ),
           ],
           if (item.notes != null && item.notes!.trim().isNotEmpty) ...[
             const SizedBox(height: 12),
             _Section(
-              title: 'Заметка клиента',
+              title: context.l10n.booking_client_note_title,
               children: [
-                _DetailRow(label: 'Комментарий', value: item.notes!.trim(), multiline: true),
+                _DetailRow(label: context.l10n.booking_comment, value: item.notes!.trim(), multiline: true),
               ],
             ),
           ],
           if (item.createdAtDate != null) ...[
             const SizedBox(height: 12),
             _Section(
-              title: 'Системное',
+              title: context.l10n.booking_system_section,
               children: [
-                _DetailRow(label: 'Создана', value: _formatDateTime(item.createdAtDate!.toLocal())),
+                _DetailRow(label: context.l10n.booking_created_at, value: _formatDateTime(context, item.createdAtDate!.toLocal())),
               ],
             ),
           ],
@@ -131,7 +118,8 @@ class BookingListDetailBody extends StatelessWidget {
       );
   }
 
-  String get durationLabel => '${item.durationMinutes} мин';
+  String durationLabel(BuildContext context) =>
+      context.l10n.booking_minutes_plain(item.durationMinutes);
 }
 
 class _HeaderCard extends StatelessWidget {

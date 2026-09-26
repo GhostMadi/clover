@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_item.dart';
@@ -19,29 +20,14 @@ class BookingListCard extends StatelessWidget {
   /// В ленте выбранного дня дата не нужна — крупное время слева.
   final bool timeFirst;
 
-  static const _monthLabels = [
-    'янв',
-    'фев',
-    'мар',
-    'апр',
-    'май',
-    'июн',
-    'июл',
-    'авг',
-    'сен',
-    'окт',
-    'ноя',
-    'дек',
-  ];
-
   @override
   Widget build(BuildContext context) {
     final date = item.startsAtDate?.toLocal();
-    final dateLabel = date != null ? '${date.day} ${_monthLabels[date.month - 1]}' : '—';
+    final dateLabel = date != null ? context.dateFormat.dayMonth(date) : '—';
     final timeLabel =
         date != null ? '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}' : '—';
     final duration = item.durationMinutes;
-    final durationLabel = duration > 0 ? '$duration мин' : '';
+    final durationLabel = duration > 0 ? context.l10n.booking_minutes_short(duration) : '';
 
     return Material(
       color: context.colors.surface,
@@ -69,7 +55,7 @@ class BookingListCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item.clientName.trim().isEmpty ? 'Клиент' : item.clientName,
+                      item.clientName.trim().isEmpty ? context.l10n.booking_client : item.clientName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyle.base(

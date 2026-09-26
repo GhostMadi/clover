@@ -3,6 +3,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_analytics/data/repository/booking_analytics_repository.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class BookingAnalyticsTopStaffSection extends StatelessWidget {
   const BookingAnalyticsTopStaffSection({
@@ -22,7 +23,7 @@ class BookingAnalyticsTopStaffSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Мастера',
+          context.l10n.booking_masters_label,
           style: AppTextStyle.base(16, color: colors.textColor, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),
@@ -69,7 +70,7 @@ class _StaffRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${member.bookingCount} · ${member.completedCount} оказано',
+                  context.l10n.booking_staff_completed(member.bookingCount, member.completedCount),
                   style: AppTextStyle.base(12, color: colors.subTextColor, fontWeight: FontWeight.w600),
                 ),
               ],

@@ -3,6 +3,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_analytics/data/repository/booking_analytics_repository.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Сводка периода: выручка, средний чек, статусы.
 class BookingAnalyticsSummarySection extends StatelessWidget {
@@ -24,14 +25,14 @@ class BookingAnalyticsSummarySection extends StatelessWidget {
           children: [
             Expanded(
               child: _MetricTile(
-                label: 'Выручка',
+                label: context.l10n.booking_revenue_label,
                 value: _formatMoney(result.revenue),
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: _MetricTile(
-                label: 'Средний чек',
+                label: context.l10n.booking_avg_check_label,
                 value: result.completedBookings > 0 ? _formatMoney(result.avgCheck) : '—',
               ),
             ),
@@ -39,9 +40,11 @@ class BookingAnalyticsSummarySection extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          '${result.totalBookings} записей · ${result.completedBookings} оказано'
-          '${result.cancelledBookings > 0 ? ' · ${result.cancelledBookings} отменено' : ''}'
-          '${result.pendingBookings > 0 ? ' · ${result.pendingBookings} ждут' : ''}',
+          [
+            context.l10n.booking_stats_line(result.totalBookings, result.completedBookings),
+            if (result.cancelledBookings > 0) context.l10n.booking_stats_cancelled(result.cancelledBookings),
+            if (result.pendingBookings > 0) context.l10n.booking_stats_pending(result.pendingBookings),
+          ].join(),
           style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600),
         ),
       ],

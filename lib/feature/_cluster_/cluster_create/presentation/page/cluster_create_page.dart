@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/shared/image_select/app_image_selector_page.dart';
 import 'package:clover/feature/_cluster_/cluster_create/cluster_create_flow.dart';
 import 'package:clover/feature/_cluster_/cluster_create/extension/cluster_create_router_extension.dart';
@@ -13,8 +14,8 @@ class ClusterCreatePage extends StatelessWidget {
     final flow = ClusterCreateFlow.instance;
 
     return AppImageSelectorPage(
-      title: 'Новый кластер',
-      confirmLabel: 'Далее',
+      title: context.l10n.cluster_new,
+      confirmLabel: context.l10n.common_next,
       maxSelectionCount: ClusterCreateFlow.maxPhotos,
       onClose: () {
         flow.reset();

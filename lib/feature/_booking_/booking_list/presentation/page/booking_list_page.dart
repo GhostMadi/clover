@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -40,12 +41,13 @@ class _BookingListPageState extends State<BookingListPage> {
   late final BookingListCubit _cubit;
   late final TextEditingController _searchController;
   Timer? _searchDebounce;
-  String _title = 'Мои записи';
+  late String _title;
   var _showSearch = false;
 
   @override
   void initState() {
     super.initState();
+    _title = context.l10n.booking_my_bookings;
     _cubit = sl<BookingListCubit>()..load(pointId: widget.pointId);
     _searchController = TextEditingController();
     _resolveTitle();
@@ -88,7 +90,7 @@ class _BookingListPageState extends State<BookingListPage> {
   Future<void> _openClientProfile(BookingListItem item) async {
     final clientId = item.clientId?.trim();
     if (clientId == null || clientId.isEmpty) {
-      AppSnackBar.show(context, message: 'Профиль клиента недоступен', kind: AppSnackBarKind.info);
+      AppSnackBar.show(context, message: context.l10n.booking_client_profile_unavailable, kind: AppSnackBarKind.info);
       return;
     }
     await context.router.push(GuestProfileRoute(userId: clientId));
@@ -100,7 +102,7 @@ class _BookingListPageState extends State<BookingListPage> {
     if (ok) {
       AppSnackBar.show(context, message: successMessage, kind: AppSnackBarKind.success);
     } else {
-      AppSnackBar.show(context, message: 'Не удалось обновить статус', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.booking_status_update_failed, kind: AppSnackBarKind.error);
       unawaited(_cubit.refresh());
     }
   }
@@ -171,7 +173,7 @@ class _BookingListPageState extends State<BookingListPage> {
                               child: AppTab(
                                 service: kBookingService,
                                 tabs: [
-                                  for (final t in BookingHostInboxTab.values) t.shortLabel,
+                                  for (final t in BookingHostInboxTab.values) t.shortLabel(context.l10n),
                                 ],
                                 currentIndex: tabIndex,
                                 onTabChanged: _cubit.setMainTab,
@@ -194,7 +196,7 @@ class _BookingListPageState extends State<BookingListPage> {
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                           child: AppField(
                             controller: _searchController,
-                            hintText: 'Клиент, услуга, телефон…',
+                            hintText: context.l10n.booking_search_bookings_hint,
                             prefixIcon: AppIcons.search.icon,
                             textInputAction: TextInputAction.search,
                             service: kBookingService,
@@ -244,6 +246,7 @@ class _BookingListPageState extends State<BookingListPage> {
                     ],
                     ...switch (tab) {
                       BookingHostInboxTab.inChair => _inChairSlivers(
+                        context: context,
                         items: inChair,
                         onOpen: _openItem,
                         onOpenProfile: _openClientProfile,
@@ -261,9 +264,9 @@ class _BookingListPageState extends State<BookingListPage> {
                           cancelled: cancelled,
                           updatingIds: updatingIds,
                           onMarkCompleted: (item) =>
-                              _setStatus(item, BookingStatus.completed, 'Отмечено: был'),
+                              _setStatus(item, BookingStatus.completed, context.l10n.booking_marked_arrived),
                           onMarkNoShow: (item) =>
-                              _setStatus(item, BookingStatus.noShow, 'Отмечено: не пришёл'),
+                              _setStatus(item, BookingStatus.noShow, context.l10n.booking_marked_no_show),
                           onOpenItem: _openItem,
                         ),
                       ],
@@ -364,16 +367,17 @@ class SyncedSliverFillOrList extends StatelessWidget {
 }
 
 List<Widget> _inChairSlivers({
+  required BuildContext context,
   required List<BookingListItem> items,
   required ValueChanged<BookingListItem> onOpen,
   required ValueChanged<BookingListItem> onOpenProfile,
 }) {
   if (items.isEmpty) {
     return [
-      const SyncedSliverFillRemaining(
+      SyncedSliverFillRemaining(
         child: BookingListEmptyState(
-          title: 'Сейчас никого нет',
-          subtitle: 'Здесь появится клиент, когда начнётся его визит',
+          title: context.l10n.booking_now_empty_title,
+          subtitle: context.l10n.booking_now_empty_subtitle,
           showCreateButton: false,
         ),
       ),
@@ -409,10 +413,10 @@ List<Widget> _upcomingSlivers({
     return [
       SyncedSliverFillRemaining(
         child: BookingListEmptyState(
-          title: allUpcomingEmpty ? 'Предстоящих записей нет' : 'На этот день записей нет',
+          title: allUpcomingEmpty ? context.l10n.booking_no_upcoming : context.l10n.booking_no_day_bookings,
           subtitle: allUpcomingEmpty
-              ? 'Подтверждённые будущие визиты появятся здесь'
-              : 'Выберите другой день в ленте или откройте календарь',
+              ? context.l10n.booking_upcoming_empty_hint
+              : context.l10n.booking_pick_other_day_feed,
           showCreateButton: false,
         ),
       ),

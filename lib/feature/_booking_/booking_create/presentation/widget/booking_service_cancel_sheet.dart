@@ -1,16 +1,17 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:flutter/material.dart';
 
-const _presetReasons = [
-  'Планы изменились — услуга временно недоступна',
-  'Мастер недоступен',
-  'Больше не оказываем эту услугу',
-  'Обновляем расписание и прайс',
-];
+List<String> _presetReasons(BuildContext context) => [
+      context.l10n.booking_cancel_service_preset_plans,
+      context.l10n.booking_cancel_service_preset_master,
+      context.l10n.booking_cancel_service_preset_stopped,
+      context.l10n.booking_cancel_service_preset_updating,
+    ];
 
 /// Шторка отмены услуги: готовые формулировки + своё сообщение.
 Future<String?> showBookingServiceCancelSheet(
@@ -19,7 +20,7 @@ Future<String?> showBookingServiceCancelSheet(
 }) {
   return AppBottomSheet.show<String>(
     context: context,
-    title: 'Отменить услугу',
+    title: context.l10n.booking_cancel_service,
     showCloseButton: true,
     content: _BookingServiceCancelSheetBody(serviceTitle: serviceTitle),
   );
@@ -70,12 +71,12 @@ class _BookingServiceCancelSheetBodyState extends State<_BookingServiceCancelShe
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          '«${widget.serviceTitle}» перестанет отображаться клиентам. Новые записи будут недоступны.',
+          context.l10n.booking_service_cancel_body(widget.serviceTitle),
           style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.4),
         ),
         const SizedBox(height: 16),
         Text(
-          'Готовые сообщения',
+          context.l10n.booking_ready_messages,
           style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 10),
@@ -83,7 +84,7 @@ class _BookingServiceCancelSheetBodyState extends State<_BookingServiceCancelShe
           spacing: 8,
           runSpacing: 8,
           children: [
-            for (final preset in _presetReasons)
+            for (final preset in _presetReasons(context))
               _PresetChip(
                 label: preset,
                 onTap: () => _applyPreset(preset),
@@ -93,8 +94,8 @@ class _BookingServiceCancelSheetBodyState extends State<_BookingServiceCancelShe
         const SizedBox(height: 16),
         AppField(
           controller: _messageController,
-          labelText: 'Причина',
-          hintText: 'Напишите своё сообщение или выберите выше',
+          labelText: context.l10n.booking_reason,
+          hintText: context.l10n.booking_reason_hint,
           textInputAction: TextInputAction.done,
           keyboardType: TextInputType.multiline,
         ),
@@ -103,7 +104,7 @@ class _BookingServiceCancelSheetBodyState extends State<_BookingServiceCancelShe
           children: [
             Expanded(
               child: AppOutlinedButton(
-                text: 'Назад',
+                text: context.l10n.common_back,
                 height: 48,
                 isExpanded: true,
                 onTap: () => Navigator.of(context).pop(),
@@ -127,7 +128,7 @@ class _BookingServiceCancelSheetBodyState extends State<_BookingServiceCancelShe
                       ),
                     ),
                     child: Text(
-                      'Отменить услугу',
+                      context.l10n.booking_cancel_service,
                       style: AppTextStyle.base(
                         16,
                         fontWeight: FontWeight.w700,

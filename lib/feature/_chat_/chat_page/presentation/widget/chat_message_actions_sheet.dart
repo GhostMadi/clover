@@ -1,9 +1,11 @@
 import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_message_context_menu.dart';
+import 'package:clover/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 /// Fallback bottom sheet «Ещё» (основной UX — [ChatMessageContextMenu]).
@@ -18,14 +20,14 @@ abstract final class ChatMessageActionsSheet {
 
     return AppBottomSheet.show<ChatMessageAction>(
       context: context,
-      title: 'Ещё',
+      title: context.l10n.chat_action_more,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final action in actions)
             _ActionTile(
               icon: _icon(action),
-              label: _label(action),
+              label: _label(context.l10n, action),
               destructive: action == ChatMessageAction.delete,
               onTap: () => Navigator.of(context).pop(action),
             ),
@@ -34,14 +36,14 @@ abstract final class ChatMessageActionsSheet {
     );
   }
 
-  static String _label(ChatMessageAction action) {
+  static String _label(AppLocalizations l10n, ChatMessageAction action) {
     return switch (action) {
-      ChatMessageAction.reply => 'Ответить',
-      ChatMessageAction.forward => 'Переслать',
-      ChatMessageAction.copy => 'Копировать',
-      ChatMessageAction.star => 'В Избранные',
-      ChatMessageAction.edit => 'Изменить',
-      ChatMessageAction.delete => 'Удалить',
+      ChatMessageAction.reply => l10n.chat_action_reply,
+      ChatMessageAction.forward => l10n.chat_action_forward,
+      ChatMessageAction.copy => l10n.common_copy,
+      ChatMessageAction.star => l10n.chat_action_star,
+      ChatMessageAction.edit => l10n.common_edit,
+      ChatMessageAction.delete => l10n.common_delete,
     };
   }
 

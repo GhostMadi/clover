@@ -1,3 +1,4 @@
+import 'package:clover/l10n/app_localizations.dart';
 import 'package:flutter/material.dart' show ThemeMode;
 
 /// User preference: follow system, force light, or force dark.
@@ -24,6 +25,13 @@ enum AppThemeMode {
         AppThemeMode.dark => ThemeMode.dark,
       };
 
+  String label(AppLocalizations l10n) => switch (this) {
+        AppThemeMode.system => l10n.common_theme_system,
+        AppThemeMode.light => l10n.common_theme_light,
+        AppThemeMode.dark => l10n.common_theme_dark,
+      };
+
+  @Deprecated('Use label(l10n)')
   String get labelRu => switch (this) {
         AppThemeMode.system => 'Системная',
         AppThemeMode.light => 'Светлая',

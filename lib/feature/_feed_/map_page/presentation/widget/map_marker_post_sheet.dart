@@ -1,4 +1,5 @@
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -194,7 +195,7 @@ class _MapMarkerPostSheetBodyState extends State<_MapMarkerPostSheetBody> {
                 const SizedBox(width: 8),
                 if (isFollowing)
                   AppOutlinedButton(
-                    text: 'Отписаться',
+                    text: context.l10n.common_unfollow,
                     height: 40,
                     borderRadius: 14,
                     isLoading: isFollowUpdating,
@@ -202,7 +203,7 @@ class _MapMarkerPostSheetBodyState extends State<_MapMarkerPostSheetBody> {
                   )
                 else
                   AppButton(
-                    text: 'Подписаться',
+                    text: context.l10n.common_follow,
                     height: 40,
                     borderRadius: 14,
                     isLoading: isFollowUpdating,
@@ -270,7 +271,7 @@ class _MapMarkerPostSheetBodyState extends State<_MapMarkerPostSheetBody> {
                           style: AppTextStyle.base(14, color: context.colors.subTextColor),
                         ),
                         const SizedBox(height: 12),
-                        AppButton(text: 'Повторить', onTap: _cubit.reload),
+                        AppButton(text: context.l10n.common_retry, onTap: _cubit.reload),
                       ],
                     ),
                   ),

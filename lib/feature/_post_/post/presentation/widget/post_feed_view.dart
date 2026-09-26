@@ -6,25 +6,26 @@ import 'package:clover/feature/_post_/post/presentation/widget/post_feed_shimmer
 import 'package:clover/feature/_post_/post/presentation/widget/post_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Сетка постов из [PostFeedCubit] (local → remote).
 class PostFeedView extends StatelessWidget {
   const PostFeedView({
     super.key,
     this.onPostTap,
-    this.emptyMessage = 'Нет публикаций',
+    this.emptyMessage,
     this.emptySubtitle,
     this.emptyIcon,
     this.onEmptyAction,
-    this.emptyActionLabel = 'Создать',
+    this.emptyActionLabel,
   });
 
   final ValueChanged<PostFeedItem>? onPostTap;
-  final String emptyMessage;
+  final String? emptyMessage;
   final String? emptySubtitle;
   final IconData? emptyIcon;
   final VoidCallback? onEmptyAction;
-  final String emptyActionLabel;
+  final String? emptyActionLabel;
 
   @override
   Widget build(BuildContext context) {

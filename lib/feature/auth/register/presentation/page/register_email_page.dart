@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/auth/cubit/auth_cubit.dart';
 import 'package:clover/core/auth/cubit/auth_state.dart';
 import 'package:clover/core/auth/errors/auth_error_messages.dart';
@@ -39,7 +40,7 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
   void _requireTerms() {
     AppSnackBar.show(
       context,
-      message: 'Примите условия использования, чтобы продолжить',
+      message: context.l10n.auth_login_terms_required,
       kind: AppSnackBarKind.info,
     );
   }
@@ -50,15 +51,15 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
         passwordController: _passwordController,
         confirmController: _passwordConfirmController,
         isLoading: isLoading,
-        title: 'Придумайте пароль',
-        subtitle: 'После этого сможете входить по email или нику.',
+        title: context.l10n.auth_register_password_title,
+        subtitle: context.l10n.auth_register_password_subtitle,
         onSubmit: () {
           final password = _passwordController.text.trim();
           final confirm = _passwordConfirmController.text.trim();
           if (password != confirm) {
             AppSnackBar.show(
               context,
-              message: 'Пароли не совпадают',
+              message: context.l10n.auth_register_password_mismatch,
               kind: AppSnackBarKind.error,
             );
             return;
@@ -88,8 +89,8 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
         AuthEmailStep(
           emailController: _emailController,
           isLoading: isLoading,
-          hint: 'Код отправим только если email ещё не зарегистрирован.',
-          buttonLabel: 'Получить код',
+          hint: context.l10n.auth_register_email_hint,
+          buttonLabel: context.l10n.auth_register_get_code,
           onSubmit: () {
             if (!_termsAgreed) {
               _requireTerms();
@@ -132,10 +133,7 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
         if (state is AuthError) {
           AppSnackBar.show(
             context,
-            message: AuthErrorMessages.messageFor(
-              state.code,
-              retryAfterSeconds: state.retryAfterSeconds,
-            ),
+            message: AuthErrorMessages.messageFor(state.code, context.l10n, retryAfterSeconds: state.retryAfterSeconds,),
             kind: AppSnackBarKind.error,
           );
           return;
@@ -143,7 +141,7 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
         if (state is AuthEmailOtpSent && state.resumedWithoutResend) {
           AppSnackBar.show(
             context,
-            message: 'Код уже отправлен — введите его из письма',
+            message: context.l10n.auth_register_code_already_sent,
             kind: AppSnackBarKind.info,
           );
         }
@@ -161,7 +159,7 @@ class _RegisterEmailPageState extends State<RegisterEmailPage> {
             icon: Icon(AppIcons.back.icon, color: context.colors.textColor, size: 22),
           ),
           title: Text(
-            'Регистрация',
+            context.l10n.auth_register_title,
             style: AppTextStyle.base(17, fontWeight: FontWeight.w700, color: context.colors.textColor),
           ),
         ),

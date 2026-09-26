@@ -5,6 +5,7 @@ import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_profile_/edit_profile/data/edit_profile_username_policy.dart';
 import 'package:clover/feature/_profile_/profile_page/data/model/profile_new_model.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class EditProfileUsernameRow extends StatelessWidget {
   const EditProfileUsernameRow({
@@ -22,7 +23,7 @@ class EditProfileUsernameRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final policy = EditProfileUsernamePolicy.fromProfile(profile);
     final value = username.trim();
-    final display = value.isEmpty ? 'Не задан' : (value.startsWith('@') ? value : '@$value');
+    final display = value.isEmpty ? context.l10n.profile_username_unset : (value.startsWith('@') ? value : '@$value');
     final subtitle = policy.statusHint;
 
     return Column(
@@ -31,7 +32,7 @@ class EditProfileUsernameRow extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 6),
           child: Text(
-            'Никнейм',
+            context.l10n.profile_username,
             style: AppTextStyle.base(13, fontWeight: FontWeight.w600, color: context.colors.fieldLabel),
           ),
         ),

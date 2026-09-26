@@ -3,6 +3,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class BookingServicesEmptyState extends StatelessWidget {
   const BookingServicesEmptyState({
@@ -33,19 +34,19 @@ class BookingServicesEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Услуг пока нет',
+              context.l10n.booking_services_empty_title,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(18, color: context.colors.textColor, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Text(
-              'Добавьте первую — название, длительность и цену',
+              context.l10n.booking_services_empty_subtitle,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.35),
             ),
             if (onCreate != null) ...[
               const SizedBox(height: 20),
-              BookingPrimaryButton(text: 'Добавить услугу', isExpanded: true, onTap: onCreate),
+              BookingPrimaryButton(text: context.l10n.booking_add_service, isExpanded: true, onTap: onCreate),
             ],
           ],
         ),

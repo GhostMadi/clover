@@ -10,6 +10,8 @@ import 'package:clover/feature/_attendance_/shared/presentation/widget/attendanc
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:clover/core/extension/context.dart';
+import 'package:clover/feature/_attendance_/shared/attendance_l10n.dart';
 
 /// Кто отметился сегодня.
 class AttendanceTodayTeamSection extends StatelessWidget {
@@ -40,12 +42,12 @@ class AttendanceTodayTeamSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        AttendanceSectionTitle('Сегодня · $marked / ${rows.length}'),
+        AttendanceSectionTitle(context.l10n.attendance_analytics_today_marked(marked, rows.length)),
         const SizedBox(height: 8),
         for (final row in rows) ...[
           _TodayTile(
             name: row.worker.displayName,
-            subtitle: _subtitle(row.record),
+            subtitle: _subtitle(context, row.record),
             status: row.record.status,
             onTap: () {
               HapticFeedback.selectionClick();
@@ -63,11 +65,11 @@ class AttendanceTodayTeamSection extends StatelessWidget {
     );
   }
 
-  static String _subtitle(AttendanceWorkerDayRecord record) {
+  static String _subtitle(BuildContext context, AttendanceWorkerDayRecord record) {
     return switch (record.status) {
-      AttendanceDayStatus.off => 'Выходной',
-      AttendanceDayStatus.excused => 'Оформлено',
-      AttendanceDayStatus.absent => 'Не отметился',
+      AttendanceDayStatus.off => context.l10n.attendance_absence_kind_day_off,
+      AttendanceDayStatus.excused => context.l10n.attendance_day_status_excused,
+      AttendanceDayStatus.absent => context.l10n.attendance_analytics_not_punched,
       _ => record.presenceSummary,
     };
   }
@@ -134,7 +136,7 @@ class _TodayTile extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  status.shortLabelRu,
+                  status.shortLabel(context.l10n),
                   style: AppTextStyle.base(12, color: statusColor, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(width: 4),

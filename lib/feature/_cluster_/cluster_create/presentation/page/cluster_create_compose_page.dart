@@ -94,7 +94,7 @@ class _ClusterCreateComposePageState extends State<ClusterCreateComposePage> {
             onPressed: () => context.router.maybePop(),
           ),
           title: Text(
-            'Кластер',
+            context.l10n.cluster_title,
             style: AppTextStyle.base(
               ClusterCreateComposePage._figmaAppBarTitleFont,
               fontWeight: FontWeight.w700,
@@ -103,7 +103,7 @@ class _ClusterCreateComposePageState extends State<ClusterCreateComposePage> {
           ),
           actions: [
             AppTextButton(
-              text: 'Создать',
+              text: context.l10n.common_create,
               onTap: _canPublish ? _handlePublish : null,
               isLoading: _isPublishing,
             ),
@@ -139,8 +139,8 @@ class _ClusterCreateComposePageState extends State<ClusterCreateComposePage> {
                         SizedBox(height: context.heightByContext(ClusterCreateComposePage._figmaSectionGap)),
                         AppField(
                           controller: _titleController,
-                          labelText: 'Название',
-                          hintText: 'Название кластера',
+                          labelText: context.l10n.common_name,
+                          hintText: context.l10n.cluster_name_label,
                           textInputAction: TextInputAction.next,
                           onChanged: (_) => setState(() {}),
                           inputFormatters: [
@@ -150,8 +150,8 @@ class _ClusterCreateComposePageState extends State<ClusterCreateComposePage> {
                         SizedBox(height: context.heightByContext(ClusterCreateComposePage._figmaSectionGap)),
                         AppField(
                           controller: _descriptionController,
-                          labelText: 'Описание',
-                          hintText: 'Краткое описание (необязательно)',
+                          labelText: context.l10n.common_description,
+                          hintText: context.l10n.cluster_desc_hint,
                           textInputAction: TextInputAction.done,
                           onChanged: (_) => setState(() {}),
                           inputFormatters: [
@@ -170,7 +170,7 @@ class _ClusterCreateComposePageState extends State<ClusterCreateComposePage> {
                     context.heightByContext(16) + MediaQuery.paddingOf(context).bottom,
                   ),
                   child: AppButton(
-                    text: 'Создать кластер',
+                    text: context.l10n.cluster_create_action,
                     onTap: _canPublish ? _handlePublish : null,
                     isLoading: _isPublishing,
                     isExpanded: true,

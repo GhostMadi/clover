@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -44,14 +45,14 @@ class _AttendanceCorrectionsPageState extends State<AttendanceCorrectionsPage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: status == AttendanceCorrectionStatus.approved ? 'Утверждено' : 'Отклонено',
+        message: status == AttendanceCorrectionStatus.approved ? context.l10n.attendance_correction_status_approved : context.l10n.attendance_correction_status_rejected,
         kind: status == AttendanceCorrectionStatus.approved
             ? AppSnackBarKind.success
             : AppSnackBarKind.info,
       );
     } catch (e) {
       if (!mounted) return;
-      final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить';
+      final msg = e is AttendanceException ? e.userMessage : context.l10n.common_save_failed;
       AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
     }
   }
@@ -71,21 +72,21 @@ class _AttendanceCorrectionsPageState extends State<AttendanceCorrectionsPage> {
         final empty = pending.isEmpty && approved.isEmpty && rejected.isEmpty;
 
         return AttendanceScreenShell(
-          title: 'Исправления',
+          title: context.l10n.attendance_corrections_title,
           body: RefreshIndicator(
             onRefresh: _cubit.refresh,
             child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
+              physics: AlwaysScrollableScrollPhysics(),
               padding: EdgeInsets.fromLTRB(16, 0, 16, AttendanceScreenShell.scrollBottomGap(context)),
               children: [
                 if (state is AttendanceCorrectionsLoading && empty)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(top: 48),
                     child: AttendanceLoader(),
                   )
                 else if (state is AttendanceCorrectionsError && empty)
                   Padding(
-                    padding: const EdgeInsets.only(top: 40),
+                    padding: EdgeInsets.only(top: 40),
                     child: Column(
                       children: [
                         Text(
@@ -93,9 +94,9 @@ class _AttendanceCorrectionsPageState extends State<AttendanceCorrectionsPage> {
                           textAlign: TextAlign.center,
                           style: AppTextStyle.base(14, color: colors.subTextColor),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12),
                         AttendancePrimaryButton(
-                          text: 'Повторить',
+                          text: context.l10n.common_retry,
                           height: 44,
                           onTap: _cubit.refresh,
                         ),
@@ -104,38 +105,38 @@ class _AttendanceCorrectionsPageState extends State<AttendanceCorrectionsPage> {
                   )
                 else if (empty)
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    padding: EdgeInsets.symmetric(vertical: 40),
                     child: Text(
-                      'Нет запросов на исправление',
+                      context.l10n.attendance_corrections_empty,
                       textAlign: TextAlign.center,
                       style: AppTextStyle.base(14, color: colors.subTextColor),
                     ),
                   )
                 else ...[
                   if (pending.isNotEmpty) ...[
-                    const AttendanceSectionTitle('Ожидают'),
-                    const SizedBox(height: 8),
+                    AttendanceSectionTitle(context.l10n.attendance_overtime_pending_section),
+                    SizedBox(height: 8),
                     for (final item in pending) ...[
                       AttendanceCorrectionCard(
                         item: item,
                         onApprove: () => _resolve(item.id, AttendanceCorrectionStatus.approved),
                         onReject: () => _resolve(item.id, AttendanceCorrectionStatus.rejected),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                     ],
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                   ],
                   if (approved.isNotEmpty) ...[
-                    const AttendanceSectionTitle('Утверждены'),
-                    const SizedBox(height: 8),
+                    AttendanceSectionTitle(context.l10n.attendance_corrections_approved_section),
+                    SizedBox(height: 8),
                     for (final item in approved) ...[
                       AttendanceCorrectionCard(item: item),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                     ],
-                    if (rejected.isNotEmpty) const SizedBox(height: 12),
+                    if (rejected.isNotEmpty) SizedBox(height: 12),
                   ],
                   if (rejected.isNotEmpty) ...[
-                    const AttendanceSectionTitle('Отклонены'),
+                    AttendanceSectionTitle(context.l10n.attendance_overtime_rejected_section),
                     const SizedBox(height: 8),
                     for (final item in rejected) ...[
                       AttendanceCorrectionCard(item: item),

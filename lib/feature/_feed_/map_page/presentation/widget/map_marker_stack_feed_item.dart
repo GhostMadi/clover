@@ -1,18 +1,18 @@
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/core/shared/app_button.dart';
-import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/feature/_feed_/map_page/presentation/cubit/map_marker_stack_feed_cubit.dart';
 import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 import 'package:clover/feature/_post_/post_comment/presentation/widget/post_comments_sheet.dart';
 import 'package:clover/feature/_post_/post_share/presentation/widget/post_share_sheet.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_author_header.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_feed_card_details.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_feed_follow_icon_button.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_media_gallery.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_media_reaction_gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Карточка поста в ленте стопки маркеров — как [EventFeedPostItem].
 class MapMarkerStackFeedItem extends StatelessWidget {
@@ -141,27 +141,13 @@ class _AuthorRow extends StatelessWidget {
           avatarUrl: avatarUrl,
           trailing: followButton == null
               ? null
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(width: 8),
-                    switch (followButton) {
-                      MapMarkerStackFollowButton.subscribe => AppButton(
-                        text: 'Подписаться',
-                        height: 40,
-                        borderRadius: 14,
-                        isLoading: isUpdating,
-                        onTap: isUpdating ? null : () => cubit.toggleFollow(feedItem),
-                      ),
-                      MapMarkerStackFollowButton.unsubscribe => AppOutlinedButton(
-                        text: 'Отписаться',
-                        height: 40,
-                        borderRadius: 14,
-                        isLoading: isUpdating,
-                        onTap: isUpdating ? null : () => cubit.toggleFollow(feedItem),
-                      ),
-                    },
-                  ],
+              : PostFeedFollowIconButton(
+                  subscribe: followButton == MapMarkerStackFollowButton.subscribe,
+                  isLoading: isUpdating,
+                  tooltip: followButton == MapMarkerStackFollowButton.subscribe
+                      ? context.l10n.common_follow
+                      : context.l10n.common_unfollow,
+                  onTap: isUpdating ? null : () => cubit.toggleFollow(feedItem),
                 ),
         );
       },

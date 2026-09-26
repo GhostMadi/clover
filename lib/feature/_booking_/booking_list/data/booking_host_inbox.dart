@@ -1,5 +1,9 @@
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_date_format.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_item.dart';
 import 'package:clover/feature/_booking_/shared/data/models/booking_status.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 enum BookingHostInboxTab {
   inChair,
@@ -8,16 +12,16 @@ enum BookingHostInboxTab {
 }
 
 extension BookingHostInboxTabX on BookingHostInboxTab {
-  String get shortLabel => switch (this) {
-        BookingHostInboxTab.inChair => 'Сейчас',
-        BookingHostInboxTab.upcoming => 'Предстоящие',
-        BookingHostInboxTab.archive => 'Архив',
+  String shortLabel(AppLocalizations l10n) => switch (this) {
+        BookingHostInboxTab.inChair => l10n.booking_inbox_now,
+        BookingHostInboxTab.upcoming => l10n.booking_inbox_upcoming,
+        BookingHostInboxTab.archive => l10n.booking_inbox_archive,
       };
 
-  String get label => switch (this) {
-        BookingHostInboxTab.inChair => 'Сейчас в кресле',
-        BookingHostInboxTab.upcoming => 'Предстоящие',
-        BookingHostInboxTab.archive => 'Прошедшие и архив',
+  String label(AppLocalizations l10n) => switch (this) {
+        BookingHostInboxTab.inChair => l10n.booking_inbox_now_chair,
+        BookingHostInboxTab.upcoming => l10n.booking_inbox_upcoming,
+        BookingHostInboxTab.archive => l10n.booking_inbox_past_archive,
       };
 }
 
@@ -184,56 +188,34 @@ abstract final class BookingHostInbox {
   }
 
   static String dayStripLabel(DateTime day, {DateTime? now}) {
+    final dates = AppDateFormat.current();
+    final l10n = lookupAppLocalizations(sl<AppLocaleCubit>().state.locale);
     final today = dayKey(now ?? DateTime.now());
     final key = dayKey(day);
-    if (key == today) return 'Сегодня';
-    if (key == today.add(const Duration(days: 1))) return 'Завтра';
-    const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-    return weekdays[key.weekday - 1];
+    if (key == today) return l10n.common_today;
+    if (key == today.add(const Duration(days: 1))) return l10n.common_tomorrow;
+    return dates.shortWeekday(key);
   }
 
   /// Короткий месяц для чипа ленты: «20 сен».
   static String dayStripDayWithMonth(DateTime day) {
     final key = dayKey(day);
-    const months = [
-      'янв',
-      'фев',
-      'мар',
-      'апр',
-      'мая',
-      'июн',
-      'июл',
-      'авг',
-      'сен',
-      'окт',
-      'ноя',
-      'дек',
-    ];
-    return '${key.day} ${months[key.month - 1]}';
+    return AppDateFormat.current().dayMonth(key);
   }
 
   static String archiveDayLabel(DateTime day, {DateTime? now}) {
+    final dates = AppDateFormat.current();
+    final l10n = lookupAppLocalizations(sl<AppLocaleCubit>().state.locale);
     final today = dayKey(now ?? DateTime.now());
     final key = dayKey(day);
-    const months = [
-      'января',
-      'февраля',
-      'марта',
-      'апреля',
-      'мая',
-      'июня',
-      'июля',
-      'августа',
-      'сентября',
-      'октября',
-      'ноября',
-      'декабря',
-    ];
-    final dayMonth = '${key.day} ${months[key.month - 1]}';
-    if (key == today) return 'Сегодня, $dayMonth';
-    if (key == today.subtract(const Duration(days: 1))) return 'Вчера, $dayMonth';
-    if (key == today.add(const Duration(days: 1))) return 'Завтра, $dayMonth';
-    const weekdays = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
-    return '${weekdays[key.weekday - 1]}, $dayMonth';
+    final dayMonth = dates.dayMonthLong(key);
+    if (key == today) return '${l10n.common_today}, $dayMonth';
+    if (key == today.subtract(const Duration(days: 1))) {
+      return '${l10n.common_yesterday}, $dayMonth';
+    }
+    if (key == today.add(const Duration(days: 1))) {
+      return '${l10n.common_tomorrow}, $dayMonth';
+    }
+    return dates.fullWeekdayDayMonth(key);
   }
 }

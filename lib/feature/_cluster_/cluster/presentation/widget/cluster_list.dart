@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'package:clover/core/resources/app_icons.dart';
 
 import 'package:clover/core/dependencies/get_it.dart' show sl;
 import 'package:clover/core/extension/context.dart';
+import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/shared/app_dialog.dart';
 import 'package:clover/core/shared/app_mini_menu.dart';
@@ -139,23 +139,27 @@ class _ClusterListCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool readOnly;
 
-  static List<AppMiniMenuItem<String>> _menuItems(AppPalette colors) => [
-    AppMiniMenuItem(value: 'archive', title: 'Архивировать', icon: AppIcons.archive.icon),
-    AppMiniMenuItem(
-      value: 'delete',
-      title: 'Удалить',
-      icon: AppIcons.delete.icon,
-      titleColor: colors.error,
-      iconColor: colors.error,
-    ),
-  ];
+  static List<AppMiniMenuItem<String>> _menuItems(BuildContext context) {
+    final colors = context.colors;
+    final l10n = context.l10n;
+    return [
+      AppMiniMenuItem(value: 'archive', title: context.l10n.common_archive, icon: AppIcons.archive.icon),
+      AppMiniMenuItem(
+        value: 'delete',
+        title: l10n.common_delete,
+        icon: AppIcons.delete.icon,
+        titleColor: colors.error,
+        iconColor: colors.error,
+      ),
+    ];
+  }
 
   Future<void> _delete(BuildContext context) async {
     final ok = await AppDialog.showConfirm(
       context: context,
-      title: 'Удалить кластер?',
-      message: 'Обложка тоже будет удалена.',
-      confirmLabel: 'Удалить',
+      title: context.l10n.cluster_delete_title,
+      message: context.l10n.cluster_delete_body,
+      confirmLabel: context.l10n.common_delete,
       confirmIsDestructive: true,
       upperCaseTitle: false,
     );
@@ -165,7 +169,7 @@ class _ClusterListCard extends StatelessWidget {
       await sl<ClusterRepository>().deleteCluster(clusterId: cluster.id);
       clusterListRefreshTick.value++;
       if (!context.mounted) return;
-      AppSnackBar.show(context, message: 'Кластер удалён', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.cluster_deleted, kind: AppSnackBarKind.success);
     } catch (e) {
       if (!context.mounted) return;
       AppSnackBar.show(context, message: '$e', kind: AppSnackBarKind.error);
@@ -175,9 +179,9 @@ class _ClusterListCard extends StatelessWidget {
   Future<void> _archive(BuildContext context) async {
     final ok = await AppDialog.showConfirm(
       context: context,
-      title: 'Архивировать кластер?',
-      message: 'Он пропадёт из списка в профиле.',
-      confirmLabel: 'Архивировать',
+      title: context.l10n.cluster_archive_title,
+      message: context.l10n.cluster_archive_body,
+      confirmLabel: context.l10n.common_archive,
       upperCaseTitle: false,
     );
     if (ok != true || !context.mounted) return;
@@ -187,7 +191,7 @@ class _ClusterListCard extends StatelessWidget {
       clusterListRefreshTick.value++;
       unawaited(sl<ProfileCubit>().refresh());
       if (!context.mounted) return;
-      AppSnackBar.show(context, message: 'Кластер архивирован', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.cluster_archived, kind: AppSnackBarKind.success);
     } catch (e) {
       if (!context.mounted) return;
       AppSnackBar.show(context, message: '$e', kind: AppSnackBarKind.error);
@@ -212,7 +216,7 @@ class _ClusterListCard extends StatelessWidget {
       countLabel: cluster.postsCountLabel,
       isSelected: isSelected,
       onTap: onTap,
-      menuItems: readOnly ? null : _menuItems(context.colors),
+      menuItems: readOnly ? null : _menuItems(context),
       onMenuSelected: readOnly ? null : (v) => _onMenu(context, v),
     );
   }

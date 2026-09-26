@@ -5,6 +5,7 @@ import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 abstract final class ProfileDashboardMoreSheet {
   static Future<void> show(BuildContext context) {
@@ -17,7 +18,7 @@ abstract final class ProfileDashboardMoreSheet {
         children: [
           AppTile(
             icon: AppIcons.calendarMonth.icon,
-            title: 'Мои записи',
+            title: context.l10n.booking_my_bookings,
             iconColor: context.colors.serviceAccent(AppServiceKind.booking).icon,
             onTap: () {
               Navigator.of(context).pop();
@@ -26,7 +27,7 @@ abstract final class ProfileDashboardMoreSheet {
           ),
           AppTile(
             icon: AppIcons.loyalty.icon,
-            title: 'Мои бонусы',
+            title: context.l10n.bonus_my_title,
             iconColor: bonus.icon,
             onTap: () {
               Navigator.of(context).pop();

@@ -5,6 +5,7 @@ import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_i
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_action_card.dart';
 import 'package:clover/feature/_booking_/booking_list/presentation/widget/booking_list_card.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class BookingListArchiveBody extends StatelessWidget {
   const BookingListArchiveBody({
@@ -33,12 +34,12 @@ class BookingListArchiveBody extends StatelessWidget {
     final isEmpty = forgotten.isEmpty && history.isEmpty && cancelled.isEmpty;
 
     if (isEmpty) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
         child: Column(
           children: [
             SizedBox(height: 80),
-            Center(child: Text('Архив пока пуст')),
+            Center(child: Text(context.l10n.booking_archive_empty)),
           ],
         ),
       );
@@ -51,8 +52,8 @@ class BookingListArchiveBody extends StatelessWidget {
         children: [
         if (forgotten.isNotEmpty) ...[
           _SectionTitle(
-            title: 'Требуют закрытия',
-            subtitle: 'Визит закончился, статус ещё не отмечен',
+            title: context.l10n.booking_need_closing,
+            subtitle: context.l10n.booking_visit_ended_unmarked,
             accent: context.colors.functionalSoftOrangeIcon,
           ),
           const SizedBox(height: 10),
@@ -60,8 +61,8 @@ class BookingListArchiveBody extends StatelessWidget {
             BookingListActionCard(
               item: item,
               emphasize: true,
-              primaryLabel: 'Был',
-              secondaryLabel: 'Не пришёл',
+              primaryLabel: context.l10n.booking_was_short,
+              secondaryLabel: context.l10n.booking_no_show_short,
               isUpdating: updatingIds.contains(item.id),
               onPrimary: () => onMarkCompleted(item),
               onSecondary: () => onMarkNoShow(item),
@@ -80,18 +81,18 @@ class BookingListArchiveBody extends StatelessWidget {
             tilePadding: EdgeInsets.zero,
             childrenPadding: const EdgeInsets.only(bottom: 8),
             title: Text(
-              'История записей',
+              context.l10n.booking_history_title,
               style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
             ),
             subtitle: Text(
-              history.isEmpty ? 'Пока пусто' : '${history.length}',
+              history.isEmpty ? context.l10n.booking_empty : '${history.length}',
               style: AppTextStyle.base(12, color: context.colors.subTextColor),
             ),
             children: [
               if (history.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(bottom: 8),
-                  child: Text('Завершённых визитов пока нет'),
+                  child: Text(context.l10n.booking_no_completed_yet),
                 )
               else
                 for (final entry in historyGroups.entries) ...[
@@ -122,18 +123,18 @@ class BookingListArchiveBody extends StatelessWidget {
             tilePadding: EdgeInsets.zero,
             childrenPadding: const EdgeInsets.only(bottom: 8),
             title: Text(
-              'Отменённые',
+              context.l10n.booking_cancelled_section,
               style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
             ),
             subtitle: Text(
-              cancelled.isEmpty ? 'Пока пусто' : '${cancelled.length}',
+              cancelled.isEmpty ? context.l10n.booking_empty : '${cancelled.length}',
               style: AppTextStyle.base(12, color: context.colors.subTextColor),
             ),
             children: [
               if (cancelled.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(bottom: 8),
-                  child: Text('Отменённых записей нет'),
+                  child: Text(context.l10n.booking_no_cancelled),
                 )
               else
                 for (final entry in cancelledGroups.entries) ...[

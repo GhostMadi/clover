@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/post_media/post_media.dart';
 import 'package:clover/core/shared/image_select/app_image_editor_page.dart';
 import 'package:clover/feature/_profile_/edit_profile/edit_profile_avatar_flow.dart';
@@ -19,8 +20,8 @@ class EditProfileAvatarEditorPage extends StatelessWidget {
       canShow: draft.canOpenEditor,
       child: AppImageEditorPage(
         assets: draft.selectedAssets,
-        title: 'Аватар',
-        confirmLabel: 'Далее',
+        title: context.l10n.profile_avatar,
+        confirmLabel: context.l10n.common_next,
         lockedAspectRatio: PostAspectRatio.square1x1,
         onClose: () => context.router.maybePop(),
         onDone: (results) {

@@ -4,6 +4,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/core/shared/app_field/english_address_input_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Компактная плавающая панель адреса поверх карты (вместо AppBar).
 class LocationCreateAddressBar extends StatefulWidget {
@@ -101,7 +102,7 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                hasAddress ? cyrillic : 'Адрес · нажмите, чтобы ввести',
+                hasAddress ? cyrillic : context.l10n.catalog_address_tap,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyle.base(
@@ -138,7 +139,7 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Адрес',
+                      context.l10n.common_address,
                       style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -159,7 +160,7 @@ class _LocationCreateAddressBarState extends State<LocationCreateAddressBar> {
           const SizedBox(height: 8),
           AppField(
             controller: widget.secondaryController,
-            hintText: 'ул. Абая, 150, Алматы (необязательно)',
+            hintText: context.l10n.catalog_address_hint,
             prefixIcon: AppIcons.translate.icon,
             textInputAction: TextInputAction.done,
             service: kResourcesService,

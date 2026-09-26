@@ -6,6 +6,7 @@ import 'package:clover/core/shared/app_date_picker.dart';
 import 'package:clover/feature/_booking_/booking_list/data/models/booking_list_date_range.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:clover/core/extension/context.dart';
 
 abstract final class BookingListPeriodFilterSheet {
   static Future<BookingListDateRange?> show(
@@ -14,7 +15,7 @@ abstract final class BookingListPeriodFilterSheet {
   }) {
     return AppBottomSheet.show<BookingListDateRange>(
       context: context,
-      title: 'Фильтр по дате',
+      title: context.l10n.booking_filter_by_date,
       upperCaseTitle: false,
       showCloseButton: true,
       service: kBookingService,
@@ -43,15 +44,15 @@ class _BookingListPeriodFilterContentState extends State<_BookingListPeriodFilte
   late DateTime _start;
   late DateTime _end;
 
-  static final _presets = [
-    _PeriodPreset(label: 'Сегодня', range: BookingListDateRange.today()),
-    _PeriodPreset(label: 'Завтра', range: BookingListDateRange.tomorrow()),
-    _PeriodPreset(label: 'Эта неделя', range: BookingListDateRange.thisWeek()),
-    _PeriodPreset(label: 'След. неделя', range: BookingListDateRange.nextWeek()),
-    _PeriodPreset(label: 'Этот месяц', range: BookingListDateRange.thisMonth()),
-    _PeriodPreset(label: 'След. месяц', range: BookingListDateRange.nextMonth()),
-    _PeriodPreset(label: 'Все записи', range: BookingListDateRange.hostInbox()),
-  ];
+  List<_PeriodPreset> _presets(BuildContext context) => [
+        _PeriodPreset(label: context.l10n.common_today, range: BookingListDateRange.today()),
+        _PeriodPreset(label: context.l10n.common_tomorrow, range: BookingListDateRange.tomorrow()),
+        _PeriodPreset(label: context.l10n.booking_this_week, range: BookingListDateRange.thisWeek()),
+        _PeriodPreset(label: context.l10n.booking_next_week, range: BookingListDateRange.nextWeek()),
+        _PeriodPreset(label: context.l10n.booking_this_month, range: BookingListDateRange.thisMonth()),
+        _PeriodPreset(label: context.l10n.booking_next_month, range: BookingListDateRange.nextMonth()),
+        _PeriodPreset(label: context.l10n.booking_range_all, range: BookingListDateRange.hostInbox()),
+      ];
 
   @override
   void initState() {
@@ -97,7 +98,7 @@ class _BookingListPeriodFilterContentState extends State<_BookingListPeriodFilte
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'Быстрый выбор',
+          context.l10n.booking_quick_pick,
           style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 10),
@@ -105,7 +106,7 @@ class _BookingListPeriodFilterContentState extends State<_BookingListPeriodFilte
           spacing: 8,
           runSpacing: 8,
           children: [
-            for (final preset in _presets)
+            for (final preset in _presets(context))
               _PresetChip(
                 label: preset.label,
                 selected: current.sameDayRange(preset.range),
@@ -115,7 +116,7 @@ class _BookingListPeriodFilterContentState extends State<_BookingListPeriodFilte
         ),
         const SizedBox(height: 16),
         Text(
-          'Или свой период',
+          context.l10n.booking_or_custom_period,
           style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 10),
@@ -123,8 +124,8 @@ class _BookingListPeriodFilterContentState extends State<_BookingListPeriodFilte
           children: [
             Expanded(
               child: AppDatePicker(
-                label: 'С',
-                hint: 'Дата начала',
+                label: context.l10n.booking_from,
+                hint: context.l10n.booking_start_date,
                 value: _start,
                 lastDate: _end,
                 service: kBookingService,
@@ -134,8 +135,8 @@ class _BookingListPeriodFilterContentState extends State<_BookingListPeriodFilte
             const SizedBox(width: 10),
             Expanded(
               child: AppDatePicker(
-                label: 'По',
-                hint: 'Дата конца',
+                label: context.l10n.booking_to_label,
+                hint: context.l10n.booking_end_date,
                 value: _end,
                 firstDate: _start,
                 service: kBookingService,
@@ -145,7 +146,7 @@ class _BookingListPeriodFilterContentState extends State<_BookingListPeriodFilte
           ],
         ),
         const SizedBox(height: 16),
-        BookingPrimaryButton(text: 'Применить', isExpanded: true, onTap: _apply),
+        BookingPrimaryButton(text: context.l10n.booking_apply, isExpanded: true, onTap: _apply),
       ],
     );
   }

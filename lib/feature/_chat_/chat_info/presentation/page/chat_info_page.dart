@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
@@ -54,7 +55,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
 
   String get _title {
     final raw = widget.username.trim();
-    if (raw.isEmpty) return widget.isGroup ? 'Группа' : 'user';
+    if (raw.isEmpty) return widget.isGroup ? context.l10n.chat_group : 'user';
     if (widget.isGroup) return raw;
     return raw.startsWith('@') ? raw.substring(1) : raw;
   }
@@ -77,7 +78,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
 
   Future<void> _openWallpaper(ChatInfoLoaded state) async {
     if (!state.canEditWallpaper) {
-      AppSnackBar.show(context, message: 'Чат ещё не готов');
+      AppSnackBar.show(context, message: context.l10n.chat_not_ready);
       return;
     }
 
@@ -94,7 +95,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: e is ChatRepositoryException ? e.message : 'Не удалось сохранить фон',
+        message: e is ChatRepositoryException ? e.message : context.l10n.chat_wallpaper_save_failed,
       );
     }
   }
@@ -118,7 +119,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
             onPressed: () => context.router.maybePop(),
           ),
           title: Text(
-            'Информация',
+            context.l10n.chat_info_title,
             style: AppTextStyle.base(17, color: context.colors.textColor, fontWeight: FontWeight.w700),
           ),
           centerTitle: true,
@@ -148,7 +149,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                           isGroup: widget.isGroup,
                         ),
                         child: Text(
-                          'Повторить',
+                          context.l10n.common_retry,
                           style: AppTextStyle.base(15, color: context.colors.primary, fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -168,8 +169,8 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                 : null;
 
             final wallpaperLabel = loaded.wallpaperEmojis.isEmpty
-                ? 'Фон чата'
-                : 'Фон чата · ${loaded.wallpaperEmojis.take(4).join('')}';
+                ? context.l10n.chat_wallpaper
+                : context.l10n.chat_wallpaper_label(loaded.wallpaperEmojis.take(4).join(''));
 
             return ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -191,7 +192,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  widget.isGroup ? _groupSubtitle(participants.length) : 'Личный чат',
+                  widget.isGroup ? _groupSubtitle(participants.length) : context.l10n.chat_dm_subtitle,
                   textAlign: TextAlign.center,
                   style: AppTextStyle.base(14, color: context.colors.subTextColor),
                 ),
@@ -199,7 +200,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                 if (!widget.isGroup && peer != null) ...[
                   _ChatInfoActionTile(
                     icon: AppIcons.user.icon,
-                    label: 'Профиль',
+                    label: context.l10n.profile_title,
                     onTap: () => _openProfile(peer.userId),
                   ),
                   const SizedBox(height: 8),
@@ -213,7 +214,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                 if (widget.isGroup) ...[
                   const SizedBox(height: 28),
                   Text(
-                    'Участники',
+                    context.l10n.chat_members,
                     style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
@@ -221,7 +222,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 24),
                       child: Text(
-                        'Пока нет участников',
+                        context.l10n.chat_members_empty,
                         style: AppTextStyle.base(14, color: context.colors.subTextColor),
                       ),
                     )
@@ -244,12 +245,8 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
   }
 
   String _groupSubtitle(int count) {
-    if (count <= 0) return 'Группа';
-    final mod10 = count % 10;
-    final mod100 = count % 100;
-    if (mod10 == 1 && mod100 != 11) return '$count участник';
-    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return '$count участника';
-    return '$count участников';
+    if (count <= 0) return context.l10n.chat_group;
+    return context.l10n.chat_members_count(count);
   }
 }
 
@@ -384,7 +381,7 @@ class _ChatInfoMemberTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isMe ? '$handle (вы)' : handle,
+                        isMe ? context.l10n.chat_you_suffix(handle) : handle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyle.base(16, color: context.colors.textColor, fontWeight: FontWeight.w600),
@@ -392,7 +389,7 @@ class _ChatInfoMemberTile extends StatelessWidget {
                       if (participant.isAdmin) ...[
                         const SizedBox(height: 2),
                         Text(
-                          'Админ',
+                          context.l10n.catalog_group_admin,
                           style: AppTextStyle.base(12, color: context.colors.subTextColor),
                         ),
                       ],

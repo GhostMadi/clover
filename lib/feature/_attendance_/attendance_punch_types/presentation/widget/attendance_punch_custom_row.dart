@@ -7,6 +7,7 @@ import 'package:clover/feature/_attendance_/shared/data/models/attendance_day_ti
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_time_picker_field.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Строка своей отметки.
 class AttendancePunchCustomRow extends StatelessWidget {
@@ -44,7 +45,7 @@ class AttendancePunchCustomRow extends StatelessWidget {
                     ),
                     if (scheduleOn)
                       Text(
-                        'в ${config.scheduledTime!.labelRu}',
+                        context.l10n.attendance_at_time(config.scheduledTime!.labelRu),
                         style: AppTextStyle.base(12, color: accent.icon, fontWeight: FontWeight.w600),
                       ),
                   ],
@@ -59,7 +60,7 @@ class AttendancePunchCustomRow extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text('Время', style: AppTextStyle.base(14, color: colors.subTextColor)),
+                child: Text(context.l10n.common_time, style: AppTextStyle.base(14, color: colors.subTextColor)),
               ),
               AppSwitch(
                 value: scheduleOn,

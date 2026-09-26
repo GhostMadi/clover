@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:clover/core/extension/context.dart';
 
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
@@ -16,7 +17,7 @@ abstract final class AttendanceWorkerSearchSheet {
   }) {
     return AttendanceBottomSheet.show<AttendanceProfileHit>(
       context: context,
-      title: 'Добавить',
+      title: context.l10n.common_add,
       upperCaseTitle: false,
       expandBody: true,
       contentPadding: const EdgeInsets.all(16),
@@ -84,7 +85,7 @@ class _BodyState extends State<_Body> {
       if (!mounted || token != _searchToken) return;
       setState(() {
         _loading = false;
-        _error = 'Не удалось найти людей';
+        _error = context.l10n.attendance_workers_search_failed;
         _results = const [];
       });
     }
@@ -98,14 +99,14 @@ class _BodyState extends State<_Body> {
       children: [
         AttendanceField(
           controller: _queryController,
-          hintText: 'Ник или имя',
+          hintText: context.l10n.attendance_workers_search_hint,
           prefixIcon: AppIcons.searchRounded.icon,
           textInputAction: TextInputAction.search,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         if (_error != null)
           Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: EdgeInsets.only(bottom: 8),
             child: Text(
               _error!,
               textAlign: TextAlign.center,
@@ -114,11 +115,11 @@ class _BodyState extends State<_Body> {
           ),
         Expanded(
           child: _loading && _results.isEmpty
-              ? const AttendanceLoader()
+              ? AttendanceLoader()
               : _results.isEmpty
                   ? Center(
                       child: Text(
-                        'Никого не найдено',
+                        context.l10n.attendance_workers_search_empty,
                         style: AppTextStyle.base(14, color: colors.subTextColor),
                       ),
                     )

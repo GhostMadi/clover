@@ -3,6 +3,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_venue_/shared/data/venue_mock_catalog.dart';
 import 'package:clover/feature/_venue_/shared/presentation/widget/venue_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class VenueStateLegend extends StatelessWidget {
   const VenueStateLegend({super.key});
@@ -53,9 +54,9 @@ class _LegendChip extends StatelessWidget {
 }
 
 class VenueMockBanner extends StatelessWidget {
-  const VenueMockBanner({super.key, this.text = 'Моки · без бэка'});
+  const VenueMockBanner({super.key, this.text});
 
-  final String text;
+  final String? text;
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +69,7 @@ class VenueMockBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
       ),
       child: Text(
-        text,
+        text ?? context.l10n.venue_mocks_no_backend,
         style: AppTextStyle.base(13, fontWeight: FontWeight.w500, color: accent.onSoft),
       ),
     );

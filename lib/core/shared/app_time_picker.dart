@@ -1,9 +1,14 @@
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
+import 'package:clover/core/locale/app_date_format.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_bottom_sheet.dart';
 import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_picker_common.dart';
+import 'package:clover/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 /// Период события: дата и время начала и окончания.
@@ -43,51 +48,25 @@ class AppTimePicker extends StatelessWidget {
   /// Ограничение как на бэке: `markers.duration <= 24 hours`.
   final Duration maxDuration;
 
-  static const _months = <String>[
-    'Январь',
-    'Февраль',
-    'Март',
-    'Апрель',
-    'Май',
-    'Июнь',
-    'Июль',
-    'Август',
-    'Сентябрь',
-    'Октябрь',
-    'Ноябрь',
-    'Декабрь',
-  ];
-
   static String formatTime(DateTime dateTime) {
     final h = dateTime.hour.toString().padLeft(2, '0');
     final m = dateTime.minute.toString().padLeft(2, '0');
     return '$h:$m';
   }
 
-  static String formatShortDate(DateTime dateTime) {
-    return '${dateTime.day} ${_months[dateTime.month - 1].toLowerCase()}';
+  static String formatShortDate(DateTime dateTime, {String locale = 'ru'}) {
+    return AppDateFormat(locale).dayMonthLong(dateTime);
   }
 
-  static String formatDateTime(DateTime dateTime) {
-    return '${formatShortDate(dateTime)} · ${formatTime(dateTime)}';
+  static String formatDateTime(DateTime dateTime, {String locale = 'ru'}) {
+    return '${formatShortDate(dateTime, locale: locale)} · ${formatTime(dateTime)}';
   }
-
-  static const weekdaysRu = <String>[
-    'понедельник',
-    'вторник',
-    'среда',
-    'четверг',
-    'пятница',
-    'суббота',
-    'воскресенье',
-  ];
 
   /// «15 июня, суббота · 14:30»
-  static String formatEventStart(DateTime dateTime) {
+  static String formatEventStart(DateTime dateTime, {String locale = 'ru'}) {
     final local = dateTime.toLocal();
-    final month = _months[local.month - 1].toLowerCase();
-    final weekday = weekdaysRu[local.weekday - 1];
-    return '${local.day} $month, $weekday · ${formatTime(local)}';
+    final dates = AppDateFormat(locale);
+    return '${dates.dayMonthLong(local)}, ${dates.fullWeekday(local)} · ${formatTime(local)}';
   }
 
   static String formatCountdown(Duration remaining) {
@@ -100,37 +79,35 @@ class AppTimePicker extends StatelessWidget {
         '${seconds.toString().padLeft(2, '0')}';
   }
 
-  static String formatDaysRemaining(int days) {
-    final mod10 = days % 10;
-    final mod100 = days % 100;
-    if (mod10 == 1 && mod100 != 11) return '$days день';
-    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return '$days дня';
-    return '$days дней';
+  static String formatDaysRemaining(int days, [AppLocalizations? l10n]) {
+    final loc = l10n ?? lookupAppLocalizations(sl<AppLocaleCubit>().state.locale);
+    return loc.common_days_plural(days);
   }
 
-  static String formatDuration(Duration duration) {
+  static String formatDuration(Duration duration, [AppLocalizations? l10n]) {
+    final loc = l10n ?? lookupAppLocalizations(sl<AppLocaleCubit>().state.locale);
     final totalMinutes = duration.inMinutes;
-    if (totalMinutes <= 0) return '0 мин';
+    if (totalMinutes <= 0) return loc.common_zero_minutes;
 
     final hours = totalMinutes ~/ 60;
     final minutes = totalMinutes % 60;
 
-    if (hours == 0) return '$minutes мин';
-    if (minutes == 0) return '$hours ч';
-    return '$hours ч $minutes мин';
+    if (hours == 0) return loc.common_minutes_unit(minutes);
+    if (minutes == 0) return loc.common_hours_unit(hours);
+    return loc.common_hours_minutes(hours, minutes);
   }
 
-  static String formatRangeDisplay(AppDateTimeRange range) {
+  static String formatRangeDisplay(AppDateTimeRange range, {String locale = 'ru'}) {
     final sameDay =
         range.start.year == range.end.year &&
         range.start.month == range.end.month &&
         range.start.day == range.end.day;
 
     if (sameDay) {
-      return '${formatShortDate(range.start)} · ${formatTime(range.start)}–${formatTime(range.end)}';
+      return '${formatShortDate(range.start, locale: locale)} · ${formatTime(range.start)}–${formatTime(range.end)}';
     }
 
-    return '${formatDateTime(range.start)} — ${formatDateTime(range.end)}';
+    return '${formatDateTime(range.start, locale: locale)} — ${formatDateTime(range.end, locale: locale)}';
   }
 
   Future<void> _openSheet(BuildContext context) async {
@@ -141,7 +118,7 @@ class AppTimePicker extends StatelessWidget {
 
     final picked = await AppBottomSheet.show<AppDateTimeRange>(
       context: context,
-      title: label ?? 'Период события',
+      title: label ?? context.l10n.common_event_period,
       upperCaseTitle: false,
       showCloseButton: true,
       contentHeight: MediaQuery.sizeOf(context).height * 0.58,
@@ -157,7 +134,7 @@ class AppTimePicker extends StatelessWidget {
     return AppPickerFieldShell(
       label: label,
       hint: hint,
-      displayText: value == null ? null : formatRangeDisplay(value!),
+      displayText: value == null ? null : formatRangeDisplay(value!, locale: context.l10n.localeName),
       prefixIcon: AppIcons.schedule.icon,
       enabled: enabled,
       onTap: enabled ? () => _openSheet(context) : null,
@@ -276,11 +253,15 @@ class _AppDateTimeRangeSheetState extends State<_AppDateTimeRangeSheet> {
   void _confirm() {
     _normalizeRange();
     if (!_end.isAfter(_start)) {
-      setState(() => _error = 'Конец должен быть позже начала');
+      setState(() => _error = context.l10n.common_end_after_start);
       return;
     }
     if (_end.difference(_start) > widget.maxDuration) {
-      setState(() => _error = 'Максимум ${AppTimePicker.formatDuration(widget.maxDuration)}');
+      setState(
+        () => _error = context.l10n.common_max_duration(
+          AppTimePicker.formatDuration(widget.maxDuration),
+        ),
+      );
       return;
     }
     Navigator.of(context).pop(AppDateTimeRange(start: _start, end: _end));
@@ -324,6 +305,8 @@ class _AppDateTimeRangeSheetState extends State<_AppDateTimeRangeSheet> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final dates = context.dateFormat;
+    final locale = context.l10n.localeName;
     final bottom = MediaQuery.paddingOf(context).bottom;
     final active = _active;
     final dayItems = List.generate(_daysInMonth(active.year, active.month), (i) => i + 1);
@@ -334,14 +317,14 @@ class _AppDateTimeRangeSheetState extends State<_AppDateTimeRangeSheet> {
       children: [
         Row(
           children: [
-            _sideChip(side: _RangeSide.start, label: 'Начало', colors: colors),
+            _sideChip(side: _RangeSide.start, label: context.l10n.common_start_label, colors: colors),
             const SizedBox(width: 8),
-            _sideChip(side: _RangeSide.end, label: 'Конец', colors: colors),
+            _sideChip(side: _RangeSide.end, label: context.l10n.common_end_label, colors: colors),
           ],
         ),
         const SizedBox(height: 12),
         Text(
-          AppTimePicker.formatDateTime(active),
+          AppTimePicker.formatDateTime(active, locale: locale),
           textAlign: TextAlign.center,
           style: AppTextStyle.base(20, fontWeight: FontWeight.w700, color: colors.textColor),
         ),
@@ -360,7 +343,7 @@ class _AppDateTimeRangeSheetState extends State<_AppDateTimeRangeSheet> {
                   children: [
                     Expanded(
                       child: AppPickerWheel(
-                        items: AppTimePicker._months,
+                        items: dates.monthNames(),
                         selectedIndex: active.month - 1,
                         onSelectedIndexChanged: _onMonthChanged,
                       ),
@@ -410,7 +393,7 @@ class _AppDateTimeRangeSheetState extends State<_AppDateTimeRangeSheet> {
           ),
         ),
         Text(
-          'Длительность: ${AppTimePicker.formatDuration(duration)}',
+          context.l10n.common_duration(AppTimePicker.formatDuration(duration)),
           textAlign: TextAlign.center,
           style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w600),
         ),
@@ -424,7 +407,7 @@ class _AppDateTimeRangeSheetState extends State<_AppDateTimeRangeSheet> {
         ],
         Padding(
           padding: EdgeInsets.only(top: 8, bottom: bottom),
-          child: AppButton(text: 'Готово', isExpanded: true, onTap: _confirm),
+          child: AppButton(text: context.l10n.common_done, isExpanded: true, onTap: _confirm),
         ),
       ],
     );

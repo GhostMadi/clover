@@ -11,7 +11,7 @@ import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_refresh.dart';
 import 'package:clover/core/shared/app_state.dart';
 import 'package:clover/core/shared/app_tile.dart';
-// import 'package:clover/feature/_booking_/point_reviews/presentation/widget/profile_point_reviews_strip.dart';
+import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:clover/feature/_cluster_/cluster/data/models/cluster_model.dart';
 import 'package:clover/feature/_cluster_/cluster/presentation/cubit/clusters_list_cubit.dart';
 import 'package:clover/feature/_post_/post/presentation/cubit/post_feed_cubit.dart';
@@ -23,6 +23,7 @@ import 'package:clover/feature/_profile_/profile_page/presentation/widget/middle
 import 'package:clover/feature/_safety_/content_report/presentation/widget/ugc_safety_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class GuestProfilePage extends StatefulWidget {
@@ -75,13 +76,13 @@ class _GuestProfilePageState extends State<GuestProfilePage> {
   Future<void> _openAccountActions() async {
     await AppBottomSheet.show<void>(
       context: context,
-      title: 'Действия',
+      title: context.l10n.common_actions,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           AppTile(
             icon: AppIcons.flag.icon,
-            title: 'Пожаловаться',
+            title: context.l10n.ugc_report_title,
             onTap: () async {
               Navigator.of(context).pop();
               if (!mounted) return;
@@ -93,7 +94,7 @@ class _GuestProfilePageState extends State<GuestProfilePage> {
           ),
           AppTile(
             icon: AppIcons.block.icon,
-            title: 'Заблокировать',
+            title: context.l10n.ugc_block_confirm,
             destructive: true,
             onTap: () async {
               Navigator.of(context).pop();
@@ -281,7 +282,7 @@ class _GuestFollowActions extends StatelessWidget {
                         const SizedBox(width: 10),
                         Expanded(
                           child: AppButton(
-                            text: 'Сообщения',
+                            text: context.l10n.common_messages,
                             isExpanded: true,
                             onTap: () => _openChat(context, profileId, displayName),
                           ),
@@ -292,7 +293,7 @@ class _GuestFollowActions extends StatelessWidget {
                       children: [
                         Expanded(
                           child: AppButton(
-                            text: 'Подписаться',
+                            text: context.l10n.common_follow,
                             isExpanded: true,
                             isLoading: loaded.isFollowUpdating,
                             onTap: cubit.toggleFollow,
@@ -311,8 +312,8 @@ class _GuestFollowActions extends StatelessWidget {
                     ),
               if (loaded.profile.hasBookingTag) ...[
                 const SizedBox(height: 10),
-                AppButton(
-                  text: 'Записаться',
+                BookingPrimaryButton(
+                  text: context.l10n.profile_book,
                   isExpanded: true,
                   onTap: () => context.router.push(
                     BookingClientRoute(hostId: profileId, hostDisplayName: hostLabel),

@@ -3,6 +3,10 @@ import 'package:clover/feature/_attendance_/shared/data/attendance_remote_reposi
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_correction_request.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
+import 'package:flutter/widgets.dart';
 
 @injectable
 class AttendanceCorrectionsCubit extends Cubit<AttendanceCorrectionsState> {
@@ -26,7 +30,8 @@ class AttendanceCorrectionsCubit extends Cubit<AttendanceCorrectionsState> {
       emit(AttendanceCorrectionsState.loaded(workplaceId: workplaceId, items: items));
     } catch (e) {
       if (isClosed) return;
-      final msg = e is AttendanceException ? e.userMessage : 'Не удалось загрузить запросы';
+      final l10n = lookupAppLocalizations(Locale(sl<AppLocaleCubit>().state.languageCode));
+      final msg = e is AttendanceException ? e.userMessage : l10n.attendance_corrections_load_failed;
       emit(AttendanceCorrectionsState.error(workplaceId: workplaceId, message: msg));
     }
   }

@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/shared/image_select/app_image_selector_page.dart';
 import 'package:clover/feature/_profile_/edit_profile/edit_profile_avatar_flow.dart';
 import 'package:clover/feature/_profile_/edit_profile/extension/edit_profile_avatar_router_extension.dart';
@@ -13,8 +14,8 @@ class EditProfileAvatarPickPage extends StatelessWidget {
     final flow = EditProfileAvatarFlow.instance;
 
     return AppImageSelectorPage(
-      title: 'Аватар',
-      confirmLabel: 'Далее',
+      title: context.l10n.profile_avatar,
+      confirmLabel: context.l10n.common_next,
       maxSelectionCount: EditProfileAvatarFlow.maxPhotos,
       autoConfirmWhenFull: true,
       onClose: () {

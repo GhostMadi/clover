@@ -1,3 +1,4 @@
+import 'package:clover/core/locale/app_date_format.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -5,6 +6,7 @@ import 'package:clover/feature/_attendance_/attendance_analytics/data/models/att
 import 'package:clover/feature/_attendance_/attendance_analytics/presentation/widget/attendance_analytics_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Список рабочих дней — быстрый обзор «пришёл / не отметился» без календаря.
 class AttendanceWorkerDayJournal extends StatelessWidget {
@@ -39,9 +41,9 @@ class AttendanceWorkerDayJournal extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const AttendanceAnalyticsSectionHeader(
-          title: 'Журнал',
-          subtitle: 'Быстрый обзор по дням — нажмите на строку',
+        AttendanceAnalyticsSectionHeader(
+          title: context.l10n.attendance_analytics_journal,
+          subtitle: context.l10n.attendance_analytics_journal_subtitle,
         ),
         const SizedBox(height: 12),
         AttendanceAnalyticsCard(
@@ -93,7 +95,7 @@ class _JournalRow extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           child: Row(
             children: [
               Container(
@@ -109,7 +111,7 @@ class _JournalRow extends StatelessWidget {
                   color: accent,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,9 +123,9 @@ class _JournalRow extends StatelessWidget {
                           style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
                         ),
                         if (isToday) ...[
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6),
                           Text(
-                            '· сегодня',
+                            context.l10n.attendance_analytics_today_suffix,
                             style: AppTextStyle.base(12, color: colors.functionalSoftBlueIcon, fontWeight: FontWeight.w600),
                           ),
                         ],
@@ -163,9 +165,5 @@ class _JournalRow extends StatelessWidget {
     );
   }
 
-  static String _formatDay(DateTime d) {
-    const weekdays = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
-    const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
-    return '${d.day} ${months[d.month - 1]}, ${weekdays[d.weekday - 1]}';
-  }
+  static String _formatDay(DateTime d) => AppDateFormat.current().dayMonthWeekday(d);
 }

@@ -17,6 +17,7 @@ import 'package:clover/feature/_attendance_/shared/presentation/widget/attendanc
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class AttendancePayrollRulesPage extends StatefulWidget {
@@ -50,13 +51,13 @@ class _AttendancePayrollRulesPageState extends State<AttendancePayrollRulesPage>
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: result == AttendancePersistResult.queued ? 'Сохранено локально' : 'Сохранено',
+        message: result == AttendancePersistResult.queued ? context.l10n.attendance_saved_locally : context.l10n.common_saved,
         kind: AppSnackBarKind.success,
       );
       context.router.maybePop();
     } catch (e) {
       if (!mounted) return;
-      final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить';
+      final msg = e is AttendanceException ? e.userMessage : context.l10n.common_save_failed;
       AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
     }
   }
@@ -74,10 +75,10 @@ class _AttendancePayrollRulesPageState extends State<AttendancePayrollRulesPage>
         final workplace = state.workplace;
         if (workplace == null) {
           return AttendanceScreenShell(
-            title: 'Зарплата',
+            title: context.l10n.attendance_payroll_title,
             body: Center(
               child: Text(
-                'Компания не найдена',
+                context.l10n.attendance_company_not_found,
                 style: AppTextStyle.base(15, color: context.colors.subTextColor),
               ),
             ),
@@ -89,7 +90,7 @@ class _AttendancePayrollRulesPageState extends State<AttendancePayrollRulesPage>
         final accent = attendanceServiceAccent(colors);
 
         return AttendanceScreenShell(
-          title: 'Зарплата',
+          title: context.l10n.attendance_payroll_title,
           showSave: true,
           isSaving: state.saving,
           onSaveTap: _save,
@@ -98,24 +99,24 @@ class _AttendancePayrollRulesPageState extends State<AttendancePayrollRulesPage>
             children: [
               AttendancePayrollSummaryCard(summary: state.summary),
               if (state.loadingPreview) ...[
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 LinearProgressIndicator(
                   minHeight: 2,
                   color: accent.icon,
                   backgroundColor: accent.soft,
                 ),
               ],
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               Text(
-                'Работники',
+                context.l10n.attendance_workers_title,
                 style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               if (state.rows.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: EdgeInsets.symmetric(vertical: 12),
                   child: Text(
-                    'Нет работников для расчёта',
+                    context.l10n.attendance_payroll_no_workers,
                     style: AppTextStyle.base(14, color: colors.subTextColor),
                   ),
                 )
@@ -125,48 +126,48 @@ class _AttendancePayrollRulesPageState extends State<AttendancePayrollRulesPage>
                     payroll: row,
                     onTap: () => _openWorker(row),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                 ],
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Text(
-                'Правила',
+                context.l10n.common_rules,
                 style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               AttendanceSettingsSurface(
                 children: [
                   AttendancePayrollRuleBlock(
-                    title: 'Опоздания',
+                    title: context.l10n.attendance_payroll_lates,
                     value: rules.lateDeductsPay,
                     onChanged: (v) => _cubit.setRules(rules.copyWith(lateDeductsPay: v)),
-                    fieldLabel: '₸ / мин',
+                    fieldLabel: context.l10n.attendance_payroll_per_min,
                     fieldValue: rules.lateDeductPerMinute,
                     onFieldChanged: (v) => _cubit.setRules(rules.copyWith(lateDeductPerMinute: v)),
                   ),
                   Divider(height: 1, color: colors.divider),
                   AttendancePayrollRuleBlock(
-                    title: 'Переработка',
+                    title: context.l10n.attendance_payroll_overtime,
                     value: rules.overtimeAddsPay,
                     onChanged: (v) => _cubit.setRules(rules.copyWith(overtimeAddsPay: v)),
-                    fieldLabel: '₸ / час',
+                    fieldLabel: context.l10n.attendance_payroll_per_hour,
                     fieldValue: rules.overtimeBonusPerHour,
                     onFieldChanged: (v) => _cubit.setRules(rules.copyWith(overtimeBonusPerHour: v)),
                   ),
                   Divider(height: 1, color: colors.divider),
                   AttendancePayrollRuleBlock(
-                    title: 'Пропуски',
+                    title: context.l10n.attendance_payroll_misses,
                     value: rules.absenceDeductsPay,
                     onChanged: (v) => _cubit.setRules(rules.copyWith(absenceDeductsPay: v)),
-                    fieldLabel: '₸ / день',
+                    fieldLabel: context.l10n.attendance_payroll_per_day,
                     fieldValue: rules.absenceDeductPerDay,
                     onFieldChanged: (v) => _cubit.setRules(rules.copyWith(absenceDeductPerDay: v)),
                   ),
                   Divider(height: 1, color: colors.divider),
                   AttendancePayrollRuleBlock(
-                    title: 'Неполный день',
+                    title: context.l10n.attendance_payroll_partial_day,
                     value: rules.partialDayDeductsPay,
                     onChanged: (v) => _cubit.setRules(rules.copyWith(partialDayDeductsPay: v)),
-                    fieldLabel: '% от дня',
+                    fieldLabel: context.l10n.attendance_payroll_percent_day,
                     fieldValue: rules.partialDayDeductPercent,
                     onFieldChanged: (v) => _cubit.setRules(rules.copyWith(partialDayDeductPercent: v)),
                     maxValue: 100,

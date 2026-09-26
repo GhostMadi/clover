@@ -146,7 +146,7 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
             onPressed: _handleClose,
           ),
           title: Text(
-            'Публикация',
+            context.l10n.post_publication,
             style: AppTextStyle.base(
               PostCreateComposePage._figmaAppBarTitleFont,
               fontWeight: FontWeight.w700,
@@ -155,7 +155,7 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
           ),
           actions: [
             AppTextButton(
-              text: 'Опубликовать',
+              text: context.l10n.post_publish,
               onTap: _canPublish ? _handlePublish : null,
               isLoading: _isPublishing,
             ),
@@ -202,8 +202,8 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
                   SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
                   AppField(
                     controller: _titleController,
-                    labelText: 'Заголовок',
-                    hintText: 'Добавьте заголовок',
+                    labelText: context.l10n.post_title_label,
+                    hintText: context.l10n.post_title_hint,
                     textInputAction: TextInputAction.next,
                     isEnabled: !_isPublishing,
                     onChanged: (_) => setState(() {}),
@@ -228,16 +228,16 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
                   SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
                   AppSmilePicker(
                     controller: _textEmojiController,
-                    label: 'Эмодзи',
-                    hintText: 'Добавьте эмодзи',
+                    label: context.l10n.post_emoji_label,
+                    hintText: context.l10n.post_emoji_hint,
                     maxLength: PostCreateComposePage._textEmojiMaxLength,
                     enabled: !_isPublishing,
                     onChanged: (_) => setState(() {}),
                   ),
                   SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
                   MultiMarkerTags(
-                    label: 'Теги',
-                    hint: 'Выберите теги',
+                    label: context.l10n.post_tags,
+                    hint: context.l10n.profile_pick_tags,
                     values: _selectedTagIds,
                     enabled: !_isPublishing,
                     onChanged: (ids) => setState(() => _selectedTagIds = ids),
@@ -264,18 +264,18 @@ class _PostCreateComposePageState extends State<PostCreateComposePage> {
                     },
                   ),
                   LocationSingleSelectField(
-                    label: 'Местоположение',
-                    hint: 'Выберите местоположение',
+                    label: context.l10n.catalog_location,
+                    hint: context.l10n.post_pick_location,
                     value: _selectedLocation?.id,
                     enabled: !_isPublishing,
                     onChanged: (location) => setState(() => _selectedLocation = location),
                   ),
                   SizedBox(height: context.heightByContext(PostCreateComposePage._figmaSectionGap)),
                   AppTimePicker(
-                    label: 'Период события',
+                    label: context.l10n.common_event_period,
                     hint: _isEventMode
-                        ? 'Ивент на карте — укажите начало и конец'
-                        : 'Необязательно — без периода обычная публикация',
+                        ? context.l10n.post_event_period_required
+                        : context.l10n.post_period_optional,
                     value: _eventPeriod,
                     enabled: !_isPublishing,
                     onChanged: (range) => setState(() => _eventPeriod = range),
@@ -361,7 +361,7 @@ class _DescriptionFieldState extends State<_DescriptionField> {
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 6),
           child: Text(
-            'Описание',
+            context.l10n.common_description,
             style: AppTextStyle.base(
               13,
               fontWeight: FontWeight.w600,
@@ -409,7 +409,7 @@ class _DescriptionFieldState extends State<_DescriptionField> {
             ),
             cursorColor: context.colors.fieldCursor,
             decoration: InputDecoration(
-              hintText: 'Расскажите о публикации',
+              hintText: context.l10n.post_body_hint,
               hintStyle: AppTextStyle.base(16, fontWeight: FontWeight.w400, color: context.colors.fieldHint),
               border: InputBorder.none,
               counterStyle: AppTextStyle.base(12, color: context.colors.subTextColor),

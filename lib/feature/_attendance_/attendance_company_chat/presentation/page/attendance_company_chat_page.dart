@@ -11,6 +11,7 @@ import 'package:clover/feature/_attendance_/shared/presentation/widget/attendanc
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Карточки invite и правил компании (Accept/ack через RPC при remote).
 @RoutePage()
@@ -45,7 +46,7 @@ class _AttendanceCompanyChatPageState extends State<AttendanceCompanyChatPage> {
       builder: (context, state) {
         final loaded = state is AttendanceCompanyChatLoaded ? state : null;
         final workplace = loaded?.workplace;
-        final title = workplace == null ? 'Чат компании' : 'Посещаемость · ${workplace.name}';
+        final title = workplace == null ? context.l10n.attendance_chat_title : context.l10n.attendance_chat_title_named(workplace.name);
         final pending = loaded?.pendingWorkers ?? const [];
         final membership = loaded?.membership;
         final needsAck = membership?.needsAck ?? false;
@@ -56,25 +57,25 @@ class _AttendanceCompanyChatPageState extends State<AttendanceCompanyChatPage> {
           body: ListView(
             padding: EdgeInsets.fromLTRB(16, 12, 16, AttendanceScreenShell.scrollBottomGap(context)),
             children: [
-              _DayDivider(label: 'Сегодня'),
+              _DayDivider(label: context.l10n.common_today),
               const SizedBox(height: 12),
-              const _SystemLine(text: 'Групповой чат компании. Invite и правила — только карточками.'),
+              _SystemLine(text: context.l10n.attendance_chat_system_intro),
               const SizedBox(height: 16),
               if (pending.isEmpty && !needsAck)
                 Text(
-                  'Нет активных карточек. Добавьте работника или симулируйте обновление правил.',
+                  context.l10n.attendance_chat_no_cards,
                   style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.4),
                 ),
               for (final worker in pending) ...[
                 _InviteCard(
-                  workplaceName: workplace?.name ?? 'компанию',
+                  workplaceName: workplace?.name ?? context.l10n.attendance_company_fallback,
                   worker: worker,
                   onAccept: () async {
                     await _cubit.acceptInvite(worker.id);
                     if (!context.mounted) return;
                     AppSnackBar.show(
                       context,
-                      message: '${worker.displayName} принят · в активных и чате',
+                      message: context.l10n.attendance_chat_accepted(worker.displayName),
                       kind: AppSnackBarKind.success,
                     );
                   },
@@ -83,7 +84,7 @@ class _AttendanceCompanyChatPageState extends State<AttendanceCompanyChatPage> {
                     if (!context.mounted) return;
                     AppSnackBar.show(
                       context,
-                      message: 'Отклонено · вне команды',
+                      message: context.l10n.attendance_chat_declined,
                       kind: AppSnackBarKind.info,
                     );
                   },
@@ -92,14 +93,14 @@ class _AttendanceCompanyChatPageState extends State<AttendanceCompanyChatPage> {
               ],
               if (needsAck) ...[
                 _RulesCard(
-                  workplaceName: workplace?.name ?? 'компанию',
+                  workplaceName: workplace?.name ?? context.l10n.attendance_company_fallback,
                   version: configVersion,
                   onAck: () async {
                     await _cubit.ackConfig();
                     if (!context.mounted) return;
                     AppSnackBar.show(
                       context,
-                      message: 'Правила v$configVersion приняты',
+                      message: context.l10n.attendance_rules_accepted('$configVersion'),
                       kind: AppSnackBarKind.success,
                     );
                   },
@@ -187,7 +188,7 @@ class _InviteCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Стать частью команды',
+                      context.l10n.attendance_chat_join_team,
                       style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
                     ),
                   ),
@@ -200,8 +201,7 @@ class _InviteCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Приглашение для ${worker.displayName} (${worker.username}). '
-                'После принятия — смена, часы и чат компании.',
+                context.l10n.attendance_invite_body(worker.displayName, worker.username),
                 style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
               ),
               const SizedBox(height: 12),
@@ -209,7 +209,7 @@ class _InviteCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: AttendancePrimaryButton(
-                      text: 'Принять',
+                      text: context.l10n.common_accept,
                       height: 44,
                       onTap: onAccept,
                     ),
@@ -217,7 +217,7 @@ class _InviteCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: AppOutlinedButton(
-                      text: 'Отклонить',
+                      text: context.l10n.common_reject,
                       height: 44,
                       service: kAttendanceService,
                       onTap: onReject,
@@ -269,7 +269,7 @@ class _RulesCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Правила обновлены · v$version',
+                      context.l10n.attendance_rules_updated('$version'),
                       style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
                     ),
                   ),
@@ -282,13 +282,12 @@ class _RulesCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Геозона или типы отметок изменились. '
-                'Пока не примете — отметка недоступна.',
+                context.l10n.attendance_rules_changed_body,
                 style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
               ),
               const SizedBox(height: 12),
               AttendancePrimaryButton(
-                text: 'Понятно, принимаю',
+                text: context.l10n.attendance_chat_rules_accept_cta,
                 height: 44,
                 isExpanded: true,
                 onTap: onAck,

@@ -8,6 +8,7 @@ import 'package:clover/feature/_booking_/booking_points/presentation/cubit/booki
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 Future<BookingPoint?> showBookingPointSwitcherSheet({
   required BuildContext context,
@@ -16,7 +17,7 @@ Future<BookingPoint?> showBookingPointSwitcherSheet({
 }) {
   return AppBottomSheet.show<BookingPoint>(
     context: context,
-    title: 'Точка',
+    title: context.l10n.booking_point,
     contentHeight: 320,
     content: _BookingPointSwitcherBody(
       currentPointId: currentPointId,

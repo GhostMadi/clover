@@ -11,6 +11,7 @@ import 'package:clover/feature/_booking_/shared/presentation/widget/booking_mont
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class BookingCalendarHostPage extends StatefulWidget {
@@ -46,7 +47,7 @@ class _BookingCalendarHostPageState extends State<BookingCalendarHostPage> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.hostTitle.trim().isEmpty ? 'Заказы' : widget.hostTitle;
+    final title = widget.hostTitle.trim().isEmpty ? context.l10n.booking_orders_title : widget.hostTitle;
 
     return BlocBuilder<BookingCalendarBookingsCubit, BookingCalendarBookingsState>(
       bloc: _cubit,
@@ -67,10 +68,10 @@ class _BookingCalendarHostPageState extends State<BookingCalendarHostPage> {
             error: (s) => Center(child: Text(s.message)),
             orElse: () {
               if (items.isEmpty && !isLoading) {
-                return const Center(
+                return Center(
                   child: BookingListEmptyState(
-                    title: 'Заказов пока нет',
-                    subtitle: 'Когда к вам запишут, визиты появятся здесь',
+                    title: context.l10n.booking_orders_empty,
+                    subtitle: context.l10n.booking_when_booked_to_you,
                     showCreateButton: false,
                   ),
                 );
@@ -92,11 +93,11 @@ class _BookingCalendarHostPageState extends State<BookingCalendarHostPage> {
                       ),
                     ),
                     if (dayItems.isEmpty)
-                      const SliverFillRemaining(
+                      SliverFillRemaining(
                         hasScrollBody: false,
                         child: BookingListEmptyState(
-                          title: 'На этот день заказов нет',
-                          subtitle: 'Выберите другой день в календаре',
+                          title: context.l10n.booking_day_orders_empty,
+                          subtitle: context.l10n.booking_pick_another_day,
                           showCreateButton: false,
                         ),
                       )

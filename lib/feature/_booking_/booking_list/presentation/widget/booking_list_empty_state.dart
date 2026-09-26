@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -8,19 +9,21 @@ class BookingListEmptyState extends StatelessWidget {
   const BookingListEmptyState({
     super.key,
     this.onCreate,
-    this.title = 'Записей пока нет',
-    this.subtitle = 'Создайте первую запись — она появится здесь',
+    this.title,
+    this.subtitle,
     this.showCreateButton = true,
   });
 
   final VoidCallback? onCreate;
-  final String title;
-  final String subtitle;
+  final String? title;
+  final String? subtitle;
   final bool showCreateButton;
 
   @override
   Widget build(BuildContext context) {
     final accent = bookingServiceAccent(context.colors);
+    final resolvedTitle = title ?? context.l10n.booking_no_bookings;
+    final resolvedSubtitle = subtitle ?? context.l10n.booking_create_first_hint;
 
     return Center(
       child: Padding(
@@ -39,19 +42,19 @@ class BookingListEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              title,
+              resolvedTitle,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(18, color: context.colors.textColor, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Text(
-              subtitle,
+              resolvedSubtitle,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.35),
             ),
             if (showCreateButton && onCreate != null) ...[
               const SizedBox(height: 20),
-              BookingPrimaryButton(text: 'Создать запись', isExpanded: true, onTap: onCreate),
+              BookingPrimaryButton(text: context.l10n.booking_create_booking, isExpanded: true, onTap: onCreate),
             ],
           ],
         ),

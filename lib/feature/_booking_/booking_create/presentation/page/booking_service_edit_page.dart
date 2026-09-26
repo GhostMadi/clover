@@ -12,6 +12,7 @@ import 'package:clover/feature/_booking_/shared/data/booking_error.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class BookingServiceEditPage extends StatefulWidget {
@@ -134,7 +135,7 @@ class _BookingServiceEditPageState extends State<BookingServiceEditPage> {
     if (staff == null || !mounted) return;
 
     if (_draft.executors.any((pick) => pick.staffId == staff.id)) {
-      AppSnackBar.show(context, message: 'Этот мастер уже добавлен', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.booking_master_already_added, kind: AppSnackBarKind.error);
       return;
     }
 
@@ -163,7 +164,7 @@ class _BookingServiceEditPageState extends State<BookingServiceEditPage> {
       }
       return;
     }
-    AppSnackBar.show(context, message: 'Услуга сохранена', kind: AppSnackBarKind.success);
+    AppSnackBar.show(context, message: context.l10n.booking_service_saved, kind: AppSnackBarKind.success);
     context.router.maybePop(updated);
   }
 
@@ -182,7 +183,7 @@ class _BookingServiceEditPageState extends State<BookingServiceEditPage> {
           final selected = [for (final pick in _draft.executors) pick.toDisplayExecutor()];
 
           return BookingScreenShell(
-            title: 'Редактирование',
+            title: context.l10n.booking_service_edit_title,
             compactBar: true,
             isLoading: isSubmitting || state.maybeMap(loading: (_) => true, orElse: () => false),
             showSave: true,

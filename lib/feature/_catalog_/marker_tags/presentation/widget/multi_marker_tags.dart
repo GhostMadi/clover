@@ -8,6 +8,7 @@ import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_grou
 import 'package:clover/feature/_catalog_/marker_tags/data/models/marker_tag_model.dart';
 import 'package:clover/feature/_catalog_/marker_tags/presentation/widget/marker_tag_chip.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Множественный выбор тегов из enum-справочника [MarkerTagsCatalog].
 class MultiMarkerTags extends StatelessWidget {
@@ -17,7 +18,7 @@ class MultiMarkerTags extends StatelessWidget {
     required this.hint,
     required this.values,
     required this.onChanged,
-    this.searchHint = 'Поиск тега',
+    this.searchHint,
     this.sheetTitle,
     this.enabled = true,
     this.excludeGroupKeys = const {},
@@ -30,7 +31,7 @@ class MultiMarkerTags extends StatelessWidget {
   final Set<String> values;
   final ValueChanged<Set<String>> onChanged;
 
-  final String searchHint;
+  final String? searchHint;
   final String? sheetTitle;
   final bool enabled;
   final Set<MarkerTagGroupKey> excludeGroupKeys;
@@ -70,17 +71,17 @@ class MultiMarkerTags extends StatelessWidget {
     final groups = MarkerTagModel.toMultiSelectGroups(tags);
     final picked = await AppBottomSheet.show<Set<String>>(
       context: context,
-      title: sheetTitle ?? label ?? 'Теги маркера',
+      title: sheetTitle ?? label ?? context.l10n.feed_filter_tags_label,
       upperCaseTitle: false,
       showCloseButton: true,
       contentBottomSpacing: 0,
       expandBody: true,
       content: AppMultiSelectSheetContent<String>(
-        searchHint: searchHint,
+        searchHint: searchHint ?? context.l10n.feed_filter_tags_search,
         groups: groups,
         options: const [],
         selected: _normalizeValues(tags),
-        confirmLabel: 'Готово',
+        confirmLabel: context.l10n.common_done,
       ),
     );
 
@@ -91,7 +92,7 @@ class MultiMarkerTags extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tags = _tags;
-    final emptyHint = tags.isEmpty ? 'Нет доступных тегов' : hint;
+    final emptyHint = tags.isEmpty ? context.l10n.catalog_tags_none : hint;
     final selected = _normalizeValues(tags);
     final selectedTags = _selectedTags(tags, selected);
     final hasValue = selectedTags.isNotEmpty;

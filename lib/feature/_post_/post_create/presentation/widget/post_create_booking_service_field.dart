@@ -5,6 +5,7 @@ import 'package:clover/feature/_booking_/booking_create/data/repository/booking_
 import 'package:clover/feature/_profile_/profile_page/presentation/cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Опциональная привязка услуги записи — только если у профиля тег `booking`.
 class PostCreateBookingServiceField extends StatefulWidget {
@@ -94,9 +95,9 @@ class _PostCreateBookingServiceFieldState extends State<PostCreateBookingService
         final services = _services!;
         if (services.isEmpty) {
           return AppSingleSelect<String?>(
-            label: 'Услуга для записи',
-            hint: 'Сначала создайте услугу в записях',
-            sheetTitle: 'Услуга для записи',
+            label: context.l10n.post_booking_service,
+            hint: context.l10n.post_create_service_first,
+            sheetTitle: context.l10n.post_booking_service,
             options: const [],
             value: null,
             onChanged: (_) {},
@@ -104,7 +105,7 @@ class _PostCreateBookingServiceFieldState extends State<PostCreateBookingService
         }
 
         final options = <AppSingleSelectOption<String?>>[
-          const AppSingleSelectOption(value: null, label: 'Без услуги'),
+          AppSingleSelectOption(value: null, label: context.l10n.post_no_service),
           for (final service in services)
             AppSingleSelectOption(
               value: service.id,
@@ -113,9 +114,9 @@ class _PostCreateBookingServiceFieldState extends State<PostCreateBookingService
         ];
 
         return AppSingleSelect<String?>(
-          label: 'Услуга для записи',
-          hint: 'Не привязана',
-          sheetTitle: 'Услуга для записи',
+          label: context.l10n.post_booking_service,
+          hint: context.l10n.post_service_unlinked,
+          sheetTitle: context.l10n.post_booking_service,
           options: options,
           value: widget.value,
           onChanged: widget.enabled ? widget.onChanged : (_) {},

@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -29,8 +30,8 @@ class BookingScreenShell extends StatelessWidget {
     this.showSave = false,
     this.showCancel = false,
     this.canSave = false,
-    this.saveLabel = 'Сохранить',
-    this.cancelLabel = 'Отменить',
+    this.saveLabel,
+    this.cancelLabel,
     this.cancelIcon,
     this.onAnalyticsTap,
     this.onCreateTap,
@@ -59,8 +60,8 @@ class BookingScreenShell extends StatelessWidget {
   final bool showSave;
   final bool showCancel;
   final bool canSave;
-  final String saveLabel;
-  final String cancelLabel;
+  final String? saveLabel;
+  final String? cancelLabel;
   final IconData? cancelIcon;
   final VoidCallback? onAnalyticsTap;
   final VoidCallback? onCreateTap;
@@ -90,6 +91,9 @@ class BookingScreenShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = bookingServiceAccent(context.colors);
+    final l10n = context.l10n;
+    final resolvedSaveLabel = saveLabel ?? l10n.common_save;
+    final resolvedCancelLabel = cancelLabel ?? l10n.common_cancel_action;
     final switchable = pointId != null &&
         pointId!.trim().isNotEmpty &&
         onPointChanged != null;
@@ -109,7 +113,7 @@ class BookingScreenShell extends StatelessWidget {
         if (showCancel)
           FunctionalButtonItem(
             icon: cancelIcon ?? AppIcons.block.icon,
-            label: cancelLabel.isEmpty ? null : cancelLabel,
+            label: resolvedCancelLabel.isEmpty ? null : resolvedCancelLabel,
             keepWhenCollapsed: true,
             customColor: context.colors.functionalSoftRed,
             iconColor: context.colors.functionalSoftRedIcon,
@@ -147,7 +151,7 @@ class BookingScreenShell extends StatelessWidget {
         if (showSave && (canSave || isLoading))
           FunctionalButtonItem(
             icon: AppIcons.checkRounded.icon,
-            label: saveLabel,
+            label: resolvedSaveLabel,
             keepWhenCollapsed: true,
             customColor: accent.cta,
             iconColor: accent.ctaForeground,
@@ -158,7 +162,7 @@ class BookingScreenShell extends StatelessWidget {
         if (showServices)
           FunctionalButtonItem(
             icon: AppIcons.designServices.icon,
-            label: 'Услуги',
+            label: l10n.booking_services_label,
             borderColor: accent.ctaBorder,
             iconColor: accent.icon,
             textColor: accent.icon,
@@ -168,7 +172,7 @@ class BookingScreenShell extends StatelessWidget {
         if (showAnalytics)
           FunctionalButtonItem(
             icon: AppIcons.insights.icon,
-            label: 'Аналитика',
+            label: l10n.booking_analytics_label,
             borderColor: accent.ctaBorder,
             iconColor: accent.icon,
             textColor: accent.icon,
@@ -178,7 +182,7 @@ class BookingScreenShell extends StatelessWidget {
         if (showCreate)
           FunctionalButtonItem(
             icon: AppIcons.add.icon,
-            label: 'Создать',
+            label: context.l10n.common_create,
             customColor: accent.cta,
             iconColor: accent.ctaForeground,
             textColor: accent.ctaForeground,

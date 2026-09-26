@@ -1,21 +1,21 @@
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
-import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/core/shared/app_mini_menu.dart';
-import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/feature/_feed_/events_page/presentation/cubit/events_feed_cubit.dart';
 import 'package:clover/feature/_post_/post/data/models/post_feed_item.dart';
 import 'package:clover/feature/_post_/post_comment/presentation/widget/post_comments_sheet.dart';
 import 'package:clover/feature/_post_/post_share/presentation/widget/post_share_sheet.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_author_header.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_feed_card_details.dart';
+import 'package:clover/feature/_post_/post/presentation/widget/post_feed_follow_icon_button.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_media_gallery.dart';
 import 'package:clover/feature/_post_/post/presentation/widget/post_media_reaction_gestures.dart';
 import 'package:clover/feature/_safety_/content_report/presentation/widget/ugc_safety_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Карточка ивента в ленте — визуально как [PostPage].
 class EventFeedPostItem extends StatelessWidget {
@@ -154,23 +154,15 @@ class _AuthorRow extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (followButton != null) ...[
-                const SizedBox(width: 8),
-                switch (followButton) {
-                  EventsFeedFollowButton.subscribe => AppButton(
-                    text: 'Подписаться',
-                    height: 40,
-                    borderRadius: 14,
-                    isLoading: isUpdating,
-                    onTap: isUpdating ? null : () => cubit.toggleFollow(feedItem),
-                  ),
-                  EventsFeedFollowButton.unsubscribe => AppOutlinedButton(
-                    text: 'Отписаться',
-                    height: 40,
-                    borderRadius: 14,
-                    isLoading: isUpdating,
-                    onTap: isUpdating ? null : () => cubit.toggleFollow(feedItem),
-                  ),
-                },
+                const SizedBox(width: 4),
+                PostFeedFollowIconButton(
+                  subscribe: followButton == EventsFeedFollowButton.subscribe,
+                  isLoading: isUpdating,
+                  tooltip: followButton == EventsFeedFollowButton.subscribe
+                      ? context.l10n.common_follow
+                      : context.l10n.common_unfollow,
+                  onTap: isUpdating ? null : () => cubit.toggleFollow(feedItem),
+                ),
               ],
               if (!isOwn) ...[
                 const SizedBox(width: 4),
@@ -179,12 +171,12 @@ class _AuthorRow extends StatelessWidget {
                   items: [
                     AppMiniMenuItem(
                       value: _FeedSafetyAction.report,
-                      title: 'Пожаловаться',
+                      title: context.l10n.ugc_report_title,
                       icon: AppIcons.flag.icon,
                     ),
                     AppMiniMenuItem(
                       value: _FeedSafetyAction.block,
-                      title: 'Заблокировать',
+                      title: context.l10n.ugc_block_confirm,
                       icon: AppIcons.block.icon,
                       titleColor: context.colors.error,
                       iconColor: context.colors.error,

@@ -11,9 +11,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class AuthOrDivider extends StatelessWidget {
-  const AuthOrDivider({super.key, this.label = 'или'});
+  const AuthOrDivider({super.key, this.label});
 
-  final String label;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class AuthOrDivider extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: context.widthByContext(16)),
           child: Text(
-            label,
+            label ?? context.l10n.common_or,
             style: AppTextStyle.base(12, color: context.colors.subTextColor, letterSpacing: 0.6),
           ),
         ),

@@ -3,6 +3,9 @@ import 'package:clover/feature/_catalog_/location/data/repository/location_repos
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 part 'location_cubit.freezed.dart';
 
@@ -21,7 +24,7 @@ class LocationCubit extends Cubit<LocationState> {
       emit(LocationState.loaded(items));
     } catch (_) {
       if (isClosed) return;
-      emit(const LocationState.error('Не удалось загрузить местоположения'));
+      emit(LocationState.error(lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).catalog_locations_load_failed));
     }
   }
 }

@@ -12,6 +12,7 @@ import 'package:clover/feature/_booking_/shared/presentation/widget/booking_serv
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Список точек хозяина (вход Settings → Запись). Как посещаемость: list → hub.
 @RoutePage()
@@ -44,19 +45,19 @@ class _SettingsBookingPageState extends State<SettingsBookingPage> {
   }
 
   Future<void> _createPoint() async {
-    final nameController = TextEditingController(text: 'Основная');
+    final nameController = TextEditingController(text: context.l10n.booking_point_default_name);
     try {
       final name = await AppBottomSheet.show<String>(
         context: context,
-        title: 'Новая точка',
+        title: context.l10n.booking_point_new_title,
         content: BookingField(
           controller: nameController,
-          labelText: 'Название',
+          labelText: context.l10n.booking_name,
           textInputAction: TextInputAction.done,
         ),
         actions: [
           BookingPrimaryButton(
-            text: 'Создать',
+            text: context.l10n.common_create,
             isExpanded: true,
             onTap: () {
               final value = nameController.text.trim();
@@ -74,7 +75,7 @@ class _SettingsBookingPageState extends State<SettingsBookingPage> {
       if (point == null) {
         AppSnackBar.show(
           context,
-          message: 'Не удалось создать точку',
+          message: context.l10n.booking_point_create_failed,
           kind: AppSnackBarKind.error,
         );
         return;
@@ -95,7 +96,7 @@ class _SettingsBookingPageState extends State<SettingsBookingPage> {
         final refreshing = state is BookingPointsLoaded && state.isRefreshing;
 
         return SettingsScreenShell(
-          title: 'Запись',
+          title: context.l10n.booking_hub_title,
           service: kBookingService,
           body: loading
               ? const BookingLoader()
@@ -119,13 +120,13 @@ class _SettingsBookingPageState extends State<SettingsBookingPage> {
                                   for (final point in points)
                                     BookingHubNavCard(
                                       title: point.name,
-                                      subtitle: 'Услуги, расписание, записи',
+                                      subtitle: context.l10n.booking_point_card_subtitle,
                                       icon: AppIcons.locationOn.icon,
                                       onTap: () => _openPoint(point.id, name: point.name),
                                     ),
                                   BookingHubNavCard(
-                                    title: 'Новая точка',
-                                    subtitle: 'Салон, филиал или кабинет',
+                                    title: context.l10n.booking_point_new_title,
+                                    subtitle: context.l10n.booking_point_new_subtitle,
                                     icon: AppIcons.add.icon,
                                     onTap: _createPoint,
                                   ),

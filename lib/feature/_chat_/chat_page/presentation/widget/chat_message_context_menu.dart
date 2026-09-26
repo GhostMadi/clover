@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_chat_/chat_page/data/models/chat_message.dart';
 import 'package:clover/feature/_chat_/chat_page/presentation/widget/chat_reaction_bar.dart';
+import 'package:clover/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -403,7 +405,7 @@ class _ContextActionTile extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  _label(action),
+                  _label(context.l10n, action),
                   style: AppTextStyle.base(16, color: color, fontWeight: FontWeight.w600),
                 ),
               ),
@@ -415,14 +417,14 @@ class _ContextActionTile extends StatelessWidget {
     );
   }
 
-  static String _label(ChatMessageAction action) {
+  static String _label(AppLocalizations l10n, ChatMessageAction action) {
     return switch (action) {
-      ChatMessageAction.reply => 'Ответить',
-      ChatMessageAction.forward => 'Переслать',
-      ChatMessageAction.copy => 'Копировать',
-      ChatMessageAction.star => 'В Избранные',
-      ChatMessageAction.edit => 'Изменить',
-      ChatMessageAction.delete => 'Удалить',
+      ChatMessageAction.reply => l10n.chat_action_reply,
+      ChatMessageAction.forward => l10n.chat_action_forward,
+      ChatMessageAction.copy => l10n.common_copy,
+      ChatMessageAction.star => l10n.chat_action_star,
+      ChatMessageAction.edit => l10n.common_edit,
+      ChatMessageAction.delete => l10n.common_delete,
     };
   }
 

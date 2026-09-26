@@ -16,6 +16,7 @@ import 'package:clover/feature/_feed_/map_page/presentation/widget/map_marker_gr
 import 'package:clover/feature/_feed_/map_page/presentation/widget/map_marker_post_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class MapPage extends StatefulWidget {
@@ -85,13 +86,13 @@ class _MapPageState extends State<MapPage> {
       case AppMapMyLocationResult.permissionDenied:
         AppSnackBar.show(
           context,
-          message: 'Разрешите доступ к геолокации в настройках',
+          message: context.l10n.common_location_permission,
           kind: AppSnackBarKind.error,
         );
       case AppMapMyLocationResult.unavailable:
         AppSnackBar.show(
           context,
-          message: 'Не удалось определить местоположение',
+          message: context.l10n.common_location_failed,
           kind: AppSnackBarKind.error,
         );
     }
@@ -104,7 +105,7 @@ class _MapPageState extends State<MapPage> {
   Future<void> _openPostForMarker(MapMarkerItem marker) async {
     final postId = marker.postId?.trim();
     if (postId == null || postId.isEmpty) {
-      AppSnackBar.show(context, message: 'У маркера нет поста', kind: AppSnackBarKind.info);
+      AppSnackBar.show(context, message: context.l10n.feed_map_no_post, kind: AppSnackBarKind.info);
       return;
     }
 

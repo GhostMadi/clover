@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -34,9 +35,9 @@ class AppState extends StatelessWidget {
     this.errorMessage,
     this.errorIcon,
     this.onRetry,
-    this.retryLabel = 'Повторить',
+    this.retryLabel,
     this.onEmptyAction,
-    this.emptyActionLabel = 'Создать',
+    this.emptyActionLabel,
     this.variant = AppStateVariant.center,
     this.asSliver = false,
   });
@@ -50,9 +51,9 @@ class AppState extends StatelessWidget {
         errorMessage = null,
         errorIcon = null,
         onRetry = null,
-        retryLabel = 'Повторить',
+        retryLabel = null,
         onEmptyAction = null,
-        emptyActionLabel = 'Создать',
+        emptyActionLabel = null,
         variant = AppStateVariant.center,
         asSliver = false;
 
@@ -79,9 +80,9 @@ class AppState extends StatelessWidget {
   final String? errorMessage;
   final IconData? errorIcon;
   final VoidCallback? onRetry;
-  final String retryLabel;
+  final String? retryLabel;
   final VoidCallback? onEmptyAction;
-  final String emptyActionLabel;
+  final String? emptyActionLabel;
   final AppStateVariant variant;
   final bool asSliver;
 
@@ -101,13 +102,14 @@ class AppState extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context) {
+    final l10n = context.l10n;
     return switch (state) {
       AppScreenState.loading => _StateBody(
         visual: _AppStateVisual.loading(
           context: context,
           inline: _isInline,
         ),
-        title: loadingMessage ?? 'Загрузка…',
+        title: loadingMessage ?? l10n.common_loading,
         subtitle: null,
         variant: variant,
       ),
@@ -117,13 +119,13 @@ class AppState extends StatelessWidget {
           icon: emptyIcon ?? AppIcons.folderOpen.icon,
           inline: _isInline,
         ),
-        title: emptyTitle ?? 'Ничего нет',
+        title: emptyTitle ?? l10n.common_nothing_here,
         subtitle: emptySubtitle,
         variant: variant,
         action: onEmptyAction == null
             ? null
             : AppButton(
-                text: emptyActionLabel,
+                text: emptyActionLabel ?? l10n.common_create,
                 onTap: onEmptyAction,
                 isExpanded: _isInline,
               ),
@@ -134,13 +136,13 @@ class AppState extends StatelessWidget {
           icon: errorIcon ?? AppIcons.errorOutline.icon,
           inline: _isInline,
         ),
-        title: errorMessage ?? 'Что-то пошло не так',
+        title: errorMessage ?? l10n.common_something_wrong,
         subtitle: null,
         variant: variant,
         action: onRetry == null
             ? null
             : AppButton(
-                text: retryLabel,
+                text: retryLabel ?? l10n.common_retry,
                 onTap: onRetry,
                 isExpanded: _isInline,
               ),

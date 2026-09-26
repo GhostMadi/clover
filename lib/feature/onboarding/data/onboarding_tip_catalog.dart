@@ -1,5 +1,6 @@
 import 'package:clover/feature/onboarding/data/onboarding_catalog.dart';
 import 'package:clover/feature/onboarding/data/onboarding_tip_id.dart';
+import 'package:clover/l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 
 /// Где триггерим tip (хаб / первый open фичи).
@@ -28,7 +29,7 @@ class OnboardingTipDefinition {
     required this.serviceKey,
     required this.surface,
     required this.gate,
-    required this.slides,
+    required this.slidesFor,
     this.requiredTag,
     this.priority = 100,
   });
@@ -49,12 +50,12 @@ class OnboardingTipDefinition {
   /// Меньше = раньше, если несколько unseen на одном surface.
   final int priority;
 
-  final List<OnboardingSlideData> slides;
+  final List<OnboardingSlideData> Function(AppLocalizations l10n) slidesFor;
 }
 
 /// Каталог service-tips. Новый сервис = новая запись + id в [OnboardingTipId].
 abstract final class OnboardingTipCatalog {
-  static const List<OnboardingTipDefinition> all = [
+  static final List<OnboardingTipDefinition> all = [
     OnboardingTipDefinition(
       id: OnboardingTipId.serviceBooking,
       serviceKey: 'booking',
@@ -62,12 +63,12 @@ abstract final class OnboardingTipCatalog {
       gate: OnboardingTipGate.onceOnSurfaceWithTag,
       requiredTag: 'booking',
       priority: 10,
-      slides: [
+      slidesFor: (l10n) => [
         OnboardingSlideData(
           emoji: '📅',
-          title: 'Онлайн-запись',
-          body: 'Услуги, мастера, inbox и клиент с вашего профиля — в одном сервисе.',
-          tip: 'Супер-тег «Принимаю запись» включает хаб.',
+          title: l10n.onboarding_tip_booking_title,
+          body: l10n.onboarding_tip_booking_body,
+          tip: l10n.onboarding_tip_booking_tip,
           illustration: OnboardingIllustrationKind.services,
         ),
       ],
@@ -79,12 +80,12 @@ abstract final class OnboardingTipCatalog {
       gate: OnboardingTipGate.onceOnSurfaceWithTag,
       requiredTag: 'attendance',
       priority: 10,
-      slides: [
+      slidesFor: (l10n) => [
         OnboardingSlideData(
           emoji: '📍',
-          title: 'Посещаемость',
-          body: 'Компании, смены и отметки команды. Работник отмечает в приложении.',
-          tip: 'Супер-тег «Посещаемость» открывает управление.',
+          title: l10n.onboarding_tip_attendance_title,
+          body: l10n.onboarding_tip_attendance_body,
+          tip: l10n.onboarding_tip_attendance_tip,
           illustration: OnboardingIllustrationKind.services,
         ),
       ],
@@ -96,12 +97,12 @@ abstract final class OnboardingTipCatalog {
       gate: OnboardingTipGate.onceOnSurfaceWithTag,
       requiredTag: 'resources',
       priority: 10,
-      slides: [
+      slidesFor: (l10n) => [
         OnboardingSlideData(
           emoji: '📌',
-          title: 'Ресурсы',
-          body: 'Ваши места для постов и фильтры витрины профиля — личный справочник.',
-          tip: 'Не путать с городом ленты.',
+          title: l10n.onboarding_tip_resources_title,
+          body: l10n.onboarding_tip_resources_body,
+          tip: l10n.onboarding_tip_resources_tip,
           illustration: OnboardingIllustrationKind.create,
         ),
       ],
@@ -112,12 +113,12 @@ abstract final class OnboardingTipCatalog {
       surface: OnboardingSurface.bonusHub,
       gate: OnboardingTipGate.onceOnSurface,
       priority: 20,
-      slides: [
+      slidesFor: (l10n) => [
         OnboardingSlideData(
           emoji: '🎁',
-          title: 'Бонусы',
-          body: 'Копите и тратьте там, где хозяин включил бонусы на услуге.',
-          tip: 'Подробности — в гайде сервисов.',
+          title: l10n.onboarding_tip_bonus_title,
+          body: l10n.onboarding_tip_bonus_body,
+          tip: l10n.onboarding_tip_bonus_tip,
           illustration: OnboardingIllustrationKind.services,
         ),
       ],
@@ -128,12 +129,12 @@ abstract final class OnboardingTipCatalog {
       surface: OnboardingSurface.mapFirstOpen,
       gate: OnboardingTipGate.onceOnSurface,
       priority: 5,
-      slides: [
+      slidesFor: (l10n) => [
         OnboardingSlideData(
           emoji: '🗺️',
-          title: 'Лента и карта',
-          body: 'Двойной тап по Home — переключение ленты и карты города.',
-          tip: 'Фильтры слева, уведомления справа.',
+          title: l10n.onboarding_tip_feed_map_title,
+          body: l10n.onboarding_tip_feed_map_body,
+          tip: l10n.onboarding_tip_feed_map_tip,
           illustration: OnboardingIllustrationKind.feedMap,
         ),
       ],

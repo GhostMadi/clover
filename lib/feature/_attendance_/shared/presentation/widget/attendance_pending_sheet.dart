@@ -6,6 +6,7 @@ import 'package:clover/feature/_attendance_/shared/data/models/attendance_snapsh
 import 'package:clover/feature/_attendance_/shared/presentation/attendance_company_chat_nav.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Напоминание «Надо отметиться» на дашборде.
 abstract final class AttendancePendingSheet {
@@ -25,14 +26,14 @@ abstract final class AttendancePendingSheet {
     final m = snap.memberships.firstWhere((e) => e.needsAck);
     return AttendanceBottomSheet.show(
       context: context,
-      title: 'Новые правила',
+      title: context.l10n.attendance_pending_new_rules,
       content: Text(
-        '${m.workplaceName}: примите обновление v${m.configVersion} карточкой в чате компании.',
+        context.l10n.attendance_pending_accept(m.workplaceName, '${m.configVersion}'),
         style: AppTextStyle.base(15, color: context.colors.textColor),
       ),
       actions: [
         AttendancePrimaryButton(
-          text: 'Открыть чат',
+          text: context.l10n.attendance_punch_open_chat,
           isExpanded: true,
           onTap: () {
             Navigator.of(context).pop();

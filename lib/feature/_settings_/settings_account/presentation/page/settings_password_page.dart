@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/auth/cubit/auth_cubit.dart';
 import 'package:clover/core/auth/errors/auth_error_code.dart';
 import 'package:clover/core/auth/errors/auth_error_messages.dart';
@@ -64,7 +65,7 @@ class _SettingsPasswordPageState extends State<SettingsPasswordPage> {
       if (!mounted) return;
       setState(() {
         _loadingFlag = false;
-        _errorText = AuthErrorMessages.messageFor(AuthErrorCode.unknown);
+        _errorText = AuthErrorMessages.messageFor(AuthErrorCode.unknown, context.l10n);
       });
     }
   }
@@ -74,11 +75,11 @@ class _SettingsPasswordPageState extends State<SettingsPasswordPage> {
     final password = _passwordController.text;
     final confirm = _confirmController.text;
     if (password.trim().length < AuthRepository.minPasswordLength) {
-      setState(() => _errorText = AuthErrorMessages.messageFor(AuthErrorCode.passwordInvalid));
+      setState(() => _errorText = AuthErrorMessages.messageFor(AuthErrorCode.passwordInvalid, context.l10n));
       return;
     }
     if (password != confirm) {
-      setState(() => _errorText = AuthErrorMessages.messageFor(AuthErrorCode.passwordMismatch));
+      setState(() => _errorText = AuthErrorMessages.messageFor(AuthErrorCode.passwordMismatch, context.l10n));
       return;
     }
 
@@ -91,12 +92,12 @@ class _SettingsPasswordPageState extends State<SettingsPasswordPage> {
     if (error != null) {
       setState(() {
         _busy = false;
-        _errorText = AuthErrorMessages.messageFor(error);
+        _errorText = AuthErrorMessages.messageFor(error, context.l10n);
       });
       return;
     }
     setState(() => _busy = false);
-    _toast('Пароль установлен');
+    _toast(context.l10n.settings_password_set_toast);
     await context.router.maybePop();
   }
 
@@ -115,10 +116,7 @@ class _SettingsPasswordPageState extends State<SettingsPasswordPage> {
       if (!mounted) return;
       setState(() {
         _busy = false;
-        _errorText = AuthErrorMessages.messageFor(
-          error,
-          retryAfterSeconds: left > 0 ? left : null,
-        );
+        _errorText = AuthErrorMessages.messageFor(error, context.l10n, retryAfterSeconds: left > 0 ? left : null,);
       });
       return;
     }
@@ -134,7 +132,7 @@ class _SettingsPasswordPageState extends State<SettingsPasswordPage> {
       // Либо только что отправили, либо кулдаун: в обоих случаях код уже на почте.
       AppSnackBar.show(
         context,
-        message: 'Введите код из письма',
+        message: context.l10n.settings_password_enter_code,
         kind: AppSnackBarKind.info,
       );
     }
@@ -154,7 +152,7 @@ class _SettingsPasswordPageState extends State<SettingsPasswordPage> {
     if (error != null) {
       setState(() {
         _busy = false;
-        _errorText = AuthErrorMessages.messageFor(error);
+        _errorText = AuthErrorMessages.messageFor(error, context.l10n);
       });
       return;
     }
@@ -169,11 +167,11 @@ class _SettingsPasswordPageState extends State<SettingsPasswordPage> {
     final password = _passwordController.text;
     final confirm = _confirmController.text;
     if (password.trim().length < AuthRepository.minPasswordLength) {
-      setState(() => _errorText = AuthErrorMessages.messageFor(AuthErrorCode.passwordInvalid));
+      setState(() => _errorText = AuthErrorMessages.messageFor(AuthErrorCode.passwordInvalid, context.l10n));
       return;
     }
     if (password != confirm) {
-      setState(() => _errorText = AuthErrorMessages.messageFor(AuthErrorCode.passwordMismatch));
+      setState(() => _errorText = AuthErrorMessages.messageFor(AuthErrorCode.passwordMismatch, context.l10n));
       return;
     }
 
@@ -186,12 +184,12 @@ class _SettingsPasswordPageState extends State<SettingsPasswordPage> {
     if (error != null) {
       setState(() {
         _busy = false;
-        _errorText = AuthErrorMessages.messageFor(error);
+        _errorText = AuthErrorMessages.messageFor(error, context.l10n);
       });
       return;
     }
     setState(() => _busy = false);
-    _toast('Пароль сброшен');
+    _toast(context.l10n.settings_password_reset_toast);
     await context.router.maybePop();
   }
 
@@ -202,9 +200,9 @@ class _SettingsPasswordPageState extends State<SettingsPasswordPage> {
   @override
   Widget build(BuildContext context) {
     final title = switch (_mode) {
-      _SettingsPasswordMode.reset => 'Сбросить пароль',
-      _SettingsPasswordMode.set => 'Установить пароль',
-      null => 'Пароль',
+      _SettingsPasswordMode.reset => context.l10n.settings_account_reset_password,
+      _SettingsPasswordMode.set => context.l10n.settings_account_set_password,
+      null => context.l10n.common_password,
     };
 
     return SettingsScreenShell(
@@ -238,8 +236,8 @@ class _SettingsPasswordPageState extends State<SettingsPasswordPage> {
       passwordController: _passwordController,
       confirmController: _confirmController,
       isLoading: _busy,
-      title: 'Пароль для входа',
-      subtitle: 'Нужен, если входили через Google — потом можно входить и по паролю.',
+      title: context.l10n.settings_password_entry_title,
+      subtitle: context.l10n.settings_password_entry_subtitle,
       onSubmit: _saveSetPassword,
     );
   }
@@ -252,14 +250,14 @@ class _SettingsPasswordPageState extends State<SettingsPasswordPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Сброс пароля',
+              context.l10n.settings_password_reset_section,
               style: AppTextStyle.base(18, fontWeight: FontWeight.w700, color: context.colors.textColor),
             ),
             const SizedBox(height: 6),
             Text(
               email.isEmpty
-                  ? 'У аккаунта нет email — сброс по коду недоступен.'
-                  : 'Отправим код на $email. После подтверждения зададите новый пароль.',
+                  ? context.l10n.settings_password_no_email
+                  : context.l10n.settings_password_send_to_email(email),
               style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
             ),
             const SizedBox(height: 20),
@@ -278,7 +276,7 @@ class _SettingsPasswordPageState extends State<SettingsPasswordPage> {
                         child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.white),
                       )
                     : Text(
-                        'Отправить код',
+                        context.l10n.auth_forgot_send_code,
                         style: AppTextStyle.base(15, fontWeight: FontWeight.w600, color: context.colors.white),
                       ),
               ),
@@ -296,8 +294,8 @@ class _SettingsPasswordPageState extends State<SettingsPasswordPage> {
           passwordController: _passwordController,
           confirmController: _confirmController,
           isLoading: _busy,
-          title: 'Новый пароль',
-          subtitle: 'Придумайте новый пароль для входа.',
+          title: context.l10n.auth_forgot_new_password_title,
+          subtitle: context.l10n.auth_forgot_new_password_subtitle,
           onSubmit: _saveResetPassword,
         ),
     };

@@ -18,6 +18,8 @@ import 'package:clover/feature/_attendance_/shared/presentation/widget/attendanc
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
+import 'package:clover/feature/_attendance_/shared/attendance_l10n.dart';
 
 @RoutePage()
 class AttendancePunchPage extends StatefulWidget {
@@ -53,9 +55,9 @@ class _AttendancePunchPageState extends State<AttendancePunchPage> {
 
         if (state is! AttendancePunchReady) {
           return AttendanceScreenShell(
-            title: 'Отметка',
+            title: context.l10n.attendance_punch_title,
             body: Center(
-              child: Text('Компания не найдена', style: AppTextStyle.base(15, color: colors.subTextColor)),
+              child: Text(context.l10n.attendance_company_not_found, style: AppTextStyle.base(15, color: colors.subTextColor)),
             ),
           );
         }
@@ -120,7 +122,7 @@ class _AttendancePunchPageState extends State<AttendancePunchPage> {
                 const SizedBox(height: 20),
                 if (primaryType != null)
                   AttendancePrimaryButton(
-                    text: primaryType.labelRu.toUpperCase(),
+                    text: primaryType.label(context.l10n).toUpperCase(),
                     isExpanded: true,
                     interactive: canPunch,
                     onTap: canPunch
@@ -134,57 +136,57 @@ class _AttendancePunchPageState extends State<AttendancePunchPage> {
                     builder: (context) {
                       final yellow = attendanceYellowAccent(colors);
                       return Container(
-                        padding: const EdgeInsets.all(14),
+                        padding: EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: yellow.surface.withValues(alpha: 0.85),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(color: yellow.icon.withValues(alpha: 0.25)),
                         ),
                         child: Text(
-                          'Админ не включил «Пришёл» и «Ушёл». Только свои отметки ниже.',
+                          context.l10n.attendance_punch_admin_disabled_system,
                           style: AppTextStyle.base(14, color: colors.textColor),
                         ),
                       );
                     },
                   ),
                 if (customTypes.isNotEmpty) ...[
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   AppOutlinedButton(
-                    text: 'Свои отметки',
+                    text: context.l10n.attendance_punch_custom_types,
                     isExpanded: true,
                     service: kAttendanceService,
                     onTap: () => _showCustom(context, customTypes, blockReason: blockReason),
                   ),
                 ],
                 if (history.any((e) => !e.cancelled)) ...[
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   AppOutlinedButton(
-                    text: 'Отменить последнюю отметку',
+                    text: context.l10n.attendance_punch_cancel_last,
                     isExpanded: true,
                     service: kAttendanceService,
                     onTap: () => _showCancel(context),
                   ),
                 ],
                 if (!state.isRemote) ...[
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   AppOutlinedButton(
-                    text: inZone ? 'Симулировать «вне зоны»' : 'Симулировать «в зоне»',
+                    text: inZone ? context.l10n.attendance_punch_sim_out_of_zone : context.l10n.attendance_punch_sim_in_zone,
                     isExpanded: true,
                     service: kAttendanceService,
                     onTap: _cubit.toggleMockGeofence,
                   ),
                   AppOutlinedButton(
-                    text: gpsOn ? 'Симулировать GPS выкл.' : 'Симулировать GPS вкл.',
+                    text: gpsOn ? context.l10n.attendance_punch_sim_gps_off : context.l10n.attendance_punch_sim_gps_on,
                     isExpanded: true,
                     service: kAttendanceService,
                     onTap: _cubit.toggleMockGps,
                   ),
                 ],
-                const SizedBox(height: 24),
-                Text('История отметок', style: AppTextStyle.base(16, color: colors.textColor, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 8),
+                SizedBox(height: 24),
+                Text(context.l10n.attendance_punch_history, style: AppTextStyle.base(16, color: colors.textColor, fontWeight: FontWeight.w700)),
+                SizedBox(height: 8),
                 if (history.isEmpty)
-                  Text('Пока нет отметок', style: AppTextStyle.base(14, color: colors.subTextColor))
+                  Text(context.l10n.attendance_punch_history_empty, style: AppTextStyle.base(14, color: colors.subTextColor))
                 else
                   for (final record in history.take(12)) _HistoryRow(record: record),
               ],
@@ -220,7 +222,7 @@ class _AttendancePunchPageState extends State<AttendancePunchPage> {
       content: Text(reason.detailRu, style: AppTextStyle.base(15, color: context.colors.subTextColor, height: 1.4)),
       actions: [
         AttendancePrimaryButton(
-          text: 'Понятно',
+          text: context.l10n.common_got_it,
           isExpanded: true,
           onTap: () => Navigator.of(context).pop(),
         ),
@@ -232,10 +234,10 @@ class _AttendancePunchPageState extends State<AttendancePunchPage> {
     final ok = await _cubit.punch(type);
     if (!mounted) return;
     if (ok) {
-      AppSnackBar.show(context, message: '${type.labelRu} — сохранено', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.attendance_punch_saved(type.label(context.l10n)), kind: AppSnackBarKind.success);
       context.router.maybePop();
     } else {
-      final msg = _cubit.lastPunchError?.userMessage ?? 'Не удалось сохранить отметку';
+      final msg = _cubit.lastPunchError?.userMessage ?? context.l10n.attendance_punch_save_failed;
       AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
     }
   }
@@ -244,35 +246,35 @@ class _AttendancePunchPageState extends State<AttendancePunchPage> {
     final controller = TextEditingController();
     return AttendanceBottomSheet.show(
       context: context,
-      title: 'Отменить отметку',
+      title: context.l10n.attendance_punch_cancel_title,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Комментарий необязателен — например, отметили по ошибке.',
+            context.l10n.attendance_punch_cancel_hint,
             style: AppTextStyle.base(14, color: context.colors.subTextColor),
           ),
           const SizedBox(height: 12),
-          AttendanceField(controller: controller, labelText: 'Комментарий (необяз.)'),
+          AttendanceField(controller: controller, labelText: context.l10n.attendance_punch_cancel_comment),
         ],
       ),
       actions: [
         AttendancePrimaryButton(
-          text: 'Отменить отметку',
+          text: context.l10n.attendance_punch_cancel_title,
           isExpanded: true,
           onTap: () {
             _cubit.cancelLastPunch(comment: controller.text);
             Navigator.of(context).pop();
             AppSnackBar.show(
               context,
-              message: 'Отметка отменена',
+              message: context.l10n.attendance_punch_cancelled,
               kind: AppSnackBarKind.success,
             );
           },
         ),
         AppOutlinedButton(
-          text: 'Запросить исправление',
+          text: context.l10n.attendance_punch_request_correction,
           isExpanded: true,
           service: kAttendanceService,
           onTap: () async {
@@ -283,7 +285,7 @@ class _AttendancePunchPageState extends State<AttendancePunchPage> {
                     .fold<AttendancePunchRecord?>(null, (prev, e) => e)
                 : null;
             if (last == null) {
-              AppSnackBar.show(context, message: 'Нет отметки для исправления', kind: AppSnackBarKind.error);
+              AppSnackBar.show(context, message: context.l10n.attendance_punch_no_correction_target, kind: AppSnackBarKind.error);
               return;
             }
             try {
@@ -295,7 +297,7 @@ class _AttendancePunchPageState extends State<AttendancePunchPage> {
               if (!ok) {
                 AppSnackBar.show(
                   context,
-                  message: _cubit.lastPunchError?.userMessage ?? 'Не удалось отправить запрос',
+                  message: _cubit.lastPunchError?.userMessage ?? context.l10n.attendance_punch_request_failed,
                   kind: AppSnackBarKind.error,
                 );
                 return;
@@ -303,12 +305,12 @@ class _AttendancePunchPageState extends State<AttendancePunchPage> {
               Navigator.of(context).pop();
               AppSnackBar.show(
                 context,
-                message: 'Запрос на исправление отправлен',
+                message: context.l10n.attendance_punch_correction_sent,
                 kind: AppSnackBarKind.success,
               );
             } catch (e) {
               if (!context.mounted) return;
-              final msg = e is AttendanceException ? e.userMessage : 'Не удалось отправить запрос';
+              final msg = e is AttendanceException ? e.userMessage : context.l10n.attendance_punch_request_failed;
               AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
             }
           },
@@ -326,13 +328,13 @@ class _AttendancePunchPageState extends State<AttendancePunchPage> {
   }) {
     return AttendanceBottomSheet.show(
       context: context,
-      title: 'Свои отметки',
+      title: context.l10n.attendance_punch_custom_types,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final t in types)
             AppTile(
-              title: t.labelRu,
+              title: t.label(context.l10n),
               onTap: () {
                 Navigator.of(context).pop();
                 if (blockReason != null) {
@@ -376,14 +378,14 @@ class _BlockReasonCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             reason == AttendancePunchBlockReason.needsAck
-                ? 'Примите правила v$configVersion карточкой в чате компании.'
+                ? context.l10n.attendance_punch_accept_rules(configVersion)
                 : reason.detailRu,
             style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
           ),
           if (reason == AttendancePunchBlockReason.needsAck) ...[
             const SizedBox(height: 12),
             AppOutlinedButton(
-              text: 'Открыть чат',
+              text: context.l10n.attendance_punch_open_chat,
               isExpanded: true,
               service: kAttendanceService,
               height: 44,
@@ -406,7 +408,7 @@ class _HistoryRow extends StatelessWidget {
     final colors = context.colors;
     final accent = attendanceServiceAccent(colors);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
           Expanded(
@@ -414,7 +416,7 @@ class _HistoryRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${record.formattedAt} · ${record.type.labelRu}${record.cancelled ? ' · отменено' : ''}',
+                  '${record.formattedAt} · ${record.type.label(context.l10n)}${record.cancelled ? context.l10n.attendance_punch_cancelled_suffix : ''}',
                   style: AppTextStyle.base(
                     14,
                     color: record.cancelled ? colors.subTextColor : colors.textColor,
@@ -446,18 +448,20 @@ class _EnabledTypesHint extends StatelessWidget {
     final parts = <String>[];
     if (workplace.clockInEnabled) {
       final t = workplace.clockInScheduledTime;
-      parts.add(t != null ? 'Пришёл ${t.labelRu}' : 'Пришёл');
+      parts.add(t != null ? context.l10n.attendance_clock_in_at(t.labelRu) : context.l10n.attendance_punch_clock_in);
     }
     if (workplace.clockOutEnabled) {
       final t = workplace.clockOutScheduledTime;
-      parts.add(t != null ? 'Ушёл ${t.labelRu}' : 'Ушёл');
+      parts.add(t != null ? context.l10n.attendance_clock_out_at(t.labelRu) : context.l10n.attendance_punch_clock_out);
     }
     for (final c in workplace.customPunches) {
       parts.add(c.hasScheduledTime ? '${c.label} ${c.scheduledTime!.labelRu}' : c.label);
     }
 
     return Text(
-      parts.isEmpty ? 'Типы не настроены' : 'Включено: ${parts.join(' · ')}',
+      parts.isEmpty
+          ? context.l10n.attendance_punch_types_not_configured
+          : context.l10n.attendance_enabled_types(parts.join(' · ')),
       style: AppTextStyle.base(13, color: colors.subTextColor),
     );
   }
@@ -510,12 +514,12 @@ class _GeofenceStatus extends StatelessWidget {
           Expanded(
             child: Text(
               locating
-                  ? 'Определяем местоположение…'
+                  ? context.l10n.attendance_punch_locating
                   : !gpsOn
-                      ? 'GPS недоступен'
+                      ? context.l10n.attendance_punch_gps_unavailable
                       : inZone
-                          ? 'Вы в зоне ($radiusM м)'
-                          : 'Вы вне зоны',
+                          ? context.l10n.attendance_in_zone_paren(radiusM)
+                          : context.l10n.attendance_punch_out_of_zone,
               style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w600),
             ),
           ),
@@ -523,7 +527,7 @@ class _GeofenceStatus extends StatelessWidget {
             IconButton(
               onPressed: onRefresh,
               icon: Icon(AppIcons.myLocation.icon, color: colors.iconMuted, size: 20),
-              tooltip: 'Обновить GPS',
+              tooltip: context.l10n.attendance_punch_refresh_gps,
             ),
         ],
       ),

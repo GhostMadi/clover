@@ -1,4 +1,5 @@
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -69,7 +70,7 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
 
     final confirmed = await AppBottomSheet.show<bool>(
       context: context,
-      title: 'Блок времени',
+      title: context.l10n.booking_time_block_title,
       service: kBookingService,
       contentHeight: 420,
       content: StatefulBuilder(
@@ -77,9 +78,9 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
           return ListView(
             children: [
               AppSingleSelect<String>(
-                label: 'Исполнитель',
-                hint: 'Выберите',
-                sheetTitle: 'Исполнитель',
+                label: context.l10n.booking_executor,
+                hint: context.l10n.booking_select,
+                sheetTitle: context.l10n.booking_executor,
                 options: [
                   for (final e in widget.executors)
                     AppSingleSelectOption(value: e.id, label: e.displayName),
@@ -89,8 +90,8 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
               ),
               const SizedBox(height: 10),
               AppDatePicker(
-                label: 'День',
-                hint: 'Дата',
+                label: context.l10n.booking_day,
+                hint: context.l10n.common_date,
                 value: day,
                 firstDate: DateTime.now(),
                 lastDate: DateTime.now().add(const Duration(days: 90)),
@@ -102,9 +103,9 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
                 children: [
                   Expanded(
                     child: AppSingleSelect<int>(
-                      label: 'С',
-                      hint: 'Час',
-                      sheetTitle: 'Начало',
+                      label: context.l10n.booking_from,
+                      hint: context.l10n.booking_hour_label,
+                      sheetTitle: context.l10n.booking_start_label,
                       options: [
                         for (var h = 6; h <= 22; h++)
                           AppSingleSelectOption(value: h, label: '${h.toString().padLeft(2, '0')}:00'),
@@ -116,9 +117,9 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
                   const SizedBox(width: 8),
                   Expanded(
                     child: AppSingleSelect<int>(
-                      label: 'До',
-                      hint: 'Час',
-                      sheetTitle: 'Конец',
+                      label: context.l10n.booking_to,
+                      hint: context.l10n.booking_hour_label,
+                      sheetTitle: context.l10n.booking_end_label,
                       options: [
                         for (var h = 7; h <= 23; h++)
                           AppSingleSelectOption(value: h, label: '${h.toString().padLeft(2, '0')}:00'),
@@ -132,8 +133,8 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
               const SizedBox(height: 10),
               AppField(
                 controller: reasonCtrl,
-                labelText: 'Причина (необяз.)',
-                hintText: 'Обед, совещание…',
+                labelText: context.l10n.booking_reason_optional_label,
+                hintText: context.l10n.booking_block_reason_hint,
                 service: kBookingService,
               ),
             ],
@@ -143,7 +144,7 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
       actions: [
         Builder(
           builder: (sheetContext) => BookingPrimaryButton(
-            text: 'Добавить',
+            text: context.l10n.common_add,
             isExpanded: true,
             height: 48,
             onTap: () => Navigator.of(sheetContext).pop(true),
@@ -156,7 +157,7 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
     Future<void>.delayed(const Duration(milliseconds: 300), reasonCtrl.dispose);
     if (confirmed != true || !mounted) return;
     if (endH <= startH) {
-      AppSnackBar.show(context, message: 'Конец должен быть позже начала', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.booking_end_after_start, kind: AppSnackBarKind.error);
       return;
     }
 
@@ -168,7 +169,7 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
         reason: reason,
       );
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'Время заблокировано', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.booking_time_blocked, kind: AppSnackBarKind.success);
     } catch (e) {
       if (!mounted) return;
       AppSnackBar.show(context, message: BookingException.from(e).userMessage, kind: AppSnackBarKind.error);
@@ -242,7 +243,7 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Блоки времени',
+                    context.l10n.booking_time_blocks_title,
                     style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 10),
@@ -253,7 +254,7 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
                     )
                   else if (state.blocked.isEmpty)
                     Text(
-                      'Нет блоков',
+                      context.l10n.booking_no_blocks,
                       style: AppTextStyle.base(13, color: colors.subTextColor),
                     )
                   else
@@ -264,7 +265,7 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
                           children: [
                             Expanded(
                               child: Text(
-                                '${nameById[b.staffId] ?? 'Мастер'} · ${fmt(b.startsAt)}–${fmt(b.endsAt)}'
+                                '${nameById[b.staffId] ?? context.l10n.booking_master} · ${fmt(b.startsAt)}–${fmt(b.endsAt)}'
                                 '${b.reason != null && b.reason!.isNotEmpty ? ' · ${b.reason}' : ''}',
                                 style: AppTextStyle.base(13, color: colors.textColor),
                               ),
@@ -279,7 +280,7 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
                       ),
                   const SizedBox(height: 8),
                   AppOutlinedButton(
-                    text: 'Заблокировать',
+                    text: context.l10n.booking_block_time,
                     isExpanded: true,
                     service: kBookingService,
                     onTap: widget.enabled && widget.executors.isNotEmpty ? _addBlocked : null,
@@ -299,20 +300,20 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'График мастера',
+                    context.l10n.booking_master_schedule,
                     style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 10),
                   if (widget.executors.isEmpty)
                     Text(
-                      'Сначала добавьте мастеров в услугах',
+                      context.l10n.booking_add_masters_first,
                       style: AppTextStyle.base(13, color: colors.subTextColor),
                     )
                   else ...[
                     AppSingleSelect<String>(
-                      label: 'Мастер',
-                      hint: 'Выберите',
-                      sheetTitle: 'Мастер',
+                      label: context.l10n.booking_master,
+                      hint: context.l10n.booking_select,
+                      sheetTitle: context.l10n.booking_master,
                       options: [
                         for (final e in widget.executors)
                           AppSingleSelectOption(value: e.id, label: e.displayName),
@@ -342,7 +343,7 @@ class _BookingScheduleOpsSectionsState extends State<BookingScheduleOpsSections>
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                 child: Text(
-                                  day.shortLabel,
+                                  day.shortLabel(),
                                   style: AppTextStyle.base(
                                     14,
                                     color: selected ? accent.icon : colors.textColor,

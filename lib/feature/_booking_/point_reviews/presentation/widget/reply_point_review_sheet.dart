@@ -7,6 +7,7 @@ import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/feature/_booking_/point_reviews/data/point_reviews_mock.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Sheet: ответ хозяина на отзыв (mock).
 abstract final class ReplyPointReviewSheet {
@@ -17,7 +18,7 @@ abstract final class ReplyPointReviewSheet {
     final hasReply = review.hostReply != null && review.hostReply!.trim().isNotEmpty;
     final result = await AppBottomSheet.show<bool>(
       context: context,
-      title: hasReply ? 'Изменить ответ' : 'Ответить',
+      title: hasReply ? context.l10n.booking_edit_reply : context.l10n.booking_reply_action,
       contentHeight: MediaQuery.sizeOf(context).height * 0.48,
       content: _ReplyPointReviewBody(review: review),
     );
@@ -80,7 +81,7 @@ class _ReplyPointReviewBodyState extends State<_ReplyPointReviewBody> {
             textAlignVertical: TextAlignVertical.top,
             style: AppTextStyle.base(15, color: colors.textColor),
             decoration: InputDecoration(
-              hintText: 'Ответ от имени точки',
+              hintText: context.l10n.booking_point_reply_title,
               hintStyle: AppTextStyle.base(15, color: colors.subTextColor),
               filled: true,
               fillColor: colors.surfaceMuted,
@@ -102,7 +103,7 @@ class _ReplyPointReviewBodyState extends State<_ReplyPointReviewBody> {
         ),
         const SizedBox(height: 12),
         AppButton(
-          text: 'Сохранить ответ',
+          text: context.l10n.booking_save_reply,
           isExpanded: true,
           onTap: () {
             PointReviewsMock.setHostReply(review.id, _controller.text);
@@ -112,7 +113,7 @@ class _ReplyPointReviewBodyState extends State<_ReplyPointReviewBody> {
         if (hasReply) ...[
           const SizedBox(height: 8),
           AppOutlinedButton(
-            text: 'Удалить ответ',
+            text: context.l10n.booking_delete_reply,
             isExpanded: true,
             onTap: () {
               PointReviewsMock.setHostReply(review.id, '');
@@ -127,7 +128,7 @@ class _ReplyPointReviewBodyState extends State<_ReplyPointReviewBody> {
             Icon(AppIcons.infoOutline.icon, size: 14, color: colors.subTextColor),
             const SizedBox(width: 6),
             Text(
-              'Mock · ответ хозяина',
+              context.l10n.booking_mock_host_reply,
               style: AppTextStyle.base(12, color: colors.subTextColor),
             ),
           ],

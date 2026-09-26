@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:clover/core/extension/context.dart';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/resources/app_icons.dart';
@@ -151,7 +152,7 @@ class _MessagePageState extends State<MessagePage> with WidgetsBindingObserver {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                 child: Text(
-                  'Сообщения',
+                  context.l10n.common_messages,
                   style: AppTextStyle.base(24, color: context.colors.textColor, fontWeight: FontWeight.w800),
                 ),
               ),
@@ -178,7 +179,7 @@ class _MessagePageState extends State<MessagePage> with WidgetsBindingObserver {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: AppField(
                   controller: _searchController,
-                  hintText: 'Поиск по чатам и сообщениям',
+                  hintText: context.l10n.chat_search_hint,
                   prefixIcon: AppIcons.searchRounded.icon,
                   textInputAction: TextInputAction.search,
                   onChanged: (value) {
@@ -242,8 +243,8 @@ class _MessagePageState extends State<MessagePage> with WidgetsBindingObserver {
             AppState(
               state: AppScreenState.empty,
               emptyIcon: AppIcons.chat.icon,
-              emptyTitle: 'Пока нет чатов',
-              emptySubtitle: 'Начните переписку с другого профиля',
+              emptyTitle: context.l10n.chat_list_empty_title,
+              emptySubtitle: context.l10n.chat_list_empty_subtitle,
               child: const SizedBox.shrink(),
             ),
           ],
@@ -262,8 +263,8 @@ class _MessagePageState extends State<MessagePage> with WidgetsBindingObserver {
             AppState(
               state: AppScreenState.empty,
               emptyIcon: AppIcons.searchRounded.icon,
-              emptyTitle: 'Ничего не найдено',
-              emptySubtitle: 'Попробуйте другой запрос',
+              emptyTitle: context.l10n.common_nothing_found,
+              emptySubtitle: context.l10n.common_try_other_query,
               child: const SizedBox.shrink(),
             ),
           ],
@@ -281,7 +282,7 @@ class _MessagePageState extends State<MessagePage> with WidgetsBindingObserver {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
               child: Text(
-                'В сообщениях',
+                context.l10n.chat_search_in_messages,
                 style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
               ),
             ),
@@ -300,7 +301,7 @@ class _MessagePageState extends State<MessagePage> with WidgetsBindingObserver {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                 child: Text(
-                  'Совпадений в тексте сообщений нет',
+                  context.l10n.chat_search_no_message_hits,
                   style: AppTextStyle.base(13, color: context.colors.subTextColor),
                 ),
               )
@@ -315,7 +316,7 @@ class _MessagePageState extends State<MessagePage> with WidgetsBindingObserver {
                       unawaited(
                         _openChat(
                           chatId: hit.conversationId,
-                          username: chat?.username ?? hit.senderUsername ?? 'Чат',
+                          username: chat?.username ?? hit.senderUsername ?? context.l10n.push_chat_fallback_title,
                           isGroup: chat?.isGroup ?? false,
                         ),
                       );
@@ -326,7 +327,7 @@ class _MessagePageState extends State<MessagePage> with WidgetsBindingObserver {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                 child: Text(
-                  'Чаты',
+                  context.l10n.chat_title,
                   style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
                 ),
               ),
@@ -370,7 +371,7 @@ class _MessageSearchTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = chat?.username ?? hit.senderUsername ?? 'Чат';
+    final title = chat?.username ?? hit.senderUsername ?? context.l10n.push_chat_fallback_title;
     final timeLabel = MessageChatTimeFormatting.format(hit.sentAt);
 
     return Material(

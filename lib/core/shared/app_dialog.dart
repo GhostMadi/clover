@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:flutter/material.dart';
@@ -12,12 +13,13 @@ abstract final class AppDialog {
     required BuildContext context,
     required String title,
     String? message,
-    String cancelLabel = 'Отмена',
+    String? cancelLabel,
     required String confirmLabel,
     bool confirmIsDestructive = false,
     bool barrierDismissible = true,
     bool upperCaseTitle = false,
   }) {
+    final resolvedCancel = cancelLabel ?? context.l10n.common_cancel;
     return showDialog<bool>(
       context: context,
       barrierDismissible: barrierDismissible,
@@ -109,7 +111,7 @@ abstract final class AppDialog {
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                                   ),
                                   child: Text(
-                                    cancelLabel,
+                                    resolvedCancel,
                                     style: AppTextStyle.base(16, fontWeight: FontWeight.w600),
                                   ),
                                 ),

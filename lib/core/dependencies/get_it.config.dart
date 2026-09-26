@@ -248,6 +248,8 @@ import '../auth/cubit/auth_cubit.dart' as _i575;
 import '../auth/repositories/auth_repository.dart' as _i964;
 import '../deep_link/app_deep_link_navigator.dart' as _i79;
 import '../deep_link/app_deep_link_service.dart' as _i856;
+import '../locale/app_locale_cubit.dart' as _i97;
+import '../locale/app_locale_store.dart' as _i169;
 import '../network/supabase_edge_functions_invoker.dart' as _i460;
 import '../push/app_push_messaging_service.dart' as _i86;
 import '../push/notification_open_bus.dart' as _i633;
@@ -444,6 +446,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i545.BookingScheduleOpsCubit>(
       () => _i545.BookingScheduleOpsCubit(gh<_i239.BookingOpsRepository>()),
     );
+    gh.lazySingleton<_i169.AppLocaleStore>(
+      () => _i169.AppLocaleStore(gh<_i1029.IAppStorage>()),
+    );
     gh.lazySingleton<_i980.AppThemeStore>(
       () => _i980.AppThemeStore(gh<_i1029.IAppStorage>()),
     );
@@ -621,6 +626,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i381.PostArchiveRepository>(),
         gh<_i74.EventArchiveRepository>(),
       ),
+    );
+    gh.lazySingleton<_i97.AppLocaleCubit>(
+      () => _i97.AppLocaleCubit(gh<_i169.AppLocaleStore>()),
     );
     gh.factory<_i68.EventArchiveCubit>(
       () => _i68.EventArchiveCubit(gh<_i74.EventArchiveRepository>()),

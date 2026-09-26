@@ -13,6 +13,7 @@ import 'package:clover/feature/_settings_/settings/presentation/widget/settings_
 import 'package:clover/feature/_settings_/settings_saved_post/presentation/cubit/saved_posts_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class SavedPostsPage extends StatefulWidget {
@@ -60,7 +61,7 @@ class _SavedPostsPageState extends State<SavedPostsPage> {
     return BlocProvider.value(
       value: _cubit,
       child: SettingsScreenShell(
-        title: 'Сохранённые посты',
+        title: context.l10n.settings_saved_posts_tile,
         body: AppRefresh(
           onRefresh: _refresh,
           child: BlocBuilder<SavedPostsCubit, SavedPostsState>(
@@ -77,7 +78,7 @@ class _SavedPostsPageState extends State<SavedPostsPage> {
                       PostGrid(
                         posts: posts,
                         savedByPostId: _savedMap(posts),
-                        emptyMessage: 'Сохранённых постов пока нет',
+                        emptyMessage: context.l10n.settings_saved_posts_empty,
                         emptyIcon: AppIcons.bookmarkOutline.icon,
                         onPostTap: (post) async {
                           sl<PostRepository>().cacheMySaved(post.id, true);
@@ -127,7 +128,7 @@ class _SavedPostsError extends StatelessWidget {
         children: [
           Text(message, textAlign: TextAlign.center, style: TextStyle(color: context.colors.subTextColor)),
           const SizedBox(height: 12),
-          AppButton(text: 'Повторить', onTap: onRetry),
+          AppButton(text: context.l10n.common_retry, onTap: onRetry),
         ],
       ),
     );

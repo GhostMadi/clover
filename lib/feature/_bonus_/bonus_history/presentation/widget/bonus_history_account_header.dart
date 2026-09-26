@@ -4,6 +4,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_bonus_/my_bonuses/data/models/bonus_account_item.dart';
 import 'package:clover/feature/_bonus_/shared/data/bonus_format.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Шапка деталки: баланс крупно, мастер вторично.
 class BonusHistoryAccountHeader extends StatelessWidget {
@@ -73,7 +74,7 @@ class BonusHistoryAccountHeader extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           Text(
-            'Баланс',
+            context.l10n.bonus_balance,
             style: AppTextStyle.base(
               13,
               color: accent.onSoft.withValues(alpha: 0.7),
@@ -110,7 +111,7 @@ class BonusHistoryAccountHeader extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Можно списать при следующей записи к этому мастеру',
+            context.l10n.bonus_redeem_hint,
             style: AppTextStyle.base(
               12,
               color: accent.onSoft.withValues(alpha: 0.65),

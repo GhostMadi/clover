@@ -38,7 +38,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   var _finishing = false;
 
   List<OnboardingSlideData> get _slides =>
-      _path == null ? const [] : OnboardingCatalog.slidesFor(_path!);
+      _path == null ? const [] : OnboardingCatalog.slidesFor(_path!, context.l10n);
 
   bool get _isLast => _slides.isNotEmpty && _index >= _slides.length - 1;
 
@@ -130,7 +130,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
               child: TextButton(
                 onPressed: _finishing ? null : _finish,
                 child: Text(
-                  'Пропустить',
+                  context.l10n.common_skip,
                   style: AppTextStyle.base(
                     15,
                     color: colors.subTextColor,
@@ -231,7 +231,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   children: [
                     Expanded(
                       child: AppOutlinedButton(
-                        text: 'Назад',
+                        text: context.l10n.common_back,
                         onTap: _finishing ? null : _prev,
                       ),
                     ),
@@ -239,7 +239,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     Expanded(
                       flex: 2,
                       child: AppButton(
-                        text: _isLast ? 'Начать' : 'Далее',
+                        text: _isLast ? context.l10n.common_start : context.l10n.common_next,
                         isLoading: _finishing,
                         onTap: _finishing ? null : _next,
                       ),
@@ -283,7 +283,7 @@ class _PathPicker extends StatelessWidget {
         ),
         SizedBox(height: context.heightByContext(10)),
         Text(
-          'Кто ты в Clover?',
+          context.l10n.onboarding_path_title,
           textAlign: TextAlign.center,
           style: AppTextStyle.base(
             context.heightByContext(26).clamp(22.0, 28.0),
@@ -294,7 +294,7 @@ class _PathPicker extends StatelessWidget {
         ),
         SizedBox(height: context.heightByContext(10)),
         Text(
-          'Короткий тур под тебя',
+          context.l10n.onboarding_path_subtitle,
           textAlign: TextAlign.center,
           style: AppTextStyle.base(
             context.heightByContext(15).clamp(13.0, 16.0),
@@ -305,19 +305,19 @@ class _PathPicker extends StatelessWidget {
         ),
         SizedBox(height: context.heightByContext(28)),
         AppButton(
-          text: 'Лента',
+          text: context.l10n.onboarding_path_feed,
           onTap: onSelect == null ? null : () => onSelect!(OnboardingPath.feed),
         ),
         SizedBox(height: context.heightByContext(10)),
         _SoftAccentButton(
-          text: 'Бизнес и предприятия',
+          text: context.l10n.onboarding_path_business,
           onTap: onSelect == null
               ? null
               : () => onSelect!(OnboardingPath.business),
         ),
         SizedBox(height: context.heightByContext(10)),
         AppOutlinedButton(
-          text: 'И лента, и дело',
+          text: context.l10n.onboarding_path_both,
           onTap: onSelect == null ? null : () => onSelect!(OnboardingPath.both),
         ),
         SizedBox(height: context.heightByContext(24)),

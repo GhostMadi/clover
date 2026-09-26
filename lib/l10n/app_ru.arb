@@ -1,0 +1,2933 @@
+{
+  "@@locale": "ru",
+  "common_save": "Сохранить",
+  "common_cancel": "Отмена",
+  "common_edit": "Изменить",
+  "common_delete": "Удалить",
+  "common_back": "Назад",
+  "common_next": "Далее",
+  "common_done": "Готово",
+  "common_close": "Закрыть",
+  "common_confirm": "Подтвердить",
+  "common_continue": "Продолжить",
+  "common_retry": "Повторить",
+  "common_error": "Ошибка",
+  "common_loading": "Загрузка…",
+  "common_yes": "Да",
+  "common_no": "Нет",
+  "common_ok": "OK",
+  "common_show": "Показать",
+  "common_hide": "Скрыть",
+  "common_or": "или",
+  "common_search": "Поиск",
+  "common_empty": "Список пуст",
+  "common_share": "Поделиться",
+  "common_copy": "Копировать",
+  "common_send": "Отправить",
+  "common_add": "Добавить",
+  "common_remove": "Убрать",
+  "common_create": "Создать",
+  "common_skip": "Пропустить",
+  "common_start": "Начать",
+  "common_logout": "Выйти",
+  "common_password": "Пароль",
+  "common_checking": "Проверяем…",
+  "common_user": "Пользователь",
+  "common_version": "Версия {version}",
+  "@common_version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "common_theme_system": "Системная",
+  "common_theme_light": "Светлая",
+  "common_theme_dark": "Тёмная",
+  "settings_title": "Настройки",
+  "settings_section_services": "Сервисы",
+  "settings_section_archives": "Архивы",
+  "settings_section_account": "Аккаунт",
+  "settings_section_about": "О приложении",
+  "settings_guide_title": "Гайд",
+  "settings_guide_subtitle": "Как включить и пользоваться сервисами",
+  "settings_booking_title": "Запись",
+  "settings_booking_subtitle": "Услуги, inbox и расписание",
+  "settings_attendance_title": "Посещаемость",
+  "settings_attendance_subtitle": "Компании, геозона и работники",
+  "settings_resources_title": "Ресурсы",
+  "settings_resources_subtitle": "Местоположения и фильтры",
+  "settings_archives_title": "Архивы",
+  "settings_archives_subtitle": "Публикации и кластеры",
+  "settings_saved_posts_title": "Сохраненные посты",
+  "settings_saved_posts_subtitle": "Посты, которые вы сохранили",
+  "settings_account_title": "Аккаунт",
+  "settings_account_subtitle": "Язык, тема и выход",
+  "settings_blocked_title": "Заблокированные",
+  "settings_blocked_subtitle": "Кого вы закрыли",
+  "settings_about_title": "О приложении",
+  "settings_about_subtitle": "Версия и онбординг",
+  "settings_account_page_title": "Аккаунт",
+  "settings_account_section_general": "Общее",
+  "settings_account_section_security": "Безопасность",
+  "settings_account_section_session": "Сессия",
+  "settings_account_language": "Язык",
+  "settings_account_theme": "Тема",
+  "settings_account_reset_password": "Сбросить пароль",
+  "settings_account_set_password": "Установить пароль",
+  "settings_account_password_reset_hint": "Код на email → новый пароль",
+  "settings_account_password_set_hint": "Задать пароль для входа по email или нику",
+  "settings_account_password_check_failed": "Не удалось проверить статус пароля",
+  "settings_account_logout_title": "Выход",
+  "settings_account_logout_confirm": "Выйти из аккаунта на этом устройстве?",
+  "settings_account_logout_action": "Выйти из аккаунта",
+  "settings_account_hibernate_title": "Усыпить аккаунт",
+  "settings_account_hibernate_body": "Профиль и посты скрываются из лент и поиска. Это не удаление — при следующем входе аккаунт снова активен. Повторный сон — не чаще раза в 30 дней.",
+  "settings_account_hibernate_action": "Усыпить",
+  "settings_account_hibernate_subtitle": "Скрыть профиль и посты. Не удаление.",
+  "settings_account_deactivate_title": "Деактивировать аккаунт?",
+  "settings_account_deactivate_body": "Профиль и посты скроются из лент и поиска. Это не безвозвратное удаление: при следующем входе аккаунт снова активен.\n\nЧтобы навсегда удалить аккаунт и связанные данные, напишите в поддержку на clover.com.kz/delete-account.",
+  "settings_account_deactivate_action": "Деактивировать",
+  "settings_account_deactivate_tile": "Деактивировать аккаунт",
+  "settings_account_deactivate_subtitle": "Скрыть профиль. Полное удаление — через поддержку.",
+  "settings_about_page_title": "О приложении",
+  "settings_about_tagline": "События, карта, чат и сервисы для бизнеса — чтобы жизнь была ярче, а работа проще.",
+  "settings_about_section_help": "Помощь",
+  "settings_about_onboarding_title": "Онбординг",
+  "settings_about_onboarding_subtitle": "Показать знакомство с приложением",
+  "settings_blocked_page_title": "Заблокированные",
+  "settings_blocked_unblock_title": "Разблокировать?",
+  "settings_blocked_unblock_confirm": "Разблокировать {name}?",
+  "@settings_blocked_unblock_confirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "auth_login_terms_required": "Примите условия использования, чтобы продолжить",
+  "auth_login_identifier_label": "Ник или email",
+  "auth_login_identifier_hint": "@username или email",
+  "auth_login_forgot_password": "Забыли пароль?",
+  "auth_login_submit": "Войти",
+  "auth_login_no_account": "Нет аккаунта?",
+  "auth_login_create": "Создать",
+  "auth_terms_prefix": "Я соглашаюсь с ",
+  "auth_terms_terms": "условиями использования",
+  "auth_terms_and": " и ",
+  "auth_terms_privacy": "политикой конфиденциальности",
+  "auth_register_title": "Регистрация",
+  "auth_register_password_title": "Придумайте пароль",
+  "auth_register_password_subtitle": "После этого сможете входить по email или нику.",
+  "auth_register_password_mismatch": "Пароли не совпадают",
+  "auth_register_email_hint": "Код отправим только если email ещё не зарегистрирован.",
+  "auth_register_get_code": "Получить код",
+  "auth_register_code_already_sent": "Код уже отправлен — введите его из письма",
+  "auth_email_welcome_from": "Письмо с welcome@clover.com.kz",
+  "auth_email_code_label": "Код из письма",
+  "auth_email_resend_countdown": "Повторная отправка через {countdown}",
+  "@auth_email_resend_countdown": {
+    "placeholders": {
+      "countdown": {
+        "type": "String"
+      }
+    }
+  },
+  "auth_email_resend": "Отправить код снова",
+  "auth_email_password_hint": "минимум {count} символов",
+  "@auth_email_password_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "auth_email_password_repeat": "Повтор пароля",
+  "auth_email_save_password": "Сохранить пароль",
+  "auth_forgot_title": "Сброс пароля",
+  "onboarding_skip": "Пропустить",
+  "onboarding_path_title": "Кто ты в Clover?",
+  "onboarding_path_subtitle": "Короткий тур под тебя",
+  "onboarding_path_feed": "Лента",
+  "onboarding_path_business": "Бизнес и предприятия",
+  "onboarding_path_both": "И лента, и дело",
+  "onboarding_tip_booking_title": "Онлайн-запись",
+  "onboarding_tip_booking_body": "Услуги, мастера, inbox и клиент с вашего профиля — в одном сервисе.",
+  "onboarding_tip_booking_tip": "Супер-тег «Принимаю запись» включает хаб.",
+  "onboarding_tip_attendance_title": "Посещаемость",
+  "onboarding_tip_attendance_body": "Компании, смены и отметки команды. Работник отмечает в приложении.",
+  "onboarding_tip_attendance_tip": "Супер-тег «Посещаемость» открывает управление.",
+  "onboarding_tip_resources_title": "Ресурсы",
+  "onboarding_tip_resources_body": "Ваши места для постов и фильтры витрины профиля — личный справочник.",
+  "onboarding_tip_resources_tip": "Не путать с городом ленты.",
+  "onboarding_tip_bonus_title": "Бонусы",
+  "onboarding_tip_bonus_body": "Копите и тратьте там, где хозяин включил бонусы на услуге.",
+  "onboarding_tip_bonus_tip": "Подробности — в гайде сервисов.",
+  "onboarding_tip_feed_map_title": "Лента и карта",
+  "onboarding_tip_feed_map_body": "Двойной тап по Home — переключение ленты и карты города.",
+  "onboarding_tip_feed_map_tip": "Фильтры слева, уведомления справа.",
+  "onboarding_slide_feed_1_title": "Что происходит",
+  "onboarding_slide_feed_1_body": "Ивенты, новости, живой ритм города — мягко и рядом.",
+  "onboarding_slide_feed_1_tip": "Лента и карта в одном Clover.",
+  "onboarding_slide_feed_2_title": "Места рядом",
+  "onboarding_slide_feed_2_body": "Загляни к салону, кафе или магазину — мягко узнай их мир.",
+  "onboarding_slide_feed_2_tip": "Страница места в Clover.",
+  "onboarding_slide_feed_3_title": "Запись и бонусы",
+  "onboarding_slide_feed_3_body": "Записывайся на услуги. Копи и трать бонусы там, где это доступно.",
+  "onboarding_slide_feed_3_tip": "Всё для тебя — без лишних шагов.",
+  "onboarding_slide_feed_4_title": "Поделись с близкими",
+  "onboarding_slide_feed_4_body": "Напиши другу. Позови на ивент. Тёплый чат — просто рядом.",
+  "onboarding_slide_feed_4_tip": "Общение без суеты.",
+  "onboarding_slide_feed_5_title": "Найди своё",
+  "onboarding_slide_feed_5_body": "Фильтры помогут отсеять шум и оставить только то, что откликается.",
+  "onboarding_slide_feed_5_tip": "Тихо. Точно. По-твоему.",
+  "onboarding_slide_feed_6_body": "Смотри · записывайся · пиши своим · копи бонусы. Легко и тепло.",
+  "onboarding_slide_feed_6_tip": "Повторить тур: Настройки → О приложении.",
+  "onboarding_slide_biz_1_title": "Для бизнеса",
+  "onboarding_slide_biz_1_body": "Один аккаунт — витрина и сервисы. Спокойно и по делу.",
+  "onboarding_slide_biz_1_tip": "Сначала лицо, потом инструменты.",
+  "onboarding_slide_biz_2_title": "Супер-теги",
+  "onboarding_slide_biz_2_body": "Включаешь тег — открывается сила. Запись, команда, точки.",
+  "onboarding_slide_biz_2_tip": "Мало тегов — ясный фокус.",
+  "onboarding_slide_biz_3_title": "Живая витрина",
+  "onboarding_slide_biz_3_body": "Профиль, к которому хочется вернуться. Доверие без крика.",
+  "onboarding_slide_biz_3_tip": "Красота и ясность.",
+  "onboarding_slide_biz_4_title": "Сервисы рядом",
+  "onboarding_slide_biz_4_body": "Запись, бонусы на услугах, всё под рукой.",
+  "onboarding_slide_biz_4_tip": "Гайды — в Настройки → Сервисы.",
+  "onboarding_slide_biz_5_title": "Клиент находит тебя",
+  "onboarding_slide_biz_5_body": "В ленте, на карте, через запись. Вы уже в Clover.",
+  "onboarding_slide_biz_5_tip": "Мягкий путь к людям.",
+  "onboarding_slide_both_1_title": "И лента, и дело",
+  "onboarding_slide_both_1_body": "Для себя — город и запись. Для дела — витрина и сервисы.",
+  "onboarding_slide_both_1_tip": "Один Clover. Два ритма.",
+  "onboarding_slide_both_2_title": "Как для себя",
+  "onboarding_slide_both_2_body": "Ивенты, места, запись, бонусы, фильтры — всё открыто.",
+  "onboarding_slide_both_2_tip": "Живи в городе спокойно.",
+  "onboarding_slide_both_3_title": "Когда ведёшь дело",
+  "onboarding_slide_both_3_body": "Супер-теги включают запись и другие сервисы.",
+  "onboarding_slide_both_3_tip": "Включай по мере надобности.",
+  "onboarding_slide_both_4_title": "Одна витрина",
+  "onboarding_slide_both_4_body": "Профиль — и лицо, и точка входа для клиентов.",
+  "onboarding_slide_both_4_tip": "Мягко и понятно.",
+  "onboarding_slide_both_5_title": "Маленький старт",
+  "onboarding_slide_both_5_body": "Оформи себя. Посмотри ленту. Включи сервис, когда будешь готов.",
+  "onboarding_slide_both_5_tip": "Повторить тур: Настройки → О приложении.",
+  "error_auth_unknown": "Что-то пошло не так. Попробуйте ещё раз.",
+  "error_auth_check_failed": "Не удалось восстановить сессию. Войдите снова.",
+  "error_auth_sign_in_canceled": "Вход отменён.",
+  "error_auth_google_token_missing": "Не удалось войти через Google. Попробуйте ещё раз.",
+  "error_auth_google_failed": "Не удалось войти через Google. Попробуйте ещё раз.",
+  "error_auth_google_misconfigured": "Google Sign-In не настроен: проверьте Web Client ID в Google Cloud и Supabase.",
+  "error_auth_apple_token_missing": "Не удалось войти через Apple. Попробуйте ещё раз.",
+  "error_auth_apple_failed": "Не удалось войти через Apple. Попробуйте ещё раз.",
+  "error_auth_apple_unavailable": "Вход через Apple недоступен на этом устройстве.",
+  "error_auth_supabase_sign_in_failed": "Не удалось выполнить вход. Попробуйте позже.",
+  "error_auth_supabase_user_missing": "Не удалось загрузить профиль после входа.",
+  "error_auth_sign_out_failed": "Не удалось выйти из аккаунта. Попробуйте ещё раз.",
+  "error_auth_network": "Ошибка сети. Проверьте подключение и попробуйте снова.",
+  "error_auth_email_invalid": "Введите корректный email.",
+  "error_auth_email_otp_send_failed": "Не удалось отправить код на email. Попробуйте позже.",
+  "error_auth_email_otp_verify_failed": "Неверный или просроченный код. Запросите новый.",
+  "error_auth_email_otp_rate_limited": "Слишком много писем. Подождите и попробуйте снова.",
+  "error_auth_email_otp_wait": "Подождите {countdown} перед повторной отправкой.",
+  "@error_auth_email_otp_wait": {
+    "placeholders": {
+      "countdown": {
+        "type": "String"
+      }
+    }
+  },
+  "error_auth_email_already_registered": "Этот email уже зарегистрирован. Войдите или сбросьте пароль.",
+  "error_auth_email_not_registered": "Аккаунт с этим email не найден. Создайте аккаунт.",
+  "error_auth_invalid_credentials": "Неверный логин или пароль.",
+  "error_auth_password_invalid": "Пароль слишком короткий. Минимум 8 символов.",
+  "error_auth_password_mismatch": "Пароли не совпадают.",
+  "error_auth_password_update_failed": "Не удалось сохранить пароль. Попробуйте ещё раз.",
+  "error_auth_identifier_invalid": "Введите ник или email.",
+  "error_auth_hibernate_failed": "Не удалось усыпить аккаунт. Попробуйте ещё раз.",
+  "error_auth_hibernate_rate_limited": "Сон можно включать не чаще раза в 30 дней.",
+  "error_auth_delete_account_failed": "Не удалось деактивировать аккаунт. Попробуйте ещё раз.",
+  "push_chat_fallback_title": "Чат",
+  "catalog_country_kz": "Казахстан",
+  "catalog_country_ru": "Россия",
+  "catalog_city_almaty": "Алматы",
+  "catalog_city_astana": "Астана",
+  "catalog_city_shymkent": "Шымкент",
+  "catalog_city_kazan": "Казань",
+  "catalog_city_moscow": "Москва",
+  "catalog_city_saint_petersburg": "Санкт-Петербург",
+  "catalog_tag_business": "Бизнес",
+  "catalog_tag_individual": "Частное лицо",
+  "catalog_tag_community": "Сообщество",
+  "catalog_tag_brand": "Бренд",
+  "catalog_tag_salon": "Салон",
+  "catalog_tag_barbershop": "Барбершоп",
+  "catalog_tag_music": "Музыка",
+  "catalog_tag_sports": "Спорт",
+  "catalog_tag_food": "Еда",
+  "catalog_tag_tech": "Технологии",
+  "catalog_tag_store": "Магазин",
+  "catalog_tag_kids": "Дети",
+  "catalog_tag_teens": "Подростки",
+  "catalog_tag_adults": "Взрослые",
+  "catalog_tag_seniors": "Пожилые",
+  "catalog_tag_families": "Семьи",
+  "catalog_tag_couples": "Пары",
+  "catalog_tag_students": "Студенты",
+  "catalog_tag_professionals": "Профессионалы",
+  "catalog_tag_men_only": "Только мужчины",
+  "catalog_tag_women_only": "Только женщины",
+  "catalog_tag_restaurant": "Ресторан",
+  "catalog_tag_cafe": "Кафе",
+  "catalog_tag_bar": "Бар",
+  "catalog_tag_cinema": "Кино",
+  "catalog_tag_club": "Клуб",
+  "catalog_tag_shop": "Магазин",
+  "catalog_tag_beauty": "Красота",
+  "catalog_tag_fitness": "Фитнес",
+  "catalog_tag_medical": "Медицина",
+  "catalog_tag_education": "Образование",
+  "catalog_tag_coworking": "Коворкинг",
+  "catalog_tag_hotel": "Отель",
+  "catalog_tag_mall": "Торговый центр",
+  "catalog_tag_party": "Вечеринка",
+  "catalog_tag_networking": "Нетворкинг",
+  "catalog_tag_workshop": "Воркшоп",
+  "catalog_tag_lecture": "Лекция",
+  "catalog_tag_festival": "Фестиваль",
+  "catalog_tag_concert": "Концерт",
+  "catalog_tag_exhibition": "Выставка",
+  "catalog_tag_movie_night": "Киновечер",
+  "catalog_tag_game_night": "Игровой вечер",
+  "catalog_tag_dating": "Знакомства",
+  "catalog_tag_kids_event": "Детское событие",
+  "catalog_tag_sport_event": "Спортивное событие",
+  "catalog_tag_sale": "Распродажа",
+  "catalog_tag_grand_opening": "Открытие",
+  "catalog_tag_indoor": "В помещении",
+  "catalog_tag_outdoor": "На улице",
+  "catalog_tag_online": "Онлайн",
+  "catalog_tag_active": "Активный отдых",
+  "catalog_tag_chill": "Релакс",
+  "catalog_tag_extreme": "Экстрим",
+  "catalog_tag_creative": "Творчество",
+  "catalog_tag_educational": "Обучение",
+  "catalog_tag_entertainment": "Развлечения",
+  "catalog_tag_free": "Бесплатно",
+  "catalog_tag_paid": "Платно",
+  "catalog_tag_reservation": "По записи",
+  "catalog_tag_limited_spots": "Ограниченное число мест",
+  "catalog_tag_pet_friendly": "Можно с питомцами",
+  "catalog_tag_eco": "Эко",
+  "catalog_tag_plus18": "18+",
+  "catalog_tag_night": "Ночное",
+  "catalog_tag_new_event": "Новинка",
+  "catalog_tag_popular": "Популярное",
+  "catalog_tag_booking": "Принимаю запись",
+  "catalog_tag_attendance": "Веду посещаемость",
+  "catalog_tag_resources": "Веду ресурсы",
+  "catalog_tag_feedback": "Отзывы на витрине",
+  "catalog_tag_booking_calendar": "Календарь заказов",
+  "catalog_tag_attendance_work": "Мои отметки",
+  "ugc_report_spam": "Спам",
+  "ugc_report_harassment": "Оскорбления",
+  "ugc_report_hate": "Ненависть",
+  "ugc_report_violence": "Насилие",
+  "ugc_report_nudity": "Интимный контент",
+  "ugc_report_scam": "Мошенничество",
+  "ugc_report_other": "Другое",
+  "feed_events_title": "События",
+  "feed_map_title": "Карта",
+  "feed_notifications_title": "Уведомления",
+  "profile_title": "Профиль",
+  "profile_edit_title": "Редактировать профиль",
+  "chat_title": "Чаты",
+  "chat_empty": "Пока нет диалогов",
+  "chat_input_hint": "Сообщение",
+  "booking_hub_title": "Запись",
+  "booking_inbox_title": "Inbox",
+  "attendance_hub_title": "Посещаемость",
+  "resources_hub_title": "Ресурсы",
+  "bonus_hub_title": "Бонусы",
+  "archive_hub_title": "Архивы",
+  "venue_hub_title": "Бронь",
+  "auth_terms_suffix": ". Неприемлемый контент и оскорбительное поведение не допускаются.",
+  "settings_blocked_unblock_action": "Разблокировать",
+  "onboarding_slide_feed_6_title": "Clover с тобой",
+  "auth_email_code_sent_to": "Код отправлен на {email}",
+  "@auth_email_code_sent_to": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "auth_forgot_email_hint": "Код отправим только на уже зарегистрированный email.",
+  "auth_forgot_send_code": "Отправить код",
+  "auth_forgot_new_password_title": "Новый пароль",
+  "auth_forgot_new_password_subtitle": "Придумайте новый пароль для входа.",
+  "settings_password_set_toast": "Пароль установлен",
+  "settings_password_reset_toast": "Пароль сброшен",
+  "settings_password_enter_code": "Введите код из письма",
+  "settings_password_entry_title": "Пароль для входа",
+  "settings_password_entry_subtitle": "Нужен, если входили через Google — потом можно входить и по паролю.",
+  "settings_password_reset_section": "Сброс пароля",
+  "settings_password_no_email": "У аккаунта нет email — сброс по коду недоступен.",
+  "settings_password_send_to_email": "Отправим код на {email}. После подтверждения зададите новый пароль.",
+  "@settings_password_send_to_email": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "ugc_report_objectionable": "Неприемлемый контент",
+  "ugc_report_abusive": "Оскорбительное поведение",
+  "ugc_report_harassment_threats": "Травля / угрозы",
+  "catalog_group_who": "Кто",
+  "catalog_group_type": "Тип",
+  "catalog_group_for": "Для кого",
+  "catalog_group_place": "Место",
+  "catalog_group_event": "Событие",
+  "catalog_group_format": "Формат",
+  "catalog_group_conditions": "Условия",
+  "catalog_group_admin": "Админ",
+  "catalog_group_worker": "Worker",
+  "catalog_city_search_hint": "Поиск города",
+  "catalog_city_pick_country_first": "Сначала выберите страну",
+  "catalog_city_sheet_title": "Город",
+  "catalog_country_search_hint": "Поиск страны",
+  "catalog_country_sheet_title": "Страна",
+  "ugc_report_title": "Пожаловаться",
+  "ugc_report_sent": "Жалоба отправлена. Мы разберём её в течение 24 часов.",
+  "ugc_report_failed": "Не удалось отправить жалобу",
+  "ugc_block_title": "Заблокировать?",
+  "ugc_block_body": "Контент пользователя сразу пропадёт из вашей ленты. Мы получим уведомление и разберём обращение в течение 24 часов.",
+  "ugc_block_confirm": "Заблокировать",
+  "ugc_block_success": "Пользователь заблокирован",
+  "ugc_block_failed": "Не удалось заблокировать",
+  "chat_action_reply": "Ответить",
+  "chat_action_forward": "Переслать",
+  "chat_action_star": "В Избранные",
+  "chat_action_more": "Ещё",
+  "chat_reply_bar_title": "Ответ",
+  "chat_edit_bar_title": "Редактирование",
+  "chat_preview_photo": "Фото",
+  "chat_preview_file": "Файл",
+  "chat_preview_post": "Пост",
+  "chat_preview_system": "Системное",
+  "chat_preview_message": "Сообщение",
+  "profile_fallback_name": "Профиль",
+  "common_cancel_action": "Отменить",
+  "booking_services_label": "Услуги",
+  "booking_analytics_label": "Аналитика",
+  "attendance_punch_clock_in": "Пришёл",
+  "attendance_punch_clock_out": "Ушёл",
+  "nav_tab_events": "События",
+  "nav_tab_map": "Карта",
+  "nav_tab_chat": "Чат",
+  "nav_tab_profile": "Профиль",
+  "common_date": "Дата",
+  "common_today": "Сегодня",
+  "common_yesterday": "Вчера",
+  "common_tomorrow": "Завтра",
+  "common_start_label": "Начало",
+  "common_end_label": "Конец",
+  "common_duration": "Длительность: {duration}",
+  "@common_duration": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "common_event_period": "Период события",
+  "common_end_after_start": "Конец должен быть позже начала",
+  "common_max_duration": "Максимум {duration}",
+  "@common_max_duration": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_rest_days": "Выходные",
+  "booking_days": "Дни",
+  "booking_select": "Выберите",
+  "booking_horizon": "Горизонт",
+  "booking_horizon_mode": "Способ",
+  "booking_horizon_days_ahead": "На период",
+  "booking_horizon_until_date": "До даты",
+  "booking_horizon_how_far": "На сколько вперёд",
+  "booking_horizon_period": "Период",
+  "booking_horizon_forward": "Запись вперёд",
+  "booking_until_date": "До даты",
+  "booking_hours_title": "Часы работы",
+  "booking_from": "С",
+  "booking_to": "До",
+  "booking_to_inclusive": "По",
+  "booking_more_settings": "Ещё настройки",
+  "booking_cancel_visits_title": "Отмена и визиты",
+  "booking_client_cancel": "Отмена клиентом",
+  "booking_cancel_before_start": "До начала",
+  "booking_hours_before": "За {hours} ч",
+  "@booking_hours_before": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_auto_no_show": "Авто «Не пришёл»",
+  "booking_auto_status": "Авто статус",
+  "booking_off": "Выкл",
+  "booking_after_hours": "Через {hours} ч",
+  "@booking_after_hours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_absences_title": "Отпуска / отсутствия",
+  "booking_master": "Мастер",
+  "booking_comment": "Комментарий",
+  "booking_optional": "Необязательно",
+  "booking_week_1": "1 неделя",
+  "booking_weeks_n": "{count} недели",
+  "@booking_weeks_n": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_month_1": "1 месяц",
+  "booking_months_n": "{count} месяца",
+  "@booking_months_n": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_inbox_now": "Сейчас",
+  "booking_inbox_upcoming": "Предстоящие",
+  "booking_inbox_archive": "Архив",
+  "booking_inbox_now_chair": "Сейчас в кресле",
+  "booking_inbox_past_archive": "Прошедшие и архив",
+  "booking_range_this_week": "Эта неделя",
+  "booking_range_next_week": "След. неделя",
+  "booking_range_this_month": "Этот месяц",
+  "booking_range_next_month": "След. месяц",
+  "booking_range_all": "Все записи",
+  "booking_range_recent": "Недавние",
+  "booking_my_bookings": "Мои записи",
+  "booking_no_bookings": "Записей пока нет",
+  "booking_no_bookings_hint": "Когда запишетесь к мастеру, визиты появятся здесь по дням",
+  "booking_my_bookings_hint": "Ваши визиты к мастерам. Выберите день — откройте карточку для переноса или отмены.",
+  "booking_day_none": "{label} · нет записей",
+  "@booking_day_none": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_day_one": "{label} · 1 запись",
+  "@booking_day_one": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_day_few": "{label} · {count} записи",
+  "@booking_day_few": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_day_many": "{label} · {count} записей",
+  "@booking_day_many": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_no_day_bookings": "На этот день записей нет",
+  "booking_pick_another_day": "Выберите другой день в календаре",
+  "booking_client": "Клиент",
+  "booking_service": "Услуга",
+  "booking_services": "Услуги",
+  "booking_team": "Команда",
+  "booking_schedule": "Расписание",
+  "booking_price": "Цена",
+  "booking_duration": "Длительность",
+  "booking_minutes": "{count} мин",
+  "@booking_minutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_cancel_booking": "Отменить запись",
+  "booking_reschedule": "Перенести запись",
+  "booking_reschedule_done": "Запись перенесена",
+  "booking_reschedule_action": "Перенести",
+  "booking_time": "Время",
+  "booking_day": "День",
+  "booking_pick_day": "Выберите день",
+  "booking_note": "Заметка",
+  "booking_reason": "Причина",
+  "booking_executor": "Исполнитель",
+  "booking_executors": "Исполнители",
+  "booking_name": "Название",
+  "booking_point": "Точка",
+  "booking_order": "Заказ",
+  "booking_load_failed": "Не удалось загрузить",
+  "booking_chat_open_failed": "Не удалось открыть чат",
+  "booking_empty": "Пока пусто",
+  "booking_account": "Аккаунт",
+  "booking_clover_account": "Аккаунт Clover",
+  "booking_waiting_chat": "Ждёт ответа в чате",
+  "booking_in_team": "В команде",
+  "booking_request_cancelled": "Заявка отменена",
+  "booking_cancel_service": "Отменить услугу",
+  "booking_master_already_added": "Этот мастер уже добавлен",
+  "booking_date_and_start": "Дата и начало",
+  "booking_created_at": "Создана",
+  "common_back_arrow": "← Назад",
+  "common_follow": "Подписаться",
+  "common_unfollow": "Отписаться",
+  "common_following": "Подписаны",
+  "common_apply": "Применить",
+  "common_reset": "Сбросить",
+  "common_accept": "Принять",
+  "common_reject": "Отклонить",
+  "common_archive": "Архивировать",
+  "common_unarchive": "Разархивировать",
+  "common_download": "Скачать",
+  "common_name": "Название",
+  "common_description": "Описание",
+  "common_active": "Активно",
+  "common_address": "Адрес",
+  "common_filters": "Фильтры",
+  "common_copied": "Скопировано",
+  "common_just_now": "только что",
+  "common_minutes_short": "{count} мин.",
+  "@common_minutes_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_hours_short": "{count} ч.",
+  "@common_hours_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_days_short": "{count} д.",
+  "@common_days_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_days_plural": "{count, plural, one{{count} день} few{{count} дня} other{{count} дней}}",
+  "@common_days_plural": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_minutes_unit": "{count} мин",
+  "@common_minutes_unit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_hours_unit": "{count} ч",
+  "@common_hours_unit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_hours_minutes": "{hours} ч {minutes} мин",
+  "@common_hours_minutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "common_zero_minutes": "0 мин",
+  "common_nothing_found": "Ничего не найдено",
+  "common_try_other_query": "Попробуйте другой запрос",
+  "common_try_change_filter": "Попробуйте изменить фильтр",
+  "common_sign_in_required": "Войдите в аккаунт",
+  "common_no_one_found": "Никого не найдено",
+  "common_and": "и",
+  "common_and_more": "и ещё {count}",
+  "@common_and_more": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_someone": "Кто-то",
+  "common_saving": "Сохранение…",
+  "common_actions": "Действия",
+  "common_messages": "Сообщения",
+  "common_publications": "Публикации",
+  "common_country": "Страна",
+  "common_city": "Город",
+  "common_pick_country": "Выберите страну",
+  "common_pick_city": "Выберите город",
+  "common_from": "С",
+  "common_to": "По",
+  "common_day_after_tomorrow": "Послезавтра",
+  "common_week": "Неделя",
+  "common_month": "Месяц",
+  "common_inactive_suffix": "неактивно",
+  "common_total_count": "Всего: {count}",
+  "@common_total_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_delete_confirm_irreversible": "Это действие нельзя отменить.",
+  "common_could_not_save": "Не удалось сохранить",
+  "common_could_not_delete": "Не удалось удалить",
+  "common_could_not_load": "Не удалось загрузить",
+  "common_new_notification": "Новое уведомление",
+  "common_new_message": "Новое сообщение",
+  "common_location_permission": "Разрешите доступ к геолокации в настройках",
+  "common_location_failed": "Не удалось определить местоположение",
+  "feed_notif_empty": "Уведомлений нет",
+  "feed_notif_last_30_days": "Показаны уведомления за последние 30 дней",
+  "feed_notif_section_last7": "Последние 7 дней",
+  "feed_notif_section_last30": "Последние 30 дней",
+  "feed_notif_login_its_me": "Это я",
+  "feed_notif_login_revoke": "Прервать",
+  "feed_notif_login_change_password": "Сменить пароль",
+  "feed_notif_login_confirmed": "Отмечено: это вы",
+  "feed_notif_login_revoked": "Сессия прервана",
+  "feed_notif_login_resolved": "Обработано",
+  "feed_notif_followed_you": " подписался(-ась) на вас",
+  "feed_notif_you_followed": "Вы подписались на ",
+  "feed_notif_mutual_follow": " подписался(-ась) на вас. Вы подписаны друг на друга",
+  "feed_notif_verb_liked": "лайкнули",
+  "feed_notif_verb_disliked": "дизлайкнули",
+  "feed_notif_verb_replied": "ответил(а)",
+  "feed_notif_verb_commented": "прокомментировал(а)",
+  "feed_notif_target_your_post": "ваш пост",
+  "feed_notif_target_your_comment": "ваш комментарий",
+  "feed_notif_target_on_your_comment": "на ваш комментарий",
+  "feed_notif_booking_created_host": " записался(-ась): {service}{when}",
+  "@feed_notif_booking_created_host": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_booking_booked_client_prefix": "Вы записаны: ",
+  "feed_notif_booking_reminder_at_host": " у {host}{when}",
+  "@feed_notif_booking_reminder_at_host": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_visit_started_prefix": "Сейчас визит — ",
+  "feed_notif_visit_started_suffix": "{when}. Отметьте, пришёл ли клиент",
+  "@feed_notif_visit_started_suffix": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_visit_close_prefix": "Закройте визит — ",
+  "feed_notif_cancelled_host": " отменил(а) запись: {service}{when}",
+  "@feed_notif_cancelled_host": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_cancelled_client": " отменил(а) вашу запись: {service}{when}",
+  "@feed_notif_cancelled_client": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_completed_prefix": "Визит завершён: ",
+  "feed_notif_bonus_earn": " · +{amount} бонусов",
+  "@feed_notif_bonus_earn": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "feed_notif_no_show_prefix": "Визит отмечен как «не пришёл»: ",
+  "feed_notif_rescheduled": " перенёс(ла) запись: ",
+  "feed_notif_assigned_staff_prefix": "Новая запись на вас: ",
+  "feed_notif_attendance_invite": " пригласил(-а) в команду посещаемости",
+  "feed_notif_attendance_rules": "Новые правила компании — нужно принять",
+  "feed_notif_attendance_duty": "Обновлён список дежурных",
+  "feed_notif_attendance_correction": "Запрос на исправление отметки",
+  "feed_notif_login_prefix": "Вход в аккаунт с ",
+  "feed_notif_login_new_device": "нового устройства",
+  "feed_notif_service_fallback": "запись",
+  "feed_notif_host_fallback": "мастера",
+  "feed_notif_reminder_tomorrow": "Завтра запись: ",
+  "feed_notif_reminder_3h": "Через 3 часа: ",
+  "feed_notif_reminder_2h": "Через 2 часа: ",
+  "feed_notif_reminder_1h": "Через час: ",
+  "feed_notif_reminder_30m": "Через 30 мин: ",
+  "feed_notif_reminder_15m": "Через 15 мин: ",
+  "feed_notif_reminder_minutes": "Через {minutes} мин: ",
+  "@feed_notif_reminder_minutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "feed_notif_reminder_default": "Напоминание: ",
+  "feed_notif_punch_clock_out": "Пора отметиться на выход{place}",
+  "@feed_notif_punch_clock_out": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_punch_auto_closed": "Смена закрыта автоматически{place}",
+  "@feed_notif_punch_auto_closed": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_notif_punch_clock_in": "Пора отметиться на вход{place}",
+  "@feed_notif_punch_clock_in": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "feed_map_no_post": "У маркера нет поста",
+  "feed_map_empty_posts": "Нет публикаций",
+  "feed_events_empty_title": "Ничего не найдено",
+  "feed_events_empty_subtitle": "Попробуйте изменить фильтр",
+  "feed_events_no_more": "Больше публикаций нет",
+  "feed_filter_title": "Фильтр",
+  "feed_filter_map_title": "Фильтр карты",
+  "feed_filter_event_days": "Дни ивента",
+  "feed_filter_emoji_label": "Эмодзи ивента",
+  "feed_filter_emoji_hint": "Любое — оставьте пустым",
+  "feed_filter_tags_label": "Теги маркера",
+  "feed_filter_tags_hint": "Любые — оставьте пустым",
+  "feed_filter_tags_search": "Поиск тега",
+  "feed_filter_start_hint": "Начало",
+  "feed_filter_end_hint": "Конец",
+  "booking_point_label": "Точка",
+  "booking_point_not_found": "Точка не найдена",
+  "booking_point_default_name": "Основная",
+  "booking_point_new_title": "Новая точка",
+  "booking_point_new_subtitle": "Салон, филиал или кабинет",
+  "booking_point_card_subtitle": "Услуги, расписание, записи",
+  "booking_point_create_failed": "Не удалось создать точку",
+  "booking_point_name_label": "Название",
+  "booking_my_bookings_title": "Мои записи",
+  "booking_my_bookings_subtitle": "Календарь и визиты",
+  "booking_services_subtitle": "Цены и длительность",
+  "booking_team_title": "Команда",
+  "booking_team_subtitle": "Мастера и приглашения",
+  "booking_chat_title": "Чат",
+  "booking_chat_subtitle": "Команда точки",
+  "booking_analytics_subtitle": "Записи и услуги",
+  "booking_schedule_title": "Расписание",
+  "booking_schedule_subtitle": "Часы и отсутствия",
+  "booking_master_label": "Мастер",
+  "booking_masters_label": "Мастера",
+  "booking_all_masters": "Все мастера",
+  "booking_client_label": "Клиент",
+  "booking_executor_label": "Исполнитель",
+  "booking_executors_label": "Исполнители",
+  "booking_service_label": "Услуга",
+  "booking_price_label": "Цена",
+  "booking_price_tenge_label": "Цена ₸",
+  "booking_duration_label": "Длительность",
+  "booking_minutes_short": "{count} мин",
+  "@booking_minutes_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_note_label": "Заметка",
+  "booking_client_note_title": "Заметка клиента",
+  "booking_salon_label": "Салон",
+  "booking_comment_label": "Комментарий",
+  "booking_reason_label": "Причина",
+  "booking_reason_optional_label": "Причина (необяз.)",
+  "booking_name_label": "Имя",
+  "booking_username_label": "Никнейм",
+  "booking_phone_label": "Телефон",
+  "booking_status_label": "Статус",
+  "booking_when_label": "Когда",
+  "booking_time_label": "Время",
+  "booking_day_label": "День",
+  "booking_days_label": "Дни",
+  "booking_hour_label": "Час",
+  "booking_period_label": "Период",
+  "booking_start_label": "Начало",
+  "booking_end_label": "Конец",
+  "booking_from_label": "С",
+  "booking_to_label": "По",
+  "booking_until_label": "До",
+  "booking_until_date_label": "До даты",
+  "booking_description_label": "Описание",
+  "booking_emoji_label": "Эмодзи",
+  "booking_method_label": "Способ",
+  "booking_optional_hint": "Необязательно",
+  "booking_pick_hint": "Выберите",
+  "booking_pick_day_hint": "Выберите день",
+  "booking_apply": "Применить",
+  "booking_select_action": "Выбрать",
+  "booking_all": "Все",
+  "booking_inactive": "неактивен",
+  "booking_on_site": "на месте",
+  "booking_empty_yet": "Пока пусто",
+  "booking_back_arrow": "← Назад",
+  "booking_inbox_tab_now_short": "Сейчас",
+  "booking_inbox_tab_upcoming_short": "Предстоящие",
+  "booking_inbox_tab_archive_short": "Архив",
+  "booking_inbox_tab_now": "Сейчас в кресле",
+  "booking_inbox_tab_upcoming": "Предстоящие",
+  "booking_inbox_tab_archive": "Прошедшие и архив",
+  "booking_point_chat_title": "Запись · {name}",
+  "@booking_point_chat_title": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_open_chat_failed": "Не удалось открыть чат",
+  "booking_my_empty_title": "Записей пока нет",
+  "booking_my_empty_subtitle": "Когда запишетесь к мастеру, визиты появятся здесь по дням",
+  "booking_my_intro": "Ваши визиты к мастерам. Выберите день — откройте карточку для переноса или отмены.",
+  "booking_my_day_empty_title": "На этот день записей нет",
+  "booking_my_day_empty_subtitle": "Выберите другой день в календаре",
+  "booking_count_none": "{label} · нет записей",
+  "@booking_count_none": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_count_one": "{label} · 1 запись",
+  "@booking_count_one": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_count_few": "{label} · {count} записи",
+  "@booking_count_few": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_count_many": "{label} · {count} записей",
+  "@booking_count_many": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_cancel_booking_title": "Отменить запись",
+  "booking_cancel_too_late": "Отменить запись уже нельзя — слишком близко к визиту",
+  "booking_cancel_success": "Запись отменена",
+  "booking_reschedule_too_late": "Перенести запись уже нельзя — слишком близко к визиту",
+  "booking_reschedule_missing_parties": "Нельзя перенести: нет услуги, мастера или владельца записи",
+  "booking_reschedule_title": "Перенести запись",
+  "booking_reschedule_success": "Запись перенесена",
+  "booking_cancel_preset_plans": "Планы изменились — не смогу прийти",
+  "booking_cancel_preset_wrong_time": "Перепутал время или дату",
+  "booking_cancel_preset_other_time": "Запишусь на другое время",
+  "booking_cancel_preset_not_needed": "Больше не нужна эта услуга",
+  "booking_cancel_body": "«{service}» у {host} будет отменена. Слот освободится для других клиентов.",
+  "@booking_cancel_body": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_ready_messages": "Готовые сообщения",
+  "booking_reason_hint": "Напишите своё сообщение или выберите выше",
+  "booking_available_times": "Доступное время",
+  "booking_no_free_times_day": "На этот день нет свободного времени",
+  "booking_book_action": "Записаться",
+  "booking_confirmed_toast": "Запись подтверждена",
+  "booking_day_unavailable_rest": "В этот день запись недоступна — выходной",
+  "booking_day_unavailable_executor": "{name} недоступен в этот день",
+  "@booking_day_unavailable_executor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_day_unavailable": "В этот день запись недоступна",
+  "booking_slot_conflict_self": "Это время пересекается с вашей другой записью",
+  "booking_slot_taken_by": "Это время уже занято у {name}",
+  "@booking_slot_taken_by": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_conflict_with_yours": "Конфликт с вашей записью",
+  "booking_busy": "Занято",
+  "booking_no_free_slots_day": "На этот день свободных слотов нет",
+  "booking_slots_for_day": "Свободные слоты на выбранный день",
+  "booking_pick_visit_day": "Выберите день визита",
+  "booking_review_before_book": "Проверьте перед записью",
+  "booking_who_does_service": "Кто будет делать услугу",
+  "booking_comment_hint": "Необязательно — пожелания мастеру",
+  "booking_comment_example_hint": "Например: коротко сбоку",
+  "booking_pay_with_bonuses": "Оплатить бонусами",
+  "booking_no_bonus_spend": "Без списания бонусов",
+  "booking_bonus_balance_no_spend": "На балансе {balance}. Бонусы за этот визит не списываем.",
+  "@booking_bonus_balance_no_spend": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_balance_spend": "На балансе {balance}. После визита спишем до {spend}",
+  "@booking_bonus_balance_spend": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      },
+      "spend": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_spend_zero": "Списать 0 (недостаточно на балансе)",
+  "booking_bonus_spend_amount": "Списать −{amount} {word}",
+  "@booking_bonus_spend_amount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_earn_amount": "Начислить +{amount} {word}",
+  "@booking_bonus_earn_amount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_percent_of_price": "({percent}% цены). Остаток — на месте.",
+  "@booking_bonus_percent_of_price": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_max_people_short": "до {count} чел.",
+  "@booking_max_people_short": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_time_range_minutes": "{start}–{end} · {minutes} мин",
+  "@booking_time_range_minutes": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_master_with_name": "Мастер: {name}",
+  "@booking_master_with_name": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_comment_with_text": "Комментарий: {text}",
+  "@booking_comment_with_text": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_service_new_title": "Новая услуга",
+  "booking_service_edit_title": "Редактирование",
+  "booking_service_added": "Услуга добавлена",
+  "booking_service_saved": "Услуга сохранена",
+  "booking_service_active": "Услуга активна",
+  "booking_service_hidden": "Скрыта из записи",
+  "booking_show_to_clients": "Показывать клиентам",
+  "booking_add_service": "Добавить услугу",
+  "booking_services_empty_title": "Услуг пока нет",
+  "booking_services_empty_subtitle": "Добавьте первую — название, длительность и цену",
+  "booking_my_services_title": "Мои услуги",
+  "booking_service_title_hint": "Стрижка мужская",
+  "booking_buffer_after_min": "Буфер после, мин",
+  "booking_buffer_create_only": "Буфер меняется только при создании",
+  "booking_max_participants": "Макс. участников",
+  "booking_bonuses_per_visit": "Бонусов за визит",
+  "booking_bonus_pay_percent": "Оплата бонусами, %",
+  "booking_minutes_field": "Минуты",
+  "booking_add_executor": "Добавить исполнителя",
+  "booking_executors_count": "{count} мастер(ов)",
+  "@booking_executors_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_executor_already_added": "Этот мастер уже добавлен",
+  "booking_cancel_service_title": "Отменить услугу",
+  "booking_cancel_service_body": "«{service}» перестанет отображаться клиентам. Новые записи будут недоступны.",
+  "@booking_cancel_service_body": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_cancel_service_preset_plans": "Планы изменились — услуга временно недоступна",
+  "booking_cancel_service_preset_master": "Мастер недоступен",
+  "booking_cancel_service_preset_stopped": "Больше не оказываем эту услугу",
+  "booking_cancel_service_preset_updating": "Обновляем расписание и прайс",
+  "booking_team_empty_title": "Команда пустая",
+  "booking_team_empty_subtitle": "Пригласите аккаунт Clover или добавьте имя для слотов",
+  "booking_find_account": "Найти аккаунт",
+  "booking_already_in_team": "Уже в команде",
+  "booking_invited": "Приглашён",
+  "booking_invite_sent_chat": "Приглашение отправлено в чат",
+  "booking_invite_cancelled": "Заявка отменена",
+  "booking_removed_from_team": "Убрано из команды",
+  "booking_remove_from_team": "Убрать из команды",
+  "booking_cancel_invite": "Отменить заявку",
+  "booking_team_empty_hint": "Пока никого нет — пригласите аккаунт Clover или добавьте имя.",
+  "booking_team_invite_or_name": "Пригласите из Clover или добавьте только имя для слотов.",
+  "booking_pending_replies": "Ожидают ответа",
+  "booking_pending_short": "Ожидает",
+  "booking_waiting_plural": "Ожидают",
+  "booking_invite_from_clover": "Пригласить из Clover",
+  "booking_add_name_only": "Добавить только имя",
+  "booking_invite_chat_hint": "Отправим заявку в личный чат. После «Принять» можно назначить на услугу.",
+  "booking_search_user_hint": "Поиск по никнейму или имени",
+  "booking_nobody_found": "Никого не найдено",
+  "booking_invite_action": "Пригласить",
+  "booking_name_only_hint": "Без аккаунта Clover — только имя в слотах. Календаря у исполнителя не будет.",
+  "booking_executor_name_hint": "Имя исполнителя",
+  "booking_account_clover": "Аккаунт Clover",
+  "booking_account_label": "Аккаунт",
+  "booking_name_only_short": "Только имя",
+  "booking_name_only_slots": "Только имя в слотах",
+  "booking_waiting_chat_reply": "Ждёт ответа в чате",
+  "booking_waiting_chat_reply_user": "@{username} · ждёт ответа в чате",
+  "@booking_waiting_chat_reply_user": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_add_masters_first": "Сначала добавьте мастеров в услугах",
+  "booking_rest_days_title": "Выходные",
+  "booking_horizon_title": "Горизонт",
+  "booking_book_ahead_title": "Запись вперёд",
+  "booking_cancel_and_visits_title": "Отмена и визиты",
+  "booking_master_schedule": "График мастера",
+  "booking_time_blocks_title": "Блоки времени",
+  "booking_time_block_title": "Блок времени",
+  "booking_no_blocks": "Нет блоков",
+  "booking_block_time": "Заблокировать",
+  "booking_time_blocked": "Время заблокировано",
+  "booking_end_after_start": "Конец должен быть позже начала",
+  "booking_settings_saved": "Настройки сохранены",
+  "booking_system_section": "Системное",
+  "booking_client_cancel_label": "Отмена клиентом",
+  "booking_auto_no_show_label": "Авто «Не пришёл»",
+  "booking_auto_status_sheet": "Авто статус",
+  "booking_how_far_ahead": "На сколько вперёд",
+  "booking_ending_label": "Окончание",
+  "booking_before_start": "До начала",
+  "booking_hours_after": "Через {hours} ч",
+  "@booking_hours_after": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_weeks_count": "{count} недели",
+  "@booking_weeks_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_week_one": "1 неделя",
+  "booking_weeks_two": "2 недели",
+  "booking_weeks_three": "3 недели",
+  "booking_month_one": "1 месяц",
+  "booking_months_two": "2 месяца",
+  "booking_months_three": "3 месяца",
+  "booking_block_reason_hint": "Обед, совещание…",
+  "booking_week_label": "Неделя",
+  "booking_month_label": "Месяц",
+  "booking_assigned_label": "Назначен",
+  "booking_created_label": "Создана",
+  "booking_participants_label": "Участников",
+  "booking_complete_visit_q": "Завершить визит?",
+  "booking_complete_action": "Завершить",
+  "booking_complete_visit_now": "Завершить визит сейчас",
+  "booking_complete_body": "Запись будет закрыта, слот освободится для других клиентов.",
+  "booking_no_show_q": "Клиент не пришёл?",
+  "booking_no_show_action": "Клиент не пришёл",
+  "booking_no_show_short": "Не пришёл",
+  "booking_no_show_body": "Слот освободится. Отменить можно в любой момент, даже если услуга уже началась.",
+  "booking_undo_last_step_q": "Отменить последний шаг?",
+  "booking_undo_action": "Вернуть",
+  "booking_undo_body": "Запись вернётся на предыдущий этап. Например, если случайно отметили «Клиент пришёл».",
+  "booking_host_closes_only": "Только вы закрываете услугу как оказанную. Система сама этого не делает.",
+  "booking_cancel_visit_q": "Отменить визит?",
+  "booking_cancel_visit_action": "Отменить визит",
+  "booking_reschedule_missing_service": "Нельзя перенести: нет услуги или исполнителя. Обновите список записей.",
+  "booking_reschedule_no_session": "Нельзя перенести: сессия не найдена. Войдите снова.",
+  "booking_status_updated": "Статус обновлён",
+  "booking_status_reverted": "Статус возвращён",
+  "booking_status_update_failed": "Не удалось обновить статус",
+  "booking_visit_ended_unmarked": "Визит закончился, статус ещё не отмечен",
+  "booking_visit_ended_hint": "Время записи прошло. Завершите визит сами или отметьте «не пришёл» — система не закроет услугу как сделанную.",
+  "booking_client_already_arrived": "Клиент уже пришёл (без подтверждения)",
+  "booking_visit_marks_title": "Отметки визита",
+  "booking_marked_arrived": "Отмечено: был",
+  "booking_marked_no_show": "Отмечено: не пришёл",
+  "booking_was_short": "Был",
+  "booking_view_only_status": "Только просмотр. Статус визита меняет аккаунт, который ведёт запись.",
+  "booking_client_profile": "Профиль клиента",
+  "booking_client_profile_unavailable": "Профиль клиента недоступен",
+  "booking_what_to_do": "Что хотите сделать",
+  "booking_order_label": "Заказ",
+  "booking_create_booking": "Создать запись",
+  "booking_book_with": "Запись к",
+  "booking_all_bookings": "Все записи",
+  "booking_search_bookings_hint": "Клиент, услуга, телефон…",
+  "booking_filter_by_date": "Фильтр по дате",
+  "booking_quick_pick": "Быстрый выбор",
+  "booking_or_custom_period": "Или свой период",
+  "booking_this_week": "Эта неделя",
+  "booking_next_week": "След. неделя",
+  "booking_this_month": "Этот месяц",
+  "booking_next_month": "След. месяц",
+  "booking_start_date": "Дата начала",
+  "booking_end_date": "Дата конца",
+  "booking_archive_empty": "Архив пока пуст",
+  "booking_no_completed_yet": "Завершённых визитов пока нет",
+  "booking_no_cancelled": "Отменённых записей нет",
+  "booking_cancelled_section": "Отменённые",
+  "booking_need_closing": "Требуют закрытия",
+  "booking_history_title": "История записей",
+  "booking_no_upcoming": "Предстоящих записей нет",
+  "booking_upcoming_empty_hint": "Подтверждённые будущие визиты появятся здесь",
+  "booking_create_first_hint": "Создайте первую запись — она появится здесь",
+  "booking_now_empty_title": "Сейчас никого нет",
+  "booking_now_empty_subtitle": "Здесь появится клиент, когда начнётся его визит",
+  "booking_pick_other_day_feed": "Выберите другой день в ленте или откройте календарь",
+  "booking_day_orders_empty": "На этот день заказов нет",
+  "booking_orders_title": "Заказы",
+  "booking_orders_for_you": "Заказы для вас",
+  "booking_orders_empty": "Заказов пока нет",
+  "booking_orders_empty_hint": "Когда вас добавят исполнителем в запись другого аккаунта, он появится здесь",
+  "booking_orders_calendar": "Календарь заказов",
+  "booking_no_sources_yet": "Пока нет источников",
+  "booking_when_booked_to_you": "Когда к вам запишут, визиты появятся здесь",
+  "booking_analytics_empty_period": "За период записей нет",
+  "booking_revenue_label": "Выручка",
+  "booking_avg_check_label": "Средний чек",
+  "booking_analytics_summary": "{total} записей · {completed} оказано",
+  "@booking_analytics_summary": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "completed": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_analytics_cancelled_part": " · {count} отменено",
+  "@booking_analytics_cancelled_part": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_analytics_pending_part": " · {count} ждут",
+  "@booking_analytics_pending_part": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_staff_completed_line": "{bookings} · {completed} оказано",
+  "@booking_staff_completed_line": {
+    "placeholders": {
+      "bookings": {
+        "type": "int"
+      },
+      "completed": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_rate_visit": "Оценить визит",
+  "booking_thanks_review": "Спасибо за отзыв",
+  "booking_review_mock_hint": "В mock он никуда не уходит — только UI. На проде появится на точке и в сводке профиля.",
+  "booking_review_demo_title": "Стрижка · Салон на Абая · 21 мар",
+  "booking_reviews_count": "{count} отзывов",
+  "@booking_reviews_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_reviews_strip_subtitle": "По точкам записи · тег feedback",
+  "booking_reviews_title": "Отзывы",
+  "booking_how_was_it": "Как прошло?",
+  "booking_review_optional_hint": "Расскажите, как прошло (необязательно)",
+  "booking_send_review": "Отправить отзыв",
+  "booking_demo_leave_review": "Демо: оставить отзыв",
+  "booking_point_reply_title": "Ответ от имени точки",
+  "booking_point_reply_label": "Ответ точки",
+  "booking_save_reply": "Сохранить ответ",
+  "booking_edit_reply": "Изменить ответ",
+  "booking_delete_reply": "Удалить ответ",
+  "booking_mock_no_backend": "Mock · без записи на бэк",
+  "booking_mock_host_reply": "Mock · ответ хозяина",
+  "booking_reply_action": "Ответить",
+  "common_open": "Открыть",
+  "common_refresh": "Обновить",
+  "common_you": "Вы",
+  "common_not_found": "Не найден",
+  "common_time": "Время",
+  "common_later": "Позже",
+  "common_details": "Подробнее",
+  "common_got_it": "Понятно",
+  "common_approve": "Утвердить",
+  "common_approved": "Утверждено",
+  "common_rejected": "Отклонено",
+  "common_pending": "Ожидает",
+  "common_type": "Тип",
+  "common_chat": "Чат",
+  "common_rules": "Правила",
+  "common_settings": "Настройки",
+  "common_saved": "Сохранено",
+  "common_save_failed": "Не удалось сохранить",
+  "common_day": "День",
+  "common_team": "Команда",
+  "common_hours": "Часы",
+  "common_no_data": "Нет данных",
+  "attendance_day_status_full": "Полная смена",
+  "attendance_day_status_late": "Опоздание",
+  "attendance_day_status_partial": "Неполная",
+  "attendance_day_status_absent": "Пропуск",
+  "attendance_day_status_excused": "Оформлено",
+  "attendance_day_status_off": "Выходной",
+  "attendance_day_status_full_short": "Полная",
+  "attendance_day_status_late_short": "Опозд.",
+  "attendance_day_status_partial_short": "Неполная",
+  "attendance_absence_kind_day_off": "Выходной",
+  "attendance_absence_kind_vacation": "Отпуск",
+  "attendance_absence_kind_sick": "Больничный",
+  "attendance_worker_status_accepted": "Принят",
+  "attendance_worker_status_pending": "Ожидает приглашения",
+  "attendance_worker_status_archived": "В архиве",
+  "attendance_worker_status_declined": "Отклонён",
+  "attendance_overtime_status_pending": "Ожидает",
+  "attendance_overtime_status_approved": "Утверждено",
+  "attendance_overtime_status_rejected": "Отклонено",
+  "attendance_correction_status_pending": "Ожидает",
+  "attendance_correction_status_approved": "Утверждено",
+  "attendance_correction_status_rejected": "Отклонено",
+  "attendance_saved_locally": "Сохранено локально",
+  "attendance_saved_locally_syncing": "Сохранено локально, синхронизируется",
+  "attendance_company_not_found": "Компания не найдена",
+  "attendance_company_default_name": "Компания",
+  "attendance_company_fallback": "компанию",
+  "attendance_hub_admin_tag_required": "Включите тег «Веду посещаемость» в профиле",
+  "attendance_hub_new_company": "Новая компания",
+  "attendance_hub_company_created": "Компания создана",
+  "attendance_hub_company_create_failed": "Не удалось создать компанию",
+  "attendance_hub_companies": "Компании",
+  "attendance_hub_empty_hint": "Создайте компанию: геозона, работники и отметки. Кнопка «+» сверху.",
+  "attendance_hub_shifts": "Смены",
+  "attendance_hub_my_attendance": "Моя посещаемость",
+  "attendance_hub_my_attendance_subtitle": "Отметки и смены",
+  "attendance_hub_empty_admin": "Создайте компанию: геозона, работники и отметки. Кнопка на профиле — тег «Веду посещаемость».",
+  "attendance_company_team_invites": "Команда и приглашения",
+  "attendance_company_geofence_punches": "Геозона и отметки",
+  "attendance_company_duty_queue": "Очередь по дням",
+  "attendance_company_leave_sick": "Отпуск и больничный",
+  "attendance_company_ot_approval": "Утверждение доплат",
+  "attendance_company_punch_edits": "Правки отметок",
+  "attendance_company_export_month": "Экспорт за месяц",
+  "attendance_company_hours_team": "Часы и команда",
+  "attendance_company_invite_rules": "Invite и правила",
+  "attendance_punch_title": "Отметка",
+  "attendance_punch_admin_disabled_system": "Админ не включил «Пришёл» и «Ушёл». Только свои отметки ниже.",
+  "attendance_punch_custom_types": "Свои отметки",
+  "attendance_punch_cancel_last": "Отменить последнюю отметку",
+  "attendance_punch_sim_out_of_zone": "Симулировать «вне зоны»",
+  "attendance_punch_sim_in_zone": "Симулировать «в зоне»",
+  "attendance_punch_sim_gps_off": "Симулировать GPS выкл.",
+  "attendance_punch_sim_gps_on": "Симулировать GPS вкл.",
+  "attendance_punch_history": "История отметок",
+  "attendance_punch_history_empty": "Пока нет отметок",
+  "attendance_punch_saved": "{type} — сохранено",
+  "@attendance_punch_saved": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_punch_save_failed": "Не удалось сохранить отметку",
+  "attendance_punch_cancel_title": "Отменить отметку",
+  "attendance_punch_cancel_hint": "Комментарий необязателен — например, отметили по ошибке.",
+  "attendance_punch_cancel_comment": "Комментарий (необяз.)",
+  "attendance_punch_cancelled": "Отметка отменена",
+  "attendance_punch_request_correction": "Запросить исправление",
+  "attendance_punch_no_correction_target": "Нет отметки для исправления",
+  "attendance_punch_correction_sent": "Запрос на исправление отправлен",
+  "attendance_punch_request_failed": "Не удалось отправить запрос",
+  "attendance_punch_accept_rules": "Примите правила v{version} карточкой в чате компании.",
+  "@attendance_punch_accept_rules": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_punch_cancelled_suffix": " · отменено",
+  "attendance_punch_clock_in_at": "Пришёл {time}",
+  "@attendance_punch_clock_in_at": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_punch_clock_out_at": "Ушёл {time}",
+  "@attendance_punch_clock_out_at": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_punch_types_not_configured": "Типы не настроены",
+  "attendance_punch_types_enabled": "Включено: {list}",
+  "@attendance_punch_types_enabled": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_punch_locating": "Определяем местоположение…",
+  "attendance_punch_gps_unavailable": "GPS недоступен",
+  "attendance_punch_in_zone": "Вы в зоне ({radiusM} м)",
+  "@attendance_punch_in_zone": {
+    "placeholders": {
+      "radiusM": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_punch_out_of_zone": "Вы вне зоны",
+  "attendance_punch_refresh_gps": "Обновить GPS",
+  "attendance_punch_shift_already_open": "Смена уже открыта — сначала отметьте «Ушёл»",
+  "attendance_punch_open_chat": "Открыть чат",
+  "attendance_pending_out_of_zone": "Вы вне зоны — откройте экран отметки",
+  "attendance_pending_locating": "Определяем GPS…",
+  "attendance_pending_in_zone": "Вы в зоне · {radiusM} м",
+  "@attendance_pending_in_zone": {
+    "placeholders": {
+      "radiusM": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_pending_out_zone_radius": "Вы вне зоны · {radiusM} м",
+  "@attendance_pending_out_zone_radius": {
+    "placeholders": {
+      "radiusM": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_pending_expected_in": "Ожидается в",
+  "attendance_pending_new_rules": "Новые правила",
+  "attendance_pending_accept_update": "{workplace}: примите обновление v{version} карточкой в чате компании.",
+  "@attendance_pending_accept_update": {
+    "placeholders": {
+      "workplace": {
+        "type": "String"
+      },
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_punch_types_title": "Отметки",
+  "attendance_punch_types_shift": "Смена",
+  "attendance_punch_types_enable_system": "Включите «Пришёл» или «Ушёл»",
+  "attendance_punch_types_custom": "Свои",
+  "attendance_punch_types_custom_empty": "Нет своих отметок. «+» сверху.",
+  "attendance_punch_types_add_title": "Своя отметка",
+  "attendance_punch_types_hint_lunch": "Обед",
+  "attendance_punch_types_already_exists": "Уже есть",
+  "attendance_punch_types_at_time": "в {time}",
+  "@attendance_punch_types_at_time": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_analytics_title": "Аналитика",
+  "attendance_analytics_no_period_data": "Нет данных за период",
+  "attendance_analytics_calendar": "Календарь",
+  "attendance_analytics_calendar_legend": "Цвет = статус · ✓ отметился · ✗ не пришёл",
+  "attendance_analytics_avg": "В среднем",
+  "attendance_analytics_people_count": "{count} чел.",
+  "@attendance_analytics_people_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_late_abbr": "{count} опозд.",
+  "@attendance_analytics_late_abbr": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_missed_abbr": "{count} проп.",
+  "@attendance_analytics_missed_abbr": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_late_suffix": " · {count} опозд.",
+  "@attendance_analytics_late_suffix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_missed_suffix": " · {count} проп.",
+  "@attendance_analytics_missed_suffix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_swipe_weeks": "Листайте по неделям",
+  "attendance_analytics_worked_today": "Отработано за день",
+  "attendance_analytics_excused_absence": "Оформленное отсутствие",
+  "attendance_analytics_punches": "Отметки",
+  "attendance_analytics_no_punches": "Отметок не было",
+  "attendance_analytics_excused_not_miss": "Отсутствие оформлено — не пропуск",
+  "attendance_analytics_day_off": "Выходной день",
+  "attendance_analytics_today_marked": "Сегодня · {marked} / {total}",
+  "@attendance_analytics_today_marked": {
+    "placeholders": {
+      "marked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_analytics_not_punched": "Не отметился",
+  "attendance_analytics_total": "Итого {total}",
+  "@attendance_analytics_total": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_analytics_journal": "Журнал",
+  "attendance_analytics_journal_subtitle": "Быстрый обзор по дням — нажмите на строку",
+  "attendance_analytics_today_suffix": "· сегодня",
+  "attendance_analytics_employee": "Сотрудник",
+  "attendance_analytics_absences": "Отсутствия",
+  "attendance_analytics_absences_subtitle": "Оформленные периоды · не считаются пропуском",
+  "attendance_analytics_history_subtitle": "Последние события с устройства",
+  "attendance_analytics_worked_month": "отработано за месяц",
+  "attendance_analytics_shifts": "Смены",
+  "attendance_analytics_lates": "Опоздания",
+  "attendance_analytics_misses": "Пропуски",
+  "attendance_analytics_payroll": "Зарплата",
+  "attendance_analytics_payroll_subtitle": "Расчёт за период",
+  "attendance_analytics_base_salary": "Оклад",
+  "attendance_analytics_deductions": "Списания",
+  "attendance_analytics_bonuses": "Доплаты",
+  "attendance_analytics_payout": "К выплате",
+  "attendance_worker_no_companies": "Нет активных компаний. Примите приглашение в чате.",
+  "attendance_worker_accept_rules": "{workplace}: примите правила v{version}",
+  "@attendance_worker_accept_rules": {
+    "placeholders": {
+      "workplace": {
+        "type": "String"
+      },
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_worker_on_shift": "на смене",
+  "attendance_worker_off_shift": "не на смене",
+  "attendance_worker_last_punch": "Последнее: {label}",
+  "@attendance_worker_last_punch": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_worker_tag_required": "Чтобы отметиться, включите тег «Мои отметки» в профиле.",
+  "attendance_worker_punch_cta": "Отметиться",
+  "attendance_worker_my_details": "Мои детали",
+  "attendance_worker_lates_abbr": "Опозд.",
+  "attendance_workers_title": "Работники",
+  "attendance_workers_archived_toast": "В архиве",
+  "attendance_workers_archive_failed": "Не удалось архивировать",
+  "attendance_workers_invite_sent": "Приглашение отправлено",
+  "attendance_workers_invite_failed": "Не удалось отправить приглашение",
+  "attendance_workers_waiting": "Ожидают",
+  "attendance_workers_waiting_reply": "{user} · ждёт ответа",
+  "@attendance_workers_waiting_reply": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_in_team": "В команде",
+  "attendance_workers_no_tag": "{user} · нет тега",
+  "@attendance_workers_no_tag": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_in_archive": "{user} · в архиве",
+  "@attendance_workers_in_archive": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_search_failed": "Не удалось найти людей",
+  "attendance_workers_search_hint": "Ник или имя",
+  "attendance_workers_search_empty": "Никого не найдено",
+  "attendance_workers_empty_title": "Пока никого нет",
+  "attendance_workers_empty_subtitle": "Пригласите аккаунт Clover — заявка уйдёт в чат",
+  "attendance_workers_clover_account": "Аккаунт Clover",
+  "attendance_workers_no_work_tag": "{user} · нет тега работника",
+  "@attendance_workers_no_work_tag": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_to_archive": "В архив",
+  "attendance_workers_waiting_chat": "{user} · ждёт ответа в чате",
+  "@attendance_workers_waiting_chat": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_not_in_shifts": "{user} · не в сменах",
+  "@attendance_workers_not_in_shifts": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_workers_reinvite": "Пригласить снова",
+  "attendance_timesheet_title": "Табель",
+  "attendance_timesheet_export_subject": "Табель посещаемости",
+  "attendance_timesheet_no_export_data": "Нет данных для экспорта",
+  "attendance_timesheet_export_failed": "Не удалось экспортировать",
+  "attendance_timesheet_export_csv": "Экспорт CSV",
+  "attendance_chat_title": "Чат компании",
+  "attendance_chat_title_named": "Посещаемость · {name}",
+  "@attendance_chat_title_named": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_chat_system_intro": "Групповой чат компании. Invite и правила — только карточками.",
+  "attendance_chat_no_cards": "Нет активных карточек. Добавьте работника или симулируйте обновление правил.",
+  "attendance_chat_accepted": "{name} принят · в активных и чате",
+  "@attendance_chat_accepted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_chat_declined": "Отклонено · вне команды",
+  "attendance_chat_rules_accepted": "Правила v{version} приняты",
+  "@attendance_chat_rules_accepted": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_chat_join_team": "Стать частью команды",
+  "attendance_chat_invite_body": "Приглашение для {name} ({username}). После принятия — смена, часы и чат компании.",
+  "@attendance_chat_invite_body": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_chat_rules_updated": "Правила обновлены · v{version}",
+  "@attendance_chat_rules_updated": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_chat_rules_body": "Геозона или типы отметок изменились. Пока не примете — отметка недоступна.",
+  "attendance_chat_rules_accept_cta": "Понятно, принимаю",
+  "attendance_chat_open_failed": "Не удалось открыть чат",
+  "attendance_corrections_title": "Исправления",
+  "attendance_corrections_load_failed": "Не удалось загрузить запросы",
+  "attendance_corrections_empty": "Нет запросов на исправление",
+  "attendance_corrections_approved_section": "Утверждены",
+  "attendance_corrections_rejected_section": "Отклонены",
+  "attendance_corrections_current_time": "сейчас {time}",
+  "@attendance_corrections_current_time": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_geofence_title": "Геозона",
+  "attendance_geofence_permission": "Разрешите доступ к геолокации в настройках",
+  "attendance_geofence_locate_failed": "Не удалось определить местоположение",
+  "attendance_geofence_saved": "Геозона сохранена",
+  "attendance_geofence_hint": "Тап по карте — переместить центр. Круг — зона отметки.",
+  "attendance_geofence_radius": "Радиус",
+  "attendance_geofence_radius_m": "{radius} м",
+  "@attendance_geofence_radius_m": {
+    "placeholders": {
+      "radius": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_geofence_radius_m_named": "Радиус {radius} м",
+  "@attendance_geofence_radius_m_named": {
+    "placeholders": {
+      "radius": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_geofence_point_unset": "Точка не задана",
+  "attendance_overtime_title": "Переработка",
+  "attendance_overtime_empty": "Нет заявок на переработку",
+  "attendance_overtime_pending_section": "Ожидают",
+  "attendance_overtime_in_payroll": "В зарплате",
+  "attendance_overtime_rejected_section": "Отклонены",
+  "attendance_overtime_hours_line": "{date} · {hours} ч",
+  "@attendance_overtime_hours_line": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_overtime_suggestion": "Уход позже графика · ~{hours} ч",
+  "@attendance_overtime_suggestion": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_overtime_create_request": "Создать заявку",
+  "attendance_overtime_created": "Заявка создана",
+  "attendance_overtime_create_failed": "Не удалось создать заявку",
+  "attendance_payroll_title": "Зарплата",
+  "attendance_payroll_no_workers": "Нет работников для расчёта",
+  "attendance_payroll_lates": "Опоздания",
+  "attendance_payroll_overtime": "Переработка",
+  "attendance_payroll_misses": "Пропуски",
+  "attendance_payroll_partial_day": "Неполный день",
+  "attendance_payroll_per_min": "₸ / мин",
+  "attendance_payroll_per_hour": "₸ / час",
+  "attendance_payroll_per_day": "₸ / день",
+  "attendance_payroll_percent_day": "% от дня",
+  "attendance_payroll_enter_salary": "Укажите оклад в ₸",
+  "attendance_payroll_salary_saved": "Оклад сохранён",
+  "attendance_payroll_salary_save_failed": "Не удалось сохранить оклад",
+  "attendance_payroll_salary_label": "Оклад, ₸",
+  "attendance_payroll_save_salary": "Сохранить оклад",
+  "attendance_payroll_for_period": "За {period}",
+  "@attendance_payroll_for_period": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_payroll_no_adjustments": "Без корректировок",
+  "attendance_payroll_summary_line": "{period} · {count} чел.",
+  "@attendance_payroll_summary_line": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_payroll_rules_hint": "Правила начисления",
+  "attendance_absences_title": "Отсутствия",
+  "attendance_absences_empty": "Нет отсутствий",
+  "attendance_absences_add_hint": "Выходной, отпуск или больничный",
+  "attendance_absences_no_workers": "Нет активных работников",
+  "attendance_absences_worker": "Работник",
+  "attendance_absences_added": "Добавлено",
+  "attendance_absence_title": "Отсутствие",
+  "attendance_duty_title": "Дежурные",
+  "attendance_duty_not_today": "Сегодня не день дежурства",
+  "attendance_duty_punch_unavailable": "Отметка сегодня недоступна — нет дежурного по расписанию.",
+  "attendance_duty_queue_not_workday": "Очередь есть, но сегодня не рабочий день по настройке.",
+  "attendance_duty_you_today": "Сегодня дежурите вы",
+  "attendance_duty_today_names": "Сегодня дежурит: {names}",
+  "@attendance_duty_today_names": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_duty_mode_only_you": "Режим «только дежурный»: отметка доступна вам.",
+  "attendance_duty_mode_only_others_blocked": "Режим «только дежурный»: отметка другим сегодня недоступна.",
+  "attendance_duty_info_notify": "Инфо + уведомление команде. Отметка доступна как обычно — дежурство не замок.",
+  "attendance_duty_info_anyone": "Инфо для команды. Отметиться может любой принятый работник.",
+  "attendance_duty_only_duty_punches": "Только дежурный отмечает",
+  "attendance_duty_workdays": "Рабочие дни",
+  "attendance_duty_queue": "Очередь",
+  "attendance_duty_add_workers_first": "Сначала добавьте работников",
+  "attendance_duty_none": "Нет дежурного",
+  "attendance_duty_punch_only_duty": "Отметка только у дежурного",
+  "attendance_duty_team_hint": "Подсказка для команды",
+  "attendance_settings_not_configured": "Не настроено",
+  "attendance_settings_custom_count": "{count} свои",
+  "@attendance_settings_custom_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_settings_pick_time": "Выберите время",
+  "bonus_history_title": "История бонусов",
+  "bonus_history_operations": "Операции",
+  "bonus_history_empty_title": "История пока пуста",
+  "bonus_history_empty_subtitle": "Начисления и списания появятся после завершённых визитов",
+  "bonus_balance": "Баланс",
+  "bonus_redeem_hint": "Можно списать при следующей записи к этому мастеру",
+  "bonus_my_title": "Мои бонусы",
+  "bonus_my_subtitle": "Баланс у каждого мастера отдельно. Откройте карточку, чтобы увидеть историю.",
+  "bonus_my_empty_title": "Бонусов пока нет",
+  "bonus_my_empty_subtitle": "После визитов у мастеров с программой лояльности балансы появятся здесь",
+  "profile_edit_action": "Редактировать",
+  "profile_add_post": "Добавить пост",
+  "profile_add_cluster": "Добавить кластер",
+  "profile_manage": "Управление",
+  "profile_cluster_created": "Кластер создан",
+  "profile_cluster_create_failed": "Не удалось создать кластер",
+  "profile_post_published": "Успешно опубликовано",
+  "profile_post_publish_failed": "Не удалось опубликовать",
+  "profile_followers": "Подписчики",
+  "profile_following": "Подписки",
+  "profile_posts_empty_own": "Добавьте первую публикацию",
+  "profile_posts_sign_in": "Войдите, чтобы видеть публикации",
+  "profile_empty_bio": "пусто",
+  "profile_more_suffix": " еще",
+  "profile_username_saved": "Никнейм сохранён",
+  "profile_saved": "Профиль сохранён",
+  "profile_section_main": "Основное",
+  "profile_name_hint": "Как вас зовут",
+  "profile_section_location": "Локация",
+  "profile_banner_title": "Обложка профиля",
+  "profile_cover": "Обложка",
+  "profile_avatar": "Аватар",
+  "profile_username_unset": "Не задан",
+  "profile_username_unavailable": "Смена никнейма сейчас недоступна",
+  "profile_username_charset": "Никнейм может содержать только латиницу, цифры, «_» и «.»",
+  "profile_account_tags": "Теги аккаунта",
+  "profile_pick_tags": "Выберите теги",
+  "profile_about": "О себе",
+  "profile_about_hint": "Расскажите о себе",
+  "profile_change_cover": "Изменить обложку",
+  "profile_add_cover": "Добавить обложку",
+  "profile_invalid": "Некорректный профиль",
+  "profile_not_found": "Профиль не найден",
+  "profile_following_empty": "Пока нет подписок",
+  "profile_followers_empty": "Пока нет подписчиков",
+  "profile_unfollow_padded": "  Отписаться  ",
+  "profile_follow_padded": "  Подписаться  ",
+  "chat_sign_in_to_see": "Войдите в аккаунт, чтобы видеть сообщения",
+  "chat_load_failed": "Не удалось загрузить чаты",
+  "chat_search_hint": "Поиск по чатам и сообщениям",
+  "chat_list_empty_title": "Пока нет чатов",
+  "chat_list_empty_subtitle": "Начните переписку с другого профиля",
+  "chat_search_in_messages": "В сообщениях",
+  "chat_search_no_message_hits": "Совпадений в тексте сообщений нет",
+  "chat_new_group": "Новая группа",
+  "chat_group_name_required": "Укажите название группы",
+  "chat_group_members_required": "Выберите участников",
+  "chat_group_name_hint": "Название группы",
+  "chat_group_search_members": "Поиск участников",
+  "chat_group_from_following": "Участники из подписок",
+  "chat_group_create": "Создать группу",
+  "chat_forward_search": "Поиск получателя",
+  "chat_members_load_failed": "Не удалось загрузить участников",
+  "chat_not_ready": "Чат ещё не готов",
+  "chat_not_created": "Чат ещё не создан",
+  "chat_wallpaper_save_failed": "Не удалось сохранить фон",
+  "chat_info_title": "Информация",
+  "chat_wallpaper": "Фон чата",
+  "chat_dm_subtitle": "Личный чат",
+  "chat_members": "Участники",
+  "chat_members_empty": "Пока нет участников",
+  "chat_group": "Группа",
+  "chat_invalid_user": "Некорректный пользователь",
+  "chat_invalid": "Некорректный чат",
+  "chat_no_access": "Нет доступа к этому чату",
+  "chat_blocked": "Переписка недоступна — пользователь в блоке",
+  "chat_action_failed": "Не удалось выполнить действие",
+  "chat_star_soon": "Избранные для сообщений — скоро",
+  "chat_photo_read_failed": "Не удалось прочитать фото",
+  "chat_file_read_failed": "Не удалось прочитать документ",
+  "chat_typing": "печатает…",
+  "chat_thread_search_hint": "Поиск по сообщениям",
+  "chat_opening": "Открываем чат…",
+  "chat_first_message": "Напишите первое сообщение",
+  "chat_failed": "Не удалось выполнить",
+  "chat_wallpaper_with_emojis": "Фон чата · {emojis}",
+  "@chat_wallpaper_with_emojis": {
+    "placeholders": {
+      "emojis": {
+        "type": "String"
+      }
+    }
+  },
+  "chat_member_you": "{handle} (вы)",
+  "@chat_member_you": {
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "chat_members_one": "{count} участник",
+  "@chat_members_one": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chat_members_few": "{count} участника",
+  "@chat_members_few": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chat_members_many": "{count} участников",
+  "@chat_members_many": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalog_locations_load_failed": "Не удалось загрузить местоположения",
+  "catalog_locations_title": "Местоположения",
+  "catalog_location_new": "Новое местоположение",
+  "catalog_locations_empty": "Пока пусто — добавьте первое местоположение",
+  "catalog_location_save_failed": "Не удалось сохранить изменения",
+  "catalog_location_delete_title": "Удалить местоположение?",
+  "catalog_location": "Местоположение",
+  "catalog_location_not_found": "Место не найдено",
+  "catalog_address_cyrillic": "Адрес (кириллица)",
+  "catalog_address_hint": "ул. Абая, 150, Алматы (необязательно)",
+  "catalog_binding": "Привязка",
+  "catalog_bound_yes": "Страна и город привязаны к этому адресу",
+  "catalog_bound_no": "Выберите страну и город для этого адреса",
+  "catalog_location_active_on": "Местоположение видно и доступно",
+  "catalog_location_active_off": "Местоположение скрыто и недоступно",
+  "catalog_accept_changes": "Принять изменения",
+  "catalog_location_added": "Местоположение добавлено",
+  "catalog_address_search": "Поиск адреса",
+  "catalog_locations_none_active": "Нет активных местоположений",
+  "catalog_address_tap": "Адрес · нажмите, чтобы ввести",
+  "catalog_tags_none": "Нет доступных тегов",
+  "booking_minutes_plain": "{count} мин",
+  "@booking_minutes_plain": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_stats_line": "{total} записей · {completed} оказано",
+  "@booking_stats_line": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "completed": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_stats_cancelled": " · {count} отменено",
+  "@booking_stats_cancelled": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_stats_pending": " · {count} ждут",
+  "@booking_stats_pending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_staff_completed": "{bookings} · {completed} оказано",
+  "@booking_staff_completed": {
+    "placeholders": {
+      "bookings": {
+        "type": "int"
+      },
+      "completed": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_slot_taken": "Это время уже занято у {name}",
+  "@booking_slot_taken": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_executor_absent": "{name} недоступен в этот день",
+  "@booking_executor_absent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_will_spend": "На балансе {balance}. После визита спишем до {spend} ({percent}% цены). Остаток — на месте.",
+  "@booking_bonus_will_spend": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      },
+      "spend": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_bonus_no_spend": "На балансе {balance}. Бонусы за этот визит не списываем.",
+  "@booking_bonus_no_spend": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_spend": "Списать −{amount} {word}",
+  "@booking_bonus_spend": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_bonus_earn": "Начислить +{amount} {word}",
+  "@booking_bonus_earn": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_comment_prefix": "Комментарий: {text}",
+  "@booking_comment_prefix": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_service_cancel_body": "«{title}» перестанет отображаться клиентам. Новые записи будут недоступны.",
+  "@booking_service_cancel_body": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_masters_count": "{count} мастер(ов)",
+  "@booking_masters_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_max_people": "до {count} чел.",
+  "@booking_max_people": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "booking_master_prefix": "Мастер: {name}",
+  "@booking_master_prefix": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_ops_slot_line": "{name} · {start}–{end}",
+  "@booking_ops_slot_line": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_invite_waiting": "@{username} · ждёт ответа в чате",
+  "@booking_invite_waiting": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_cancel_visit_body": "«{title}» у {host} будет отменена. Слот освободится для других клиентов.",
+  "@booking_cancel_visit_body": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_chat_title_named": "Запись · {name}",
+  "@booking_chat_title_named": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "booking_time_duration": "{range} · {minutes} мин",
+  "@booking_time_duration": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "post_booking_service": "Услуга для записи",
+  "post_unavailable": "Пост недоступен",
+  "post_invalid_id": "Некорректный id поста",
+  "post_not_found": "Пост не найден",
+  "post_create_cluster_first": "Сначала создайте кластер",
+  "post_untitled": "Без названия",
+  "post_linked_to_cluster": "Пост привязан к кластеру",
+  "post_link_failed": "Не удалось привязать пост",
+  "post_unlinked_from_cluster": "Пост отвязан от кластера",
+  "post_unlink_failed": "Не удалось отвязать пост",
+  "post_archive_event_title": "Архивировать ивент?",
+  "post_archive_publication_title": "Архивировать публикацию?",
+  "post_archive_event_body": "Событие пропадёт из ленты и карты.",
+  "post_archive_publication_body": "Публикация пропадёт из профиля.",
+  "post_event_archived": "Ивент архивирован",
+  "post_publication_archived": "Публикация архивирована",
+  "post_unarchive_event_title": "Разархивировать ивент?",
+  "post_unarchive_publication_title": "Разархивировать публикацию?",
+  "post_unarchive_event_body": "Событие снова появится в ленте и на карте.",
+  "post_unarchive_publication_body": "Публикация снова появится в профиле.",
+  "post_event_unarchived": "Ивент разархивирован",
+  "post_publication_unarchived": "Публикация разархивирована",
+  "post_unarchive_failed": "Не удалось разархивировать",
+  "post_delete_event_title": "Удалить ивент?",
+  "post_delete_publication_title": "Удалить публикацию?",
+  "post_delete_event_body": "Событие, пост и медиа будут удалены безвозвратно.",
+  "post_delete_publication_body": "Публикация и медиа будут удалены безвозвратно.",
+  "post_event_deleted": "Ивент удалён",
+  "post_publication_deleted": "Публикация удалена",
+  "post_unlink_cluster": "Отвязать от кластера",
+  "post_link_cluster": "Привязать к кластеру",
+  "post_author": "Автор",
+  "post_service_loading": "Загрузка услуги…",
+  "post_book_service": "Запись на услугу",
+  "post_book_this_service": "Записаться на эту услугу",
+  "post_host": "Хост",
+  "post_likes_count": "нравится {count}",
+  "@post_likes_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_dislikes_count": "не нравится {count}",
+  "@post_dislikes_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_datetime_section": "ДАТА И ВРЕМЯ",
+  "post_completed": "Завершено",
+  "post_now": "сейчас",
+  "post_hide_replies": "Скрыть ответы",
+  "post_view_replies": "Посмотреть ответы ({count})",
+  "@post_view_replies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_comments_title": "Комментарии",
+  "post_comment_send_failed": "Не удалось отправить комментарий",
+  "post_comments_empty": "Комментариев пока нет.\nБудьте первым!",
+  "post_reply_for": "Ответ для {username}",
+  "@post_reply_for": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "post_comment_hint": "Добавьте комментарий…",
+  "post_reply_hint": "Ответить {username}…",
+  "@post_reply_hint": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "post_create_title": "Новая публикация",
+  "post_publication": "Публикация",
+  "post_publish": "Опубликовать",
+  "post_title_label": "Заголовок",
+  "post_title_hint": "Добавьте заголовок",
+  "post_emoji_hint": "Добавьте эмодзи",
+  "post_tags": "Теги",
+  "post_pick_location": "Выберите местоположение",
+  "post_event_period_required": "Ивент на карте — укажите начало и конец",
+  "post_period_optional": "Необязательно — без периода обычная публикация",
+  "post_body_hint": "Расскажите о публикации",
+  "post_create_service_first": "Сначала создайте услугу в записях",
+  "post_no_service": "Без услуги",
+  "post_service_unlinked": "Не привязана",
+  "post_shared": "Пост отправлен",
+  "post_share_no_following": "Нет подписок для отправки",
+  "post_share_message_hint": "Напишите сообщение…",
+  "post_address_section": "АДРЕС И ОРИЕНТИР",
+  "cluster_delete_title": "Удалить кластер?",
+  "cluster_delete_body": "Обложка тоже будет удалена.",
+  "cluster_deleted": "Кластер удалён",
+  "cluster_title": "Кластер",
+  "cluster_archive_title": "Архивировать кластер?",
+  "cluster_archive_body": "Он пропадёт из списка в профиле.",
+  "cluster_archived": "Кластер архивирован",
+  "cluster_archive_hub_title": "Архив кластеров",
+  "cluster_archive_empty": "Архив кластеров пуст",
+  "cluster_unarchive_title": "Разархивировать кластер?",
+  "cluster_unarchive_body": "Он снова появится в профиле.",
+  "cluster_unarchived": "Кластер разархивирован",
+  "cluster_name_label": "Название кластера",
+  "cluster_desc_hint": "Краткое описание (необязательно)",
+  "cluster_create_action": "Создать кластер",
+  "cluster_cover": "Обложка кластера",
+  "cluster_new": "Новый кластер",
+  "cluster_tab": "Кластеры",
+  "archive_events_title": "Архив ивентов",
+  "archive_events_empty": "Архив ивентов пуст",
+  "archive_posts_title": "Архив публикаций",
+  "archive_posts_empty": "Архив публикаций пуст",
+  "archive_content": "Содержимое",
+  "archive_posts_events_subtitle": "Архивированные посты и ивенты",
+  "archive_clusters_subtitle": "Архивированные коллекции",
+  "chat_invite_team": "Приглашение в команду",
+  "chat_company_rules": "Правила компании",
+  "chat_invite_declined": "Приглашение отклонено",
+  "chat_invite_booking": "Приглашение в запись",
+  "chat_on_team": "Вы в команде",
+  "chat_accept_rules": "Принять правила",
+  "chat_rules_accepted": "Правила приняты",
+  "chat_you_are_staff": "Вы исполнитель",
+  "chat_attachment": "Вложение",
+  "chat_document": "Документ",
+  "chat_wallpaper_hint": "Вставь смайлики — фон увидят все в этом чате",
+  "chat_wallpaper_preview": "Превью фона",
+  "chat_wallpaper_example": "Например 🍀✨💬",
+  "chat_edited_short": "изм.",
+  "chat_photo_permission": "Разрешите доступ к фото, чтобы сохранить",
+  "chat_saved_to_gallery": "Сохранено в Галерею",
+  "chat_photo_download_failed": "Не удалось скачать фото",
+  "chat_members_count": "{count, plural, one{{count} участник} few{{count} участника} other{{count} участников}}",
+  "@chat_members_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chat_member_you_label": "{handle} (вы)",
+  "@chat_member_you_label": {
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "chat_wallpaper_emojis": "Фон чата · {emojis}",
+  "@chat_wallpaper_emojis": {
+    "placeholders": {
+      "emojis": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_filters_load_failed": "Не удалось загрузить фильтры",
+  "settings_filters_search": "Поиск по фильтрам",
+  "settings_filters_values_word": "значений",
+  "settings_wait_loading": "Подождите загрузку",
+  "settings_guide_topic_missing": "Тема гайда не найдена",
+  "settings_companies_load_failed": "Не удалось загрузить компании",
+  "settings_companies_empty": "Пока нет компаний. Нажмите «Добавить».",
+  "settings_post_filters_title": "Фильтры публикации",
+  "settings_pick_filters": "Выберите фильтры",
+  "settings_filters_selected": "Фильтры выбраны",
+  "settings_filters_categories_hint": "Размер, цвет, бренд и другие категории",
+  "settings_filter_value_one": "значение",
+  "settings_filter_value_few": "значения",
+  "settings_location_filter_own_only": "Фильтр по местам доступен на своём профиле",
+  "settings_places_load_failed": "Не удалось загрузить места",
+  "settings_all_places": "Все места",
+  "settings_no_address_filter": "Без фильтра по адресу",
+  "settings_add_place_hint": "Добавьте место в Ресурсы → Местоположения — тогда можно фильтровать посты.",
+  "settings_no_session": "Нет сессии",
+  "settings_new_category": "Новая категория",
+  "settings_category": "Категория",
+  "settings_category_name": "Название категории",
+  "settings_category_name_hint": "Например: Размер, Цвет, Бренд",
+  "settings_values": "Значения",
+  "settings_values_hint": "XS, Черный, Nike…",
+  "settings_add_one_value": "Добавьте хотя бы одно значение",
+  "settings_save_category": "Сохранить категорию",
+  "settings_save_changes": "Сохранить изменения",
+  "settings_deletion": "Удаление",
+  "settings_filter_categories_title": "Категории фильтров",
+  "settings_filter_categories_intro": "Создайте категорию, укажите название и добавьте варианты значений. После первой категории фильтр появится в профиле.",
+  "settings_create_category": "Создать категорию",
+  "settings_no_categories": "Пока нет категорий",
+  "settings_categories_example": "Например: Размер → XS, S, M\nЦвет → Черный, Белый",
+  "settings_create_first_category": "Создать первую категорию",
+  "settings_guide_services_intro": "Коротко про сервисы Clover. Можно сразу активировать тег хозяина.",
+  "settings_activate": "Активировать",
+  "settings_service_enabled": "Сервис включён на профиле",
+  "settings_activate_failed": "Не удалось активировать",
+  "settings_resources_addresses": "Адреса и точки на карте",
+  "settings_resources_showcase": "Категории витрины профиля",
+  "settings_resources_what": "Что такое ресурсы",
+  "settings_saved_posts_empty": "Сохранённых постов пока нет",
+  "settings_saved_posts_tile": "Сохранённые посты",
+  "venue_my_bookings": "Мои брони",
+  "venue_guests": "Гостей",
+  "venue_establishment": "Заведение",
+  "venue_tickets_fares": "Билеты / тарифы",
+  "venue_places_list": "Места списком",
+  "venue_plan_schema": "План / схема",
+  "venue_sessions_slots": "Сеансы / слоты",
+  "venue_hub_mock_subtitle": "Моки · билеты, места и схема. Редактор плана — на сайте.",
+  "venue_establishments": "Заведения",
+  "venue_requests_confirmed": "Запросы и подтверждённые (мок)",
+  "venue_process_doc": "Процесс: docs/business/venue-seating.md",
+  "venue_mocks_no_backend": "Моки · без бэка",
+  "venue_client_requests_mock": "Клиентский список запросов (мок).",
+  "venue_client_schema_hint": "Клиент видит схему с сайта (JSON) · только выбор и запрос.",
+  "venue_client_flow": "Клиент: схема и/или список → запрос, не оплата.",
+  "venue_session": "Сеанс",
+  "venue_pick_place": "Выберите место",
+  "venue_send_request": "Отправить запрос",
+  "venue_mock_request_sent": "Мок: запрос отправлен · soft-hold",
+  "venue_not_found": "Заведение не найдено",
+  "venue_catalog": "Каталог",
+  "venue_level_a": "Уровень A",
+  "venue_level_b": "Уровень B",
+  "venue_level_c_preview": "Уровень C · превью",
+  "venue_no_schema_hint": "Нет схемы · подсказка",
+  "venue_when_bookable": "Когда можно бронировать",
+  "venue_requests_to_confirm": "Запросы → подтверждение",
+  "venue_client_view": "Как видит клиент",
+  "venue_request_preview": "Превью запроса брони",
+  "venue_request": "Запрос",
+  "venue_request_not_found": "Запрос не найден",
+  "venue_actions_mock": "Действия моковые — бэка нет.",
+  "venue_mock_confirmed": "Мок: подтверждено",
+  "venue_mock_rejected": "Мок: отклонено",
+  "venue_extra_pay": "Нужна доплата (вне Clover)",
+  "venue_mock_extra_pay": "Мок: условие доплаты",
+  "venue_soft_hold_flow": "Запрос → soft-hold → admin решает. Не auto-confirm.",
+  "venue_tab_empty": "Пусто в этой вкладке",
+  "venue_plan_load_failed": "Не удалось загрузить план",
+  "venue_plan_load_error": "Ошибка загрузки плана",
+  "venue_plan_site_only": "Сайт нарисовал → мобилка только смотрит (JSON с сайта, мок).",
+  "venue_plan_preview": "Превью схемы. Рисовать и править — только на сайте.",
+  "venue_no_schema_tickets": "Схемы нет. Хозяин может остаться на билетах / списке.",
+  "venue_empty_canvas": "Пустой холст. На сайте появится редактор «как Figma».",
+  "venue_level_b_bookable": "Уровень B · те же bookable, что на схеме.",
+  "venue_no_seats_tickets_only": "У этого заведения пока нет мест — только билеты.",
+  "venue_occasion_hint": "Occasion: сеанс кино или слот ресторана.",
+  "venue_no_sessions": "Сеансов нет",
+  "venue_level_a_no_schema": "Уровень A · без схемы. Клиент выбирает тариф и qty.",
+  "venue_mock_badge": "мок",
+  "settings_attendance_enable_tag": "Включите тег «Веду посещаемость» в профиле",
+  "settings_attendance_company": "Компания",
+  "settings_attendance_new_company": "Новая компания",
+  "settings_attendance_company_created": "Компания создана",
+  "settings_attendance_company_create_failed": "Не удалось создать компанию",
+  "settings_attendance_companies": "Компании",
+  "settings_attendance_shifts": "Смены",
+  "settings_attendance_my_title": "Моя посещаемость",
+  "settings_attendance_my_subtitle": "Отметки и смены",
+  "settings_filter_delete_confirm": "Нажмите, чтобы удалить «{name}»",
+  "@settings_filter_delete_confirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_filter_deleted": "«{name}» удалена",
+  "@settings_filter_deleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_saved_categories_count": "Сохранённые категории ({count})",
+  "@settings_saved_categories_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settings_venue_client": "Клиент",
+  "venue_when": "Когда",
+  "venue_status": "Статус",
+  "venue_empty_for_now": "Пока пусто",
+  "venue_seat_capacity": "до {count} гост.",
+  "@venue_seat_capacity": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "venue_session_free": "{when} · свободно {free}/{total}",
+  "@venue_session_free": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "free": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "venue_ticket_remaining": "{price} · осталось {remaining}",
+  "@venue_ticket_remaining": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "post_share_sent_to": "Пост отправлен {count} получателям",
+  "@post_share_sent_to": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_in_days": "через {label}",
+  "@post_in_days": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "catalog_total_count": "Всего: {count}",
+  "@catalog_total_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalog_inactive_dot": "{subtitle} · неактивно",
+  "@catalog_inactive_dot": {
+    "placeholders": {
+      "subtitle": {
+        "type": "String"
+      }
+    }
+  },
+  "common_from_short": "С",
+  "attendance_rules_accepted": "Правила v{version} приняты",
+  "@attendance_rules_accepted": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_invite_body": "Приглашение для {name} ({username}). После принятия — смена, часы и чат компании.",
+  "@attendance_invite_body": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_rules_updated": "Правила обновлены · v{version}",
+  "@attendance_rules_updated": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_rules_changed_body": "Геозона или типы отметок изменились. Пока не примете — отметка недоступна.",
+  "attendance_correction_now": "сейчас {time}",
+  "@attendance_correction_now": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_meters": "{meters} м",
+  "@attendance_meters": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_in_zone": "Вы в зоне · {meters} м",
+  "@attendance_in_zone": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_out_zone": "Вы вне зоны · {meters} м",
+  "@attendance_out_zone": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_in_zone_paren": "Вы в зоне ({meters} м)",
+  "@attendance_in_zone_paren": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_enabled_types": "Включено: {list}",
+  "@attendance_enabled_types": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_at_time": "в {time}",
+  "@attendance_at_time": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_radius_label": "Радиус {meters} м",
+  "@attendance_radius_label": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_clock_in_at": "Пришёл {time}",
+  "@attendance_clock_in_at": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_clock_out_at": "Ушёл {time}",
+  "@attendance_clock_out_at": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_custom_count": "{count} свои",
+  "@attendance_custom_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendance_duty_today_named": "Сегодня дежурит: {names}",
+  "@attendance_duty_today_named": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "attendance_pending_accept": "{workplace}: примите обновление v{version} карточкой в чате компании.",
+  "@attendance_pending_accept": {
+    "placeholders": {
+      "workplace": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "common_days_one": "{count} день",
+  "@common_days_one": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_days_few": "{count} дня",
+  "@common_days_few": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_days_many": "{count} дней",
+  "@common_days_many": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_archive_failed": "Не удалось архивировать",
+  "post_empty": "Нет публикаций",
+  "post_relative_minutes": "{count} мин.",
+  "@post_relative_minutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_relative_hours": "{count} ч.",
+  "@post_relative_hours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_relative_days": "{count} д.",
+  "@post_relative_days": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "post_emoji_label": "Эмодзи",
+  "post_shared_to": "Пост отправлен {count} получателям",
+  "@post_shared_to": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chat_create_group": "Создать группу",
+  "chat_wallpaper_label": "Фон чата · {preview}",
+  "@chat_wallpaper_label": {
+    "placeholders": {
+      "preview": {
+        "type": "String"
+      }
+    }
+  },
+  "chat_you_suffix": "{handle} (вы)",
+  "@chat_you_suffix": {
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "chat_join_workplace": "Стать частью «{name}»",
+  "@chat_join_workplace": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chat_join_booking_staff": "Стать исполнителем · «{name}»",
+  "@chat_join_booking_staff": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profile_name_label": "Имя",
+  "profile_section_account": "Аккаунт",
+  "profile_username": "Никнейм",
+  "profile_book": "Записаться",
+  "profile_calendar": "Календарь",
+  "venue_operations": "Операции",
+  "venue_comment": "Комментарий",
+  "settings_filters_count": "Фильтры ({count})",
+  "@settings_filters_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "common_nothing_here": "Ничего нет",
+  "common_something_wrong": "Что-то пошло не так",
+  "common_options": "Опции",
+  "common_emoji_hint": "Выберите или введите эмодзи"
+}

@@ -4,6 +4,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Аватар + имя автора поста; тап открывает [GuestProfileRoute].
 class PostAuthorHeader extends StatelessWidget {
@@ -36,7 +37,7 @@ class PostAuthorHeader extends StatelessWidget {
     final photo = avatarUrl?.trim();
     final label = name != null && name.isNotEmpty
         ? '${usernamePrefix ?? ''}$name'
-        : (usernamePrefix != null ? 'Автор' : 'noName');
+        : (usernamePrefix != null ? context.l10n.post_author : 'noName');
 
     return Row(
       children: [

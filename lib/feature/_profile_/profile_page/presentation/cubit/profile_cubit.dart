@@ -5,6 +5,9 @@ import 'package:clover/feature/_profile_/profile_page/data/repository/profile_re
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 part 'profile_cubit.freezed.dart';
 
@@ -59,7 +62,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       if (profile == null) {
         final had = state.mapOrNull(loaded: (_) => true) ?? false;
         if (!had) {
-          emit(const ProfileState.error('Профиль не найден'));
+          emit( ProfileState.error(lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).profile_not_found));
         }
         return;
       }

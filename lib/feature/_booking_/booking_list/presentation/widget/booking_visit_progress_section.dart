@@ -8,6 +8,7 @@ import 'package:clover/feature/_booking_/shared/data/booking_status_display.dart
 import 'package:clover/feature/_booking_/shared/data/models/booking_status.dart';
 import 'package:flutter/material.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Управление визитом host-ом: основной шаг + экстренные действия.
 class BookingVisitProgressSection extends StatelessWidget {
@@ -51,7 +52,7 @@ class BookingVisitProgressSection extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Отметки визита',
+                  context.l10n.booking_visit_marks_title,
                   style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w700),
                 ),
               ),
@@ -59,26 +60,26 @@ class BookingVisitProgressSection extends StatelessWidget {
                 items: [
                   AppMiniMenuItem(
                     value: BookingHostEmergencyAction.reschedule,
-                    title: 'Перенести',
+                    title: context.l10n.booking_reschedule_action,
                     icon: AppIcons.schedule.icon,
                     enabled: !isLoading,
                   ),
                   AppMiniMenuItem(
                     value: BookingHostEmergencyAction.complete,
-                    title: 'Завершить визит сейчас',
+                    title: context.l10n.booking_complete_visit_now,
                     icon: AppIcons.checkCircleOutline.icon,
                     enabled: !isLoading,
                   ),
                   if (canNoShow)
                     AppMiniMenuItem(
                       value: BookingHostEmergencyAction.noShow,
-                      title: 'Клиент не пришёл',
+                      title: context.l10n.booking_no_show_action,
                       icon: AppIcons.personOff.icon,
                       enabled: !isLoading,
                     ),
                   AppMiniMenuItem(
                     value: BookingHostEmergencyAction.cancel,
-                    title: 'Отменить визит',
+                    title: context.l10n.booking_cancel_visit_action,
                     icon: AppIcons.block.icon,
                     titleColor: context.colors.destructive,
                     iconColor: context.colors.destructive,
@@ -92,7 +93,7 @@ class BookingVisitProgressSection extends StatelessWidget {
           if (item.isVisitUnmarked) ...[
             const SizedBox(height: 8),
             Text(
-              'Время записи прошло. Завершите визит сами или отметьте «не пришёл» — система не закроет услугу как сделанную.',
+              context.l10n.booking_visit_ended_hint,
               style: AppTextStyle.base(13, color: context.colors.destructive, height: 1.35),
             ),
           ],
@@ -117,7 +118,7 @@ class BookingVisitProgressSection extends StatelessWidget {
           if (item.status == BookingStatus.pending) ...[
             const SizedBox(height: 10),
             AppOutlinedButton(
-              text: 'Клиент уже пришёл (без подтверждения)',
+              text: context.l10n.booking_client_already_arrived,
               height: 48,
               isExpanded: true,
               isLoading: isLoading,

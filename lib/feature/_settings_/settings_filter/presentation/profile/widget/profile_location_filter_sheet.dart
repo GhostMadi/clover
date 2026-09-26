@@ -8,6 +8,7 @@ import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/feature/_catalog_/location/data/models/location_model.dart';
 import 'package:clover/feature/_catalog_/location/data/repository/location_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Выбор местоположения для фильтра сетки постов (Ресурсы).
 abstract final class ProfileLocationFilterSheet {
@@ -19,7 +20,7 @@ abstract final class ProfileLocationFilterSheet {
   }) {
     return AppBottomSheet.show<String>(
       context: context,
-      title: 'Местоположение',
+      title: context.l10n.catalog_location,
       contentHeight: MediaQuery.sizeOf(context).height * 0.55,
       service: kResourcesService,
       content: _ProfileLocationFilterBody(
@@ -63,7 +64,7 @@ class _ProfileLocationFilterBodyState extends State<_ProfileLocationFilterBody> 
       setState(() {
         _loading = false;
         _items = const [];
-        _error = 'Фильтр по местам доступен на своём профиле';
+        _error = context.l10n.settings_location_filter_own_only;
       });
       return;
     }
@@ -81,7 +82,7 @@ class _ProfileLocationFilterBodyState extends State<_ProfileLocationFilterBody> 
       if (!mounted) return;
       setState(() {
         _loading = false;
-        _error = 'Не удалось загрузить места';
+        _error = context.l10n.settings_places_load_failed;
       });
     }
   }
@@ -110,8 +111,8 @@ class _ProfileLocationFilterBodyState extends State<_ProfileLocationFilterBody> 
           child: ListView(
             children: [
               _LocationTile(
-                title: 'Все места',
-                subtitle: 'Без фильтра по адресу',
+                title: context.l10n.settings_all_places,
+                subtitle: context.l10n.settings_no_address_filter,
                 selected: selected == null || selected.isEmpty,
                 onTap: () => Navigator.of(context).pop(''),
               ),
@@ -127,7 +128,7 @@ class _ProfileLocationFilterBodyState extends State<_ProfileLocationFilterBody> 
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 24),
                   child: Text(
-                    'Добавьте место в Ресурсы → Местоположения — тогда можно фильтровать посты.',
+                    context.l10n.settings_add_place_hint,
                     style: AppTextStyle.base(14, color: colors.subTextColor),
                   ),
                 ),
@@ -137,7 +138,7 @@ class _ProfileLocationFilterBodyState extends State<_ProfileLocationFilterBody> 
         if (selected != null && selected.isNotEmpty) ...[
           const SizedBox(height: 8),
           AppButton(
-            text: 'Сбросить',
+            text: context.l10n.common_reset,
             isExpanded: true,
             service: kResourcesService,
             onTap: () => Navigator.of(context).pop(''),

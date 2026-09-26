@@ -187,7 +187,7 @@ class _ProfileNewActions extends StatelessWidget {
             children: [
               Expanded(
                 child: AppOutlinedButton(
-                  text: 'Редактировать',
+                  text: context.l10n.profile_edit_action,
                   onTap: () async {
                     await context.router.push(const EditProfileRoute());
                     await sl<ProfileCubit>().refresh();
@@ -206,14 +206,14 @@ class _ProfileNewActions extends StatelessWidget {
                       children: [
                         AppTile(
                           icon: AppIcons.add.icon,
-                          title: 'Добавить пост',
+                          title: context.l10n.profile_add_post,
                           onTap: () {
                             context.router.push(const PostCreateRoute());
                           },
                         ),
                         AppTile(
                           icon: AppIcons.collectionsFilled.icon,
-                          title: 'Добавить кластер',
+                          title: context.l10n.profile_add_cluster,
                           onTap: () {
                             Navigator.of(context).pop();
                             context.router.push(const ClusterCreateRoute());
@@ -272,11 +272,11 @@ class _ProfileServiceShortcutsBlock extends StatelessWidget {
         final workerSpecs = <_ProfileShortcutSpec>[
           if (showBookingCalendar)
             _ProfileShortcutSpec(
-              label: 'Календарь',
+              label: context.l10n.profile_calendar,
               icon: AppIcons.calendarToday.icon,
               iconColor: bookingAccent.icon,
               builder: (child) => AppOutlinedButton(
-                text: 'Календарь',
+                text: context.l10n.profile_calendar,
                 service: kBookingService,
                 isExpanded: true,
                 onTap: () => context.router.push(const BookingCalendarRoute()),
@@ -285,11 +285,11 @@ class _ProfileServiceShortcutsBlock extends StatelessWidget {
             ),
           if (showWorkerAttendance)
             _ProfileShortcutSpec(
-              label: 'Посещаемость',
+              label: context.l10n.attendance_hub_title,
               icon: AppIcons.schedule.icon,
               iconColor: attendanceAccent.icon,
               builder: (child) => AppOutlinedButton(
-                text: 'Посещаемость',
+                text: context.l10n.attendance_hub_title,
                 service: kAttendanceService,
                 isExpanded: true,
                 onTap: () => context.router.push(const AttendanceWorkerHubRoute()),
@@ -301,11 +301,11 @@ class _ProfileServiceShortcutsBlock extends StatelessWidget {
         final adminSpecs = <_ProfileShortcutSpec>[
           if (showBooking)
             _ProfileShortcutSpec(
-              label: 'Запись',
+              label: context.l10n.booking_hub_title,
               icon: AppIcons.calendarMonth.icon,
               iconColor: bookingAccent.ctaForeground,
               builder: (child) => BookingPrimaryButton(
-                text: 'Запись',
+                text: context.l10n.booking_hub_title,
                 isExpanded: true,
                 onTap: () => context.router.push(const SettingsBookingRoute()),
                 child: child,
@@ -313,11 +313,11 @@ class _ProfileServiceShortcutsBlock extends StatelessWidget {
             ),
           if (showAdminAttendance)
             _ProfileShortcutSpec(
-              label: 'Управление',
+              label: context.l10n.profile_manage,
               icon: AppIcons.schedule.icon,
               iconColor: attendanceAccent.ctaForeground,
               builder: (child) => AttendancePrimaryButton(
-                text: 'Управление',
+                text: context.l10n.profile_manage,
                 isExpanded: true,
                 onTap: () => context.router.push(const AttendanceHubRoute()),
                 child: child,
@@ -325,11 +325,11 @@ class _ProfileServiceShortcutsBlock extends StatelessWidget {
             ),
           if (showResources)
             _ProfileShortcutSpec(
-              label: 'Ресурсы',
+              label: context.l10n.resources_hub_title,
               icon: AppIcons.inventory.icon,
               iconColor: resourcesAccent.ctaForeground,
               builder: (child) => AppButton(
-                text: 'Ресурсы',
+                text: context.l10n.resources_hub_title,
                 service: kResourcesService,
                 isExpanded: true,
                 onTap: () => context.router.push(const SettingsResourcesRoute()),

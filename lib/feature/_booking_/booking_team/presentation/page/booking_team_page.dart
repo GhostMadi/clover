@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
@@ -71,20 +72,20 @@ class _BookingTeamPageState extends State<BookingTeamPage> {
             children: [
               Text(
                 person.profileId != null && person.profileId!.isNotEmpty
-                    ? (person.username.trim().isNotEmpty ? '@${person.username}' : 'Аккаунт Clover')
-                    : 'Только имя в слотах',
+                    ? (person.username.trim().isNotEmpty ? '@${person.username}' : context.l10n.booking_clover_account)
+                    : context.l10n.booking_name_only_slots,
                 style: AppTextStyle.base(14, color: colors.subTextColor, height: 1.35),
               ),
               const SizedBox(height: 16),
               BookingPrimaryButton(
-                text: 'Убрать из команды',
+                text: context.l10n.booking_remove_from_team,
                 isExpanded: true,
                 height: 48,
                 onTap: () => Navigator.of(sheetContext).pop(true),
               ),
               const SizedBox(height: 8),
               AppOutlinedButton(
-                text: 'Закрыть',
+                text: context.l10n.common_close,
                 isExpanded: true,
                 height: 48,
                 service: kBookingService,
@@ -117,20 +118,20 @@ class _BookingTeamPageState extends State<BookingTeamPage> {
             children: [
               Text(
                 invite.inviteeUsername?.trim().isNotEmpty == true
-                    ? '@${invite.inviteeUsername} · ждёт ответа в чате'
-                    : 'Ждёт ответа в чате',
+                    ? context.l10n.booking_waiting_chat_reply_user(invite.inviteeUsername!)
+                    : context.l10n.booking_waiting_chat,
                 style: AppTextStyle.base(14, color: colors.subTextColor, height: 1.35),
               ),
               const SizedBox(height: 16),
               BookingPrimaryButton(
-                text: 'Отменить заявку',
+                text: context.l10n.booking_cancel_invite,
                 isExpanded: true,
                 height: 48,
                 onTap: () => Navigator.of(sheetContext).pop(true),
               ),
               const SizedBox(height: 8),
               AppOutlinedButton(
-                text: 'Закрыть',
+                text: context.l10n.common_close,
                 isExpanded: true,
                 height: 48,
                 service: kBookingService,
@@ -149,7 +150,7 @@ class _BookingTeamPageState extends State<BookingTeamPage> {
     try {
       await _cubit.removeStaff(person.id);
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'Убрано из команды', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.booking_removed_from_team, kind: AppSnackBarKind.success);
     } catch (e) {
       if (!mounted) return;
       AppSnackBar.show(
@@ -164,7 +165,7 @@ class _BookingTeamPageState extends State<BookingTeamPage> {
     try {
       await _cubit.cancelInvite(invite.id);
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'Заявка отменена', kind: AppSnackBarKind.success);
+      AppSnackBar.show(context, message: context.l10n.booking_invite_cancelled, kind: AppSnackBarKind.success);
     } catch (e) {
       if (!mounted) return;
       AppSnackBar.show(
@@ -187,7 +188,7 @@ class _BookingTeamPageState extends State<BookingTeamPage> {
         final isLoading = state.maybeMap(loading: (_) => true, orElse: () => false) && staff.isEmpty;
 
         return BookingScreenShell(
-          title: 'Команда',
+          title: context.l10n.booking_team,
           pointId: widget.pointId,
           onPointChanged: (nextId) {
             context.router.replace(BookingTeamRoute(pointId: nextId));
@@ -221,7 +222,7 @@ class _BookingTeamPageState extends State<BookingTeamPage> {
                   children: [
                     if (pending.isNotEmpty) ...[
                       Text(
-                        'Ожидают',
+                        context.l10n.booking_waiting_plural,
                         style: AppTextStyle.base(
                           14,
                           color: context.colors.subTextColor,
@@ -234,7 +235,7 @@ class _BookingTeamPageState extends State<BookingTeamPage> {
                           title: invite.title,
                           subtitle: invite.inviteeUsername?.trim().isNotEmpty == true
                               ? '@${invite.inviteeUsername}'
-                              : 'Ждёт ответа в чате',
+                              : context.l10n.booking_waiting_chat,
                           avatarUrl: invite.inviteeAvatarUrl,
                           onTap: () => _openInviteSheet(invite),
                         ),
@@ -244,7 +245,7 @@ class _BookingTeamPageState extends State<BookingTeamPage> {
                     ],
                     if (staff.isNotEmpty) ...[
                       Text(
-                        'В команде',
+                        context.l10n.booking_in_team,
                         style: AppTextStyle.base(
                           14,
                           color: context.colors.subTextColor,
@@ -258,8 +259,8 @@ class _BookingTeamPageState extends State<BookingTeamPage> {
                           subtitle: person.profileId != null && person.profileId!.isNotEmpty
                               ? (person.username.trim().isNotEmpty
                                   ? '@${person.username}'
-                                  : 'Аккаунт Clover')
-                              : 'Только имя',
+                                  : context.l10n.booking_clover_account)
+                              : context.l10n.booking_name_only_short,
                           avatarUrl: person.avatarUrl,
                           onTap: () => _openStaffSheet(person),
                         ),
@@ -300,18 +301,18 @@ class _EmptyTeam extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Команда пустая',
+              context.l10n.booking_team_empty_title,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(18, color: context.colors.textColor, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Text(
-              'Пригласите аккаунт Clover или добавьте имя для слотов',
+              context.l10n.booking_team_empty_subtitle,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.35),
             ),
             const SizedBox(height: 20),
-            BookingPrimaryButton(text: 'Добавить', isExpanded: true, onTap: onAdd),
+            BookingPrimaryButton(text: context.l10n.common_add, isExpanded: true, onTap: onAdd),
           ],
         ),
       ),

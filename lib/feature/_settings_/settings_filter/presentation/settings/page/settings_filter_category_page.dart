@@ -7,6 +7,7 @@ import 'package:clover/core/shared/app_field.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:clover/feature/_settings_/settings_filter/data/models/filter_category.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Детальная страница категории фильтра витрины (создать / редактировать).
 @RoutePage()
@@ -90,9 +91,9 @@ class _SettingsFilterCategoryPageState extends State<SettingsFilterCategoryPage>
   @override
   Widget build(BuildContext context) {
     final accent = context.colors.serviceAccent(kResourcesService);
-    final title = _isCreate ? 'Новая категория' : (widget.initialName?.trim().isNotEmpty == true
+    final title = _isCreate ? context.l10n.settings_new_category : (widget.initialName?.trim().isNotEmpty == true
         ? widget.initialName!.trim()
-        : 'Категория');
+        : context.l10n.settings_category);
 
     return SettingsScreenShell(
       title: title,
@@ -106,15 +107,15 @@ class _SettingsFilterCategoryPageState extends State<SettingsFilterCategoryPage>
           children: [
             AppField(
               controller: _nameController,
-              labelText: 'Название категории',
-              hintText: 'Например: Размер, Цвет, Бренд',
+              labelText: context.l10n.settings_category_name,
+              hintText: context.l10n.settings_category_name_hint,
               textInputAction: TextInputAction.next,
               onChanged: (_) => setState(() {}),
               service: kResourcesService,
             ),
             const SizedBox(height: 20),
             Text(
-              'Значения',
+              context.l10n.settings_values,
               style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
@@ -124,7 +125,7 @@ class _SettingsFilterCategoryPageState extends State<SettingsFilterCategoryPage>
                 Expanded(
                   child: AppField(
                     controller: _valueController,
-                    hintText: 'XS, Черный, Nike…',
+                    hintText: context.l10n.settings_values_hint,
                     textInputAction: TextInputAction.done,
                     onChanged: (_) => setState(() {}),
                     service: kResourcesService,
@@ -157,7 +158,7 @@ class _SettingsFilterCategoryPageState extends State<SettingsFilterCategoryPage>
                   border: Border.all(color: accent.ctaBorder.withValues(alpha: 0.6)),
                 ),
                 child: Text(
-                  'Добавьте хотя бы одно значение',
+                  context.l10n.settings_add_one_value,
                   style: AppTextStyle.base(13, color: context.colors.subTextColor, fontWeight: FontWeight.w500),
                 ),
               )
@@ -182,7 +183,7 @@ class _SettingsFilterCategoryPageState extends State<SettingsFilterCategoryPage>
               ),
             const SizedBox(height: 24),
             AppButton(
-              text: _isCreate ? 'Сохранить категорию' : 'Сохранить изменения',
+              text: _isCreate ? context.l10n.settings_save_category : context.l10n.settings_save_changes,
               isExpanded: true,
               service: kResourcesService,
               onTap: _canSave ? _save : null,

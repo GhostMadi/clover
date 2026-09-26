@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_field.dart';
@@ -11,7 +12,7 @@ class AppSmilePicker extends StatefulWidget {
     super.key,
     this.controller,
     this.label,
-    this.hintText = 'Выберите или введите эмодзи',
+    this.hintText,
     this.maxLength = 1,
     this.onChanged,
     this.enabled = true,
@@ -21,7 +22,7 @@ class AppSmilePicker extends StatefulWidget {
 
   final TextEditingController? controller;
   final String? label;
-  final String hintText;
+  final String? hintText;
   final int maxLength;
   final ValueChanged<String>? onChanged;
   final bool enabled;
@@ -179,7 +180,7 @@ class _AppSmilePickerState extends State<AppSmilePicker> {
         AppField(
           controller: _controller,
           labelText: widget.label,
-          hintText: widget.hintText,
+          hintText: widget.hintText ?? context.l10n.common_emoji_hint,
           textInputAction: TextInputAction.done,
           isEnabled: widget.enabled,
           onChanged: (value) {

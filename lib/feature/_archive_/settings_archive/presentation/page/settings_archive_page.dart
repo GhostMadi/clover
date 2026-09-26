@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_tile.dart';
@@ -13,25 +14,25 @@ class SettingsArchivePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsScreenShell(
-      title: 'Архивы',
+      title: context.l10n.archive_hub_title,
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SettingsTileSectionTitle('Содержимое'),
+            SettingsTileSectionTitle(context.l10n.archive_content),
             AppTileGroup(
               children: [
                 AppTile(
-                  title: 'Публикации',
-                  subtitle: 'Архивированные посты и ивенты',
+                  title: context.l10n.common_publications,
+                  subtitle: context.l10n.archive_posts_events_subtitle,
                   icon: AppIcons.gridView.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const PostArchiveRoute()),
                 ),
                 AppTile(
-                  title: 'Кластеры',
-                  subtitle: 'Архивированные коллекции',
+                  title: context.l10n.cluster_tab,
+                  subtitle: context.l10n.archive_clusters_subtitle,
                   icon: AppIcons.collectionsFilled.icon,
                   showChevron: true,
                   onTap: () => context.router.push(const ClusterArchiveRoute()),

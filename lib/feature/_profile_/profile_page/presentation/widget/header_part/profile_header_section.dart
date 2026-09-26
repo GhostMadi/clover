@@ -101,17 +101,17 @@ class ProfileHeaderSection extends StatelessWidget {
                         Expanded(
                           child: _tappableStat(
                             onTap: onFollowersTap,
-                            child: ProfileHeaderStat(value: statFollowers, label: 'Подписчики'),
+                            child: ProfileHeaderStat(value: statFollowers, label: context.l10n.profile_followers),
                           ),
                         ),
                         Expanded(
                           child: _tappableStat(
                             onTap: onFollowingTap,
-                            child: ProfileHeaderStat(value: statFollowing, label: 'Подписки'),
+                            child: ProfileHeaderStat(value: statFollowing, label: context.l10n.profile_following),
                           ),
                         ),
                         Expanded(
-                          child: ProfileHeaderStat(value: statPosts, label: 'Публикации'),
+                          child: ProfileHeaderStat(value: statPosts, label: context.l10n.common_publications),
                         ),
                         // Expanded(
                         //   child: ProfileHeaderStat(value: statCollections, label: 'Коллекции'),

@@ -7,6 +7,7 @@ import 'package:clover/feature/_venue_/shared/presentation/widget/venue_mock_wid
 import 'package:clover/feature/_venue_/shared/presentation/widget/venue_screen_shell.dart';
 import 'package:clover/feature/_venue_/shared/presentation/widget/venue_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class VenueSessionsPage extends StatelessWidget {
@@ -20,11 +21,11 @@ class VenueSessionsPage extends StatelessWidget {
     final accent = venueServiceAccent(context.colors);
 
     return VenueScreenShell(
-      title: 'Сеансы / слоты',
+      title: context.l10n.venue_sessions_slots,
       body: ListView(
         padding: EdgeInsets.fromLTRB(16, 8, 16, VenueScreenShell.scrollBottomGap(context)),
         children: [
-          const VenueMockBanner(text: 'Occasion: сеанс кино или слот ресторана.'),
+          VenueMockBanner(text: context.l10n.venue_occasion_hint),
           const SizedBox(height: 16),
           AppTileGroup(
             children: [
@@ -32,7 +33,11 @@ class VenueSessionsPage extends StatelessWidget {
                 AppTile(
                   title: session.title,
                   subtitle:
-                      '${session.whenLabel} · свободно ${session.freeCount}/${session.totalCount}',
+                      context.l10n.venue_session_free(
+                        session.whenLabel,
+                        session.freeCount,
+                        session.totalCount,
+                      ),
                   iconColor: accent.icon,
                   iconBackgroundColor: accent.soft,
                 ),
@@ -40,7 +45,7 @@ class VenueSessionsPage extends StatelessWidget {
           ),
           if (sessions.isEmpty)
             Text(
-              'Сеансов нет',
+              context.l10n.venue_no_sessions,
               style: AppTextStyle.base(14, color: context.colors.subTextColor),
             ),
         ],

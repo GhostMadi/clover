@@ -3,6 +3,7 @@ import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/router/app_router.gr.dart';
 import 'package:clover/core/shared/app_nav_bar/app_nav_bar_item.dart';
 import 'package:clover/feature/dashboard_page/data/models/dashboard_home_mode.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 /// Конфигурация табов главного дашборда.
 abstract final class DashboardTabConfig {
@@ -20,17 +21,21 @@ abstract final class DashboardTabConfig {
     ProfileRoute(),
   ];
 
-  static List<AppNavBarItem> navItemsFor(DashboardHomeMode mode, {bool showChatBadge = false}) {
+  static List<AppNavBarItem> navItemsFor(
+    DashboardHomeMode mode,
+    AppLocalizations l10n, {
+    bool showChatBadge = false,
+  }) {
     final onEvents = mode == DashboardHomeMode.events;
     return [
       AppNavBarItem(
         // Спереди — текущий экран; сзади — второй (двойной тап переключает).
         icon: onEvents ? AppIcons.ticket.icon : AppIcons.map.icon,
         behindIcon: onEvents ? AppIcons.map.icon : AppIcons.ticket.icon,
-        label: onEvents ? 'Event' : 'Map',
+        label: onEvents ? l10n.nav_tab_events : l10n.nav_tab_map,
       ),
-      AppNavBarItem(icon: AppIcons.chat.icon, label: 'Chat', showBadge: showChatBadge),
-      AppNavBarItem(icon: AppIcons.user.icon, label: 'Profile'),
+      AppNavBarItem(icon: AppIcons.chat.icon, label: l10n.nav_tab_chat, showBadge: showChatBadge),
+      AppNavBarItem(icon: AppIcons.user.icon, label: l10n.nav_tab_profile),
     ];
   }
 

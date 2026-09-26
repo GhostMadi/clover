@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -22,7 +23,7 @@ class AppSingleSelect<T> extends StatelessWidget {
     required this.options,
     required this.value,
     required this.onChanged,
-    this.searchHint = 'Поиск',
+    this.searchHint,
     this.sheetTitle,
     this.service,
   });
@@ -37,7 +38,7 @@ class AppSingleSelect<T> extends StatelessWidget {
   final T? value;
   final ValueChanged<T> onChanged;
 
-  final String searchHint;
+  final String? searchHint;
   final String? sheetTitle;
 
   /// Акцент сервиса (шторка, чек, шеврон).
@@ -63,7 +64,7 @@ class AppSingleSelect<T> extends StatelessWidget {
       contentHeight: h,
       service: service,
       content: AppSingleSelectSheetContent<T>(
-        searchHint: searchHint,
+        searchHint: searchHint ?? context.l10n.common_search,
         options: options,
         selected: value,
         service: service,
@@ -144,7 +145,7 @@ class AppSingleSelect<T> extends StatelessWidget {
     required String title,
     required List<AppSingleSelectOption<T>> options,
     T? selected,
-    String searchHint = 'Поиск',
+    String? searchHint,
     AppServiceKind? service,
   }) async {
     final h = MediaQuery.sizeOf(context).height * 0.58;
@@ -157,7 +158,7 @@ class AppSingleSelect<T> extends StatelessWidget {
       contentBottomSpacing: 0,
       service: service,
       content: AppSingleSelectSheetContent<T>(
-        searchHint: searchHint,
+        searchHint: searchHint ?? context.l10n.common_search,
         options: options,
         selected: selected,
         service: service,
@@ -232,7 +233,7 @@ class _AppSingleSelectSheetContentState<T> extends State<AppSingleSelectSheetCon
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Text(
-                      'Ничего не найдено',
+                      context.l10n.common_nothing_found,
                       style: AppTextStyle.base(14, color: colors.subTextColor),
                     ),
                   ),

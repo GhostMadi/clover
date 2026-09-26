@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_calendar/data/models/booking_calendar_item.dart';
@@ -11,34 +12,19 @@ class BookingCalendarDetailPage extends StatelessWidget {
 
   final BookingCalendarItem item;
 
-  static const _monthLabels = [
-    'янв',
-    'фев',
-    'мар',
-    'апр',
-    'май',
-    'июн',
-    'июл',
-    'авг',
-    'сен',
-    'окт',
-    'ноя',
-    'дек',
-  ];
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final date = item.startsAtDate?.toLocal();
     final when = date == null
         ? '—'
-        : '${date.day} ${_monthLabels[date.month - 1]} · '
+        : '${context.dateFormat.dayMonth(date)} · '
             '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
     final notes = item.notes?.trim();
     final bottomGap = BookingScreenShell.scrollBottomGap(context);
 
     return BookingScreenShell(
-      title: 'Заказ',
+      title: context.l10n.booking_order,
       compactBar: true,
       body: ListView(
         padding: EdgeInsets.fromLTRB(16, 8, 16, bottomGap),
@@ -48,27 +34,27 @@ class BookingCalendarDetailPage extends StatelessWidget {
             style: AppTextStyle.base(20, fontWeight: FontWeight.w700, color: colors.textColor),
           ),
           const SizedBox(height: 16),
-          _row(context, 'Когда', when),
-          _row(context, 'Статус', item.statusLabel),
+          _row(context, context.l10n.booking_when_label, when),
+          _row(context, context.l10n.booking_status_label, item.statusLabel),
           _row(
             context,
-            'Клиент',
+            context.l10n.booking_client,
             item.clientName.trim().isEmpty ? '—' : item.clientName,
           ),
           _row(
             context,
-            'Аккаунт',
+            context.l10n.booking_account,
             [
               item.hostDisplayName,
               if (item.hostUsernameLabel.isNotEmpty) item.hostUsernameLabel,
             ].where((e) => e.trim().isNotEmpty).join(' · '),
           ),
-          _row(context, 'Цена', item.priceLabel),
-          _row(context, 'Длительность', '${item.durationMinutes} мин'),
-          if (notes != null && notes.isNotEmpty) _row(context, 'Заметка', notes),
+          _row(context, context.l10n.booking_price, item.priceLabel),
+          _row(context, context.l10n.booking_duration, context.l10n.booking_minutes_plain(item.durationMinutes)),
+          if (notes != null && notes.isNotEmpty) _row(context, context.l10n.booking_note, notes),
           const SizedBox(height: 12),
           Text(
-            'Только просмотр. Статус визита меняет аккаунт, который ведёт запись.',
+            context.l10n.booking_view_only_status,
             style: AppTextStyle.base(13, color: colors.subTextColor),
           ),
         ],

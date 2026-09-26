@@ -5,6 +5,7 @@ import 'package:clover/feature/_booking_/booking_list/presentation/widget/bookin
 import 'package:clover/feature/_booking_/my_bookings/data/models/my_booking_item.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Карточка записи клиента в ленте выбранного дня.
 class MyBookingCard extends StatelessWidget {
@@ -24,7 +25,7 @@ class MyBookingCard extends StatelessWidget {
     final timeLabel = date != null
         ? '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}'
         : '—';
-    final durationLabel = item.durationMinutes > 0 ? '${item.durationMinutes} мин' : '';
+    final durationLabel = item.durationMinutes > 0 ? context.l10n.booking_minutes_short(item.durationMinutes) : '';
     final meta = [
       if (item.executorName != null && item.executorName!.trim().isNotEmpty) item.executorName!.trim(),
       if (durationLabel.isNotEmpty) durationLabel,

@@ -1,3 +1,5 @@
+import 'package:clover/core/extension/context.dart';
+import 'package:clover/core/locale/app_date_format.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -29,29 +31,15 @@ class AppDatePicker extends StatelessWidget {
   final bool enabled;
   final AppServiceKind? service;
 
-  static const _months = <String>[
-    'Январь',
-    'Февраль',
-    'Март',
-    'Апрель',
-    'Май',
-    'Июнь',
-    'Июль',
-    'Август',
-    'Сентябрь',
-    'Октябрь',
-    'Ноябрь',
-    'Декабрь',
-  ];
-
-  static String formatDisplay(DateTime date) {
-    return '${date.day} ${_months[date.month - 1].toLowerCase()}';
+  /// `15 июня` / `June 15` via [intl].
+  static String formatDisplay(DateTime date, {String locale = 'ru'}) {
+    return AppDateFormat(locale).dayMonthLong(date);
   }
 
   Future<void> _openSheet(BuildContext context) async {
     final picked = await AppBottomSheet.show<DateTime>(
       context: context,
-      title: label ?? 'Дата',
+      title: label ?? context.l10n.common_date,
       upperCaseTitle: false,
       showCloseButton: true,
       service: service,
@@ -73,7 +61,7 @@ class AppDatePicker extends StatelessWidget {
     return AppPickerFieldShell(
       label: label,
       hint: hint,
-      displayText: value == null ? null : formatDisplay(value!),
+      displayText: value == null ? null : formatDisplay(value!, locale: context.l10n.localeName),
       prefixIcon: AppIcons.calendarToday.icon,
       enabled: enabled,
       service: service,
@@ -154,6 +142,8 @@ class _AppDatePickerSheetState extends State<_AppDatePickerSheet> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final l10n = context.l10n;
+    final dates = context.dateFormat;
     final bottom = MediaQuery.paddingOf(context).bottom;
 
     return Column(
@@ -162,7 +152,7 @@ class _AppDatePickerSheetState extends State<_AppDatePickerSheet> {
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: Text(
-            AppDatePicker.formatDisplay(_selected),
+            dates.dayMonthLong(_selected),
             textAlign: TextAlign.center,
             style: AppTextStyle.base(20, fontWeight: FontWeight.w700, color: colors.textColor),
           ),
@@ -178,7 +168,7 @@ class _AppDatePickerSheetState extends State<_AppDatePickerSheet> {
             children: [
               Expanded(
                 child: AppPickerWheel(
-                  items: AppDatePicker._months,
+                  items: dates.monthNames(),
                   selectedIndex: _month - 1,
                   onSelectedIndexChanged: _onMonthChanged,
                   service: widget.service,
@@ -198,7 +188,7 @@ class _AppDatePickerSheetState extends State<_AppDatePickerSheet> {
         Padding(
           padding: EdgeInsets.only(top: 8, bottom: bottom),
           child: AppButton(
-            text: 'Готово',
+            text: l10n.common_done,
             isExpanded: true,
             service: widget.service,
             onTap: _confirm,

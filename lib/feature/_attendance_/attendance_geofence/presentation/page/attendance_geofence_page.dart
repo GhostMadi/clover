@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:clover/core/extension/context.dart';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:clover/core/dependencies/get_it.dart';
@@ -86,13 +87,13 @@ class _AttendanceGeofencePageState extends State<AttendanceGeofencePage> {
       case AppMapMyLocationResult.permissionDenied:
         AppSnackBar.show(
           context,
-          message: 'Разрешите доступ к геолокации в настройках',
+          message: context.l10n.attendance_geofence_permission,
           kind: AppSnackBarKind.error,
         );
       case AppMapMyLocationResult.unavailable:
         AppSnackBar.show(
           context,
-          message: 'Не удалось определить местоположение',
+          message: context.l10n.attendance_geofence_locate_failed,
           kind: AppSnackBarKind.error,
         );
     }
@@ -109,14 +110,14 @@ class _AttendanceGeofencePageState extends State<AttendanceGeofencePage> {
       AppSnackBar.show(
         context,
         message: result == AttendancePersistResult.queued
-            ? 'Сохранено локально, синхронизируется'
-            : 'Геозона сохранена',
+            ? context.l10n.attendance_saved_locally_syncing
+            : context.l10n.attendance_geofence_saved,
         kind: AppSnackBarKind.success,
       );
       context.router.maybePop();
     } catch (e) {
       if (!mounted) return;
-      final msg = e is AttendanceException ? e.userMessage : 'Не удалось сохранить';
+      final msg = e is AttendanceException ? e.userMessage : context.l10n.common_save_failed;
       AppSnackBar.show(context, message: msg, kind: AppSnackBarKind.error);
     }
   }
@@ -154,7 +155,7 @@ class _AttendanceGeofencePageState extends State<AttendanceGeofencePage> {
                   height: kToolbarHeight,
                   child: Center(
                     child: Text(
-                      'Геозона',
+                      context.l10n.attendance_geofence_title,
                       style: AppTextStyle.base(17, color: colors.textColor, fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -189,7 +190,7 @@ class _AttendanceGeofencePageState extends State<AttendanceGeofencePage> {
         ),
         FunctionalButtonItem(
           icon: AppIcons.checkRounded.icon,
-          label: 'Сохранить',
+          label: context.l10n.common_save,
           keepWhenCollapsed: true,
           customColor: attendanceServiceAccent(colors).cta,
           iconColor: attendanceServiceAccent(colors).ctaForeground,
@@ -246,24 +247,24 @@ class _GeofenceControlsPanel extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '$radius м',
+                  context.l10n.attendance_meters(radius),
                   style: AppTextStyle.base(13, color: colors.functionalSoftBlueIcon, fontWeight: FontWeight.w700),
                 ),
               ],
             ),
             const SizedBox(height: 4),
             Text(
-              'Тап по карте — переместить центр. Круг — зона отметки.',
+              context.l10n.attendance_geofence_hint,
               style: AppTextStyle.base(12, color: colors.subTextColor, height: 1.3),
             ),
             const SizedBox(height: 10),
-            Text('Радиус', style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600)),
+            Text(context.l10n.attendance_geofence_radius, style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600)),
             Slider(
               value: radius.toDouble(),
               min: 50,
               max: 300,
               divisions: 5,
-              label: '$radius м',
+              label: context.l10n.attendance_meters(radius),
               onChanged: onRadiusChanged,
             ),
           ],

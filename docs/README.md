@@ -28,6 +28,7 @@
 | Данные профиля | [business/profile-data.md](business/profile-data.md) |
 | Сила тегов профиля | [business/tag-powers.md](business/tag-powers.md) |
 | Локализация справочников | [business/localization-dictionaries.md](business/localization-dictionaries.md) |
+| Локализация приложения (ru/en/kk) | [business/app-localization.md](business/app-localization.md) |
 | Синхронизация справочников | [business/catalog-sync.md](business/catalog-sync.md) |
 | Публикации и ивенты | [business/publications.md](business/publications.md) |
 | Реакции и комментарии | [business/reactions.md](business/reactions.md) · [business/comments.md](business/comments.md) |

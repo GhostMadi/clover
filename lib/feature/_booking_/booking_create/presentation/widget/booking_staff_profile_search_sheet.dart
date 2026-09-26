@@ -1,4 +1,5 @@
 import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -24,7 +25,7 @@ abstract final class BookingStaffProfileSearchSheet {
     return AppBottomSheet.show<BookingServiceExecutor>(
       service: kBookingService,
       context: context,
-      title: manageTeam ? 'Добавить' : 'Исполнители',
+      title: manageTeam ? context.l10n.common_add : context.l10n.booking_executors,
       expandBody: true,
       contentPadding: const EdgeInsets.all(16),
       sheetOuterPadding: const EdgeInsets.fromLTRB(16, 48, 16, 12),
@@ -112,8 +113,8 @@ class _BodyState extends State<_Body> {
   String? _inviteStatusLabel(BookingStaffSearchState state, String profileId) {
     final id = profileId.trim();
     if (id.isEmpty) return null;
-    if (state.staff.any((s) => s.profileId?.trim() == id)) return 'В команде';
-    if (state.pending.any((i) => i.inviteeId.trim() == id)) return 'Приглашён';
+    if (state.staff.any((s) => s.profileId?.trim() == id)) return context.l10n.booking_in_team;
+    if (state.pending.any((i) => i.inviteeId.trim() == id)) return context.l10n.booking_invited;
     return null;
   }
 
@@ -122,10 +123,10 @@ class _BodyState extends State<_Body> {
     if (action == null) return;
     switch (action) {
       case BookingStaffSheetAction.invited:
-        AppSnackBar.show(context, message: 'Приглашение отправлено в чат', kind: AppSnackBarKind.success);
+        AppSnackBar.show(context, message: context.l10n.booking_invite_sent_chat, kind: AppSnackBarKind.success);
         setState(() => _mode = _SheetMode.pick);
       case BookingStaffSheetAction.inviteCancelled:
-        AppSnackBar.show(context, message: 'Заявка отменена', kind: AppSnackBarKind.success);
+        AppSnackBar.show(context, message: context.l10n.booking_invite_cancelled, kind: AppSnackBarKind.success);
       case BookingStaffSheetAction.created:
         break;
       case BookingStaffSheetAction.failed:
@@ -180,13 +181,13 @@ class _BodyState extends State<_Body> {
             children: [
               if (!manage) ...[
                 Text(
-                  'Уже в команде',
+                  context.l10n.booking_already_in_team,
                   style: AppTextStyle.base(14, color: colors.textColor, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 8),
                 if (available.isEmpty)
                   Text(
-                    'Пока никого нет — пригласите аккаунт Clover или добавьте имя.',
+                    context.l10n.booking_team_empty_hint,
                     style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
                   )
                 else
@@ -195,20 +196,20 @@ class _BodyState extends State<_Body> {
                       title: person.displayName,
                       subtitle: person.username.trim().isNotEmpty ? '@${person.username}' : null,
                       avatarUrl: person.avatarUrl,
-                      actionLabel: 'Выбрать',
+                      actionLabel: context.l10n.booking_select_action,
                       onTap: () => Navigator.of(context).pop(person),
                     ),
                     const SizedBox(height: 8),
                   ],
               ] else
                 Text(
-                  'Пригласите из Clover или добавьте только имя для слотов.',
+                  context.l10n.booking_team_invite_or_name,
                   style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
                 ),
               if (state.pending.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 Text(
-                  'Ожидают ответа',
+                  context.l10n.booking_pending_replies,
                   style: AppTextStyle.base(14, color: colors.textColor, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 8),
@@ -217,9 +218,9 @@ class _BodyState extends State<_Body> {
                     title: invite.title,
                     subtitle: invite.inviteeUsername?.trim().isNotEmpty == true
                         ? '@${invite.inviteeUsername}'
-                        : 'Ожидает',
+                        : context.l10n.booking_pending_short,
                     avatarUrl: invite.inviteeAvatarUrl,
-                    actionLabel: 'Отменить',
+                    actionLabel: context.l10n.common_cancel_action,
                     outlined: true,
                     onTap: state.busy ? null : () => _cancelInvite(invite.id),
                   ),
@@ -231,7 +232,7 @@ class _BodyState extends State<_Body> {
         ),
         const SizedBox(height: 12),
         BookingPrimaryButton(
-          text: 'Пригласить из Clover',
+          text: context.l10n.booking_invite_from_clover,
           height: 48,
           isExpanded: true,
           onTap: () {
@@ -241,7 +242,7 @@ class _BodyState extends State<_Body> {
         ),
         const SizedBox(height: 8),
         AppOutlinedButton(
-          text: 'Добавить только имя',
+          text: context.l10n.booking_add_name_only,
           height: 48,
           isExpanded: true,
           service: kBookingService,
@@ -266,7 +267,7 @@ class _BodyState extends State<_Body> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                 child: Text(
-                  '← Назад',
+                  context.l10n.booking_back_arrow,
                   style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w600),
                 ),
               ),
@@ -274,13 +275,13 @@ class _BodyState extends State<_Body> {
           ),
         ),
         Text(
-          'Отправим заявку в личный чат. После «Принять» можно назначить на услугу.',
+          context.l10n.booking_invite_chat_hint,
           style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
         ),
         const SizedBox(height: 12),
         BookingField(
           controller: _queryController,
-          hintText: 'Поиск по никнейму или имени',
+          hintText: context.l10n.booking_search_user_hint,
           prefixIcon: AppIcons.searchRounded.icon,
           textInputAction: TextInputAction.search,
         ),
@@ -300,7 +301,7 @@ class _BodyState extends State<_Body> {
               : state.results.isEmpty
                   ? Center(
                       child: Text(
-                        'Никого не найдено',
+                        context.l10n.booking_nobody_found,
                         style: AppTextStyle.base(14, color: colors.subTextColor),
                       ),
                     )
@@ -317,7 +318,7 @@ class _BodyState extends State<_Body> {
                               ? profile.displayUsername
                               : null,
                           avatarUrl: profile.avatarUrl,
-                          actionLabel: status ?? (state.busy ? '…' : 'Пригласить'),
+                          actionLabel: status ?? (state.busy ? '…' : context.l10n.booking_invite_action),
                           outlined: status != null,
                           onTap: locked ? null : () => _invite(profile),
                         );
@@ -343,7 +344,7 @@ class _BodyState extends State<_Body> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                 child: Text(
-                  '← Назад',
+                  context.l10n.booking_back_arrow,
                   style: AppTextStyle.base(14, color: colors.subTextColor, fontWeight: FontWeight.w600),
                 ),
               ),
@@ -351,7 +352,7 @@ class _BodyState extends State<_Body> {
           ),
         ),
         Text(
-          'Без аккаунта Clover — только имя в слотах. Календаря у исполнителя не будет.',
+          context.l10n.booking_name_only_hint,
           style: AppTextStyle.base(13, color: colors.subTextColor, height: 1.35),
         ),
         const SizedBox(height: 12),
@@ -361,14 +362,14 @@ class _BodyState extends State<_Body> {
             children: [
               BookingField(
                 controller: _nameController,
-                hintText: 'Имя исполнителя',
+                hintText: context.l10n.booking_executor_name_hint,
                 textInputAction: TextInputAction.done,
               ),
             ],
           ),
         ),
         BookingPrimaryButton(
-          text: state.busy ? '…' : 'Добавить',
+          text: state.busy ? '…' : context.l10n.common_add,
           height: 48,
           isExpanded: true,
           interactive: !state.busy,

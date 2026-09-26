@@ -42,7 +42,7 @@ class AttendanceTimesheetCubit extends Cubit<AttendanceTimesheetState> {
     );
   }
 
-  Future<bool> exportCsv() async {
+  Future<bool> exportCsv({required String subject}) async {
     final loaded = state;
     if (loaded is! AttendanceTimesheetLoaded) return false;
     final snap = _store.snapshot.value;
@@ -58,7 +58,7 @@ class AttendanceTimesheetCubit extends Cubit<AttendanceTimesheetState> {
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(file.path, mimeType: 'text/csv')],
-        subject: 'Табель посещаемости',
+        subject: subject,
       ),
     );
     return true;

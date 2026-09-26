@@ -1,3 +1,5 @@
+import 'package:clover/core/locale/app_date_format.dart';
+
 /// Дежурство: очередь работников по рабочим дням.
 class AttendanceDutyRoster {
   const AttendanceDutyRoster({
@@ -75,14 +77,6 @@ class AttendanceDutyRoster {
 }
 
 extension AttendanceWeekdayX on int {
-  String get labelRuShort => switch (this) {
-        1 => 'Пн',
-        2 => 'Вт',
-        3 => 'Ср',
-        4 => 'Чт',
-        5 => 'Пт',
-        6 => 'Сб',
-        7 => 'Вс',
-        _ => '?',
-      };
+  String get labelRuShort =>
+      AppDateFormat.current().shortWeekday(DateTime(2024, 1, this.clamp(1, 7)));
 }

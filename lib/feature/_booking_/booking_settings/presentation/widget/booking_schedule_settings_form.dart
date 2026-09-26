@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_date_picker.dart';
@@ -38,24 +39,30 @@ class BookingScheduleSettingsForm extends StatefulWidget {
 }
 
 class _BookingScheduleSettingsFormState extends State<BookingScheduleSettingsForm> {
-  static const _horizonModeOptions = [
-    AppSingleSelectOption(value: BookingHorizonKind.daysAhead, label: 'На период'),
-    AppSingleSelectOption(value: BookingHorizonKind.untilDate, label: 'До даты'),
-  ];
+  List<AppSingleSelectOption<BookingHorizonKind>> _horizonModeOptions(BuildContext context) {
+    final l10n = context.l10n;
+    return [
+      AppSingleSelectOption(value: BookingHorizonKind.daysAhead, label: l10n.booking_horizon_days_ahead),
+      AppSingleSelectOption(value: BookingHorizonKind.untilDate, label: l10n.booking_horizon_until_date),
+    ];
+  }
 
-  static const _horizonOptions = [
-    AppSingleSelectOption(value: 7, label: '1 неделя'),
-    AppSingleSelectOption(value: 14, label: '2 недели'),
-    AppSingleSelectOption(value: 21, label: '3 недели'),
-    AppSingleSelectOption(value: 30, label: '1 месяц'),
-    AppSingleSelectOption(value: 60, label: '2 месяца'),
-    AppSingleSelectOption(value: 90, label: '3 месяца'),
-  ];
+  List<AppSingleSelectOption<int>> _horizonOptions(BuildContext context) {
+    final l10n = context.l10n;
+    return [
+      AppSingleSelectOption(value: 7, label: l10n.booking_week_1),
+      AppSingleSelectOption(value: 14, label: l10n.booking_weeks_n(2)),
+      AppSingleSelectOption(value: 21, label: l10n.booking_weeks_n(3)),
+      AppSingleSelectOption(value: 30, label: l10n.booking_month_1),
+      AppSingleSelectOption(value: 60, label: l10n.booking_months_n(2)),
+      AppSingleSelectOption(value: 90, label: l10n.booking_months_n(3)),
+    ];
+  }
 
-  static final _weekdayOptions = [
-    for (final day in BookingWeekday.values)
-      AppMultiSelectOption(value: day.isoWeekday, label: day.fullLabel),
-  ];
+  List<AppMultiSelectOption<int>> _weekdayOptions(BuildContext context) => [
+        for (final day in BookingWeekday.values)
+          AppMultiSelectOption(value: day.isoWeekday, label: day.fullLabel(context.dateFormat)),
+      ];
 
   static final _hourOptions = [
     for (var h = 6; h <= 23; h++) AppSingleSelectOption(value: h, label: '${h.toString().padLeft(2, '0')}:00'),
@@ -84,6 +91,7 @@ class _BookingScheduleSettingsFormState extends State<BookingScheduleSettingsFor
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final l10n = context.l10n;
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 8, 16, BookingScreenShell.scrollBottomGap(context)),
@@ -91,14 +99,14 @@ class _BookingScheduleSettingsFormState extends State<BookingScheduleSettingsFor
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _Section(
-            title: 'Выходные',
+            title: l10n.booking_rest_days,
             child: _gated(
               child: AppMultiSelect<int>(
-                label: 'Дни',
-                hint: 'Выберите',
-                sheetTitle: 'Выходные',
-                emptySelectionHint: 'Нет',
-                options: _weekdayOptions,
+                label: l10n.booking_days,
+                hint: l10n.booking_select,
+                sheetTitle: l10n.booking_rest_days,
+                emptySelectionHint: l10n.common_no,
+                options: _weekdayOptions(context),
                 values: settings.restWeekdays,
                 onChanged: (value) => widget.onChanged(settings.copyWith(restWeekdays: value)),
               ),
@@ -106,16 +114,16 @@ class _BookingScheduleSettingsFormState extends State<BookingScheduleSettingsFor
           ),
           const SizedBox(height: 12),
           _Section(
-            title: 'Горизонт',
+            title: l10n.booking_horizon,
             child: _gated(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   AppSingleSelect<BookingHorizonKind>(
-                    label: 'Способ',
-                    hint: 'Выберите',
-                    sheetTitle: 'Горизонт',
-                    options: _horizonModeOptions,
+                    label: l10n.booking_horizon_mode,
+                    hint: l10n.booking_select,
+                    sheetTitle: l10n.booking_horizon,
+                    options: _horizonModeOptions(context),
                     value: settings.horizonKind,
                     onChanged: (value) {
                       final today = DateTime.now();
@@ -134,18 +142,18 @@ class _BookingScheduleSettingsFormState extends State<BookingScheduleSettingsFor
                   const SizedBox(height: 12),
                   if (settings.horizonKind == BookingHorizonKind.daysAhead)
                     AppSingleSelect<int>(
-                      label: 'На сколько вперёд',
-                      hint: 'Период',
-                      sheetTitle: 'Запись вперёд',
-                      options: _horizonOptions,
+                      label: l10n.booking_horizon_how_far,
+                      hint: l10n.booking_horizon_period,
+                      sheetTitle: l10n.booking_horizon_forward,
+                      options: _horizonOptions(context),
                       value: settings.maxBookingDaysAhead,
                       onChanged: (value) =>
                           widget.onChanged(settings.copyWith(maxBookingDaysAhead: value)),
                     )
                   else
                     AppDatePicker(
-                      label: 'До даты',
-                      hint: 'Дата',
+                      label: l10n.booking_until_date,
+                      hint: l10n.common_date,
                       value: settings.maxBookingUntilDate,
                       firstDate: DateTime.now(),
                       lastDate: DateTime.now().add(const Duration(days: 365)),
@@ -162,15 +170,15 @@ class _BookingScheduleSettingsFormState extends State<BookingScheduleSettingsFor
           ),
           const SizedBox(height: 12),
           _Section(
-            title: 'Часы работы',
+            title: l10n.booking_hours_title,
             child: _gated(
               child: Row(
                 children: [
                   Expanded(
                     child: AppSingleSelect<int>(
-                      label: 'С',
+                      label: l10n.booking_from,
                       hint: '09:00',
-                      sheetTitle: 'Начало',
+                      sheetTitle: l10n.common_start_label,
                       options: _hourOptions,
                       value: settings.workStartHour,
                       onChanged: (value) => widget.onChanged(settings.copyWith(workStartHour: value)),
@@ -179,9 +187,9 @@ class _BookingScheduleSettingsFormState extends State<BookingScheduleSettingsFor
                   const SizedBox(width: 12),
                   Expanded(
                     child: AppSingleSelect<int>(
-                      label: 'До',
+                      label: l10n.booking_to,
                       hint: '20:00',
-                      sheetTitle: 'Конец',
+                      sheetTitle: l10n.common_end_label,
                       options: _hourOptions,
                       value: settings.workEndHour,
                       onChanged: (value) => widget.onChanged(settings.copyWith(workEndHour: value)),
@@ -207,7 +215,7 @@ class _BookingScheduleSettingsFormState extends State<BookingScheduleSettingsFor
                   children: [
                     Expanded(
                       child: Text(
-                        'Ещё настройки',
+                        l10n.booking_more_settings,
                         style: AppTextStyle.base(
                           14,
                           color: colors.textColor,
@@ -228,23 +236,23 @@ class _BookingScheduleSettingsFormState extends State<BookingScheduleSettingsFor
           if (_moreOpen) ...[
             const SizedBox(height: 12),
             _Section(
-              title: 'Отмена и визиты',
+              title: l10n.booking_cancel_visits_title,
               child: _gated(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     AppSingleSelect<int>(
-                      label: 'Отмена клиентом',
-                      hint: 'Выберите',
-                      sheetTitle: 'Отмена',
-                      options: const [
-                        AppSingleSelectOption(value: 0, label: 'До начала'),
-                        AppSingleSelectOption(value: 1, label: 'За 1 ч'),
-                        AppSingleSelectOption(value: 2, label: 'За 2 ч'),
-                        AppSingleSelectOption(value: 3, label: 'За 3 ч'),
-                        AppSingleSelectOption(value: 6, label: 'За 6 ч'),
-                        AppSingleSelectOption(value: 12, label: 'За 12 ч'),
-                        AppSingleSelectOption(value: 24, label: 'За 24 ч'),
+                      label: l10n.booking_client_cancel,
+                      hint: l10n.booking_select,
+                      sheetTitle: l10n.common_cancel,
+                      options: [
+                        AppSingleSelectOption(value: 0, label: l10n.booking_cancel_before_start),
+                        AppSingleSelectOption(value: 1, label: l10n.booking_hours_before(1)),
+                        AppSingleSelectOption(value: 2, label: l10n.booking_hours_before(2)),
+                        AppSingleSelectOption(value: 3, label: l10n.booking_hours_before(3)),
+                        AppSingleSelectOption(value: 6, label: l10n.booking_hours_before(6)),
+                        AppSingleSelectOption(value: 12, label: l10n.booking_hours_before(12)),
+                        AppSingleSelectOption(value: 24, label: l10n.booking_hours_before(24)),
                       ],
                       value: settings.clientCancelHoursBefore,
                       onChanged: (value) =>
@@ -252,15 +260,15 @@ class _BookingScheduleSettingsFormState extends State<BookingScheduleSettingsFor
                     ),
                     const SizedBox(height: 12),
                     AppSingleSelect<int>(
-                      label: 'Авто «Не пришёл»',
-                      hint: 'Выберите',
-                      sheetTitle: 'Авто статус',
-                      options: const [
-                        AppSingleSelectOption(value: 0, label: 'Выкл'),
-                        AppSingleSelectOption(value: 3, label: 'Через 3 ч'),
-                        AppSingleSelectOption(value: 6, label: 'Через 6 ч'),
-                        AppSingleSelectOption(value: 12, label: 'Через 12 ч'),
-                        AppSingleSelectOption(value: 24, label: 'Через 24 ч'),
+                      label: l10n.booking_auto_no_show,
+                      hint: l10n.booking_select,
+                      sheetTitle: l10n.booking_auto_status,
+                      options: [
+                        AppSingleSelectOption(value: 0, label: l10n.booking_off),
+                        AppSingleSelectOption(value: 3, label: l10n.booking_after_hours(3)),
+                        AppSingleSelectOption(value: 6, label: l10n.booking_after_hours(6)),
+                        AppSingleSelectOption(value: 12, label: l10n.booking_after_hours(12)),
+                        AppSingleSelectOption(value: 24, label: l10n.booking_after_hours(24)),
                       ],
                       value: settings.autoCloseHoursAfterVisit,
                       onChanged: (value) =>
@@ -365,13 +373,14 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final executorOptions = [
       for (final executor in widget.executors)
         AppSingleSelectOption(value: executor.id, label: executor.displayLabel),
     ];
 
     return _Section(
-      title: 'Отпуска / отсутствия',
+      title: l10n.booking_absences_title,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -393,9 +402,9 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     AppSingleSelect<String>(
-                      label: 'Мастер',
-                      hint: 'Выберите',
-                      sheetTitle: 'Мастер',
+                      label: l10n.booking_master,
+                      hint: l10n.booking_select,
+                      sheetTitle: l10n.booking_master,
                       options: executorOptions,
                       value: _draftExecutorId,
                       onChanged: (value) => setState(() => _draftExecutorId = value),
@@ -405,8 +414,8 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
                       children: [
                         Expanded(
                           child: AppDatePicker(
-                            label: 'С',
-                            hint: 'Начало',
+                            label: l10n.booking_from,
+                            hint: l10n.common_start_label,
                             value: _draftStart,
                             firstDate: DateTime.now().subtract(const Duration(days: 1)),
                             service: kBookingService,
@@ -416,8 +425,8 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: AppDatePicker(
-                            label: 'По',
-                            hint: 'Конец',
+                            label: l10n.booking_to_inclusive,
+                            hint: l10n.common_end_label,
                             value: _draftEnd,
                             firstDate: _draftStart ?? DateTime.now().subtract(const Duration(days: 1)),
                             service: kBookingService,
@@ -429,8 +438,8 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
                     const SizedBox(height: 12),
                     BookingField(
                       controller: _noteController,
-                      labelText: 'Комментарий',
-                      hintText: 'Необязательно',
+                      labelText: l10n.booking_comment,
+                      hintText: l10n.booking_optional,
                       textInputAction: TextInputAction.done,
                       isEnabled: widget.enabled,
                     ),
@@ -440,7 +449,7 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
                         Expanded(
                           child: AppOutlinedButton(
                             service: kBookingService,
-                            text: 'Отмена',
+                            text: context.l10n.common_cancel,
                             height: 48,
                             isExpanded: true,
                             onTap: widget.enabled ? () => setState(_resetDraft) : null,
@@ -449,7 +458,7 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: BookingPrimaryButton(
-                            text: 'Добавить',
+                            text: context.l10n.common_add,
                             height: 48,
                             isExpanded: true,
                             onTap: widget.enabled &&
@@ -469,7 +478,7 @@ class _ExecutorAbsenceSectionState extends State<_ExecutorAbsenceSection> {
           else
             AppOutlinedButton(
               service: kBookingService,
-              text: 'Добавить',
+              text: context.l10n.common_add,
               height: 48,
               isExpanded: true,
               onTap: widget.enabled ? () => setState(() => _adding = true) : null,
@@ -496,7 +505,7 @@ class _AbsenceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final name = executor?.displayName ?? 'Мастер';
+    final name = executor?.displayName ?? context.l10n.booking_master;
     final range = '${AppDatePicker.formatDisplay(absence.startDay)} — ${AppDatePicker.formatDisplay(absence.endDay)}';
     final note = absence.note?.trim();
 

@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
@@ -63,7 +64,7 @@ class _AttendanceAbsencesPageState extends State<AttendanceAbsencesPage> {
         final snap = loaded?.snapshot;
 
         return AttendanceScreenShell(
-          title: 'Отсутствия',
+          title: context.l10n.attendance_absences_title,
           showAdd: true,
           onAddTap: _add,
           body: absences.isEmpty
@@ -107,7 +108,7 @@ class _EmptyAbsences extends StatelessWidget {
     final accent = attendanceServiceAccent(context.colors);
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
+        padding: EdgeInsets.symmetric(horizontal: 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -117,20 +118,20 @@ class _EmptyAbsences extends StatelessWidget {
               decoration: BoxDecoration(color: accent.soft, shape: BoxShape.circle),
               child: Icon(AppIcons.eventBusy.icon, size: 34, color: accent.icon),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
-              'Нет отсутствий',
+              context.l10n.attendance_absences_empty,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(18, color: context.colors.textColor, fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
-              'Выходной, отпуск или больничный',
+              context.l10n.attendance_absences_add_hint,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.35),
             ),
-            const SizedBox(height: 20),
-            AttendancePrimaryButton(text: 'Добавить', isExpanded: true, onTap: onAdd),
+            SizedBox(height: 20),
+            AttendancePrimaryButton(text: context.l10n.common_add, isExpanded: true, onTap: onAdd),
           ],
         ),
       ),

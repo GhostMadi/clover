@@ -6,6 +6,7 @@ import 'package:clover/core/shared/app_button.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:clover/feature/_settings_/settings_resources/data/resources_guide_catalog.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class SettingsResourcesGuidePage extends StatelessWidget {
@@ -18,11 +19,11 @@ class SettingsResourcesGuidePage extends StatelessWidget {
     final content = ResourcesGuideCatalog.tryByKey(topicKey);
     if (content == null) {
       return SettingsScreenShell(
-        title: 'Гайд',
+        title: context.l10n.settings_guide_title,
         service: kResourcesService,
         body: Center(
           child: Text(
-            'Тема гайда не найдена',
+            context.l10n.settings_guide_topic_missing,
             style: AppTextStyle.base(15, color: context.colors.subTextColor),
           ),
         ),

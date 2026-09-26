@@ -1,8 +1,10 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_single_selctor.dart';
 import 'package:clover/feature/_catalog_/city/data/catalog/cities_catalog.dart';
 import 'package:clover/feature/_catalog_/countries/data/models/country_code.dart';
+import 'package:clover/feature/_catalog_/shared/catalog_l10n.dart';
 import 'package:flutter/material.dart';
 
 /// Одиночный выбор города из [CitiesCatalog] для выбранной страны.
@@ -14,9 +16,9 @@ class CitySingleSelectField extends StatelessWidget {
     required this.countryCode,
     required this.value,
     required this.onChanged,
-    this.searchHint = 'Поиск города',
+    this.searchHint,
     this.sheetTitle,
-    this.disabledHint = 'Сначала выберите страну',
+    this.disabledHint,
     this.service,
   });
 
@@ -27,14 +29,15 @@ class CitySingleSelectField extends StatelessWidget {
   final String? countryCode;
   final String? value;
   final ValueChanged<String> onChanged;
-  final String searchHint;
+  final String? searchHint;
   final String? sheetTitle;
-  final String disabledHint;
+  final String? disabledHint;
   final AppServiceKind? service;
 
-  List<AppSingleSelectOption<String>> _optionsFor(String countryCode) {
+  List<AppSingleSelectOption<String>> _optionsFor(BuildContext context, String countryCode) {
+    final l10n = context.l10n;
     return CitiesCatalog.forCountryCode(countryCode)
-        .map((city) => AppSingleSelectOption<String>(value: city.code.cityCode, label: city.code.labelRu))
+        .map((city) => AppSingleSelectOption<String>(value: city.code.cityCode, label: city.code.label(l10n)))
         .toList(growable: false);
   }
 
@@ -50,18 +53,19 @@ class CitySingleSelectField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final country = CountryCode.tryParse(countryCode);
     if (country == null) {
-      return _disabledPlaceholder(context, disabledHint);
+      return _disabledPlaceholder(context, disabledHint ?? l10n.catalog_city_pick_country_first);
     }
 
-    final options = _optionsFor(country.code);
+    final options = _optionsFor(context, country.code);
 
     return AppSingleSelect<String>(
       label: label,
       hint: hint,
-      sheetTitle: sheetTitle ?? label ?? 'Город',
-      searchHint: searchHint,
+      sheetTitle: sheetTitle ?? label ?? l10n.catalog_city_sheet_title,
+      searchHint: searchHint ?? l10n.catalog_city_search_hint,
       options: options,
       value: _normalize(value, options),
       onChanged: onChanged,

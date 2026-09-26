@@ -7,6 +7,9 @@ import 'package:clover/feature/_booking_/shared/data/booking_local_cache.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 part 'booking_calendar_bookings_cubit.freezed.dart';
 
@@ -95,7 +98,7 @@ class BookingCalendarBookingsCubit extends Cubit<BookingCalendarBookingsState> {
         BookingCalendarBookingsState.error(
           period: range,
           hostId: hostId,
-          message: BookingException.from(e).message ?? 'Не удалось загрузить',
+          message: BookingException.from(e).message ?? lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).booking_load_failed,
         ),
       );
     }

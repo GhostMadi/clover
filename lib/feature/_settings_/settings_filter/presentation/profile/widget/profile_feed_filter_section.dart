@@ -99,7 +99,7 @@ class _ProfileFeedFilterSectionState extends State<ProfileFeedFilterSection> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: 'Не удалось загрузить фильтры',
+        message: context.l10n.settings_filters_load_failed,
         kind: AppSnackBarKind.error,
       );
     }
@@ -182,7 +182,7 @@ class _ProfileFeedFilterSectionState extends State<ProfileFeedFilterSection> {
         if (hasLocation) ...[
           SizedBox(height: context.heightByContext(10)),
           ProfileActiveFiltersRow(
-            labels: const ['Местоположение'],
+            labels: [context.l10n.catalog_location],
             onClear: _clearLocation,
           ),
         ],

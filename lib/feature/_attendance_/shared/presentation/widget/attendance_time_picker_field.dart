@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_picker_common.dart';
@@ -10,15 +11,15 @@ import 'package:flutter/material.dart';
 class AttendanceTimePickerField extends StatelessWidget {
   const AttendanceTimePickerField({
     super.key,
-    this.label = 'Ожидается в',
-    this.hint = 'Выберите время',
+    this.label,
+    this.hint,
     required this.enabled,
     required this.time,
     required this.onChanged,
   });
 
-  final String label;
-  final String hint;
+  final String? label;
+  final String? hint;
   final bool enabled;
   final AttendanceDayTime? time;
   final ValueChanged<AttendanceDayTime?> onChanged;
@@ -28,6 +29,8 @@ class AttendanceTimePickerField extends StatelessWidget {
     final colors = context.colors;
     final accent = attendanceServiceAccent(colors);
     final hasValue = time != null;
+    final resolvedLabel = label ?? context.l10n.attendance_pending_expected_in;
+    final resolvedHint = hint ?? context.l10n.attendance_settings_pick_time;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -35,7 +38,7 @@ class AttendanceTimePickerField extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 6),
           child: Text(
-            label,
+            resolvedLabel,
             style: AppTextStyle.base(13, fontWeight: FontWeight.w600, color: colors.fieldLabel),
           ),
         ),
@@ -64,7 +67,7 @@ class AttendanceTimePickerField extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      hasValue ? time!.labelRu : hint,
+                      hasValue ? time!.labelRu : resolvedHint,
                       style: AppTextStyle.base(
                         16,
                         fontWeight: FontWeight.w500,
@@ -104,7 +107,7 @@ class AttendanceTimePickerField extends StatelessWidget {
 
     await AttendanceBottomSheet.show(
       context: context,
-      title: label,
+      title: label ?? context.l10n.attendance_pending_expected_in,
       content: StatefulBuilder(
         builder: (context, setSheetState) {
           final minuteIndex = (minute ~/ 5).clamp(0, minutes.length - 1);
@@ -133,7 +136,7 @@ class AttendanceTimePickerField extends StatelessWidget {
       ),
       actions: [
         AttendancePrimaryButton(
-          text: 'Готово',
+          text: context.l10n.common_done,
           isExpanded: true,
           onTap: () {
             onChanged(AttendanceDayTime(hour: hour, minute: minute));

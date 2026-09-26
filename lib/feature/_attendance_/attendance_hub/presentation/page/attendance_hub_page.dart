@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
@@ -57,26 +58,26 @@ class _AttendanceHubPageState extends State<AttendanceHubPage> {
     if (!hasTag) {
       AppSnackBar.show(
         context,
-        message: 'Включите тег «Веду посещаемость» в профиле',
+        message: context.l10n.attendance_hub_admin_tag_required,
         kind: AppSnackBarKind.error,
       );
       return;
     }
 
-    final nameController = TextEditingController(text: 'Компания');
+    final nameController = TextEditingController(text: context.l10n.attendance_company_default_name);
     try {
       final name = await AttendanceBottomSheet.show<String>(
         context: context,
-        title: 'Новая компания',
+        title: context.l10n.attendance_hub_new_company,
         content: AttendanceField(
           controller: nameController,
-          labelText: 'Название',
+          labelText: context.l10n.common_name,
           textInputAction: TextInputAction.done,
         ),
         actions: [
           Builder(
             builder: (sheetContext) => AttendancePrimaryButton(
-              text: 'Создать',
+              text: context.l10n.common_create,
               isExpanded: true,
               onTap: () {
                 final value = nameController.text.trim();
@@ -94,7 +95,7 @@ class _AttendanceHubPageState extends State<AttendanceHubPage> {
       if (!mounted) return;
       AppSnackBar.show(
         context,
-        message: ok ? 'Компания создана' : 'Не удалось создать компанию',
+        message: ok ? context.l10n.attendance_hub_company_created : context.l10n.attendance_hub_company_create_failed,
         kind: ok ? AppSnackBarKind.success : AppSnackBarKind.error,
       );
     } finally {
@@ -119,21 +120,21 @@ class _AttendanceHubPageState extends State<AttendanceHubPage> {
         final refreshing = loaded?.isRefreshing == true;
 
         if (loading) {
-          return const AttendanceScreenShell(
-            title: 'Посещаемость',
-            body: AttendanceLoader(),
+          return AttendanceScreenShell(
+            title: context.l10n.attendance_hub_title,
+            body: const AttendanceLoader(),
           );
         }
 
         if (state is AttendanceHubError && workplaces.isEmpty) {
           return AttendanceScreenShell(
-            title: 'Посещаемость',
+            title: context.l10n.attendance_hub_title,
             body: _EmptyAdminBody(onRefresh: _cubit.load),
           );
         }
 
         return AttendanceScreenShell(
-          title: 'Посещаемость',
+          title: context.l10n.attendance_hub_title,
           showAdd: true,
           onAddTap: () => _createWorkplace(),
           body: RefreshIndicator(
@@ -141,19 +142,19 @@ class _AttendanceHubPageState extends State<AttendanceHubPage> {
             child: Stack(
               children: [
                 ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
+                  physics: AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsets.fromLTRB(16, 0, 16, AttendanceScreenShell.scrollBottomGap(context)),
                   children: [
                     Text(
-                      'Компании',
+                      context.l10n.attendance_hub_companies,
                       style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     if (workplaces.isEmpty)
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        padding: EdgeInsets.symmetric(vertical: 24),
                         child: Text(
-                          'Создайте компанию: геозона, работники и отметки. Кнопка «+» сверху.',
+                          context.l10n.attendance_hub_empty_hint,
                           style: AppTextStyle.base(14, color: colors.subTextColor, height: 1.35),
                         ),
                       )
@@ -163,24 +164,24 @@ class _AttendanceHubPageState extends State<AttendanceHubPage> {
                           for (final workplace in workplaces)
                             AttendanceHubNavCard(
                               title: workplace.name,
-                              subtitle: 'Открыть',
+                              subtitle: context.l10n.common_open,
                               icon: AppIcons.inventory.icon,
                               onTap: () => _openCompany(workplace),
                             ),
                         ],
                       ),
                     if (worker) ...[
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
                       Text(
-                        'Смены',
+                        context.l10n.attendance_analytics_shifts,
                         style: AppTextStyle.base(13, color: colors.subTextColor, fontWeight: FontWeight.w600),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       AppTileGroup(
                         children: [
                           AppTile(
-                            title: 'Моя посещаемость',
-                            subtitle: 'Отметки и смены',
+                            title: context.l10n.attendance_hub_my_attendance,
+                            subtitle: context.l10n.attendance_hub_my_attendance_subtitle,
                             icon: AppIcons.accessTime.icon,
                             iconColor: accent.icon,
                             iconBackgroundColor: accent.soft,
@@ -226,12 +227,12 @@ class _EmptyAdminBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Создайте компанию: геозона, работники и отметки. Кнопка на профиле — тег «Веду посещаемость».',
+            context.l10n.attendance_hub_empty_admin,
             style: AppTextStyle.base(15, color: colors.subTextColor),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           AppOutlinedButton(
-            text: 'Обновить',
+            text: context.l10n.common_refresh,
             isExpanded: true,
             service: kAttendanceService,
             onTap: onRefresh,

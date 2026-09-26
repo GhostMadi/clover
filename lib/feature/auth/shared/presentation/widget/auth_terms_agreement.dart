@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -46,6 +47,7 @@ class _AuthTermsAgreementState extends State<AuthTermsAgreement> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final l10n = context.l10n;
     final linkStyle = AppTextStyle.base(
       13,
       color: colors.primary,
@@ -73,22 +75,19 @@ class _AuthTermsAgreementState extends State<AuthTermsAgreement> {
                 TextSpan(
                   style: baseStyle,
                   children: [
-                    const TextSpan(text: 'Я соглашаюсь с '),
+                    TextSpan(text: l10n.auth_terms_prefix),
                     TextSpan(
-                      text: 'условиями использования',
+                      text: l10n.auth_terms_terms,
                       style: linkStyle,
                       recognizer: _termsTap,
                     ),
-                    const TextSpan(text: ' и '),
+                    TextSpan(text: l10n.auth_terms_and),
                     TextSpan(
-                      text: 'политикой конфиденциальности',
+                      text: l10n.auth_terms_privacy,
                       style: linkStyle,
                       recognizer: _privacyTap,
                     ),
-                    const TextSpan(
-                      text:
-                          '. Неприемлемый контент и оскорбительное поведение не допускаются.',
-                    ),
+                    TextSpan(text: l10n.auth_terms_suffix),
                   ],
                 ),
               ),

@@ -16,6 +16,7 @@ import 'package:clover/feature/_catalog_/location/data/models/location_model.dar
 import 'package:clover/feature/_catalog_/location/data/repository/location_repository.dart';
 import 'package:clover/feature/_settings_/settings/presentation/widget/settings_screen_shell.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Детальная страница местоположения (адрес, привязка, активность).
 @RoutePage()
@@ -180,7 +181,7 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
       setState(() => _saving = false);
       AppSnackBar.show(
         context,
-        message: 'Не удалось сохранить изменения',
+        message: context.l10n.catalog_location_save_failed,
         kind: AppSnackBarKind.error,
       );
     }
@@ -193,9 +194,9 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
 
     final confirmed = await AppDialog.showConfirm(
       context: context,
-      title: 'Удалить местоположение?',
-      message: 'Это действие нельзя отменить.',
-      confirmLabel: 'Удалить',
+      title: context.l10n.catalog_location_delete_title,
+      message: context.l10n.common_delete_confirm_irreversible,
+      confirmLabel: context.l10n.common_delete,
       confirmIsDestructive: true,
     );
 
@@ -212,7 +213,7 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
       setState(() => _deleting = false);
       AppSnackBar.show(
         context,
-        message: 'Не удалось удалить',
+        message: context.l10n.common_could_not_delete,
         kind: AppSnackBarKind.error,
       );
     }
@@ -222,7 +223,7 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
   Widget build(BuildContext context) {
     final accent = context.colors.serviceAccent(kResourcesService);
     final title = _original?.displayTitle ?? widget.initialTitle?.trim();
-    final pageTitle = (title != null && title.isNotEmpty) ? title : 'Местоположение';
+    final pageTitle = (title != null && title.isNotEmpty) ? title : context.l10n.catalog_location;
 
     if (_loading) {
       return SettingsScreenShell(
@@ -234,11 +235,11 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
 
     if (_missing || _original == null) {
       return SettingsScreenShell(
-        title: 'Местоположение',
+        title: context.l10n.catalog_location,
         service: kResourcesService,
         body: Center(
           child: Text(
-            'Место не найдено',
+            context.l10n.catalog_location_not_found,
             style: AppTextStyle.base(15, color: context.colors.subTextColor),
           ),
         ),
@@ -266,7 +267,7 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
                 key: _primaryFieldKey,
                 child: AppField(
                   controller: _primaryController,
-                  labelText: 'Адрес',
+                  labelText: context.l10n.common_address,
                   hintText: 'Abay ave, 150, Almaty',
                   prefixIcon: AppIcons.locationOn.icon,
                   textInputAction: TextInputAction.next,
@@ -283,8 +284,8 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
                 key: _cyrillicFieldKey,
                 child: AppField(
                   controller: _cyrillicController,
-                  labelText: 'Адрес (кириллица)',
-                  hintText: 'ул. Абая, 150, Алматы (необязательно)',
+                  labelText: context.l10n.catalog_address_cyrillic,
+                  hintText: context.l10n.catalog_address_hint,
                   prefixIcon: AppIcons.translate.icon,
                   textInputAction: TextInputAction.done,
                   isEnabled: !busy,
@@ -294,14 +295,14 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Привязка',
+              context.l10n.catalog_binding,
               style: AppTextStyle.base(14, color: context.colors.subTextColor, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Text(
               hasBinding
-                  ? 'Страна и город привязаны к этому адресу'
-                  : 'Выберите страну и город для этого адреса',
+                  ? context.l10n.catalog_bound_yes
+                  : context.l10n.catalog_bound_no,
               style: AppTextStyle.base(13, color: context.colors.subTextColor, height: 1.35),
             ),
             const SizedBox(height: 14),
@@ -313,8 +314,8 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     CountrySingleSelectField(
-                      label: 'Страна',
-                      hint: 'Выберите страну',
+                      label: context.l10n.catalog_country_sheet_title,
+                      hint: context.l10n.common_pick_country,
                       value: _countryCode,
                       service: kResourcesService,
                       onChanged: (code) => setState(() {
@@ -324,8 +325,8 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
                     ),
                     const SizedBox(height: 12),
                     CitySingleSelectField(
-                      label: 'Город',
-                      hint: 'Выберите город',
+                      label: context.l10n.catalog_city_sheet_title,
+                      hint: context.l10n.common_pick_city,
                       countryCode: _countryCode,
                       value: _cityCode,
                       service: kResourcesService,
@@ -337,8 +338,8 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
             ),
             const SizedBox(height: 20),
             AppSwitchRow(
-              title: 'Активно',
-              subtitle: _isActive ? 'Местоположение видно и доступно' : 'Местоположение скрыто и недоступно',
+              title: context.l10n.common_active,
+              subtitle: _isActive ? context.l10n.catalog_location_active_on : context.l10n.catalog_location_active_off,
               value: _isActive,
               onChanged: busy ? null : (v) => setState(() => _isActive = v),
               enabled: !busy,
@@ -346,18 +347,18 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
             ),
             const SizedBox(height: 24),
             AppButton(
-              text: _saving ? 'Сохранение…' : 'Принять изменения',
+              text: _saving ? context.l10n.common_saving : context.l10n.catalog_accept_changes,
               isExpanded: true,
               interactive: _canSave,
               service: kResourcesService,
               onTap: _canSave ? _acceptChanges : null,
             ),
             AppTextButton(
-              text: 'Удалить',
+              text: context.l10n.common_delete,
               isLoading: _deleting,
               onTap: busy ? null : _confirmDelete,
               child: Text(
-                'Удалить',
+                context.l10n.common_delete,
                 style: AppTextStyle.base(
                   16,
                   fontWeight: FontWeight.w700,

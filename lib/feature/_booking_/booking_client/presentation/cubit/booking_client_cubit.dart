@@ -8,6 +8,9 @@ import 'package:clover/feature/_booking_/shared/data/models/client_booking_slot_
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 part 'booking_client_cubit.freezed.dart';
 
@@ -120,13 +123,13 @@ class BookingClientCubit extends Cubit<BookingClientState> {
 
     if (slot.status == ClientBookingSlotStatus.myConflict) {
       emit(ready.copyWith(
-        conflictMessage: slot.conflictLabel ?? 'Это время пересекается с вашей другой записью',
+        conflictMessage: slot.conflictLabel ?? lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).booking_slot_conflict_self,
       ));
       return;
     }
     if (slot.status == ClientBookingSlotStatus.hostBusy) {
       final name = ready.selectedExecutor?.displayName ?? ready.hostDisplayName;
-      emit(ready.copyWith(conflictMessage: 'Это время уже занято у $name'));
+      emit(ready.copyWith(conflictMessage: lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).booking_slot_taken_by(name)));
       return;
     }
     if (!slot.isSelectable) return;

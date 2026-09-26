@@ -1,9 +1,11 @@
+import 'package:clover/core/locale/app_date_format.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_attendance_/attendance_analytics/data/models/attendance_analytics_models.dart';
 import 'package:clover/feature/_attendance_/attendance_analytics/presentation/widget/attendance_analytics_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Крупная карточка: отметился работник в этот день или нет.
 class AttendanceDayPresenceBanner extends StatelessWidget {
@@ -45,7 +47,7 @@ class AttendanceDayPresenceBanner extends StatelessWidget {
                   size: compact ? 20 : 24,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,9 +57,9 @@ class AttendanceDayPresenceBanner extends StatelessWidget {
                       style: AppTextStyle.base(12, color: colors.subTextColor, fontWeight: FontWeight.w600),
                     ),
                     if (highlightToday) ...[
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
-                        'Сегодня',
+                        context.l10n.common_today,
                         style: AppTextStyle.base(11, color: colors.functionalSoftBlueIcon, fontWeight: FontWeight.w700),
                       ),
                     ],
@@ -80,7 +82,7 @@ class AttendanceDayPresenceBanner extends StatelessWidget {
           if (!isOff && !isAbsent && !isExcused && record.totalMinutes > 0) ...[
             const SizedBox(height: 10),
             Text(
-              'Итого ${record.totalLabel}',
+              context.l10n.attendance_analytics_total(record.totalLabel),
               style: AppTextStyle.base(13, color: colors.textColor, fontWeight: FontWeight.w700),
             ),
           ],
@@ -109,12 +111,5 @@ class AttendanceDayPresenceBanner extends StatelessWidget {
     );
   }
 
-  static String _formatDate(DateTime d) {
-    const weekdays = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
-    const months = [
-      'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
-      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря',
-    ];
-    return '${d.day} ${months[d.month - 1]}, ${weekdays[d.weekday - 1]}';
-  }
+  static String _formatDate(DateTime d) => AppDateFormat.current().dayMonthWeekday(d);
 }

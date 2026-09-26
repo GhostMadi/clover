@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/app_icons.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
@@ -15,7 +16,7 @@ class AttendanceWorkersEmpty extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
+        padding: EdgeInsets.symmetric(horizontal: 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -25,20 +26,20 @@ class AttendanceWorkersEmpty extends StatelessWidget {
               decoration: BoxDecoration(color: accent.soft, shape: BoxShape.circle),
               child: Icon(AppIcons.groupOutlined.icon, size: 34, color: accent.icon),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
-              'Пока никого нет',
+              context.l10n.attendance_workers_empty_title,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(18, color: context.colors.textColor, fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
-              'Пригласите аккаунт Clover — заявка уйдёт в чат',
+              context.l10n.attendance_workers_empty_subtitle,
               textAlign: TextAlign.center,
               style: AppTextStyle.base(14, color: context.colors.subTextColor, height: 1.35),
             ),
-            const SizedBox(height: 20),
-            AttendancePrimaryButton(text: 'Добавить', isExpanded: true, onTap: onAdd),
+            SizedBox(height: 20),
+            AttendancePrimaryButton(text: context.l10n.common_add, isExpanded: true, onTap: onAdd),
           ],
         ),
       ),

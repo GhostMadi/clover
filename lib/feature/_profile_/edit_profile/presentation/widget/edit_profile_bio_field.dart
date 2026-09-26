@@ -1,6 +1,7 @@
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Многострочное поле «О себе» в стиле [AppField].
 class EditProfileBioField extends StatefulWidget {
@@ -43,7 +44,7 @@ class _EditProfileBioFieldState extends State<EditProfileBioField> {
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 6),
           child: Text(
-            'О себе',
+            context.l10n.profile_about,
             style: AppTextStyle.base(
               13,
               fontWeight: FontWeight.w600,
@@ -84,7 +85,7 @@ class _EditProfileBioFieldState extends State<EditProfileBioField> {
             style: AppTextStyle.base(16, fontWeight: FontWeight.w500, color: context.colors.fieldText, height: 1.45),
             cursorColor: context.colors.fieldCursor,
             decoration: InputDecoration(
-              hintText: 'Расскажите о себе',
+              hintText: context.l10n.profile_about_hint,
               hintStyle: AppTextStyle.base(16, fontWeight: FontWeight.w400, color: context.colors.fieldHint),
               border: InputBorder.none,
               counterStyle: AppTextStyle.base(12, color: context.colors.subTextColor),

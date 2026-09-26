@@ -7,6 +7,7 @@ import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/core/shared/app_tile.dart';
 import 'package:clover/feature/_profile_/followers_and_followings/data/models/follow_profile_row.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class FollowProfileTile extends StatelessWidget {
   const FollowProfileTile({
@@ -44,15 +45,15 @@ class FollowProfileTile extends StatelessWidget {
             ? Icon(AppIcons.user.icon, color: context.colors.iconMuted, size: 20)
             : null,
       ),
-      trailing: showFollowButton ? _buildFollowButton() : null,
+      trailing: showFollowButton ? _buildFollowButton(context) : null,
       showDivider: false,
     );
   }
 
-  Widget _buildFollowButton() {
+  Widget _buildFollowButton(BuildContext context) {
     if (row.isFollowing) {
       return AppOutlinedButton(
-        text: '  Отписаться  ',
+        text: context.l10n.profile_unfollow_padded,
         height: _buttonHeight,
         borderRadius: _buttonRadius,
         isLoading: row.isFollowUpdating,
@@ -61,7 +62,7 @@ class FollowProfileTile extends StatelessWidget {
     }
 
     return AppButton(
-      text: '  Подписаться  ',
+      text: context.l10n.profile_follow_padded,
       height: _buttonHeight,
       borderRadius: _buttonRadius,
       isLoading: row.isFollowUpdating,

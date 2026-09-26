@@ -9,6 +9,7 @@ import 'package:clover/feature/_booking_/booking_create/presentation/widget/book
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class BookingCreatePage extends StatefulWidget {
@@ -106,7 +107,7 @@ class _BookingCreatePageState extends State<BookingCreatePage> {
         }
 
         return BookingScreenShell(
-          title: 'Мои услуги',
+          title: context.l10n.booking_my_services_title,
           pointId: widget.pointId,
           onPointChanged: (nextId) {
             context.router.replace(BookingCreateRoute(pointId: nextId));

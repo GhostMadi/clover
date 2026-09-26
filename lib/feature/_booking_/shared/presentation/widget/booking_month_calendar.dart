@@ -1,3 +1,4 @@
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
@@ -16,7 +17,7 @@ abstract final class BookingMonthCalendarSheet {
   }) {
     return AppBottomSheet.show<DateTime>(
       context: context,
-      title: 'День',
+      title: context.l10n.booking_day,
       upperCaseTitle: false,
       showCloseButton: true,
       service: kBookingService,
@@ -53,22 +54,6 @@ class BookingMonthCalendar extends StatefulWidget {
 }
 
 class _BookingMonthCalendarState extends State<BookingMonthCalendar> {
-  static const _weekdayLabels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-  static const _monthLabels = [
-    'Январь',
-    'Февраль',
-    'Март',
-    'Апрель',
-    'Май',
-    'Июнь',
-    'Июль',
-    'Август',
-    'Сентябрь',
-    'Октябрь',
-    'Ноябрь',
-    'Декабрь',
-  ];
-
   late DateTime _focusedMonth;
 
   @override
@@ -115,7 +100,7 @@ class _BookingMonthCalendarState extends State<BookingMonthCalendar> {
             _MonthNavButton(icon: AppIcons.chevronLeft.icon, onTap: () => _shiftMonth(-1)),
             Expanded(
               child: Text(
-                '${_monthLabels[_focusedMonth.month - 1]} ${_focusedMonth.year}',
+                '${context.dateFormat.monthName(_focusedMonth.month)} ${_focusedMonth.year}',
                 textAlign: TextAlign.center,
                 style: AppTextStyle.base(
                   17,
@@ -130,7 +115,7 @@ class _BookingMonthCalendarState extends State<BookingMonthCalendar> {
         const SizedBox(height: 10),
         Row(
           children: [
-            for (final label in _weekdayLabels)
+            for (final label in context.dateFormat.weekdayShortLabels())
               Expanded(
                 child: Text(
                   label,

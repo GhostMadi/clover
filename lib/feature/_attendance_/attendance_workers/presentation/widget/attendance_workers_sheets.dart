@@ -1,4 +1,5 @@
 import 'package:clover/core/resources/colors.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/core/shared/app_outlined_button.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_worker.dart';
@@ -8,9 +9,9 @@ import 'package:flutter/material.dart';
 enum AttendanceWorkerSheetAction { open, archive, reinvite, openChat }
 
 abstract final class AttendanceWorkersSheets {
-  static String usernameLine(AttendanceWorkerListItem worker) {
+  static String usernameLine(BuildContext context, AttendanceWorkerListItem worker) {
     final raw = worker.username.trim();
-    if (raw.isEmpty) return 'Аккаунт Clover';
+    if (raw.isEmpty) return context.l10n.attendance_workers_clover_account;
     return raw.startsWith('@') ? raw : '@$raw';
   }
 
@@ -19,15 +20,15 @@ abstract final class AttendanceWorkersSheets {
     AttendanceWorkerListItem worker,
   ) {
     final subtitle = worker.isTagInactive
-        ? '${usernameLine(worker)} · нет тега работника'
-        : usernameLine(worker);
+        ? context.l10n.attendance_workers_no_work_tag(usernameLine(context, worker))
+        : usernameLine(context, worker);
     return _show(
       context,
       title: worker.displayName,
       subtitle: subtitle,
-      primary: 'Открыть',
+      primary: context.l10n.common_open,
       primaryAction: AttendanceWorkerSheetAction.open,
-      secondary: 'В архив',
+      secondary: context.l10n.attendance_workers_to_archive,
       secondaryAction: AttendanceWorkerSheetAction.archive,
     );
   }
@@ -39,10 +40,10 @@ abstract final class AttendanceWorkersSheets {
     return _show(
       context,
       title: worker.displayName,
-      subtitle: '${usernameLine(worker)} · ждёт ответа в чате',
-      primary: 'Открыть чат',
+      subtitle: context.l10n.attendance_workers_waiting_chat(usernameLine(context, worker)),
+      primary: context.l10n.attendance_punch_open_chat,
       primaryAction: AttendanceWorkerSheetAction.openChat,
-      secondary: 'Закрыть',
+      secondary: context.l10n.common_close,
       secondaryAction: null,
     );
   }
@@ -54,10 +55,10 @@ abstract final class AttendanceWorkersSheets {
     return _show(
       context,
       title: worker.displayName,
-      subtitle: '${usernameLine(worker)} · не в сменах',
-      primary: 'Пригласить снова',
+      subtitle: context.l10n.attendance_workers_not_in_shifts(usernameLine(context, worker)),
+      primary: context.l10n.attendance_workers_reinvite,
       primaryAction: AttendanceWorkerSheetAction.reinvite,
-      secondary: 'Открыть',
+      secondary: context.l10n.common_open,
       secondaryAction: AttendanceWorkerSheetAction.open,
     );
   }

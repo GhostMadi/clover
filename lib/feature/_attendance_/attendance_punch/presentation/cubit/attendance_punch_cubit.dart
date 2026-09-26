@@ -1,3 +1,5 @@
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_context_store.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_error.dart';
 import 'package:clover/feature/_attendance_/shared/data/attendance_location.dart';
@@ -9,6 +11,8 @@ import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_punch_type.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_snapshot.dart';
 import 'package:clover/feature/_attendance_/shared/data/models/attendance_workplace.dart';
+import 'package:clover/l10n/app_localizations.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -151,9 +155,10 @@ class AttendancePunchCubit extends Cubit<AttendancePunchState> {
       return false;
     }
     if (type.isClockIn && membership?.shiftOpen == true) {
-      throw const AttendanceException(
+      final l10n = lookupAppLocalizations(Locale(sl<AppLocaleCubit>().state.languageCode));
+      throw AttendanceException(
         AttendanceErrorCode.invalidPunch,
-        'Смена уже открыта — сначала отметьте «Ушёл»',
+        l10n.attendance_punch_shift_already_open,
       );
     }
 

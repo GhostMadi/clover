@@ -3,6 +3,7 @@ import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_booking_/booking_client/presentation/widget/client_booking_step_header.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 /// Комментарий клиента к записи — необязательное поле.
 class ClientBookingCommentField extends StatefulWidget {
@@ -43,10 +44,10 @@ class _ClientBookingCommentFieldState extends State<ClientBookingCommentField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ClientBookingStepHeader(
+        ClientBookingStepHeader(
           step: 5,
-          title: 'Комментарий',
-          subtitle: 'Необязательно — пожелания мастеру',
+          title: context.l10n.booking_comment,
+          subtitle: context.l10n.booking_comment_hint,
         ),
         const SizedBox(height: 12),
         AnimatedContainer(
@@ -68,7 +69,7 @@ class _ClientBookingCommentFieldState extends State<ClientBookingCommentField> {
             style: AppTextStyle.base(15, fontWeight: FontWeight.w500, color: context.colors.textColor, height: 1.35),
             cursorColor: accent.icon,
             decoration: InputDecoration(
-              hintText: 'Например: коротко сбоку',
+              hintText: context.l10n.booking_comment_example_hint,
               hintStyle: AppTextStyle.base(15, fontWeight: FontWeight.w400, color: context.colors.subTextColor),
               border: InputBorder.none,
               counterStyle: AppTextStyle.base(11, color: context.colors.iconMuted),

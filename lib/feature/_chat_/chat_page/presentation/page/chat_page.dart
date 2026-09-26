@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clover/core/extension/context.dart';
 import 'package:clover/core/dependencies/get_it.dart';
 import 'package:clover/core/resources/app_icons.dart';
 import 'package:clover/core/resources/colors.dart';
@@ -113,7 +114,7 @@ class _ChatPageState extends State<ChatPage> {
 
   String get _title {
     final raw = widget.username.trim();
-    if (raw.isEmpty) return widget.isGroup ? 'Группа' : 'user';
+    if (raw.isEmpty) return widget.isGroup ? context.l10n.chat_group : 'user';
     if (widget.isGroup) return raw;
     return raw.startsWith('@') ? raw.substring(1) : raw;
   }
@@ -297,9 +298,9 @@ class _ChatPageState extends State<ChatPage> {
         if (text.isEmpty) return;
         await Clipboard.setData(ClipboardData(text: text));
         if (!mounted) return;
-        AppSnackBar.show(context, message: 'Скопировано', kind: AppSnackBarKind.success);
+        AppSnackBar.show(context, message: context.l10n.common_copied, kind: AppSnackBarKind.success);
       case ChatMessageAction.star:
-        AppSnackBar.show(context, message: 'Избранные для сообщений — скоро');
+        AppSnackBar.show(context, message: context.l10n.chat_star_soon);
       case ChatMessageAction.edit:
         _cubit.setEditingMessage(message);
         _composerController.text = message.text;
@@ -322,8 +323,8 @@ class _ChatPageState extends State<ChatPage> {
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
         builder: (context) => AppImageSelectorPage(
-          title: 'Фото',
-          confirmLabel: 'Готово',
+          title: context.l10n.chat_preview_photo,
+          confirmLabel: context.l10n.common_done,
           maxSelectionCount: 10,
           onConfirmed: (result) async {
             Navigator.of(context).pop();
@@ -352,7 +353,7 @@ class _ChatPageState extends State<ChatPage> {
 
     if (uploads.isEmpty) {
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'Не удалось прочитать фото', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.chat_photo_read_failed, kind: AppSnackBarKind.error);
       return;
     }
 
@@ -379,7 +380,7 @@ class _ChatPageState extends State<ChatPage> {
 
     if (uploads.isEmpty) {
       if (!mounted) return;
-      AppSnackBar.show(context, message: 'Не удалось прочитать документ', kind: AppSnackBarKind.error);
+      AppSnackBar.show(context, message: context.l10n.chat_file_read_failed, kind: AppSnackBarKind.error);
       return;
     }
 
@@ -493,7 +494,7 @@ class _ChatPageState extends State<ChatPage> {
                             if (isTyping) ...[
                               const SizedBox(height: 2),
                               Text(
-                                'печатает…',
+                                context.l10n.chat_typing,
                                 style: AppTextStyle.base(12, color: context.colors.subTextColor, height: 1.1),
                               ),
                             ],
@@ -522,7 +523,7 @@ class _ChatPageState extends State<ChatPage> {
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       child: AppField(
                         controller: _searchController,
-                        hintText: 'Поиск по сообщениям',
+                        hintText: context.l10n.chat_thread_search_hint,
                         prefixIcon: AppIcons.searchRounded.icon,
                         textInputAction: TextInputAction.search,
                         onChanged: _runSearch,
@@ -630,8 +631,8 @@ class _ChatPageState extends State<ChatPage> {
                                             child: Center(
                                               child: Text(
                                                 isOpeningConversation
-                                                    ? 'Открываем чат…'
-                                                    : 'Напишите первое сообщение',
+                                                    ? context.l10n.chat_opening
+                                                    : context.l10n.chat_first_message,
                                                 style: AppTextStyle.base(
                                                   15,
                                                   color: context.colors.subTextColor,
@@ -735,11 +736,13 @@ class _ChatPageState extends State<ChatPage> {
                                             children: [
                                               if (replyToMessage != null)
                                                 ChatComposerContextBar.reply(
+                                                  context: context,
                                                   message: replyToMessage,
                                                   onClose: _cubit.clearComposerContext,
                                                 ),
                                               if (editingMessage != null)
                                                 ChatComposerContextBar.edit(
+                                                  context: context,
                                                   message: editingMessage,
                                                   onClose: () {
                                                     _cubit.clearComposerContext();
@@ -813,7 +816,7 @@ class _ChatThreadErrorView extends StatelessWidget {
             FilledButton(
               onPressed: onRetry,
               style: FilledButton.styleFrom(backgroundColor: context.colors.primary),
-              child: const Text('Повторить'),
+              child: Text(context.l10n.common_retry),
             ),
           ],
         ),

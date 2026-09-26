@@ -4,6 +4,9 @@ import 'package:clover/feature/_chat_/chat_info/data/models/chat_participant.dar
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:clover/core/dependencies/get_it.dart';
+import 'package:clover/core/locale/app_locale_cubit.dart';
+import 'package:clover/l10n/app_localizations.dart';
 
 @injectable
 class ChatInfoCubit extends Cubit<ChatInfoState> {
@@ -74,7 +77,7 @@ class ChatInfoCubit extends Cubit<ChatInfoState> {
       if (isClosed) return;
       final message = error is ChatRepositoryException
           ? error.message
-          : 'Не удалось загрузить участников';
+          : lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).chat_members_load_failed;
       emit(ChatInfoState.error(message));
     }
   }
@@ -82,11 +85,15 @@ class ChatInfoCubit extends Cubit<ChatInfoState> {
   Future<void> setWallpaperEmojis(List<String> emojis) async {
     final cur = state;
     if (cur is! ChatInfoLoaded) {
-      throw const ChatRepositoryException('Чат ещё не готов');
+      throw ChatRepositoryException(
+        lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).chat_not_ready,
+      );
     }
     final id = cur.conversationId?.trim();
     if (id == null || id.isEmpty) {
-      throw const ChatRepositoryException('Чат ещё не создан');
+      throw ChatRepositoryException(
+        lookupAppLocalizations(sl<AppLocaleCubit>().state.locale).chat_not_created,
+      );
     }
 
     final saved = await _repository.setConversationWallpaper(

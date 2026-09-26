@@ -8,6 +8,7 @@ import 'package:clover/feature/_settings_/settings/presentation/widget/settings_
 import 'package:clover/feature/_settings_/settings_guide/data/services_guide_catalog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class SettingsGuidePage extends StatefulWidget {
@@ -32,7 +33,7 @@ class _SettingsGuidePageState extends State<SettingsGuidePage> {
     final colors = context.colors;
 
     return SettingsScreenShell(
-      title: 'Гайд',
+      title: context.l10n.settings_guide_title,
       body: BlocBuilder<ProfileCubit, ProfileState>(
         bloc: sl<ProfileCubit>(),
         builder: (context, profileState) {
@@ -42,7 +43,7 @@ class _SettingsGuidePageState extends State<SettingsGuidePage> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             children: [
               Text(
-                'Коротко про сервисы Clover. Можно сразу активировать тег хозяина.',
+                context.l10n.settings_guide_services_intro,
                 style: AppTextStyle.base(14, color: colors.subTextColor, height: 1.4),
               ),
               const SizedBox(height: 16),
@@ -136,7 +137,7 @@ class _GuideHubCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
-                  active ? 'Активно' : 'Активировать',
+                  active ? context.l10n.common_active : context.l10n.settings_activate,
                   style: AppTextStyle.base(
                     11,
                     color: active

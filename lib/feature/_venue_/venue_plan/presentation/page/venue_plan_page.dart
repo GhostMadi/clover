@@ -6,6 +6,7 @@ import 'package:clover/feature/_venue_/shared/data/venue_published_plan_loader.d
 import 'package:clover/feature/_venue_/shared/presentation/widget/venue_mock_widgets.dart';
 import 'package:clover/feature/_venue_/shared/presentation/widget/venue_screen_shell.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 @RoutePage()
 class VenuePlanPage extends StatefulWidget {
@@ -32,13 +33,13 @@ class _VenuePlanPageState extends State<VenuePlanPage> {
         setState(() {
           _loading = false;
           _published = plan;
-          if (plan == null) _error = 'Не удалось загрузить план';
+          if (plan == null) _error = context.l10n.venue_plan_load_failed;
         });
       }).catchError((Object e) {
         if (!mounted) return;
         setState(() {
           _loading = false;
-          _error = 'Ошибка загрузки плана';
+          _error = context.l10n.venue_plan_load_error;
         });
       });
     }
@@ -52,16 +53,16 @@ class _VenuePlanPageState extends State<VenuePlanPage> {
     final usePublished = widget.venueId == 'cafe';
 
     return VenueScreenShell(
-      title: 'План / схема',
+      title: context.l10n.venue_plan_schema,
       body: ListView(
         padding: EdgeInsets.fromLTRB(16, 8, 16, VenueScreenShell.scrollBottomGap(context)),
         children: [
           VenueMockBanner(
             text: usePublished
-                ? 'Сайт нарисовал → мобилка только смотрит (JSON с сайта, мок).'
+                ? context.l10n.venue_plan_site_only
                 : (venue?.hasPlan == true
-                    ? 'Превью схемы. Рисовать и править — только на сайте.'
-                    : 'Схемы нет. Хозяин может остаться на билетах / списке.'),
+                    ? context.l10n.venue_plan_preview
+                    : context.l10n.venue_no_schema_tickets),
           ),
           const SizedBox(height: 12),
           const VenueStateLegend(),
@@ -94,7 +95,7 @@ class _VenuePlanPageState extends State<VenuePlanPage> {
                 border: Border.all(color: colors.borderSoft),
               ),
               child: Text(
-                'Пустой холст. На сайте появится редактор «как Figma».',
+                context.l10n.venue_empty_canvas,
                 style: AppTextStyle.base(14, color: colors.subTextColor),
               ),
             )

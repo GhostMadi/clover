@@ -3,6 +3,7 @@ import 'package:clover/core/resources/colors.dart';
 import 'package:clover/core/resources/style.dart';
 import 'package:clover/feature/_attendance_/shared/presentation/widget/attendance_service_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:clover/core/extension/context.dart';
 
 class AttendanceOvertimeSuggestionCard extends StatelessWidget {
   const AttendanceOvertimeSuggestionCard({
@@ -35,7 +36,7 @@ class AttendanceOvertimeSuggestionCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Уход позже графика · ~$hours ч',
+                  context.l10n.attendance_overtime_suggestion('$hours'),
                   style: AppTextStyle.base(15, color: colors.textColor, fontWeight: FontWeight.w700),
                 ),
               ),
@@ -43,7 +44,7 @@ class AttendanceOvertimeSuggestionCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           AttendancePrimaryButton(
-            text: 'Создать заявку',
+            text: context.l10n.attendance_overtime_create_request,
             height: 44,
             isExpanded: true,
             onTap: onCreateRequest,
