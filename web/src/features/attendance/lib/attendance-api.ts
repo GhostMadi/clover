@@ -415,6 +415,7 @@ export async function inviteMember(params: {
     p_profile_id: params.profileId,
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
   return String(data);
 }
 
@@ -424,6 +425,7 @@ export async function archiveMember(membershipId: string): Promise<void> {
     p_membership_id: membershipId,
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
 }
 
 export async function reinviteMember(membershipId: string): Promise<void> {
@@ -432,6 +434,7 @@ export async function reinviteMember(membershipId: string): Promise<void> {
     p_membership_id: membershipId,
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
 }
 
 export async function setMemberBaseSalary(params: {
@@ -446,6 +449,7 @@ export async function setMemberBaseSalary(params: {
     p_base_salary_tenge: Math.max(0, Math.round(params.baseSalaryTenge)),
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
 }
 
 export type AttendanceProfileHit = {
@@ -517,6 +521,7 @@ export async function setOvertimeStatus(params: {
     p_status: params.status,
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
 }
 
 /** Admin/worker list — same RPC as mobile `listPunchCorrections`. */
@@ -576,6 +581,7 @@ export async function upsertAbsence(params: {
     p_absence_id: null,
   });
   if (error) throw error;
+  invalidateAttendanceBootstrapCache();
   return String(data);
 }
 
@@ -705,11 +711,17 @@ export async function payrollPreview(params: {
   };
 }
 
-export async function loadProfileLabels(
+const PROFILE_LABELS_PREFIX = "attendance:profile-labels:";
+
+export function profileLabelsKey(ids: string[]): string {
+  const unique = [...new Set(ids)].sort();
+  return `${PROFILE_LABELS_PREFIX}${unique.join(",")}`;
+}
+
+async function fetchProfileLabels(
   ids: string[],
 ): Promise<Map<string, { name: string; username: string }>> {
   const labels = new Map<string, { name: string; username: string }>();
-  if (ids.length === 0) return labels;
   const supabase = createClient();
   const { data } = await supabase
     .from("profiles")
@@ -730,4 +742,17 @@ export async function loadProfileLabels(
     });
   }
   return labels;
+}
+
+/** Имена по набору id: один in-flight и короткая память на тот же набор. */
+export async function loadProfileLabels(
+  ids: string[],
+): Promise<Map<string, { name: string; username: string }>> {
+  const unique = [...new Set(ids)];
+  if (unique.length === 0) return new Map();
+  const labels = await coalesceAsync(
+    profileLabelsKey(unique),
+    () => fetchProfileLabels(unique),
+  );
+  return new Map(labels);
 }

@@ -22,12 +22,23 @@ import {
 } from "@/features/attendance/lib/attendance-model";
 import { AttendanceWorkspaceShell } from "@/features/attendance/components/attendance-workspace-shell";
 import {
+  ServiceEmpty,
+  ServiceInformer,
+} from "@/features/shared/components/service-page";
+import {
   readAttendanceDutyCache,
   writeAttendanceDutyCache,
 } from "@/features/attendance/lib/attendance-prefs";
 import { getSessionUserId } from "@/lib/run-service-swr";
 
 type ActiveMember = { id: string; name: string };
+
+function overtimeStatusRu(status: string): string {
+  if (status === "approved") return "принята";
+  if (status === "rejected") return "отклонена";
+  if (status === "pending") return "ждёт решения";
+  return status;
+}
 
 export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
   const back = `/app/settings/attendance/w/${workplaceId}`;
@@ -126,7 +137,7 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
 
   if (loading) {
     return (
-      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Смены и учёт">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Дежурства">
         <div className="px-4 py-5">
           <AttendanceListShimmer rows={6} />
         </div>
@@ -136,7 +147,7 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
 
   if (error || !workplace || !roster) {
     return (
-      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Смены и учёт">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Дежурства">
         <div className="space-y-3 px-4 py-5">
           <p className="text-[14px] text-error">{error ?? "Нет данных"}</p>
           <AppButtonLink href={back} service="attendance">
@@ -187,16 +198,22 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
   };
 
   return (
-    <AttendanceWorkspaceShell workplaceId={workplaceId} title="Смены и учёт">
-      <div className="space-y-6 px-4 py-5 pb-10">
-        <section className="rounded-[16px] border border-line bg-surface px-3.5 py-3.5">
-          <p className="text-[12px] font-bold uppercase tracking-wide text-muted">
-            Сегодня дежурит
+    <AttendanceWorkspaceShell
+      workplaceId={workplaceId}
+      title="Дежурства"
+      lead="Кто дежурит по очереди, кто отсутствует и какие переработки ждут решения."
+      companyName={workplace.name}
+    >
+      <div className="mx-auto max-w-3xl space-y-4 pb-10">
+        <section className="rounded-[16px] border border-line bg-surface p-4">
+          <h2 className="text-[15px] font-bold text-ink">Сегодня дежурит</h2>
+          <p className="mt-1 text-[12px] leading-snug text-muted">
+            Считается из сохранённой очереди и рабочих дней.
           </p>
           {todayOnDuty.length === 0 ? (
-            <p className="mt-2 text-[14px] text-muted">
-              Никого — настройте очередь ниже
-            </p>
+            <div className="mt-3">
+              <ServiceEmpty>Никого. Настройте очередь ниже и сохраните её.</ServiceEmpty>
+            </div>
           ) : (
             <ul className="mt-2 space-y-1">
               {todayOnDuty.map((id) => (
@@ -213,13 +230,16 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
           ) : null}
         </section>
 
-        <section className="space-y-3">
-          <p className="text-[15px] font-bold text-ink">Очередь дежурных</p>
-          <div className="overflow-hidden rounded-[16px] border border-line bg-surface">
+        <section className="space-y-3 rounded-[16px] border border-line bg-surface p-4">
+          <h2 className="text-[15px] font-bold text-ink">Очередь дежурных</h2>
+          <ServiceInformer service="attendance">
+            Кто в очереди и какие дни рабочие. Изменения применятся после «Сохранить очередь».
+          </ServiceInformer>
+          <div className="overflow-hidden rounded-[16px] border border-line bg-bg">
             {members.length === 0 ? (
-              <p className="px-3.5 py-4 text-[13px] text-muted">
-                Нет активных работников
-              </p>
+              <div className="p-3">
+                <ServiceEmpty>Нет активных людей. Добавьте их в разделе «Люди».</ServiceEmpty>
+              </div>
             ) : (
               members.map((m, i) => {
                 const on = roster.workerIds.includes(m.id);
@@ -291,9 +311,12 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
           </AppButton>
         </section>
 
-        <section className="space-y-3">
+        <section className="space-y-3 rounded-[16px] border border-line bg-surface p-4">
+          <ServiceInformer service="attendance" tone="warning">
+            Целые дни: выходной, отпуск или больничный. Новая запись уходит на сервер кнопкой «Сохранить отсутствие».
+          </ServiceInformer>
           <div className="flex items-center justify-between gap-2">
-            <p className="text-[15px] font-bold text-ink">Отсутствия</p>
+            <h2 className="text-[15px] font-bold text-ink">Отсутствия</h2>
             <button
               type="button"
               onClick={() => {
@@ -404,7 +427,7 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
           ) : null}
 
           {absences.length === 0 ? (
-            <p className="text-[13px] text-muted">Пока нет записей</p>
+            <ServiceEmpty>Пока нет отсутствий.</ServiceEmpty>
           ) : (
             <ul className="overflow-hidden rounded-[16px] border border-line bg-surface">
               {absences.slice(0, 20).map((a, i) => (
@@ -425,12 +448,15 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
           )}
         </section>
 
-        <section className="space-y-3">
-          <p className="text-[15px] font-bold text-ink">
-            Переработка · ожидают {pendingOt.length}
-          </p>
+        <section className="space-y-3 rounded-[16px] border border-line bg-surface p-4">
+          <h2 className="text-[15px] font-bold text-ink">
+            Переработка · ждут решения {pendingOt.length}
+          </h2>
+          <ServiceInformer service="attendance">
+            Принять или отклонить — сразу. В зарплату попадают только принятые часы.
+          </ServiceInformer>
           {pendingOt.length === 0 ? (
-            <p className="text-[13px] text-muted">Нет заявок на approve</p>
+            <ServiceEmpty>Нет заявок на переработку.</ServiceEmpty>
           ) : (
             <ul className="overflow-hidden rounded-[16px] border border-line bg-surface">
               {pendingOt.map((o, i) => (
@@ -459,7 +485,7 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
                       }}
                       className="rounded-full bg-svc-attendance px-3 py-1.5 text-[12px] font-bold text-svc-attendance-ink disabled:opacity-40"
                     >
-                      Approve
+                      Принять
                     </button>
                     <button
                       type="button"
@@ -475,7 +501,7 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
                       }}
                       className="rounded-full bg-bg px-3 py-1.5 text-[12px] font-bold text-error disabled:opacity-40"
                     >
-                      Reject
+                      Отклонить
                     </button>
                   </div>
                 </li>
@@ -494,7 +520,7 @@ export function AttendanceDutyView({ workplaceId }: { workplaceId: string }) {
                     {labels.get(o.profileId)?.name ?? o.profileId.slice(0, 8)}
                   </p>
                   <p className="text-[12px] text-muted">
-                    {o.workDate} · {o.hours} ч · {o.status}
+                    {o.workDate} · {o.hours} ч · {overtimeStatusRu(o.status)}
                   </p>
                 </li>
               ))}

@@ -17,6 +17,10 @@ import {
   writeAttendanceWorkplaceCache,
 } from "@/features/attendance/lib/attendance-prefs";
 import { AttendanceWorkspaceShell } from "@/features/attendance/components/attendance-workspace-shell";
+import {
+  ServiceEmpty,
+  ServiceInformer,
+} from "@/features/shared/components/service-page";
 import { getSessionUserId } from "@/lib/run-service-swr";
 
 type DraftPunch = {
@@ -145,6 +149,7 @@ export function AttendancePunchTypesView({
     <AttendanceWorkspaceShell
       workplaceId={workplaceId}
       title="Типы отметок"
+      lead="Какие отметки есть у компании. Список сохраняется кнопкой «Сохранить»."
       trailing={
         <button
           type="button"
@@ -157,15 +162,18 @@ export function AttendancePunchTypesView({
         </button>
       }
     >
-      <div className="space-y-6 px-4 py-5 pb-10">
-        <p className="text-[13px] text-muted">
-          У каждого типа можно задать время, когда работник должен отметиться.
-        </p>
+      <div className="mx-auto max-w-3xl space-y-4 pb-10">
+        <ServiceInformer service="attendance">
+          Приход и уход можно выключить. Свои типы вроде обеда добавляются плюсом и попадают в список после «Сохранить».
+        </ServiceInformer>
 
         <section className="overflow-hidden rounded-[16px] border border-line bg-surface">
-          <p className="border-b border-line px-3.5 py-2.5 text-[12px] font-bold uppercase tracking-wide text-muted">
-            Приход и уход
-          </p>
+          <div className="border-b border-line px-4 py-3">
+            <h2 className="text-[15px] font-bold text-ink">Приход и уход</h2>
+            <p className="mt-1 text-[12px] leading-snug text-muted">
+              Время необязательно: если задано, это час, к которому ждут отметку.
+            </p>
+          </div>
           <SystemPunchRow
             title="Пришёл"
             enabled={clockInEnabled}
@@ -196,15 +204,13 @@ export function AttendancePunchTypesView({
           </p>
         ) : null}
 
-        <section className="space-y-2">
-          <p className="px-1 text-[15px] font-bold text-ink">Свои отметки</p>
-          <p className="px-1 text-[12px] text-muted">
-            «Обед», «Перерыв» — с опциональным временем.
+        <section className="space-y-3 rounded-[16px] border border-line bg-surface p-4">
+          <h2 className="text-[15px] font-bold text-ink">Свои отметки</h2>
+          <p className="text-[12px] leading-snug text-muted">
+            Например обед или перерыв. Удаление из списка применится после «Сохранить».
           </p>
           {custom.length === 0 ? (
-            <p className="px-1 py-6 text-center text-[13px] text-muted">
-              Пока нет своих отметок. Нажмите + чтобы добавить.
-            </p>
+            <ServiceEmpty>Пока нет своих отметок. Нажмите + чтобы добавить.</ServiceEmpty>
           ) : (
             <ul className="overflow-hidden rounded-[16px] border border-line bg-surface">
               {custom.map((p, i) => (

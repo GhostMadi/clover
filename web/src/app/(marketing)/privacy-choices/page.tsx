@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyChoicesPage() {
   return (
-    <LegalPage title="Параметры конфиденциальности пользователей" updated="8 сентября 2026">
+    <LegalPage title="Параметры конфиденциальности пользователей" updated="26 сентября 2026">
       <LegalSection title="Зачем эта страница">
         <p>
           Здесь — практические шаги: как ограничить доступ к данным на устройстве, что мы не делаем с вашими
@@ -60,7 +60,10 @@ export default function PrivacyChoicesPage() {
 
       <LegalSection title="Удаление аккаунта и данных">
         <p>
-          Чтобы запросить удаление аккаунта и связанных персональных данных, откройте{" "}
+          В приложении можно <strong className="font-semibold text-ink">деактивировать</strong> аккаунт
+          (профиль скрывается; при входе снова активен). Чтобы{" "}
+          <strong className="font-semibold text-ink">безвозвратно удалить</strong> аккаунт и связанные
+          персональные данные, откройте{" "}
           <Link className="text-brand underline underline-offset-2" href="/delete-account">
             инструкцию по удалению аккаунта
           </Link>{" "}
@@ -68,8 +71,9 @@ export default function PrivacyChoicesPage() {
           <Link className="text-brand underline underline-offset-2" href={SITE.supportPath}>
             форму поддержки
           </Link>{" "}
-          и укажите ник/email и запрос «Удаление аккаунта». Мы обработаем обращение в разумный срок. Отдельные
-          данные могут остаться, если этого требует закон (например, споры или безопасность).
+          и укажите ник/email и запрос «Безвозвратное удаление аккаунта». Мы обработаем обращение в разумный
+          срок (обычно до 30 дней). Отдельные данные могут остаться, если этого требует закон (например,
+          споры или безопасность).
         </p>
       </LegalSection>
 

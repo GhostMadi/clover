@@ -15,6 +15,7 @@ import {
   writeAttendanceWorkplaceCache,
 } from "@/features/attendance/lib/attendance-prefs";
 import { AttendanceWorkspaceShell } from "@/features/attendance/components/attendance-workspace-shell";
+import { ServiceInformer } from "@/features/shared/components/service-page";
 import { MapboxPinMap } from "@/features/maps/mapbox-pin-map";
 import { getSessionUserId } from "@/lib/run-service-swr";
 
@@ -120,12 +121,15 @@ export function AttendanceGeofenceView({ workplaceId }: { workplaceId: string })
   }
 
   return (
-    <AttendanceWorkspaceShell workplaceId={workplaceId} title="Геозона">
-      <div className="flex flex-col gap-4 px-4 py-4 pb-10">
-        <p className="text-[13px] text-muted">
-          Тапните карту, чтобы поставить центр. Радиус — зона, где можно
-          отметиться.
-        </p>
+    <AttendanceWorkspaceShell
+      workplaceId={workplaceId}
+      title="Геозона"
+      lead="Где можно отметиться. Центр и радиус сохраняются кнопкой «Сохранить»."
+    >
+      <div className="mx-auto flex max-w-3xl flex-col gap-4 pb-10">
+        <ServiceInformer service="attendance">
+          Нажмите карту, чтобы поставить центр. Радиус — зона, внутри которой приложение принимает отметку.
+        </ServiceInformer>
 
         {mapError ? (
           <p className="rounded-[12px] border border-line bg-surface-muted px-3 py-8 text-center text-[13px] text-muted">
@@ -148,9 +152,14 @@ export function AttendanceGeofenceView({ workplaceId }: { workplaceId: string })
           {pin.lat.toFixed(5)}, {pin.lon.toFixed(5)}
         </p>
 
-        <label className="block">
+        <section className="rounded-[16px] border border-line bg-surface p-4">
+          <h2 className="text-[15px] font-bold text-ink">Радиус</h2>
+          <p className="mt-1 text-[12px] leading-snug text-muted">
+            От 50 до 300 метров. На карте круг обновляется сразу, на сервер уходит после «Сохранить».
+          </p>
+        <label className="mt-3 block">
           <div className="mb-2 flex items-center justify-between gap-2">
-            <span className="text-[13px] font-semibold text-ink">Радиус</span>
+            <span className="text-[13px] font-semibold text-ink">Метры</span>
             <span className="text-[13px] font-bold text-svc-attendance-ink">
               {radius} м
             </span>
@@ -169,6 +178,7 @@ export function AttendanceGeofenceView({ workplaceId }: { workplaceId: string })
             <span>300 м</span>
           </div>
         </label>
+        </section>
 
         {error ? <p className="text-[13px] text-error">{error}</p> : null}
 

@@ -48,6 +48,9 @@ Punch / offline outbox — только мобилка ([website-attendance-gaps
 | Зарплата | `payroll:{id}:{from}:{to}` | 6h |
 | Вход | Last workplace → `/w/[id]` | LS |
 | In-flight | `attendance:bootstrap` / `attendance:admin-hub` | ~20с memory |
+| Имена профилей | `attendance:profile-labels:{sortedIds}` | ~20с memory |
+
+Сегодня рисуется из `today:{id}`, затем тихий reload. Переход Сегодня → Дежурства в окне памяти делит один bootstrap и тот же набор имён. После мутации (человек, смена, геозона, тип отметки, отсутствие, переработка) сбрасывается префикс `attendance:` — и bootstrap, и имена. Поиск людей кэш localStorage не использует.
 
 ## Запись
 
@@ -61,6 +64,8 @@ Punch / offline outbox — только мобилка ([website-attendance-gaps
 | Расписание | `schedule` | 24h |
 | Аналитика | `analytics:{from}:{to}` | 6h |
 | In-flight | `booking:points` | ~20с memory |
+| Inbox (Обзор + Записи, один ключ) | `booking:inbox:{pointId}:{from}:{to}` | ~20с memory |
+| Id услуг точки (фильтр inbox) | `booking:service-ids:{pointId}` | ~20с memory |
 
 ## Ресурсы
 
@@ -69,7 +74,10 @@ Punch / offline outbox — только мобилка ([website-attendance-gaps
 | Местоположения | `locations` | 7d |
 | Деталь места | `location:{id}` | 7d |
 | Фильтры профиля | `profile-filters` | 7d |
-| In-flight | `resources:locations` | ~20с memory |
+| In-flight (Обзор + Местоположения + карточка места, один список) | `resources:locations` | ~20с memory |
+| In-flight (Обзор + Фильтры + чипы профиля + композер) | `resources:profile-filters:{profileId}` | ~20с memory |
+
+После save/delete фильтра — сброс `resources:profile-filters:*` и bucket `profile-filters`.
 
 ## Сознательно не здесь
 

@@ -2,6 +2,7 @@
 
 | Тема | Файл |
 |------|------|
+| Рабочий стол сервиса (сайт: тайтл, лид, информер, тайл) | [service-workspace.md](service-workspace.md) |
 | Adaptive widgets (тема + iOS/Android) | [adaptive-widgets.md](adaptive-widgets.md) |
 | Чат — compact rounded conversational UI | [chat-conversational-geometry.md](chat-conversational-geometry.md) |
 | Кнопки сервисов на профиле (2 линии, плотность) | [profile-service-shortcuts.md](profile-service-shortcuts.md) |

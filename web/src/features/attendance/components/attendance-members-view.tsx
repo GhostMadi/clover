@@ -1,7 +1,7 @@
 "use client";
 
-import { Plus, Search } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Plus, Search, X } from "lucide-react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { AppButton } from "@/components/shared/app-button";
 import { AppButtonLink } from "@/components/shared/app-button";
 import { AttendanceNameModal } from "@/features/attendance/components/attendance-name-modal";
@@ -11,6 +11,7 @@ import {
   getAdminWorkplace,
   inviteMember,
   listWorkplaceMembers,
+  loadProfileLabels,
   reinviteMember,
   searchAttendanceProfiles,
   setMemberBaseSalary,
@@ -22,7 +23,7 @@ import {
   writeAttendanceMembersCache,
 } from "@/features/attendance/lib/attendance-prefs";
 import { AttendanceWorkspaceShell } from "@/features/attendance/components/attendance-workspace-shell";
-import { createClient } from "@/lib/supabase/client";
+import { ServiceEmpty } from "@/features/shared/components/service-page";
 import { getSessionUserId } from "@/lib/run-service-swr";
 
 type Tab = "active" | "pending" | "archived";
@@ -46,7 +47,10 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
   const [tab, setTab] = useState<Tab>("active");
   const [inviteOpen, setInviteOpen] = useState(false);
   const [salaryMember, setSalaryMember] = useState<MemberRow | null>(null);
+  const [memberToArchive, setMemberToArchive] = useState<MemberRow | null>(null);
+  const [archiveError, setArchiveError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const archiveTitleId = useId();
 
   const reload = useCallback(async (opts?: { soft?: boolean }) => {
     if (!opts?.soft) setLoading(true);
@@ -60,29 +64,7 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
         return;
       }
       const list = await listWorkplaceMembers(workplaceId);
-      const ids = [...new Set(list.map((m) => m.profileId))];
-      const labels = new Map<string, { name: string; username: string }>();
-      if (ids.length > 0) {
-        const supabase = createClient();
-        const { data } = await supabase
-          .from("profiles")
-          .select("id, username, full_name")
-          .in("id", ids);
-        for (const row of data ?? []) {
-          const id = String(row.id);
-          const username = String(row.username ?? "").trim();
-          const fullName = String(row.full_name ?? "").trim();
-          const handle = username
-            ? username.startsWith("@")
-              ? username
-              : `@${username}`
-            : "";
-          labels.set(id, {
-            name: fullName || handle || id.slice(0, 8),
-            username: handle || username || id.slice(0, 8),
-          });
-        }
-      }
+      const labels = await loadProfileLabels(list.map((m) => m.profileId));
       const next = list.map((m) => {
         const label = labels.get(m.profileId);
         return {
@@ -131,7 +113,7 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
 
   if (loading) {
     return (
-      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Работники">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Люди">
         <div className="px-4 py-5">
           <AttendanceListShimmer rows={6} />
         </div>
@@ -141,7 +123,7 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
 
   if (error) {
     return (
-      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Работники">
+      <AttendanceWorkspaceShell workplaceId={workplaceId} title="Люди">
         <div className="space-y-3 px-4 py-5">
           <p className="text-[14px] text-error">{error}</p>
           <AppButtonLink href={back} service="attendance">
@@ -155,7 +137,8 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
   return (
     <AttendanceWorkspaceShell
       workplaceId={workplaceId}
-      title="Работники"
+      title="Люди"
+      lead="Кто работает в компании: активные, приглашения и архив."
       trailing={
         <button
           type="button"
@@ -192,22 +175,22 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
           ))}
         </div>
 
-        <p className="text-[12px] text-muted">
+        <p className="text-[12px] leading-snug text-muted">
           {tab === "pending"
-            ? "Приглашение уходит в чат. Пока не приняли — отметок нет."
+            ? "Приглашение уходит в чат. Пока его не приняли, отметок нет."
             : tab === "archived"
-              ? "Не в сменах и зарплате. Можно вернуть повторным invite."
-              : "Invite создаёт карточку в чате; зарплату можно задать ниже."}
+              ? "Не в сменах и зарплате. Вернуть можно повторным приглашением."
+              : "Приглашение создаёт карточку в чате. Зарплату можно задать у человека."}
         </p>
 
         {filtered.length === 0 ? (
-          <p className="py-10 text-center text-[14px] text-muted">
+          <ServiceEmpty>
             {tab === "pending"
-              ? "Нет ожидающих приглашений"
+              ? "Нет ожидающих приглашений."
               : tab === "archived"
-                ? "Архив пуст"
-                : "Нет активных работников"}
-          </p>
+                ? "Архив пуст."
+                : "Пока нет активных людей. Пригласите через плюс."}
+          </ServiceEmpty>
         ) : (
           <ul className="overflow-hidden rounded-[16px] border border-line bg-surface">
             {filtered.map((m, i) => (
@@ -237,14 +220,12 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
                           onClick={() => setSalaryMember(m)}
                         />
                         <ActionChip
-                          label="В архив"
+                          label="Убрать"
                           disabled={busyId === m.id}
                           danger
                           onClick={() => {
-                            setBusyId(m.id);
-                            void archiveMember(m.id)
-                              .then(() => reload())
-                              .finally(() => setBusyId(null));
+                            setArchiveError(null);
+                            setMemberToArchive(m);
                           }}
                         />
                       </>
@@ -263,14 +244,12 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
                     ) : null}
                     {tab === "pending" ? (
                       <ActionChip
-                        label="В архив"
+                        label="Убрать"
                         disabled={busyId === m.id}
                         danger
                         onClick={() => {
-                          setBusyId(m.id);
-                          void archiveMember(m.id)
-                            .then(() => reload())
-                            .finally(() => setBusyId(null));
+                          setArchiveError(null);
+                          setMemberToArchive(m);
                         }}
                       />
                     ) : null}
@@ -281,6 +260,80 @@ export function AttendanceMembersView({ workplaceId }: { workplaceId: string }) 
           </ul>
         )}
       </div>
+
+      {memberToArchive ? (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/50 p-0 sm:items-center sm:p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={archiveTitleId}
+          onClick={() => {
+            if (busyId !== memberToArchive.id) setMemberToArchive(null);
+          }}
+        >
+          <div
+            className="w-full max-w-md rounded-t-2xl border border-line bg-surface shadow-elevate-lg sm:rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 border-b border-line px-3 py-2.5">
+              <h2 id={archiveTitleId} className="min-w-0 flex-1 text-[16px] font-bold text-ink">
+                Убрать из компании?
+              </h2>
+              <button
+                type="button"
+                onClick={() => setMemberToArchive(null)}
+                disabled={busyId === memberToArchive.id}
+                className="flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-bg disabled:opacity-50"
+                aria-label="Закрыть"
+              >
+                <X className="h-5 w-5" strokeWidth={2} />
+              </button>
+            </div>
+            <div className="space-y-4 px-4 py-4">
+              <p className="text-[14px] leading-snug text-ink">
+                {memberToArchive.displayName} не будет в сменах и зарплате. Прошлые отметки
+                останутся.
+              </p>
+              {archiveError ? (
+                <p className="text-[13px] text-destructive">{archiveError}</p>
+              ) : null}
+              <div className="flex gap-2">
+                <AppButton
+                  variant="outline"
+                  className="flex-1"
+                  disabled={busyId === memberToArchive.id}
+                  onClick={() => setMemberToArchive(null)}
+                >
+                  Оставить
+                </AppButton>
+                <AppButton
+                  service="attendance"
+                  className="flex-1"
+                  loading={busyId === memberToArchive.id}
+                  onClick={() => {
+                    const person = memberToArchive;
+                    setBusyId(person.id);
+                    setArchiveError(null);
+                    void archiveMember(person.id)
+                      .then(() => {
+                        setMemberToArchive(null);
+                        return reload();
+                      })
+                      .catch((e: unknown) => {
+                        setArchiveError(
+                          e instanceof Error ? e.message : "Не удалось убрать",
+                        );
+                      })
+                      .finally(() => setBusyId(null));
+                  }}
+                >
+                  Убрать
+                </AppButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <InviteMemberModal
         open={inviteOpen}

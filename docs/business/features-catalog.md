@@ -231,10 +231,11 @@ Like / dislike на постах; уведомления автору.
 Бизнес: [account-sleep.md](account-sleep.md)  
 Техника: RPC `hibernate_account` / `wake_up_if_needed` · mobile + web settings + auth wake
 
-### 🟢 Удаление аккаунта
-Self-serve soft-hide (как сон): confirm → RPC `soft_delete_account` → выход. **Без** Auth cascade wipe.  
+### 🟢 Деактивация / удаление аккаунта
+In-app «Деактивировать» = soft-hide (как сон): confirm → RPC `soft_delete_account` → выход. **Без** Auth cascade wipe.  
+Безвозвратное удаление данных — через `/delete-account` §2 → support (обычно ≤ 30 дней).  
 Бизнес: [account-delete.md](account-delete.md)  
-Техника: `soft_delete_account` · `account_state = hibernate` · mobile + web
+Техника: `soft_delete_account` · `account_state = hibernate` · mobile + web · hard wipe вручную
 
 ---
 

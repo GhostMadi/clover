@@ -200,10 +200,12 @@ export async function setStaffActive(staffId: string, isActive: boolean): Promis
   } = await supabase.auth.getSession();
   const user = session?.user ?? null;
   if (!user) throw new Error("Войдите в аккаунт");
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("booking_staff")
     .update({ is_active: isActive })
     .eq("id", staffId)
-    .eq("host_id", user.id);
+    .eq("host_id", user.id)
+    .select("id");
   if (error) throw error;
+  if (!data?.length) throw new Error("Не удалось обновить мастера");
 }

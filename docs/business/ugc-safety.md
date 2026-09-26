@@ -100,34 +100,42 @@
 
 ## Запись для App Review
 
-С физического устройства снять:
+С физического устройства снять (один ролик, ~1–2 мин):
 
 1. Чекбокс Terms на входе (до логина) — ссылки открывают clover.com.kz/terms и /privacy  
 2. «Пожаловаться» на пост (⋯) или guest-профиль  
 3. «Заблокировать» — confirm → пост пропадает из Event-ленты  
 
-Вложить в Notes App Review Information.
+Вложить в App Store Connect → App Review Information → Notes + Attachment.
 
-### Текст ответа в ASC (можно вставить)
+Demo account: заполнить в ASC (см. [app-store-listing.md](app-store-listing.md) § «Демо-аккаунт»). Backend должен быть live.
+
+### Текст для ASC (Notes — можно вставить)
 
 ```
-We implemented Guideline 1.2 UGC precautions in build 1.0 (45):
+Guideline 1.2 UGC (build 1.0.0+46):
 
-1) EULA / Terms of Use — users must agree via checkbox on the login and registration screens before email login, registration, Google, or Apple Sign In. Terms (https://clover.com.kz/terms) state zero tolerance for objectionable content and abusive users, and that we act on reports within 24 hours.
+1) EULA / Terms — users must agree via checkbox on login/registration before email, Google, or Sign in with Apple. Terms (https://clover.com.kz/terms): zero tolerance for objectionable content / abusive users; we act on reports within 24 hours.
 
 2) Filtering — blocking a user immediately removes their posts from the reporter’s Event feed and Map (client + server filter via profile_blocks).
 
-3) Flag / report — users can report a post or profile (⋯ menu on posts / guest profile). Reports are stored for moderation (content_reports).
+3) Flag / report — report a post or profile (⋯ menu). Stored in content_reports for moderation.
 
-4) Block — users can block from a post or guest profile. Blocking notifies us (content_reports source=block) and instantly hides the user’s content from the blocker’s feed.
+4) Block — from a post or guest profile. Creates content_reports (source=block) and instantly hides that user’s content from the blocker’s feed.
 
-We will attach a screen recording on a physical device showing: Terms checkbox before login, Report, and Block.
+Screen recording attached: Terms checkbox → Report → Block → post disappears from Event.
 
-Moderation commitment: we review open reports and remove offending content / restrict the offending account within 24 hours.
+Moderation: we review open content_reports and remove offending content / restrict the account within 24 hours.
+
+Also for reviewers:
+- Sign in with Apple is available on the login screen.
+- In-app “Deactivate account” hides the profile (soft). Permanent deletion of account data: https://clover.com.kz/delete-account (support request, usually within 30 days).
+- Location is When In Use only (map + attendance geofence punch). No Always / background location.
+- Demo account credentials are in the App Review Information fields.
 ```
 
 ---
 
 ## Связанные
 
-- [blocks.md](blocks.md) · [authentication.md](authentication.md) · [features-catalog.md](features-catalog.md)
+- [blocks.md](blocks.md) · [authentication.md](authentication.md) · [features-catalog.md](features-catalog.md) · [app-store-listing.md](app-store-listing.md) · [account-delete.md](account-delete.md)

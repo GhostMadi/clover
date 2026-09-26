@@ -1,16 +1,19 @@
-# Удаление аккаунта (soft, как сон)
+# Удаление / деактивация аккаунта
 
-**Статус:** актуально  
-**Связано с:** [settings.md](settings.md) · [account-sleep.md](account-sleep.md) · [authentication.md](authentication.md)  
-**Техника:** RPC `soft_delete_account` · Edge `delete_account` (только soft-hide, **без** Auth Admin wipe)
+**Статус:** актуально (App Store 5.1.1(v))  
+**Связано с:** [settings.md](settings.md) · [account-sleep.md](account-sleep.md) · [authentication.md](authentication.md) · [app-store-listing.md](app-store-listing.md)  
+**Техника:** RPC `soft_delete_account` · Edge `delete_account` (только soft-hide, **без** Auth Admin wipe) · hard wipe — вручную через support
 
 ---
 
 ## Зачем
 
-In-app «Удалить аккаунт» для сторов и настроек: **скрыть** витрину и выйти — **без каскадного wipe** и без `auth.admin.deleteUser`.
+Два разных действия для сторов и пользователя:
 
-По данным это **тот же класс действия, что сон** ([account-sleep.md](account-sleep.md)): профиль/контент не видны в лентах, строки в БД остаются.
+1. **Деактивировать** (in-app / сайт) — скрыть витрину и выйти, **без** каскадного wipe.  
+2. **Безвозвратное удаление** — запрос через `/support` / `/delete-account`, обработка командой (обычно ≤ 30 дней).
+
+Копирайт UI **не** обещает «безвозвратное стирание» на кнопке деактивации.
 
 ---
 
@@ -18,33 +21,41 @@ In-app «Удалить аккаунт» для сторов и настроек
 
 | Роль | Что |
 |------|-----|
-| Владелец | Настройки → Аккаунт → «Удалить аккаунт» → confirm → soft-hide → выход |
-| Support | Запросы без сессии с `/delete-account` / `/support` (ручная помощь) |
+| Владелец | Настройки → Аккаунт → «Деактивировать аккаунт» → confirm → soft-hide → выход |
+| Владелец (hard) | `/delete-account` §2 → `/support` с текстом «Безвозвратное удаление аккаунта» |
+| Support | Подтверждает владельца, удаляет / обезличивает данные; Auth wipe — вручную вне приложения |
 
 ---
 
 ## Жизненный цикл
 
+### Деактивация (soft)
+
 | Фаза | Как |
 |------|-----|
-| Confirm | Sheet: скрытие как при сне, данные не стираются каскадом |
+| Confirm | Sheet: скрытие как при сне; указание hard-path на clover.com.kz/delete-account |
 | Soft-hide | RPC `soft_delete_account` → `account_state = hibernate`, `content_visible = false` (без лимита 30 дней) |
 | После | Локальный wipe сессии → login |
 | Снова войти | `wake_up_if_needed` пробуждает, как после сна |
-| Hard wipe Auth user | **Вне скоупа** in-app (не делаем) |
+
+### Безвозвратное удаление (hard)
+
+| Фаза | Как |
+|------|-----|
+| Запрос | Форма `/support` + ник/email |
+| SLA | Обычно до 30 дней |
+| Результат | Удаление / обезличивание профиля, контента (где возможно), сессий, push-токенов |
 
 ---
 
-## Сон vs «удаление»
+## Сон vs деактивация vs hard
 
-| | Сон | Удалить (in-app) |
-|--|-----|------------------|
-| Видимость | скрыт | скрыт (тот же state) |
-| Лимит 30 дней | да | нет |
-| Каскад / deleteUser | нет | нет |
-| Пробуждение при входе | да | да |
-
-Копирайт в UI: не обещать «безвозвратное стирание всех данных», если делаем soft.
+| | Сон | Деактивировать (in-app) | Hard (support) |
+|--|-----|-------------------------|----------------|
+| Видимость | скрыт | скрыт (тот же state) | аккаунт снят / обезличен |
+| Лимит 30 дней на повтор | да | нет | — |
+| Каскад / deleteUser | нет | нет | да (вручную) |
+| Пробуждение при входе | да | да | нет (аккаунта нет) |
 
 ---
 
@@ -52,19 +63,19 @@ In-app «Удалить аккаунт» для сторов и настроек
 
 | Где | Что |
 |-----|-----|
-| Настройки → Аккаунт | «Удалить аккаунт» + confirm |
-| `/delete-account` | In-app soft путь + support fallback |
+| Настройки → Аккаунт (mobile + web) | «Деактивировать аккаунт» + confirm с hard-path |
+| `/delete-account` | §1 soft · §2 hard через support |
 
 ---
 
-## Вне скоупа
+## Вне скоупа (пока)
 
-- `auth.admin.deleteUser` и cascade wipe из приложения
-- Отдельный `account_state = deleted` (пока хватает `hibernate`)
-- Отложенное удаление 30 дней
+- `auth.admin.deleteUser` из приложения
+- Отдельный `account_state = deleted`
+- Self-serve hard wipe без поддержки
 
 ---
 
 ## Связанные
 
-- [account-sleep.md](account-sleep.md) · [settings.md](settings.md) · [features-catalog.md](features-catalog.md)
+- [account-sleep.md](account-sleep.md) · [settings.md](settings.md) · [features-catalog.md](features-catalog.md) · marketing `/delete-account`

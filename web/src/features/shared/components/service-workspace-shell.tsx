@@ -13,6 +13,9 @@ export type ServiceWorkspaceNavItem = {
   Icon: LucideIcon;
   /** `main` — день/работа; `more` — низ rail (настройки, гайд…). */
   group?: "main" | "more";
+  /** Действие вместо перехода (чат точки). */
+  onSelect?: () => void;
+  disabled?: boolean;
 };
 
 type ServiceWorkspaceShellProps = {
@@ -29,8 +32,12 @@ type ServiceWorkspaceShellProps = {
   hubBackHref?: string;
   /** CTA справа в шапке контента (кнопка «+» и т.п.). */
   trailing?: ReactNode;
+  /** Одно предложение: что на этом экране. Desktop — под тайтлом, mobile — полоска под шапкой. */
+  lead?: string;
   /** Точка / компания — в rail (md+) или полоска под шапкой (mobile). */
   entitySlot?: ReactNode;
+  /** Короткое сообщение под навигацией (ошибка чата и т.п.). */
+  navNote?: string;
   hideNav?: boolean;
   maxWidthClassName?: string;
 };
@@ -100,29 +107,42 @@ function NavLinks({
 }) {
   return (
     <>
-      {items.map(({ href, label, match, Icon }) => {
+      {items.map(({ href, label, match, Icon, onSelect, disabled }) => {
         const active = match(pathname);
-        return (
-          <Link
-            key={href}
-            href={href}
-            className={
-              compact
-                ? `flex shrink-0 items-center gap-2 rounded-[14px] px-3 py-1.5 text-[12px] font-bold transition ${
-                    active
-                      ? ACTIVE_CHIP[service]
-                      : "border border-line text-muted hover:bg-surface-muted"
-                  }`
-                : `flex items-center gap-2.5 rounded-[12px] px-2.5 py-2.5 text-[13px] font-semibold transition ${
-                    active ? ACTIVE_CHIP[service] : NAV_IDLE[service]
-                  }`
-            }
-          >
+        const className = compact
+          ? `flex shrink-0 items-center gap-2 rounded-[14px] px-3 py-1.5 text-[12px] font-bold transition disabled:opacity-60 ${
+              active
+                ? ACTIVE_CHIP[service]
+                : "border border-line text-muted hover:bg-surface-muted"
+            }`
+          : `flex w-full items-center gap-2.5 rounded-[12px] px-2.5 py-2.5 text-left text-[13px] font-semibold transition disabled:opacity-60 ${
+              active ? ACTIVE_CHIP[service] : NAV_IDLE[service]
+            }`;
+        const body = (
+          <>
             <Icon
               className={compact ? "h-3.5 w-3.5" : "h-4 w-4 shrink-0"}
               strokeWidth={2}
             />
             {label}
+          </>
+        );
+        if (onSelect) {
+          return (
+            <button
+              key={label}
+              type="button"
+              onClick={onSelect}
+              disabled={disabled}
+              className={className}
+            >
+              {body}
+            </button>
+          );
+        }
+        return (
+          <Link key={href} href={href} className={className}>
+            {body}
           </Link>
         );
       })}
@@ -149,7 +169,9 @@ export function ServiceWorkspaceShell({
   hubPath,
   hubBackHref = "/app/settings",
   trailing,
+  lead,
   entitySlot,
+  navNote,
   hideNav = false,
   maxWidthClassName = "max-w-[1400px]",
 }: ServiceWorkspaceShellProps) {
@@ -178,6 +200,12 @@ export function ServiceWorkspaceShell({
           </h1>
           {trailing}
         </header>
+
+        {lead ? (
+          <p className="border-b border-line px-4 py-2 text-[13px] leading-snug text-muted md:hidden">
+            {lead}
+          </p>
+        ) : null}
 
         {entitySlot && !isMd ? (
           <div className="border-b border-line px-3 py-2">{entitySlot}</div>
@@ -208,6 +236,10 @@ export function ServiceWorkspaceShell({
                   <div className="px-0.5 [&_button]:w-full [&_button]:max-w-none">
                     {entitySlot}
                   </div>
+                ) : null}
+
+                {navNote ? (
+                  <p className="px-2 text-[12px] text-destructive">{navNote}</p>
                 ) : null}
 
                 {mainNav.length > 0 ? (
@@ -255,6 +287,11 @@ export function ServiceWorkspaceShell({
                   {brandTitle}
                 </p>
                 <h1 className="font-display text-[22px] font-semibold text-ink">{title}</h1>
+                {lead ? (
+                  <p className="mt-1 max-w-2xl text-[13px] font-normal leading-snug text-muted">
+                    {lead}
+                  </p>
+                ) : null}
               </div>
               {trailing}
             </div>

@@ -46,16 +46,10 @@ export async function listMyLocationsAll(): Promise<ManagedLocation[]> {
   });
 }
 
+/** Карточка места из того же списка: переход список → карточка без второго запроса. */
 export async function getMyLocation(id: string): Promise<ManagedLocation | null> {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("locations")
-    .select(SELECT)
-    .eq("id", id)
-    .maybeSingle();
-  if (error) throw error;
-  if (!data) return null;
-  return mapRow(data as Record<string, unknown>);
+  const list = await listMyLocationsAll();
+  return list.find((l) => l.id === id) ?? null;
 }
 
 export async function createManagedLocation(opts: {

@@ -1,7 +1,6 @@
 "use client";
 
-import { ChevronRight, MapPin, Clock3 } from "lucide-react";
-import Link from "next/link";
+import { Clock3, MapPin } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { AppButtonLink } from "@/components/shared/app-button";
 import { AttendanceListShimmer } from "@/features/attendance/components/attendance-shimmers";
@@ -19,7 +18,10 @@ import {
   writeAttendanceWorkplaceCache,
 } from "@/features/attendance/lib/attendance-prefs";
 import { AttendanceWorkspaceShell } from "@/features/attendance/components/attendance-workspace-shell";
-import { serviceTileIcon } from "@/lib/service-accent";
+import {
+  ServiceInformer,
+  ServiceTile,
+} from "@/features/shared/components/service-page";
 import { getSessionUserId } from "@/lib/run-service-swr";
 
 export function AttendanceSettingsHubView({
@@ -89,64 +91,45 @@ export function AttendanceSettingsHubView({
   }
 
   return (
-    <AttendanceWorkspaceShell workplaceId={workplaceId} title="Настройки">
-      <div className="space-y-6 px-4 py-5">
-        <div>
-          <p className="text-[18px] font-bold text-ink">{workplace.name}</p>
-          <p className="mt-1 text-[13px] text-muted">
-            Геозона, типы отметок и правило дежурств. Punch — в приложении.
-          </p>
+    <AttendanceWorkspaceShell
+      workplaceId={workplaceId}
+      title="Настройки"
+      lead="Правила только этой компании. У другой компании — свои."
+      companyName={workplace.name}
+    >
+      <div className="mx-auto max-w-3xl space-y-4">
+        <ServiceInformer service="attendance">
+          Геозона и типы отметок открываются отдельно. Переключатель дежурства сохраняется сразу.
+        </ServiceInformer>
+
+        <div className="grid gap-3">
+          <ServiceTile
+            service="attendance"
+            href={`${base}/settings/geofence`}
+            title="Геозона"
+            subtitle={geofenceSubtitle(workplace)}
+            icon={MapPin}
+          />
+          <ServiceTile
+            service="attendance"
+            href={`${base}/settings/punch-types`}
+            title="Типы отметок"
+            subtitle={punchTypesSubtitle(workplace)}
+            icon={Clock3}
+          />
         </div>
 
-        <ul className="overflow-hidden rounded-[16px] border border-line bg-surface">
-          <li className="border-b border-line">
-            <Link
-              href={`${base}/settings/geofence`}
-              className="flex items-center gap-3 px-3.5 py-3.5 transition hover:bg-svc-attendance/40"
-            >
-              <span className={serviceTileIcon("attendance")}>
-                <MapPin className="h-5 w-5" strokeWidth={2} />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-[15px] font-bold text-ink">Геозона</span>
-                <span className="block text-[12px] text-muted">
-                  {geofenceSubtitle(workplace)}
-                </span>
-              </span>
-              <ChevronRight className="h-5 w-5 text-muted" strokeWidth={2} />
-            </Link>
-          </li>
-          <li>
-            <Link
-              href={`${base}/settings/punch-types`}
-              className="flex items-center gap-3 px-3.5 py-3.5 transition hover:bg-svc-attendance/40"
-            >
-              <span className={serviceTileIcon("attendance")}>
-                <Clock3 className="h-5 w-5" strokeWidth={2} />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-[15px] font-bold text-ink">
-                  Типы отметок
-                </span>
-                <span className="block text-[12px] text-muted">
-                  {punchTypesSubtitle(workplace)}
-                </span>
-              </span>
-              <ChevronRight className="h-5 w-5 text-muted" strokeWidth={2} />
-            </Link>
-          </li>
-        </ul>
-
-        <div className="rounded-[16px] border border-line bg-surface px-3.5 py-3.5">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="text-[15px] font-bold text-ink">
-                Отметка только у дежурного
-              </p>
-              <p className="mt-0.5 text-[12px] text-muted">
-                Когда включено, punch разрешён только сегодняшнему дежурному
-              </p>
-            </div>
+        <section className="rounded-[16px] border border-line bg-surface p-4">
+          <h2 className="text-[15px] font-bold text-ink">Отметка только у дежурного</h2>
+          <div className="mt-3">
+            <ServiceInformer service="attendance" tone="warning">
+              Сохраняется сразу. Когда включено, отметиться может только тот, кто сегодня в очереди.
+            </ServiceInformer>
+          </div>
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <p className="text-[13px] text-muted">
+              {workplace.dutyOnlyPunch ? "Сейчас включено" : "Сейчас выключено"}
+            </p>
             <button
               type="button"
               role="switch"
@@ -178,7 +161,7 @@ export function AttendanceSettingsHubView({
               />
             </button>
           </div>
-        </div>
+        </section>
       </div>
     </AttendanceWorkspaceShell>
   );
