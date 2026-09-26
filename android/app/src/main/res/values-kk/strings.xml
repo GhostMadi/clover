@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Clover</string>
+    <string name="permission_camera">Камера пост немесе профиль фотосын түсіру және командаға шақыру QR-кодын сканерлеу үшін керек.</string>
+    <string name="permission_location">Қосымшаны пайдаланған кезде геолокация іс-шаралар картасы және жұмыстағы келу/кету белгісі (компания геозонасы) үшін керек.</string>
+    <string name="permission_photos">Пост, аватар немесе профиль баннері үшін сурет таңдау үшін фотоға қолжетімділік керек.</string>
+    <string name="permission_photos_add">Clover-ден суретті құрылғыға сақтау үшін галереяға қолжетімділік керек.</string>
+</resources>

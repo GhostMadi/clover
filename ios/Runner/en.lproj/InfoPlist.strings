@@ -1,0 +1,5 @@
+/* Permission purpose strings — English */
+"NSCameraUsageDescription" = "Camera access is needed to take photos for posts or your profile and to scan team invitation QR codes.";
+"NSLocationWhenInUseUsageDescription" = "While you use the app, location is needed for the events map and to clock in/out at work (company geofence).";
+"NSPhotoLibraryAddUsageDescription" = "Access to Photos is needed to save an image from Clover to your device.";
+"NSPhotoLibraryUsageDescription" = "Access to Photos is needed to choose an image for a post, avatar, or profile banner.";

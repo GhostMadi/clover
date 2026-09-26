@@ -50,13 +50,19 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Камера нужна, чтобы снимать фото для поста или профиля и сканировать QR приглашения в команду.</string>
+	<string>Camera access is needed to take photos for posts or your profile and to scan team invitation QR codes.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Пока вы в приложении, геолокация нужна для карты событий и отметки прихода/ухода на смене (геозона компании).</string>
+	<string>While you use the app, location is needed for the events map and to clock in/out at work (company geofence).</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Доступ к галерее нужен, чтобы сохранить изображение из Clover на устройство.</string>
+	<string>Access to Photos is needed to save an image from Clover to your device.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Доступ к фото нужен, чтобы выбрать изображение для поста, аватара или баннера профиля.</string>
+	<string>Access to Photos is needed to choose an image for a post, avatar, or profile banner.</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>ru</string>
+		<string>kk</string>
+	</array>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>clover.mobile.com.refresh</string>

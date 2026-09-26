@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Clover</string>
+    <string name="permission_camera">Camera access is needed to take photos for posts or your profile and to scan team invitation QR codes.</string>
+    <string name="permission_location">While you use the app, location is needed for the events map and to clock in/out at work (company geofence).</string>
+    <string name="permission_photos">Access to Photos is needed to choose an image for a post, avatar, or profile banner.</string>
+    <string name="permission_photos_add">Access to Photos is needed to save an image from Clover to your device.</string>
+</resources>
