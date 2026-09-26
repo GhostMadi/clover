@@ -3,6 +3,7 @@
 import {
   BookOpen,
   LayoutGrid,
+  LayoutTemplate,
   MapPin,
   SlidersHorizontal,
 } from "lucide-react";
@@ -27,6 +28,13 @@ const NAV: ServiceWorkspaceNavItem[] = [
     label: "Местоположения",
     match: (p) => p.startsWith(`${BASE}/locations`),
     Icon: MapPin,
+    group: "main",
+  },
+  {
+    href: `${BASE}/space-plans`,
+    label: "Схемы",
+    match: (p) => p.startsWith(`${BASE}/space-plans`),
+    Icon: LayoutTemplate,
     group: "main",
   },
   {

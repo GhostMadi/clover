@@ -157,7 +157,7 @@
 | `20260905220000_push_outbox_drain.sql` | claim/mark RPC for Edge `drain_push_outbox` (FCM HTTP v1). |
 | `20260906010000_booking_no_auto_complete_staff_id.sql` | Auto-close only `no_show` (never completed); `staff_id` in host list. |
 | `20260906020000_booking_push_client_reschedule_attendance_duty_folders.sql` | Booking → `push_outbox`; client reschedule; attendance `duty_only_punch` + folders bootstrap. |
-| `20260906111000_drop_booking_reviews.sql` | Drop unused `booking_reviews` (no in-app reviews). |
+| `20260906111000_drop_booking_reviews.sql` | Drop unused `booking_reviews` (старый гейт визита). Новый контур: [SPEC_POINT_REVIEWS.md](SPEC_POINT_REVIEWS.md) — миграция ещё не создана. |
 | `20260906120000_replace_booking_staff_absences.sql` | Atomic `replace_booking_staff_absences(jsonb)` — host absences in one txn. |
 | `20260906140000_fix_upsert_notification_overload.sql` | Drop ambiguous 7-arg `upsert_notification` (likes 400 on `set_post_reaction`). |
 
@@ -267,7 +267,8 @@
 *   **Per-staff schedule** — `booking_staff_schedule` + fallback на account settings.
 *   **Blocked slots** — `booking_blocked_slots` без fake bookings.
 *   **History** — `booking_history` на create/status change.
-*   **Reviews** — сняты (`20260906111000_drop_booking_reviews.sql`); in-app отзывы не делаем.
+*   **Reviews** — старая `booking_reviews` снята (`20260906111000`). Новый in-app контур (профиль / точка, без гейта визита): [SPEC_POINT_REVIEWS.md](SPEC_POINT_REVIEWS.md) — **SPEC есть, миграция pending**.
+*   **Space plans** — геометрия в Ресурсах + emoji-bind на точке Записи: [SPEC_SPACE_PLANS.md](SPEC_SPACE_PLANS.md) · ТЗ: [space-plan-tz.md](../business/space-plan-tz.md) — **SPEC черновик, миграция pending**.
 *   **Notifications** — backlog (не v1).
 
 #### Ключевые особенности реализации (Relations):

@@ -146,6 +146,8 @@ flutter:
     - assets/svg/
     - assets/images/
     - assets/mocks/venue_plan_cafe.json
+    - assets/mocks/cafe_space_plan.json
+    - assets/mocks/barbershop_space_plan.json
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

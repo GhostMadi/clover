@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Plus, SlidersHorizontal } from "lucide-react";
+import { LayoutTemplate, MapPin, Plus, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppButtonLink } from "@/components/shared/app-button";
@@ -19,6 +19,11 @@ import {
   writeResourcesLocationsCache,
   writeResourcesProfileFiltersCache,
 } from "@/features/resources/lib/resources-prefs";
+import {
+  listSpacePlans,
+  spacePlanStatusLabel,
+  type SpacePlanMeta,
+} from "@/features/resources/lib/space-plans-mock";
 import { ResourcesWorkspaceShell } from "@/features/resources/components/resources-workspace-shell";
 import {
   ServiceEmpty,
@@ -29,6 +34,7 @@ import { getSessionUserId, runServiceSwr } from "@/lib/run-service-swr";
 
 const LOCATIONS_HREF = "/app/settings/resources/locations";
 const FILTERS_HREF = "/app/settings/resources/filters";
+const SPACE_PLANS_HREF = "/app/settings/resources/space-plans";
 const PREVIEW_LIMIT = 4;
 
 function locationTitle(loc: ManagedLocation): string {
@@ -39,11 +45,13 @@ function locationTitle(loc: ManagedLocation): string {
 export function ResourcesHubView() {
   const [locations, setLocations] = useState<ManagedLocation[] | null>(null);
   const [filters, setFilters] = useState<ProfileFilterCategory[] | null>(null);
+  const [spacePlans, setSpacePlans] = useState<SpacePlanMeta[] | null>(null);
   const [locationsLoading, setLocationsLoading] = useState(true);
   const [filtersLoading, setFiltersLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setSpacePlans(listSpacePlans());
     void runServiceSwr({
       read: readResourcesLocationsCache,
       fetch: listMyLocationsAll,
@@ -72,12 +80,13 @@ export function ResourcesHubView() {
   const activeCount = locations?.filter((l) => l.isActive).length ?? 0;
   const inactiveCount = (locations?.length ?? 0) - activeCount;
   const valuesCount = filters?.reduce((sum, c) => sum + c.values.length, 0) ?? 0;
-  const ready = !locationsLoading && !filtersLoading;
+  const publishedPlans = spacePlans?.filter((p) => p.status === "published").length ?? 0;
+  const ready = !locationsLoading && !filtersLoading && spacePlans !== null;
 
   return (
     <ResourcesWorkspaceShell
       title="Обзор"
-      lead="Ваш справочник для постов и витрины профиля: места и фильтры."
+      lead="Справочник витрины: места, схемы пространства и фильтры."
     >
       <div className="mx-auto max-w-3xl space-y-5 pb-10">
         {error ? (
@@ -88,7 +97,8 @@ export function ResourcesHubView() {
 
         {ready ? (
           <ServiceInformer service="resources">
-            Мест {locations?.length ?? 0} · активных {activeCount} · фильтров{" "}
+            Мест {locations?.length ?? 0} · активных {activeCount} · схем{" "}
+            {spacePlans?.length ?? 0} (опубл. {publishedPlans}) · фильтров{" "}
             {filters?.length ?? 0} · значений {valuesCount}
           </ServiceInformer>
         ) : (
@@ -165,6 +175,64 @@ export function ResourcesHubView() {
                 </ServiceInformer>
               ) : null}
             </div>
+          )}
+        </ServiceSection>
+
+        <ServiceSection
+          title="Схемы пространства"
+          action={
+            spacePlans && spacePlans.length > 0 ? (
+              <Link
+                href={SPACE_PLANS_HREF}
+                className="text-[12px] font-bold text-svc-resources-ink hover:underline"
+              >
+                Все схемы
+              </Link>
+            ) : null
+          }
+        >
+          <p className="mb-3 text-[12px] leading-snug text-muted">
+            Рисуете зал на сайте. Мобилка только смотрит. Потом привяжете к компании.
+          </p>
+          {spacePlans === null ? (
+            <PreviewShimmer />
+          ) : spacePlans.length === 0 ? (
+            <ServiceEmpty
+              action={
+                <AppButtonLink
+                  href={SPACE_PLANS_HREF}
+                  service="resources"
+                  size="row"
+                  className="gap-1.5"
+                >
+                  <Plus className="h-4 w-4" strokeWidth={2.5} />
+                  Создать схему
+                </AppButtonLink>
+              }
+            >
+              Пока нет схем. Откройте раздел и нарисуйте первую.
+            </ServiceEmpty>
+          ) : (
+            <ul className="space-y-1.5">
+              {spacePlans.slice(0, PREVIEW_LIMIT).map((plan) => (
+                <li key={plan.id}>
+                  <Link
+                    href={`${SPACE_PLANS_HREF}/${plan.id}/edit`}
+                    className="flex items-center gap-3 rounded-[14px] border border-line bg-surface px-3 py-2.5 transition hover:bg-svc-resources/30"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-svc-resources text-svc-resources-ink">
+                      <LayoutTemplate className="h-4 w-4" strokeWidth={2} />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-[14px] font-semibold text-ink">
+                      {plan.title}
+                    </span>
+                    <span className="shrink-0 text-[11px] font-bold text-muted">
+                      {spacePlanStatusLabel(plan.status)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           )}
         </ServiceSection>
 

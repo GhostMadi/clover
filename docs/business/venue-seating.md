@@ -1,7 +1,8 @@
 # Бронь / билеты по пространству
 
-**Статус:** **моки** — мобилка смотрит; **веб-рисовалка** (черновик) на `/app/settings/venue`  
+**Статус:** **моки** — мобилка смотрит; рисовалка продуктово в **Ресурсах → Схемы**; legacy-мок ещё может жить под `/app/settings/venue` до редиректа (см. [space-plan-tz.md](space-plan-tz.md) WP1)  
 Веб-редактор поддерживает **несколько этажей** (вкладки): у каждого свой план `nodes`.  
+**Где живёт схема как справочник:** [space-plan-resources.md](space-plan-resources.md) — тип в **Ресурсах** (`space_plans`); при create заведения/точки — опц. присвоение, как `location`.  
 **UI-имя:** **«Бронь»** · тег профиля **`venue`** (пока не в каталоге — вход из Настроек без тега)  
 **Для кого:** продукт / бизнес / дизайн  
 **Не про:** SQL, RPC, canvas-SDK  
@@ -21,7 +22,7 @@
 
 Один аккаунт может иметь **и запись, и бронь** — два сервиса рядом.
 
-Связано: [profile.md](profile.md) · [settings.md](settings.md) · [publications.md](publications.md) · [chats.md](chats.md) · [notifications.md](notifications.md) · [features-catalog.md](features-catalog.md) · [website.md](website.md)
+Связано: [profile.md](profile.md) · [settings.md](settings.md) · [publications.md](publications.md) · [chats.md](chats.md) · [notifications.md](notifications.md) · [features-catalog.md](features-catalog.md) · [website.md](website.md) · [space-plan-resources.md](space-plan-resources.md)
 
 ---
 
@@ -60,7 +61,7 @@ Clover даёт **любым предприятиям** продавать и п
 
 | Действие | Платформа |
 |----------|-----------|
-| Создать / править план, фигуры, bookable, сеансы | **Только веб-кабинет** (сайт) |
+| Создать / править план, фигуры, bookable, сеансы | **Только веб-кабинет** (сайт) — вход продуктово: **Ресурсы → Схемы** ([space-plan-resources.md](space-plan-resources.md)); сейчас мок ещё под `/app/settings/venue/.../plan` |
 | Смотреть схему, запросить бронь, inbox на ходу | **Мобилка + веб** |
 
 Рисуем **только на сайте** → публикуем JSON плана → **мобилка и веб только смотрят** и кликают bookable. Править схему с телефона v1 нельзя.
@@ -82,7 +83,8 @@ Clover даёт **любым предприятиям** продавать и п
 
 ### JSON: как хранится рисунок (и как его видит клиент)
 
-Полный пример: [`venue-plan.example.json`](venue-plan.example.json).
+Полный пример: [`venue-plan.full.example.json`](venue-plan.full.example.json) · контракт AI: [`venue-plan-json.md`](venue-plan-json.md).  
+Короткий product: [`venue-plan.example.json`](venue-plan.example.json).
 
 Идея в двух слоях:
 
@@ -199,7 +201,7 @@ Clover даёт **любым предприятиям** продавать и п
 | **Занятость** | `inventory` | Состояние **пары** `bookable` + `occasion`: `free` \| `held` \| `taken`. Один стол свободен в одном слоте и занят в другом — это норма. |
 | **Запрос** | `reservation` | Заявка гостя: выбранные bookable(ы) + occasion → `requested` → решение хозяина. |
 | **Заведение** | `venue` | Точка хозяина: название, локация, TZ, режим сеанс/слот. |
-| **План / фигура** | `plan` / `node` | Геометрия на сайте. Фигура с `role: bookable` ссылается на `bookable_id`; декор — не кликается. |
+| **План / фигура** | `plan` / `node` | Геометрия в ресурсе `space_plan` (Ресурсы). Фигура с `role: bookable` на витрине Брони ссылается на `bookable_id` **каталога заведения** (не хранить каталог внутри JSON ресурса). Декор — не кликается. |
 
 **Формула:**
 
@@ -369,7 +371,7 @@ Admin → гостевая бронь → на схеме сразу **заня�
 | **V0** | Этот процесс |
 | **V1a** | Тег `venue` + заведение |
 | **V1b** | Уровень A/B: тарифы и список bookable |
-| **V1c** | Редактор схемы на сайте + публикация · **мок рисовалки уже в вебе** (`/app/settings/venue/.../plan`) |
+| **V1c** | Редактор схемы на сайте + публикация · **дом = Ресурсы → Схемы** ([space-plan-resources.md](space-plan-resources.md)); legacy URL venue — снять/редирект по [space-plan-tz.md](space-plan-tz.md) |
 | **V1d** | Слот ресторана + клиентский запрос + soft-hold |
 | **V1e** | Inbox + доплата-флаг + гостевая + блок |
 | **V1f** | Профиль / пост / карта / «Мои брони» / уведомления |

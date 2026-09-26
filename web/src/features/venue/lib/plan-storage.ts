@@ -3,6 +3,7 @@ import {
   ensureBuilding,
   type VenueBuildingDraft,
 } from "@/features/venue/lib/plan-floors";
+import { normalizeToBuilding } from "@/features/venue/lib/plan-json-import";
 
 const keyFor = (venueId: string) => `clover.venue.plan.draft.${venueId}`;
 
@@ -61,15 +62,10 @@ export function downloadPlanJson(
   URL.revokeObjectURL(url);
 }
 
-export async function readPlanJsonFile(
-  file: File,
-): Promise<VenueBuildingDraft | PlanDocument | null> {
+export async function readPlanJsonFile(file: File): Promise<VenueBuildingDraft | null> {
   try {
     const text = await file.text();
-    const parsed = JSON.parse(text) as unknown;
-    const building = ensureBuilding(parsed);
-    if (building) return building;
-    return null;
+    return normalizeToBuilding(JSON.parse(text));
   } catch {
     return null;
   }

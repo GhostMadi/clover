@@ -5,6 +5,7 @@ import {
   BookOpen,
   ClipboardList,
   LayoutGrid,
+  LayoutTemplate,
   MapPin,
   MessageCircle,
   Scissors,
@@ -45,6 +46,13 @@ function pointNav(
       label: "Услуги",
       match: (p) => !chat.open && p.startsWith(`${base}/services`),
       Icon: Scissors,
+      group: "main",
+    },
+    {
+      href: `${base}/visual`,
+      label: "Схема",
+      match: (p) => !chat.open && p.startsWith(`${base}/visual`),
+      Icon: LayoutTemplate,
       group: "main",
     },
     {

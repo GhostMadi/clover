@@ -2948,6 +2948,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String get booking_send_review => 'Отправить отзыв';
 
   @override
+  String get booking_leave_review => 'Оставить отзыв';
+
+  @override
+  String get booking_review_target_label => 'О чём отзыв';
+
+  @override
+  String get booking_review_target_hint => 'Профиль или адрес';
+
+  @override
+  String get booking_review_target_profile => 'Профиль';
+
+  @override
+  String get booking_review_filter_all => 'Все';
+
+  @override
+  String get booking_reviews_empty => 'Пока нет отзывов';
+
+  @override
+  String get booking_review_deleted => 'Отзыв удалён';
+
+  @override
   String get booking_demo_leave_review => 'Демо: оставить отзыв';
 
   @override
@@ -2973,6 +2994,111 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get booking_reply_action => 'Ответить';
+
+  @override
+  String get booking_space_plan_title => 'Схема и ценники';
+
+  @override
+  String get booking_space_plan_subtitle => 'Emoji = прайс · услуга + мастер';
+
+  @override
+  String get booking_space_plan_pick => 'Выбрать схему';
+
+  @override
+  String get booking_space_plan_none => 'Схема не прикреплена';
+
+  @override
+  String get booking_space_plan_emoji_only =>
+      'Ценники только на emoji. Фигуры — декор.';
+
+  @override
+  String get booking_space_plan_assign => 'Назначить услугу';
+
+  @override
+  String get booking_space_plan_no_emoji =>
+      'На схеме нет emoji — добавьте смайлы в Ресурсах (сайт).';
+
+  @override
+  String get booking_space_plan_staff => 'Мастер';
+
+  @override
+  String get booking_space_plan_no_staff => 'Без мастера';
+
+  @override
+  String get booking_space_plan_clear => 'Снять привязку';
+
+  @override
+  String get booking_space_plan_mock_hint =>
+      'Mock · без бэка · рисунок только на сайте';
+
+  @override
+  String get booking_space_plan_all_same => 'Всем одинаковым';
+
+  @override
+  String get booking_space_plan_apply_all =>
+      'Одна услуга всем одинаковым emoji на схеме.';
+
+  @override
+  String get booking_space_plan_service_only => 'Только услуга';
+
+  @override
+  String get booking_space_plan_service_staff => 'Услуга + мастер';
+
+  @override
+  String get booking_space_plan_guest_title => 'Схема зала';
+
+  @override
+  String booking_space_plan_guest_hint(String host) {
+    return '$host · выберите кресло';
+  }
+
+  @override
+  String get booking_space_plan_open_visual => 'Место в зале';
+
+  @override
+  String get booking_space_plan_open_visual_sub =>
+      'Выберите кресло на схеме · услуга подтянется';
+
+  @override
+  String get booking_space_plan_tap_place => 'Тапните кресло на плане';
+
+  @override
+  String get booking_space_plan_path_visual => 'Через схему';
+
+  @override
+  String get booking_space_plan_path_service => 'Сначала услуга';
+
+  @override
+  String get booking_space_plan_next_date => 'Дальше — дата и время';
+
+  @override
+  String booking_space_plan_by_master(String service, String master) {
+    return '$service · $master';
+  }
+
+  @override
+  String get booking_space_plan_continue => 'К дате и времени';
+
+  @override
+  String booking_space_plan_continue_n(int count) {
+    return 'К дате · $count';
+  }
+
+  @override
+  String booking_space_plan_selected_n(int count) {
+    return '$count мест';
+  }
+
+  @override
+  String get booking_space_plan_clear_selection => 'Сбросить';
+
+  @override
+  String get booking_space_plan_fit => 'В кадр';
+
+  @override
+  String booking_space_plan_total(int amount) {
+    return 'Итого $amount ₸';
+  }
 
   @override
   String get common_open => 'Открыть';
@@ -4214,6 +4340,16 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get catalog_location => 'Местоположение';
+
+  @override
+  String get entity_location_mock_banner =>
+      'Адрес обязателен · пока мок, на бэк не уходит';
+
+  @override
+  String get entity_location_pick_hint => 'Выберите местоположение';
+
+  @override
+  String get entity_location_need_address => 'Укажите адрес';
 
   @override
   String get catalog_location_not_found => 'Место не найдено';

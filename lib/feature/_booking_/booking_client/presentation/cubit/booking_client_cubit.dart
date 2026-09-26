@@ -5,6 +5,7 @@ import 'package:clover/feature/_booking_/booking_create/data/models/booking_serv
 import 'package:clover/feature/_booking_/booking_create/data/repository/booking_services_repository.dart';
 import 'package:clover/feature/_booking_/booking_settings/data/models/booking_schedule_settings.dart';
 import 'package:clover/feature/_booking_/shared/data/models/client_booking_slot_status.dart';
+import 'package:clover/feature/_booking_/space_plan_bind/data/booking_space_plan_bind_mock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -34,9 +35,16 @@ class BookingClientCubit extends Cubit<BookingClientState> {
       ]);
       if (isClosed) return;
 
-      final catalog = results[0] as List<BookingServiceWithStaff>;
-      final schedule = results[1] as BookingScheduleSettings;
+      var catalog = results[0] as List<BookingServiceWithStaff>;
+      var schedule = results[1] as BookingScheduleSettings;
       final bonusBalance = results[2] as int;
+
+      // Гостевой mock-схема: каталог с мастерами + горизонт дат, слоты локально.
+      if (BookingSpacePlanBindMock.enabled) {
+        catalog = BookingSpacePlanBindMock.enrichCatalogForGuest(catalog);
+        schedule = BookingSpacePlanBindMock.demoGuestSchedule();
+      }
+
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
 
@@ -70,8 +78,41 @@ class BookingClientCubit extends Cubit<BookingClientState> {
       }
     } catch (e) {
       if (isClosed) return;
+      // Mock: даже при ошибке API — демо-каталог, чтобы дата/слоты работали.
+      if (BookingSpacePlanBindMock.enabled) {
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+        emit(BookingClientState.ready(
+          hostId: hostId,
+          hostDisplayName: hostDisplayName,
+          catalog: BookingSpacePlanBindMock.demoGuestCatalog(),
+          schedule: BookingSpacePlanBindMock.demoGuestSchedule(),
+          selectedDay: today,
+          bonusBalanceAtHost: 0,
+        ));
+        return;
+      }
       emit(BookingClientState.error(hostId: hostId, hostDisplayName: hostDisplayName, message: '$e'));
     }
+  }
+
+  /// Место со схемы → услуга + мастер + сразу слоты на выбранный день.
+  void applyPlaceSelection({
+    required BookingService service,
+    required BookingServiceExecutor executor,
+  }) {
+    final ready = state.mapOrNull(ready: (s) => s);
+    if (ready == null) return;
+    emit(ready.copyWith(
+      selectedService: service,
+      selectedExecutor: executor,
+      selectedSlotStart: null,
+      slots: const [],
+      dayUnavailableReason: null,
+      conflictMessage: null,
+      useBonuses: true,
+    ));
+    _loadAvailability();
   }
 
   void selectService(BookingService service) {
@@ -158,6 +199,105 @@ class BookingClientCubit extends Cubit<BookingClientState> {
     emit(ready.copyWith(useBonuses: value));
   }
 
+  Future<void> _loadAvailability() async {
+    final ready = state.mapOrNull(ready: (s) => s);
+    if (ready == null) return;
+
+    final service = ready.selectedService;
+    final executor = ready.selectedExecutor;
+    if (service == null || executor == null) return;
+
+    // Mock-схема: слоты всегда локально — дата/время выбираются без бэка.
+    if (BookingSpacePlanBindMock.enabled) {
+      var day = ready.selectedDay;
+      var slots = _demoSlotsForDay(day);
+      // Если на сегодня уже поздно — сдвигаем на ближайший день со слотами.
+      if (slots.isEmpty) {
+        for (var i = 1; i <= 14 && slots.isEmpty; i++) {
+          day = DateTime(ready.selectedDay.year, ready.selectedDay.month, ready.selectedDay.day)
+              .add(Duration(days: i));
+          slots = _demoSlotsForDay(day);
+        }
+      }
+
+      DateTime? selected = ready.selectedSlotStart;
+      if (selected != null && !slots.any((s) => _sameMinute(s.startsAt, selected!))) {
+        selected = null;
+      }
+      // Полный mock-флоу: сразу есть выбранное время → видна «Записаться».
+      selected ??= slots.isNotEmpty ? slots.first.startsAt : null;
+
+      final painted = [
+        for (final slot in slots)
+          slot.copyWith(
+            status: selected != null && _sameMinute(slot.startsAt, selected)
+                ? ClientBookingSlotStatus.selected
+                : ClientBookingSlotStatus.available,
+          ),
+      ];
+
+      emit(ready.copyWith(
+        selectedDay: day,
+        selectedSlotStart: selected,
+        slots: painted,
+        dayUnavailableReason: null,
+        isLoadingSlots: false,
+        conflictMessage: null,
+      ));
+      return;
+    }
+
+    emit(ready.copyWith(isLoadingSlots: true, conflictMessage: null));
+    try {
+      final result = await _repository.loadAvailability(
+        hostId: ready.hostId,
+        serviceId: service.id,
+        staffId: executor.id,
+        day: ready.selectedDay,
+      );
+      if (isClosed) return;
+
+      final selected = ready.selectedSlotStart;
+      final painted = [
+        for (final slot in result.slots)
+          slot.copyWith(
+            status: selected != null && _sameMinute(slot.startsAt, selected)
+                ? ClientBookingSlotStatus.selected
+                : slot.status,
+          ),
+      ];
+
+      emit(ready.copyWith(
+        slots: painted,
+        dayUnavailableReason: result.dayUnavailableReason,
+        isLoadingSlots: false,
+      ));
+    } catch (e) {
+      if (isClosed) return;
+      emit(ready.copyWith(isLoadingSlots: false, conflictMessage: '$e'));
+    }
+  }
+
+  /// Демо-слоты 10:00–19:30, шаг 30 мин (только для mock-схемы).
+  List<ClientBookingSlot> _demoSlotsForDay(DateTime day) {
+    final now = DateTime.now();
+    final out = <ClientBookingSlot>[];
+    for (var h = 10; h <= 19; h++) {
+      for (final m in const [0, 30]) {
+        if (h == 19 && m == 30) continue;
+        final t = DateTime(day.year, day.month, day.day, h, m);
+        if (t.isBefore(now.add(const Duration(minutes: 15)))) continue;
+        out.add(
+          ClientBookingSlot(
+            startsAt: t,
+            status: ClientBookingSlotStatus.available,
+          ),
+        );
+      }
+    }
+    return out;
+  }
+
   Future<bool> confirm({String? clientComment}) async {
     final ready = state.mapOrNull(ready: (s) => s);
     if (ready == null ||
@@ -183,47 +323,13 @@ class BookingClientCubit extends Cubit<BookingClientState> {
       return true;
     } catch (e) {
       if (isClosed) return false;
+      // Mock-схема: не блокируем демо, если бэк отклонил слот.
+      if (BookingSpacePlanBindMock.enabled) {
+        emit(ready.copyWith(isSubmitting: false, conflictMessage: null));
+        return true;
+      }
       emit(ready.copyWith(isSubmitting: false, conflictMessage: '$e'));
       return false;
-    }
-  }
-
-  Future<void> _loadAvailability() async {
-    final ready = state.mapOrNull(ready: (s) => s);
-    if (ready == null) return;
-
-    final service = ready.selectedService;
-    final executor = ready.selectedExecutor;
-    if (service == null || executor == null) return;
-
-    emit(ready.copyWith(isLoadingSlots: true));
-    try {
-      final result = await _repository.loadAvailability(
-        hostId: ready.hostId,
-        serviceId: service.id,
-        staffId: executor.id,
-        day: ready.selectedDay,
-      );
-      if (isClosed) return;
-
-      final selected = ready.selectedSlotStart;
-      final slots = [
-        for (final slot in result.slots)
-          slot.copyWith(
-            status: selected != null && _sameMinute(slot.startsAt, selected)
-                ? ClientBookingSlotStatus.selected
-                : slot.status,
-          ),
-      ];
-
-      emit(ready.copyWith(
-        slots: slots,
-        dayUnavailableReason: result.dayUnavailableReason,
-        isLoadingSlots: false,
-      ));
-    } catch (e) {
-      if (isClosed) return;
-      emit(ready.copyWith(isLoadingSlots: false, conflictMessage: '$e'));
     }
   }
 

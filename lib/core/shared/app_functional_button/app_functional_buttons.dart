@@ -223,7 +223,9 @@ class _FunctionalButtonTabState extends State<_FunctionalButtonTab> with SingleT
     final bool hasCustomColor = widget.button.customColor != null;
     final bool hasBorder = widget.button.borderColor != null;
 
-    final Color contentColor = hasCustomColor ? colors.textInverse : colors.textColor;
+    final Color contentColor = hasCustomColor
+        ? AppServiceAccent.inkOnFill(widget.button.customColor!)
+        : colors.textColor;
 
     return AnimatedBuilder(
       animation: _jellyController.scaleAnimation,

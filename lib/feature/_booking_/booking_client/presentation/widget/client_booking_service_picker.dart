@@ -13,11 +13,13 @@ class ClientBookingServicePicker extends StatelessWidget {
     required this.services,
     required this.selectedId,
     required this.onSelected,
+    this.step = 1,
   });
 
   final List<BookingService> services;
   final String? selectedId;
   final ValueChanged<BookingService> onSelected;
+  final int step;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class ClientBookingServicePicker extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ClientBookingStepHeader(
-          step: 1,
+          step: step,
           title: context.l10n.booking_service,
           subtitle: context.l10n.booking_what_to_do,
         ),
@@ -96,14 +98,24 @@ class _ServiceTile extends StatelessWidget {
                       service.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTextStyle.base(15, color: context.colors.textColor, fontWeight: FontWeight.w700),
+                      style: AppTextStyle.base(
+                        15,
+                        color: selected ? accent.onSoft : context.colors.textColor,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       service.displaySubtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTextStyle.base(12, color: context.colors.subTextColor, fontWeight: FontWeight.w500),
+                      style: AppTextStyle.base(
+                        12,
+                        color: selected
+                            ? accent.onSoft.withValues(alpha: 0.7)
+                            : context.colors.subTextColor,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),

@@ -2942,6 +2942,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get booking_send_review => 'Send review';
 
   @override
+  String get booking_leave_review => 'Leave a review';
+
+  @override
+  String get booking_review_target_label => 'Review about';
+
+  @override
+  String get booking_review_target_hint => 'Profile or address';
+
+  @override
+  String get booking_review_target_profile => 'Profile';
+
+  @override
+  String get booking_review_filter_all => 'All';
+
+  @override
+  String get booking_reviews_empty => 'No reviews yet';
+
+  @override
+  String get booking_review_deleted => 'Review deleted';
+
+  @override
   String get booking_demo_leave_review => 'Demo: leave a review';
 
   @override
@@ -2967,6 +2988,111 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get booking_reply_action => 'Reply';
+
+  @override
+  String get booking_space_plan_title => 'Floor plan & prices';
+
+  @override
+  String get booking_space_plan_subtitle => 'Emoji = price · service + staff';
+
+  @override
+  String get booking_space_plan_pick => 'Choose plan';
+
+  @override
+  String get booking_space_plan_none => 'No plan attached';
+
+  @override
+  String get booking_space_plan_emoji_only =>
+      'Prices only on emoji. Shapes are decor.';
+
+  @override
+  String get booking_space_plan_assign => 'Assign service';
+
+  @override
+  String get booking_space_plan_no_emoji =>
+      'No emoji on the plan — add them in Resources (web).';
+
+  @override
+  String get booking_space_plan_staff => 'Staff';
+
+  @override
+  String get booking_space_plan_no_staff => 'No staff';
+
+  @override
+  String get booking_space_plan_clear => 'Remove link';
+
+  @override
+  String get booking_space_plan_mock_hint =>
+      'Mock · no backend · draw on web only';
+
+  @override
+  String get booking_space_plan_all_same => 'All same';
+
+  @override
+  String get booking_space_plan_apply_all =>
+      'One service for every matching emoji on the plan.';
+
+  @override
+  String get booking_space_plan_service_only => 'Service only';
+
+  @override
+  String get booking_space_plan_service_staff => 'Service + staff';
+
+  @override
+  String get booking_space_plan_guest_title => 'Floor plan';
+
+  @override
+  String booking_space_plan_guest_hint(String host) {
+    return '$host · pick a chair';
+  }
+
+  @override
+  String get booking_space_plan_open_visual => 'Seat on the floor';
+
+  @override
+  String get booking_space_plan_open_visual_sub =>
+      'Pick a chair on the plan · service follows';
+
+  @override
+  String get booking_space_plan_tap_place => 'Tap a chair on the plan';
+
+  @override
+  String get booking_space_plan_path_visual => 'Via floor plan';
+
+  @override
+  String get booking_space_plan_path_service => 'Service first';
+
+  @override
+  String get booking_space_plan_next_date => 'Next — date & time';
+
+  @override
+  String booking_space_plan_by_master(String service, String master) {
+    return '$service · $master';
+  }
+
+  @override
+  String get booking_space_plan_continue => 'Date & time';
+
+  @override
+  String booking_space_plan_continue_n(int count) {
+    return 'Date · $count';
+  }
+
+  @override
+  String booking_space_plan_selected_n(int count) {
+    return '$count spots';
+  }
+
+  @override
+  String get booking_space_plan_clear_selection => 'Clear';
+
+  @override
+  String get booking_space_plan_fit => 'Fit';
+
+  @override
+  String booking_space_plan_total(int amount) {
+    return 'Total $amount ₸';
+  }
 
   @override
   String get common_open => 'Open';
@@ -4200,6 +4326,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get catalog_location => 'Location';
+
+  @override
+  String get entity_location_mock_banner =>
+      'Address required · mock only, not saved yet';
+
+  @override
+  String get entity_location_pick_hint => 'Choose a location';
+
+  @override
+  String get entity_location_need_address => 'Add an address';
 
   @override
   String get catalog_location_not_found => 'Location not found';

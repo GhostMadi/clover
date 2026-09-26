@@ -103,6 +103,19 @@ export function BookingHubView({ pointId }: { pointId: string }) {
           </ServiceInformer>
         ) : null}
 
+        <Link
+          href={`${base}/visual`}
+          className="flex items-center gap-3 rounded-[16px] border border-line bg-svc-booking/35 px-4 py-3 transition hover:bg-svc-booking/55"
+        >
+          <span className="text-[28px] leading-none">🗺️</span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[14px] font-bold text-ink">Схема и ценники</span>
+            <span className="block text-[12px] text-muted">
+              Mock: схема из Ресурсов · emoji = прайс · услуга + мастер
+            </span>
+          </span>
+        </Link>
+
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="rounded-[16px] border border-line bg-surface p-4">
             <ServiceSection

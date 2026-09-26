@@ -1402,6 +1402,13 @@
   "booking_how_was_it": "Как прошло?",
   "booking_review_optional_hint": "Расскажите, как прошло (необязательно)",
   "booking_send_review": "Отправить отзыв",
+  "booking_leave_review": "Оставить отзыв",
+  "booking_review_target_label": "О чём отзыв",
+  "booking_review_target_hint": "Профиль или адрес",
+  "booking_review_target_profile": "Профиль",
+  "booking_review_filter_all": "Все",
+  "booking_reviews_empty": "Пока нет отзывов",
+  "booking_review_deleted": "Отзыв удалён",
   "booking_demo_leave_review": "Демо: оставить отзыв",
   "booking_point_reply_title": "Ответ от имени точки",
   "booking_point_reply_label": "Ответ точки",
@@ -1411,6 +1418,62 @@
   "booking_mock_no_backend": "Mock · без записи на бэк",
   "booking_mock_host_reply": "Mock · ответ хозяина",
   "booking_reply_action": "Ответить",
+  "booking_space_plan_title": "Схема и ценники",
+  "booking_space_plan_subtitle": "Emoji = прайс · услуга + мастер",
+  "booking_space_plan_pick": "Выбрать схему",
+  "booking_space_plan_none": "Схема не прикреплена",
+  "booking_space_plan_emoji_only": "Ценники только на emoji. Фигуры — декор.",
+  "booking_space_plan_assign": "Назначить услугу",
+  "booking_space_plan_no_emoji": "На схеме нет emoji — добавьте смайлы в Ресурсах (сайт).",
+  "booking_space_plan_staff": "Мастер",
+  "booking_space_plan_no_staff": "Без мастера",
+  "booking_space_plan_clear": "Снять привязку",
+  "booking_space_plan_mock_hint": "Mock · без бэка · рисунок только на сайте",
+  "booking_space_plan_all_same": "Всем одинаковым",
+  "booking_space_plan_apply_all": "Одна услуга всем одинаковым emoji на схеме.",
+  "booking_space_plan_service_only": "Только услуга",
+  "booking_space_plan_service_staff": "Услуга + мастер",
+  "booking_space_plan_guest_title": "Схема зала",
+  "booking_space_plan_guest_hint": "{host} · выберите кресло",
+  "@booking_space_plan_guest_hint": {
+    "placeholders": {
+      "host": { "type": "String" }
+    }
+  },
+  "booking_space_plan_open_visual": "Место в зале",
+  "booking_space_plan_open_visual_sub": "Выберите кресло на схеме · услуга подтянется",
+  "booking_space_plan_tap_place": "Тапните кресло на плане",
+  "booking_space_plan_path_visual": "Через схему",
+  "booking_space_plan_path_service": "Сначала услуга",
+  "booking_space_plan_next_date": "Дальше — дата и время",
+  "booking_space_plan_by_master": "{service} · {master}",
+  "@booking_space_plan_by_master": {
+    "placeholders": {
+      "service": { "type": "String" },
+      "master": { "type": "String" }
+    }
+  },
+  "booking_space_plan_continue": "К дате и времени",
+  "booking_space_plan_continue_n": "К дате · {count}",
+  "@booking_space_plan_continue_n": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "booking_space_plan_selected_n": "{count} мест",
+  "@booking_space_plan_selected_n": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "booking_space_plan_clear_selection": "Сбросить",
+  "booking_space_plan_fit": "В кадр",
+  "booking_space_plan_total": "Итого {amount} ₸",
+  "@booking_space_plan_total": {
+    "placeholders": {
+      "amount": { "type": "int" }
+    }
+  },
   "common_open": "Открыть",
   "common_refresh": "Обновить",
   "common_you": "Вы",
@@ -2107,6 +2170,9 @@
   "catalog_location_save_failed": "Не удалось сохранить изменения",
   "catalog_location_delete_title": "Удалить местоположение?",
   "catalog_location": "Местоположение",
+  "entity_location_mock_banner": "Адрес обязателен · пока мок, на бэк не уходит",
+  "entity_location_pick_hint": "Выберите местоположение",
+  "entity_location_need_address": "Укажите адрес",
   "catalog_location_not_found": "Место не найдено",
   "catalog_address_cyrillic": "Адрес (кириллица)",
   "catalog_address_hint": "ул. Абая, 150, Алматы (необязательно)",

@@ -13,11 +13,13 @@ class ClientBookingExecutorPicker extends StatelessWidget {
     required this.executors,
     required this.selectedId,
     required this.onSelected,
+    this.step = 2,
   });
 
   final List<BookingServiceExecutor> executors;
   final String? selectedId;
   final ValueChanged<BookingServiceExecutor> onSelected;
+  final int step;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class ClientBookingExecutorPicker extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ClientBookingStepHeader(
-          step: 2,
+          step: step,
           title: context.l10n.booking_master,
           subtitle: context.l10n.booking_who_does_service,
         ),
@@ -96,7 +98,11 @@ class _ExecutorTile extends StatelessWidget {
                   executor.displayLabel,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyle.base(14, color: context.colors.textColor, fontWeight: FontWeight.w600),
+                  style: AppTextStyle.base(
+                    14,
+                    color: selected ? accent.onSoft : context.colors.textColor,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               if (selected) Icon(AppIcons.checkCircle.icon, size: 20, color: accent.icon),

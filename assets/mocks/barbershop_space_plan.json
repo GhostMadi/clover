@@ -1,0 +1,142 @@
+{
+  "version": 1,
+  "activeFloorKey": "floor_1",
+  "floors": [
+    {
+      "floorKey": "floor_1",
+      "label": "Зал",
+      "canvas": { "width": 720, "height": 560, "background": "#F4F1EA" },
+      "nodes": [
+        {
+          "id": "wall",
+          "kind": "rect",
+          "label": null,
+          "frame": { "x": 24, "y": 24, "w": 672, "h": 512 },
+          "style": { "fill": "#FFFFFF", "stroke": "#C4B8A8", "strokeWidth": 2, "radius": 28, "opacity": 1 },
+          "zIndex": 0,
+          "role": "decor"
+        },
+        {
+          "id": "mirror_row",
+          "kind": "rect",
+          "label": null,
+          "frame": { "x": 56, "y": 56, "w": 608, "h": 56 },
+          "style": { "fill": "#E8EEF4", "stroke": "#9AABB8", "strokeWidth": 1.5, "radius": 12, "opacity": 1 },
+          "zIndex": 1,
+          "role": "decor"
+        },
+        {
+          "id": "txt_mirrors",
+          "kind": "text",
+          "label": "Зеркала",
+          "frame": { "x": 300, "y": 68, "w": 120, "h": 28 },
+          "style": { "fill": null, "stroke": "#1A1D1E", "strokeWidth": 0, "radius": 0, "opacity": 1 },
+          "zIndex": 2,
+          "role": "decor"
+        },
+        {
+          "id": "station_1",
+          "kind": "emoji",
+          "label": "💺",
+          "frame": { "x": 80, "y": 180, "w": 64, "h": 64 },
+          "style": { "fill": null, "stroke": "#00000000", "strokeWidth": 0, "radius": 0, "opacity": 1 },
+          "zIndex": 10,
+          "role": "bookable",
+          "bookableId": "bk_chair_1",
+          "groupId": null
+        },
+        {
+          "id": "station_2",
+          "kind": "emoji",
+          "label": "💺",
+          "frame": { "x": 220, "y": 180, "w": 64, "h": 64 },
+          "style": { "fill": null, "stroke": "#00000000", "strokeWidth": 0, "radius": 0, "opacity": 1 },
+          "zIndex": 10,
+          "role": "bookable",
+          "bookableId": "bk_chair_2",
+          "groupId": null
+        },
+        {
+          "id": "station_3",
+          "kind": "emoji",
+          "label": "💺",
+          "frame": { "x": 360, "y": 180, "w": 64, "h": 64 },
+          "style": { "fill": null, "stroke": "#00000000", "strokeWidth": 0, "radius": 0, "opacity": 1 },
+          "zIndex": 10,
+          "role": "bookable",
+          "bookableId": "bk_chair_3",
+          "groupId": null
+        },
+        {
+          "id": "station_4",
+          "kind": "emoji",
+          "label": "✂️",
+          "frame": { "x": 500, "y": 180, "w": 64, "h": 64 },
+          "style": { "fill": null, "stroke": "#00000000", "strokeWidth": 0, "radius": 0, "opacity": 1 },
+          "zIndex": 10,
+          "role": "bookable",
+          "bookableId": "bk_cut_1",
+          "groupId": null
+        },
+        {
+          "id": "vip",
+          "kind": "emoji",
+          "label": "👑",
+          "frame": { "x": 300, "y": 320, "w": 72, "h": 72 },
+          "style": { "fill": null, "stroke": "#00000000", "strokeWidth": 0, "radius": 0, "opacity": 1 },
+          "zIndex": 10,
+          "role": "bookable",
+          "bookableId": "bk_vip",
+          "groupId": null
+        },
+        {
+          "id": "wash",
+          "kind": "emoji",
+          "label": "🚿",
+          "frame": { "x": 80, "y": 340, "w": 56, "h": 56 },
+          "style": { "fill": null, "stroke": "#00000000", "strokeWidth": 0, "radius": 0, "opacity": 1 },
+          "zIndex": 10,
+          "role": "bookable",
+          "bookableId": "bk_wash",
+          "groupId": null
+        },
+        {
+          "id": "decor_plant_1",
+          "kind": "emoji",
+          "label": "🪴",
+          "frame": { "x": 600, "y": 360, "w": 48, "h": 48 },
+          "style": { "fill": null, "stroke": "#00000000", "strokeWidth": 0, "radius": 0, "opacity": 1 },
+          "zIndex": 5,
+          "role": "decor"
+        },
+        {
+          "id": "decor_plant_2",
+          "kind": "emoji",
+          "label": "🪴",
+          "frame": { "x": 56, "y": 440, "w": 48, "h": 48 },
+          "style": { "fill": null, "stroke": "#00000000", "strokeWidth": 0, "radius": 0, "opacity": 1 },
+          "zIndex": 5,
+          "role": "decor"
+        },
+        {
+          "id": "txt_waiting",
+          "kind": "text",
+          "label": "Ожидание",
+          "frame": { "x": 480, "y": 400, "w": 140, "h": 28 },
+          "style": { "fill": null, "stroke": "#1A1D1E", "strokeWidth": 0, "radius": 0, "opacity": 1 },
+          "zIndex": 3,
+          "role": "decor"
+        },
+        {
+          "id": "waiting_bench",
+          "kind": "rect",
+          "label": null,
+          "frame": { "x": 460, "y": 430, "w": 180, "h": 48 },
+          "style": { "fill": "#EDE6DC", "stroke": "#C4B8A8", "strokeWidth": 1.5, "radius": 14, "opacity": 1 },
+          "zIndex": 2,
+          "role": "decor"
+        }
+      ]
+    }
+  ]
+}

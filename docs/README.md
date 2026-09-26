@@ -45,8 +45,8 @@
 | Местоположения | [business/locations.md](business/locations.md) · план привязки к компаниям/точкам: [entity-location-bind-plan.md](business/entity-location-bind-plan.md) |
 | Блокировки (бэк) | [business/blocks.md](business/blocks.md) |
 | UGC safety (Terms / жалобы / блок — App Store 1.2) | [business/ugc-safety.md](business/ugc-safety.md) |
-| Онлайн-запись | [business/booking.md](business/booking.md) · план: [booking-staff-plan.md](business/booking-staff-plan.md) · **ТЗ + теги:** [booking-tz.md](business/booking-tz.md) · отзывы по точкам (план): [point-reviews-plan.md](business/point-reviews-plan.md) |
-| Бронь (билеты / места / схема) | [business/venue-seating.md](business/venue-seating.md) |
+| Онлайн-запись | [business/booking.md](business/booking.md) · план: [booking-staff-plan.md](business/booking-staff-plan.md) · **ТЗ + теги:** [booking-tz.md](business/booking-tz.md) · отзывы: [point-reviews-plan.md](business/point-reviews-plan.md) · бэк: [supabase/SPEC_POINT_REVIEWS.md](supabase/SPEC_POINT_REVIEWS.md) |
+| Бронь (билеты / места / схема) | [business/venue-seating.md](business/venue-seating.md) · схемы: [business/space-plan-resources.md](business/space-plan-resources.md) · Запись+схема: [business/space-plan-emoji-pricing.md](business/space-plan-emoji-pricing.md) · **ТЗ:** [business/space-plan-tz.md](business/space-plan-tz.md) · SPEC: [supabase/SPEC_SPACE_PLANS.md](supabase/SPEC_SPACE_PLANS.md) · JSON: [business/venue-plan-json.md](business/venue-plan-json.md) · AI: [business/venue-plan-ai-prompt.md](business/venue-plan-ai-prompt.md) |
 | Посещаемость (геозона, смены) | [business/attendance.md](business/attendance.md) · **ТЗ + теги:** [attendance-tz.md](business/attendance-tz.md) · хвосты сайта: [website-attendance-gaps.md](business/website-attendance-gaps.md) |
 | Бонусы (лояльность) | [business/bonuses.md](business/bonuses.md) |
 | Сайт (лендинг + legal + кабинет) | [business/website.md](business/website.md) · **дорожная карта:** [website-roadmap.md](business/website-roadmap.md) · [gap-plan](business/website-gap-plan.md) |

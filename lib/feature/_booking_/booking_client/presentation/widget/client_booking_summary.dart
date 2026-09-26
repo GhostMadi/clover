@@ -20,6 +20,7 @@ class ClientBookingSummary extends StatelessWidget {
     this.clientComment,
     this.useBonuses = true,
     this.bonusBalance = 0,
+    this.placeLine,
   });
 
   final String hostDisplayName;
@@ -29,6 +30,7 @@ class ClientBookingSummary extends StatelessWidget {
   final String? clientComment;
   final bool useBonuses;
   final int bonusBalance;
+  final String? placeLine;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +78,17 @@ class ClientBookingSummary extends StatelessWidget {
             '${service.emojiText}  ${service.title}',
             style: AppTextStyle.base(17, color: accent.onSoft, fontWeight: FontWeight.w800, height: 1.2),
           ),
+          if (placeLine != null && placeLine!.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              placeLine!,
+              style: AppTextStyle.base(
+                13,
+                color: accent.onSoft.withValues(alpha: 0.8),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
           const SizedBox(height: 4),
           Text(
             '$hostDisplayName · ${executor.displayLabel}',

@@ -2946,6 +2946,27 @@ class AppLocalizationsKk extends AppLocalizations {
   String get booking_send_review => 'Пікір жіберу';
 
   @override
+  String get booking_leave_review => 'Пікір қалдыру';
+
+  @override
+  String get booking_review_target_label => 'Пікір не туралы';
+
+  @override
+  String get booking_review_target_hint => 'Профиль немесе мекенжай';
+
+  @override
+  String get booking_review_target_profile => 'Профиль';
+
+  @override
+  String get booking_review_filter_all => 'Барлығы';
+
+  @override
+  String get booking_reviews_empty => 'Әзірге пікір жоқ';
+
+  @override
+  String get booking_review_deleted => 'Пікір жойылды';
+
+  @override
   String get booking_demo_leave_review => 'Демо: пікір қалдыру';
 
   @override
@@ -2971,6 +2992,111 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get booking_reply_action => 'Жауап беру';
+
+  @override
+  String get booking_space_plan_title => 'Схема және бағалар';
+
+  @override
+  String get booking_space_plan_subtitle => 'Emoji = баға · қызмет + шебер';
+
+  @override
+  String get booking_space_plan_pick => 'Схеманы таңдау';
+
+  @override
+  String get booking_space_plan_none => 'Схема тіркелмеген';
+
+  @override
+  String get booking_space_plan_emoji_only =>
+      'Баға тек emoji-де. Пішіндер — декор.';
+
+  @override
+  String get booking_space_plan_assign => 'Қызметті тағайындау';
+
+  @override
+  String get booking_space_plan_no_emoji =>
+      'Схемада emoji жоқ — Resources-те (сайт) қосыңыз.';
+
+  @override
+  String get booking_space_plan_staff => 'Шебер';
+
+  @override
+  String get booking_space_plan_no_staff => 'Шеберсіз';
+
+  @override
+  String get booking_space_plan_clear => 'Байланысты алу';
+
+  @override
+  String get booking_space_plan_mock_hint =>
+      'Mock · бэк жоқ · сурет тек сайтта';
+
+  @override
+  String get booking_space_plan_all_same => 'Барлығына бірдей';
+
+  @override
+  String get booking_space_plan_apply_all =>
+      'Бір қызмет — схемадағы бірдей emoji-ге.';
+
+  @override
+  String get booking_space_plan_service_only => 'Тек қызмет';
+
+  @override
+  String get booking_space_plan_service_staff => 'Қызмет + шебер';
+
+  @override
+  String get booking_space_plan_guest_title => 'Зал схемасы';
+
+  @override
+  String booking_space_plan_guest_hint(String host) {
+    return '$host · креслоны таңдаңыз';
+  }
+
+  @override
+  String get booking_space_plan_open_visual => 'Залдағы орын';
+
+  @override
+  String get booking_space_plan_open_visual_sub =>
+      'Схемадан кресло таңдаңыз · қызмет келеді';
+
+  @override
+  String get booking_space_plan_tap_place => 'Жоспардағы креслоны басыңыз';
+
+  @override
+  String get booking_space_plan_path_visual => 'Схема арқылы';
+
+  @override
+  String get booking_space_plan_path_service => 'Алдымен қызмет';
+
+  @override
+  String get booking_space_plan_next_date => 'Келесі — күн мен уақыт';
+
+  @override
+  String booking_space_plan_by_master(String service, String master) {
+    return '$service · $master';
+  }
+
+  @override
+  String get booking_space_plan_continue => 'Күн мен уақыт';
+
+  @override
+  String booking_space_plan_continue_n(int count) {
+    return 'Күн · $count';
+  }
+
+  @override
+  String booking_space_plan_selected_n(int count) {
+    return '$count орын';
+  }
+
+  @override
+  String get booking_space_plan_clear_selection => 'Тазалау';
+
+  @override
+  String get booking_space_plan_fit => 'Кадрға';
+
+  @override
+  String booking_space_plan_total(int amount) {
+    return 'Барлығы $amount ₸';
+  }
 
   @override
   String get common_open => 'Ашу';
@@ -4212,6 +4338,16 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get catalog_location => 'Орналасқан жер';
+
+  @override
+  String get entity_location_mock_banner =>
+      'Мекенжай міндетті · әзірге мок, бэкке жіберілмейді';
+
+  @override
+  String get entity_location_pick_hint => 'Орынды таңдаңыз';
+
+  @override
+  String get entity_location_need_address => 'Мекенжайды көрсетіңіз';
 
   @override
   String get catalog_location_not_found => 'Орын табылмады';

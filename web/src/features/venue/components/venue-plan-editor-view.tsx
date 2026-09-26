@@ -7,13 +7,14 @@ import {
   Copy,
   Download,
   Eraser,
-  Eye,
-  EyeOff,
   FolderOpen,
   Group,
   Hand,
   Hexagon,
+  LayoutGrid,
+  Link2,
   Magnet,
+  MoreHorizontal,
   Minus,
   MousePointer2,
   PanelRightClose,
@@ -29,6 +30,7 @@ import {
   Type,
   Undo2,
   Ungroup,
+  Braces,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -46,10 +48,6 @@ import {
   createCafeBuilding,
   createCinemaStarterPlan,
 } from "@/features/venue/lib/plan-editor-export";
-import {
-  bookablesFor,
-  kindLabel,
-} from "@/features/venue/lib/venue-booking-mock";
 import {
   boundsIntersect,
   canBooleanMerge,
@@ -75,20 +73,29 @@ import {
 import {
   buildingFromPlan,
   createNextFloor,
-  ensureBuilding,
   sortFloors,
   upsertFloor,
   type VenueBuildingDraft,
 } from "@/features/venue/lib/plan-floors";
 import {
+  arrangeAndGroupEmojis,
+  createEmojiCluster,
   duplicateNodes,
   expandSelectionWithGroups,
+  groupBounds,
   groupNodes,
   nodeCenter,
   snapPoint,
   translateNode,
   ungroupNodes,
+  type EmojiClusterLayout,
 } from "@/features/venue/lib/plan-ops";
+import { PLAN_CRAZY_EMOJI_BUILDING, planCrazyEmojiJson } from "@/features/venue/lib/plan-crazy-emoji-example";
+import {
+  PLAN_JSON_AI_HINT,
+  planFullExampleJson,
+} from "@/features/venue/lib/plan-full-example";
+import { parsePlanJsonText } from "@/features/venue/lib/plan-json-import";
 import {
   downloadPlanJson,
   loadBuildingDraft,
@@ -268,24 +275,30 @@ function cursorFor(tool: EditorTool, drawing: boolean) {
 export function VenuePlanEditorView({
   venueId,
   venueName,
+  backHref,
 }: {
   venueId: string;
   venueName?: string;
+  /** Куда «Назад». По умолчанию — хаб заведения Брони. */
+  backHref?: string;
 }) {
   const [plan, setPlan] = useState<PlanDocument>(() => createEmptyPlan());
   const [floors, setFloors] = useState<PlanDocument[]>([]);
   const [tool, setTool] = useState<EditorTool>("select");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  /** Объект, по которому кликнули — для привязки брони (стол), даже если выделена вся группа. */
+  /** Кликнутый узел внутри группы (для resize / фокуса). */
   const [focusId, setFocusId] = useState<string | null>(null);
   const [fill, setFill] = useState("#FFA39E");
   const [stroke, setStroke] = useState("#B54B45");
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [radius, setRadius] = useState(16);
-  const [bookableDefault, setBookableDefault] = useState(true);
+  /** Новые emoji: место (для ценника в сервисах) vs декор. */
+  const [placeEmojiDefault, setPlaceEmojiDefault] = useState(true);
   const [activeEmoji, setActiveEmoji] = useState<string>("😀");
   const [activeText, setActiveText] = useState("Текст");
   const [emojiSize, setEmojiSize] = useState(DEFAULT_EMOJI_SIZE);
+  const [clusterLayout, setClusterLayout] = useState<EmojiClusterLayout>("row");
+  const [clusterCount, setClusterCount] = useState(3);
   const [pathPoints, setPathPoints] = useState<PlanPoint[]>([]);
   const [hoverPoint, setHoverPoint] = useState<PlanPoint | null>(null);
   const [closeSnap, setCloseSnap] = useState(false);
@@ -303,8 +316,12 @@ export function VenuePlanEditorView({
   const [hoverCorner, setHoverCorner] = useState<Corner | null>(null);
   const [rightOpen, setRightOpen] = useState(true);
   const [snapOn, setSnapOn] = useState(true);
-  const [guestView, setGuestView] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
+  const [jsonPasteOpen, setJsonPasteOpen] = useState(false);
+  const [jsonPasteText, setJsonPasteText] = useState("");
+  const [jsonPasteError, setJsonPasteError] = useState<string | null>(null);
+  const [fileMenuOpen, setFileMenuOpen] = useState(false);
+  const [editMoreOpen, setEditMoreOpen] = useState(false);
 
   const dragRef = useRef<DragState>(null);
   const moveSnapshotRef = useRef<PlanDocument | null>(null);
@@ -413,27 +430,38 @@ export function VenuePlanEditorView({
   const primarySelected = selectedNodes[0] ?? null;
   const booleanReady =
     selectedNodes.length >= 2 && selectedNodes.every(canBooleanMerge);
-  const catalogBookables = useMemo(() => bookablesFor(venueId), [venueId]);
+  const selectedEmojis = useMemo(
+    () => selectedNodes.filter((n) => n.kind === "emoji"),
+    [selectedNodes],
+  );
+  const canLinkEmojis = selectedEmojis.length >= 2;
 
-  const isBindableKind = (n: PlanNode) =>
-    n.kind !== "emoji" && n.kind !== "text" && n.kind !== "line" && n.kind !== "path";
-
-  /** Стол для брони: кликнутый объект или bookable в группе. */
-  const bindTarget = useMemo(() => {
-    if (!selectedNodes.length) return null;
-    const focused = focusId
-      ? selectedNodes.find((n) => n.id === focusId)
-      : null;
-    if (focused && isBindableKind(focused)) return focused;
-    const bookable = selectedNodes.find((n) => n.role === "bookable" && isBindableKind(n));
-    if (bookable) return bookable;
-    return selectedNodes.find(isBindableKind) ?? null;
-  }, [selectedNodes, focusId]);
-
-  const canBindBookable = !!bindTarget;
-  const selectionIsGroup =
-    selectedNodes.length > 1 &&
-    selectedNodes.every((n) => n.groupId && n.groupId === selectedNodes[0]?.groupId);
+  const emojiGroupHulls = useMemo(() => {
+    const selected = new Set(selectedIds);
+    const gids = new Set<string>();
+    for (const n of plan.nodes) {
+      if (n.kind === "emoji" && n.groupId && selected.has(n.id)) gids.add(n.groupId);
+    }
+    const hulls: Array<{
+      gid: string;
+      bounds: NonNullable<ReturnType<typeof groupBounds>>;
+      centers: PlanPoint[];
+    }> = [];
+    for (const gid of gids) {
+      const members = plan.nodes.filter((n) => n.groupId === gid && n.kind === "emoji");
+      if (members.length < 2) continue;
+      // Показываем обводку только если связка сейчас выделена.
+      if (!members.every((m) => selected.has(m.id))) continue;
+      const bounds = groupBounds(plan.nodes, gid, 12);
+      if (!bounds) continue;
+      hulls.push({
+        gid,
+        bounds,
+        centers: members.map(nodeCenter),
+      });
+    }
+    return hulls;
+  }, [plan.nodes, selectedIds]);
 
   const isPathTool = tool === "line" || tool === "polygon";
   const drawingPath = pathPoints.length > 0;
@@ -533,6 +561,56 @@ export function VenuePlanEditorView({
     });
   }, [selectedIds, pushHistory]);
 
+  /** Связать выделенные emoji в одну группу — позиции как расставил хозяин. */
+  const runLinkEmojis = useCallback(() => {
+    const ids = selectedNodes.filter((n) => n.kind === "emoji").map((n) => n.id);
+    if (ids.length < 2) return;
+    pushHistory({
+      ...planRef.current,
+      nodes: groupNodes(planRef.current.nodes, ids),
+    });
+    setSelectedIds(ids);
+  }, [selectedNodes, pushHistory]);
+
+  /** Красиво переложить выделенные emoji (ряд/дуга/сетка) и связать. */
+  const runArrangeEmojis = useCallback(
+    (layout: EmojiClusterLayout = clusterLayout) => {
+      const ids = selectedNodes.filter((n) => n.kind === "emoji").map((n) => n.id);
+      if (ids.length < 2) return;
+      pushHistory({
+        ...planRef.current,
+        nodes: arrangeAndGroupEmojis(planRef.current.nodes, ids, layout),
+      });
+      setSelectedIds(ids);
+    },
+    [selectedNodes, clusterLayout, pushHistory],
+  );
+
+  /** Вставить новую связку emoji в центр холста. */
+  const insertEmojiCluster = useCallback(
+    (layout: EmojiClusterLayout = clusterLayout, count = clusterCount) => {
+      const glyphs = Array.from({ length: Math.max(2, Math.min(count, 6)) }, () => activeEmoji);
+      const created = createEmojiCluster({
+        center: {
+          x: planRef.current.canvas.width / 2,
+          y: planRef.current.canvas.height / 2,
+        },
+        glyphs,
+        layout,
+        size: emojiSize,
+        role: placeEmojiDefault ? "bookable" : "decor",
+      });
+      if (!created.length) return;
+      pushHistory({
+        ...planRef.current,
+        nodes: [...planRef.current.nodes, ...created],
+      });
+      setSelectedIds(created.map((n) => n.id));
+      setTool("select");
+    },
+    [activeEmoji, clusterLayout, clusterCount, emojiSize, placeEmojiDefault, pushHistory],
+  );
+
   const saveDraftNow = useCallback(() => {
     const current = ensurePlan(planRef.current);
     const building = buildingSnapshot(current);
@@ -631,17 +709,17 @@ export function VenuePlanEditorView({
     return {
       id,
       kind,
-      role: bookableDefault ? "bookable" : "decor",
-      label: bookableDefault ? (kind === "ellipse" ? "" : "") : null,
+      role: "decor",
+      label: null,
       frame,
       style: defaultStyle({
-        fill: bookableDefault ? fill : "#E8E8E8",
+        fill,
         stroke,
         strokeWidth,
         radius: kind === "ellipse" ? 999 : radius,
       }),
-      zIndex: bookableDefault ? 10 : 2,
-      bookableId: bookableDefault ? newNodeId("bk") : null,
+      zIndex: 2,
+      bookableId: null,
     };
   };
 
@@ -656,25 +734,25 @@ export function VenuePlanEditorView({
       const node: PlanNode = {
         id,
         kind: closed ? "polygon" : "path",
-        role: closed && bookableDefault ? "bookable" : "decor",
-        label: closed && bookableDefault ? "" : null,
+        role: "decor",
+        label: null,
         points: [...pathPoints],
         style: defaultStyle({
-          fill: closed ? (bookableDefault ? fill : "#E8E8E8") : null,
+          fill: closed ? fill : null,
           stroke,
           strokeWidth: Math.max(2, strokeWidth),
           radius: 0,
           opacity: closed ? 0.92 : 1,
         }),
-        zIndex: closed && bookableDefault ? 10 : 3,
-        bookableId: closed && bookableDefault ? newNodeId("bk") : null,
+        zIndex: 3,
+        bookableId: null,
       };
       pushHistory({ ...planRef.current, nodes: [...planRef.current.nodes, node] });
       setSelectedIds([id]);
       setPathPoints([]);
       setHoverPoint(null);
     },
-    [pathPoints, bookableDefault, fill, stroke, strokeWidth, pushHistory],
+    [pathPoints, fill, stroke, strokeWidth, pushHistory],
   );
 
   const cancelPath = () => {
@@ -685,15 +763,24 @@ export function VenuePlanEditorView({
 
   const openPlanFile = async (file: File | undefined) => {
     if (!file) return;
-    const doc = await readPlanJsonFile(file);
-    if (!doc) return;
-    const building =
-      ensureBuilding(doc) ??
-      ("nodes" in doc && Array.isArray((doc as PlanDocument).nodes)
-        ? buildingFromPlan(doc as PlanDocument)
-        : null);
-    if (!building) return;
+    const building = await readPlanJsonFile(file);
+    if (!building) {
+      window.alert("Не удалось прочитать JSON плана. Проверьте формат.");
+      return;
+    }
     applyBuilding(building);
+  };
+
+  const applyPastedJson = () => {
+    const building = parsePlanJsonText(jsonPasteText);
+    if (!building) {
+      setJsonPasteError("Невалидный JSON или неизвестный формат плана.");
+      return;
+    }
+    applyBuilding(building);
+    setJsonPasteOpen(false);
+    setJsonPasteText("");
+    setJsonPasteError(null);
   };
 
   /** Подсказка замкнуть: ≥3 точек и курсор у первой вершины. */
@@ -725,14 +812,6 @@ export function VenuePlanEditorView({
     });
   };
 
-  /** Правка только стола (бронь), не стульев в группе. */
-  const updateBindTarget = (patch: Partial<PlanNode>) => {
-    if (!bindTarget) return;
-    pushHistory({
-      ...plan,
-      nodes: plan.nodes.map((n) => (n.id === bindTarget.id ? { ...n, ...patch } : n)),
-    });
-  };
 
   const updateSelectedStyle = (patch: Partial<PlanNode["style"]>) => {
     if (!selectedNodes.length) return;
@@ -1006,10 +1085,11 @@ export function VenuePlanEditorView({
     if (tool === "emoji") {
       const size = emojiSize;
       const id = newNodeId();
+      const role = placeEmojiDefault ? "bookable" : "decor";
       const node: PlanNode = {
         id,
         kind: "emoji",
-        role: "decor",
+        role,
         label: activeEmoji,
         frame: {
           x: p.x - size / 2,
@@ -1019,7 +1099,7 @@ export function VenuePlanEditorView({
         },
         style: defaultStyle({ fill: null, stroke: "transparent", strokeWidth: 0 }),
         zIndex: 20,
-        bookableId: null,
+        bookableId: role === "bookable" ? newNodeId("bk") : null,
       };
       pushHistory({ ...plan, nodes: [...plan.nodes, node] });
       setSelectedIds([id]);
@@ -1047,15 +1127,13 @@ export function VenuePlanEditorView({
     }
 
     if (tool === "select") {
-      // Ресайз: стол (focus/bind), даже если выделена группа
+      // Ресайз: focus в группе, если выделено несколько
       const resizeNode =
         selectedIds.length === 1
           ? selected
-          : bindTarget?.frame
-            ? bindTarget
-            : focusId
-              ? plan.nodes.find((n) => n.id === focusId && n.frame)
-              : null;
+          : focusId
+            ? plan.nodes.find((n) => n.id === focusId && n.frame)
+            : null;
       if (resizeNode?.frame) {
         const corner = hitTestCorner(resizeNode.frame, p, screenHitPx(HANDLE_HIT_PX));
         if (corner) {
@@ -1080,7 +1158,7 @@ export function VenuePlanEditorView({
             : [...selectedIds, hit.id];
           setFocusId(hit.id);
         } else {
-          // Тап: выделить всю группу (стол+стулья), фокус — на кликнутом (бронь у стола).
+          // Тап: выделить всю группу, фокус — на кликнутом узле.
           nextIds = expandSelectionWithGroups(plan.nodes, [hit.id]);
           setFocusId(hit.id);
         }
@@ -1129,7 +1207,11 @@ export function VenuePlanEditorView({
 
     // Курсор на углах стола (даже в группе)
     const cornerNode =
-      selectedIds.length === 1 ? selected : bindTarget?.frame ? bindTarget : null;
+      selectedIds.length === 1
+        ? selected
+        : focusId
+          ? plan.nodes.find((n) => n.id === focusId && n.frame)
+          : null;
     if (tool === "select" && !drag && cornerNode?.frame) {
       setHoverCorner(hitTestCorner(cornerNode.frame, p, screenHitPx(HANDLE_HIT_PX)));
     } else if (!drag) {
@@ -1323,22 +1405,19 @@ export function VenuePlanEditorView({
 
   const activeTool = tools.find((t) => t.id === tool) ?? tools[0]!;
   const contextHint = useMemo(() => {
-    if (guestView) return "Режим гостя: видны места для брони, декор приглушён";
     if (drawingPath) {
       return closeSnap
         ? "Можно замкнуть — клик по первой точке или Enter"
         : "Добавляй точки · к началу линии — замкнуть фигуру";
     }
     if (selectedNodes.length > 1) {
-      return booleanReady
-        ? `Выделено ${selectedNodes.length} · Объединить (U) или Вычесть (D)`
-        : `Выделено ${selectedNodes.length} · ⌘G группа · ⌘D копия`;
+      return `Выделено ${selectedNodes.length}`;
     }
     if (selectedNodes.length === 1) {
       const n = selectedNodes[0]!;
       const kindRu =
         n.kind === "emoji"
-          ? "смайлик — кликни стол для привязки"
+          ? "смайлик"
           : n.kind === "text"
             ? "текст"
             : n.kind === "rect"
@@ -1349,12 +1428,12 @@ export function VenuePlanEditorView({
                   ? "фигура"
                   : "линия";
       if (n.kind === "rect" || n.kind === "ellipse" || n.kind === "polygon") {
-        return `${n.label || kindRu} · справа сверху «Привязка к брони»`;
+        return `${n.label || kindRu} · свойства справа`;
       }
       return `${n.label || kindRu}`;
     }
     return activeTool.help;
-  }, [guestView, drawingPath, closeSnap, selectedNodes, booleanReady, activeTool.help]);
+  }, [drawingPath, closeSnap, selectedNodes, booleanReady, activeTool.help]);
 
   const rotationValue = useMemo(() => {
     if (!selectedNodes.length) return 0;
@@ -1377,11 +1456,11 @@ export function VenuePlanEditorView({
 
   return (
     <div className="fixed inset-0 z-[80] flex flex-col bg-bg">
-      <header className="flex h-14 shrink-0 items-center gap-1.5 border-b border-line bg-surface px-3">
-        <TipBtn tip="Назад" detail="К хабу заведения" side="bottom">
+      <header className="flex h-12 shrink-0 items-center gap-1 border-b border-line bg-surface px-2.5">
+        <TipBtn tip="Назад" side="bottom">
           <Link
-            href={`/app/settings/venue/v/${venueId}`}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-svc-venue-ink transition hover:bg-svc-venue"
+            href={backHref ?? `/app/settings/venue/v/${venueId}`}
+            className="flex h-9 w-9 items-center justify-center rounded-[10px] text-svc-venue-ink transition hover:bg-svc-venue"
             aria-label="Назад"
           >
             <ArrowLeft className="h-5 w-5" strokeWidth={2} />
@@ -1390,56 +1469,136 @@ export function VenuePlanEditorView({
         <div className="min-w-0 flex-1 px-1">
           <p className="truncate text-[14px] font-bold text-ink">{venueName ?? plan.label}</p>
           <p className="truncate text-[11px] text-muted">
-            {plan.label || "Этаж"} · {plan.nodes.length} объектов · {Math.round(zoom * 100)}%
+            {plan.label || "Этаж"} · {plan.nodes.length} · {Math.round(zoom * 100)}%
           </p>
         </div>
 
-        <HeaderCluster label="История">
-          <TipBtn tip="Отменить" detail="⌘Z / Ctrl+Z" side="bottom" onClick={undo}>
-            <Undo2 className="h-4 w-4" />
-          </TipBtn>
-          <TipBtn tip="Повторить" detail="⌘⇧Z" side="bottom" onClick={redo}>
-            <Redo2 className="h-4 w-4" />
-          </TipBtn>
-        </HeaderCluster>
+        <TipBtn tip="Отменить" detail="⌘Z" side="bottom" onClick={undo}>
+          <Undo2 className="h-4 w-4" />
+        </TipBtn>
+        <TipBtn tip="Повторить" detail="⌘⇧Z" side="bottom" onClick={redo}>
+          <Redo2 className="h-4 w-4" />
+        </TipBtn>
+        <TipBtn
+          tip={snapOn ? "Сетка вкл" : "Сетка выкл"}
+          side="bottom"
+          active={snapOn}
+          onClick={() => setSnapOn((v) => !v)}
+        >
+          <Magnet className="h-4 w-4" />
+        </TipBtn>
+        <TipBtn tip="Сохранить" detail="Черновик" side="bottom" onClick={saveDraftNow}>
+          <Save className="h-4 w-4" />
+        </TipBtn>
 
-        <HeaderCluster label="Вид">
+        <div className="relative">
           <TipBtn
-            tip={snapOn ? "Сетка вкл" : "Сетка выкл"}
-            detail="Привязка к сетке · Alt — временно без snap"
+            tip="Ещё"
+            detail="Скачать · открыть · JSON · шаблоны"
             side="bottom"
-            active={snapOn}
-            onClick={() => setSnapOn((v) => !v)}
+            active={fileMenuOpen}
+            onClick={() => setFileMenuOpen((v) => !v)}
           >
-            <Magnet className="h-4 w-4" />
+            <MoreHorizontal className="h-4 w-4" />
           </TipBtn>
-          <TipBtn
-            tip={guestView ? "Режим гостя" : "Режим редактора"}
-            detail="Как видит клиент: места для брони яркие, декор тусклый"
-            side="bottom"
-            active={guestView}
-            onClick={() => setGuestView((v) => !v)}
-          >
-            {guestView ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </TipBtn>
-        </HeaderCluster>
-
-        <HeaderCluster label="Файл">
-          <TipBtn tip="Сохранить" detail="Черновик в браузере (ещё автосохранение)" side="bottom" onClick={saveDraftNow}>
-            <Save className="h-4 w-4" />
-          </TipBtn>
-          <TipBtn
-            tip="Скачать"
-            detail="Файл JSON здания (все этажи) на компьютер"
-            side="bottom"
-            onClick={downloadBuilding}
-          >
-            <Download className="h-4 w-4" />
-          </TipBtn>
-          <TipBtn tip="Открыть" detail="Загрузить план или здание из JSON" side="bottom" onClick={() => fileInputRef.current?.click()}>
-            <FolderOpen className="h-4 w-4" />
-          </TipBtn>
-        </HeaderCluster>
+          {fileMenuOpen ? (
+            <>
+              <button
+                type="button"
+                className="fixed inset-0 z-[85] cursor-default"
+                aria-label="Закрыть меню"
+                onClick={() => setFileMenuOpen(false)}
+              />
+              <div className="absolute right-0 top-full z-[86] mt-1 w-52 rounded-[14px] border border-line bg-surface p-1.5 shadow-elevate-md">
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-[10px] px-2.5 py-2 text-left text-[13px] font-semibold text-ink hover:bg-surface-soft"
+                  onClick={() => {
+                    setFileMenuOpen(false);
+                    downloadBuilding();
+                  }}
+                >
+                  <Download className="h-4 w-4 text-muted" />
+                  Скачать JSON
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-[10px] px-2.5 py-2 text-left text-[13px] font-semibold text-ink hover:bg-surface-soft"
+                  onClick={() => {
+                    setFileMenuOpen(false);
+                    fileInputRef.current?.click();
+                  }}
+                >
+                  <FolderOpen className="h-4 w-4 text-muted" />
+                  Открыть файл
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-[10px] px-2.5 py-2 text-left text-[13px] font-semibold text-ink hover:bg-surface-soft"
+                  onClick={() => {
+                    setFileMenuOpen(false);
+                    setJsonPasteError(null);
+                    setJsonPasteOpen(true);
+                  }}
+                >
+                  <Braces className="h-4 w-4 text-muted" />
+                  Вставить JSON
+                </button>
+                <div className="my-1 h-px bg-line" />
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-[10px] px-2.5 py-2 text-left text-[13px] font-semibold text-ink hover:bg-surface-soft"
+                  onClick={() => {
+                    setFileMenuOpen(false);
+                    applyBuilding(createCafeBuilding());
+                  }}
+                >
+                  Шаблон: кафе
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-[10px] px-2.5 py-2 text-left text-[13px] font-semibold text-ink hover:bg-surface-soft"
+                  onClick={() => {
+                    setFileMenuOpen(false);
+                    applyBuilding(buildingFromPlan(createCinemaStarterPlan()));
+                  }}
+                >
+                  Шаблон: кино
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-[10px] px-2.5 py-2 text-left text-[13px] font-semibold text-ink hover:bg-surface-soft"
+                  onClick={() => {
+                    setFileMenuOpen(false);
+                    applyBuilding(PLAN_CRAZY_EMOJI_BUILDING);
+                  }}
+                >
+                  Шаблон: emoji chaos
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-[10px] px-2.5 py-2 text-left text-[13px] font-semibold text-ink hover:bg-surface-soft"
+                  onClick={() => {
+                    setFileMenuOpen(false);
+                    applyBuilding(buildingFromPlan(createBanquetStarterPlan()));
+                  }}
+                >
+                  Шаблон: банкет
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-[10px] px-2.5 py-2 text-left text-[13px] font-semibold text-ink hover:bg-surface-soft"
+                  onClick={() => {
+                    setFileMenuOpen(false);
+                    applyBuilding(buildingFromPlan(createEmptyPlan()));
+                  }}
+                >
+                  Новый лист
+                </button>
+              </div>
+            </>
+          ) : null}
+        </div>
 
         <input
           ref={fileInputRef}
@@ -1452,9 +1611,95 @@ export function VenuePlanEditorView({
           }}
         />
 
+        {jsonPasteOpen ? (
+          <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-4">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Вставить JSON плана"
+              className="flex max-h-[min(88vh,720px)] w-full max-w-2xl flex-col rounded-[20px] border border-line bg-surface shadow-elevate"
+            >
+              <div className="border-b border-line px-4 py-3">
+                <p className="text-[15px] font-bold text-ink">Вставить JSON плана</p>
+                <p className="mt-1 text-[12px] leading-snug text-muted">
+                  Вставьте JSON или подставьте пример — затем «Применить».
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <AppButton
+                    service="venue"
+                    size="row"
+                    variant="outline"
+                    onClick={() => {
+                      setJsonPasteText(planFullExampleJson());
+                      setJsonPasteError(null);
+                    }}
+                  >
+                    Полный пример
+                  </AppButton>
+                  <AppButton
+                    service="venue"
+                    size="row"
+                    variant="outline"
+                    onClick={() => {
+                      setJsonPasteText(planCrazyEmojiJson());
+                      setJsonPasteError(null);
+                    }}
+                  >
+                    Emoji chaos
+                  </AppButton>
+                  <AppButton
+                    size="row"
+                    variant="ghost"
+                    onClick={() => {
+                      void navigator.clipboard.writeText(
+                        `${PLAN_JSON_AI_HINT}\n\n${planFullExampleJson()}`,
+                      );
+                    }}
+                  >
+                    Копировать + AI
+                  </AppButton>
+                </div>
+              </div>
+              <textarea
+                value={jsonPasteText}
+                onChange={(e) => {
+                  setJsonPasteText(e.target.value);
+                  setJsonPasteError(null);
+                }}
+                spellCheck={false}
+                placeholder="Вставьте JSON…"
+                className="min-h-[260px] flex-1 resize-y bg-bg px-4 py-3 font-mono text-[12px] leading-relaxed text-ink outline-none"
+              />
+              {jsonPasteError ? (
+                <p className="px-4 pb-2 text-[12px] font-semibold text-destructive">{jsonPasteError}</p>
+              ) : null}
+              <div className="flex flex-wrap gap-2 border-t border-line px-4 py-3">
+                <AppButton
+                  service="venue"
+                  size="row"
+                  className="gap-1.5"
+                  onClick={applyPastedJson}
+                  disabled={!jsonPasteText.trim()}
+                >
+                  Применить
+                </AppButton>
+                <AppButton
+                  variant="outline"
+                  size="row"
+                  onClick={() => {
+                    setJsonPasteOpen(false);
+                    setJsonPasteError(null);
+                  }}
+                >
+                  Отмена
+                </AppButton>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         <TipBtn
           tip={rightOpen ? "Скрыть панель" : "Свойства"}
-          detail="Цвет, фон, пресеты · клавиша ]"
           side="bottom"
           onClick={() => setRightOpen((v) => !v)}
         >
@@ -1525,97 +1770,99 @@ export function VenuePlanEditorView({
       </div>
 
       <div className="relative flex min-h-0 flex-1">
-        <aside className="z-20 flex w-[72px] shrink-0 flex-col items-center gap-0.5 overflow-y-auto border-r border-line bg-surface py-2 shadow-elevate-sm">
-          <p className="mb-1 px-1 text-center text-[9px] font-bold uppercase tracking-wide text-muted">
-            Инструменты
-          </p>
+        <aside className="z-20 flex w-14 shrink-0 flex-col items-center gap-0.5 overflow-y-auto border-r border-line bg-surface py-2">
           {tools.map(({ id, label, hint, help, Icon }) => {
             const active = tool === id;
             return (
               <TipBtn
                 key={id}
                 tip={label}
-                detail={`${help} · клавиша ${hint}`}
+                detail={`${help} · ${hint}`}
                 side="right"
                 active={active}
                 onClick={() => switchTool(id)}
-                className="h-11 w-11 flex-col gap-0.5 rounded-[12px]"
+                className="h-10 w-10 rounded-[12px]"
               >
-                <Icon className="h-[17px] w-[17px]" strokeWidth={2} />
-                <span className="text-[8px] font-semibold leading-none">{hint}</span>
+                <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
               </TipBtn>
             );
           })}
-          <div className="my-1.5 h-px w-10 bg-line" />
-          <p className="mb-1 px-1 text-center text-[9px] font-bold uppercase tracking-wide text-muted">
-            Правка
-          </p>
-          <TipBtn
-            tip="Группа"
-            detail="Стол + стулья двигаются вместе · ⌘G"
-            side="right"
-            onClick={runGroup}
-            disabled={selectedIds.length < 2}
-          >
+          <div className="my-1 h-px w-8 bg-line" />
+          <TipBtn tip="Группа" detail="⌘G" side="right" onClick={runGroup} disabled={selectedIds.length < 2}>
             <Group className="h-4 w-4" />
           </TipBtn>
-          <TipBtn
-            tip="Разгруппировать"
-            detail="Развязать объекты · ⌘⇧G"
-            side="right"
-            onClick={runUngroup}
-            disabled={!selectedIds.length}
-          >
+          <TipBtn tip="Связать emoji" side="right" onClick={() => runLinkEmojis()} disabled={!canLinkEmojis}>
+            <Link2 className="h-4 w-4" />
+          </TipBtn>
+          <TipBtn tip="Разгруппировать" detail="⌘⇧G" side="right" onClick={runUngroup} disabled={!selectedIds.length}>
             <Ungroup className="h-4 w-4" />
           </TipBtn>
-          <TipBtn
-            tip="Дублировать"
-            detail="Копия рядом · ⌘D"
-            side="right"
-            onClick={runDuplicate}
-            disabled={!selectedIds.length}
-          >
+          <TipBtn tip="Дублировать" detail="⌘D" side="right" onClick={runDuplicate} disabled={!selectedIds.length}>
             <Copy className="h-4 w-4" />
           </TipBtn>
-          <TipBtn
-            tip="Объединить"
-            detail="Слить фигуры в один контур · U"
-            side="right"
-            onClick={runUnion}
-            disabled={!booleanReady}
-          >
-            <Combine className="h-4 w-4" />
-          </TipBtn>
-          <TipBtn
-            tip="Вычесть"
-            detail="Первая фигура минус остальные · D"
-            side="right"
-            onClick={runSubtract}
-            disabled={!booleanReady}
-          >
-            <SplitSquareVertical className="h-4 w-4" />
-          </TipBtn>
-          <TipBtn
-            tip="Удалить"
-            detail="Delete / Backspace"
-            side="right"
-            onClick={deleteSelected}
-            disabled={!selectedIds.length}
-          >
+          <TipBtn tip="Удалить" detail="Delete" side="right" onClick={deleteSelected} disabled={!selectedIds.length}>
             <Trash2 className="h-4 w-4" />
           </TipBtn>
-          <TipBtn
-            tip="Очистить лист"
-            detail="Убрать все объекты с плана"
-            side="right"
-            onClick={() => {
-              cancelPath();
-              pushHistory({ ...plan, nodes: [] });
-              setSelectedIds([]);
-            }}
-          >
-            <Eraser className="h-4 w-4" />
-          </TipBtn>
+          <div className="relative">
+            <TipBtn
+              tip="Ещё правки"
+              detail="Объединить · вычесть · очистить"
+              side="right"
+              active={editMoreOpen}
+              onClick={() => setEditMoreOpen((v) => !v)}
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </TipBtn>
+            {editMoreOpen ? (
+              <>
+                <button
+                  type="button"
+                  className="fixed inset-0 z-[85] cursor-default"
+                  aria-label="Закрыть"
+                  onClick={() => setEditMoreOpen(false)}
+                />
+                <div className="absolute left-full top-0 z-[86] ml-2 w-44 rounded-[14px] border border-line bg-surface p-1.5 shadow-elevate-md">
+                  <button
+                    type="button"
+                    disabled={!booleanReady}
+                    className="flex w-full items-center gap-2 rounded-[10px] px-2.5 py-2 text-left text-[13px] font-semibold text-ink hover:bg-surface-soft disabled:opacity-30"
+                    onClick={() => {
+                      setEditMoreOpen(false);
+                      runUnion();
+                    }}
+                  >
+                    <Combine className="h-4 w-4 text-muted" />
+                    Объединить
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!booleanReady}
+                    className="flex w-full items-center gap-2 rounded-[10px] px-2.5 py-2 text-left text-[13px] font-semibold text-ink hover:bg-surface-soft disabled:opacity-30"
+                    onClick={() => {
+                      setEditMoreOpen(false);
+                      runSubtract();
+                    }}
+                  >
+                    <SplitSquareVertical className="h-4 w-4 text-muted" />
+                    Вычесть
+                  </button>
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-2 rounded-[10px] px-2.5 py-2 text-left text-[13px] font-semibold text-ink hover:bg-surface-soft"
+                    onClick={() => {
+                      setEditMoreOpen(false);
+                      cancelPath();
+                      pushHistory({ ...plan, nodes: [] });
+                      setSelectedIds([]);
+                    }}
+                  >
+                    <Eraser className="h-4 w-4 text-muted" />
+                    Очистить лист
+                  </button>
+                </div>
+              </>
+            ) : null}
+          </div>
         </aside>
 
         <div
@@ -1670,6 +1917,40 @@ export function VenuePlanEditorView({
                   style={{ pointerEvents: "none" }}
                 />
               )}
+              {emojiGroupHulls.map(({ gid, bounds, centers }) => (
+                <g key={`hull_${gid}`} style={{ pointerEvents: "none" }}>
+                  <rect
+                    x={bounds.x}
+                    y={bounds.y}
+                    width={bounds.w}
+                    height={bounds.h}
+                    rx={14}
+                    fill="color-mix(in srgb, #C5FEB7 18%, transparent)"
+                    stroke="#1A5C2E"
+                    strokeWidth={1.5}
+                    strokeDasharray="6 4"
+                    opacity={0.85}
+                  />
+                  {centers.length >= 2
+                    ? centers.slice(0, -1).map((a, i) => {
+                        const b = centers[i + 1]!;
+                        return (
+                          <line
+                            key={`${gid}_l_${i}`}
+                            x1={a.x}
+                            y1={a.y}
+                            x2={b.x}
+                            y2={b.y}
+                            stroke="#1A5C2E"
+                            strokeWidth={1.25}
+                            strokeDasharray="3 3"
+                            opacity={0.45}
+                          />
+                        );
+                      })
+                    : null}
+                </g>
+              ))}
               {[...plan.nodes]
                 .sort((a, b) => a.zIndex - b.zIndex)
                 .map((node) => (
@@ -1677,7 +1958,7 @@ export function VenuePlanEditorView({
                     key={node.id}
                     node={node}
                     selected={selectedIds.includes(node.id)}
-                    guestDim={guestView && node.role !== "bookable"}
+                    guestDim={false}
                   />
                 ))}
               {pathPoints.length > 0 && (
@@ -1775,17 +2056,12 @@ export function VenuePlanEditorView({
             </g>
           </svg>
 
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center p-3">
-            <div className="max-w-[min(560px,92%)] rounded-[16px] border border-line bg-surface/95 px-4 py-2.5 text-center shadow-elevate-md backdrop-blur">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-svc-venue-ink">
-                {guestView ? "Гость" : activeTool.label}
-                {!guestView ? (
-                  <span className="ml-1.5 font-semibold text-muted">[{activeTool.hint}]</span>
-                ) : null}
-              </p>
-              <p className="mt-0.5 text-[13px] font-medium leading-snug text-ink">{contextHint}</p>
-              <p className="mt-1 text-[11px] text-muted">
-                Трекпад: два пальца — двигать · pinch — зум · наведи на кнопку — подсказка
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center p-2.5">
+            <div className="max-w-[min(480px,92%)] rounded-[12px] border border-line bg-surface/95 px-3 py-1.5 text-center shadow-elevate-sm backdrop-blur">
+              <p className="text-[12px] font-medium text-ink">
+                <span className="font-bold text-svc-venue-ink">{activeTool.label}</span>
+                <span className="text-muted"> · </span>
+                {contextHint}
               </p>
             </div>
           </div>
@@ -1805,124 +2081,63 @@ export function VenuePlanEditorView({
 
         <aside
           className={`flex shrink-0 flex-col overflow-hidden border-l border-line bg-surface shadow-elevate-md transition-[width] duration-200 ease-out ${
-            rightOpen ? "w-[300px]" : "w-0 border-l-0"
+            rightOpen ? "w-[280px]" : "w-0 border-l-0"
           }`}
         >
-          <div className="flex h-full w-[300px] flex-col gap-4 overflow-y-auto p-4">
+          <div className="flex h-full w-[280px] flex-col gap-3 overflow-y-auto p-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-wide text-muted">Свойства</p>
-                <p className="text-[12px] text-muted">
-                  {canBindBookable
-                    ? "Привязка · цвет · этажи"
-                    : selected?.kind === "emoji"
-                      ? "Стул — не бронь"
-                      : "Цвет, фон, пресеты"}
-                </p>
+                <p className="text-[12px] text-muted">Цвет и объекты</p>
               </div>
               <TipBtn tip="Скрыть панель" detail="Клавиша ]" side="left" onClick={() => setRightOpen(false)}>
                 <PanelRightClose className="h-4 w-4" />
               </TipBtn>
             </div>
 
-            {canBindBookable && bindTarget ? (
-              <section className="space-y-2 rounded-[16px] border-2 border-svc-venue-ink/35 bg-svc-venue/40 p-3">
-                <p className="text-[13px] font-bold text-svc-venue-ink">Привязка к брони</p>
-                {selectionIsGroup || selectedNodes.length > 1 ? (
-                  <p className="text-[11px] leading-relaxed text-ink/85">
-                    Выделена группа ({selectedNodes.length}). Бронь вешается на{" "}
-                    <span className="font-semibold text-ink">
-                      {bindTarget.label || "стол"}
-                    </span>
-                    , стулья — только декор.
-                  </p>
-                ) : (
-                  <p className="text-[11px] leading-relaxed text-ink/85">
-                    Свяжи стол с местом/билетом из каталога.
-                  </p>
-                )}
-                <label className="flex items-center gap-2 text-[13px] font-semibold text-ink">
-                  <input
-                    type="checkbox"
-                    checked={bindTarget.role === "bookable"}
-                    onChange={(e) => {
-                      if (!e.target.checked) {
-                        updateBindTarget({ role: "decor", bookableId: null });
-                        return;
-                      }
-                      const first = catalogBookables[0];
-                      updateBindTarget({
-                        role: "bookable",
-                        bookableId: first?.id ?? newNodeId("bk"),
-                        label: bindTarget.label || first?.label || "Место",
-                      });
-                    }}
-                    className="h-4 w-4 accent-[var(--svc-venue-ink)]"
-                  />
-                  Бронируется (стол)
-                </label>
-                {bindTarget.role === "bookable" ? (
-                  <>
-                    <label className="block text-[11px] font-bold uppercase tracking-wide text-muted">
-                      Место / билет
-                    </label>
-                    <select
-                      value={bindTarget.bookableId ?? ""}
-                      onChange={(e) => {
-                        const id = e.target.value;
-                        if (id === "__new__") {
-                          updateBindTarget({
-                            role: "bookable",
-                            bookableId: newNodeId("bk"),
-                            label: bindTarget.label || "Новое место",
-                          });
-                          return;
-                        }
-                        const item = catalogBookables.find((b) => b.id === id);
-                        updateBindTarget({
-                          role: "bookable",
-                          bookableId: id,
-                          label: item?.label ?? bindTarget.label,
-                        });
-                      }}
-                      className="w-full rounded-[14px] border border-border-input bg-bg px-3 py-2.5 text-[14px] text-ink outline-none focus:border-svc-venue-ink"
-                    >
-                      {!catalogBookables.some((b) => b.id === bindTarget.bookableId) &&
-                      bindTarget.bookableId ? (
-                        <option value={bindTarget.bookableId}>
-                          Своё · {bindTarget.bookableId}
-                        </option>
-                      ) : null}
-                      {catalogBookables.map((b) => (
-                        <option key={b.id} value={b.id}>
-                          {kindLabel(b.kind)} · {b.label}
-                        </option>
-                      ))}
-                      <option value="__new__">+ Новое место</option>
-                    </select>
-                    <p className="text-[11px] text-muted">
-                      id: <span className="font-semibold text-ink">{bindTarget.bookableId}</span>
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-[11px] text-muted">Включи галочку, затем выбери место.</p>
-                )}
-              </section>
-            ) : selected?.kind === "emoji" && selectedNodes.length === 1 ? (
-              <section className="rounded-[16px] border border-line bg-surface-soft px-3 py-3">
-                <p className="text-[13px] font-bold text-ink">Это стул / смайлик</p>
-                <p className="mt-1 text-[12px] leading-relaxed text-muted">
-                  Кликни стол — выделится стол+стулья, бронь настроишь у стола.
-                </p>
-              </section>
-            ) : !selectedNodes.length ? (
-              <section className="rounded-[16px] border border-dashed border-line bg-surface-soft/50 px-3 py-3">
-                <p className="text-[12px] leading-relaxed text-muted">
-                  <span className="font-semibold text-ink">Группа:</span> выдели стол и стулья
-                  (рамка / Shift) → кнопка «Группа» или ⌘G. Потом тап по столу выделяет всех, бронь
-                  — у стола.
-                </p>
-              </section>
+            {selected?.kind === "emoji" ? (
+              <div className="flex gap-1.5">
+                <button
+                  type="button"
+                  className={`flex-1 rounded-[12px] border px-2 py-2 text-[12px] font-bold ${
+                    selectedNodes.filter((n) => n.kind === "emoji").every((n) => n.role === "bookable")
+                      ? "border-svc-venue-ink bg-svc-venue text-ink"
+                      : "border-line bg-surface text-muted"
+                  }`}
+                  onClick={() => {
+                    const ids = new Set(selectedNodes.filter((n) => n.kind === "emoji").map((n) => n.id));
+                    pushHistory({
+                      ...planRef.current,
+                      nodes: planRef.current.nodes.map((n) =>
+                        ids.has(n.id)
+                          ? { ...n, role: "bookable", bookableId: n.bookableId ?? newNodeId("bk") }
+                          : n,
+                      ),
+                    });
+                  }}
+                >
+                  Место
+                </button>
+                <button
+                  type="button"
+                  className={`flex-1 rounded-[12px] border px-2 py-2 text-[12px] font-bold ${
+                    selectedNodes.filter((n) => n.kind === "emoji").every((n) => n.role === "decor")
+                      ? "border-svc-venue-ink bg-svc-venue text-ink"
+                      : "border-line bg-surface text-muted"
+                  }`}
+                  onClick={() => {
+                    const ids = new Set(selectedNodes.filter((n) => n.kind === "emoji").map((n) => n.id));
+                    pushHistory({
+                      ...planRef.current,
+                      nodes: planRef.current.nodes.map((n) =>
+                        ids.has(n.id) ? { ...n, role: "decor", bookableId: null } : n,
+                      ),
+                    });
+                  }}
+                >
+                  Декор
+                </button>
+              </div>
             ) : null}
 
             <section>
@@ -1950,9 +2165,9 @@ export function VenuePlanEditorView({
                 </p>
               </section>
             ) : tool === "emoji" || selected?.kind === "emoji" ? (
-              <section>
-                <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-muted">Смайлики</p>
-                <div className="mb-3 max-h-[280px] grid grid-cols-6 gap-1.5 overflow-y-auto pr-1">
+              <section className="space-y-3">
+                <p className="text-[11px] font-bold uppercase tracking-wide text-muted">Смайлик</p>
+                <div className="max-h-[200px] grid grid-cols-6 gap-1 overflow-y-auto pr-0.5">
                   {VENUE_EMOJI_PRESETS.map((emo) => {
                     const active =
                       selected?.kind === "emoji" ? selected.label === emo : activeEmoji === emo;
@@ -1966,7 +2181,7 @@ export function VenuePlanEditorView({
                           if (selected?.kind === "emoji") updateSelected({ label: emo });
                           else setTool("emoji");
                         }}
-                        className={`flex h-10 items-center justify-center rounded-[12px] text-[22px] transition ${
+                        className={`flex h-9 items-center justify-center rounded-[10px] text-[20px] transition ${
                           active
                             ? "bg-svc-venue ring-2 ring-svc-venue-ink/40"
                             : "bg-surface-soft hover:bg-svc-venue/50"
@@ -1977,7 +2192,7 @@ export function VenuePlanEditorView({
                     );
                   })}
                 </div>
-                <label className="flex items-center justify-between text-[13px] font-semibold text-ink">
+                <label className="flex items-center justify-between text-[12px] font-semibold text-ink">
                   Размер
                   <span className="text-muted">
                     {selected?.kind === "emoji" && selected.frame
@@ -2003,11 +2218,92 @@ export function VenuePlanEditorView({
                       });
                     }
                   }}
-                  className="mt-1 w-full accent-[var(--svc-venue-ink)]"
+                  className="w-full accent-[var(--svc-venue-ink)]"
                 />
-                <p className="mt-3 text-[12px] leading-relaxed text-muted">
-                  Кликни по плану. Потяни за угол — размер без лимита.
-                </p>
+                <div className="flex gap-1.5">
+                  <button
+                    type="button"
+                    className={`flex-1 rounded-[12px] border px-2 py-2 text-[12px] font-bold ${
+                      placeEmojiDefault
+                        ? "border-svc-venue-ink bg-svc-venue text-ink"
+                        : "border-line bg-surface text-muted"
+                    }`}
+                    onClick={() => setPlaceEmojiDefault(true)}
+                  >
+                    Место
+                  </button>
+                  <button
+                    type="button"
+                    className={`flex-1 rounded-[12px] border px-2 py-2 text-[12px] font-bold ${
+                      !placeEmojiDefault
+                        ? "border-svc-venue-ink bg-svc-venue text-ink"
+                        : "border-line bg-surface text-muted"
+                    }`}
+                    onClick={() => setPlaceEmojiDefault(false)}
+                  >
+                    Декор
+                  </button>
+                </div>
+                <div className="space-y-2 rounded-[12px] border border-line bg-surface-soft/50 p-2.5">
+                  <div className="flex flex-wrap gap-1">
+                    {(
+                      [
+                        ["row", "Ряд"],
+                        ["arc", "Дуга"],
+                        ["grid", "Сетка"],
+                        ["pair", "Пара"],
+                      ] as const
+                    ).map(([id, label]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setClusterLayout(id)}
+                        className={`rounded-[8px] border px-2 py-1 text-[11px] font-bold ${
+                          clusterLayout === id
+                            ? "border-svc-venue-ink bg-svc-venue text-ink"
+                            : "border-line bg-surface text-muted"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  <label className="flex items-center justify-between text-[12px] font-semibold text-ink">
+                    Связка
+                    <span className="text-muted">×{clusterCount}</span>
+                  </label>
+                  <input
+                    type="range"
+                    min={2}
+                    max={6}
+                    value={clusterCount}
+                    onChange={(e) => setClusterCount(Number(e.target.value))}
+                    className="w-full accent-[var(--svc-venue-ink)]"
+                  />
+                  <AppButton
+                    type="button"
+                    service="venue"
+                    size="row"
+                    className="w-full gap-1.5"
+                    onClick={() => insertEmojiCluster()}
+                  >
+                    <LayoutGrid className="h-3.5 w-3.5" />
+                    Вставить {activeEmoji}×{clusterCount}
+                  </AppButton>
+                  {canLinkEmojis ? (
+                    <AppButton
+                      type="button"
+                      service="venue"
+                      variant="outline"
+                      size="row"
+                      className="w-full gap-1.5"
+                      onClick={() => runLinkEmojis()}
+                    >
+                      <Link2 className="h-3.5 w-3.5" />
+                      Связать ({selectedEmojis.length})
+                    </AppButton>
+                  ) : null}
+                </div>
               </section>
             ) : (
               <section>
@@ -2071,17 +2367,6 @@ export function VenuePlanEditorView({
                     />
                   </>
                 ) : null}
-                {!selectedNodes.length ? (
-                  <label className="mt-3 flex items-center gap-2 text-[13px] font-semibold text-ink">
-                    <input
-                      type="checkbox"
-                      checked={bookableDefault}
-                      onChange={(e) => setBookableDefault(e.target.checked)}
-                      className="h-4 w-4 accent-[var(--svc-venue-ink)]"
-                    />
-                    Новые фигуры — для брони
-                  </label>
-                ) : null}
               </section>
             )}
 
@@ -2105,51 +2390,11 @@ export function VenuePlanEditorView({
             <div className="h-px bg-line" />
 
             {selectedNodes.length > 1 ? (
-              <section className="space-y-3">
-                <p className="text-[11px] font-bold uppercase tracking-wide text-muted">
+              <section className="space-y-2">
+                <p className="text-[12px] font-semibold text-ink">
                   Выделено: {selectedNodes.length}
                 </p>
-                <p className="text-[12px] leading-relaxed text-muted">
-                  Стол + стулья: «Группировать» / ⌘G — потом тап выделяет всех, бронь только у
-                  стола. Объединить — внешний контур; вычесть — первая минус остальные.
-                </p>
-                <AppButton
-                  type="button"
-                  service="venue"
-                  className="w-full"
-                  disabled={selectedIds.length < 2}
-                  onClick={runGroup}
-                >
-                  Группировать (⌘G)
-                </AppButton>
-                <AppButton
-                  type="button"
-                  service="venue"
-                  variant="outline"
-                  className="w-full"
-                  onClick={runUngroup}
-                >
-                  Разгруппировать (⌘⇧G)
-                </AppButton>
-                <AppButton
-                  type="button"
-                  service="venue"
-                  className="w-full"
-                  disabled={!booleanReady}
-                  onClick={runUnion}
-                >
-                  Объединить (U)
-                </AppButton>
-                <AppButton
-                  type="button"
-                  service="venue"
-                  variant="outline"
-                  className="w-full"
-                  disabled={!booleanReady}
-                  onClick={runSubtract}
-                >
-                  Вычесть (D)
-                </AppButton>
+                <p className="text-[11px] text-muted">Группа / связка — слева в панели инструментов.</p>
                 <AppButton type="button" service="venue" variant="outline" className="w-full" onClick={deleteSelected}>
                   Удалить
                 </AppButton>
@@ -2171,106 +2416,22 @@ export function VenuePlanEditorView({
               <AppButton type="button" service="venue" variant="outline" className="w-full" onClick={deleteSelected}>
                 Удалить смайлик
               </AppButton>
-            ) : tool !== "emoji" && tool !== "text" ? (
-              <p className="text-[13px] leading-relaxed text-muted">
-                Выберите стол указкой — привязка к брони сверху справа.
-              </p>
             ) : null}
 
-            <div className="mt-auto space-y-2 border-t border-line pt-4">
-              <div className="rounded-[12px] bg-surface-soft/80 px-3 py-2">
-                <p className="text-[11px] font-bold uppercase tracking-wide text-muted">
-                  Этажи
-                </p>
-                <p className="mt-1 text-[13px] text-ink">
-                  {floors.length}{" "}
-                  {floors.length === 1 ? "этаж" : floors.length < 5 ? "этажа" : "этажей"}
-                  {" · "}
-                  <span className="text-muted">активный:</span> {plan.label || "—"}
-                </p>
-              </div>
-              <AppButton
-                type="button"
-                service="venue"
-                className="w-full"
-                onClick={saveDraftNow}
-              >
-                Сохранить черновик
-              </AppButton>
-              <div className="grid grid-cols-2 gap-2">
-                <AppButton
-                  type="button"
-                  service="venue"
-                  variant="outline"
-                  className="w-full"
-                  onClick={downloadBuilding}
-                >
-                  Скачать
-                </AppButton>
-                <AppButton
-                  type="button"
-                  service="venue"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  Открыть
-                </AppButton>
-              </div>
-              <p className="pt-1 text-[11px] font-bold uppercase tracking-wide text-muted">
-                Шаблоны
+            <div className="mt-auto space-y-2 border-t border-line pt-3">
+              <p className="text-[12px] text-muted">
+                {floors.length}{" "}
+                {floors.length === 1 ? "этаж" : floors.length < 5 ? "этажа" : "этажей"}
+                {" · "}
+                {plan.label || "—"}
               </p>
-              <AppButton
-                type="button"
-                service="venue"
-                variant="outline"
-                className="w-full"
-                onClick={() => applyBuilding(createCafeBuilding())}
-              >
-                Ресторан
-              </AppButton>
-              <AppButton
-                type="button"
-                service="venue"
-                variant="outline"
-                className="w-full"
-                onClick={() => applyBuilding(buildingFromPlan(createCinemaStarterPlan()))}
-              >
-                Кино
-              </AppButton>
-              <AppButton
-                type="button"
-                service="venue"
-                variant="outline"
-                className="w-full"
-                onClick={() => applyBuilding(buildingFromPlan(createBanquetStarterPlan()))}
-              >
-                Банкет
-              </AppButton>
-              <AppButton
-                type="button"
-                service="venue"
-                variant="outline"
-                className="w-full"
-                onClick={() => applyBuilding(buildingFromPlan(createEmptyPlan()))}
-              >
-                Новый лист
+              <AppButton type="button" service="venue" className="w-full" onClick={saveDraftNow}>
+                Сохранить
               </AppButton>
             </div>
           </div>
         </aside>
       </div>
-    </div>
-  );
-}
-
-function HeaderCluster({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex items-center gap-0.5 rounded-[12px] bg-surface-soft/80 px-1 py-0.5">
-      <span className="mr-0.5 hidden px-1.5 text-[9px] font-bold uppercase tracking-wide text-muted lg:inline">
-        {label}
-      </span>
-      {children}
     </div>
   );
 }

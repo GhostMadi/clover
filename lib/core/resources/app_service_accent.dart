@@ -67,6 +67,14 @@ class AppServiceAccent {
 
   /// Текст на [soft] (читаемый и в dark: жёлтый soft остаётся светлым).
   final Color onSoft;
+
+  /// Чернила по заливке: на светлом (жёлтый и т.п.) — тёмный, на тёмном — белый.
+  /// Не использовать [AppPalette.textColor] на soft CTA — в dark это белый на жёлтом.
+  static Color inkOnFill(Color fill) {
+    return ThemeData.estimateBrightnessForColor(fill) == Brightness.dark
+        ? const Color(0xFFFFFFFF)
+        : const Color(0xFF1A1D1E);
+  }
 }
 
 extension AppServiceAccentResolver on AppPalette {

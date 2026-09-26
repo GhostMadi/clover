@@ -9,16 +9,18 @@ function emoji(
   size = 44,
   zIndex = 20,
   groupId?: string | null,
+  role: PlanNode["role"] = "decor",
 ): PlanNode {
+  const isBookable = role === "bookable";
   return {
     id,
     kind: "emoji",
-    role: "decor",
+    role,
     label,
     frame: { x, y, w: size, h: size },
     style: defaultStyle({ fill: null, stroke: "transparent", strokeWidth: 0 }),
     zIndex,
-    bookableId: null,
+    bookableId: isBookable ? `bk_${id}` : null,
     groupId: groupId ?? null,
   };
 }
@@ -181,7 +183,7 @@ function chairsAroundRect(
   const place = (side: string, n: number, getXY: (i: number) => { x: number; y: number }) => {
     for (let i = 0; i < n; i++) {
       const { x, y } = getXY(i);
-      out.push(emoji(`${prefix}_${side}_${i}`, "🪑", x, y, size, 20, groupId));
+      out.push(emoji(`${prefix}_${side}_${i}`, "🪑", x, y, size, 20, groupId, "bookable"));
     }
   };
   if (count.top) {
@@ -233,6 +235,7 @@ function chairsAroundOval(
       size,
       20,
       groupId,
+      "bookable",
     );
   });
 }
@@ -536,12 +539,12 @@ export function createCafeStarterPlan(): PlanDocument {
     ...chairsAroundRect("ch_booth", tBooth, { top: 2, bottom: 2 }, gBooth),
 
     // барные стулья
-    emoji("e_bar_1", "🪑", 120, 158, 36, 20, gBar),
-    emoji("e_bar_2", "🪑", 190, 158, 36, 20, gBar),
-    emoji("e_bar_3", "🪑", 260, 158, 36, 20, gBar),
-    emoji("e_bar_4", "🪑", 330, 158, 36, 20, gBar),
-    emoji("e_bar_5", "🪑", 400, 158, 36, 20, gBar),
-    emoji("e_bar_6", "🪑", 470, 158, 36, 20, gBar),
+    emoji("e_bar_1", "🪑", 120, 158, 36, 20, gBar, "bookable"),
+    emoji("e_bar_2", "🪑", 190, 158, 36, 20, gBar, "bookable"),
+    emoji("e_bar_3", "🪑", 260, 158, 36, 20, gBar, "bookable"),
+    emoji("e_bar_4", "🪑", 330, 158, 36, 20, gBar, "bookable"),
+    emoji("e_bar_5", "🪑", 400, 158, 36, 20, gBar, "bookable"),
+    emoji("e_bar_6", "🪑", 470, 158, 36, 20, gBar, "bookable"),
 
     textLabel("tx_hall", "Зал ресторана", 640, 70, 200, 32),
     textLabel("tx_vip", "VIP-зона", 140, 455, 120, 28),
@@ -708,7 +711,7 @@ export function createCinemaStarterPlan(): PlanDocument {
           groupId: gid,
         }),
       );
-      nodes.push(emoji(`ch_${id}`, "🪑", x + 14, y + 6, 40, 20, gid));
+      nodes.push(emoji(`ch_${id}`, "🪑", x + 14, y + 6, 40, 20, gid, "bookable"));
     }
   }
 

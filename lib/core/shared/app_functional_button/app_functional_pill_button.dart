@@ -76,7 +76,9 @@ class _AppFunctionalPillButtonState extends State<AppFunctionalPillButton> with 
     final blur = context.heightByContext(AppFunctionalPillButton._figmaBlurSigma).clamp(8.0, 32.0);
     final iconSize = context.heightByContext(AppFunctionalPillButton._figmaIconSize).clamp(18.0, 32.0);
     final hasCustomColor = widget.customColor != null;
-    final contentColor = hasCustomColor ? colors.textInverse : colors.textColor;
+    final contentColor = hasCustomColor
+        ? AppServiceAccent.inkOnFill(widget.customColor!)
+        : colors.textColor;
     final backgroundColor = widget.backgroundColor ?? colors.surfaceSoft;
     final borderColor = widget.borderColor ?? colors.border;
 

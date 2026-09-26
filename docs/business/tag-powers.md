@@ -21,7 +21,7 @@
 Ориентир: тег `booking` — приём записи; тег `bookingCalendar` — календарь заказов, которые дают другие.  
 План: [booking-staff-plan.md](booking-staff-plan.md) · **ТЗ записи:** [booking-tz.md](booking-tz.md).  
 Посещаемость: `attendance` (admin) + `attendanceWork` (worker) · **ТЗ:** [attendance-tz.md](attendance-tz.md).  
-Ресурсы: тег **`resources`** (admin only) — местоположения и фильтры витрины; без prefs-ярлыка.
+Ресурсы: тег **`resources`** (admin only) — местоположения, фильтры витрины, **схемы пространства**; без prefs-ярлыка. Схемы: [space-plan-resources.md](space-plan-resources.md) · ТЗ: [space-plan-tz.md](space-plan-tz.md).
 
 ---
 
@@ -99,7 +99,7 @@
 | `bookingCalendar` | worker | жёлтый **Запись** (тот же сервис) | верхняя «Календарь» | источники заказов + свои визиты (read) |
 | `attendance` | admin | синий **Посещаемость** | нижняя «Управление» | create company, invite, табель… |
 | `attendanceWork` | worker | синий **Посещаемость** | верхняя «Посещаемость» | punch + worker-хаб |
-| `resources` | admin | сирень **Ресурсы** | нижняя «Ресурсы» | местоположения, фильтры витрины |
+| `resources` | admin | сирень **Ресурсы** | нижняя «Ресурсы» | местоположения, фильтры витрины, схемы пространства |
 | будущий тег | admin **или** worker | цвет **своего** сервиса ([AppServiceKind](../../lib/core/resources/app_service_accent.dart)) | кнопка в нужной линии | свои запросы |
 
 Чипы на **своём** профиле / в edit / в селекторе: силовые теги красятся акцентом сервиса.  

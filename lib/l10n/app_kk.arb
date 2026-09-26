@@ -1326,6 +1326,13 @@
   "booking_how_was_it": "Қалай өтті?",
   "booking_review_optional_hint": "Қалай өткенін жазыңыз (міндетті емес)",
   "booking_send_review": "Пікір жіберу",
+  "booking_leave_review": "Пікір қалдыру",
+  "booking_review_target_label": "Пікір не туралы",
+  "booking_review_target_hint": "Профиль немесе мекенжай",
+  "booking_review_target_profile": "Профиль",
+  "booking_review_filter_all": "Барлығы",
+  "booking_reviews_empty": "Әзірге пікір жоқ",
+  "booking_review_deleted": "Пікір жойылды",
   "booking_demo_leave_review": "Демо: пікір қалдыру",
   "booking_point_reply_title": "Нүкте атынан жауап",
   "booking_point_reply_label": "Нүкте жауабы",
@@ -1335,6 +1342,62 @@
   "booking_mock_no_backend": "Mock · бэкке жазылмайды",
   "booking_mock_host_reply": "Mock · иесінің жауабы",
   "booking_reply_action": "Жауап беру",
+  "booking_space_plan_title": "Схема және бағалар",
+  "booking_space_plan_subtitle": "Emoji = баға · қызмет + шебер",
+  "booking_space_plan_pick": "Схеманы таңдау",
+  "booking_space_plan_none": "Схема тіркелмеген",
+  "booking_space_plan_emoji_only": "Баға тек emoji-де. Пішіндер — декор.",
+  "booking_space_plan_assign": "Қызметті тағайындау",
+  "booking_space_plan_no_emoji": "Схемада emoji жоқ — Resources-те (сайт) қосыңыз.",
+  "booking_space_plan_staff": "Шебер",
+  "booking_space_plan_no_staff": "Шеберсіз",
+  "booking_space_plan_clear": "Байланысты алу",
+  "booking_space_plan_mock_hint": "Mock · бэк жоқ · сурет тек сайтта",
+  "booking_space_plan_all_same": "Барлығына бірдей",
+  "booking_space_plan_apply_all": "Бір қызмет — схемадағы бірдей emoji-ге.",
+  "booking_space_plan_service_only": "Тек қызмет",
+  "booking_space_plan_service_staff": "Қызмет + шебер",
+  "booking_space_plan_guest_title": "Зал схемасы",
+  "booking_space_plan_guest_hint": "{host} · креслоны таңдаңыз",
+  "@booking_space_plan_guest_hint": {
+    "placeholders": {
+      "host": { "type": "String" }
+    }
+  },
+  "booking_space_plan_open_visual": "Залдағы орын",
+  "booking_space_plan_open_visual_sub": "Схемадан кресло таңдаңыз · қызмет келеді",
+  "booking_space_plan_tap_place": "Жоспардағы креслоны басыңыз",
+  "booking_space_plan_path_visual": "Схема арқылы",
+  "booking_space_plan_path_service": "Алдымен қызмет",
+  "booking_space_plan_next_date": "Келесі — күн мен уақыт",
+  "booking_space_plan_by_master": "{service} · {master}",
+  "@booking_space_plan_by_master": {
+    "placeholders": {
+      "service": { "type": "String" },
+      "master": { "type": "String" }
+    }
+  },
+  "booking_space_plan_continue": "Күн мен уақыт",
+  "booking_space_plan_continue_n": "Күн · {count}",
+  "@booking_space_plan_continue_n": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "booking_space_plan_selected_n": "{count} орын",
+  "@booking_space_plan_selected_n": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "booking_space_plan_clear_selection": "Тазалау",
+  "booking_space_plan_fit": "Кадрға",
+  "booking_space_plan_total": "Барлығы {amount} ₸",
+  "@booking_space_plan_total": {
+    "placeholders": {
+      "amount": { "type": "int" }
+    }
+  },
   "common_open": "Ашу",
   "common_refresh": "Жаңарту",
   "common_you": "Сіз",
@@ -2031,6 +2094,9 @@
   "catalog_location_save_failed": "Өзгерістерді сақтау мүмкін болмады",
   "catalog_location_delete_title": "Орналасқан жерді жою керек пе?",
   "catalog_location": "Орналасқан жер",
+  "entity_location_mock_banner": "Мекенжай міндетті · әзірге мок, бэкке жіберілмейді",
+  "entity_location_pick_hint": "Орынды таңдаңыз",
+  "entity_location_need_address": "Мекенжайды көрсетіңіз",
   "catalog_location_not_found": "Орын табылмады",
   "catalog_address_cyrillic": "Мекенжай (кириллица)",
   "catalog_address_hint": "Абай к., 150, Алматы (міндетті емес)",

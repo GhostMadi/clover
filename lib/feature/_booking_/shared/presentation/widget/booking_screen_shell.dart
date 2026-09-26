@@ -148,16 +148,16 @@ class BookingScreenShell extends StatelessWidget {
             isLoading: isLoading,
             onTap: onAddTap ?? () {},
           ),
-        if (showSave && (canSave || isLoading))
+        if (showSave)
           FunctionalButtonItem(
             icon: AppIcons.checkRounded.icon,
             label: resolvedSaveLabel,
             keepWhenCollapsed: true,
-            customColor: accent.cta,
-            iconColor: accent.ctaForeground,
-            textColor: accent.ctaForeground,
+            customColor: (canSave || isLoading) ? accent.cta : context.colors.surfaceSoft,
+            iconColor: (canSave || isLoading) ? accent.ctaForeground : context.colors.subTextColor,
+            textColor: (canSave || isLoading) ? accent.ctaForeground : context.colors.subTextColor,
             isLoading: isLoading,
-            onTap: onSaveTap ?? () {},
+            onTap: isLoading ? () {} : (onSaveTap ?? () {}),
           ),
         if (showServices)
           FunctionalButtonItem(

@@ -203,8 +203,19 @@ Like / dislike на постах; уведомления автору.
 Техника: `lib/feature/_booking_/` (в т.ч. `booking_team/`), `web/src/features/booking/`, [SPEC_BOOKING_SYSTEM.md](../supabase/SPEC_BOOKING_SYSTEM.md) · invite: [SPEC_BOOKING_STAFF_INVITE.md](../supabase/SPEC_BOOKING_STAFF_INVITE.md)
 
 ### 🟡 Бронь (билеты / места / схема)
-**Моки:** мобилка смотрит · **веб-рисовалка** на `/app/settings/venue` (фигуры, линии, цвета, JSON). Бэк / тег `venue` — ещё нет.  
+**Моки:** мобилка смотрит · рисовалка — **Ресурсы → Схемы** (legacy venue URL до редиректа). Бэк / тег `venue` — ещё нет.  
+Схема как справочник → **Ресурсы** (`space_plans`), при create **заведения** — опц. bind: [space-plan-resources.md](space-plan-resources.md).  
 Бизнес: [venue-seating.md](venue-seating.md) · код: `lib/feature/_venue_/` · `web/src/features/venue/`
+
+### 🟡 Схемы пространства в Ресурсах (mock web)
+Третий тип в хабе Ресурсов: рисуем только на сайте, мобилка смотрит; create/publish в localStorage.  
+Процесс COP + **ТЗ:** [space-plan-tz.md](space-plan-tz.md) · SPEC: [SPEC_SPACE_PLANS.md](../supabase/SPEC_SPACE_PLANS.md).  
+Бизнес: [space-plan-resources.md](space-plan-resources.md) · web: `/app/settings/resources/space-plans`
+
+### 🟡 Запись + схема: ценники на emoji (mock end-to-end)
+Схему рисуют в Ресурсах → вешают на точку → emoji `bookable` → услуга(+мастер).  
+Гость: схема **или** услуга → дата/слот → «Записаться». Бэка bind нет — очередь WP2–3 в ТЗ.  
+Бизнес: [space-plan-emoji-pricing.md](space-plan-emoji-pricing.md) · ТЗ: [space-plan-tz.md](space-plan-tz.md) · web: `/app/settings/booking/p/{id}/visual` · mobile: Записаться → схема
 
 ### 🟢 Бонусы
 Начисление и списание настраиваются на услуге; «Мои бонусы» у клиента.  
@@ -260,9 +271,9 @@ Enum + catalog: страны, города, теги без sync с бэка.
 Точку записи и компанию посещаемости нельзя создать без `location`; занятое место — только через перенос. Плюс фильтр постов по местоположению (иконка). **Код не начат.**  
 План: [entity-location-bind-plan.md](entity-location-bind-plan.md)
 
-### 🔴 Отзывы по точкам записи (план реализации)
-На точку; писать могут все (без гейта визита); один ответ хозяина, без веток; витрина = тег `feedback`.  
-План: [point-reviews-plan.md](point-reviews-plan.md) · mock: `lib/feature/_booking_/point_reviews/`
+### 🟡 Отзывы по точкам записи (mock UI + SPEC)
+На **профиль или адрес точки**; писать могут все (без гейта визита); вход с чужого профиля; один ответ хозяина; витрина = тег `feedback`; свой отзыв можно удалить. **Миграция ещё нет.**  
+План: [point-reviews-plan.md](point-reviews-plan.md) · бэк: [SPEC_POINT_REVIEWS.md](../supabase/SPEC_POINT_REVIEWS.md) · mock: `lib/feature/_booking_/point_reviews/`
 
 ---
 

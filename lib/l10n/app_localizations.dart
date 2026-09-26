@@ -5476,6 +5476,48 @@ abstract class AppLocalizations {
   /// **'Отправить отзыв'**
   String get booking_send_review;
 
+  /// No description provided for @booking_leave_review.
+  ///
+  /// In ru, this message translates to:
+  /// **'Оставить отзыв'**
+  String get booking_leave_review;
+
+  /// No description provided for @booking_review_target_label.
+  ///
+  /// In ru, this message translates to:
+  /// **'О чём отзыв'**
+  String get booking_review_target_label;
+
+  /// No description provided for @booking_review_target_hint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Профиль или адрес'**
+  String get booking_review_target_hint;
+
+  /// No description provided for @booking_review_target_profile.
+  ///
+  /// In ru, this message translates to:
+  /// **'Профиль'**
+  String get booking_review_target_profile;
+
+  /// No description provided for @booking_review_filter_all.
+  ///
+  /// In ru, this message translates to:
+  /// **'Все'**
+  String get booking_review_filter_all;
+
+  /// No description provided for @booking_reviews_empty.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пока нет отзывов'**
+  String get booking_reviews_empty;
+
+  /// No description provided for @booking_review_deleted.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отзыв удалён'**
+  String get booking_review_deleted;
+
   /// No description provided for @booking_demo_leave_review.
   ///
   /// In ru, this message translates to:
@@ -5529,6 +5571,186 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Ответить'**
   String get booking_reply_action;
+
+  /// No description provided for @booking_space_plan_title.
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема и ценники'**
+  String get booking_space_plan_title;
+
+  /// No description provided for @booking_space_plan_subtitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Emoji = прайс · услуга + мастер'**
+  String get booking_space_plan_subtitle;
+
+  /// No description provided for @booking_space_plan_pick.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выбрать схему'**
+  String get booking_space_plan_pick;
+
+  /// No description provided for @booking_space_plan_none.
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема не прикреплена'**
+  String get booking_space_plan_none;
+
+  /// No description provided for @booking_space_plan_emoji_only.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ценники только на emoji. Фигуры — декор.'**
+  String get booking_space_plan_emoji_only;
+
+  /// No description provided for @booking_space_plan_assign.
+  ///
+  /// In ru, this message translates to:
+  /// **'Назначить услугу'**
+  String get booking_space_plan_assign;
+
+  /// No description provided for @booking_space_plan_no_emoji.
+  ///
+  /// In ru, this message translates to:
+  /// **'На схеме нет emoji — добавьте смайлы в Ресурсах (сайт).'**
+  String get booking_space_plan_no_emoji;
+
+  /// No description provided for @booking_space_plan_staff.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мастер'**
+  String get booking_space_plan_staff;
+
+  /// No description provided for @booking_space_plan_no_staff.
+  ///
+  /// In ru, this message translates to:
+  /// **'Без мастера'**
+  String get booking_space_plan_no_staff;
+
+  /// No description provided for @booking_space_plan_clear.
+  ///
+  /// In ru, this message translates to:
+  /// **'Снять привязку'**
+  String get booking_space_plan_clear;
+
+  /// No description provided for @booking_space_plan_mock_hint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Mock · без бэка · рисунок только на сайте'**
+  String get booking_space_plan_mock_hint;
+
+  /// No description provided for @booking_space_plan_all_same.
+  ///
+  /// In ru, this message translates to:
+  /// **'Всем одинаковым'**
+  String get booking_space_plan_all_same;
+
+  /// No description provided for @booking_space_plan_apply_all.
+  ///
+  /// In ru, this message translates to:
+  /// **'Одна услуга всем одинаковым emoji на схеме.'**
+  String get booking_space_plan_apply_all;
+
+  /// No description provided for @booking_space_plan_service_only.
+  ///
+  /// In ru, this message translates to:
+  /// **'Только услуга'**
+  String get booking_space_plan_service_only;
+
+  /// No description provided for @booking_space_plan_service_staff.
+  ///
+  /// In ru, this message translates to:
+  /// **'Услуга + мастер'**
+  String get booking_space_plan_service_staff;
+
+  /// No description provided for @booking_space_plan_guest_title.
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема зала'**
+  String get booking_space_plan_guest_title;
+
+  /// No description provided for @booking_space_plan_guest_hint.
+  ///
+  /// In ru, this message translates to:
+  /// **'{host} · выберите кресло'**
+  String booking_space_plan_guest_hint(String host);
+
+  /// No description provided for @booking_space_plan_open_visual.
+  ///
+  /// In ru, this message translates to:
+  /// **'Место в зале'**
+  String get booking_space_plan_open_visual;
+
+  /// No description provided for @booking_space_plan_open_visual_sub.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выберите кресло на схеме · услуга подтянется'**
+  String get booking_space_plan_open_visual_sub;
+
+  /// No description provided for @booking_space_plan_tap_place.
+  ///
+  /// In ru, this message translates to:
+  /// **'Тапните кресло на плане'**
+  String get booking_space_plan_tap_place;
+
+  /// No description provided for @booking_space_plan_path_visual.
+  ///
+  /// In ru, this message translates to:
+  /// **'Через схему'**
+  String get booking_space_plan_path_visual;
+
+  /// No description provided for @booking_space_plan_path_service.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сначала услуга'**
+  String get booking_space_plan_path_service;
+
+  /// No description provided for @booking_space_plan_next_date.
+  ///
+  /// In ru, this message translates to:
+  /// **'Дальше — дата и время'**
+  String get booking_space_plan_next_date;
+
+  /// No description provided for @booking_space_plan_by_master.
+  ///
+  /// In ru, this message translates to:
+  /// **'{service} · {master}'**
+  String booking_space_plan_by_master(String service, String master);
+
+  /// No description provided for @booking_space_plan_continue.
+  ///
+  /// In ru, this message translates to:
+  /// **'К дате и времени'**
+  String get booking_space_plan_continue;
+
+  /// No description provided for @booking_space_plan_continue_n.
+  ///
+  /// In ru, this message translates to:
+  /// **'К дате · {count}'**
+  String booking_space_plan_continue_n(int count);
+
+  /// No description provided for @booking_space_plan_selected_n.
+  ///
+  /// In ru, this message translates to:
+  /// **'{count} мест'**
+  String booking_space_plan_selected_n(int count);
+
+  /// No description provided for @booking_space_plan_clear_selection.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сбросить'**
+  String get booking_space_plan_clear_selection;
+
+  /// No description provided for @booking_space_plan_fit.
+  ///
+  /// In ru, this message translates to:
+  /// **'В кадр'**
+  String get booking_space_plan_fit;
+
+  /// No description provided for @booking_space_plan_total.
+  ///
+  /// In ru, this message translates to:
+  /// **'Итого {amount} ₸'**
+  String booking_space_plan_total(int amount);
 
   /// No description provided for @common_open.
   ///
@@ -7749,6 +7971,24 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Местоположение'**
   String get catalog_location;
+
+  /// No description provided for @entity_location_mock_banner.
+  ///
+  /// In ru, this message translates to:
+  /// **'Адрес обязателен · пока мок, на бэк не уходит'**
+  String get entity_location_mock_banner;
+
+  /// No description provided for @entity_location_pick_hint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выберите местоположение'**
+  String get entity_location_pick_hint;
+
+  /// No description provided for @entity_location_need_address.
+  ///
+  /// In ru, this message translates to:
+  /// **'Укажите адрес'**
+  String get entity_location_need_address;
 
   /// No description provided for @catalog_location_not_found.
   ///

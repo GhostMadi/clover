@@ -24,6 +24,8 @@ UX как у посещаемости: сначала точка, потом д�
 ## Сущности
 
 - **Точка** (`booking_points`): `id`, `host_id`, `name` (ключ не локализуем — свободное имя хозяина).
+- Опц. **`space_plan_id`** — published схема из Ресурсов; без неё витрина только списком услуг. Детали: [space-plan-emoji-pricing.md](space-plan-emoji-pricing.md).
+- **Bind emoji** (на точке, не в JSON схемы): `node_id` → `service_id` + опц. `staff_id`.
 - Услуги: `booking_services.point_id` → точка.
 - Записи: фильтр на сайте через `service_id` ∈ услуги точки (пока без колонки на `bookings`).
 
@@ -71,6 +73,7 @@ Invite исполнителя — по-прежнему **DM** ([booking-staff-p
 - `point_id` на самой таблице `bookings`  
 - Клиентская витрина «только эта точка»  
 - **Обязательная привязка точки к местоположению** (Ресурсы) при создании + запрет удаления занятого места — план: [entity-location-bind-plan.md](entity-location-bind-plan.md) · **код не начат**  
+- SPEC bind схемы / emoji → услуга (мок уже есть): [space-plan-emoji-pricing.md](space-plan-emoji-pricing.md)  
 
 ## Мобилка
 

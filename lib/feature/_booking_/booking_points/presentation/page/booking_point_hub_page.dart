@@ -9,6 +9,8 @@ import 'package:clover/feature/_booking_/shared/presentation/booking_point_chat_
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_hub_nav_card.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_screen_shell.dart';
 import 'package:clover/feature/_booking_/shared/presentation/widget/booking_service_ui.dart';
+import 'package:clover/feature/_booking_/space_plan_bind/data/booking_space_plan_bind_mock.dart';
+import 'package:clover/feature/_booking_/space_plan_bind/presentation/page/booking_space_plan_bind_mock_page.dart';
 import 'package:flutter/material.dart';
 import 'package:clover/core/extension/context.dart';
 
@@ -119,6 +121,22 @@ class _BookingPointHubPageState extends State<BookingPointHubPage> {
               icon: AppIcons.designServices.icon,
               onTap: () => context.router.push(BookingCreateRoute(pointId: pointId)),
             ),
+            if (BookingSpacePlanBindMock.enabled)
+              BookingHubNavCard(
+                title: context.l10n.booking_space_plan_title,
+                subtitle: context.l10n.booking_space_plan_subtitle,
+                icon: AppIcons.locationOn.icon,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => BookingSpacePlanBindMockPage(
+                        pointId: pointId,
+                        pointName: _title,
+                      ),
+                    ),
+                  );
+                },
+              ),
             BookingHubNavCard(
               title: context.l10n.booking_team,
               subtitle: context.l10n.booking_team_subtitle,

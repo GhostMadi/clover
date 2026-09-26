@@ -19,10 +19,12 @@
 | Правила: **`clover-backend-feature`** (вход) · `clover-supabase-cycle` | Создание бэка фичи — всегда |
 | [booking_backend_spec.md](booking_backend_spec.md) | Запись (booking) |
 | [SPEC_BOOKING_SYSTEM.md](SPEC_BOOKING_SYSTEM.md) | Booking system |
+| [SPEC_SPACE_PLANS.md](SPEC_SPACE_PLANS.md) | Space plans resource + booking emoji binds (draft) |
 | [booking-points.md](booking-points.md) | Точки хозяина + schedule settings per point |
 | [SPEC_IN_APP_NOTIFICATIONS.md](SPEC_IN_APP_NOTIFICATIONS.md) | In-app уведомления (соц + запись) |
 | [SPEC_POSTS_AND_EVENTS.md](SPEC_POSTS_AND_EVENTS.md) | Публикации, ивенты, enriched RPC |
 | [SPEC_CONTENT_REPORTS.md](SPEC_CONTENT_REPORTS.md) | Жалобы UGC + фильтр блока в ленте/карте |
+| [SPEC_POINT_REVIEWS.md](SPEC_POINT_REVIEWS.md) | Отзывы витрины: профиль / точка (`point_reviews`) · продукт [point-reviews-plan.md](../business/point-reviews-plan.md) |
 | [SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md](SPEC_SUPABASE_SOCIAL_GRAPH_AND_ACCOUNT.md) | Соцграф / аккаунт |
 | [SPEC_EMAIL_AUTH.md](SPEC_EMAIL_AUTH.md) | Email OTP: Resend SMTP, DNS clover.com.kz, Flutter |
 | [SPEC_R2_DIRECT_UPLOAD.md](SPEC_R2_DIRECT_UPLOAD.md) | Cloudflare R2: presigned upload (`get-upload-url`) |
